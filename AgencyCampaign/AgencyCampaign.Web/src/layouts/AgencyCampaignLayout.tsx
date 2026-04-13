@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, Wallet } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, BanknoteArrowUp, BanknoteArrowDown } from 'lucide-react'
 
 export default function AgencyCampaignLayout() {
   const { user: authUser, contract, logout } = useAuth()
@@ -22,8 +22,8 @@ export default function AgencyCampaignLayout() {
       { key: 'campanhas', label: 'Campanhas', path: '/campanhas', icon: <Megaphone size={20} /> },
     ]),
     createMenuGroup('Finanças', [
-      { key: 'financeiro-receber', label: 'Contas a receber', path: '/financeiro/receber', icon: <Wallet size={20} /> },
-      { key: 'financeiro-pagar', label: 'Contas a pagar', path: '/financeiro/pagar', icon: <Wallet size={20} /> },
+      { key: 'financeiro-receber', label: 'Contas a receber', path: '/financeiro/receber', icon: <BanknoteArrowUp size={20} /> },
+      { key: 'financeiro-pagar', label: 'Contas a pagar', path: '/financeiro/pagar', icon: <BanknoteArrowDown size={20} /> },
     ]),
   ]
 
