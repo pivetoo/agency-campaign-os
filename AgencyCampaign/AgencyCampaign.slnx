@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Archon/">
+    <Project Path="../../../frameworks/archon-framework/Archon/Archon.Api/Archon.Api.csproj" />
+    <Project Path="../../../frameworks/archon-framework/Archon/Archon.Application/Archon.Application.csproj" />
+    <Project Path="../../../frameworks/archon-framework/Archon/Archon.Core/Archon.Core.csproj" />
+    <Project Path="../../../frameworks/archon-framework/Archon/Archon.Infrastructure/Archon.Infrastructure.csproj" />
+  </Folder>
+  <Project Path="AgencyCampaign.Api/AgencyCampaign.Api.csproj" />
+  <Project Path="AgencyCampaign.Application/AgencyCampaign.Application.csproj" />
+  <Project Path="AgencyCampaign.Domain/AgencyCampaign.Domain.csproj" />
+  <Project Path="AgencyCampaign.Infrastructure/AgencyCampaign.Infrastructure.csproj" />
+  <Project Path="AgencyCampaign.Testing/AgencyCampaign.Testing.csproj" />
+</Solution>
