@@ -1,25 +1,35 @@
-using Archon.Core.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Core.Entities;
 
 namespace AgencyCampaign.Domain.Entities
 {
     public sealed class CampaignDeliverable : Entity
     {
+        private readonly List<DeliverableApproval> approvals = [];
+
         public long CampaignId { get; private set; }
 
         public Campaign? Campaign { get; private set; }
 
-        public long CreatorId { get; private set; }
+        public long CampaignCreatorId { get; private set; }
 
-        public Creator? Creator { get; private set; }
+        public CampaignCreator? CampaignCreator { get; private set; }
 
         public string Title { get; private set; } = string.Empty;
 
         public string? Description { get; private set; }
 
+        public DeliverableType Type { get; private set; }
+
+        public SocialPlatform Platform { get; private set; }
+
         public DateTimeOffset DueAt { get; private set; }
 
         public DateTimeOffset? PublishedAt { get; private set; }
+
+        public string? PublishedUrl { get; private set; }
+
+        public string? EvidenceUrl { get; private set; }
 
         public DeliverableStatus Status { get; private set; } = DeliverableStatus.Pending;
 
@@ -29,30 +39,37 @@ namespace AgencyCampaign.Domain.Entities
 
         public decimal AgencyFeeAmount { get; private set; }
 
+        public string? Notes { get; private set; }
+
+        public IReadOnlyCollection<DeliverableApproval> Approvals => approvals.AsReadOnly();
+
         private CampaignDeliverable()
         {
         }
 
-        public CampaignDeliverable(long campaignId, long creatorId, string title, DateTimeOffset dueAt, decimal grossAmount, decimal creatorAmount, decimal agencyFeeAmount, string? description = null)
+        public CampaignDeliverable(long campaignId, long campaignCreatorId, string title, DeliverableType type, SocialPlatform platform, DateTimeOffset dueAt, decimal grossAmount, decimal creatorAmount, decimal agencyFeeAmount, string? description = null, string? notes = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignId);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(creatorId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignCreatorId);
             ArgumentException.ThrowIfNullOrWhiteSpace(title);
             ArgumentOutOfRangeException.ThrowIfNegative(grossAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(creatorAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(agencyFeeAmount);
 
             CampaignId = campaignId;
-            CreatorId = creatorId;
+            CampaignCreatorId = campaignCreatorId;
             Title = title.Trim();
-            Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+            Description = Normalize(description);
+            Type = type;
+            Platform = platform;
             DueAt = dueAt.ToUniversalTime();
             GrossAmount = grossAmount;
             CreatorAmount = creatorAmount;
             AgencyFeeAmount = agencyFeeAmount;
+            Notes = Normalize(notes);
         }
 
-        public void Update(string title, DateTimeOffset dueAt, decimal grossAmount, decimal creatorAmount, decimal agencyFeeAmount, string? description)
+        public void Update(string title, DeliverableType type, SocialPlatform platform, DateTimeOffset dueAt, decimal grossAmount, decimal creatorAmount, decimal agencyFeeAmount, string? description, string? notes)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(title);
             ArgumentOutOfRangeException.ThrowIfNegative(grossAmount);
@@ -60,17 +77,45 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentOutOfRangeException.ThrowIfNegative(agencyFeeAmount);
 
             Title = title.Trim();
-            Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+            Description = Normalize(description);
+            Type = type;
+            Platform = platform;
             DueAt = dueAt.ToUniversalTime();
             GrossAmount = grossAmount;
             CreatorAmount = creatorAmount;
             AgencyFeeAmount = agencyFeeAmount;
+            Notes = Normalize(notes);
         }
 
-        public void ChangeStatus(DeliverableStatus status, DateTimeOffset? publishedAt = null)
+        public void Publish(string publishedUrl, string? evidenceUrl, DateTimeOffset publishedAt)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(publishedUrl);
+
+            PublishedUrl = publishedUrl.Trim();
+            EvidenceUrl = Normalize(evidenceUrl);
+            PublishedAt = publishedAt.ToUniversalTime();
+            Status = DeliverableStatus.Published;
+        }
+
+        public void UpdateEvidence(string? evidenceUrl)
+        {
+            EvidenceUrl = Normalize(evidenceUrl);
+        }
+
+        public void ChangeStatus(DeliverableStatus status)
         {
             Status = status;
-            PublishedAt = status == DeliverableStatus.Published ? publishedAt?.ToUniversalTime() : null;
+
+            if (status != DeliverableStatus.Published)
+            {
+                PublishedAt = null;
+                PublishedUrl = null;
+            }
+        }
+
+        private static string? Normalize(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
         }
     }
 }

@@ -17,6 +17,15 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Description)
                 .HasMaxLength(1000);
 
+            builder.Property(entity => entity.PublishedUrl)
+                .HasMaxLength(1000);
+
+            builder.Property(entity => entity.EvidenceUrl)
+                .HasMaxLength(1000);
+
+            builder.Property(entity => entity.Notes)
+                .HasMaxLength(1000);
+
             builder.Property(entity => entity.GrossAmount)
                 .HasPrecision(18, 2);
 
@@ -31,9 +40,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey(entity => entity.CampaignId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(entity => entity.Creator)
-                .WithMany()
-                .HasForeignKey(entity => entity.CreatorId)
+            builder.HasOne(entity => entity.CampaignCreator)
+                .WithMany(entity => entity.Deliverables)
+                .HasForeignKey(entity => entity.CampaignCreatorId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

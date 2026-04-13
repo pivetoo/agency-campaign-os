@@ -10,15 +10,23 @@ namespace AgencyCampaign.Api.Contracts.CampaignDeliverables
 
         public long CampaignId { get; init; }
 
-        public long CreatorId { get; init; }
+        public long CampaignCreatorId { get; init; }
 
         public string Title { get; init; } = string.Empty;
 
         public string? Description { get; init; }
 
+        public DeliverableType Type { get; init; }
+
+        public SocialPlatform Platform { get; init; }
+
         public DateTimeOffset DueAt { get; init; }
 
         public DateTimeOffset? PublishedAt { get; init; }
+
+        public string? PublishedUrl { get; init; }
+
+        public string? EvidenceUrl { get; init; }
 
         public DeliverableStatus Status { get; init; }
 
@@ -28,9 +36,11 @@ namespace AgencyCampaign.Api.Contracts.CampaignDeliverables
 
         public decimal AgencyFeeAmount { get; init; }
 
+        public string? Notes { get; init; }
+
         public CampaignReferenceContract? Campaign { get; init; }
 
-        public CreatorReferenceContract? Creator { get; init; }
+        public CampaignCreatorReferenceContract? CampaignCreator { get; init; }
 
         public DateTimeOffset CreatedAt { get; init; }
 
@@ -40,15 +50,20 @@ namespace AgencyCampaign.Api.Contracts.CampaignDeliverables
         {
             Id = item.Id,
             CampaignId = item.CampaignId,
-            CreatorId = item.CreatorId,
+            CampaignCreatorId = item.CampaignCreatorId,
             Title = item.Title,
             Description = item.Description,
+            Type = item.Type,
+            Platform = item.Platform,
             DueAt = item.DueAt,
             PublishedAt = item.PublishedAt,
+            PublishedUrl = item.PublishedUrl,
+            EvidenceUrl = item.EvidenceUrl,
             Status = item.Status,
             GrossAmount = item.GrossAmount,
             CreatorAmount = item.CreatorAmount,
             AgencyFeeAmount = item.AgencyFeeAmount,
+            Notes = item.Notes,
             Campaign = item.Campaign == null
                 ? null
                 : new CampaignReferenceContract
@@ -56,12 +71,14 @@ namespace AgencyCampaign.Api.Contracts.CampaignDeliverables
                     Id = item.Campaign.Id,
                     Name = item.Campaign.Name
                 },
-            Creator = item.Creator == null
+            CampaignCreator = item.CampaignCreator == null
                 ? null
-                : new CreatorReferenceContract
+                : new CampaignCreatorReferenceContract
                 {
-                    Id = item.Creator.Id,
-                    Name = item.Creator.Name
+                    Id = item.CampaignCreator.Id,
+                    CreatorId = item.CampaignCreator.CreatorId,
+                    CreatorName = item.CampaignCreator.Creator == null ? string.Empty : item.CampaignCreator.Creator.Name,
+                    StageName = item.CampaignCreator.Creator == null ? null : item.CampaignCreator.Creator.StageName
                 },
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
@@ -75,10 +92,14 @@ namespace AgencyCampaign.Api.Contracts.CampaignDeliverables
         public string Name { get; init; } = string.Empty;
     }
 
-    public sealed class CreatorReferenceContract
+    public sealed class CampaignCreatorReferenceContract
     {
         public long Id { get; init; }
 
-        public string Name { get; init; } = string.Empty;
+        public long CreatorId { get; init; }
+
+        public string CreatorName { get; init; } = string.Empty;
+
+        public string? StageName { get; init; }
     }
 }

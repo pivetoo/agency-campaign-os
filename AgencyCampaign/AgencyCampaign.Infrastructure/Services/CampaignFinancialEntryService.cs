@@ -47,9 +47,13 @@ namespace AgencyCampaign.Infrastructure.Services
             CampaignFinancialEntry entry = new(
                 request.CampaignId,
                 request.Type,
+                request.Category,
                 request.Description,
                 request.Amount,
                 request.DueAt,
+                request.OccurredAt,
+                request.PaymentMethod,
+                request.ReferenceCode,
                 request.CounterpartyName,
                 request.Notes,
                 request.CampaignDeliverableId);
@@ -83,7 +87,19 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await EnsureReferencesExist(entry.CampaignId, request.CampaignDeliverableId, cancellationToken);
 
-            entry.Update(request.Type, request.Description, request.Amount, request.DueAt, request.CounterpartyName, request.Notes, request.CampaignDeliverableId);
+            entry.Update(
+                request.Type,
+                request.Category,
+                request.Description,
+                request.Amount,
+                request.DueAt,
+                request.OccurredAt,
+                request.PaymentMethod,
+                request.ReferenceCode,
+                request.CounterpartyName,
+                request.Notes,
+                request.CampaignDeliverableId);
+
             entry.ChangeStatus(request.Status, request.PaidAt);
 
             CampaignFinancialEntry? result = await Update(entry, cancellationToken);

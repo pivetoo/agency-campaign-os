@@ -2,6 +2,7 @@ using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CampaignDeliverables;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -42,19 +43,22 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<CampaignDeliverable> CreateDeliverable(CreateCampaignDeliverableRequest request, CancellationToken cancellationToken = default)
         {
-            await EnsureReferencesExist(request.CampaignId, request.CreatorId, cancellationToken);
+            await EnsureReferencesExist(request.CampaignId, request.CampaignCreatorId, cancellationToken);
 
             CampaignDeliverable deliverable = new(
                 request.CampaignId,
-                request.CreatorId,
+                request.CampaignCreatorId,
                 request.Title,
+                request.Type,
+                request.Platform,
                 request.DueAt,
                 request.GrossAmount,
                 request.CreatorAmount,
                 request.AgencyFeeAmount,
-                request.Description);
+                request.Description,
+                request.Notes);
 
-            deliverable.ChangeStatus(request.Status, request.PublishedAt);
+            ApplyPublishing(deliverable, request.Status, request.PublishedUrl, request.EvidenceUrl);
 
             bool success = await Insert(cancellationToken, deliverable);
             if (!success)
@@ -81,8 +85,18 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
 
-            deliverable.Update(request.Title, request.DueAt, request.GrossAmount, request.CreatorAmount, request.AgencyFeeAmount, request.Description);
-            deliverable.ChangeStatus(request.Status, request.PublishedAt);
+            deliverable.Update(
+                request.Title,
+                request.Type,
+                request.Platform,
+                request.DueAt,
+                request.GrossAmount,
+                request.CreatorAmount,
+                request.AgencyFeeAmount,
+                request.Description,
+                request.Notes);
+
+            ApplyPublishing(deliverable, request.Status, request.PublishedUrl, request.EvidenceUrl);
 
             CampaignDeliverable? result = await Update(deliverable, cancellationToken);
             if (result is null)
@@ -110,7 +124,7 @@ namespace AgencyCampaign.Infrastructure.Services
             return await Delete([deliverable], cancellationToken) ? deliverable : null;
         }
 
-        private async Task EnsureReferencesExist(long campaignId, long creatorId, CancellationToken cancellationToken)
+        private async Task EnsureReferencesExist(long campaignId, long campaignCreatorId, CancellationToken cancellationToken)
         {
             bool campaignExists = await DbContext.Set<Campaign>()
                 .AsNoTracking()
@@ -121,22 +135,41 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
 
-            bool creatorExists = await DbContext.Set<Creator>()
+            bool campaignCreatorExists = await DbContext.Set<CampaignCreator>()
                 .AsNoTracking()
-                .AnyAsync(item => item.Id == creatorId, cancellationToken);
+                .AnyAsync(item => item.Id == campaignCreatorId && item.CampaignId == campaignId, cancellationToken);
 
-            if (!creatorExists)
+            if (!campaignCreatorExists)
             {
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
+        }
+
+        private void ApplyPublishing(CampaignDeliverable deliverable, DeliverableStatus status, string? publishedUrl, string? evidenceUrl)
+        {
+            if (status == DeliverableStatus.Published)
+            {
+                if (string.IsNullOrWhiteSpace(publishedUrl))
+                {
+                    throw new InvalidOperationException(localizer["deliverable.publishedUrl.required"]);
+                }
+
+                deliverable.Publish(publishedUrl, evidenceUrl, DateTimeOffset.UtcNow);
+                return;
+            }
+
+            deliverable.ChangeStatus(status);
+            deliverable.UpdateEvidence(evidenceUrl);
         }
 
         private IQueryable<CampaignDeliverable> QueryWithDetails()
         {
             return DbContext.Set<CampaignDeliverable>()
                 .AsNoTracking()
-                .Include(item => item.Creator)
-                .Include(item => item.Campaign);
+                .Include(item => item.Campaign)
+                .Include(item => item.CampaignCreator!)
+                    .ThenInclude(item => item.Creator)
+                .Include(item => item.Approvals);
         }
     }
 }

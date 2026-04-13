@@ -37,7 +37,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Brand> CreateBrand(CreateBrandRequest request, CancellationToken cancellationToken = default)
         {
-            Brand brand = new(request.Name, request.ContactName, request.ContactEmail);
+            Brand brand = new(request.Name, request.TradeName, request.Document, request.ContactName, request.ContactEmail, request.Notes);
             bool success = await Insert(cancellationToken, brand);
             if (!success)
             {
@@ -63,7 +63,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
 
-            brand.Update(request.Name, request.ContactName, request.ContactEmail, request.IsActive);
+            brand.Update(request.Name, request.TradeName, request.Document, request.ContactName, request.ContactEmail, request.Notes, request.IsActive);
 
             Brand? result = await Update(brand, cancellationToken);
             if (result is null)

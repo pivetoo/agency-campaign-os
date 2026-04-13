@@ -1,3 +1,5 @@
+using AgencyCampaign.Domain.ValueObjects;
+
 namespace AgencyCampaign.Application.Models.Campaigns
 {
     public sealed class CampaignSummaryModel
@@ -10,13 +12,21 @@ namespace AgencyCampaign.Application.Models.Campaigns
 
         public string BrandName { get; init; } = string.Empty;
 
+        public CampaignStatus Status { get; init; }
+
         public decimal Budget { get; init; }
+
+        public int CampaignCreatorsCount { get; init; }
+
+        public int ConfirmedCampaignCreatorsCount { get; init; }
 
         public int DeliverablesCount { get; init; }
 
         public int PendingDeliverablesCount { get; init; }
 
         public int PublishedDeliverablesCount { get; init; }
+
+        public int PendingApprovalsCount { get; init; }
 
         public decimal GrossAmountTotal { get; init; }
 

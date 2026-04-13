@@ -14,11 +14,19 @@ namespace AgencyCampaign.Api.Contracts.CampaignFinancialEntries
 
         public CampaignFinancialEntryType Type { get; init; }
 
+        public CampaignFinancialEntryCategory Category { get; init; }
+
         public string Description { get; init; } = string.Empty;
 
         public decimal Amount { get; init; }
 
         public DateTimeOffset DueAt { get; init; }
+
+        public DateTimeOffset OccurredAt { get; init; }
+
+        public string? PaymentMethod { get; init; }
+
+        public string? ReferenceCode { get; init; }
 
         public DateTimeOffset? PaidAt { get; init; }
 
@@ -38,9 +46,13 @@ namespace AgencyCampaign.Api.Contracts.CampaignFinancialEntries
             CampaignId = item.CampaignId,
             CampaignDeliverableId = item.CampaignDeliverableId,
             Type = item.Type,
+            Category = item.Category,
             Description = item.Description,
             Amount = item.Amount,
             DueAt = item.DueAt,
+            OccurredAt = item.OccurredAt,
+            PaymentMethod = item.PaymentMethod,
+            ReferenceCode = item.ReferenceCode,
             PaidAt = item.PaidAt,
             Status = item.Status,
             CounterpartyName = item.CounterpartyName,

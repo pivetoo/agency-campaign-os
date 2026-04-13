@@ -9,6 +9,8 @@ namespace AgencyCampaign.Api.Contracts.Creators
 
         public string Name { get; init; } = string.Empty;
 
+        public string? StageName { get; init; }
+
         public string? Email { get; init; }
 
         public string? Phone { get; init; }
@@ -16,6 +18,14 @@ namespace AgencyCampaign.Api.Contracts.Creators
         public string? Document { get; init; }
 
         public string? PixKey { get; init; }
+
+        public string? PrimaryNiche { get; init; }
+
+        public string? City { get; init; }
+
+        public string? State { get; init; }
+
+        public string? Notes { get; init; }
 
         public bool IsActive { get; init; }
 
@@ -27,10 +37,15 @@ namespace AgencyCampaign.Api.Contracts.Creators
         {
             Id = item.Id,
             Name = item.Name,
+            StageName = item.StageName,
             Email = item.Email,
             Phone = item.Phone,
             Document = item.Document,
             PixKey = item.PixKey,
+            PrimaryNiche = item.PrimaryNiche,
+            City = item.City,
+            State = item.State,
+            Notes = item.Notes,
             IsActive = item.IsActive,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt

@@ -15,11 +15,19 @@ namespace AgencyCampaign.Domain.Entities
 
         public CampaignFinancialEntryType Type { get; private set; }
 
+        public CampaignFinancialEntryCategory Category { get; private set; }
+
         public string Description { get; private set; } = string.Empty;
 
         public decimal Amount { get; private set; }
 
         public DateTimeOffset DueAt { get; private set; }
+
+        public DateTimeOffset OccurredAt { get; private set; }
+
+        public string? PaymentMethod { get; private set; }
+
+        public string? ReferenceCode { get; private set; }
 
         public DateTimeOffset? PaidAt { get; private set; }
 
@@ -33,7 +41,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public CampaignFinancialEntry(long campaignId, CampaignFinancialEntryType type, string description, decimal amount, DateTimeOffset dueAt, string? counterpartyName = null, string? notes = null, long? campaignDeliverableId = null)
+        public CampaignFinancialEntry(long campaignId, CampaignFinancialEntryType type, CampaignFinancialEntryCategory category, string description, decimal amount, DateTimeOffset dueAt, DateTimeOffset occurredAt, string? paymentMethod = null, string? referenceCode = null, string? counterpartyName = null, string? notes = null, long? campaignDeliverableId = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignId);
             ArgumentException.ThrowIfNullOrWhiteSpace(description);
@@ -42,24 +50,32 @@ namespace AgencyCampaign.Domain.Entities
             CampaignId = campaignId;
             CampaignDeliverableId = campaignDeliverableId;
             Type = type;
+            Category = category;
             Description = description.Trim();
             Amount = amount;
             DueAt = dueAt.ToUniversalTime();
-            CounterpartyName = string.IsNullOrWhiteSpace(counterpartyName) ? null : counterpartyName.Trim();
-            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
+            OccurredAt = occurredAt.ToUniversalTime();
+            PaymentMethod = Normalize(paymentMethod);
+            ReferenceCode = Normalize(referenceCode);
+            CounterpartyName = Normalize(counterpartyName);
+            Notes = Normalize(notes);
         }
 
-        public void Update(CampaignFinancialEntryType type, string description, decimal amount, DateTimeOffset dueAt, string? counterpartyName, string? notes, long? campaignDeliverableId)
+        public void Update(CampaignFinancialEntryType type, CampaignFinancialEntryCategory category, string description, decimal amount, DateTimeOffset dueAt, DateTimeOffset occurredAt, string? paymentMethod, string? referenceCode, string? counterpartyName, string? notes, long? campaignDeliverableId)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(description);
             ArgumentOutOfRangeException.ThrowIfNegative(amount);
 
             Type = type;
+            Category = category;
             Description = description.Trim();
             Amount = amount;
             DueAt = dueAt.ToUniversalTime();
-            CounterpartyName = string.IsNullOrWhiteSpace(counterpartyName) ? null : counterpartyName.Trim();
-            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
+            OccurredAt = occurredAt.ToUniversalTime();
+            PaymentMethod = Normalize(paymentMethod);
+            ReferenceCode = Normalize(referenceCode);
+            CounterpartyName = Normalize(counterpartyName);
+            Notes = Normalize(notes);
             CampaignDeliverableId = campaignDeliverableId;
         }
 
@@ -67,6 +83,11 @@ namespace AgencyCampaign.Domain.Entities
         {
             Status = status;
             PaidAt = status == CampaignFinancialEntryStatus.Paid ? paidAt?.ToUniversalTime() : null;
+        }
+
+        private static string? Normalize(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
         }
     }
 }

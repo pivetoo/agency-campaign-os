@@ -9,6 +9,9 @@ namespace AgencyCampaign.Application.Requests.Creators
         public string Name { get; set; } = string.Empty;
 
         [StringLength(150)]
+        public string? StageName { get; set; }
+
+        [StringLength(150)]
         [EmailAddress]
         public string? Email { get; set; }
 
@@ -20,5 +23,17 @@ namespace AgencyCampaign.Application.Requests.Creators
 
         [StringLength(150)]
         public string? PixKey { get; set; }
+
+        [StringLength(120)]
+        public string? PrimaryNiche { get; set; }
+
+        [StringLength(120)]
+        public string? City { get; set; }
+
+        [StringLength(50)]
+        public string? State { get; set; }
+
+        [StringLength(1000)]
+        public string? Notes { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using AgencyCampaign.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 
 namespace AgencyCampaign.Application.Requests.Campaigns
@@ -15,6 +16,12 @@ namespace AgencyCampaign.Application.Requests.Campaigns
         [StringLength(1000)]
         public string? Description { get; set; }
 
+        [StringLength(500)]
+        public string? Objective { get; set; }
+
+        [StringLength(4000)]
+        public string? Briefing { get; set; }
+
         [Range(0, double.MaxValue)]
         public decimal Budget { get; set; }
 
@@ -22,5 +29,13 @@ namespace AgencyCampaign.Application.Requests.Campaigns
         public DateTimeOffset StartsAt { get; set; }
 
         public DateTimeOffset? EndsAt { get; set; }
+
+        [StringLength(150)]
+        public string? InternalOwnerName { get; set; }
+
+        [StringLength(1000)]
+        public string? Notes { get; set; }
+
+        public CampaignStatus Status { get; set; } = CampaignStatus.Draft;
     }
 }

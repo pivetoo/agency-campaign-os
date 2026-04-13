@@ -30,4 +30,13 @@
   <data name="request.route.idMismatch" xml:space="preserve">
     <value>El identificador informado en la ruta es diferente del cuerpo de la solicitud.</value>
   </data>
+  <data name="deliverable.publishedUrl.required" xml:space="preserve">
+    <value>La URL de publicación es obligatoria para entregas publicadas.</value>
+  </data>
+  <data name="campaignCreator.duplicate" xml:space="preserve">
+    <value>El creator ya está vinculado a esta campaña.</value>
+  </data>
+  <data name="deliverableApproval.duplicateType" xml:space="preserve">
+    <value>Ya existe una aprobación de este tipo para la entrega informada.</value>
+  </data>
 </root>

@@ -14,6 +14,12 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(200);
 
+            builder.Property(entity => entity.PaymentMethod)
+                .HasMaxLength(100);
+
+            builder.Property(entity => entity.ReferenceCode)
+                .HasMaxLength(100);
+
             builder.Property(entity => entity.CounterpartyName)
                 .HasMaxLength(150);
 

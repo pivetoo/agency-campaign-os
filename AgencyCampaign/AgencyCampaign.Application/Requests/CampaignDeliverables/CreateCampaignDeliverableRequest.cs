@@ -6,10 +6,12 @@ namespace AgencyCampaign.Application.Requests.CampaignDeliverables
     public sealed class CreateCampaignDeliverableRequest
     {
         [Required]
+        [Range(1, long.MaxValue)]
         public long CampaignId { get; set; }
 
         [Required]
-        public long CreatorId { get; set; }
+        [Range(1, long.MaxValue)]
+        public long CampaignCreatorId { get; set; }
 
         [Required]
         [StringLength(150, MinimumLength = 2)]
@@ -19,12 +21,25 @@ namespace AgencyCampaign.Application.Requests.CampaignDeliverables
         public string? Description { get; set; }
 
         [Required]
-        public DateTimeOffset DueAt { get; set; }
+        public DeliverableType Type { get; set; }
 
-        public DateTimeOffset? PublishedAt { get; set; }
+        [Required]
+        public SocialPlatform Platform { get; set; }
+
+        [Required]
+        public DateTimeOffset DueAt { get; set; }
 
         [Required]
         public DeliverableStatus Status { get; set; } = DeliverableStatus.Pending;
+
+        [StringLength(1000)]
+        public string? PublishedUrl { get; set; }
+
+        [StringLength(1000)]
+        public string? EvidenceUrl { get; set; }
+
+        [StringLength(1000)]
+        public string? Notes { get; set; }
 
         [Range(0, double.MaxValue)]
         public decimal GrossAmount { get; set; }

@@ -16,12 +16,25 @@ namespace AgencyCampaign.Application.Requests.CampaignDeliverables
         public string? Description { get; set; }
 
         [Required]
-        public DateTimeOffset DueAt { get; set; }
+        public DeliverableType Type { get; set; }
 
-        public DateTimeOffset? PublishedAt { get; set; }
+        [Required]
+        public SocialPlatform Platform { get; set; }
+
+        [Required]
+        public DateTimeOffset DueAt { get; set; }
 
         [Required]
         public DeliverableStatus Status { get; set; } = DeliverableStatus.Pending;
+
+        [StringLength(1000)]
+        public string? PublishedUrl { get; set; }
+
+        [StringLength(1000)]
+        public string? EvidenceUrl { get; set; }
+
+        [StringLength(1000)]
+        public string? Notes { get; set; }
 
         [Range(0, double.MaxValue)]
         public decimal GrossAmount { get; set; }

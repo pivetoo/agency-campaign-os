@@ -14,11 +14,20 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(150);
 
+            builder.Property(entity => entity.TradeName)
+                .HasMaxLength(150);
+
+            builder.Property(entity => entity.Document)
+                .HasMaxLength(30);
+
             builder.Property(entity => entity.ContactName)
                 .HasMaxLength(100);
 
             builder.Property(entity => entity.ContactEmail)
                 .HasMaxLength(150);
+
+            builder.Property(entity => entity.Notes)
+                .HasMaxLength(1000);
         }
     }
 }

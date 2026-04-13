@@ -15,6 +15,9 @@ namespace AgencyCampaign.Application.Requests.CampaignFinancialEntries
         public CampaignFinancialEntryType Type { get; set; }
 
         [Required]
+        public CampaignFinancialEntryCategory Category { get; set; }
+
+        [Required]
         [StringLength(200, MinimumLength = 2)]
         public string Description { get; set; } = string.Empty;
 
@@ -23,6 +26,15 @@ namespace AgencyCampaign.Application.Requests.CampaignFinancialEntries
 
         [Required]
         public DateTimeOffset DueAt { get; set; }
+
+        [Required]
+        public DateTimeOffset OccurredAt { get; set; }
+
+        [StringLength(100)]
+        public string? PaymentMethod { get; set; }
+
+        [StringLength(100)]
+        public string? ReferenceCode { get; set; }
 
         public DateTimeOffset? PaidAt { get; set; }
 

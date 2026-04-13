@@ -39,7 +39,20 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             await EnsureBrandExists(request.BrandId, cancellationToken);
 
-            Campaign campaign = new(request.BrandId, request.Name, request.Budget, request.StartsAt, request.Description, request.EndsAt);
+            Campaign campaign = new(
+                request.BrandId,
+                request.Name,
+                request.Budget,
+                request.StartsAt,
+                request.Description,
+                request.Objective,
+                request.Briefing,
+                request.EndsAt,
+                request.InternalOwnerName,
+                request.Notes);
+
+            campaign.ChangeStatus(request.Status);
+
             bool success = await Insert(cancellationToken, campaign);
             if (!success)
             {
@@ -67,7 +80,19 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await EnsureBrandExists(request.BrandId, cancellationToken);
 
-            campaign.Update(request.BrandId, request.Name, request.Budget, request.StartsAt, request.EndsAt, request.Description, request.IsActive);
+            campaign.Update(
+                request.BrandId,
+                request.Name,
+                request.Budget,
+                request.StartsAt,
+                request.EndsAt,
+                request.Description,
+                request.Objective,
+                request.Briefing,
+                request.Status,
+                request.InternalOwnerName,
+                request.Notes,
+                request.IsActive);
 
             Campaign? result = await Update(campaign, cancellationToken);
             if (result is null)
@@ -90,9 +115,19 @@ namespace AgencyCampaign.Infrastructure.Services
                 return null;
             }
 
+            List<CampaignCreator> campaignCreators = await DbContext.Set<CampaignCreator>()
+                .AsNoTracking()
+                .Where(item => item.CampaignId == id)
+                .ToListAsync(cancellationToken);
+
             List<CampaignDeliverable> deliverables = await DbContext.Set<CampaignDeliverable>()
                 .AsNoTracking()
                 .Where(item => item.CampaignId == id)
+                .ToListAsync(cancellationToken);
+
+            List<DeliverableApproval> approvals = await DbContext.Set<DeliverableApproval>()
+                .AsNoTracking()
+                .Where(item => deliverables.Select(deliverable => deliverable.Id).Contains(item.CampaignDeliverableId))
                 .ToListAsync(cancellationToken);
 
             decimal grossAmountTotal = deliverables.Sum(item => item.GrossAmount);
@@ -105,10 +140,14 @@ namespace AgencyCampaign.Infrastructure.Services
                 CampaignName = campaign.Name,
                 BrandId = campaign.BrandId,
                 BrandName = campaign.Brand?.Name ?? string.Empty,
+                Status = campaign.Status,
                 Budget = campaign.Budget,
+                CampaignCreatorsCount = campaignCreators.Count,
+                ConfirmedCampaignCreatorsCount = campaignCreators.Count(item => item.Status == CampaignCreatorStatus.Confirmed || item.Status == CampaignCreatorStatus.InExecution || item.Status == CampaignCreatorStatus.Delivered),
                 DeliverablesCount = deliverables.Count,
                 PendingDeliverablesCount = deliverables.Count(item => item.Status == DeliverableStatus.Pending || item.Status == DeliverableStatus.InReview),
                 PublishedDeliverablesCount = deliverables.Count(item => item.Status == DeliverableStatus.Published),
+                PendingApprovalsCount = approvals.Count(item => item.Status == DeliverableApprovalStatus.Pending),
                 GrossAmountTotal = grossAmountTotal,
                 CreatorAmountTotal = creatorAmountTotal,
                 AgencyFeeAmountTotal = agencyFeeAmountTotal,

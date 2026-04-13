@@ -14,6 +14,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(150);
 
+            builder.Property(entity => entity.StageName)
+                .HasMaxLength(150);
+
             builder.Property(entity => entity.Email)
                 .HasMaxLength(150);
 
@@ -25,6 +28,18 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
 
             builder.Property(entity => entity.PixKey)
                 .HasMaxLength(150);
+
+            builder.Property(entity => entity.PrimaryNiche)
+                .HasMaxLength(120);
+
+            builder.Property(entity => entity.City)
+                .HasMaxLength(120);
+
+            builder.Property(entity => entity.State)
+                .HasMaxLength(50);
+
+            builder.Property(entity => entity.Notes)
+                .HasMaxLength(1000);
         }
     }
 }
