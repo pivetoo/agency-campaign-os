@@ -1,4 +1,5 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Requests.CampaignDeliverables;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using Archon.Api.Attributes;
@@ -47,6 +48,42 @@ namespace AgencyCampaign.Api.Controllers
 
             List<CampaignDeliverable> deliverables = await campaignDeliverableService.GetByCampaign(campaignId, cancellationToken);
             return Http200(deliverables);
+        }
+
+        [RequireAccess("Permite cadastrar uma nova entrega de campanha.")]
+        [PostEndpoint("[action]")]
+        public async Task<IActionResult> Create([FromBody] CreateCampaignDeliverableRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            CampaignDeliverable deliverable = await campaignDeliverableService.CreateDeliverable(request, cancellationToken);
+            return Http201(deliverable, Localizer["record.created"]);
+        }
+
+        [RequireAccess("Permite atualizar os dados de uma entrega de campanha.")]
+        [PutEndpoint("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] UpdateCampaignDeliverableRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            CampaignDeliverable deliverable = await campaignDeliverableService.UpdateDeliverable(id, request, cancellationToken);
+            return Http200(deliverable, Localizer["record.updated"]);
+        }
+
+        [RequireAccess("Permite excluir uma entrega de campanha.")]
+        [DeleteEndpoint("{id:long}")]
+        public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+        {
+            CampaignDeliverable? deliverable = await campaignDeliverableService.Delete(id, cancellationToken);
+            return deliverable is null ? Http404(Localizer["record.notFound"]) : Http200(deliverable, Localizer["record.deleted"]);
         }
     }
 }
