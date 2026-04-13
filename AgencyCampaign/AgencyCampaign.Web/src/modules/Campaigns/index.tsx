@@ -100,13 +100,15 @@ export default function Campaigns() {
 
               <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
                 <SheetPreviewSection title="Dados gerais" description="Informações principais da campanha">
-                  <SheetPreviewGrid>
-                    <SheetPreviewField label="Marca" value={previewCampaign.brand?.name || '-'} />
-                    <SheetPreviewField label="Budget" value={`R$ ${previewCampaign.budget.toFixed(2)}`} />
-                    <SheetPreviewField label="Início" value={new Date(previewCampaign.startsAt).toLocaleDateString('pt-BR')} />
-                    <SheetPreviewField label="Fim" value={previewCampaign.endsAt ? new Date(previewCampaign.endsAt).toLocaleDateString('pt-BR') : '-'} />
-                    <SheetPreviewField className="sm:col-span-2" label="Descrição" value={previewCampaign.description || '-'} />
-                  </SheetPreviewGrid>
+                  <div className="space-y-4">
+                    <SheetPreviewGrid>
+                      <SheetPreviewField label="Marca" value={previewCampaign.brand?.name || '-'} />
+                      <SheetPreviewField label="Budget" value={`R$ ${previewCampaign.budget.toFixed(2)}`} />
+                      <SheetPreviewField label="Início" value={new Date(previewCampaign.startsAt).toLocaleDateString('pt-BR')} />
+                      <SheetPreviewField label="Fim" value={previewCampaign.endsAt ? new Date(previewCampaign.endsAt).toLocaleDateString('pt-BR') : '-'} />
+                    </SheetPreviewGrid>
+                    <SheetPreviewField label="Descrição" value={previewCampaign.description || '-'} />
+                  </div>
                 </SheetPreviewSection>
 
                 <SheetPreviewSection title="Resumo operacional" description="Indicadores atuais da campanha">
