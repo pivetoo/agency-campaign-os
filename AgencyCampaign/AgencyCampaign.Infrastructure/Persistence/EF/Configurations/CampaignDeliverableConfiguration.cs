@@ -8,7 +8,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<CampaignDeliverable> builder)
         {
-            builder.ToTable("campaign_deliverable");
+            builder.ToTable("campaigndeliverable");
 
             builder.Property(entity => entity.Title)
                 .IsRequired()

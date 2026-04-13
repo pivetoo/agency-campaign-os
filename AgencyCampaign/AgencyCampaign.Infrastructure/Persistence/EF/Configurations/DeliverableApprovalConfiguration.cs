@@ -8,7 +8,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<DeliverableApproval> builder)
         {
-            builder.ToTable("deliverable_approval");
+            builder.ToTable("deliverableapproval");
 
             builder.Property(entity => entity.ReviewerName)
                 .IsRequired()

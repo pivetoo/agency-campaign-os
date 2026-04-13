@@ -8,7 +8,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<CampaignCreator> builder)
         {
-            builder.ToTable("campaign_creator");
+            builder.ToTable("campaigncreator");
 
             builder.Property(entity => entity.AgreedAmount)
                 .HasPrecision(18, 2);

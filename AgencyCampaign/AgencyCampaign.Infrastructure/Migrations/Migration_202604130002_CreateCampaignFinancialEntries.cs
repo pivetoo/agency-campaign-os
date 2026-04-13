@@ -7,7 +7,7 @@ namespace AgencyCampaign.Infrastructure.Migrations
     {
         public override void Up()
         {
-            Create.Table("campaign_financial_entry")
+            Create.Table("campaignfinancialentry")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
                 .WithColumn("campaignid").AsInt64().NotNullable()
                 .WithColumn("campaigndeliverableid").AsInt64().Nullable()
@@ -22,31 +22,31 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithColumn("createdat").AsDateTimeOffset().NotNullable()
                 .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("fk_campaign_financial_entry_campaign_campaignid")
-                .FromTable("campaign_financial_entry").ForeignColumn("campaignid")
+            Create.ForeignKey("fkcampaignfinancialentrycampaigncampaignid")
+                .FromTable("campaignfinancialentry").ForeignColumn("campaignid")
                 .ToTable("campaign").PrimaryColumn("id");
 
-            Create.ForeignKey("fk_campaign_financial_entry_campaign_deliverable_campaigndeliverableid")
-                .FromTable("campaign_financial_entry").ForeignColumn("campaigndeliverableid")
-                .ToTable("campaign_deliverable").PrimaryColumn("id");
+            Create.ForeignKey("fkcampaignfinancialentrycampaigndeliverablecampaigndeliverableid")
+                .FromTable("campaignfinancialentry").ForeignColumn("campaigndeliverableid")
+                .ToTable("campaigndeliverable").PrimaryColumn("id");
 
-            Create.Index("ix_campaign_financial_entry_campaignid")
-                .OnTable("campaign_financial_entry")
+            Create.Index("ixcampaignfinancialentrycampaignid")
+                .OnTable("campaignfinancialentry")
                 .OnColumn("campaignid").Ascending();
 
-            Create.Index("ix_campaign_financial_entry_status_dueat")
-                .OnTable("campaign_financial_entry")
+            Create.Index("ixcampaignfinancialentrystatusdueat")
+                .OnTable("campaignfinancialentry")
                 .OnColumn("status").Ascending()
                 .OnColumn("dueat").Ascending();
         }
 
         public override void Down()
         {
-            Delete.Index("ix_campaign_financial_entry_status_dueat").OnTable("campaign_financial_entry");
-            Delete.Index("ix_campaign_financial_entry_campaignid").OnTable("campaign_financial_entry");
-            Delete.ForeignKey("fk_campaign_financial_entry_campaign_deliverable_campaigndeliverableid").OnTable("campaign_financial_entry");
-            Delete.ForeignKey("fk_campaign_financial_entry_campaign_campaignid").OnTable("campaign_financial_entry");
-            Delete.Table("campaign_financial_entry");
+            Delete.Index("ixcampaignfinancialentrystatusdueat").OnTable("campaignfinancialentry");
+            Delete.Index("ixcampaignfinancialentrycampaignid").OnTable("campaignfinancialentry");
+            Delete.ForeignKey("fkcampaignfinancialentrycampaigndeliverablecampaigndeliverableid").OnTable("campaignfinancialentry");
+            Delete.ForeignKey("fkcampaignfinancialentrycampaigncampaignid").OnTable("campaignfinancialentry");
+            Delete.Table("campaignfinancialentry");
         }
     }
 }

@@ -16,7 +16,7 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithColumn("createdat").AsDateTimeOffset().NotNullable()
                 .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.Index("ix_brand_name")
+            Create.Index("ixbrandname")
                 .OnTable("brand")
                 .OnColumn("name").Ascending();
 
@@ -31,11 +31,11 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithColumn("createdat").AsDateTimeOffset().NotNullable()
                 .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.Index("ix_creator_name")
+            Create.Index("ixcreatorname")
                 .OnTable("creator")
                 .OnColumn("name").Ascending();
 
-            Create.Index("ix_creator_document")
+            Create.Index("ixcreatordocument")
                 .OnTable("creator")
                 .OnColumn("document").Ascending();
 
@@ -51,19 +51,19 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithColumn("createdat").AsDateTimeOffset().NotNullable()
                 .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("fk_campaign_brand_brandid")
+            Create.ForeignKey("fkcampaignbrandbrandid")
                 .FromTable("campaign").ForeignColumn("brandid")
                 .ToTable("brand").PrimaryColumn("id");
 
-            Create.Index("ix_campaign_brandid")
+            Create.Index("ixcampaignbrandid")
                 .OnTable("campaign")
                 .OnColumn("brandid").Ascending();
 
-            Create.Index("ix_campaign_name")
+            Create.Index("ixcampaignname")
                 .OnTable("campaign")
                 .OnColumn("name").Ascending();
 
-            Create.Table("campaign_deliverable")
+            Create.Table("campaigndeliverable")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
                 .WithColumn("campaignid").AsInt64().NotNullable()
                 .WithColumn("creatorid").AsInt64().NotNullable()
@@ -78,47 +78,47 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithColumn("createdat").AsDateTimeOffset().NotNullable()
                 .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("fk_campaign_deliverable_campaign_campaignid")
-                .FromTable("campaign_deliverable").ForeignColumn("campaignid")
+            Create.ForeignKey("fkcampaigndeliverablecampaigncampaignid")
+                .FromTable("campaigndeliverable").ForeignColumn("campaignid")
                 .ToTable("campaign").PrimaryColumn("id");
 
-            Create.ForeignKey("fk_campaign_deliverable_creator_creatorid")
-                .FromTable("campaign_deliverable").ForeignColumn("creatorid")
+            Create.ForeignKey("fkcampaigndeliverablecreatorcreatorid")
+                .FromTable("campaigndeliverable").ForeignColumn("creatorid")
                 .ToTable("creator").PrimaryColumn("id");
 
-            Create.Index("ix_campaign_deliverable_campaignid")
-                .OnTable("campaign_deliverable")
+            Create.Index("ixcampaigndeliverablecampaignid")
+                .OnTable("campaigndeliverable")
                 .OnColumn("campaignid").Ascending();
 
-            Create.Index("ix_campaign_deliverable_creatorid")
-                .OnTable("campaign_deliverable")
+            Create.Index("ixcampaigndeliverablecreatorid")
+                .OnTable("campaigndeliverable")
                 .OnColumn("creatorid").Ascending();
 
-            Create.Index("ix_campaign_deliverable_status_dueat")
-                .OnTable("campaign_deliverable")
+            Create.Index("ixcampaigndeliverablestatusdueat")
+                .OnTable("campaigndeliverable")
                 .OnColumn("status").Ascending()
                 .OnColumn("dueat").Ascending();
         }
 
         public override void Down()
         {
-            Delete.Index("ix_campaign_deliverable_status_dueat").OnTable("campaign_deliverable");
-            Delete.Index("ix_campaign_deliverable_creatorid").OnTable("campaign_deliverable");
-            Delete.Index("ix_campaign_deliverable_campaignid").OnTable("campaign_deliverable");
-            Delete.ForeignKey("fk_campaign_deliverable_creator_creatorid").OnTable("campaign_deliverable");
-            Delete.ForeignKey("fk_campaign_deliverable_campaign_campaignid").OnTable("campaign_deliverable");
-            Delete.Table("campaign_deliverable");
+            Delete.Index("ixcampaigndeliverablestatusdueat").OnTable("campaigndeliverable");
+            Delete.Index("ixcampaigndeliverablecreatorid").OnTable("campaigndeliverable");
+            Delete.Index("ixcampaigndeliverablecampaignid").OnTable("campaigndeliverable");
+            Delete.ForeignKey("fkcampaigndeliverablecreatorcreatorid").OnTable("campaigndeliverable");
+            Delete.ForeignKey("fkcampaigndeliverablecampaigncampaignid").OnTable("campaigndeliverable");
+            Delete.Table("campaigndeliverable");
 
-            Delete.Index("ix_campaign_name").OnTable("campaign");
-            Delete.Index("ix_campaign_brandid").OnTable("campaign");
-            Delete.ForeignKey("fk_campaign_brand_brandid").OnTable("campaign");
+            Delete.Index("ixcampaignname").OnTable("campaign");
+            Delete.Index("ixcampaignbrandid").OnTable("campaign");
+            Delete.ForeignKey("fkcampaignbrandbrandid").OnTable("campaign");
             Delete.Table("campaign");
 
-            Delete.Index("ix_creator_document").OnTable("creator");
-            Delete.Index("ix_creator_name").OnTable("creator");
+            Delete.Index("ixcreatordocument").OnTable("creator");
+            Delete.Index("ixcreatorname").OnTable("creator");
             Delete.Table("creator");
 
-            Delete.Index("ix_brand_name").OnTable("brand");
+            Delete.Index("ixbrandname").OnTable("brand");
             Delete.Table("brand");
         }
     }

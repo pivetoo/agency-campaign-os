@@ -26,7 +26,7 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .AddColumn("internalownername").AsString(150).Nullable()
                 .AddColumn("notes").AsString(1000).Nullable();
 
-            Create.Table("campaign_creator")
+            Create.Table("campaigncreator")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
                 .WithColumn("campaignid").AsInt64().NotNullable()
                 .WithColumn("creatorid").AsInt64().NotNullable()
@@ -39,35 +39,35 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithColumn("createdat").AsDateTimeOffset().NotNullable()
                 .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("fk_campaign_creator_campaign_campaignid")
-                .FromTable("campaign_creator").ForeignColumn("campaignid")
+            Create.ForeignKey("fkcampaigncreatorcampaigncampaignid")
+                .FromTable("campaigncreator").ForeignColumn("campaignid")
                 .ToTable("campaign").PrimaryColumn("id");
 
-            Create.ForeignKey("fk_campaign_creator_creator_creatorid")
-                .FromTable("campaign_creator").ForeignColumn("creatorid")
+            Create.ForeignKey("fkcampaigncreatorcreatorcreatorid")
+                .FromTable("campaigncreator").ForeignColumn("creatorid")
                 .ToTable("creator").PrimaryColumn("id");
 
-            Create.Index("ix_campaign_creator_campaignid")
-                .OnTable("campaign_creator")
+            Create.Index("ixcampaigncreatorcampaignid")
+                .OnTable("campaigncreator")
                 .OnColumn("campaignid").Ascending();
 
-            Create.Index("ix_campaign_creator_creatorid")
-                .OnTable("campaign_creator")
+            Create.Index("ixcampaigncreatorcreatorid")
+                .OnTable("campaigncreator")
                 .OnColumn("creatorid").Ascending();
 
-            Create.Index("ix_campaign_creator_campaignid_creatorid")
-                .OnTable("campaign_creator")
+            Create.Index("ixcampaigncreatorcampaignidcreatorid")
+                .OnTable("campaigncreator")
                 .OnColumn("campaignid").Ascending()
                 .OnColumn("creatorid").Ascending()
                 .WithOptions().Unique();
 
             Execute.Sql(@"
-                INSERT INTO campaign_creator (campaignid, creatorid, status, agreedamount, agencyfeeamount, createdat)
+                INSERT INTO campaigncreator (campaignid, creatorid, status, agreedamount, agencyfeeamount, createdat)
                 SELECT DISTINCT campaignid, creatorid, 3, 0, 0, NOW()
-                FROM campaign_deliverable;
+                FROM campaigndeliverable;
             ");
 
-            Alter.Table("campaign_deliverable")
+            Alter.Table("campaigndeliverable")
                 .AddColumn("campaigncreatorid").AsInt64().Nullable()
                 .AddColumn("type").AsInt32().NotNullable().WithDefaultValue(7)
                 .AddColumn("platform").AsInt32().NotNullable().WithDefaultValue(6)
@@ -76,28 +76,28 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .AddColumn("notes").AsString(1000).Nullable();
 
             Execute.Sql(@"
-                UPDATE campaign_deliverable cd
+                UPDATE campaigndeliverable cd
                 SET campaigncreatorid = cc.id
-                FROM campaign_creator cc
+                FROM campaigncreator cc
                 WHERE cc.campaignid = cd.campaignid
                   AND cc.creatorid = cd.creatorid;
             ");
 
-            Alter.Column("campaigncreatorid").OnTable("campaign_deliverable").AsInt64().NotNullable();
+            Alter.Column("campaigncreatorid").OnTable("campaigndeliverable").AsInt64().NotNullable();
 
-            Create.ForeignKey("fk_campaign_deliverable_campaign_creator_campaigncreatorid")
-                .FromTable("campaign_deliverable").ForeignColumn("campaigncreatorid")
-                .ToTable("campaign_creator").PrimaryColumn("id");
+            Create.ForeignKey("fkcampaigndeliverablecampaigncreatorcampaigncreatorid")
+                .FromTable("campaigndeliverable").ForeignColumn("campaigncreatorid")
+                .ToTable("campaigncreator").PrimaryColumn("id");
 
-            Create.Index("ix_campaign_deliverable_campaigncreatorid")
-                .OnTable("campaign_deliverable")
+            Create.Index("ixcampaigndeliverablecampaigncreatorid")
+                .OnTable("campaigndeliverable")
                 .OnColumn("campaigncreatorid").Ascending();
 
-            Delete.ForeignKey("fk_campaign_deliverable_creator_creatorid").OnTable("campaign_deliverable");
-            Delete.Index("ix_campaign_deliverable_creatorid").OnTable("campaign_deliverable");
-            Delete.Column("creatorid").FromTable("campaign_deliverable");
+            Delete.ForeignKey("fkcampaigndeliverablecreatorcreatorid").OnTable("campaigndeliverable");
+            Delete.Index("ixcampaigndeliverablecreatorid").OnTable("campaigndeliverable");
+            Delete.Column("creatorid").FromTable("campaigndeliverable");
 
-            Create.Table("deliverable_approval")
+            Create.Table("deliverableapproval")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
                 .WithColumn("campaigndeliverableid").AsInt64().NotNullable()
                 .WithColumn("approvaltype").AsInt32().NotNullable()
@@ -109,21 +109,21 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithColumn("createdat").AsDateTimeOffset().NotNullable()
                 .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Create.ForeignKey("fk_deliverable_approval_campaign_deliverable_campaigndeliverableid")
-                .FromTable("deliverable_approval").ForeignColumn("campaigndeliverableid")
-                .ToTable("campaign_deliverable").PrimaryColumn("id");
+            Create.ForeignKey("fkdeliverableapprovalcampaigndeliverablecampaigndeliverableid")
+                .FromTable("deliverableapproval").ForeignColumn("campaigndeliverableid")
+                .ToTable("campaigndeliverable").PrimaryColumn("id");
 
-            Create.Index("ix_deliverable_approval_campaigndeliverableid")
-                .OnTable("deliverable_approval")
+            Create.Index("ixdeliverableapprovalcampaigndeliverableid")
+                .OnTable("deliverableapproval")
                 .OnColumn("campaigndeliverableid").Ascending();
 
-            Create.Index("ix_deliverable_approval_campaigndeliverableid_approvaltype")
-                .OnTable("deliverable_approval")
+            Create.Index("ixdeliverableapprovalcampaigndeliverableidapprovaltype")
+                .OnTable("deliverableapproval")
                 .OnColumn("campaigndeliverableid").Ascending()
                 .OnColumn("approvaltype").Ascending()
                 .WithOptions().Unique();
 
-            Alter.Table("campaign_financial_entry")
+            Alter.Table("campaignfinancialentry")
                 .AddColumn("category").AsInt32().NotNullable().WithDefaultValue(4)
                 .AddColumn("occurredat").AsDateTimeOffset().NotNullable().WithDefault(SystemMethods.CurrentUTCDateTime)
                 .AddColumn("paymentmethod").AsString(100).Nullable()
@@ -132,51 +132,51 @@ namespace AgencyCampaign.Infrastructure.Migrations
 
         public override void Down()
         {
-            Delete.Column("referencecode").FromTable("campaign_financial_entry");
-            Delete.Column("paymentmethod").FromTable("campaign_financial_entry");
-            Delete.Column("occurredat").FromTable("campaign_financial_entry");
-            Delete.Column("category").FromTable("campaign_financial_entry");
+            Delete.Column("referencecode").FromTable("campaignfinancialentry");
+            Delete.Column("paymentmethod").FromTable("campaignfinancialentry");
+            Delete.Column("occurredat").FromTable("campaignfinancialentry");
+            Delete.Column("category").FromTable("campaignfinancialentry");
 
-            Delete.Index("ix_deliverable_approval_campaigndeliverableid_approvaltype").OnTable("deliverable_approval");
-            Delete.Index("ix_deliverable_approval_campaigndeliverableid").OnTable("deliverable_approval");
-            Delete.ForeignKey("fk_deliverable_approval_campaign_deliverable_campaigndeliverableid").OnTable("deliverable_approval");
-            Delete.Table("deliverable_approval");
+            Delete.Index("ixdeliverableapprovalcampaigndeliverableidapprovaltype").OnTable("deliverableapproval");
+            Delete.Index("ixdeliverableapprovalcampaigndeliverableid").OnTable("deliverableapproval");
+            Delete.ForeignKey("fkdeliverableapprovalcampaigndeliverablecampaigndeliverableid").OnTable("deliverableapproval");
+            Delete.Table("deliverableapproval");
 
-            Alter.Table("campaign_deliverable")
+            Alter.Table("campaigndeliverable")
                 .AddColumn("creatorid").AsInt64().Nullable();
 
             Execute.Sql(@"
-                UPDATE campaign_deliverable cd
+                UPDATE campaigndeliverable cd
                 SET creatorid = cc.creatorid
-                FROM campaign_creator cc
+                FROM campaigncreator cc
                 WHERE cc.id = cd.campaigncreatorid;
             ");
 
-            Alter.Column("creatorid").OnTable("campaign_deliverable").AsInt64().NotNullable();
+            Alter.Column("creatorid").OnTable("campaigndeliverable").AsInt64().NotNullable();
 
-            Create.ForeignKey("fk_campaign_deliverable_creator_creatorid")
-                .FromTable("campaign_deliverable").ForeignColumn("creatorid")
+            Create.ForeignKey("fkcampaigndeliverablecreatorcreatorid")
+                .FromTable("campaigndeliverable").ForeignColumn("creatorid")
                 .ToTable("creator").PrimaryColumn("id");
 
-            Create.Index("ix_campaign_deliverable_creatorid")
-                .OnTable("campaign_deliverable")
+            Create.Index("ixcampaigndeliverablecreatorid")
+                .OnTable("campaigndeliverable")
                 .OnColumn("creatorid").Ascending();
 
-            Delete.Index("ix_campaign_deliverable_campaigncreatorid").OnTable("campaign_deliverable");
-            Delete.ForeignKey("fk_campaign_deliverable_campaign_creator_campaigncreatorid").OnTable("campaign_deliverable");
-            Delete.Column("notes").FromTable("campaign_deliverable");
-            Delete.Column("evidenceurl").FromTable("campaign_deliverable");
-            Delete.Column("publishedurl").FromTable("campaign_deliverable");
-            Delete.Column("platform").FromTable("campaign_deliverable");
-            Delete.Column("type").FromTable("campaign_deliverable");
-            Delete.Column("campaigncreatorid").FromTable("campaign_deliverable");
+            Delete.Index("ixcampaigndeliverablecampaigncreatorid").OnTable("campaigndeliverable");
+            Delete.ForeignKey("fkcampaigndeliverablecampaigncreatorcampaigncreatorid").OnTable("campaigndeliverable");
+            Delete.Column("notes").FromTable("campaigndeliverable");
+            Delete.Column("evidenceurl").FromTable("campaigndeliverable");
+            Delete.Column("publishedurl").FromTable("campaigndeliverable");
+            Delete.Column("platform").FromTable("campaigndeliverable");
+            Delete.Column("type").FromTable("campaigndeliverable");
+            Delete.Column("campaigncreatorid").FromTable("campaigndeliverable");
 
-            Delete.Index("ix_campaign_creator_campaignid_creatorid").OnTable("campaign_creator");
-            Delete.Index("ix_campaign_creator_creatorid").OnTable("campaign_creator");
-            Delete.Index("ix_campaign_creator_campaignid").OnTable("campaign_creator");
-            Delete.ForeignKey("fk_campaign_creator_creator_creatorid").OnTable("campaign_creator");
-            Delete.ForeignKey("fk_campaign_creator_campaign_campaignid").OnTable("campaign_creator");
-            Delete.Table("campaign_creator");
+            Delete.Index("ixcampaigncreatorcampaignidcreatorid").OnTable("campaigncreator");
+            Delete.Index("ixcampaigncreatorcreatorid").OnTable("campaigncreator");
+            Delete.Index("ixcampaigncreatorcampaignid").OnTable("campaigncreator");
+            Delete.ForeignKey("fkcampaigncreatorcreatorcreatorid").OnTable("campaigncreator");
+            Delete.ForeignKey("fkcampaigncreatorcampaigncampaignid").OnTable("campaigncreator");
+            Delete.Table("campaigncreator");
 
             Delete.Column("notes").FromTable("campaign");
             Delete.Column("internalownername").FromTable("campaign");

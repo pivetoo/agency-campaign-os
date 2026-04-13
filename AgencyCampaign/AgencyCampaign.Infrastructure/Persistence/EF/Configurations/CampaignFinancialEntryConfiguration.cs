@@ -8,7 +8,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<CampaignFinancialEntry> builder)
         {
-            builder.ToTable("campaign_financial_entry");
+            builder.ToTable("campaignfinancialentry");
 
             builder.Property(entity => entity.Description)
                 .IsRequired()
