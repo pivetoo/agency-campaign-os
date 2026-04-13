@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="record.created" xml:space="preserve">
+    <value>Record created successfully.</value>
+  </data>
+  <data name="record.updated" xml:space="preserve">
+    <value>Record updated successfully.</value>
+  </data>
+  <data name="record.deleted" xml:space="preserve">
+    <value>Record deleted successfully.</value>
+  </data>
+  <data name="record.notFound" xml:space="preserve">
+    <value>Record not found.</value>
+  </data>
+  <data name="request.id.required" xml:space="preserve">
+    <value>The identifier is required.</value>
+  </data>
+  <data name="request.route.idMismatch" xml:space="preserve">
+    <value>The route identifier does not match the request body.</value>
+  </data>
+</root>
