@@ -1,3 +1,4 @@
+using AgencyCampaign.Api.Contracts.Campaigns;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Campaigns;
 using AgencyCampaign.Application.Services;
@@ -14,6 +15,7 @@ namespace AgencyCampaign.Api.Controllers
     {
         private readonly ICampaignService campaignService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
+        private static readonly Func<Campaign, CampaignContract> MapCampaign = CampaignContract.Projection.Compile();
 
         public CampaignsController(ICampaignService campaignService, IStringLocalizer<AgencyCampaignResource> localizer)
         {
@@ -26,7 +28,11 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<Campaign> result = await campaignService.GetCampaigns(request, cancellationToken);
-            return Http200(result);
+            return Http200(new PagedResult<CampaignContract>
+            {
+                Items = result.Items.Select(MapCampaign).ToArray(),
+                Pagination = result.Pagination
+            });
         }
 
         [RequireAccess("Permite consultar os detalhes de uma campanha.")]
@@ -34,7 +40,7 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
             Campaign? campaign = await campaignService.GetCampaignById(id, cancellationToken);
-            return campaign is null ? Http404(Localizer["record.notFound"]) : Http200(campaign);
+            return campaign is null ? Http404(Localizer["record.notFound"]) : Http200(MapCampaign(campaign));
         }
 
         [RequireAccess("Permite consultar o resumo de uma campanha.")]
@@ -56,7 +62,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             Campaign campaign = await campaignService.CreateCampaign(request, cancellationToken);
-            return Http201(campaign, Localizer["record.created"]);
+            return Http201(MapCampaign(campaign), Localizer["record.created"]);
         }
 
         [RequireAccess("Permite atualizar os dados de uma campanha.")]
@@ -70,7 +76,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             Campaign campaign = await campaignService.UpdateCampaign(id, request, cancellationToken);
-            return Http200(campaign, Localizer["record.updated"]);
+            return Http200(MapCampaign(campaign), Localizer["record.updated"]);
         }
     }
 }

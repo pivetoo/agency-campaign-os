@@ -1,3 +1,4 @@
+using AgencyCampaign.Api.Contracts.CampaignDeliverables;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CampaignDeliverables;
 using AgencyCampaign.Application.Services;
@@ -14,6 +15,7 @@ namespace AgencyCampaign.Api.Controllers
     {
         private readonly ICampaignDeliverableService campaignDeliverableService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
+        private static readonly Func<CampaignDeliverable, CampaignDeliverableContract> MapDeliverable = CampaignDeliverableContract.Projection.Compile();
 
         public CampaignDeliverablesController(ICampaignDeliverableService campaignDeliverableService, IStringLocalizer<AgencyCampaignResource> localizer)
         {
@@ -26,7 +28,11 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<CampaignDeliverable> result = await campaignDeliverableService.GetDeliverables(request, cancellationToken);
-            return Http200(result);
+            return Http200(new PagedResult<CampaignDeliverableContract>
+            {
+                Items = result.Items.Select(MapDeliverable).ToArray(),
+                Pagination = result.Pagination
+            });
         }
 
         [RequireAccess("Permite consultar os detalhes de uma entrega de campanha.")]
@@ -34,7 +40,7 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
             CampaignDeliverable? deliverable = await campaignDeliverableService.GetDeliverableById(id, cancellationToken);
-            return deliverable is null ? Http404(Localizer["record.notFound"]) : Http200(deliverable);
+            return deliverable is null ? Http404(Localizer["record.notFound"]) : Http200(MapDeliverable(deliverable));
         }
 
         [RequireAccess("Permite listar as entregas vinculadas a uma campanha.")]
@@ -47,7 +53,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             List<CampaignDeliverable> deliverables = await campaignDeliverableService.GetByCampaign(campaignId, cancellationToken);
-            return Http200(deliverables);
+            return Http200(deliverables.Select(MapDeliverable).ToList());
         }
 
         [RequireAccess("Permite cadastrar uma nova entrega de campanha.")]
@@ -61,7 +67,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             CampaignDeliverable deliverable = await campaignDeliverableService.CreateDeliverable(request, cancellationToken);
-            return Http201(deliverable, Localizer["record.created"]);
+            return Http201(MapDeliverable(deliverable), Localizer["record.created"]);
         }
 
         [RequireAccess("Permite atualizar os dados de uma entrega de campanha.")]
@@ -75,7 +81,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             CampaignDeliverable deliverable = await campaignDeliverableService.UpdateDeliverable(id, request, cancellationToken);
-            return Http200(deliverable, Localizer["record.updated"]);
+            return Http200(MapDeliverable(deliverable), Localizer["record.updated"]);
         }
 
         [RequireAccess("Permite excluir uma entrega de campanha.")]
@@ -83,7 +89,7 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {
             CampaignDeliverable? deliverable = await campaignDeliverableService.Delete(id, cancellationToken);
-            return deliverable is null ? Http404(Localizer["record.notFound"]) : Http200(deliverable, Localizer["record.deleted"]);
+            return deliverable is null ? Http404(Localizer["record.notFound"]) : Http200(MapDeliverable(deliverable), Localizer["record.deleted"]);
         }
     }
 }

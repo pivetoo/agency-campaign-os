@@ -1,3 +1,4 @@
+using AgencyCampaign.Api.Contracts.Brands;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Brands;
 using AgencyCampaign.Application.Services;
@@ -14,6 +15,7 @@ namespace AgencyCampaign.Api.Controllers
     {
         private readonly IBrandService brandService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
+        private static readonly Func<Brand, BrandContract> MapBrand = BrandContract.Projection.Compile();
 
         public BrandsController(IBrandService brandService, IStringLocalizer<AgencyCampaignResource> localizer)
         {
@@ -26,15 +28,19 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<Brand> result = await brandService.GetBrands(request, cancellationToken);
-            return Http200(result);
+            return Http200(new PagedResult<BrandContract>
+            {
+                Items = result.Items.Select(MapBrand).ToArray(),
+                Pagination = result.Pagination
+            });
         }
 
         [RequireAccess("Permite consultar os detalhes de uma marca.")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
-            Domain.Entities.Brand? brand = await brandService.GetBrandById(id, cancellationToken);
-            return brand is null ? Http404(Localizer["record.notFound"]) : Http200(brand);
+            Brand? brand = await brandService.GetBrandById(id, cancellationToken);
+            return brand is null ? Http404(Localizer["record.notFound"]) : Http200(MapBrand(brand));
         }
 
         [RequireAccess("Permite cadastrar uma nova marca.")]
@@ -47,8 +53,8 @@ namespace AgencyCampaign.Api.Controllers
                 return validationResult;
             }
 
-            Domain.Entities.Brand brand = await brandService.CreateBrand(request, cancellationToken);
-            return Http201(brand, Localizer["record.created"]);
+            Brand brand = await brandService.CreateBrand(request, cancellationToken);
+            return Http201(MapBrand(brand), Localizer["record.created"]);
         }
 
         [RequireAccess("Permite atualizar os dados de uma marca.")]
@@ -61,8 +67,8 @@ namespace AgencyCampaign.Api.Controllers
                 return validationResult;
             }
 
-            Domain.Entities.Brand brand = await brandService.UpdateBrand(id, request, cancellationToken);
-            return Http200(brand, Localizer["record.updated"]);
+            Brand brand = await brandService.UpdateBrand(id, request, cancellationToken);
+            return Http200(MapBrand(brand), Localizer["record.updated"]);
         }
     }
 }

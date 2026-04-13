@@ -1,3 +1,4 @@
+using AgencyCampaign.Api.Contracts.Creators;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Creators;
 using AgencyCampaign.Application.Services;
@@ -14,6 +15,7 @@ namespace AgencyCampaign.Api.Controllers
     {
         private readonly ICreatorService creatorService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
+        private static readonly Func<Creator, CreatorContract> MapCreator = CreatorContract.Projection.Compile();
 
         public CreatorsController(ICreatorService creatorService, IStringLocalizer<AgencyCampaignResource> localizer)
         {
@@ -26,7 +28,11 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<Creator> result = await creatorService.GetCreators(request, cancellationToken);
-            return Http200(result);
+            return Http200(new PagedResult<CreatorContract>
+            {
+                Items = result.Items.Select(MapCreator).ToArray(),
+                Pagination = result.Pagination
+            });
         }
 
         [RequireAccess("Permite consultar os detalhes de um creator.")]
@@ -34,7 +40,7 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
             Creator? creator = await creatorService.GetCreatorById(id, cancellationToken);
-            return creator is null ? Http404(Localizer["record.notFound"]) : Http200(creator);
+            return creator is null ? Http404(Localizer["record.notFound"]) : Http200(MapCreator(creator));
         }
 
         [RequireAccess("Permite cadastrar um novo creator.")]
@@ -48,7 +54,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             Creator creator = await creatorService.CreateCreator(request, cancellationToken);
-            return Http201(creator, Localizer["record.created"]);
+            return Http201(MapCreator(creator), Localizer["record.created"]);
         }
 
         [RequireAccess("Permite atualizar os dados de um creator.")]
@@ -62,7 +68,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             Creator creator = await creatorService.UpdateCreator(id, request, cancellationToken);
-            return Http200(creator, Localizer["record.updated"]);
+            return Http200(MapCreator(creator), Localizer["record.updated"]);
         }
     }
 }
