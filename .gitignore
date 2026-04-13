@@ -3,6 +3,14 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Sensitive local configuration
+# Nunca commitar credenciais reais em appsettings.json ou appsettings.Development.json.
+
+# Local environment files
+**/.env
+**/.env.*
+!**/.env.example
+
 # User-specific files
 *.rsuser
 *.suo
