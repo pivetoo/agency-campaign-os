@@ -8,6 +8,7 @@ namespace AgencyCampaign.Application.Requests.Campaigns
         public long Id { get; set; }
 
         [Required]
+        [Range(1, long.MaxValue)]
         public long BrandId { get; set; }
 
         [Required]

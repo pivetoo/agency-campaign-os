@@ -5,6 +5,7 @@ namespace AgencyCampaign.Application.Requests.Campaigns
     public sealed class CreateCampaignRequest
     {
         [Required]
+        [Range(1, long.MaxValue)]
         public long BrandId { get; set; }
 
         [Required]

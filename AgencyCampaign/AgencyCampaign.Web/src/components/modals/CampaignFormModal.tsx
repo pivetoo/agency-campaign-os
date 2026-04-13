@@ -60,6 +60,10 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
+    if (!formData.brandId || formData.brandId <= 0) {
+      return
+    }
+
     const payload = {
       ...formData,
       endsAt: formData.endsAt || undefined,
@@ -101,6 +105,9 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
                   ))}
                 </SelectContent>
               </Select>
+              {!formData.brandId && (
+                <p className="text-xs text-destructive">Selecione uma marca para continuar.</p>
+              )}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Nome</label>
@@ -133,7 +140,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="submit" disabled={loading || !formData.brandId}>{loading ? 'Salvando...' : 'Salvar'}</Button>
           </ModalFooter>
         </form>
       </ModalContent>
