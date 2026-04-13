@@ -21,6 +21,11 @@ export interface UpdateCampaignFinancialEntryRequest extends Omit<CreateCampaign
 }
 
 export const campaignFinancialEntryService = {
+  async getAll(): Promise<CampaignFinancialEntry[]> {
+    const response = await httpClient.get<CampaignFinancialEntry[]>(`${BASE_URL}/Get`)
+    return response.data ?? []
+  },
+
   async getByCampaign(campaignId: number): Promise<CampaignFinancialEntry[]> {
     const response = await httpClient.get<CampaignFinancialEntry[]>(`${BASE_URL}/campaign/${campaignId}`)
     return response.data ?? []
