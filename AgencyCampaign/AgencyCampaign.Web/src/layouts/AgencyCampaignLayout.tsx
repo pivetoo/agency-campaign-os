@@ -18,7 +18,7 @@ export default function AgencyCampaignLayout() {
     ]),
     createMenuGroup('Operação', [
       { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
-      { key: 'creators', label: 'Creators', path: '/creators', icon: <Users size={20} /> },
+      { key: 'creators', label: 'Influenciadores', path: '/creators', icon: <Users size={20} /> },
       { key: 'campanhas', label: 'Campanhas', path: '/campanhas', icon: <Megaphone size={20} /> },
     ]),
   ]

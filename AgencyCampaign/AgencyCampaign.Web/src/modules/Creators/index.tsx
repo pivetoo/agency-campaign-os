@@ -24,14 +24,14 @@ export default function Creators() {
   ]
 
   return (
-    <PageLayout title="Creators" onRefresh={() => void fetchCreators(() => creatorService.getAll()).then((result) => result && setCreators(result))}>
+    <PageLayout title="Influenciadores" onRefresh={() => void fetchCreators(() => creatorService.getAll()).then((result) => result && setCreators(result))}>
       <DataTable
         columns={columns}
         data={creators}
         rowKey="id"
         selectedRows={[]}
         onSelectionChange={() => {}}
-        emptyText="Nenhum creator cadastrado"
+        emptyText="Nenhum influenciador cadastrado"
         loading={loading}
       />
     </PageLayout>

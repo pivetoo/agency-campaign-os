@@ -19,7 +19,7 @@ export default function Dashboard() {
   const cards = [
     { title: 'Campanhas ativas', value: data?.activeCampaigns ?? 0, icon: <Megaphone className="h-5 w-5 text-blue-500" /> },
     { title: 'Marcas', value: data?.activeBrands ?? 0, icon: <Building2 className="h-5 w-5 text-violet-500" /> },
-    { title: 'Creators', value: data?.activeCreators ?? 0, icon: <Users className="h-5 w-5 text-cyan-500" /> },
+    { title: 'Influenciadores', value: data?.activeCreators ?? 0, icon: <Users className="h-5 w-5 text-cyan-500" /> },
     { title: 'Entregas pendentes', value: data?.pendingDeliverablesCount ?? 0, icon: <Clock className="h-5 w-5 text-amber-500" /> },
     { title: 'Entregas publicadas', value: data?.publishedDeliverablesCount ?? 0, icon: <CheckCircle className="h-5 w-5 text-green-500" /> },
     { title: 'Fee da agência', value: `R$ ${(data?.totalAgencyFeeAmount ?? 0).toFixed(2)}`, icon: <DollarSign className="h-5 w-5 text-emerald-500" /> },
