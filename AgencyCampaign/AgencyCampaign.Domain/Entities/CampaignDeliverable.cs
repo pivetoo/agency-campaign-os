@@ -46,7 +46,7 @@ namespace AgencyCampaign.Domain.Entities
             CreatorId = creatorId;
             Title = title.Trim();
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
-            DueAt = dueAt;
+            DueAt = dueAt.ToUniversalTime();
             GrossAmount = grossAmount;
             CreatorAmount = creatorAmount;
             AgencyFeeAmount = agencyFeeAmount;
@@ -61,7 +61,7 @@ namespace AgencyCampaign.Domain.Entities
 
             Title = title.Trim();
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
-            DueAt = dueAt;
+            DueAt = dueAt.ToUniversalTime();
             GrossAmount = grossAmount;
             CreatorAmount = creatorAmount;
             AgencyFeeAmount = agencyFeeAmount;
@@ -70,7 +70,7 @@ namespace AgencyCampaign.Domain.Entities
         public void ChangeStatus(DeliverableStatus status, DateTimeOffset? publishedAt = null)
         {
             Status = status;
-            PublishedAt = status == DeliverableStatus.Published ? publishedAt : null;
+            PublishedAt = status == DeliverableStatus.Published ? publishedAt?.ToUniversalTime() : null;
         }
     }
 }

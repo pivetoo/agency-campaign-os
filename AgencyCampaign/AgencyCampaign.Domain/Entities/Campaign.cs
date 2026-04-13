@@ -38,8 +38,8 @@ namespace AgencyCampaign.Domain.Entities
             Name = name.Trim();
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
             Budget = budget;
-            StartsAt = startsAt;
-            EndsAt = endsAt;
+            StartsAt = startsAt.ToUniversalTime();
+            EndsAt = endsAt?.ToUniversalTime();
         }
 
         public void Update(long brandId, string name, decimal budget, DateTimeOffset startsAt, DateTimeOffset? endsAt, string? description, bool isActive)
@@ -52,8 +52,8 @@ namespace AgencyCampaign.Domain.Entities
             Name = name.Trim();
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
             Budget = budget;
-            StartsAt = startsAt;
-            EndsAt = endsAt;
+            StartsAt = startsAt.ToUniversalTime();
+            EndsAt = endsAt?.ToUniversalTime();
             IsActive = isActive;
         }
     }
