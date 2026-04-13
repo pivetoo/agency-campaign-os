@@ -37,6 +37,14 @@ namespace AgencyCampaign.Api.Controllers
             return campaign is null ? Http404(Localizer["record.notFound"]) : Http200(campaign);
         }
 
+        [RequireAccess("Permite consultar o resumo de uma campanha.")]
+        [GetEndpoint("summary/{id:long}")]
+        public async Task<IActionResult> GetSummary(long id, CancellationToken cancellationToken)
+        {
+            var summary = await campaignService.GetSummary(id, cancellationToken);
+            return summary is null ? Http404(Localizer["record.notFound"]) : Http200(summary);
+        }
+
         [RequireAccess("Permite cadastrar uma nova campanha.")]
         [PostEndpoint("[action]")]
         public async Task<IActionResult> Create([FromBody] CreateCampaignRequest request, CancellationToken cancellationToken)

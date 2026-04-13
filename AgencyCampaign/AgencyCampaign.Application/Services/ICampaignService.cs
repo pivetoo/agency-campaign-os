@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Models.Campaigns;
 using AgencyCampaign.Application.Requests.Campaigns;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Services;
@@ -14,5 +15,7 @@ namespace AgencyCampaign.Application.Services
         Task<Campaign> CreateCampaign(CreateCampaignRequest request, CancellationToken cancellationToken = default);
 
         Task<Campaign> UpdateCampaign(long id, UpdateCampaignRequest request, CancellationToken cancellationToken = default);
+
+        Task<CampaignSummaryModel?> GetSummary(long id, CancellationToken cancellationToken = default);
     }
 }
