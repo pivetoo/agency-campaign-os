@@ -82,17 +82,6 @@ export default function CampaignDetail() {
           void loadDeliverables()
         }}
         showDefaultActions={false}
-        actions={[
-          {
-            key: 'new-deliverable',
-            label: 'Nova entrega',
-            icon: <Plus size={16} />,
-            onClick: () => {
-              setSelectedDeliverable(null)
-              setIsFormOpen(true)
-            },
-          },
-        ]}
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card>

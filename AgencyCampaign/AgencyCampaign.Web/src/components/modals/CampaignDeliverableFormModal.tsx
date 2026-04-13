@@ -98,13 +98,13 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent size="lg">
+      <ModalContent size="xl">
         <ModalHeader>
           <ModalTitle>{isEditing ? 'Editar entrega' : 'Nova entrega'}</ModalTitle>
         </ModalHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">Influenciador</label>
               <Select value={formData.creatorId ? String(formData.creatorId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: Number(value) }))}>
@@ -118,22 +118,7 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Título</label>
-              <Input value={formData.title} onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))} required />
-            </div>
-            <div className="space-y-2 col-span-2">
-              <label className="text-sm font-medium">Descrição</label>
-              <Input value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Prazo</label>
-              <Input type="date" value={formData.dueAt} onChange={(e) => setFormData((prev) => ({ ...prev, dueAt: e.target.value }))} required />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Publicado em</label>
-              <Input type="date" value={formData.publishedAt || ''} onChange={(e) => setFormData((prev) => ({ ...prev, publishedAt: e.target.value }))} />
-            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Status</label>
               <Select value={String(formData.status)} onValueChange={(value) => setFormData((prev) => ({ ...prev, status: Number(value) }))}>
@@ -149,14 +134,39 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium">Título</label>
+              <Input value={formData.title} onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))} required />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium">Descrição</label>
+              <Input value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Prazo</label>
+              <Input type="date" value={formData.dueAt} onChange={(e) => setFormData((prev) => ({ ...prev, dueAt: e.target.value }))} required />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Publicado em</label>
+              <Input type="date" value={formData.publishedAt || ''} onChange={(e) => setFormData((prev) => ({ ...prev, publishedAt: e.target.value }))} />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <label className="text-sm font-medium">Valor bruto</label>
               <Input type="number" value={formData.grossAmount} onChange={(e) => setFormData((prev) => ({ ...prev, grossAmount: Number(e.target.value) }))} required />
             </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Repasse creator</label>
               <Input type="number" value={formData.creatorAmount} onChange={(e) => setFormData((prev) => ({ ...prev, creatorAmount: Number(e.target.value) }))} required />
             </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Fee agência</label>
               <Input type="number" value={formData.agencyFeeAmount} onChange={(e) => setFormData((prev) => ({ ...prev, agencyFeeAmount: Number(e.target.value) }))} required />
