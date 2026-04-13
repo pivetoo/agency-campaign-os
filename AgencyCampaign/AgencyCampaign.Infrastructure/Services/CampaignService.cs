@@ -24,7 +24,8 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<PagedResult<Campaign>> GetCampaigns(PagedRequest request, CancellationToken cancellationToken = default)
         {
             return await QueryWithDetails()
-                .OrderByDescending(item => item.Id)
+                .OrderByDescending(item => item.IsActive)
+                .ThenByDescending(item => item.Id)
                 .ToPagedResultAsync(request, cancellationToken);
         }
 

@@ -23,7 +23,8 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             return await DbContext.Set<Creator>()
                 .AsNoTracking()
-                .OrderBy(item => item.Name)
+                .OrderByDescending(item => item.IsActive)
+                .ThenByDescending(item => item.Id)
                 .ToPagedResultAsync(request, cancellationToken);
         }
 

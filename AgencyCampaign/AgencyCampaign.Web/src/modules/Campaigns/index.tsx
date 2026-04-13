@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { campaignService } from '../../services/campaignService'
 import type { Campaign } from '../../types/campaign'
@@ -29,6 +29,16 @@ export default function Campaigns() {
     { key: 'brand', title: 'Marca', dataIndex: 'brand', render: (value: Campaign['brand']) => value?.name || '-' },
     { key: 'budget', title: 'Budget', dataIndex: 'budget', render: (value: number) => `R$ ${value.toFixed(2)}` },
     { key: 'startsAt', title: 'Início', dataIndex: 'startsAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
+    {
+      key: 'isActive',
+      title: 'Status',
+      dataIndex: 'isActive',
+      render: (value: boolean) => (
+        <Badge variant={value ? 'success' : 'destructive'}>
+          {value ? 'Ativa' : 'Inativa'}
+        </Badge>
+      ),
+    },
   ]
 
   return (

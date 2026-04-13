@@ -28,6 +28,16 @@ export default function Creators() {
     { key: 'email', title: 'E-mail', dataIndex: 'email' },
     { key: 'phone', title: 'Telefone', dataIndex: 'phone' },
     { key: 'document', title: 'Documento', dataIndex: 'document' },
+    {
+      key: 'isActive',
+      title: 'Status',
+      dataIndex: 'isActive',
+      render: (value: boolean) => (
+        <Badge variant={value ? 'success' : 'destructive'}>
+          {value ? 'Ativo' : 'Inativo'}
+        </Badge>
+      ),
+    },
   ]
 
   return (

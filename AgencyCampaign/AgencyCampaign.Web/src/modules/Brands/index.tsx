@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { brandService } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
@@ -26,6 +26,16 @@ export default function Brands() {
     { key: 'name', title: 'Nome', dataIndex: 'name' },
     { key: 'contactName', title: 'Contato', dataIndex: 'contactName' },
     { key: 'contactEmail', title: 'E-mail', dataIndex: 'contactEmail' },
+    {
+      key: 'isActive',
+      title: 'Status',
+      dataIndex: 'isActive',
+      render: (value: boolean) => (
+        <Badge variant={value ? 'success' : 'destructive'}>
+          {value ? 'Ativa' : 'Inativa'}
+        </Badge>
+      ),
+    },
   ]
 
   return (
