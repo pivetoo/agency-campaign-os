@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, Card, CardContent, CardHeader, CardTitle, DataTable, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { campaignFinancialEntryService } from '../../services/campaignFinancialEntryService'
 import type { CampaignFinancialEntry } from '../../types/campaignFinancialEntry'
@@ -24,27 +24,33 @@ export default function FinancialPayables() {
     { key: 'counterpartyName', title: 'Contraparte', dataIndex: 'counterpartyName' },
     { key: 'amount', title: 'Valor', dataIndex: 'amount', render: (value: number) => `R$ ${value.toFixed(2)}` },
     { key: 'dueAt', title: 'Vencimento', dataIndex: 'dueAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
-    { key: 'status', title: 'Status', dataIndex: 'status', render: (value: number) => ({ 1: 'Pendente', 2: 'Pago', 3: 'Vencido', 4: 'Cancelado' }[value] || '-') },
+    {
+      key: 'status',
+      title: 'Status',
+      dataIndex: 'status',
+      render: (value: number) => (
+        <Badge variant={value === 2 ? 'success' : value === 3 ? 'destructive' : 'warning'}>
+          {{ 1: 'Pendente', 2: 'Pago', 3: 'Vencido', 4: 'Cancelado' }[value] || '-'}
+        </Badge>
+      ),
+    },
   ]
 
   return (
-    <PageLayout title="Contas a pagar" onRefresh={() => void loadEntries()}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Lançamentos a pagar</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={entries}
-            rowKey="id"
-            selectedRows={[]}
-            onSelectionChange={() => {}}
-            emptyText="Nenhuma conta a pagar cadastrada"
-            loading={loading}
-          />
-        </CardContent>
-      </Card>
+    <PageLayout
+      title="Contas a pagar"
+      subtitle="Visão consolidada dos lançamentos de saída da agência"
+      onRefresh={() => void loadEntries()}
+    >
+      <DataTable
+        columns={columns}
+        data={entries}
+        rowKey="id"
+        selectedRows={[]}
+        onSelectionChange={() => {}}
+        emptyText="Nenhuma conta a pagar cadastrada"
+        loading={loading}
+      />
     </PageLayout>
   )
 }

@@ -42,6 +42,7 @@ export default function Brands() {
     <>
       <PageLayout
         title="Marcas"
+        subtitle="Cadastre e gerencie as marcas atendidas pela agência"
         onAdd={() => { setSelectedBrand(null); setIsFormOpen(true) }}
         onEdit={() => selectedBrand && setIsFormOpen(true)}
         onRefresh={() => void loadBrands()}

@@ -45,6 +45,7 @@ export default function Campaigns() {
     <>
       <PageLayout
         title="Campanhas"
+        subtitle="Gerencie campanhas, selecione creators e acompanhe a operação"
         onAdd={() => { setSelectedCampaign(null); setIsFormOpen(true) }}
         onEdit={() => selectedCampaign && setIsFormOpen(true)}
         onRefresh={() => void loadCampaigns()}

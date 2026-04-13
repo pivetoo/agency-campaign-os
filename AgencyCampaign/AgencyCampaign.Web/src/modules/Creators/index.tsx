@@ -44,6 +44,7 @@ export default function Creators() {
     <>
       <PageLayout
         title="Influenciadores"
+        subtitle="Cadastre e acompanhe a base de creators da agência"
         onAdd={() => { setSelectedCreator(null); setIsFormOpen(true) }}
         onEdit={() => selectedCreator && setIsFormOpen(true)}
         onRefresh={() => void loadCreators()}
