@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { campaignDeliverableService, type CreateCampaignDeliverableRequest, type UpdateCampaignDeliverableRequest } from '../../services/campaignDeliverableService'
-import { creatorService } from '../../services/creatorService'
+import { campaignCreatorService } from '../../services/campaignCreatorService'
 import type { CampaignDeliverable } from '../../types/campaignDeliverable'
-import type { Creator } from '../../types/creator'
+import type { CampaignCreator } from '../../types/campaignCreator'
 
 interface CampaignDeliverableFormModalProps {
   open: boolean
@@ -15,12 +15,16 @@ interface CampaignDeliverableFormModalProps {
 
 const initialFormData: CreateCampaignDeliverableRequest = {
   campaignId: 0,
-  creatorId: 0,
+  campaignCreatorId: 0,
   title: '',
   description: '',
+  type: 1,
+  platform: 1,
   dueAt: '',
-  publishedAt: '',
   status: 1,
+  publishedUrl: '',
+  evidenceUrl: '',
+  notes: '',
   grossAmount: 0,
   creatorAmount: 0,
   agencyFeeAmount: 0,
@@ -29,30 +33,34 @@ const initialFormData: CreateCampaignDeliverableRequest = {
 export default function CampaignDeliverableFormModal({ open, onOpenChange, campaignId, deliverable, onSuccess }: CampaignDeliverableFormModalProps) {
   const isEditing = !!deliverable
   const [formData, setFormData] = useState<CreateCampaignDeliverableRequest>(initialFormData)
-  const [creators, setCreators] = useState<Creator[]>([])
+  const [campaignCreators, setCampaignCreators] = useState<CampaignCreator[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
-  const { execute: fetchCreators } = useApi<Creator[]>({ showErrorMessage: true })
+  const { execute: fetchCampaignCreators } = useApi<CampaignCreator[]>({ showErrorMessage: true })
 
   useEffect(() => {
-    if (open) {
-      void fetchCreators(() => creatorService.getAll()).then((result) => {
+    if (open && campaignId > 0) {
+      void fetchCampaignCreators(() => campaignCreatorService.getByCampaign(campaignId)).then((result) => {
         if (result) {
-          setCreators(result)
+          setCampaignCreators(result)
         }
       })
     }
-  }, [open])
+  }, [open, campaignId])
 
   useEffect(() => {
     if (deliverable) {
       setFormData({
         campaignId,
-        creatorId: deliverable.creatorId,
+        campaignCreatorId: deliverable.campaignCreatorId,
         title: deliverable.title,
         description: deliverable.description || '',
+        type: deliverable.type,
+        platform: deliverable.platform,
         dueAt: deliverable.dueAt.slice(0, 10),
-        publishedAt: deliverable.publishedAt ? deliverable.publishedAt.slice(0, 10) : '',
         status: deliverable.status,
+        publishedUrl: deliverable.publishedUrl || '',
+        evidenceUrl: deliverable.evidenceUrl || '',
+        notes: deliverable.notes || '',
         grossAmount: deliverable.grossAmount,
         creatorAmount: deliverable.creatorAmount,
         agencyFeeAmount: deliverable.agencyFeeAmount,
@@ -66,13 +74,16 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    if (!formData.creatorId || formData.creatorId <= 0) {
+    if (!formData.campaignCreatorId || formData.campaignCreatorId <= 0) {
       return
     }
 
     const payload = {
       ...formData,
-      publishedAt: formData.publishedAt || undefined,
+      description: formData.description || undefined,
+      publishedUrl: formData.publishedUrl || undefined,
+      evidenceUrl: formData.evidenceUrl || undefined,
+      notes: formData.notes || undefined,
     }
 
     const result = await execute(() =>
@@ -81,9 +92,13 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
             id: deliverable.id,
             title: payload.title,
             description: payload.description,
+            type: payload.type,
+            platform: payload.platform,
             dueAt: payload.dueAt,
-            publishedAt: payload.publishedAt,
             status: payload.status,
+            publishedUrl: payload.publishedUrl,
+            evidenceUrl: payload.evidenceUrl,
+            notes: payload.notes,
             grossAmount: payload.grossAmount,
             creatorAmount: payload.creatorAmount,
             agencyFeeAmount: payload.agencyFeeAmount,
@@ -106,14 +121,14 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Influenciador</label>
-              <Select value={formData.creatorId ? String(formData.creatorId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: Number(value) }))}>
+              <label className="text-sm font-medium">Creator da campanha</label>
+              <Select value={formData.campaignCreatorId ? String(formData.campaignCreatorId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorId: Number(value) }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione um influenciador" />
+                  <SelectValue placeholder="Selecione um creator" />
                 </SelectTrigger>
                 <SelectContent>
-                  {creators.map((creator) => (
-                    <SelectItem key={creator.id} value={String(creator.id)}>{creator.name}</SelectItem>
+                  {campaignCreators.map((item) => (
+                    <SelectItem key={item.id} value={String(item.id)}>{item.creator?.stageName || item.creator?.name || `Creator #${item.creatorId}`}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -146,13 +161,54 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
             </div>
 
             <div className="space-y-2">
+              <label className="text-sm font-medium">Tipo</label>
+              <Select value={String(formData.type)} onValueChange={(value) => setFormData((prev) => ({ ...prev, type: Number(value) }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Reel</SelectItem>
+                  <SelectItem value="2">Story</SelectItem>
+                  <SelectItem value="3">Post feed</SelectItem>
+                  <SelectItem value="4">Vídeo</SelectItem>
+                  <SelectItem value="5">Live</SelectItem>
+                  <SelectItem value="6">Combo</SelectItem>
+                  <SelectItem value="7">Outro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Plataforma</label>
+              <Select value={String(formData.platform)} onValueChange={(value) => setFormData((prev) => ({ ...prev, platform: Number(value) }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Instagram</SelectItem>
+                  <SelectItem value="2">TikTok</SelectItem>
+                  <SelectItem value="3">YouTube</SelectItem>
+                  <SelectItem value="4">Kwai</SelectItem>
+                  <SelectItem value="5">X</SelectItem>
+                  <SelectItem value="6">Outro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <label className="text-sm font-medium">Prazo</label>
               <Input type="date" value={formData.dueAt} onChange={(e) => setFormData((prev) => ({ ...prev, dueAt: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Publicado em</label>
-              <Input type="date" value={formData.publishedAt || ''} onChange={(e) => setFormData((prev) => ({ ...prev, publishedAt: e.target.value }))} />
+              <label className="text-sm font-medium">URL publicada</label>
+              <Input value={formData.publishedUrl || ''} onChange={(e) => setFormData((prev) => ({ ...prev, publishedUrl: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Evidência</label>
+              <Input value={formData.evidenceUrl || ''} onChange={(e) => setFormData((prev) => ({ ...prev, evidenceUrl: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Observações</label>
+              <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
 
@@ -175,7 +231,7 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !formData.creatorId}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="submit" disabled={loading || !formData.campaignCreatorId}>{loading ? 'Salvando...' : 'Salvar'}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

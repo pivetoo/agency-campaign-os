@@ -12,10 +12,15 @@ interface CreatorFormModalProps {
 
 const initialFormData: CreateCreatorRequest = {
   name: '',
+  stageName: '',
   email: '',
   phone: '',
   document: '',
   pixKey: '',
+  primaryNiche: '',
+  city: '',
+  state: '',
+  notes: '',
 }
 
 export default function CreatorFormModal({ open, onOpenChange, creator, onSuccess }: CreatorFormModalProps) {
@@ -28,10 +33,15 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
     if (creator) {
       setFormData({
         name: creator.name,
+        stageName: creator.stageName || '',
         email: creator.email || '',
         phone: creator.phone || '',
         document: creator.document || '',
         pixKey: creator.pixKey || '',
+        primaryNiche: creator.primaryNiche || '',
+        city: creator.city || '',
+        state: creator.state || '',
+        notes: creator.notes || '',
       })
       setIsActive(creator.isActive)
       return
@@ -67,12 +77,15 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Nome</label>
-            <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2 col-span-2">
+              <label className="text-sm font-medium">Nome</label>
+              <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
+            </div>
+            <div className="space-y-2 col-span-2">
+              <label className="text-sm font-medium">Nome artístico</label>
+              <Input value={formData.stageName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, stageName: e.target.value }))} />
+            </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">E-mail</label>
               <Input type="email" value={formData.email || ''} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} />
@@ -88,6 +101,22 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
             <div className="space-y-2">
               <label className="text-sm font-medium">Chave PIX</label>
               <Input value={formData.pixKey || ''} onChange={(e) => setFormData((prev) => ({ ...prev, pixKey: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Nicho principal</label>
+              <Input value={formData.primaryNiche || ''} onChange={(e) => setFormData((prev) => ({ ...prev, primaryNiche: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Cidade</label>
+              <Input value={formData.city || ''} onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Estado</label>
+              <Input value={formData.state || ''} onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))} />
+            </div>
+            <div className="space-y-2 col-span-2">
+              <label className="text-sm font-medium">Observações</label>
+              <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
 

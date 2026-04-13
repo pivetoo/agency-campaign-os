@@ -5,6 +5,7 @@ export interface DashboardData {
   deliverablesCount: number
   pendingDeliverablesCount: number
   publishedDeliverablesCount: number
+  pendingApprovalsCount: number
   totalBudget: number
   totalGrossAmount: number
   totalAgencyFeeAmount: number

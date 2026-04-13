@@ -25,9 +25,9 @@ export default function Creators() {
 
   const columns: DataTableColumn<Creator>[] = [
     { key: 'name', title: 'Nome', dataIndex: 'name' },
-    { key: 'email', title: 'E-mail', dataIndex: 'email' },
-    { key: 'phone', title: 'Telefone', dataIndex: 'phone' },
-    { key: 'document', title: 'Documento', dataIndex: 'document' },
+    { key: 'stageName', title: 'Nome artístico', dataIndex: 'stageName', render: (value?: string) => value || '-' },
+    { key: 'primaryNiche', title: 'Nicho', dataIndex: 'primaryNiche', render: (value?: string) => value || '-' },
+    { key: 'city', title: 'Cidade', dataIndex: 'city', render: (value?: string) => value || '-' },
     {
       key: 'isActive',
       title: 'Status',
@@ -78,23 +78,28 @@ export default function Creators() {
           {previewCreator ? (
             <div className="flex h-full flex-col">
               <SheetPreviewHeader
-                title={previewCreator.name}
+                title={previewCreator.stageName || previewCreator.name}
                 meta={
                   <Badge variant={previewCreator.isActive ? 'success' : 'destructive'}>
                     {previewCreator.isActive ? 'Ativo' : 'Inativo'}
                   </Badge>
                 }
-                description="Resumo rápido do influenciador selecionado"
+                description="Resumo rápido do creator selecionado"
               />
 
               <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
-                <SheetPreviewSection title="Dados principais" description="Informações cadastrais do influenciador">
+                <SheetPreviewSection title="Dados principais" description="Informações cadastrais e operacionais do creator">
                   <SheetPreviewGrid>
                     <SheetPreviewField label="Nome" value={previewCreator.name} />
+                    <SheetPreviewField label="Nome artístico" value={previewCreator.stageName || '-'} />
                     <SheetPreviewField label="Documento" value={previewCreator.document || '-'} />
                     <SheetPreviewField label="Telefone" value={previewCreator.phone || '-'} />
                     <SheetPreviewField label="Chave PIX" value={previewCreator.pixKey || '-'} />
+                    <SheetPreviewField label="Nicho" value={previewCreator.primaryNiche || '-'} />
+                    <SheetPreviewField label="Cidade" value={previewCreator.city || '-'} />
+                    <SheetPreviewField label="Estado" value={previewCreator.state || '-'} />
                     <SheetPreviewField className="sm:col-span-2" label="E-mail" value={previewCreator.email || '-'} />
+                    <SheetPreviewField className="sm:col-span-2" label="Observações" value={previewCreator.notes || '-'} />
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
               </div>

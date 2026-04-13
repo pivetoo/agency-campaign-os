@@ -17,13 +17,28 @@ const initialFormData: CreateCampaignFinancialEntryRequest = {
   campaignId: 0,
   campaignDeliverableId: undefined,
   type: 1,
+  category: 1,
   description: '',
   amount: 0,
   dueAt: '',
+  occurredAt: '',
+  paymentMethod: '',
+  referenceCode: '',
   paidAt: '',
   status: 1,
   counterpartyName: '',
   notes: '',
+}
+
+const categoryLabels: Record<number, string> = {
+  1: 'Recebível da marca',
+  2: 'Repasse creator',
+  3: 'Fee da agência',
+  4: 'Custo operacional',
+  5: 'Bônus',
+  6: 'Ajuste',
+  7: 'Reembolso',
+  8: 'Imposto',
 }
 
 export default function CampaignFinancialEntryFormModal({ open, onOpenChange, campaignId, entry, deliverables, onSuccess }: CampaignFinancialEntryFormModalProps) {
@@ -37,9 +52,13 @@ export default function CampaignFinancialEntryFormModal({ open, onOpenChange, ca
         campaignId,
         campaignDeliverableId: entry.campaignDeliverableId,
         type: entry.type,
+        category: entry.category,
         description: entry.description,
         amount: entry.amount,
         dueAt: entry.dueAt.slice(0, 10),
+        occurredAt: entry.occurredAt.slice(0, 10),
+        paymentMethod: entry.paymentMethod || '',
+        referenceCode: entry.referenceCode || '',
         paidAt: entry.paidAt ? entry.paidAt.slice(0, 10) : '',
         status: entry.status,
         counterpartyName: entry.counterpartyName || '',
@@ -48,7 +67,12 @@ export default function CampaignFinancialEntryFormModal({ open, onOpenChange, ca
       return
     }
 
-    setFormData({ ...initialFormData, campaignId })
+    setFormData({
+      ...initialFormData,
+      campaignId,
+      occurredAt: new Date().toISOString().slice(0, 10),
+      dueAt: new Date().toISOString().slice(0, 10),
+    })
   }, [entry, campaignId, open])
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -57,6 +81,10 @@ export default function CampaignFinancialEntryFormModal({ open, onOpenChange, ca
     const payload = {
       ...formData,
       paidAt: formData.paidAt || undefined,
+      paymentMethod: formData.paymentMethod || undefined,
+      referenceCode: formData.referenceCode || undefined,
+      counterpartyName: formData.counterpartyName || undefined,
+      notes: formData.notes || undefined,
       campaignDeliverableId: formData.campaignDeliverableId || undefined,
     }
 
@@ -66,9 +94,13 @@ export default function CampaignFinancialEntryFormModal({ open, onOpenChange, ca
             id: entry.id,
             campaignDeliverableId: payload.campaignDeliverableId,
             type: payload.type,
+            category: payload.category,
             description: payload.description,
             amount: payload.amount,
             dueAt: payload.dueAt,
+            occurredAt: payload.occurredAt,
+            paymentMethod: payload.paymentMethod,
+            referenceCode: payload.referenceCode,
             paidAt: payload.paidAt,
             status: payload.status,
             counterpartyName: payload.counterpartyName,
@@ -98,6 +130,18 @@ export default function CampaignFinancialEntryFormModal({ open, onOpenChange, ca
                 <SelectContent>
                   <SelectItem value="1">A receber</SelectItem>
                   <SelectItem value="2">A pagar</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Categoria</label>
+              <Select value={String(formData.category)} onValueChange={(value) => setFormData((prev) => ({ ...prev, category: Number(value) }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(categoryLabels).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -144,6 +188,11 @@ export default function CampaignFinancialEntryFormModal({ open, onOpenChange, ca
             </div>
 
             <div className="space-y-2">
+              <label className="text-sm font-medium">Ocorrência</label>
+              <Input type="date" value={formData.occurredAt} onChange={(e) => setFormData((prev) => ({ ...prev, occurredAt: e.target.value }))} required />
+            </div>
+
+            <div className="space-y-2">
               <label className="text-sm font-medium">Vencimento</label>
               <Input type="date" value={formData.dueAt} onChange={(e) => setFormData((prev) => ({ ...prev, dueAt: e.target.value }))} required />
             </div>
@@ -151,6 +200,16 @@ export default function CampaignFinancialEntryFormModal({ open, onOpenChange, ca
             <div className="space-y-2">
               <label className="text-sm font-medium">Pago em</label>
               <Input type="date" value={formData.paidAt || ''} onChange={(e) => setFormData((prev) => ({ ...prev, paidAt: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Forma de pagamento</label>
+              <Input value={formData.paymentMethod || ''} onChange={(e) => setFormData((prev) => ({ ...prev, paymentMethod: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Referência</label>
+              <Input value={formData.referenceCode || ''} onChange={(e) => setFormData((prev) => ({ ...prev, referenceCode: e.target.value }))} />
             </div>
 
             <div className="space-y-2 md:col-span-2">

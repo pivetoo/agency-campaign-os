@@ -4,6 +4,17 @@ import type { DataTableColumn } from 'archon-ui'
 import { campaignFinancialEntryService } from '../../services/campaignFinancialEntryService'
 import type { CampaignFinancialEntry } from '../../types/campaignFinancialEntry'
 
+const categoryLabels: Record<number, string> = {
+  1: 'Recebível da marca',
+  2: 'Repasse creator',
+  3: 'Fee da agência',
+  4: 'Custo operacional',
+  5: 'Bônus',
+  6: 'Ajuste',
+  7: 'Reembolso',
+  8: 'Imposto',
+}
+
 export default function FinancialPayables() {
   const [entries, setEntries] = useState<CampaignFinancialEntry[]>([])
   const { execute: fetchEntries, loading } = useApi<CampaignFinancialEntry[]>({ showErrorMessage: true })
@@ -21,6 +32,7 @@ export default function FinancialPayables() {
 
   const columns: DataTableColumn<CampaignFinancialEntry>[] = [
     { key: 'description', title: 'Descrição', dataIndex: 'description' },
+    { key: 'category', title: 'Categoria', dataIndex: 'category', render: (value: number) => categoryLabels[value] || '-' },
     { key: 'counterpartyName', title: 'Contraparte', dataIndex: 'counterpartyName' },
     { key: 'amount', title: 'Valor', dataIndex: 'amount', render: (value: number) => `R$ ${value.toFixed(2)}` },
     { key: 'dueAt', title: 'Vencimento', dataIndex: 'dueAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },

@@ -6,6 +6,15 @@ import { campaignService } from '../../services/campaignService'
 import type { Campaign } from '../../types/campaign'
 import CampaignFormModal from '../../components/modals/CampaignFormModal'
 
+const campaignStatusLabels: Record<number, string> = {
+  1: 'Rascunho',
+  2: 'Planejada',
+  3: 'Em execução',
+  4: 'Em revisão',
+  5: 'Concluída',
+  6: 'Cancelada',
+}
+
 export default function Campaigns() {
   const navigate = useNavigate()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
@@ -27,15 +36,16 @@ export default function Campaigns() {
   const columns: DataTableColumn<Campaign>[] = [
     { key: 'name', title: 'Campanha', dataIndex: 'name' },
     { key: 'brand', title: 'Marca', dataIndex: 'brand', render: (value: Campaign['brand']) => value?.name || '-' },
+    { key: 'objective', title: 'Objetivo', dataIndex: 'objective', render: (value?: string) => value || '-' },
     { key: 'budget', title: 'Budget', dataIndex: 'budget', render: (value: number) => `R$ ${value.toFixed(2)}` },
     { key: 'startsAt', title: 'Início', dataIndex: 'startsAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
     {
-      key: 'isActive',
+      key: 'status',
       title: 'Status',
-      dataIndex: 'isActive',
-      render: (value: boolean) => (
-        <Badge variant={value ? 'success' : 'destructive'}>
-          {value ? 'Ativa' : 'Inativa'}
+      dataIndex: 'status',
+      render: (value: number) => (
+        <Badge variant={value === 5 ? 'success' : value === 6 ? 'destructive' : 'warning'}>
+          {campaignStatusLabels[value] || '-'}
         </Badge>
       ),
     },
@@ -45,7 +55,7 @@ export default function Campaigns() {
     <>
       <PageLayout
         title="Campanhas"
-        subtitle="Gerencie campanhas, selecione creators e acompanhe a operação"
+        subtitle="Gerencie campanhas, casting, entregas e operação"
         onAdd={() => { setSelectedCampaign(null); setIsFormOpen(true) }}
         onEdit={() => selectedCampaign && setIsFormOpen(true)}
         onRefresh={() => void loadCampaigns()}
@@ -75,7 +85,6 @@ export default function Campaigns() {
           void loadCampaigns()
         }}
       />
-
     </>
   )
 }

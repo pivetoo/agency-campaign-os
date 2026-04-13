@@ -12,8 +12,11 @@ interface BrandFormModalProps {
 
 const initialFormData: CreateBrandRequest = {
   name: '',
+  tradeName: '',
+  document: '',
   contactName: '',
   contactEmail: '',
+  notes: '',
 }
 
 export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }: BrandFormModalProps) {
@@ -26,8 +29,11 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
     if (brand) {
       setFormData({
         name: brand.name,
+        tradeName: brand.tradeName || '',
+        document: brand.document || '',
         contactName: brand.contactName || '',
         contactEmail: brand.contactEmail || '',
+        notes: brand.notes || '',
       })
       setIsActive(brand.isActive)
       return
@@ -63,19 +69,36 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Nome</label>
-            <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
-          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2 col-span-2">
+              <label className="text-sm font-medium">Nome</label>
+              <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Contato</label>
-            <Input value={formData.contactName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))} />
-          </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Nome fantasia</label>
+              <Input value={formData.tradeName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, tradeName: e.target.value }))} />
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">E-mail</label>
-            <Input type="email" value={formData.contactEmail || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactEmail: e.target.value }))} />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Documento</label>
+              <Input value={formData.document || ''} onChange={(e) => setFormData((prev) => ({ ...prev, document: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Contato</label>
+              <Input value={formData.contactName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">E-mail</label>
+              <Input type="email" value={formData.contactEmail || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactEmail: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <label className="text-sm font-medium">Observações</label>
+              <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
+            </div>
           </div>
 
           {isEditing && (
