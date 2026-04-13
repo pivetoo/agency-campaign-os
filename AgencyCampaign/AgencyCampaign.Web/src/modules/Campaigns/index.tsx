@@ -3,21 +3,26 @@ import { PageLayout, DataTable, useApi, Card, CardContent } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { campaignService } from '../../services/campaignService'
 import type { Campaign, CampaignSummary } from '../../types/campaign'
+import CampaignFormModal from '../../components/modals/CampaignFormModal'
 
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
   const [summary, setSummary] = useState<CampaignSummary | null>(null)
+  const [isFormOpen, setIsFormOpen] = useState(false)
 
   const { execute: fetchCampaigns, loading } = useApi<Campaign[]>({ showErrorMessage: true })
   const { execute: fetchSummary } = useApi<CampaignSummary | null>({ showErrorMessage: true })
 
+  const loadCampaigns = async () => {
+    const result = await fetchCampaigns(() => campaignService.getAll())
+    if (result) {
+      setCampaigns(result)
+    }
+  }
+
   useEffect(() => {
-    void fetchCampaigns(() => campaignService.getAll()).then((result) => {
-      if (result) {
-        setCampaigns(result)
-      }
-    })
+    void loadCampaigns()
   }, [])
 
   useEffect(() => {
@@ -42,7 +47,13 @@ export default function Campaigns() {
 
   return (
     <div className="space-y-4">
-      <PageLayout title="Campanhas" onRefresh={() => void fetchCampaigns(() => campaignService.getAll()).then((result) => result && setCampaigns(result))}>
+      <PageLayout
+        title="Campanhas"
+        onAdd={() => { setSelectedCampaign(null); setIsFormOpen(true) }}
+        onEdit={() => selectedCampaign && setIsFormOpen(true)}
+        onRefresh={() => void loadCampaigns()}
+        selectedRowsCount={selectedCampaign ? 1 : 0}
+      >
         <DataTable
           columns={columns}
           data={campaigns}
@@ -72,6 +83,17 @@ export default function Campaigns() {
           </CardContent>
         </Card>
       )}
+
+      <CampaignFormModal
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        campaign={selectedCampaign}
+        onSuccess={() => {
+          setIsFormOpen(false)
+          setSelectedCampaign(null)
+          void loadCampaigns()
+        }}
+      />
     </div>
   )
 }
