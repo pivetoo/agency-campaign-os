@@ -110,13 +110,13 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent size="xl">
+      <ModalContent size="full" style={{ maxWidth: '1180px', width: '95vw' }}>
         <ModalHeader>
           <ModalTitle>{isEditing ? 'Editar campanha' : 'Nova campanha'}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
               <label className="text-sm font-medium">Marca</label>
               <Select value={formData.brandId ? String(formData.brandId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, brandId: Number(value) }))}>
@@ -155,17 +155,17 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
               <Input value={formData.internalOwnerName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, internalOwnerName: e.target.value }))} />
             </div>
 
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2">
               <label className="text-sm font-medium">Descrição</label>
               <Input value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
             </div>
 
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2">
               <label className="text-sm font-medium">Objetivo</label>
               <Input value={formData.objective || ''} onChange={(e) => setFormData((prev) => ({ ...prev, objective: e.target.value }))} />
             </div>
 
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2">
               <label className="text-sm font-medium">Briefing</label>
               <Input value={formData.briefing || ''} onChange={(e) => setFormData((prev) => ({ ...prev, briefing: e.target.value }))} />
             </div>
@@ -185,23 +185,27 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
               <Input type="date" value={formData.endsAt || ''} onChange={(e) => setFormData((prev) => ({ ...prev, endsAt: e.target.value }))} />
             </div>
 
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2">
               <label className="text-sm font-medium">Observações</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
 
-          {isEditing && (
-            <div className="flex items-center gap-2">
-              <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-              <span className="text-sm">Ativa</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+            <div>
+              {isEditing && (
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
+                  <span className="text-sm">Ativa</span>
+                </div>
+              )}
             </div>
-          )}
 
-          <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !formData.brandId}>{loading ? 'Salvando...' : 'Salvar'}</Button>
-          </ModalFooter>
+            <ModalFooter>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+              <Button type="submit" disabled={loading || !formData.brandId}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            </ModalFooter>
+          </div>
         </form>
       </ModalContent>
     </Modal>

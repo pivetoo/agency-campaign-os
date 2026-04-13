@@ -92,19 +92,19 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Creator</label>
-            <Select value={formData.creatorId ? String(formData.creatorId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: Number(value) }))} disabled={isEditing}>
-              <SelectTrigger><SelectValue placeholder="Selecione um creator" /></SelectTrigger>
-              <SelectContent>
-                {creators.map((creator) => (
-                  <SelectItem key={creator.id} value={String(creator.id)}>{creator.stageName || creator.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Creator</label>
+              <Select value={formData.creatorId ? String(formData.creatorId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: Number(value) }))} disabled={isEditing}>
+                <SelectTrigger><SelectValue placeholder="Selecione um creator" /></SelectTrigger>
+                <SelectContent>
+                  {creators.map((creator) => (
+                    <SelectItem key={creator.id} value={String(creator.id)}>{creator.stageName || creator.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Status</label>
               <Select value={String(formData.status)} onValueChange={(value) => setFormData((prev) => ({ ...prev, status: Number(value) }))}>

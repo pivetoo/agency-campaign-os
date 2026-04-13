@@ -63,14 +63,14 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent>
+      <ModalContent size="full" style={{ maxWidth: '960px', width: '95vw' }}>
         <ModalHeader>
           <ModalTitle>{isEditing ? 'Editar marca' : 'Nova marca'}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-2">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="space-y-2">
               <label className="text-sm font-medium">Nome</label>
               <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
             </div>
@@ -95,23 +95,27 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
               <Input type="email" value={formData.contactEmail || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactEmail: e.target.value }))} />
             </div>
 
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2">
               <label className="text-sm font-medium">Observações</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
 
-          {isEditing && (
-            <div className="flex items-center gap-2">
-              <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-              <span className="text-sm">Ativa</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+            <div>
+              {isEditing && (
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
+                  <span className="text-sm">Ativa</span>
+                </div>
+              )}
             </div>
-          )}
 
-          <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
-          </ModalFooter>
+            <ModalFooter>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+              <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            </ModalFooter>
+          </div>
         </form>
       </ModalContent>
     </Modal>

@@ -27,6 +27,7 @@ export default function Brands() {
     { key: 'tradeName', title: 'Nome fantasia', dataIndex: 'tradeName', render: (value?: string) => value || '-' },
     { key: 'document', title: 'Documento', dataIndex: 'document', render: (value?: string) => value || '-' },
     { key: 'contactName', title: 'Contato', dataIndex: 'contactName' },
+    { key: 'contactEmail', title: 'E-mail', dataIndex: 'contactEmail' },
     {
       key: 'isActive',
       title: 'Status',

@@ -71,18 +71,18 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent>
+      <ModalContent size="full" style={{ maxWidth: '1100px', width: '95vw' }}>
         <ModalHeader>
           <ModalTitle>{isEditing ? 'Editar influenciador' : 'Novo influenciador'}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-2">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="space-y-2">
               <label className="text-sm font-medium">Nome</label>
               <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
             </div>
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2">
               <label className="text-sm font-medium">Nome artístico</label>
               <Input value={formData.stageName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, stageName: e.target.value }))} />
             </div>
@@ -114,23 +114,27 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
               <label className="text-sm font-medium">Estado</label>
               <Input value={formData.state || ''} onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))} />
             </div>
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2">
               <label className="text-sm font-medium">Observações</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
 
-          {isEditing && (
-            <div className="flex items-center gap-2">
-              <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-              <span className="text-sm">Ativo</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+            <div>
+              {isEditing && (
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
+                  <span className="text-sm">Ativo</span>
+                </div>
+              )}
             </div>
-          )}
 
-          <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
-          </ModalFooter>
+            <ModalFooter>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+              <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            </ModalFooter>
+          </div>
         </form>
       </ModalContent>
     </Modal>
