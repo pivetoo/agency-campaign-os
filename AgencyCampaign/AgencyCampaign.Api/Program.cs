@@ -6,7 +6,6 @@ using Archon.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-bool hasIdentityManagementConfiguration = HasIdentityManagementConfiguration(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
@@ -22,11 +21,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddArchonApi(builder.Configuration, typeof(AgencyCampaignResource));
 builder.Services.AddAgencyCampaignInfrastructure(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
-
-if (hasIdentityManagementConfiguration)
-{
-    builder.Services.AddArchonAuthentication(builder.Configuration);
-}
+builder.Services.AddArchonAuthentication(builder.Configuration);
 
 var app = builder.Build();
 
@@ -39,30 +34,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AgencyCampaignCors");
 app.UseArchonApi();
-
-if (hasIdentityManagementConfiguration)
-{
-    app.UseAuthentication();
-}
-
+app.UseAuthentication();
 app.UseAuthorization();
-
-if (hasIdentityManagementConfiguration)
-{
-    app.UseSessionValidation();
-}
+app.UseSessionValidation();
 
 app.MapControllers();
 
-if (hasIdentityManagementConfiguration)
-{
-    await app.UseArchonAccessSyncAsync();
-}
+await app.UseArchonAccessSyncAsync();
 
 app.Run();
-
-static bool HasIdentityManagementConfiguration(IConfiguration configuration)
-{
-    return !string.IsNullOrWhiteSpace(configuration["IdentityManagement:Authority"]) &&
-           !string.IsNullOrWhiteSpace(configuration["IdentityManagement:IntegrationSecret"]);
-}

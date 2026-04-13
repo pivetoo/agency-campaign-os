@@ -1,11 +1,12 @@
+using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Brands;
 using AgencyCampaign.Application.Services;
+using AgencyCampaign.Domain.Entities;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using Archon.Core.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using AgencyCampaign.Application.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
@@ -24,7 +25,7 @@ namespace AgencyCampaign.Api.Controllers
         [GetEndpoint("[action]")]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
-            PagedResult<Domain.Entities.Brand> result = await brandService.GetBrands(request, cancellationToken);
+            PagedResult<Brand> result = await brandService.GetBrands(request, cancellationToken);
             return Http200(result);
         }
 

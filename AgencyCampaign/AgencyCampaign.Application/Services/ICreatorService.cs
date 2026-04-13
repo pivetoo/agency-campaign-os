@@ -1,0 +1,18 @@
+using AgencyCampaign.Application.Requests.Creators;
+using AgencyCampaign.Domain.Entities;
+using Archon.Application.Services;
+using Archon.Core.Pagination;
+
+namespace AgencyCampaign.Application.Services
+{
+    public interface ICreatorService : ICrudService<Creator>
+    {
+        Task<PagedResult<Creator>> GetCreators(PagedRequest request, CancellationToken cancellationToken = default);
+
+        Task<Creator?> GetCreatorById(long id, CancellationToken cancellationToken = default);
+
+        Task<Creator> CreateCreator(CreateCreatorRequest request, CancellationToken cancellationToken = default);
+
+        Task<Creator> UpdateCreator(long id, UpdateCreatorRequest request, CancellationToken cancellationToken = default);
+    }
+}
