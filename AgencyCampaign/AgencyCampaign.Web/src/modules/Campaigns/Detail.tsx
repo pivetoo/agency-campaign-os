@@ -146,42 +146,34 @@ export default function CampaignDetail() {
         }}
         showDefaultActions={false}
       >
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Badge variant={campaign?.status === 5 ? 'success' : campaign?.status === 6 ? 'destructive' : 'warning'}>
-                {campaign ? campaignStatusLabels[campaign.status] : '-'}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Budget</CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-bold">
-              R$ {(campaign?.budget ?? 0).toFixed(2)}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Período</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              {campaign?.startsAt ? new Date(campaign.startsAt).toLocaleDateString('pt-BR') : '-'}
-              {' até '}
-              {campaign?.endsAt ? new Date(campaign.endsAt).toLocaleDateString('pt-BR') : '-'}
-            </CardContent>
-          </Card>
-        </div>
-
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-start justify-between gap-4">
             <CardTitle>Resumo da campanha</CardTitle>
+
+            <div className="space-y-2 text-right">
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Status</p>
+                <div className="mt-1">
+                  <Badge className="px-2 py-0 text-[11px]" variant={campaign?.status === 5 ? 'success' : campaign?.status === 6 ? 'destructive' : 'warning'}>
+                    {campaign ? campaignStatusLabels[campaign.status] : '-'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Budget</p>
+                <p className="text-sm font-semibold">R$ {(campaign?.budget ?? 0).toFixed(2)}</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Período</p>
+                <p className="text-sm text-muted-foreground">
+                  {campaign?.startsAt ? new Date(campaign.startsAt).toLocaleDateString('pt-BR') : '-'}
+                  {' até '}
+                  {campaign?.endsAt ? new Date(campaign.endsAt).toLocaleDateString('pt-BR') : '-'}
+                </p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <div>
