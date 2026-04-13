@@ -47,10 +47,10 @@ export const campaignDeliverableService = {
   },
 
   update(id: number, data: UpdateCampaignDeliverableRequest) {
-    return httpClient.put<CampaignDeliverable>(`${BASE_URL}/${id}`, data)
+    return httpClient.put<CampaignDeliverable>(`${BASE_URL}/Update/${id}`, data)
   },
 
   remove(id: number) {
-    return httpClient.delete<CampaignDeliverable>(`${BASE_URL}/${id}`)
+    return httpClient.delete<CampaignDeliverable>(`${BASE_URL}/Delete/${id}`)
   },
 }

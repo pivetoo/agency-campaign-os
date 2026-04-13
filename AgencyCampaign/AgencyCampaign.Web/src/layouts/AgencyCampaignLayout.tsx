@@ -1,9 +1,12 @@
-import { Outlet, useNavigate } from 'react-router-dom'
+import { useMemo } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
+import type { BreadcrumbItem } from 'archon-ui'
 import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText } from 'lucide-react'
 
 export default function AgencyCampaignLayout() {
   const { user: authUser, contract, logout } = useAuth()
+  const location = useLocation()
   const navigate = useNavigate()
   const { createMenuGroup } = useAppNavigation({})
 
@@ -27,6 +30,34 @@ export default function AgencyCampaignLayout() {
     ]),
   ]
 
+  const breadcrumbs = useMemo((): BreadcrumbItem[] => {
+    const path = location.pathname
+    const crumbs: BreadcrumbItem[] = [
+      { label: 'Início', onClick: () => navigate('/') },
+    ]
+
+    const routeMap: Record<string, string> = {
+      '/': 'Dashboard',
+      '/marcas': 'Marcas',
+      '/creators': 'Influenciadores',
+      '/campanhas': 'Campanhas',
+      '/financeiro/receber': 'Contas a receber',
+      '/financeiro/pagar': 'Contas a pagar',
+    }
+
+    const currentLabel = routeMap[path]
+    if (currentLabel && currentLabel !== 'Dashboard') {
+      crumbs.push({ label: currentLabel })
+    }
+
+    if (path.match(/^\/campanhas\/\d+$/)) {
+      crumbs.push({ label: 'Campanhas', onClick: () => navigate('/campanhas') })
+      crumbs.push({ label: 'Detalhes' })
+    }
+
+    return crumbs
+  }, [location.pathname, navigate])
+
   return (
     <AppLayout
       title={contract?.systemApplicationName ?? 'Agency Campaign OS'}
@@ -38,7 +69,7 @@ export default function AgencyCampaignLayout() {
       }}
       onLogout={handleLogout}
       menuGroups={menuGroups}
-      breadcrumbs={[{ label: 'Início', onClick: () => navigate('/') }]}
+      breadcrumbs={breadcrumbs}
       notifications={[]}
       onNotificationRead={() => {}}
       onMarkAllAsRead={() => {}}

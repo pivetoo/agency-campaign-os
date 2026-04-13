@@ -32,6 +32,6 @@ export const creatorService = {
   },
 
   update(id: number, data: UpdateCreatorRequest) {
-    return httpClient.put<Creator>(`${BASE_URL}/${id}`, data)
+    return httpClient.put<Creator>(`${BASE_URL}/Update/${id}`, data)
   },
 }

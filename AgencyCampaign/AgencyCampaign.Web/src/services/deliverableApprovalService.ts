@@ -28,6 +28,6 @@ export const deliverableApprovalService = {
   },
 
   update(id: number, data: UpdateDeliverableApprovalRequest) {
-    return httpClient.put<DeliverableApproval>(`${BASE_URL}/${id}`, data)
+    return httpClient.put<DeliverableApproval>(`${BASE_URL}/Update/${id}`, data)
   },
 }

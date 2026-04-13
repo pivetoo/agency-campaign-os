@@ -31,6 +31,6 @@ export const campaignCreatorService = {
   },
 
   update(id: number, data: UpdateCampaignCreatorRequest) {
-    return httpClient.put<CampaignCreator>(`${BASE_URL}/${id}`, data)
+    return httpClient.put<CampaignCreator>(`${BASE_URL}/Update/${id}`, data)
   },
 }

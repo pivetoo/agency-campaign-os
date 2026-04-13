@@ -29,7 +29,7 @@ export const campaignService = {
   },
 
   async getById(id: number): Promise<Campaign | null> {
-    const response = await httpClient.get<Campaign>(`${BASE_URL}/${id}`)
+    const response = await httpClient.get<Campaign>(`${BASE_URL}/GetById/${id}`)
     return response.data ?? null
   },
 
@@ -43,6 +43,6 @@ export const campaignService = {
   },
 
   update(id: number, data: UpdateCampaignRequest) {
-    return httpClient.put<Campaign>(`${BASE_URL}/${id}`, data)
+    return httpClient.put<Campaign>(`${BASE_URL}/Update/${id}`, data)
   },
 }

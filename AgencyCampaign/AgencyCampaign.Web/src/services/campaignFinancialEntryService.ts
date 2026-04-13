@@ -40,6 +40,6 @@ export const campaignFinancialEntryService = {
   },
 
   update(id: number, data: UpdateCampaignFinancialEntryRequest) {
-    return httpClient.put<CampaignFinancialEntry>(`${BASE_URL}/${id}`, data)
+    return httpClient.put<CampaignFinancialEntry>(`${BASE_URL}/Update/${id}`, data)
   },
 }
