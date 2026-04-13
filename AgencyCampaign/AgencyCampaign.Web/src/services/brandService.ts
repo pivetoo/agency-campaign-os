@@ -5,8 +5,11 @@ const BASE_URL = '/Brands'
 
 export interface CreateBrandRequest {
   name: string
+  tradeName?: string
+  document?: string
   contactName?: string
   contactEmail?: string
+  notes?: string
 }
 
 export interface UpdateBrandRequest extends CreateBrandRequest {
@@ -25,6 +28,6 @@ export const brandService = {
   },
 
   update(id: number, data: UpdateBrandRequest) {
-    return httpClient.put<Brand>(`${BASE_URL}/Update/${id}`, data)
+    return httpClient.put<Brand>(`${BASE_URL}/${id}`, data)
   },
 }

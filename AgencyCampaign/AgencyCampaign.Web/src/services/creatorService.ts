@@ -5,10 +5,15 @@ const BASE_URL = '/Creators'
 
 export interface CreateCreatorRequest {
   name: string
+  stageName?: string
   email?: string
   phone?: string
   document?: string
   pixKey?: string
+  primaryNiche?: string
+  city?: string
+  state?: string
+  notes?: string
 }
 
 export interface UpdateCreatorRequest extends CreateCreatorRequest {
@@ -27,6 +32,6 @@ export const creatorService = {
   },
 
   update(id: number, data: UpdateCreatorRequest) {
-    return httpClient.put<Creator>(`${BASE_URL}/Update/${id}`, data)
+    return httpClient.put<Creator>(`${BASE_URL}/${id}`, data)
   },
 }

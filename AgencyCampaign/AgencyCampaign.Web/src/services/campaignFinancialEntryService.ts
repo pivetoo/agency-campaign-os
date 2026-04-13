@@ -7,9 +7,13 @@ export interface CreateCampaignFinancialEntryRequest {
   campaignId: number
   campaignDeliverableId?: number
   type: number
+  category: number
   description: string
   amount: number
   dueAt: string
+  occurredAt: string
+  paymentMethod?: string
+  referenceCode?: string
   paidAt?: string
   status: number
   counterpartyName?: string
@@ -36,6 +40,6 @@ export const campaignFinancialEntryService = {
   },
 
   update(id: number, data: UpdateCampaignFinancialEntryRequest) {
-    return httpClient.put<CampaignFinancialEntry>(`${BASE_URL}/Update/${id}`, data)
+    return httpClient.put<CampaignFinancialEntry>(`${BASE_URL}/${id}`, data)
   },
 }

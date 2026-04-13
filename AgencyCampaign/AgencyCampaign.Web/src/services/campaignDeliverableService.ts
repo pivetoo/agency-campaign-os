@@ -5,12 +5,16 @@ const BASE_URL = '/CampaignDeliverables'
 
 export interface CreateCampaignDeliverableRequest {
   campaignId: number
-  creatorId: number
+  campaignCreatorId: number
   title: string
   description?: string
+  type: number
+  platform: number
   dueAt: string
-  publishedAt?: string
   status: number
+  publishedUrl?: string
+  evidenceUrl?: string
+  notes?: string
   grossAmount: number
   creatorAmount: number
   agencyFeeAmount: number
@@ -20,9 +24,13 @@ export interface UpdateCampaignDeliverableRequest {
   id: number
   title: string
   description?: string
+  type: number
+  platform: number
   dueAt: string
-  publishedAt?: string
   status: number
+  publishedUrl?: string
+  evidenceUrl?: string
+  notes?: string
   grossAmount: number
   creatorAmount: number
   agencyFeeAmount: number
@@ -39,6 +47,10 @@ export const campaignDeliverableService = {
   },
 
   update(id: number, data: UpdateCampaignDeliverableRequest) {
-    return httpClient.put<CampaignDeliverable>(`${BASE_URL}/Update/${id}`, data)
+    return httpClient.put<CampaignDeliverable>(`${BASE_URL}/${id}`, data)
+  },
+
+  remove(id: number) {
+    return httpClient.delete<CampaignDeliverable>(`${BASE_URL}/${id}`)
   },
 }
