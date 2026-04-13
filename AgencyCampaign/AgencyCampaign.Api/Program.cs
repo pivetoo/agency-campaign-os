@@ -1,23 +1,68 @@
-var builder = WebApplication.CreateBuilder(args);
+using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Infrastructure.DependencyInjection;
+using Archon.Api.DependencyInjection;
+using Archon.Api.MultiTenancy;
+using Archon.Infrastructure.DependencyInjection;
+using Scalar.AspNetCore;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+bool hasIdentityManagementConfiguration = HasIdentityManagementConfiguration(builder.Configuration);
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AgencyCampaignCors", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+builder.Services.AddAuthorization();
+builder.Services.AddArchonApi(builder.Configuration, typeof(AgencyCampaignResource));
+builder.Services.AddAgencyCampaignInfrastructure(builder.Configuration);
+builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
+
+if (hasIdentityManagementConfiguration)
+{
+    builder.Services.AddArchonAuthentication(builder.Configuration);
+}
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AgencyCampaignCors");
+app.UseArchonApi();
+
+if (hasIdentityManagementConfiguration)
+{
+    app.UseAuthentication();
+}
 
 app.UseAuthorization();
 
+if (hasIdentityManagementConfiguration)
+{
+    app.UseSessionValidation();
+}
+
 app.MapControllers();
 
+if (hasIdentityManagementConfiguration)
+{
+    await app.UseArchonAccessSyncAsync();
+}
+
 app.Run();
+
+static bool HasIdentityManagementConfiguration(IConfiguration configuration)
+{
+    return !string.IsNullOrWhiteSpace(configuration["IdentityManagement:Authority"]) &&
+           !string.IsNullOrWhiteSpace(configuration["IdentityManagement:IntegrationSecret"]);
+}
