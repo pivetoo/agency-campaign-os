@@ -1,9 +1,44 @@
 import { useEffect, useState } from 'react'
 import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
+import { Ban, CheckCircle2 } from 'lucide-react'
 import { creatorService } from '../../services/creatorService'
 import type { Creator } from '../../types/creator'
 import CreatorFormModal from '../../components/modals/CreatorFormModal'
+
+const emptyCreator: Creator = {
+  id: 0,
+  name: '',
+  defaultAgencyFeePercent: 0,
+  isActive: false,
+  createdAt: '',
+}
+
+function withCreatorStatus(creator: Creator, isActive: boolean): Creator {
+  return {
+    ...emptyCreator,
+    ...creator,
+    isActive,
+  }
+}
+
+function toUpdateRequest(creator: Creator) {
+  return {
+    id: creator.id,
+    name: creator.name,
+    stageName: creator.stageName,
+    email: creator.email,
+    phone: creator.phone,
+    document: creator.document,
+    pixKey: creator.pixKey,
+    primaryNiche: creator.primaryNiche,
+    city: creator.city,
+    state: creator.state,
+    notes: creator.notes,
+    defaultAgencyFeePercent: creator.defaultAgencyFeePercent,
+    isActive: creator.isActive,
+  }
+}
 
 export default function Creators() {
   const [creators, setCreators] = useState<Creator[]>([])
@@ -11,6 +46,7 @@ export default function Creators() {
   const [previewCreator, setPreviewCreator] = useState<Creator | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const { execute: fetchCreators, loading } = useApi<Creator[]>({ showErrorMessage: true })
+  const { execute: executeUpdate, loading: updating } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   const loadCreators = async () => {
     const result = await fetchCreators(() => creatorService.getAll())
@@ -22,6 +58,18 @@ export default function Creators() {
   useEffect(() => {
     void loadCreators()
   }, [])
+
+  const handleToggleActive = async () => {
+    if (!selectedCreator) {
+      return
+    }
+
+    const result = await executeUpdate(() => creatorService.update(selectedCreator.id, toUpdateRequest(withCreatorStatus(selectedCreator, !selectedCreator.isActive))))
+    if (result !== null) {
+      setSelectedCreator(null)
+      void loadCreators()
+    }
+  }
 
   const columns: DataTableColumn<Creator>[] = [
     { key: 'name', title: 'Nome', dataIndex: 'name' },
@@ -49,6 +97,16 @@ export default function Creators() {
         onEdit={() => selectedCreator && setIsFormOpen(true)}
         onRefresh={() => void loadCreators()}
         selectedRowsCount={selectedCreator ? 1 : 0}
+        actions={[
+          {
+            key: 'toggle-active',
+            label: selectedCreator?.isActive ? 'Inativar' : 'Ativar',
+            icon: selectedCreator?.isActive ? <Ban className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />,
+            variant: selectedCreator?.isActive ? 'outline-danger' : 'outline-success',
+            onClick: () => { void handleToggleActive() },
+            disabled: !selectedCreator || updating,
+          },
+        ]}
       >
         <DataTable
           columns={columns}
@@ -98,6 +156,7 @@ export default function Creators() {
                     <SheetPreviewField label="Nicho" value={previewCreator.primaryNiche || '-'} />
                     <SheetPreviewField label="Cidade" value={previewCreator.city || '-'} />
                     <SheetPreviewField label="Estado" value={previewCreator.state || '-'} />
+                    <SheetPreviewField label="Fee padrão (%)" value={previewCreator.defaultAgencyFeePercent.toFixed(2)} />
                     <SheetPreviewField className="sm:col-span-2" label="E-mail" value={previewCreator.email || '-'} />
                     <SheetPreviewField className="sm:col-span-2" label="Observações" value={previewCreator.notes || '-'} />
                   </SheetPreviewGrid>

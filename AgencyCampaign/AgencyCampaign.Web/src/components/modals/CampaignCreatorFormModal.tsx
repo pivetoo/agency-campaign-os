@@ -33,7 +33,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
     if (open) {
       void fetchCreators(() => creatorService.getAll()).then((result) => {
         if (result) {
-          setCreators(result)
+          setCreators(result.filter((creator) => creator.isActive))
         }
       })
     }

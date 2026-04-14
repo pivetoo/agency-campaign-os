@@ -299,32 +299,12 @@ export default function CampaignDetail() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="summary" className="space-y-4">
+        <Tabs defaultValue="creators" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="summary">Resumo</TabsTrigger>
             <TabsTrigger value="creators">Creators</TabsTrigger>
             <TabsTrigger value="documents">Documentos</TabsTrigger>
             <TabsTrigger value="deliverables">Entregas</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="summary">
-            <Card>
-              <CardContent className="grid gap-4 py-6 md:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <p className="text-sm font-medium">Marca</p>
-                  <p className="text-sm text-muted-foreground">{campaign?.brand?.name || '-'}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Creators vinculados</p>
-                  <p className="text-sm text-muted-foreground">{campaignCreators.length}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Entregas cadastradas</p>
-                  <p className="text-sm text-muted-foreground">{deliverables.length}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="creators">
             <Card>
