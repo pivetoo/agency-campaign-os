@@ -104,6 +104,12 @@ export default function CampaignDetail() {
       dataIndex: 'agreedAmount',
       render: (value: number) => `R$ ${value.toFixed(2)}`,
     },
+    {
+      key: 'agencyFeeAmount',
+      title: 'Fee agência',
+      dataIndex: 'agencyFeeAmount',
+      render: (_value: number, record: CampaignCreator) => `R$ ${record.agencyFeeAmount.toFixed(2)} (${record.agencyFeePercent.toFixed(2)}%)`,
+    },
   ]
 
   const deliverableColumns: DataTableColumn<CampaignDeliverable>[] = [

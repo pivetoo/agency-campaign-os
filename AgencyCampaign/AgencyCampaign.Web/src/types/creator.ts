@@ -10,6 +10,7 @@ export interface Creator {
   city?: string
   state?: string
   notes?: string
+  defaultAgencyFeePercent: number
   isActive: boolean
   createdAt: string
   updatedAt?: string

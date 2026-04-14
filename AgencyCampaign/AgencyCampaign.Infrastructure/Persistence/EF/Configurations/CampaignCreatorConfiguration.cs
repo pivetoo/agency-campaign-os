@@ -13,6 +13,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.AgreedAmount)
                 .HasPrecision(18, 2);
 
+            builder.Property(entity => entity.AgencyFeePercent)
+                .HasPrecision(5, 2);
+
             builder.Property(entity => entity.AgencyFeeAmount)
                 .HasPrecision(18, 2);
 

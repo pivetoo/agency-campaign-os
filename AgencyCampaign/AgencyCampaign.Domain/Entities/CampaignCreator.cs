@@ -19,6 +19,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public decimal AgreedAmount { get; private set; }
 
+        public decimal AgencyFeePercent { get; private set; }
+
         public decimal AgencyFeeAmount { get; private set; }
 
         public string? Notes { get; private set; }
@@ -33,27 +35,27 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public CampaignCreator(long campaignId, long creatorId, decimal agreedAmount, decimal agencyFeeAmount, string? notes = null)
+        public CampaignCreator(long campaignId, long creatorId, decimal agreedAmount, decimal agencyFeePercent, string? notes = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignId);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(creatorId);
             ArgumentOutOfRangeException.ThrowIfNegative(agreedAmount);
-            ArgumentOutOfRangeException.ThrowIfNegative(agencyFeeAmount);
+            ArgumentOutOfRangeException.ThrowIfNegative(agencyFeePercent);
 
             CampaignId = campaignId;
             CreatorId = creatorId;
             AgreedAmount = agreedAmount;
-            AgencyFeeAmount = agencyFeeAmount;
+            AgencyFeePercent = agencyFeePercent;
+            AgencyFeeAmount = CalculateAgencyFeeAmount(agreedAmount, agencyFeePercent);
             Notes = Normalize(notes);
         }
 
-        public void Update(decimal agreedAmount, decimal agencyFeeAmount, string? notes)
+        public void Update(decimal agreedAmount, string? notes)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(agreedAmount);
-            ArgumentOutOfRangeException.ThrowIfNegative(agencyFeeAmount);
 
             AgreedAmount = agreedAmount;
-            AgencyFeeAmount = agencyFeeAmount;
+            AgencyFeeAmount = CalculateAgencyFeeAmount(agreedAmount, AgencyFeePercent);
             Notes = Normalize(notes);
         }
 
@@ -76,6 +78,11 @@ namespace AgencyCampaign.Domain.Entities
             }
 
             CancelledAt = null;
+        }
+
+        private static decimal CalculateAgencyFeeAmount(decimal agreedAmount, decimal agencyFeePercent)
+        {
+            return Math.Round(agreedAmount * agencyFeePercent / 100m, 2, MidpointRounding.AwayFromZero);
         }
 
         private static string? Normalize(string? value)

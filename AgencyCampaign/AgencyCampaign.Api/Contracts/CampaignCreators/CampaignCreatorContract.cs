@@ -16,6 +16,8 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
 
         public decimal AgreedAmount { get; init; }
 
+        public decimal AgencyFeePercent { get; init; }
+
         public decimal AgencyFeeAmount { get; init; }
 
         public string? Notes { get; init; }
@@ -39,6 +41,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
             CreatorId = item.CreatorId,
             Status = item.Status,
             AgreedAmount = item.AgreedAmount,
+            AgencyFeePercent = item.AgencyFeePercent,
             AgencyFeeAmount = item.AgencyFeeAmount,
             Notes = item.Notes,
             ConfirmedAt = item.ConfirmedAt,
@@ -52,7 +55,8 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
             {
                 Id = item.Creator.Id,
                 Name = item.Creator.Name,
-                StageName = item.Creator.StageName
+                StageName = item.Creator.StageName,
+                DefaultAgencyFeePercent = item.Creator.DefaultAgencyFeePercent
             },
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
@@ -73,5 +77,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
         public string Name { get; init; } = string.Empty;
 
         public string? StageName { get; init; }
+
+        public decimal DefaultAgencyFeePercent { get; init; }
     }
 }

@@ -21,6 +21,7 @@ const initialFormData: CreateCreatorRequest = {
   city: '',
   state: '',
   notes: '',
+  defaultAgencyFeePercent: 0,
 }
 
 export default function CreatorFormModal({ open, onOpenChange, creator, onSuccess }: CreatorFormModalProps) {
@@ -42,6 +43,7 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
         city: creator.city || '',
         state: creator.state || '',
         notes: creator.notes || '',
+        defaultAgencyFeePercent: creator.defaultAgencyFeePercent || 0,
       })
       setIsActive(creator.isActive)
       return
@@ -105,6 +107,10 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
             <div className="space-y-2">
               <label className="text-sm font-medium">Nicho principal</label>
               <Input value={formData.primaryNiche || ''} onChange={(e) => setFormData((prev) => ({ ...prev, primaryNiche: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Fee padrão da agência (%)</label>
+              <Input type="number" value={formData.defaultAgencyFeePercent} onChange={(e) => setFormData((prev) => ({ ...prev, defaultAgencyFeePercent: Number(e.target.value) }))} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Cidade</label>

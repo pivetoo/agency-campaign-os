@@ -14,6 +14,7 @@ export interface CreateCreatorRequest {
   city?: string
   state?: string
   notes?: string
+  defaultAgencyFeePercent: number
 }
 
 export interface UpdateCreatorRequest extends CreateCreatorRequest {

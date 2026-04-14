@@ -17,7 +17,8 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .AddColumn("primaryniche").AsString(120).Nullable()
                 .AddColumn("city").AsString(120).Nullable()
                 .AddColumn("state").AsString(50).Nullable()
-                .AddColumn("notes").AsString(1000).Nullable();
+                .AddColumn("notes").AsString(1000).Nullable()
+                .AddColumn("defaultagencyfeepercent").AsDecimal(5, 2).NotNullable().WithDefaultValue(0);
 
             Alter.Table("campaign")
                 .AddColumn("objective").AsString(500).Nullable()
@@ -32,6 +33,7 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithColumn("creatorid").AsInt64().NotNullable()
                 .WithColumn("status").AsInt32().NotNullable().WithDefaultValue(1)
                 .WithColumn("agreedamount").AsDecimal(18, 2).NotNullable().WithDefaultValue(0)
+                .WithColumn("agencyfeepercent").AsDecimal(5, 2).NotNullable().WithDefaultValue(0)
                 .WithColumn("agencyfeeamount").AsDecimal(18, 2).NotNullable().WithDefaultValue(0)
                 .WithColumn("notes").AsString(1000).Nullable()
                 .WithColumn("confirmedat").AsDateTimeOffset().Nullable()
@@ -62,8 +64,8 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithOptions().Unique();
 
             Execute.Sql(@"
-                INSERT INTO campaigncreator (campaignid, creatorid, status, agreedamount, agencyfeeamount, createdat)
-                SELECT DISTINCT campaignid, creatorid, 3, 0, 0, NOW()
+                INSERT INTO campaigncreator (campaignid, creatorid, status, agreedamount, agencyfeepercent, agencyfeeamount, createdat)
+                SELECT DISTINCT campaignid, creatorid, 3, 0, 0, 0, NOW()
                 FROM campaigndeliverable;
             ");
 
@@ -184,6 +186,7 @@ namespace AgencyCampaign.Infrastructure.Migrations
             Delete.Column("briefing").FromTable("campaign");
             Delete.Column("objective").FromTable("campaign");
 
+            Delete.Column("defaultagencyfeepercent").FromTable("creator");
             Delete.Column("notes").FromTable("creator");
             Delete.Column("state").FromTable("creator");
             Delete.Column("city").FromTable("creator");

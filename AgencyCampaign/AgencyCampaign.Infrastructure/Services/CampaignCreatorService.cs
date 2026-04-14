@@ -45,11 +45,15 @@ namespace AgencyCampaign.Infrastructure.Services
             await EnsureReferencesExist(request.CampaignId, request.CreatorId, cancellationToken);
             await EnsureUniqueCreatorPerCampaign(request.CampaignId, request.CreatorId, cancellationToken);
 
+            Creator creator = await DbContext.Set<Creator>()
+                .AsNoTracking()
+                .FirstAsync(item => item.Id == request.CreatorId, cancellationToken);
+
             CampaignCreator campaignCreator = new(
                 request.CampaignId,
                 request.CreatorId,
                 request.AgreedAmount,
-                request.AgencyFeeAmount,
+                request.AgencyFeePercent > 0 ? request.AgencyFeePercent : creator.DefaultAgencyFeePercent,
                 request.Notes);
 
             campaignCreator.ChangeStatus(request.Status);
@@ -79,7 +83,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
 
-            campaignCreator.Update(request.AgreedAmount, request.AgencyFeeAmount, request.Notes);
+            campaignCreator.Update(request.AgreedAmount, request.Notes);
             campaignCreator.ChangeStatus(request.Status);
 
             CampaignCreator? result = await Update(campaignCreator, cancellationToken);

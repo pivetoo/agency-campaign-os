@@ -37,7 +37,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Creator> CreateCreator(CreateCreatorRequest request, CancellationToken cancellationToken = default)
         {
-            Creator creator = new(request.Name, request.StageName, request.Email, request.Phone, request.Document, request.PixKey, request.PrimaryNiche, request.City, request.State, request.Notes);
+            Creator creator = new(request.Name, request.StageName, request.Email, request.Phone, request.Document, request.PixKey, request.PrimaryNiche, request.City, request.State, request.Notes, request.DefaultAgencyFeePercent);
             bool success = await Insert(cancellationToken, creator);
             if (!success)
             {
@@ -63,7 +63,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
 
-            creator.Update(request.Name, request.StageName, request.Email, request.Phone, request.Document, request.PixKey, request.PrimaryNiche, request.City, request.State, request.Notes, request.IsActive);
+            creator.Update(request.Name, request.StageName, request.Email, request.Phone, request.Document, request.PixKey, request.PrimaryNiche, request.City, request.State, request.Notes, request.DefaultAgencyFeePercent, request.IsActive);
 
             Creator? result = await Update(creator, cancellationToken);
             if (result is null)

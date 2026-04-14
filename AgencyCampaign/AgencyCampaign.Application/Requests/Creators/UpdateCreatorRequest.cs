@@ -39,6 +39,9 @@ namespace AgencyCampaign.Application.Requests.Creators
         [StringLength(1000)]
         public string? Notes { get; set; }
 
+        [Range(0, 100)]
+        public decimal DefaultAgencyFeePercent { get; set; }
+
         public bool IsActive { get; set; } = true;
     }
 }

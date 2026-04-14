@@ -27,6 +27,8 @@ namespace AgencyCampaign.Api.Contracts.Creators
 
         public string? Notes { get; init; }
 
+        public decimal DefaultAgencyFeePercent { get; init; }
+
         public bool IsActive { get; init; }
 
         public DateTimeOffset CreatedAt { get; init; }
@@ -46,6 +48,7 @@ namespace AgencyCampaign.Api.Contracts.Creators
             City = item.City,
             State = item.State,
             Notes = item.Notes,
+            DefaultAgencyFeePercent = item.DefaultAgencyFeePercent,
             IsActive = item.IsActive,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt

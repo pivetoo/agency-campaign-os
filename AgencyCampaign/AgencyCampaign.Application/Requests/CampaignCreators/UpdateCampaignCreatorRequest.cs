@@ -11,9 +11,6 @@ namespace AgencyCampaign.Application.Requests.CampaignCreators
         [Range(0, double.MaxValue)]
         public decimal AgreedAmount { get; set; }
 
-        [Range(0, double.MaxValue)]
-        public decimal AgencyFeeAmount { get; set; }
-
         [StringLength(1000)]
         public string? Notes { get; set; }
 

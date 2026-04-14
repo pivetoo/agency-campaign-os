@@ -7,7 +7,7 @@ export interface CreateCampaignCreatorRequest {
   campaignId: number
   creatorId: number
   agreedAmount: number
-  agencyFeeAmount: number
+  agencyFeePercent: number
   notes?: string
   status: number
 }
@@ -15,7 +15,6 @@ export interface CreateCampaignCreatorRequest {
 export interface UpdateCampaignCreatorRequest {
   id: number
   agreedAmount: number
-  agencyFeeAmount: number
   notes?: string
   status: number
 }

@@ -17,7 +17,7 @@ const initialFormData: CreateCampaignCreatorRequest = {
   campaignId: 0,
   creatorId: 0,
   agreedAmount: 0,
-  agencyFeeAmount: 0,
+  agencyFeePercent: 0,
   notes: '',
   status: 1,
 }
@@ -40,12 +40,28 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
   }, [open])
 
   useEffect(() => {
+    if (isEditing) {
+      return
+    }
+
+    const selectedCreator = creators.find((item) => item.id === formData.creatorId)
+    if (!selectedCreator) {
+      return
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      agencyFeePercent: selectedCreator.defaultAgencyFeePercent ?? 0,
+    }))
+  }, [creators, formData.creatorId, isEditing])
+
+  useEffect(() => {
     if (campaignCreator) {
       setFormData({
         campaignId,
         creatorId: campaignCreator.creatorId,
         agreedAmount: campaignCreator.agreedAmount,
-        agencyFeeAmount: campaignCreator.agencyFeeAmount,
+        agencyFeePercent: campaignCreator.agencyFeePercent,
         notes: campaignCreator.notes || '',
         status: campaignCreator.status,
       })
@@ -54,6 +70,8 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
 
     setFormData({ ...initialFormData, campaignId })
   }, [campaignCreator, campaignId, open])
+
+  const calculatedAgencyFeeAmount = Number(((formData.agreedAmount * (formData.agencyFeePercent || 0)) / 100).toFixed(2))
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -72,7 +90,6 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
         ? campaignCreatorService.update(campaignCreator.id, {
             id: campaignCreator.id,
             agreedAmount: payload.agreedAmount,
-            agencyFeeAmount: payload.agencyFeeAmount,
             notes: payload.notes,
             status: payload.status,
           } satisfies UpdateCampaignCreatorRequest)
@@ -99,7 +116,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
                 <SelectTrigger><SelectValue placeholder="Selecione um creator" /></SelectTrigger>
                 <SelectContent>
                   {creators.map((creator) => (
-                    <SelectItem key={creator.id} value={String(creator.id)}>{creator.stageName || creator.name}</SelectItem>
+                    <SelectItem key={creator.id} value={String(creator.id)}>{`${creator.stageName || creator.name} · fee ${creator.defaultAgencyFeePercent ?? 0}%`}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -126,8 +143,13 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Fee da agência</label>
-              <Input type="number" value={formData.agencyFeeAmount} onChange={(e) => setFormData((prev) => ({ ...prev, agencyFeeAmount: Number(e.target.value) }))} />
+              <label className="text-sm font-medium">Fee da agência (%)</label>
+              <Input type="number" value={formData.agencyFeePercent} disabled />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Fee calculado</label>
+              <Input type="number" value={calculatedAgencyFeeAmount} disabled />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
