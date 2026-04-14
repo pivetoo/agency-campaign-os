@@ -86,13 +86,13 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent>
+      <ModalContent size="full" style={{ maxWidth: '860px', width: '95vw' }}>
         <ModalHeader>
           <ModalTitle>{isEditing ? 'Editar creator da campanha' : 'Adicionar creator à campanha'}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
               <label className="text-sm font-medium">Creator</label>
               <Select value={formData.creatorId ? String(formData.creatorId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: Number(value) }))} disabled={isEditing}>
@@ -119,15 +119,18 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
                 </SelectContent>
               </Select>
             </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Valor combinado</label>
               <Input type="number" value={formData.agreedAmount} onChange={(e) => setFormData((prev) => ({ ...prev, agreedAmount: Number(e.target.value) }))} />
             </div>
-            <div className="space-y-2 col-span-2">
+
+            <div className="space-y-2">
               <label className="text-sm font-medium">Fee da agência</label>
               <Input type="number" value={formData.agencyFeeAmount} onChange={(e) => setFormData((prev) => ({ ...prev, agencyFeeAmount: Number(e.target.value) }))} />
             </div>
-            <div className="space-y-2 col-span-2">
+
+            <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
               <label className="text-sm font-medium">Observações</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>

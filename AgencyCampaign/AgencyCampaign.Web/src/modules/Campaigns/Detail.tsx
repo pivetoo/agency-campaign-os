@@ -146,36 +146,31 @@ export default function CampaignDetail() {
         }}
         showDefaultActions={false}
       >
-        <Card>
-          <CardHeader className="flex flex-row items-start justify-between gap-4">
-            <CardTitle>Resumo da campanha</CardTitle>
-
-            <div className="space-y-2 text-right">
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Status</p>
-                <div className="mt-1">
-                  <Badge className="px-2 py-0 text-[11px]" variant={campaign?.status === 5 ? 'success' : campaign?.status === 6 ? 'destructive' : 'warning'}>
-                    {campaign ? campaignStatusLabels[campaign.status] : '-'}
-                  </Badge>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Budget</p>
-                <p className="text-sm font-semibold">R$ {(campaign?.budget ?? 0).toFixed(2)}</p>
-              </div>
-
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Período</p>
-                <p className="text-sm text-muted-foreground">
-                  {campaign?.startsAt ? new Date(campaign.startsAt).toLocaleDateString('pt-BR') : '-'}
-                  {' até '}
-                  {campaign?.endsAt ? new Date(campaign.endsAt).toLocaleDateString('pt-BR') : '-'}
-                </p>
+        <Card className="border-0 bg-transparent shadow-none">
+          <CardContent className="grid gap-4 px-0 pt-0 pb-0 md:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <p className="text-sm font-medium">Status</p>
+              <div className="mt-1">
+                <Badge className="px-2 py-0 text-[11px]" variant={campaign?.status === 5 ? 'success' : campaign?.status === 6 ? 'destructive' : 'warning'}>
+                  {campaign ? campaignStatusLabels[campaign.status] : '-'}
+                </Badge>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
+
+            <div>
+              <p className="text-sm font-medium">Budget</p>
+              <p className="text-sm text-muted-foreground">R$ {(campaign?.budget ?? 0).toFixed(2)}</p>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium">Período</p>
+              <p className="text-sm text-muted-foreground">
+                {campaign?.startsAt ? new Date(campaign.startsAt).toLocaleDateString('pt-BR') : '-'}
+                {' até '}
+                {campaign?.endsAt ? new Date(campaign.endsAt).toLocaleDateString('pt-BR') : '-'}
+              </p>
+            </div>
+
             <div>
               <p className="text-sm font-medium">Objetivo</p>
               <p className="text-sm text-muted-foreground">{campaign?.objective || '-'}</p>
@@ -191,14 +186,14 @@ export default function CampaignDetail() {
               <p className="text-sm text-muted-foreground">{campaign?.description || '-'}</p>
             </div>
 
-            <div>
-              <p className="text-sm font-medium">Observações</p>
-              <p className="text-sm text-muted-foreground">{campaign?.notes || '-'}</p>
-            </div>
-
-            <div className="md:col-span-2">
+            <div className="lg:col-span-3">
               <p className="text-sm font-medium">Briefing</p>
               <p className="text-sm text-muted-foreground">{campaign?.briefing || '-'}</p>
+            </div>
+
+            <div className="lg:col-span-3">
+              <p className="text-sm font-medium">Observações</p>
+              <p className="text-sm text-muted-foreground">{campaign?.notes || '-'}</p>
             </div>
           </CardContent>
         </Card>
@@ -224,6 +219,8 @@ export default function CampaignDetail() {
               }}
               emptyText="Nenhum creator vinculado à campanha"
               loading={creatorsLoading}
+              pageSize={3}
+              pageSizeOptions={[3, 5, 10, 20]}
             />
           </CardContent>
         </Card>
@@ -249,6 +246,8 @@ export default function CampaignDetail() {
               }}
               emptyText="Nenhuma entrega cadastrada"
               loading={deliverablesLoading}
+              pageSize={3}
+              pageSizeOptions={[3, 5, 10, 20]}
             />
           </CardContent>
         </Card>
