@@ -1,3 +1,4 @@
+using AgencyCampaign.Infrastructure.Options;
 using Archon.Infrastructure.DependencyInjection;
 using Archon.Infrastructure.Migrations;
 using Archon.Infrastructure.MultiTenancy;
@@ -10,6 +11,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddAgencyCampaignInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<DocumentEmailOptions>(configuration.GetSection("DocumentEmail"));
             services.AddArchonPersistence(configuration, typeof(ServiceCollectionExtensions).Assembly);
             services.RunMigrations(
                 configuration,

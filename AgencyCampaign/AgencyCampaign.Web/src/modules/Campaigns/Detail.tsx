@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge } from 'archon-ui'
+import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Plus } from 'lucide-react'
+import { Mail, Plus, Signature } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
 import { campaignCreatorService } from '../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../services/campaignDeliverableService'
+import { campaignDocumentService } from '../../services/campaignDocumentService'
 import type { Campaign } from '../../types/campaign'
 import type { CampaignCreator } from '../../types/campaignCreator'
 import type { CampaignDeliverable } from '../../types/campaignDeliverable'
+import type { CampaignDocument } from '../../types/campaignDocument'
 import CampaignCreatorFormModal from '../../components/modals/CampaignCreatorFormModal'
 import CampaignDeliverableFormModal from '../../components/modals/CampaignDeliverableFormModal'
+import CampaignDocumentFormModal from '../../components/modals/CampaignDocumentFormModal'
+import CampaignDocumentEmailModal from '../../components/modals/CampaignDocumentEmailModal'
 
 const campaignStatusLabels: Record<number, string> = {
   1: 'Rascunho',
@@ -38,6 +42,24 @@ const campaignCreatorStatusLabels: Record<number, string> = {
   6: 'Cancelado',
 }
 
+const documentTypeLabels: Record<number, string> = {
+  1: 'Aceite do creator',
+  2: 'Contrato da marca',
+  3: 'Termo de autorização',
+  4: 'Anexo de briefing',
+  5: 'Outro',
+}
+
+const documentStatusLabels: Record<number, string> = {
+  1: 'Rascunho',
+  2: 'Pronto para envio',
+  3: 'Enviado',
+  4: 'Visualizado',
+  5: 'Assinado',
+  6: 'Rejeitado',
+  7: 'Cancelado',
+}
+
 export default function CampaignDetail() {
   const { id } = useParams<{ id: string }>()
   const campaignId = Number(id || 0)
@@ -47,12 +69,18 @@ export default function CampaignDetail() {
   const [selectedCampaignCreator, setSelectedCampaignCreator] = useState<CampaignCreator | null>(null)
   const [deliverables, setDeliverables] = useState<CampaignDeliverable[]>([])
   const [selectedDeliverable, setSelectedDeliverable] = useState<CampaignDeliverable | null>(null)
+  const [documents, setDocuments] = useState<CampaignDocument[]>([])
+  const [selectedDocument, setSelectedDocument] = useState<CampaignDocument | null>(null)
   const [isCreatorFormOpen, setIsCreatorFormOpen] = useState(false)
   const [isDeliverableFormOpen, setIsDeliverableFormOpen] = useState(false)
+  const [isDocumentFormOpen, setIsDocumentFormOpen] = useState(false)
+  const [isDocumentEmailOpen, setIsDocumentEmailOpen] = useState(false)
 
   const { execute: fetchCampaign } = useApi<Campaign | null>({ showErrorMessage: true })
   const { execute: fetchCampaignCreators, loading: creatorsLoading } = useApi<CampaignCreator[]>({ showErrorMessage: true })
   const { execute: fetchDeliverables, loading: deliverablesLoading } = useApi<CampaignDeliverable[]>({ showErrorMessage: true })
+  const { execute: fetchDocuments, loading: documentsLoading } = useApi<CampaignDocument[]>({ showErrorMessage: true })
+  const { execute: markSigned, loading: signingDocument } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   const loadCampaign = async () => {
     const result = await fetchCampaign(() => campaignService.getById(campaignId))
@@ -75,6 +103,13 @@ export default function CampaignDetail() {
     }
   }
 
+  const loadDocuments = async () => {
+    const result = await fetchDocuments(() => campaignDocumentService.getByCampaign(campaignId))
+    if (result) {
+      setDocuments(result)
+    }
+  }
+
   useEffect(() => {
     if (!campaignId) {
       return
@@ -83,6 +118,7 @@ export default function CampaignDetail() {
     void loadCampaign()
     void loadCampaignCreators()
     void loadDeliverables()
+    void loadDocuments()
   }, [campaignId])
 
   const campaignCreatorColumns: DataTableColumn<CampaignCreator>[] = [
@@ -146,6 +182,58 @@ export default function CampaignDetail() {
     },
   ]
 
+  const documentColumns: DataTableColumn<CampaignDocument>[] = [
+    { key: 'title', title: 'Documento', dataIndex: 'title' },
+    {
+      key: 'documentType',
+      title: 'Tipo',
+      dataIndex: 'documentType',
+      render: (value: number) => documentTypeLabels[value] || '-',
+    },
+    {
+      key: 'campaignCreatorId',
+      title: 'Creator',
+      dataIndex: 'campaignCreatorId',
+      render: (value?: number) => {
+        const campaignCreator = campaignCreators.find((item) => item.id === value)
+        return campaignCreator?.creator?.stageName || campaignCreator?.creator?.name || '-'
+      },
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      dataIndex: 'status',
+      render: (value: number) => documentStatusLabels[value] || '-',
+    },
+    {
+      key: 'sentAt',
+      title: 'Enviado em',
+      dataIndex: 'sentAt',
+      render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
+    },
+    {
+      key: 'signedAt',
+      title: 'Assinado em',
+      dataIndex: 'signedAt',
+      render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
+    },
+  ]
+
+  const handleMarkDocumentAsSigned = async () => {
+    if (!selectedDocument) {
+      return
+    }
+
+    const result = await markSigned(() => campaignDocumentService.markSigned(selectedDocument.id, {
+      signedAt: new Date().toISOString(),
+    }))
+
+    if (result !== null) {
+      await loadDocuments()
+      await loadCampaignCreators()
+    }
+  }
+
   return (
     <div className="space-y-4">
       <PageLayout
@@ -155,6 +243,7 @@ export default function CampaignDetail() {
           void loadCampaign()
           void loadCampaignCreators()
           void loadDeliverables()
+          void loadDocuments()
         }}
         showDefaultActions={false}
       >
@@ -210,59 +299,130 @@ export default function CampaignDetail() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Creators da campanha</CardTitle>
-            <Button size="sm" onClick={() => { setSelectedCampaignCreator(null); setIsCreatorFormOpen(true) }}>
-              <Plus size={16} className="mr-2" />
-              Adicionar creator
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <DataTable
-              columns={campaignCreatorColumns}
-              data={campaignCreators}
-              rowKey="id"
-              selectedRows={selectedCampaignCreator ? [selectedCampaignCreator] : []}
-              onSelectionChange={(rows) => setSelectedCampaignCreator(rows[0] ?? null)}
-              onRowDoubleClick={(row) => {
-                setSelectedCampaignCreator(row)
-                setIsCreatorFormOpen(true)
-              }}
-              emptyText="Nenhum creator vinculado à campanha"
-              loading={creatorsLoading}
-              pageSize={3}
-              pageSizeOptions={[3, 5, 10, 20]}
-            />
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="summary" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="summary">Resumo</TabsTrigger>
+            <TabsTrigger value="creators">Creators</TabsTrigger>
+            <TabsTrigger value="documents">Documentos</TabsTrigger>
+            <TabsTrigger value="deliverables">Entregas</TabsTrigger>
+          </TabsList>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Entregas</CardTitle>
-            <Button size="sm" onClick={() => { setSelectedDeliverable(null); setIsDeliverableFormOpen(true) }}>
-              <Plus size={16} className="mr-2" />
-              Nova entrega
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <DataTable
-              columns={deliverableColumns}
-              data={deliverables}
-              rowKey="id"
-              selectedRows={selectedDeliverable ? [selectedDeliverable] : []}
-              onSelectionChange={(rows) => setSelectedDeliverable(rows[0] ?? null)}
-              onRowDoubleClick={(row) => {
-                setSelectedDeliverable(row)
-                setIsDeliverableFormOpen(true)
-              }}
-              emptyText="Nenhuma entrega cadastrada"
-              loading={deliverablesLoading}
-              pageSize={3}
-              pageSizeOptions={[3, 5, 10, 20]}
-            />
-          </CardContent>
-        </Card>
+          <TabsContent value="summary">
+            <Card>
+              <CardContent className="grid gap-4 py-6 md:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <p className="text-sm font-medium">Marca</p>
+                  <p className="text-sm text-muted-foreground">{campaign?.brand?.name || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Creators vinculados</p>
+                  <p className="text-sm text-muted-foreground">{campaignCreators.length}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Entregas cadastradas</p>
+                  <p className="text-sm text-muted-foreground">{deliverables.length}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="creators">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Creators da campanha</CardTitle>
+                <Button size="sm" onClick={() => { setSelectedCampaignCreator(null); setIsCreatorFormOpen(true) }}>
+                  <Plus size={16} className="mr-2" />
+                  Adicionar creator
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <DataTable
+                  columns={campaignCreatorColumns}
+                  data={campaignCreators}
+                  rowKey="id"
+                  selectedRows={selectedCampaignCreator ? [selectedCampaignCreator] : []}
+                  onSelectionChange={(rows) => setSelectedCampaignCreator(rows[0] ?? null)}
+                  onRowDoubleClick={(row) => {
+                    setSelectedCampaignCreator(row)
+                    setIsCreatorFormOpen(true)
+                  }}
+                  emptyText="Nenhum creator vinculado à campanha"
+                  loading={creatorsLoading}
+                  pageSize={3}
+                  pageSizeOptions={[3, 5, 10, 20]}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Documentos</CardTitle>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => void handleMarkDocumentAsSigned()} disabled={!selectedDocument || signingDocument}>
+                    <Signature size={16} className="mr-2" />
+                    Marcar assinado
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setIsDocumentEmailOpen(true)} disabled={!selectedDocument}>
+                    <Mail size={16} className="mr-2" />
+                    Enviar e-mail
+                  </Button>
+                  <Button size="sm" onClick={() => { setSelectedDocument(null); setIsDocumentFormOpen(true) }}>
+                    <Plus size={16} className="mr-2" />
+                    Novo documento
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <DataTable
+                  columns={documentColumns}
+                  data={documents}
+                  rowKey="id"
+                  selectedRows={selectedDocument ? [selectedDocument] : []}
+                  onSelectionChange={(rows) => setSelectedDocument(rows[0] ?? null)}
+                  onRowDoubleClick={(row) => {
+                    setSelectedDocument(row)
+                    setIsDocumentFormOpen(true)
+                  }}
+                  emptyText="Nenhum documento cadastrado"
+                  loading={documentsLoading}
+                  pageSize={3}
+                  pageSizeOptions={[3, 5, 10, 20]}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="deliverables">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Entregas</CardTitle>
+                <Button size="sm" onClick={() => { setSelectedDeliverable(null); setIsDeliverableFormOpen(true) }}>
+                  <Plus size={16} className="mr-2" />
+                  Nova entrega
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <DataTable
+                  columns={deliverableColumns}
+                  data={deliverables}
+                  rowKey="id"
+                  selectedRows={selectedDeliverable ? [selectedDeliverable] : []}
+                  onSelectionChange={(rows) => setSelectedDeliverable(rows[0] ?? null)}
+                  onRowDoubleClick={(row) => {
+                    setSelectedDeliverable(row)
+                    setIsDeliverableFormOpen(true)
+                  }}
+                  emptyText="Nenhuma entrega cadastrada"
+                  loading={deliverablesLoading}
+                  pageSize={3}
+                  pageSizeOptions={[3, 5, 10, 20]}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </PageLayout>
 
       <CampaignCreatorFormModal
@@ -286,6 +446,30 @@ export default function CampaignDetail() {
           setIsDeliverableFormOpen(false)
           setSelectedDeliverable(null)
           void loadDeliverables()
+        }}
+      />
+
+      <CampaignDocumentFormModal
+        open={isDocumentFormOpen}
+        onOpenChange={setIsDocumentFormOpen}
+        campaignId={campaignId}
+        document={selectedDocument}
+        campaignCreators={campaignCreators}
+        onSuccess={() => {
+          setIsDocumentFormOpen(false)
+          setSelectedDocument(null)
+          void loadDocuments()
+        }}
+      />
+
+      <CampaignDocumentEmailModal
+        open={isDocumentEmailOpen}
+        onOpenChange={setIsDocumentEmailOpen}
+        document={selectedDocument}
+        campaignCreators={campaignCreators}
+        onSuccess={() => {
+          setIsDocumentEmailOpen(false)
+          void loadDocuments()
         }}
       />
     </div>

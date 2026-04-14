@@ -21,7 +21,7 @@ export default function AgencyCampaignLayout() {
     ]),
     createMenuGroup('Operação', [
       { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
-      { key: 'creators', label: 'Influenciadores', path: '/creators', icon: <Users size={20} /> },
+      { key: 'creators', label: 'Creators', path: '/creators', icon: <Users size={20} /> },
       { key: 'campanhas', label: 'Campanhas', path: '/campanhas', icon: <Megaphone size={20} /> },
     ]),
     createMenuGroup('Finanças', [
@@ -43,7 +43,7 @@ export default function AgencyCampaignLayout() {
     const routeMap: Record<string, string> = {
       '/': 'Dashboard',
       '/marcas': 'Marcas',
-      '/creators': 'Influenciadores',
+      '/creators': 'Creators',
       '/campanhas': 'Campanhas',
       '/financeiro/receber': 'Contas a receber',
       '/financeiro/pagar': 'Contas a pagar',
@@ -53,9 +53,6 @@ export default function AgencyCampaignLayout() {
 
     const currentLabel = routeMap[path]
     if (currentLabel && currentLabel !== 'Dashboard') {
-      if (path.startsWith('/configuracao/')) {
-        crumbs.push({ label: 'Configuração' })
-      }
       crumbs.push({ label: currentLabel })
     }
 

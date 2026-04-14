@@ -39,4 +39,7 @@
   <data name="deliverableApproval.duplicateType" xml:space="preserve">
     <value>Já existe uma aprovação deste tipo para a entrega informada.</value>
   </data>
+  <data name="email.configuration.invalid" xml:space="preserve">
+    <value>A configuração de e-mail não está válida para envio de documentos.</value>
+  </data>
 </root>
