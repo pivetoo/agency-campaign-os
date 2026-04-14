@@ -121,10 +121,16 @@ export default function CampaignDetail() {
       render: (value: CampaignDeliverable['campaignCreator']) => value?.stageName || value?.creatorName || '-',
     },
     {
-      key: 'type',
+      key: 'deliverableKind',
       title: 'Tipo',
-      dataIndex: 'type',
-      render: (value: number) => ({ 1: 'Reel', 2: 'Story', 3: 'Post feed', 4: 'Vídeo', 5: 'Live', 6: 'Combo', 7: 'Outro' }[value] || '-'),
+      dataIndex: 'deliverableKind',
+      render: (value: CampaignDeliverable['deliverableKind']) => value?.name || '-',
+    },
+    {
+      key: 'platform',
+      title: 'Plataforma',
+      dataIndex: 'platform',
+      render: (value: CampaignDeliverable['platform']) => value?.name || '-',
     },
     {
       key: 'status',

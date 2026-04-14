@@ -8,8 +8,8 @@ export interface CreateCampaignDeliverableRequest {
   campaignCreatorId: number
   title: string
   description?: string
-  type: number
-  platform: number
+  deliverableKindId: number
+  platformId: number
   dueAt: string
   status: number
   publishedUrl?: string
@@ -24,8 +24,8 @@ export interface UpdateCampaignDeliverableRequest {
   id: number
   title: string
   description?: string
-  type: number
-  platform: number
+  deliverableKindId: number
+  platformId: number
   dueAt: string
   status: number
   publishedUrl?: string

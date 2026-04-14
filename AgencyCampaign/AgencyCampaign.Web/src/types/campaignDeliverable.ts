@@ -4,8 +4,8 @@ export interface CampaignDeliverable {
   campaignCreatorId: number
   title: string
   description?: string
-  type: number
-  platform: number
+  deliverableKindId: number
+  platformId: number
   dueAt: string
   publishedAt?: string
   publishedUrl?: string
@@ -24,6 +24,14 @@ export interface CampaignDeliverable {
     creatorId: number
     creatorName: string
     stageName?: string
+  }
+  deliverableKind?: {
+    id: number
+    name: string
+  }
+  platform?: {
+    id: number
+    name: string
   }
   createdAt: string
   updatedAt?: string

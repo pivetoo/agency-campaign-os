@@ -8,6 +8,8 @@ import Campaigns from '../modules/Campaigns'
 import CampaignDetail from '../modules/Campaigns/Detail'
 import FinancialReceivables from '../modules/Financial/Receivables'
 import FinancialPayables from '../modules/Financial/Payables'
+import Platforms from '../modules/Configuration/Platforms'
+import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_PROVIDER_WEB
 
@@ -47,6 +49,8 @@ function AppRoutes() {
           <Route path="campanhas/:id" element={<CampaignDetail />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
+          <Route path="configuracao/plataformas" element={<Platforms />} />
+          <Route path="configuracao/tipos-entrega" element={<DeliverableKinds />} />
         </Route>
 
         <Route path="*" element={<div>Página não encontrada</div>} />

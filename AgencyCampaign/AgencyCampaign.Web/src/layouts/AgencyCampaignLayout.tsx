@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags } from 'lucide-react'
 
 export default function AgencyCampaignLayout() {
   const { user: authUser, contract, logout } = useAuth()
@@ -28,6 +28,10 @@ export default function AgencyCampaignLayout() {
       { key: 'financeiro-receber', label: 'Contas a receber', path: '/financeiro/receber', icon: <HandCoins size={20} /> },
       { key: 'financeiro-pagar', label: 'Contas a pagar', path: '/financeiro/pagar', icon: <ReceiptText size={20} /> },
     ]),
+    createMenuGroup('Configuração', [
+      { key: 'configuracao-plataformas', label: 'Plataformas', path: '/configuracao/plataformas', icon: <Globe size={20} /> },
+      { key: 'configuracao-tipos-entrega', label: 'Tipos de entrega', path: '/configuracao/tipos-entrega', icon: <Tags size={20} /> },
+    ]),
   ]
 
   const breadcrumbs = useMemo((): BreadcrumbItem[] => {
@@ -43,10 +47,15 @@ export default function AgencyCampaignLayout() {
       '/campanhas': 'Campanhas',
       '/financeiro/receber': 'Contas a receber',
       '/financeiro/pagar': 'Contas a pagar',
+      '/configuracao/plataformas': 'Plataformas',
+      '/configuracao/tipos-entrega': 'Tipos de entrega',
     }
 
     const currentLabel = routeMap[path]
     if (currentLabel && currentLabel !== 'Dashboard') {
+      if (path.startsWith('/configuracao/')) {
+        crumbs.push({ label: 'Configuração' })
+      }
       crumbs.push({ label: currentLabel })
     }
 
