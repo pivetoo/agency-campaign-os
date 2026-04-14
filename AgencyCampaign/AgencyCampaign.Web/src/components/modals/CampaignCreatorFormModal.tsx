@@ -139,7 +139,14 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Valor combinado</label>
-              <Input type="number" value={formData.agreedAmount} onChange={(e) => setFormData((prev) => ({ ...prev, agreedAmount: Number(e.target.value) }))} />
+              <Input
+                type="number"
+                value={formData.agreedAmount === 0 ? '' : formData.agreedAmount}
+                onChange={(e) => setFormData((prev) => ({
+                  ...prev,
+                  agreedAmount: e.target.value === '' ? 0 : Number(e.target.value),
+                }))}
+              />
             </div>
 
             <div className="space-y-2">

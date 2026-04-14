@@ -43,14 +43,14 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<CampaignDeliverable> CreateDeliverable(CreateCampaignDeliverableRequest request, CancellationToken cancellationToken = default)
         {
-            await EnsureReferencesExist(request.CampaignId, request.CampaignCreatorId, cancellationToken);
+            await EnsureReferencesExist(request.CampaignId, request.CampaignCreatorId, request.DeliverableKindId, request.PlatformId, cancellationToken);
 
             CampaignDeliverable deliverable = new(
                 request.CampaignId,
                 request.CampaignCreatorId,
                 request.Title,
-                request.Type,
-                request.Platform,
+                request.DeliverableKindId,
+                request.PlatformId,
                 request.DueAt,
                 request.GrossAmount,
                 request.CreatorAmount,
@@ -85,10 +85,12 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
 
+            await EnsureReferencesExist(deliverable.CampaignId, deliverable.CampaignCreatorId, request.DeliverableKindId, request.PlatformId, cancellationToken);
+
             deliverable.Update(
                 request.Title,
-                request.Type,
-                request.Platform,
+                request.DeliverableKindId,
+                request.PlatformId,
                 request.DueAt,
                 request.GrossAmount,
                 request.CreatorAmount,
@@ -124,7 +126,7 @@ namespace AgencyCampaign.Infrastructure.Services
             return await Delete([deliverable], cancellationToken) ? deliverable : null;
         }
 
-        private async Task EnsureReferencesExist(long campaignId, long campaignCreatorId, CancellationToken cancellationToken)
+        private async Task EnsureReferencesExist(long campaignId, long campaignCreatorId, long deliverableKindId, long platformId, CancellationToken cancellationToken)
         {
             bool campaignExists = await DbContext.Set<Campaign>()
                 .AsNoTracking()
@@ -140,6 +142,24 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AnyAsync(item => item.Id == campaignCreatorId && item.CampaignId == campaignId, cancellationToken);
 
             if (!campaignCreatorExists)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+
+            bool deliverableKindExists = await DbContext.Set<DeliverableKind>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == deliverableKindId && item.IsActive, cancellationToken);
+
+            if (!deliverableKindExists)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+
+            bool platformExists = await DbContext.Set<Platform>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == platformId && item.IsActive, cancellationToken);
+
+            if (!platformExists)
             {
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
@@ -169,6 +189,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Include(item => item.Campaign)
                 .Include(item => item.CampaignCreator!)
                     .ThenInclude(item => item.Creator)
+                .Include(item => item.DeliverableKind)
+                .Include(item => item.Platform)
                 .Include(item => item.Approvals);
         }
     }

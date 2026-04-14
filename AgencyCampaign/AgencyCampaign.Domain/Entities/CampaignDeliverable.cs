@@ -19,9 +19,13 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? Description { get; private set; }
 
-        public DeliverableType Type { get; private set; }
+        public long DeliverableKindId { get; private set; }
 
-        public SocialPlatform Platform { get; private set; }
+        public DeliverableKind? DeliverableKind { get; private set; }
+
+        public long PlatformId { get; private set; }
+
+        public Platform? Platform { get; private set; }
 
         public DateTimeOffset DueAt { get; private set; }
 
@@ -47,10 +51,12 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public CampaignDeliverable(long campaignId, long campaignCreatorId, string title, DeliverableType type, SocialPlatform platform, DateTimeOffset dueAt, decimal grossAmount, decimal creatorAmount, decimal agencyFeeAmount, string? description = null, string? notes = null)
+        public CampaignDeliverable(long campaignId, long campaignCreatorId, string title, long deliverableKindId, long platformId, DateTimeOffset dueAt, decimal grossAmount, decimal creatorAmount, decimal agencyFeeAmount, string? description = null, string? notes = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignId);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignCreatorId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(deliverableKindId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(platformId);
             ArgumentException.ThrowIfNullOrWhiteSpace(title);
             ArgumentOutOfRangeException.ThrowIfNegative(grossAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(creatorAmount);
@@ -60,8 +66,8 @@ namespace AgencyCampaign.Domain.Entities
             CampaignCreatorId = campaignCreatorId;
             Title = title.Trim();
             Description = Normalize(description);
-            Type = type;
-            Platform = platform;
+            DeliverableKindId = deliverableKindId;
+            PlatformId = platformId;
             DueAt = dueAt.ToUniversalTime();
             GrossAmount = grossAmount;
             CreatorAmount = creatorAmount;
@@ -69,17 +75,19 @@ namespace AgencyCampaign.Domain.Entities
             Notes = Normalize(notes);
         }
 
-        public void Update(string title, DeliverableType type, SocialPlatform platform, DateTimeOffset dueAt, decimal grossAmount, decimal creatorAmount, decimal agencyFeeAmount, string? description, string? notes)
+        public void Update(string title, long deliverableKindId, long platformId, DateTimeOffset dueAt, decimal grossAmount, decimal creatorAmount, decimal agencyFeeAmount, string? description, string? notes)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(title);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(deliverableKindId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(platformId);
             ArgumentOutOfRangeException.ThrowIfNegative(grossAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(creatorAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(agencyFeeAmount);
 
             Title = title.Trim();
             Description = Normalize(description);
-            Type = type;
-            Platform = platform;
+            DeliverableKindId = deliverableKindId;
+            PlatformId = platformId;
             DueAt = dueAt.ToUniversalTime();
             GrossAmount = grossAmount;
             CreatorAmount = creatorAmount;

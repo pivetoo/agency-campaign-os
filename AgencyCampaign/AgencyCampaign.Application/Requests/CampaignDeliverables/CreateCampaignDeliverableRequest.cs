@@ -21,10 +21,12 @@ namespace AgencyCampaign.Application.Requests.CampaignDeliverables
         public string? Description { get; set; }
 
         [Required]
-        public DeliverableType Type { get; set; }
+        [Range(1, long.MaxValue)]
+        public long DeliverableKindId { get; set; }
 
         [Required]
-        public SocialPlatform Platform { get; set; }
+        [Range(1, long.MaxValue)]
+        public long PlatformId { get; set; }
 
         [Required]
         public DateTimeOffset DueAt { get; set; }

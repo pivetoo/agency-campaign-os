@@ -44,6 +44,16 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .WithMany(entity => entity.Deliverables)
                 .HasForeignKey(entity => entity.CampaignCreatorId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(entity => entity.DeliverableKind)
+                .WithMany()
+                .HasForeignKey(entity => entity.DeliverableKindId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(entity => entity.Platform)
+                .WithMany()
+                .HasForeignKey(entity => entity.PlatformId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
