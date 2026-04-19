@@ -14,7 +14,7 @@ import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_PROVIDER_WEB
 
 function AppRoutes() {
-  const { user } = useAuth()
+  const { isAuthenticated } = useAuth()
 
   return (
     <BrowserRouter>
@@ -32,7 +32,7 @@ function AppRoutes() {
         <Route
           element={
             <ProtectedRoute
-              isAuthenticated={!!user}
+              isAuthenticated={isAuthenticated}
               redirectTo={identityManagementUrl}
               externalRedirect={true}
               preserveExternalReturn={true}
