@@ -12,6 +12,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<OpportunityNegotiation> UpdateOpportunityNegotiation(long id, UpdateOpportunityNegotiationRequest request, CancellationToken cancellationToken = default);
 
+        Task<OpportunityNegotiation> ChangeStatus(long id, ChangeOpportunityNegotiationStatusRequest request, CancellationToken cancellationToken = default);
+
         Task DeleteOpportunityNegotiation(long id, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<OpportunityNegotiation>> GetNegotiationsByOpportunityId(long opportunityId, CancellationToken cancellationToken = default);

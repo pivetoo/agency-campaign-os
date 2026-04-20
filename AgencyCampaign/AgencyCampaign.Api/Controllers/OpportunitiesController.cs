@@ -187,6 +187,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapNegotiation(negotiation), Localizer["record.updated"]);
         }
 
+        [RequireAccess("Permite alterar o status de uma negociação.")]
+        [PostEndpoint("negotiations/{id:long}/[action]")]
+        public async Task<IActionResult> ChangeStatus(long id, [FromBody] ChangeOpportunityNegotiationStatusRequest request, CancellationToken cancellationToken)
+        {
+            OpportunityNegotiation negotiation = await negotiationService.ChangeStatus(id, request, cancellationToken);
+            return Http200(MapNegotiation(negotiation), Localizer["record.updated"]);
+        }
+
         [RequireAccess("Permite excluir uma negociação da oportunidade.")]
         [DeleteEndpoint("negotiations/{id:long}")]
         public async Task<IActionResult> DeleteNegotiation(long id, CancellationToken cancellationToken)

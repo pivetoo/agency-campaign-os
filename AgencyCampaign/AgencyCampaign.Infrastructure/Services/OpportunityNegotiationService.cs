@@ -2,6 +2,7 @@ using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,47 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             negotiation.Update(request.Title, request.Amount, request.NegotiatedAt, request.Notes);
+
+            OpportunityNegotiation? result = await Update(negotiation, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return await GetOpportunityNegotiationById(id, cancellationToken) ?? negotiation;
+        }
+
+        public async Task<OpportunityNegotiation> ChangeStatus(long id, ChangeOpportunityNegotiationStatusRequest request, CancellationToken cancellationToken = default)
+        {
+            OpportunityNegotiation? negotiation = await DbContext.Set<OpportunityNegotiation>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (negotiation is null)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+
+            switch (request.Status)
+            {
+                case OpportunityNegotiationStatus.PendingApproval:
+                    negotiation.MarkPendingApproval();
+                    break;
+                case OpportunityNegotiationStatus.Approved:
+                    negotiation.Approve();
+                    break;
+                case OpportunityNegotiationStatus.Rejected:
+                    negotiation.Reject();
+                    break;
+                case OpportunityNegotiationStatus.SentToClient:
+                    negotiation.MarkSentToClient();
+                    break;
+                case OpportunityNegotiationStatus.AcceptedByClient:
+                    negotiation.MarkAcceptedByClient();
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsupported negotiation status transition.");
+            }
 
             OpportunityNegotiation? result = await Update(negotiation, cancellationToken);
             if (result is null)
