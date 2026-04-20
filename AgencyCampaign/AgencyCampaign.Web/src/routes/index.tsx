@@ -6,6 +6,7 @@ import Brands from '../modules/Brands'
 import Creators from '../modules/Creators'
 import Campaigns from '../modules/Campaigns'
 import CampaignDetail from '../modules/Campaigns/Detail'
+import Commercial from '../modules/Commercial'
 import FinancialReceivables from '../modules/Financial/Receivables'
 import FinancialPayables from '../modules/Financial/Payables'
 import Platforms from '../modules/Configuration/Platforms'
@@ -47,6 +48,7 @@ function AppRoutes() {
           <Route path="creators" element={<Creators />} />
           <Route path="campanhas" element={<Campaigns />} />
           <Route path="campanhas/:id" element={<CampaignDetail />} />
+          <Route path="comercial" element={<Commercial />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
           <Route path="configuracao/plataformas" element={<Platforms />} />
