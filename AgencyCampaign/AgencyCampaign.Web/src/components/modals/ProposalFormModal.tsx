@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { proposalService, type Proposal, type CreateProposalRequest, type UpdateProposalRequest } from '../../services/proposalService'
 import { brandService, type Brand } from '../../services/brandService'
 
@@ -76,24 +76,21 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Marca</label>
-              <select
-                value={formData.brandId}
-                onChange={(e) => setFormData((prev) => ({ ...prev, brandId: Number(e.target.value) }))}
-                required
-                style={{
-                  width: '100%',
-                  padding: '0.5rem',
-                  borderRadius: '0.375rem',
-                  border: '1px solid #e5e7eb',
-                }}
+              <Select
+                value={formData.brandId ? String(formData.brandId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, brandId: Number(value) }))}
               >
-                <option value={0}>Selecione...</option>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
                 {brands.map((brand) => (
-                  <option key={brand.id} value={brand.id}>
+                  <SelectItem key={brand.id} value={String(brand.id)}>
                     {brand.name}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

@@ -31,11 +31,11 @@ export default function Commercial() {
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
-  const { execute: fetchProposals, loading } = useApi<{ items: Proposal[]; total: number }>({ showErrorMessage: true })
+  const { execute: fetchProposals, loading } = useApi<Proposal[]>({ showErrorMessage: true })
   const loadProposals = async () => {
     const result = await fetchProposals(() => proposalService.getAll())
     if (result) {
-      setProposals(result.items)
+      setProposals(result)
     }
   }
 
@@ -46,27 +46,27 @@ export default function Commercial() {
   const columns: DataTableColumn<Proposal>[] = [
     { key: 'name', title: 'Proposta', dataIndex: 'name' },
     { key: 'brand', title: 'Marca', dataIndex: 'brand', render: (value?: Proposal['brand']) => value?.name || '-' },
-    { key: 'totalValue', title: 'Valor Total', dataIndex: 'totalValue', render: (value: number) => `R$ ${value.toFixed(2)}` },
+    { key: 'totalValue', title: 'Valor Total', dataIndex: 'totalValue', render: (value?: number) => value != null ? `R$ ${value.toFixed(2)}` : '-' },
     { key: 'validityUntil', title: 'Validade', dataIndex: 'validityUntil', render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-' },
     {
       key: 'status',
       title: 'Status',
       dataIndex: 'status',
-      render: (value: number) => (
-        <Badge variant={proposalStatusVariant[value] || 'default'}>
-          {proposalStatusLabels[value] || '-'}
+      render: (value?: number) => (
+        <Badge variant={proposalStatusVariant[value ?? 0] || 'default'}>
+          {proposalStatusLabels[value ?? 0] || '-'}
         </Badge>
       ),
     },
-    { key: 'items', title: 'Itens', dataIndex: 'items', render: (value: Proposal['items']) => value.length },
-    { key: 'createdAt', title: 'Criada em', dataIndex: 'createdAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
+    { key: 'items', title: 'Itens', dataIndex: 'items', render: (value?: Proposal['items']) => value?.length ?? 0 },
+    { key: 'createdAt', title: 'Criada em', dataIndex: 'createdAt', render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-' },
   ]
 
   return (
     <>
       <PageLayout
-        title="Comercial"
-        subtitle="Gerencie propostas comerciais e conversão para campanhas"
+        title="Propostas"
+        subtitle="Gerencie propostas e conversão para campanhas"
         onAdd={() => { setSelectedProposal(null); setIsFormOpen(true) }}
         onEdit={() => selectedProposal && setIsFormOpen(true)}
         onRefresh={() => void loadProposals()}

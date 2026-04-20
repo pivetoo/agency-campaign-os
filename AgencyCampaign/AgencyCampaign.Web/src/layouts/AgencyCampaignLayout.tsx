@@ -19,10 +19,12 @@ export default function AgencyCampaignLayout() {
     createMenuGroup('Geral', [
       { key: 'dashboard', label: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     ]),
+    createMenuGroup('Propostas', [
+      { key: 'comercial', label: 'Propostas', path: '/comercial', icon: <Briefcase size={20} /> },
+    ]),
     createMenuGroup('Operação', [
       { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
       { key: 'creators', label: 'Creators', path: '/creators', icon: <Users size={20} /> },
-      { key: 'comercial', label: 'Comercial', path: '/comercial', icon: <Briefcase size={20} /> },
       { key: 'campanhas', label: 'Campanhas', path: '/campanhas', icon: <Megaphone size={20} /> },
     ]),
     createMenuGroup('Finanças', [
@@ -43,9 +45,9 @@ export default function AgencyCampaignLayout() {
 
     const routeMap: Record<string, string> = {
       '/': 'Dashboard',
+      '/comercial': 'Propostas',
       '/marcas': 'Marcas',
       '/creators': 'Creators',
-      '/comercial': 'Comercial',
       '/campanhas': 'Campanhas',
       '/financeiro/receber': 'Contas a receber',
       '/financeiro/pagar': 'Contas a pagar',
