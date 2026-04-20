@@ -290,6 +290,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .Include(item => item.Brand)
                 .Include(item => item.Negotiations)
+                    .ThenInclude(item => item.ApprovalRequests)
                 .Include(item => item.FollowUps)
                 .Include(item => item.Proposals);
         }

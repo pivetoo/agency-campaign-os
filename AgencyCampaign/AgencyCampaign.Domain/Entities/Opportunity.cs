@@ -1,5 +1,6 @@
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AgencyCampaign.Domain.Entities
 {
@@ -44,6 +45,9 @@ namespace AgencyCampaign.Domain.Entities
         public IReadOnlyCollection<OpportunityFollowUp> FollowUps => followUps.AsReadOnly();
 
         public IReadOnlyCollection<Proposal> Proposals => proposals.AsReadOnly();
+
+        [NotMapped]
+        public IReadOnlyCollection<OpportunityApprovalRequest> ApprovalRequests => negotiations.SelectMany(item => item.ApprovalRequests).ToArray();
 
         private Opportunity()
         {

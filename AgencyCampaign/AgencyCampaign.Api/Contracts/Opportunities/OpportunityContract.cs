@@ -78,8 +78,26 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
                 OpportunityId = negotiation.OpportunityId,
                 Title = negotiation.Title,
                 Amount = negotiation.Amount,
+                Status = negotiation.Status,
                 NegotiatedAt = negotiation.NegotiatedAt,
                 Notes = negotiation.Notes,
+                ApprovalRequests = negotiation.ApprovalRequests.ToList().Select(approval => new OpportunityApprovalRequestContract
+                {
+                    Id = approval.Id,
+                    OpportunityNegotiationId = approval.OpportunityNegotiationId,
+                    ApprovalType = approval.ApprovalType,
+                    Status = approval.Status,
+                    Reason = approval.Reason,
+                    RequestedByUserId = approval.RequestedByUserId,
+                    RequestedByUserName = approval.RequestedByUserName,
+                    ApprovedByUserId = approval.ApprovedByUserId,
+                    ApprovedByUserName = approval.ApprovedByUserName,
+                    RequestedAt = approval.RequestedAt,
+                    DecidedAt = approval.DecidedAt,
+                    DecisionNotes = approval.DecisionNotes,
+                    CreatedAt = approval.CreatedAt,
+                    UpdatedAt = approval.UpdatedAt
+                }).ToList(),
                 CreatedAt = negotiation.CreatedAt,
                 UpdatedAt = negotiation.UpdatedAt
             }).ToList(),
@@ -119,9 +137,13 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public decimal Amount { get; init; }
 
+        public OpportunityNegotiationStatus Status { get; init; }
+
         public DateTimeOffset NegotiatedAt { get; init; }
 
         public string? Notes { get; init; }
+
+        public List<OpportunityApprovalRequestContract> ApprovalRequests { get; init; } = [];
 
         public DateTimeOffset CreatedAt { get; init; }
 
@@ -133,11 +155,60 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
             OpportunityId = item.OpportunityId,
             Title = item.Title,
             Amount = item.Amount,
+            Status = item.Status,
             NegotiatedAt = item.NegotiatedAt,
             Notes = item.Notes,
+            ApprovalRequests = item.ApprovalRequests.ToList().Select(approval => new OpportunityApprovalRequestContract
+            {
+                Id = approval.Id,
+                OpportunityNegotiationId = approval.OpportunityNegotiationId,
+                ApprovalType = approval.ApprovalType,
+                Status = approval.Status,
+                Reason = approval.Reason,
+                RequestedByUserId = approval.RequestedByUserId,
+                RequestedByUserName = approval.RequestedByUserName,
+                ApprovedByUserId = approval.ApprovedByUserId,
+                ApprovedByUserName = approval.ApprovedByUserName,
+                RequestedAt = approval.RequestedAt,
+                DecidedAt = approval.DecidedAt,
+                DecisionNotes = approval.DecisionNotes,
+                CreatedAt = approval.CreatedAt,
+                UpdatedAt = approval.UpdatedAt
+            }).ToList(),
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
         };
+    }
+
+    public sealed class OpportunityApprovalRequestContract
+    {
+        public long Id { get; init; }
+
+        public long OpportunityNegotiationId { get; init; }
+
+        public OpportunityApprovalType ApprovalType { get; init; }
+
+        public OpportunityApprovalStatus Status { get; init; }
+
+        public string Reason { get; init; } = string.Empty;
+
+        public long? RequestedByUserId { get; init; }
+
+        public string RequestedByUserName { get; init; } = string.Empty;
+
+        public long? ApprovedByUserId { get; init; }
+
+        public string? ApprovedByUserName { get; init; }
+
+        public DateTimeOffset RequestedAt { get; init; }
+
+        public DateTimeOffset? DecidedAt { get; init; }
+
+        public string? DecisionNotes { get; init; }
+
+        public DateTimeOffset CreatedAt { get; init; }
+
+        public DateTimeOffset? UpdatedAt { get; init; }
     }
 
     public sealed class OpportunityFollowUpContract
