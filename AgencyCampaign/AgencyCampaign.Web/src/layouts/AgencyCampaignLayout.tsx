@@ -9,6 +9,7 @@ export default function AgencyCampaignLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const { createMenuGroup } = useAppNavigation({})
+  const sidebarLogo = <img src="/logo-sistema.svg" alt="Agency Campaign OS" style={{ width: 28, height: 28 }} />
 
   const handleLogout = async () => {
     await AuthService.logoutFromServer()
@@ -19,8 +20,11 @@ export default function AgencyCampaignLayout() {
     createMenuGroup('Geral', [
       { key: 'dashboard', label: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     ]),
-    createMenuGroup('Propostas', [
-      { key: 'comercial', label: 'Propostas', path: '/comercial', icon: <Briefcase size={20} /> },
+    createMenuGroup('Comercial', [
+      { key: 'comercial-oportunidades', label: 'Oportunidades', path: '/comercial', icon: <Briefcase size={20} /> },
+      { key: 'comercial-propostas', label: 'Propostas', path: '/comercial/propostas', icon: <Tags size={20} /> },
+      { key: 'comercial-negociacoes', label: 'Negociações', path: '/comercial/negociacoes', icon: <ReceiptText size={20} /> },
+      { key: 'comercial-followups', label: 'Follow-ups', path: '/comercial/followups', icon: <HandCoins size={20} /> },
     ]),
     createMenuGroup('Operação', [
       { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
@@ -45,7 +49,11 @@ export default function AgencyCampaignLayout() {
 
     const routeMap: Record<string, string> = {
       '/': 'Dashboard',
-      '/comercial': 'Propostas',
+      '/comercial': 'Oportunidades',
+      '/comercial/oportunidades': 'Oportunidades',
+      '/comercial/propostas': 'Propostas',
+      '/comercial/negociacoes': 'Negociações',
+      '/comercial/followups': 'Follow-ups',
       '/marcas': 'Marcas',
       '/creators': 'Creators',
       '/campanhas': 'Campanhas',
@@ -60,6 +68,11 @@ export default function AgencyCampaignLayout() {
       crumbs.push({ label: currentLabel })
     }
 
+    if (path.match(/^\/comercial\/oportunidades\/\d+$/)) {
+      crumbs.push({ label: 'Oportunidades', onClick: () => navigate('/comercial/oportunidades') })
+      crumbs.push({ label: 'Detalhes' })
+    }
+
     if (path.match(/^\/campanhas\/\d+$/)) {
       crumbs.push({ label: 'Campanhas', onClick: () => navigate('/campanhas') })
       crumbs.push({ label: 'Detalhes' })
@@ -71,6 +84,7 @@ export default function AgencyCampaignLayout() {
   return (
     <AppLayout
       title={contract?.systemApplicationName ?? 'Agency Campaign OS'}
+      logo={sidebarLogo}
       subtitle={contract?.companyName ?? ''}
       user={{
         name: authUser?.name ?? '',
