@@ -27,6 +27,7 @@ export interface Proposal {
   description?: string
   status: number
   validityUntil?: string
+  opportunityId?: number
   totalValue: number
   internalOwnerId: number
   internalOwnerName?: string
@@ -50,6 +51,7 @@ export interface CreateProposalRequest {
   name: string
   description?: string
   validityUntil?: string
+  opportunityId?: number
   notes?: string
   internalOwnerId?: number
   internalOwnerName?: string
@@ -119,7 +121,7 @@ export const proposalService = {
   },
 
   update(id: number, data: UpdateProposalRequest) {
-    return httpClient.put<Proposal>(`${BASE_URL}/Update/${id}`, data)
+    return httpClient.put<Proposal>(`${BASE_URL}/${id}`, data)
   },
 
   send(id: number) {
@@ -152,7 +154,7 @@ export const proposalService = {
   },
 
   updateItem(id: number, data: UpdateProposalItemRequest) {
-    return httpClient.put<ProposalItem>(`${BASE_URL}/items/Update/${id}`, data)
+    return httpClient.put<ProposalItem>(`${BASE_URL}/items/${id}`, data)
   },
 
   deleteItem(id: number) {

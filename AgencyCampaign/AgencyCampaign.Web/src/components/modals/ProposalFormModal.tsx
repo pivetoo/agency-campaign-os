@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { proposalService, type Proposal, type CreateProposalRequest, type UpdateProposalRequest } from '../../services/proposalService'
-import { brandService, type Brand } from '../../services/brandService'
+import { opportunityService, type Opportunity } from '../../services/opportunityService'
+import { brandService } from '../../services/brandService'
+import type { Brand } from '../../types/brand'
 
 interface ProposalFormModalProps {
   open: boolean
@@ -22,10 +24,12 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
   const isEditing = !!proposal
   const [formData, setFormData] = useState<CreateProposalRequest>(initialFormData)
   const [brands, setBrands] = useState<Brand[]>([])
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
     void brandService.getAll().then(setBrands)
+    void opportunityService.getAll().then(setOpportunities)
   }, [])
 
   useEffect(() => {
@@ -35,6 +39,7 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
         name: proposal.name,
         description: proposal.description || '',
         validityUntil: proposal.validityUntil,
+        opportunityId: proposal.opportunityId,
         notes: proposal.notes || '',
       })
       return
@@ -105,6 +110,26 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
             <div className="space-y-2">
               <label className="text-sm font-medium">Descrição</label>
               <Input value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Oportunidade</label>
+              <Select
+                value={formData.opportunityId ? String(formData.opportunityId) : '_none'}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, opportunityId: value === '_none' ? undefined : Number(value) }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Opcional" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none">Sem vínculo</SelectItem>
+                  {opportunities.map((opportunity) => (
+                    <SelectItem key={opportunity.id} value={String(opportunity.id)}>
+                      {`${opportunity.name} · ${opportunity.brand?.name || 'Marca'}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
