@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { opportunityService, type Opportunity, type OpportunityFollowUp, type OpportunityNegotiation } from '../../services/opportunityService'
+import { opportunityService, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
 import OpportunityNegotiationFormModal from '../../components/modals/OpportunityNegotiationFormModal'
 import OpportunityFollowUpFormModal from '../../components/modals/OpportunityFollowUpFormModal'
+import OpportunityApprovalRequestFormModal from '../../components/modals/OpportunityApprovalRequestFormModal'
 
 const stageLabels: Record<number, string> = {
   1: 'Lead',
@@ -16,15 +17,41 @@ const stageLabels: Record<number, string> = {
   6: 'Perdida',
 }
 
+const negotiationStatusLabels: Record<number, string> = {
+  1: 'Rascunho',
+  2: 'Pendente aprovação',
+  3: 'Aprovada',
+  4: 'Rejeitada',
+  5: 'Enviada ao cliente',
+  6: 'Aceita pelo cliente',
+  7: 'Cancelada',
+}
+
+const approvalTypeLabels: Record<number, string> = {
+  1: 'Desconto',
+  2: 'Margem',
+  3: 'Prazo',
+  4: 'Exceção',
+}
+
+const approvalStatusLabels: Record<number, string> = {
+  1: 'Pendente',
+  2: 'Aprovada',
+  3: 'Rejeitada',
+  4: 'Cancelada',
+}
+
 export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>()
   const opportunityId = Number(id || 0)
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
   const [selectedNegotiation, setSelectedNegotiation] = useState<OpportunityNegotiation | null>(null)
+  const [selectedApprovalRequest, setSelectedApprovalRequest] = useState<OpportunityApprovalRequest | null>(null)
   const [selectedFollowUp, setSelectedFollowUp] = useState<OpportunityFollowUp | null>(null)
   const [isOpportunityFormOpen, setIsOpportunityFormOpen] = useState(false)
   const [isNegotiationFormOpen, setIsNegotiationFormOpen] = useState(false)
+  const [isApprovalRequestFormOpen, setIsApprovalRequestFormOpen] = useState(false)
   const [isFollowUpFormOpen, setIsFollowUpFormOpen] = useState(false)
   const [selectedStage, setSelectedStage] = useState<string>('1')
 
@@ -52,8 +79,17 @@ export default function OpportunityDetail() {
   const negotiationColumns: DataTableColumn<OpportunityNegotiation>[] = [
     { key: 'title', title: 'Título', dataIndex: 'title' },
     { key: 'amount', title: 'Valor', dataIndex: 'amount', render: (value: number) => `R$ ${value.toFixed(2)}` },
+    { key: 'status', title: 'Status', dataIndex: 'status', render: (value: number) => negotiationStatusLabels[value] || '-' },
     { key: 'negotiatedAt', title: 'Data', dataIndex: 'negotiatedAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
     { key: 'notes', title: 'Observações', dataIndex: 'notes', render: (value?: string) => value || '-' },
+  ]
+
+  const approvalColumns: DataTableColumn<OpportunityApprovalRequest>[] = [
+    { key: 'approvalType', title: 'Tipo', dataIndex: 'approvalType', render: (value: number) => approvalTypeLabels[value] || '-' },
+    { key: 'status', title: 'Status', dataIndex: 'status', render: (value: number) => <Badge variant={value === 2 ? 'success' : value === 3 ? 'destructive' : 'warning'}>{approvalStatusLabels[value] || '-'}</Badge> },
+    { key: 'requestedByUserName', title: 'Solicitado por', dataIndex: 'requestedByUserName' },
+    { key: 'reason', title: 'Motivo', dataIndex: 'reason' },
+    { key: 'requestedAt', title: 'Solicitado em', dataIndex: 'requestedAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
   ]
 
   const followUpColumns: DataTableColumn<OpportunityFollowUp>[] = [
@@ -119,6 +155,40 @@ export default function OpportunityDetail() {
       await loadOpportunity()
     }
   }
+
+  const handleApproveRequest = async () => {
+    if (!selectedApprovalRequest) {
+      return
+    }
+
+    const result = await executeAction(() => opportunityService.approveRequest(selectedApprovalRequest.id, {
+      approvedByUserName: 'Aprovador interno',
+      decisionNotes: 'Aprovação realizada no fluxo comercial.',
+    }))
+
+    if (result !== null) {
+      setSelectedApprovalRequest(null)
+      await loadOpportunity()
+    }
+  }
+
+  const handleRejectRequest = async () => {
+    if (!selectedApprovalRequest) {
+      return
+    }
+
+    const result = await executeAction(() => opportunityService.rejectRequest(selectedApprovalRequest.id, {
+      approvedByUserName: 'Aprovador interno',
+      decisionNotes: 'Rejeitada no fluxo comercial.',
+    }))
+
+    if (result !== null) {
+      setSelectedApprovalRequest(null)
+      await loadOpportunity()
+    }
+  }
+
+  const approvalRequests = useMemo(() => opportunity?.negotiations.flatMap((item) => item.approvalRequests ?? []) ?? [], [opportunity])
 
   const handleCompleteFollowUp = async () => {
     if (!selectedFollowUp) {
@@ -196,6 +266,7 @@ export default function OpportunityDetail() {
             <TabsTrigger value="summary">Resumo</TabsTrigger>
             <TabsTrigger value="proposals">Propostas</TabsTrigger>
             <TabsTrigger value="negotiations">Negociações</TabsTrigger>
+            <TabsTrigger value="approvals">Aprovações</TabsTrigger>
             <TabsTrigger value="followups">Follow-ups</TabsTrigger>
           </TabsList>
 
@@ -238,6 +309,7 @@ export default function OpportunityDetail() {
               <CardContent>
                 <div className="mb-2 flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => selectedNegotiation && setIsNegotiationFormOpen(true)} disabled={!selectedNegotiation}>Editar</Button>
+                  <Button size="sm" variant="secondary" onClick={() => setIsApprovalRequestFormOpen(true)} disabled={!selectedNegotiation}>Solicitar aprovação</Button>
                   <Button size="sm" variant="danger" onClick={() => void handleDeleteNegotiation()} disabled={!selectedNegotiation || actionLoading}>Excluir</Button>
                 </div>
                 <DataTable
@@ -247,6 +319,30 @@ export default function OpportunityDetail() {
                   selectedRows={selectedNegotiation ? [selectedNegotiation] : []}
                   onSelectionChange={(rows) => setSelectedNegotiation(rows[0] ?? null)}
                   emptyText="Nenhuma negociação cadastrada"
+                  loading={loading}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="approvals">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Aprovações</CardTitle>
+                <Button size="sm" onClick={() => setIsApprovalRequestFormOpen(true)} disabled={!selectedNegotiation}>Nova aprovação</Button>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-2 flex gap-2">
+                  <Button size="sm" variant="secondary" onClick={() => void handleApproveRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>Aprovar</Button>
+                  <Button size="sm" variant="danger" onClick={() => void handleRejectRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>Rejeitar</Button>
+                </div>
+                <DataTable
+                  columns={approvalColumns}
+                  data={approvalRequests}
+                  rowKey="id"
+                  selectedRows={selectedApprovalRequest ? [selectedApprovalRequest] : []}
+                  onSelectionChange={(rows) => setSelectedApprovalRequest(rows[0] ?? null)}
+                  emptyText="Nenhuma aprovação cadastrada"
                   loading={loading}
                 />
               </CardContent>
@@ -310,6 +406,16 @@ export default function OpportunityDetail() {
         onSuccess={() => {
           setIsFollowUpFormOpen(false)
           setSelectedFollowUp(null)
+          void loadOpportunity()
+        }}
+      />
+
+      <OpportunityApprovalRequestFormModal
+        open={isApprovalRequestFormOpen}
+        onOpenChange={setIsApprovalRequestFormOpen}
+        negotiation={selectedNegotiation}
+        onSuccess={() => {
+          setIsApprovalRequestFormOpen(false)
           void loadOpportunity()
         }}
       />

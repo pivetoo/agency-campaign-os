@@ -16,8 +16,27 @@ export interface OpportunityNegotiation {
   opportunityId: number
   title: string
   amount: number
+  status: number
   negotiatedAt: string
   notes?: string
+  approvalRequests: OpportunityApprovalRequest[]
+  createdAt: string
+  updatedAt?: string
+}
+
+export interface OpportunityApprovalRequest {
+  id: number
+  opportunityNegotiationId: number
+  approvalType: number
+  status: number
+  reason: string
+  requestedByUserId?: number
+  requestedByUserName: string
+  approvedByUserId?: number
+  approvedByUserName?: string
+  requestedAt: string
+  decidedAt?: string
+  decisionNotes?: string
   createdAt: string
   updatedAt?: string
 }
@@ -146,8 +165,27 @@ export interface CreateOpportunityNegotiationRequest {
 export interface UpdateOpportunityNegotiationRequest {
   title: string
   amount: number
+  status?: number
   negotiatedAt: string
   notes?: string
+}
+
+export interface ChangeOpportunityNegotiationStatusRequest {
+  status: number
+}
+
+export interface CreateOpportunityApprovalRequest {
+  opportunityNegotiationId: number
+  approvalType: number
+  reason: string
+  requestedByUserId?: number
+  requestedByUserName: string
+}
+
+export interface DecideOpportunityApprovalRequest {
+  approvedByUserId?: number
+  approvedByUserName: string
+  decisionNotes?: string
 }
 
 export interface CreateOpportunityFollowUpRequest {
@@ -252,8 +290,29 @@ export const opportunityService = {
     return httpClient.put<OpportunityNegotiation>(`${BASE_URL}/negotiations/${id}`, data)
   },
 
+  changeNegotiationStatus(id: number, data: ChangeOpportunityNegotiationStatusRequest) {
+    return httpClient.post<OpportunityNegotiation>(`${BASE_URL}/negotiations/${id}/ChangeStatus`, data)
+  },
+
   deleteNegotiation(id: number) {
     return httpClient.delete(`${BASE_URL}/negotiations/${id}`)
+  },
+
+  async getApprovalRequests(negotiationId: number): Promise<OpportunityApprovalRequest[]> {
+    const response = await httpClient.get<OpportunityApprovalRequest[]>(`/OpportunityApprovals/negotiation/${negotiationId}`)
+    return response.data ?? []
+  },
+
+  createApprovalRequest(data: CreateOpportunityApprovalRequest) {
+    return httpClient.post<OpportunityApprovalRequest>('/OpportunityApprovals/Create', data)
+  },
+
+  approveRequest(id: number, data: DecideOpportunityApprovalRequest) {
+    return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/Approve`, data)
+  },
+
+  rejectRequest(id: number, data: DecideOpportunityApprovalRequest) {
+    return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/Reject`, data)
   },
 
   async getFollowUps(opportunityId: number): Promise<OpportunityFollowUp[]> {
