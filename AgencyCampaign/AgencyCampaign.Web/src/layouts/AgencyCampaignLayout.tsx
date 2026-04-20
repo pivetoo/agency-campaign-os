@@ -21,9 +21,10 @@ export default function AgencyCampaignLayout() {
       { key: 'dashboard', label: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     ]),
     createMenuGroup('Comercial', [
-      { key: 'comercial-oportunidades', label: 'Oportunidades', path: '/comercial', icon: <Briefcase size={20} /> },
+      { key: 'comercial-oportunidades', label: 'Oportunidades', path: '/comercial/oportunidades', icon: <Briefcase size={20} /> },
       { key: 'comercial-propostas', label: 'Propostas', path: '/comercial/propostas', icon: <Tags size={20} /> },
       { key: 'comercial-negociacoes', label: 'Negociações', path: '/comercial/negociacoes', icon: <ReceiptText size={20} /> },
+      { key: 'comercial-aprovacoes', label: 'Aprovações', path: '/comercial/aprovacoes', icon: <Globe size={20} /> },
       { key: 'comercial-followups', label: 'Follow-ups', path: '/comercial/followups', icon: <HandCoins size={20} /> },
     ]),
     createMenuGroup('Operação', [
@@ -53,6 +54,7 @@ export default function AgencyCampaignLayout() {
       '/comercial/oportunidades': 'Oportunidades',
       '/comercial/propostas': 'Propostas',
       '/comercial/negociacoes': 'Negociações',
+      '/comercial/aprovacoes': 'Aprovações',
       '/comercial/followups': 'Follow-ups',
       '/marcas': 'Marcas',
       '/creators': 'Creators',

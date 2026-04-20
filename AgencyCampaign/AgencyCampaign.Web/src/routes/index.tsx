@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 import { Callback, ProtectedRoute, useAuth } from 'archon-ui'
 import AgencyCampaignLayout from '../layouts/AgencyCampaignLayout'
 import Dashboard from '../modules/Dashboard'
@@ -11,6 +11,7 @@ import CommercialOpportunityDetail from '../modules/Commercial/OpportunityDetail
 import CommercialProposals from '../modules/Commercial/Proposals'
 import CommercialNegotiations from '../modules/Commercial/Negotiations'
 import CommercialFollowUps from '../modules/Commercial/FollowUps'
+import CommercialApprovals from '../modules/Commercial/Approvals'
 import FinancialReceivables from '../modules/Financial/Receivables'
 import FinancialPayables from '../modules/Financial/Payables'
 import Platforms from '../modules/Configuration/Platforms'
@@ -52,11 +53,12 @@ function AppRoutes() {
           <Route path="creators" element={<Creators />} />
           <Route path="campanhas" element={<Campaigns />} />
           <Route path="campanhas/:id" element={<CampaignDetail />} />
-          <Route path="comercial" element={<CommercialOpportunities />} />
+          <Route path="comercial" element={<Navigate to="/comercial/oportunidades" replace />} />
           <Route path="comercial/oportunidades" element={<CommercialOpportunities />} />
           <Route path="comercial/oportunidades/:id" element={<CommercialOpportunityDetail />} />
           <Route path="comercial/propostas" element={<CommercialProposals />} />
           <Route path="comercial/negociacoes" element={<CommercialNegotiations />} />
+          <Route path="comercial/aprovacoes" element={<CommercialApprovals />} />
           <Route path="comercial/followups" element={<CommercialFollowUps />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
