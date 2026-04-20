@@ -15,6 +15,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public Campaign? Campaign { get; private set; }
 
+        public long? OpportunityId { get; private set; }
+
+        public Opportunity? Opportunity { get; private set; }
+
         public string Name { get; private set; } = string.Empty;
 
         public string? Description { get; private set; }
@@ -37,7 +41,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Proposal(long brandId, string name, long internalOwnerId, string? description = null, DateTimeOffset? validityUntil = null, string? notes = null)
+        public Proposal(long brandId, string name, long internalOwnerId, string? description = null, DateTimeOffset? validityUntil = null, string? notes = null, long? opportunityId = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(brandId);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -47,6 +51,7 @@ namespace AgencyCampaign.Domain.Entities
             Name = name.Trim();
             Description = Normalize(description);
             ValidityUntil = validityUntil?.ToUniversalTime();
+            OpportunityId = opportunityId;
             InternalOwnerId = internalOwnerId;
             Notes = Normalize(notes);
             Status = ProposalStatus.Draft;
@@ -59,7 +64,7 @@ namespace AgencyCampaign.Domain.Entities
             TotalValue = total;
         }
 
-        public void Update(string name, long brandId, DateTimeOffset? validityUntil, string? description, string? notes)
+        public void Update(string name, long brandId, DateTimeOffset? validityUntil, string? description, string? notes, long? opportunityId)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(brandId);
@@ -68,6 +73,7 @@ namespace AgencyCampaign.Domain.Entities
             BrandId = brandId;
             Description = Normalize(description);
             ValidityUntil = validityUntil?.ToUniversalTime();
+            OpportunityId = opportunityId;
             Notes = Normalize(notes);
             UpdatedAt = DateTimeOffset.UtcNow;
         }

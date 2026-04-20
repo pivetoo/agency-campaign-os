@@ -17,6 +17,9 @@ namespace AgencyCampaign.Application.Requests.Proposals
 
         public DateTimeOffset? ValidityUntil { get; set; }
 
+        [Range(1, long.MaxValue)]
+        public long? OpportunityId { get; set; }
+
         [StringLength(1000)]
         public string? Notes { get; set; }
 
