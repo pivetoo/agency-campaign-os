@@ -36,6 +36,11 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey(entity => entity.CampaignId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasOne(entity => entity.Opportunity)
+                .WithMany(entity => entity.Proposals)
+                .HasForeignKey(entity => entity.OpportunityId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             builder.HasMany(entity => entity.Items)
                 .WithOne(item => item.Proposal)
                 .HasForeignKey(item => item.ProposalId)

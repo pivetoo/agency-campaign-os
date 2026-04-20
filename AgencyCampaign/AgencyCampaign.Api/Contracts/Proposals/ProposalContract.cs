@@ -18,6 +18,8 @@ namespace AgencyCampaign.Api.Contracts.Proposals
 
         public DateTimeOffset? ValidityUntil { get; init; }
 
+        public long? OpportunityId { get; init; }
+
         public decimal TotalValue { get; init; }
 
         public long InternalOwnerId { get; init; }
@@ -46,6 +48,7 @@ namespace AgencyCampaign.Api.Contracts.Proposals
             Description = item.Description,
             Status = item.Status,
             ValidityUntil = item.ValidityUntil,
+            OpportunityId = item.OpportunityId,
             TotalValue = item.TotalValue,
             InternalOwnerId = item.InternalOwnerId,
             InternalOwnerName = item.InternalOwnerName,

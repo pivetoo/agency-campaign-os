@@ -1,0 +1,62 @@
+using AgencyCampaign.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
+{
+    public sealed class OpportunityConfiguration : IEntityTypeConfiguration<Opportunity>
+    {
+        public void Configure(EntityTypeBuilder<Opportunity> builder)
+        {
+            builder.ToTable("opportunity");
+
+            builder.Property(entity => entity.Name)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            builder.Property(entity => entity.Description)
+                .HasMaxLength(1000);
+
+            builder.Property(entity => entity.EstimatedValue)
+                .HasPrecision(18, 2);
+
+            builder.Property(entity => entity.InternalOwnerName)
+                .HasMaxLength(150);
+
+            builder.Property(entity => entity.ContactName)
+                .HasMaxLength(150);
+
+            builder.Property(entity => entity.ContactEmail)
+                .HasMaxLength(255);
+
+            builder.Property(entity => entity.Notes)
+                .HasMaxLength(1000);
+
+            builder.Property(entity => entity.LossReason)
+                .HasMaxLength(1000);
+
+            builder.Property(entity => entity.WonNotes)
+                .HasMaxLength(1000);
+
+            builder.HasOne(entity => entity.Brand)
+                .WithMany()
+                .HasForeignKey(entity => entity.BrandId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(entity => entity.Negotiations)
+                .WithOne(entity => entity.Opportunity)
+                .HasForeignKey(entity => entity.OpportunityId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(entity => entity.FollowUps)
+                .WithOne(entity => entity.Opportunity)
+                .HasForeignKey(entity => entity.OpportunityId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(entity => entity.Proposals)
+                .WithOne(entity => entity.Opportunity)
+                .HasForeignKey(entity => entity.OpportunityId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+    }
+}

@@ -37,6 +37,11 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             await EnsureBrandExists(request.BrandId, cancellationToken);
 
+            if (request.OpportunityId.HasValue)
+            {
+                await EnsureOpportunityExists(request.OpportunityId.Value, cancellationToken);
+            }
+
             long internalOwnerId = request.InternalOwnerId ?? 0;
             string internalOwnerName = request.InternalOwnerName ?? string.Empty;
 
@@ -46,7 +51,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 internalOwnerId,
                 request.Description,
                 request.ValidityUntil,
-                request.Notes);
+                request.Notes,
+                request.OpportunityId);
 
             if (!string.IsNullOrWhiteSpace(internalOwnerName))
             {
@@ -80,12 +86,18 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await EnsureBrandExists(request.BrandId, cancellationToken);
 
+            if (request.OpportunityId.HasValue)
+            {
+                await EnsureOpportunityExists(request.OpportunityId.Value, cancellationToken);
+            }
+
             proposal.Update(
                 request.Name,
                 request.BrandId,
                 request.ValidityUntil,
                 request.Description,
-                request.Notes);
+                request.Notes,
+                request.OpportunityId);
 
             Proposal? result = await Update(proposal, cancellationToken);
             if (result is null)
@@ -174,6 +186,18 @@ namespace AgencyCampaign.Infrastructure.Services
             bool exists = await DbContext.Set<Brand>()
                 .AsNoTracking()
                 .AnyAsync(item => item.Id == brandId, cancellationToken);
+
+            if (!exists)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+        }
+
+        private async Task EnsureOpportunityExists(long opportunityId, CancellationToken cancellationToken)
+        {
+            bool exists = await DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == opportunityId, cancellationToken);
 
             if (!exists)
             {
