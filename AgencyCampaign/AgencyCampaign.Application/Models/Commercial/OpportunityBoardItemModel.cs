@@ -1,5 +1,3 @@
-using AgencyCampaign.Domain.ValueObjects;
-
 namespace AgencyCampaign.Application.Models.Commercial
 {
     public sealed class OpportunityBoardItemModel
@@ -12,13 +10,17 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public string Name { get; init; } = string.Empty;
 
-        public OpportunityStage Stage { get; init; }
+        public long CommercialPipelineStageId { get; init; }
+
+        public string CommercialPipelineStageName { get; init; } = string.Empty;
+
+        public string CommercialPipelineStageColor { get; init; } = "#6366f1";
 
         public decimal EstimatedValue { get; init; }
 
         public DateTimeOffset? ExpectedCloseAt { get; init; }
 
-        public string? InternalOwnerName { get; init; }
+        public string? CommercialResponsibleName { get; init; }
 
         public int ProposalCount { get; init; }
 

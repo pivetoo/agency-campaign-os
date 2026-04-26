@@ -1,9 +1,11 @@
-using AgencyCampaign.Domain.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 
 namespace AgencyCampaign.Application.Requests.Opportunities
 {
     public sealed class ChangeOpportunityStageRequest
     {
-        public OpportunityStage Stage { get; set; }
+        [Required]
+        [Range(1, long.MaxValue)]
+        public long CommercialPipelineStageId { get; set; }
     }
 }

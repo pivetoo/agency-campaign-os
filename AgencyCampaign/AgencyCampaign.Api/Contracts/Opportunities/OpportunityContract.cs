@@ -14,15 +14,17 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public string? Description { get; init; }
 
-        public OpportunityStage Stage { get; init; }
+        public long CommercialPipelineStageId { get; init; }
+
+        public OpportunityStageReferenceContract? CommercialPipelineStage { get; init; }
 
         public decimal EstimatedValue { get; init; }
 
         public DateTimeOffset? ExpectedCloseAt { get; init; }
 
-        public long? InternalOwnerId { get; init; }
+        public long? CommercialResponsibleId { get; init; }
 
-        public string? InternalOwnerName { get; init; }
+        public CommercialResponsibleReferenceContract? CommercialResponsible { get; init; }
 
         public string? ContactName { get; init; }
 
@@ -54,17 +56,34 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
             BrandId = item.BrandId,
             Name = item.Name,
             Description = item.Description,
-            Stage = item.Stage,
+            CommercialPipelineStageId = item.CommercialPipelineStageId,
             EstimatedValue = item.EstimatedValue,
             ExpectedCloseAt = item.ExpectedCloseAt,
-            InternalOwnerId = item.InternalOwnerId,
-            InternalOwnerName = item.InternalOwnerName,
+            CommercialResponsibleId = item.CommercialResponsibleId,
             ContactName = item.ContactName,
             ContactEmail = item.ContactEmail,
             Notes = item.Notes,
             ClosedAt = item.ClosedAt,
             LossReason = item.LossReason,
             WonNotes = item.WonNotes,
+            CommercialPipelineStage = item.CommercialPipelineStage == null
+                ? null
+                : new OpportunityStageReferenceContract
+                {
+                    Id = item.CommercialPipelineStage.Id,
+                    Name = item.CommercialPipelineStage.Name,
+                    Color = item.CommercialPipelineStage.Color,
+                    DisplayOrder = item.CommercialPipelineStage.DisplayOrder,
+                    IsFinal = item.CommercialPipelineStage.IsFinal,
+                    FinalBehavior = (int)item.CommercialPipelineStage.FinalBehavior
+                },
+            CommercialResponsible = item.CommercialResponsible == null
+                ? null
+                : new CommercialResponsibleReferenceContract
+                {
+                    Id = item.CommercialResponsible.Id,
+                    Name = item.CommercialResponsible.Name
+                },
             Brand = item.Brand == null
                 ? null
                 : new OpportunityBrandReferenceContract
@@ -125,6 +144,22 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
         };
+    }
+
+    public sealed class OpportunityStageReferenceContract
+    {
+        public long Id { get; init; }
+        public string Name { get; init; } = string.Empty;
+        public string Color { get; init; } = "#6366f1";
+        public int DisplayOrder { get; init; }
+        public bool IsFinal { get; init; }
+        public int FinalBehavior { get; init; }
+    }
+
+    public sealed class CommercialResponsibleReferenceContract
+    {
+        public long Id { get; init; }
+        public string Name { get; init; } = string.Empty;
     }
 
     public sealed class OpportunityNegotiationContract

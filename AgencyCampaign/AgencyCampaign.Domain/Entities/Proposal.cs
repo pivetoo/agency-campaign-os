@@ -7,15 +7,11 @@ namespace AgencyCampaign.Domain.Entities
     {
         private readonly List<ProposalItem> items = [];
 
-        public long BrandId { get; private set; }
-
-        public Brand? Brand { get; private set; }
-
         public long? CampaignId { get; private set; }
 
         public Campaign? Campaign { get; private set; }
 
-        public long? OpportunityId { get; private set; }
+        public long OpportunityId { get; private set; }
 
         public Opportunity? Opportunity { get; private set; }
 
@@ -41,17 +37,16 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Proposal(long brandId, string name, long internalOwnerId, string? description = null, DateTimeOffset? validityUntil = null, string? notes = null, long? opportunityId = null)
+        public Proposal(long opportunityId, string name, long internalOwnerId, string? description = null, DateTimeOffset? validityUntil = null, string? notes = null)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(brandId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityId);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(internalOwnerId);
 
-            BrandId = brandId;
+            OpportunityId = opportunityId;
             Name = name.Trim();
             Description = Normalize(description);
             ValidityUntil = validityUntil?.ToUniversalTime();
-            OpportunityId = opportunityId;
             InternalOwnerId = internalOwnerId;
             Notes = Normalize(notes);
             Status = ProposalStatus.Draft;
@@ -64,13 +59,12 @@ namespace AgencyCampaign.Domain.Entities
             TotalValue = total;
         }
 
-        public void Update(string name, long brandId, DateTimeOffset? validityUntil, string? description, string? notes, long? opportunityId)
+        public void Update(string name, DateTimeOffset? validityUntil, string? description, string? notes, long opportunityId)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(brandId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityId);
 
             Name = name.Trim();
-            BrandId = brandId;
             Description = Normalize(description);
             ValidityUntil = validityUntil?.ToUniversalTime();
             OpportunityId = opportunityId;

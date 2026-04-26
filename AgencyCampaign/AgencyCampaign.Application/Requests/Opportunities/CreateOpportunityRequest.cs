@@ -8,6 +8,9 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         [Range(1, long.MaxValue)]
         public long BrandId { get; set; }
 
+        [Range(1, long.MaxValue)]
+        public long? CommercialPipelineStageId { get; set; }
+
         [Required]
         [StringLength(150, MinimumLength = 2)]
         public string Name { get; set; } = string.Empty;
@@ -22,10 +25,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         public DateTimeOffset? ExpectedCloseAt { get; set; }
 
         [Range(1, long.MaxValue)]
-        public long? InternalOwnerId { get; set; }
-
-        [StringLength(150)]
-        public string? InternalOwnerName { get; set; }
+        public long? CommercialResponsibleId { get; set; }
 
         [StringLength(150)]
         public string? ContactName { get; set; }

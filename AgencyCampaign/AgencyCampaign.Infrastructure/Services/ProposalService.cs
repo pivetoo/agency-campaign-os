@@ -35,28 +35,22 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> CreateProposal(CreateProposalRequest request, CancellationToken cancellationToken = default)
         {
-            await EnsureBrandExists(request.BrandId, cancellationToken);
+            Opportunity opportunity = await GetOpportunity(request.OpportunityId, cancellationToken);
 
-            if (request.OpportunityId.HasValue)
-            {
-                await EnsureOpportunityExists(request.OpportunityId.Value, cancellationToken);
-            }
-
-            long internalOwnerId = request.InternalOwnerId ?? 0;
-            string internalOwnerName = request.InternalOwnerName ?? string.Empty;
+            long commercialResponsibleId = request.CommercialResponsibleId ?? opportunity.CommercialResponsibleId ?? throw new InvalidOperationException("A proposta precisa de um responsável comercial válido.");
+            string commercialResponsibleName = opportunity.CommercialResponsible?.Name ?? string.Empty;
 
             Proposal proposal = new(
-                request.BrandId,
-                request.Name,
-                internalOwnerId,
+                request.OpportunityId,
+                opportunity.Name,
+                commercialResponsibleId,
                 request.Description,
                 request.ValidityUntil,
-                request.Notes,
-                request.OpportunityId);
+                request.Notes);
 
-            if (!string.IsNullOrWhiteSpace(internalOwnerName))
+            if (!string.IsNullOrWhiteSpace(commercialResponsibleName))
             {
-                proposal.SetInternalOwner(internalOwnerId, internalOwnerName);
+                proposal.SetInternalOwner(commercialResponsibleId, commercialResponsibleName);
             }
 
             bool success = await Insert(cancellationToken, proposal);
@@ -84,16 +78,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
 
-            await EnsureBrandExists(request.BrandId, cancellationToken);
-
-            if (request.OpportunityId.HasValue)
-            {
-                await EnsureOpportunityExists(request.OpportunityId.Value, cancellationToken);
-            }
+            Opportunity opportunity = await GetOpportunity(request.OpportunityId, cancellationToken);
 
             proposal.Update(
-                request.Name,
-                request.BrandId,
+                opportunity.Name,
                 request.ValidityUntil,
                 request.Description,
                 request.Notes,
@@ -181,28 +169,18 @@ namespace AgencyCampaign.Infrastructure.Services
             return proposal;
         }
 
-        private async Task EnsureBrandExists(long brandId, CancellationToken cancellationToken)
+        private async Task<Opportunity> GetOpportunity(long opportunityId, CancellationToken cancellationToken)
         {
-            bool exists = await DbContext.Set<Brand>()
+            Opportunity? opportunity = await DbContext.Set<Opportunity>()
                 .AsNoTracking()
-                .AnyAsync(item => item.Id == brandId, cancellationToken);
+                .FirstOrDefaultAsync(item => item.Id == opportunityId, cancellationToken);
 
-            if (!exists)
+            if (opportunity is null)
             {
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
-        }
 
-        private async Task EnsureOpportunityExists(long opportunityId, CancellationToken cancellationToken)
-        {
-            bool exists = await DbContext.Set<Opportunity>()
-                .AsNoTracking()
-                .AnyAsync(item => item.Id == opportunityId, cancellationToken);
-
-            if (!exists)
-            {
-                throw new InvalidOperationException(localizer["record.notFound"]);
-            }
+            return opportunity;
         }
 
         private async Task<Proposal> SaveAndReturn(Proposal proposal, CancellationToken cancellationToken)
@@ -220,7 +198,8 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             return DbContext.Set<Proposal>()
                 .AsNoTracking()
-                .Include(item => item.Brand)
+                .Include(item => item.Opportunity)
+                    .ThenInclude(item => item.Brand)
                 .Include(item => item.Campaign)
                 .Include(item => item.Items)
                     .ThenInclude(item => item.Creator);

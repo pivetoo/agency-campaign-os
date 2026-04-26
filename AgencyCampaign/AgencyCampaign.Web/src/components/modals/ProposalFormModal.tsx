@@ -1,20 +1,17 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi } from 'archon-ui'
 import { proposalService, type Proposal, type CreateProposalRequest, type UpdateProposalRequest } from '../../services/proposalService'
 import { opportunityService, type Opportunity } from '../../services/opportunityService'
-import { brandService } from '../../services/brandService'
-import type { Brand } from '../../types/brand'
 
 interface ProposalFormModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   proposal: Proposal | null
-  onSuccess: () => void
+  onSuccess: (proposal?: Proposal) => void
 }
 
 const initialFormData: CreateProposalRequest = {
-  brandId: 0,
-  name: '',
+  opportunityId: 0,
   description: '',
   validityUntil: undefined,
   notes: '',
@@ -23,23 +20,19 @@ const initialFormData: CreateProposalRequest = {
 export default function ProposalFormModal({ open, onOpenChange, proposal, onSuccess }: ProposalFormModalProps) {
   const isEditing = !!proposal
   const [formData, setFormData] = useState<CreateProposalRequest>(initialFormData)
-  const [brands, setBrands] = useState<Brand[]>([])
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
-    void brandService.getAll().then(setBrands)
     void opportunityService.getAll().then(setOpportunities)
   }, [])
 
   useEffect(() => {
     if (proposal) {
       setFormData({
-        brandId: proposal.brandId,
-        name: proposal.name,
+        opportunityId: proposal.opportunityId,
         description: proposal.description || '',
         validityUntil: proposal.validityUntil,
-        opportunityId: proposal.opportunityId,
         notes: proposal.notes || '',
       })
       return
@@ -47,6 +40,18 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
 
     setFormData(initialFormData)
   }, [proposal, open])
+
+  const opportunityOptions = opportunities.map((opportunity) => ({
+    value: String(opportunity.id),
+    label: `${opportunity.name} · ${opportunity.brand?.name || 'Marca'}`,
+  }))
+
+  const handleOpportunityChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      opportunityId: Number(value),
+    }))
+  }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -61,7 +66,7 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
     )
 
     if (result !== null) {
-      onSuccess()
+      onSuccess(result as Proposal)
     }
   }
 
@@ -69,33 +74,21 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '960px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar proposta' : 'Nova proposta'}</ModalTitle>
+          <ModalTitle>{isEditing ? 'Editar proposta' : 'Criar proposta comercial'}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nome da proposta</label>
-              <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Marca</label>
-              <Select
-                value={formData.brandId ? String(formData.brandId) : ''}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, brandId: Number(value) }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                {brands.map((brand) => (
-                  <SelectItem key={brand.id} value={String(brand.id)}>
-                    {brand.name}
-                  </SelectItem>
-                ))}
-                </SelectContent>
-              </Select>
+              <label className="text-sm font-medium">Oportunidade</label>
+              <SearchableSelect
+                value={formData.opportunityId ? String(formData.opportunityId) : ''}
+                onValueChange={handleOpportunityChange}
+                options={opportunityOptions}
+                placeholder="Selecione a oportunidade"
+                searchPlaceholder="Buscar oportunidade"
+                emptyMessage="Nenhuma oportunidade encontrada"
+              />
             </div>
 
             <div className="space-y-2">
@@ -111,26 +104,6 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
               <label className="text-sm font-medium">Descrição</label>
               <Input value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
             </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Oportunidade</label>
-              <Select
-                value={formData.opportunityId ? String(formData.opportunityId) : '_none'}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, opportunityId: value === '_none' ? undefined : Number(value) }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Opcional" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="_none">Sem vínculo</SelectItem>
-                  {opportunities.map((opportunity) => (
-                    <SelectItem key={opportunity.id} value={String(opportunity.id)}>
-                      {`${opportunity.name} · ${opportunity.brand?.name || 'Marca'}`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
@@ -142,7 +115,7 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="submit" disabled={loading || !formData.opportunityId}>{loading ? 'Salvando...' : isEditing ? 'Salvar' : 'Criar e continuar'}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

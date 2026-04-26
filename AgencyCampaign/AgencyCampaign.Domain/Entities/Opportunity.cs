@@ -18,15 +18,17 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? Description { get; private set; }
 
-        public OpportunityStage Stage { get; private set; } = OpportunityStage.Lead;
+        public long CommercialPipelineStageId { get; private set; }
+
+        public CommercialPipelineStage? CommercialPipelineStage { get; private set; }
 
         public decimal EstimatedValue { get; private set; }
 
         public DateTimeOffset? ExpectedCloseAt { get; private set; }
 
-        public long? InternalOwnerId { get; private set; }
+        public long? CommercialResponsibleId { get; private set; }
 
-        public string? InternalOwnerName { get; private set; }
+        public CommercialResponsible? CommercialResponsible { get; private set; }
 
         public string? ContactName { get; private set; }
 
@@ -53,28 +55,28 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Opportunity(long brandId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt = null, string? description = null, long? internalOwnerId = null, string? internalOwnerName = null, string? contactName = null, string? contactEmail = null, string? notes = null)
+        public Opportunity(long brandId, long commercialPipelineStageId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt = null, string? description = null, long? commercialResponsibleId = null, string? contactName = null, string? contactEmail = null, string? notes = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(brandId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(commercialPipelineStageId);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentOutOfRangeException.ThrowIfNegative(estimatedValue);
 
             BrandId = brandId;
+            CommercialPipelineStageId = commercialPipelineStageId;
             Name = name.Trim();
             Description = Normalize(description);
             EstimatedValue = estimatedValue;
             ExpectedCloseAt = expectedCloseAt?.ToUniversalTime();
-            InternalOwnerId = internalOwnerId;
-            InternalOwnerName = Normalize(internalOwnerName);
+            CommercialResponsibleId = commercialResponsibleId;
             ContactName = Normalize(contactName);
             ContactEmail = Normalize(contactEmail);
             Notes = Normalize(notes);
-            Stage = OpportunityStage.Lead;
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void Update(long brandId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt, string? description, long? internalOwnerId, string? internalOwnerName, string? contactName, string? contactEmail, string? notes)
+        public void Update(long brandId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt, string? description, long? commercialResponsibleId, string? contactName, string? contactEmail, string? notes)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(brandId);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -85,46 +87,47 @@ namespace AgencyCampaign.Domain.Entities
             Description = Normalize(description);
             EstimatedValue = estimatedValue;
             ExpectedCloseAt = expectedCloseAt?.ToUniversalTime();
-            InternalOwnerId = internalOwnerId;
-            InternalOwnerName = Normalize(internalOwnerName);
+            CommercialResponsibleId = commercialResponsibleId;
             ContactName = Normalize(contactName);
             ContactEmail = Normalize(contactEmail);
             Notes = Normalize(notes);
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void ChangeStage(OpportunityStage stage)
+        public void ChangeStage(CommercialPipelineStage stage)
         {
-            if (IsClosed())
+            ArgumentNullException.ThrowIfNull(stage);
+
+            if (!stage.IsActive)
             {
-                throw new InvalidOperationException("Closed opportunities cannot change stage.");
+                throw new InvalidOperationException("Inactive pipeline stages cannot be used.");
             }
 
-            if (stage == OpportunityStage.Won || stage == OpportunityStage.Lost)
-            {
-                throw new InvalidOperationException("Use the close actions to finish the opportunity.");
-            }
-
-            Stage = stage;
+            CommercialPipelineStageId = stage.Id;
+            ApplyStageFinalBehavior(stage, null);
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void CloseAsWon(string? wonNotes)
+        public void CloseAsWon(CommercialPipelineStage stage, string? wonNotes)
         {
+            ArgumentNullException.ThrowIfNull(stage);
+
             if (IsClosed())
             {
                 throw new InvalidOperationException("Opportunity is already closed.");
             }
 
-            Stage = OpportunityStage.Won;
+            CommercialPipelineStageId = stage.Id;
             WonNotes = Normalize(wonNotes);
             LossReason = null;
             ClosedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void CloseAsLost(string lossReason)
+        public void CloseAsLost(CommercialPipelineStage stage, string lossReason)
         {
+            ArgumentNullException.ThrowIfNull(stage);
+
             if (IsClosed())
             {
                 throw new InvalidOperationException("Opportunity is already closed.");
@@ -132,7 +135,7 @@ namespace AgencyCampaign.Domain.Entities
 
             ArgumentException.ThrowIfNullOrWhiteSpace(lossReason);
 
-            Stage = OpportunityStage.Lost;
+            CommercialPipelineStageId = stage.Id;
             LossReason = lossReason.Trim();
             WonNotes = null;
             ClosedAt = DateTimeOffset.UtcNow;
@@ -141,7 +144,30 @@ namespace AgencyCampaign.Domain.Entities
 
         private bool IsClosed()
         {
-            return Stage == OpportunityStage.Won || Stage == OpportunityStage.Lost;
+            return ClosedAt.HasValue;
+        }
+
+        private void ApplyStageFinalBehavior(CommercialPipelineStage stage, string? notes)
+        {
+            if (stage.FinalBehavior == CommercialPipelineStageFinalBehavior.Won)
+            {
+                WonNotes = Normalize(notes) ?? "Oportunidade marcada como ganha pelo pipeline comercial.";
+                LossReason = null;
+                ClosedAt = DateTimeOffset.UtcNow;
+                return;
+            }
+
+            if (stage.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost)
+            {
+                WonNotes = null;
+                LossReason = Normalize(notes) ?? "Oportunidade marcada como perdida pelo pipeline comercial.";
+                ClosedAt = DateTimeOffset.UtcNow;
+                return;
+            }
+
+            WonNotes = null;
+            LossReason = null;
+            ClosedAt = null;
         }
 
         private static string? Normalize(string? value)

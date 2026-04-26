@@ -20,9 +20,6 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.EstimatedValue)
                 .HasPrecision(18, 2);
 
-            builder.Property(entity => entity.InternalOwnerName)
-                .HasMaxLength(150);
-
             builder.Property(entity => entity.ContactName)
                 .HasMaxLength(150);
 
@@ -38,10 +35,20 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.WonNotes)
                 .HasMaxLength(1000);
 
+            builder.HasOne(entity => entity.CommercialPipelineStage)
+                .WithMany()
+                .HasForeignKey(entity => entity.CommercialPipelineStageId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasOne(entity => entity.Brand)
                 .WithMany()
                 .HasForeignKey(entity => entity.BrandId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(entity => entity.CommercialResponsible)
+                .WithMany()
+                .HasForeignKey(entity => entity.CommercialResponsibleId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasMany(entity => entity.Negotiations)
                 .WithOne(entity => entity.Opportunity)

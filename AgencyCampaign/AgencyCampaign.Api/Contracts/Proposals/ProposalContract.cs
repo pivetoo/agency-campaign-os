@@ -8,8 +8,6 @@ namespace AgencyCampaign.Api.Contracts.Proposals
     {
         public long Id { get; init; }
 
-        public long BrandId { get; init; }
-
         public string Name { get; init; } = string.Empty;
 
         public string? Description { get; init; }
@@ -18,7 +16,9 @@ namespace AgencyCampaign.Api.Contracts.Proposals
 
         public DateTimeOffset? ValidityUntil { get; init; }
 
-        public long? OpportunityId { get; init; }
+        public long OpportunityId { get; init; }
+
+        public OpportunityReferenceContract? Opportunity { get; init; }
 
         public decimal TotalValue { get; init; }
 
@@ -43,23 +43,29 @@ namespace AgencyCampaign.Api.Contracts.Proposals
         public static Expression<Func<Proposal, ProposalContract>> Projection => item => new ProposalContract
         {
             Id = item.Id,
-            BrandId = item.BrandId,
             Name = item.Name,
             Description = item.Description,
             Status = item.Status,
             ValidityUntil = item.ValidityUntil,
             OpportunityId = item.OpportunityId,
+            Opportunity = item.Opportunity == null
+                ? null
+                : new OpportunityReferenceContract
+                {
+                    Id = item.Opportunity.Id,
+                    Name = item.Opportunity.Name
+                },
             TotalValue = item.TotalValue,
             InternalOwnerId = item.InternalOwnerId,
             InternalOwnerName = item.InternalOwnerName,
             Notes = item.Notes,
             CampaignId = item.CampaignId,
-            Brand = item.Brand == null
+            Brand = item.Opportunity == null || item.Opportunity.Brand == null
                 ? null
                 : new BrandReferenceContract
                 {
-                    Id = item.Brand.Id,
-                    Name = item.Brand.Name
+                    Id = item.Opportunity.Brand.Id,
+                    Name = item.Opportunity.Brand.Name
                 },
             Campaign = item.Campaign == null
                 ? null
@@ -139,6 +145,13 @@ namespace AgencyCampaign.Api.Contracts.Proposals
                 },
             Total = item.Total
         };
+    }
+
+    public sealed class OpportunityReferenceContract
+    {
+        public long Id { get; init; }
+
+        public string Name { get; init; } = string.Empty;
     }
 
     public sealed class BrandReferenceContract

@@ -62,6 +62,8 @@ export default function FinancialReceivables() {
         onSelectionChange={() => {}}
         emptyText="Nenhuma conta a receber cadastrada"
         loading={loading}
+        pageSize={5}
+        pageSizeOptions={[5, 10, 20, 50]}
       />
     </PageLayout>
   )

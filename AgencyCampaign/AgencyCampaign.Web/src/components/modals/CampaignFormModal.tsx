@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { campaignService, type CreateCampaignRequest, type UpdateCampaignRequest } from '../../services/campaignService'
 import { brandService } from '../../services/brandService'
+import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import type { Campaign } from '../../types/campaign'
 import type { Brand } from '../../types/brand'
+import type { CommercialResponsible } from '../../types/commercialResponsible'
 
 interface CampaignFormModalProps {
   open: boolean
@@ -21,7 +23,6 @@ const initialFormData: CreateCampaignRequest = {
   budget: 0,
   startsAt: '',
   endsAt: '',
-  internalOwnerName: '',
   notes: '',
   status: 1,
 }
@@ -40,6 +41,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
   const [formData, setFormData] = useState<CreateCampaignRequest>(initialFormData)
   const [isActive, setIsActive] = useState(true)
   const [brands, setBrands] = useState<Brand[]>([])
+  const [responsibles, setResponsibles] = useState<CommercialResponsible[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: fetchBrands } = useApi<Brand[]>({ showErrorMessage: true })
 
@@ -50,6 +52,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
           setBrands(result)
         }
       })
+      void commercialResponsibleService.getAll().then(setResponsibles)
     }
   }, [open])
 
@@ -64,7 +67,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
         budget: campaign.budget,
         startsAt: campaign.startsAt.slice(0, 10),
         endsAt: campaign.endsAt ? campaign.endsAt.slice(0, 10) : '',
-        internalOwnerName: campaign.internalOwnerName || '',
+        commercialResponsibleId: campaign.commercialResponsibleId,
         notes: campaign.notes || '',
         status: campaign.status,
       })
@@ -89,7 +92,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
       description: formData.description || undefined,
       objective: formData.objective || undefined,
       briefing: formData.briefing || undefined,
-      internalOwnerName: formData.internalOwnerName || undefined,
+      commercialResponsibleId: formData.commercialResponsibleId,
       notes: formData.notes || undefined,
     }
 
@@ -151,8 +154,18 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Responsável interno</label>
-              <Input value={formData.internalOwnerName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, internalOwnerName: e.target.value }))} />
+              <label className="text-sm font-medium">Responsável comercial</label>
+              <Select value={formData.commercialResponsibleId ? String(formData.commercialResponsibleId) : '0'} onValueChange={(value) => setFormData((prev) => ({ ...prev, commercialResponsibleId: value === '0' ? undefined : Number(value) }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um responsável" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Nenhum</SelectItem>
+                  {responsibles.filter((r) => r.isActive).map((responsible) => (
+                    <SelectItem key={responsible.id} value={String(responsible.id)}>{responsible.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

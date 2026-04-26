@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { brandService } from '../../services/brandService'
+import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import type { Brand } from '../../types/brand'
+import type { CommercialResponsible } from '../../types/commercialResponsible'
 import { opportunityService, type Opportunity, type CreateOpportunityRequest, type UpdateOpportunityRequest } from '../../services/opportunityService'
 
 interface OpportunityFormModalProps {
@@ -26,10 +28,12 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
   const isEditing = !!opportunity
   const [formData, setFormData] = useState<CreateOpportunityRequest>(initialFormData)
   const [brands, setBrands] = useState<Brand[]>([])
+  const [responsibles, setResponsibles] = useState<CommercialResponsible[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
     void brandService.getAll().then(setBrands)
+    void commercialResponsibleService.getAll().then(setResponsibles)
   }, [])
 
   useEffect(() => {
@@ -40,8 +44,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         description: opportunity.description || '',
         estimatedValue: opportunity.estimatedValue,
         expectedCloseAt: opportunity.expectedCloseAt,
-        internalOwnerId: opportunity.internalOwnerId,
-        internalOwnerName: opportunity.internalOwnerName || '',
+        commercialResponsibleId: opportunity.commercialResponsibleId,
         contactName: opportunity.contactName || '',
         contactEmail: opportunity.contactEmail || '',
         notes: opportunity.notes || '',
@@ -103,6 +106,19 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
             <div className="space-y-2">
               <label className="text-sm font-medium">Previsão de fechamento</label>
               <Input type="date" value={formData.expectedCloseAt?.split('T')[0] || ''} onChange={(e) => setFormData((prev) => ({ ...prev, expectedCloseAt: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Responsável comercial</label>
+              <Select value={formData.commercialResponsibleId ? String(formData.commercialResponsibleId) : '0'} onValueChange={(value) => setFormData((prev) => ({ ...prev, commercialResponsibleId: value === '0' ? undefined : Number(value) }))}>
+                <SelectTrigger><SelectValue placeholder="Selecione um responsável" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Nenhum</SelectItem>
+                  {responsibles.filter((r) => r.isActive).map((responsible) => (
+                    <SelectItem key={responsible.id} value={String(responsible.id)}>{responsible.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

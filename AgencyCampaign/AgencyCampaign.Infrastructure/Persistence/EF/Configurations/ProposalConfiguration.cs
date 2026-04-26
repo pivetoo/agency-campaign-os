@@ -26,11 +26,6 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.TotalValue)
                 .HasPrecision(18, 2);
 
-            builder.HasOne(entity => entity.Brand)
-                .WithMany()
-                .HasForeignKey(entity => entity.BrandId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             builder.HasOne(entity => entity.Campaign)
                 .WithMany()
                 .HasForeignKey(entity => entity.CampaignId)
@@ -39,7 +34,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.HasOne(entity => entity.Opportunity)
                 .WithMany(entity => entity.Proposals)
                 .HasForeignKey(entity => entity.OpportunityId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(entity => entity.Items)
                 .WithOne(item => item.Proposal)

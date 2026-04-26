@@ -61,6 +61,8 @@ export default function Financial() {
               onSelectionChange={() => {}}
               emptyText="Nenhum lançamento financeiro cadastrado"
               loading={loading}
+              pageSize={5}
+              pageSizeOptions={[5, 10, 20, 50]}
             />
           </CardContent>
         </Card>

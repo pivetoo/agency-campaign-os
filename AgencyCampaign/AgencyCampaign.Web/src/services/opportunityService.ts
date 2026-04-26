@@ -1,4 +1,5 @@
 import { httpClient } from 'archon-ui'
+import type { CommercialPipelineStage } from '../types/commercialPipelineStage'
 
 const BASE_URL = '/Opportunities'
 
@@ -58,11 +59,15 @@ export interface Opportunity {
   brandId: number
   name: string
   description?: string
-  stage: number
+  commercialPipelineStageId: number
+  commercialPipelineStage?: Pick<CommercialPipelineStage, 'id' | 'name' | 'color' | 'displayOrder' | 'isFinal' | 'finalBehavior'>
   estimatedValue: number
   expectedCloseAt?: string
-  internalOwnerId?: number
-  internalOwnerName?: string
+  commercialResponsibleId?: number
+  commercialResponsible?: {
+    id: number
+    name: string
+  }
   contactName?: string
   contactEmail?: string
   notes?: string
@@ -85,10 +90,12 @@ export interface OpportunityBoardItem {
   brandId: number
   brandName: string
   name: string
-  stage: number
+  commercialPipelineStageId: number
+  commercialPipelineStageName: string
+  commercialPipelineStageColor: string
   estimatedValue: number
   expectedCloseAt?: string
-  internalOwnerName?: string
+  commercialResponsibleName?: string
   proposalCount: number
   pendingFollowUpsCount: number
   overdueFollowUpsCount: number
@@ -96,7 +103,13 @@ export interface OpportunityBoardItem {
 }
 
 export interface OpportunityBoardStage {
-  stage: number
+  commercialPipelineStageId: number
+  name: string
+  color: string
+  description?: string
+  displayOrder: number
+  isFinal: boolean
+  finalBehavior: number
   opportunitiesCount: number
   estimatedValueTotal: number
   items: OpportunityBoardItem[]
@@ -127,12 +140,12 @@ export interface CommercialAlert {
 
 export interface CreateOpportunityRequest {
   brandId: number
+  commercialPipelineStageId?: number
   name: string
   description?: string
   estimatedValue: number
   expectedCloseAt?: string
-  internalOwnerId?: number
-  internalOwnerName?: string
+  commercialResponsibleId?: number
   contactName?: string
   contactEmail?: string
   notes?: string
@@ -143,7 +156,7 @@ export interface UpdateOpportunityRequest extends CreateOpportunityRequest {
 }
 
 export interface ChangeOpportunityStageRequest {
-  stage: number
+  commercialPipelineStageId: number
 }
 
 export interface CloseOpportunityAsWonRequest {

@@ -51,6 +51,8 @@ export default function DeliverableKinds() {
           onSelectionChange={(rows) => setSelectedDeliverableKind(rows[0] ?? null)}
           emptyText="Nenhum tipo de entrega cadastrado"
           loading={loading}
+          pageSize={5}
+          pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>
 

@@ -1,45 +1,17 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Ban, CheckCircle2 } from 'lucide-react'
+
 import { brandService } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
 import BrandFormModal from '../../components/modals/BrandFormModal'
 
-const emptyBrand: Brand = {
-  id: 0,
-  name: '',
-  isActive: false,
-  createdAt: '',
-}
-
-function withBrandStatus(brand: Brand, isActive: boolean): Brand {
-  return {
-    ...emptyBrand,
-    ...brand,
-    isActive,
-  }
-}
-
-function toUpdateRequest(brand: Brand) {
-  return {
-    id: brand.id,
-    name: brand.name,
-    tradeName: brand.tradeName,
-    document: brand.document,
-    contactName: brand.contactName,
-    contactEmail: brand.contactEmail,
-    notes: brand.notes,
-    isActive: brand.isActive,
-  }
-}
-
 export default function Brands() {
   const [brands, setBrands] = useState<Brand[]>([])
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null)
+  const [previewBrand, setPreviewBrand] = useState<Brand | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const { execute: fetchBrands, loading } = useApi<Brand[]>({ showErrorMessage: true })
-  const { execute: executeUpdate, loading: updating } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   const loadBrands = async () => {
     const result = await fetchBrands(() => brandService.getAll())
@@ -51,18 +23,6 @@ export default function Brands() {
   useEffect(() => {
     void loadBrands()
   }, [])
-
-  const handleToggleActive = async () => {
-    if (!selectedBrand) {
-      return
-    }
-
-    const result = await executeUpdate(() => brandService.update(selectedBrand.id, toUpdateRequest(withBrandStatus(selectedBrand, !selectedBrand.isActive))))
-    if (result !== null) {
-      setSelectedBrand(null)
-      void loadBrands()
-    }
-  }
 
   const columns: DataTableColumn<Brand>[] = [
     { key: 'name', title: 'Nome', dataIndex: 'name' },
@@ -91,16 +51,6 @@ export default function Brands() {
         onEdit={() => selectedBrand && setIsFormOpen(true)}
         onRefresh={() => void loadBrands()}
         selectedRowsCount={selectedBrand ? 1 : 0}
-        actions={[
-          {
-            key: 'toggle-active',
-            label: selectedBrand?.isActive ? 'Inativar' : 'Ativar',
-            icon: selectedBrand?.isActive ? <Ban className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />,
-            variant: selectedBrand?.isActive ? 'outline-danger' : 'outline-success',
-            onClick: () => { void handleToggleActive() },
-            disabled: !selectedBrand || updating,
-          },
-        ]}
       >
         <DataTable
           columns={columns}
@@ -108,8 +58,11 @@ export default function Brands() {
           rowKey="id"
           selectedRows={selectedBrand ? [selectedBrand] : []}
           onSelectionChange={(rows) => setSelectedBrand(rows[0] ?? null)}
+          onRowDoubleClick={setPreviewBrand}
           emptyText="Nenhuma marca cadastrada"
           loading={loading}
+          pageSize={5}
+          pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>
 
@@ -123,6 +76,37 @@ export default function Brands() {
           void loadBrands()
         }}
       />
+
+      <Sheet open={!!previewBrand} onOpenChange={(open) => !open && setPreviewBrand(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          {previewBrand ? (
+            <div className="flex h-full flex-col">
+              <SheetPreviewHeader
+                title={previewBrand.name}
+                meta={
+                  <Badge variant={previewBrand.isActive ? 'success' : 'destructive'}>
+                    {previewBrand.isActive ? 'Ativa' : 'Inativa'}
+                  </Badge>
+                }
+                description="Resumo rápido da marca selecionada"
+              />
+
+              <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
+                <SheetPreviewSection title="Dados principais" description="Informações cadastrais da marca">
+                  <SheetPreviewGrid>
+                    <SheetPreviewField label="Nome" value={previewBrand.name} />
+                    <SheetPreviewField label="Nome fantasia" value={previewBrand.tradeName || '-'} />
+                    <SheetPreviewField label="Documento" value={previewBrand.document || '-'} />
+                    <SheetPreviewField label="Contato" value={previewBrand.contactName || '-'} />
+                    <SheetPreviewField label="E-mail" value={previewBrand.contactEmail || '-'} />
+                    <SheetPreviewField className="sm:col-span-2" label="Observações" value={previewBrand.notes || '-'} />
+                  </SheetPreviewGrid>
+                </SheetPreviewSection>
+              </div>
+            </div>
+          ) : null}
+        </SheetContent>
+      </Sheet>
     </>
   )
 }

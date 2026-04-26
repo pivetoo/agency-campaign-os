@@ -46,7 +46,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite consultar os detalhes de uma oportunidade comercial.")]
-        [GetEndpoint("{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
             Opportunity? opportunity = await opportunityService.GetOpportunityById(id, cancellationToken);
@@ -89,7 +89,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite atualizar os dados de uma oportunidade comercial.")]
-        [PutEndpoint("{id:long}")]
+        [HttpPut("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateOpportunityRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -103,7 +103,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite alterar o estágio de uma oportunidade comercial.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/ChangeStage")]
         public async Task<IActionResult> ChangeStage(long id, [FromBody] ChangeOpportunityStageRequest request, CancellationToken cancellationToken)
         {
             Opportunity opportunity = await opportunityService.ChangeStage(id, request, cancellationToken);
@@ -111,7 +111,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite encerrar uma oportunidade como ganha.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/CloseAsWon")]
         public async Task<IActionResult> CloseAsWon(long id, [FromBody] CloseOpportunityAsWonRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -125,7 +125,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite encerrar uma oportunidade como perdida.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/CloseAsLost")]
         public async Task<IActionResult> CloseAsLost(long id, [FromBody] CloseOpportunityAsLostRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -139,7 +139,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite excluir uma oportunidade comercial.")]
-        [DeleteEndpoint("{id:long}")]
+        [HttpDelete("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {
             Opportunity? opportunity = await opportunityService.Delete(id, cancellationToken);
@@ -147,7 +147,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as negociações de uma oportunidade.")]
-        [GetEndpoint("{opportunityId:long}/negotiations/[action]")]
+        [HttpGet("{opportunityId:long}/negotiations/GetNegotiations")]
         public async Task<IActionResult> GetNegotiations(long opportunityId, CancellationToken cancellationToken)
         {
             IReadOnlyCollection<OpportunityNegotiation> negotiations = await negotiationService.GetNegotiationsByOpportunityId(opportunityId, cancellationToken);
@@ -155,7 +155,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite adicionar uma negociação a uma oportunidade.")]
-        [PostEndpoint("{opportunityId:long}/negotiations/[action]")]
+        [HttpPost("{opportunityId:long}/negotiations/CreateNegotiation")]
         public async Task<IActionResult> CreateNegotiation(long opportunityId, [FromBody] CreateOpportunityNegotiationRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -204,7 +204,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os follow-ups de uma oportunidade.")]
-        [GetEndpoint("{opportunityId:long}/followups/[action]")]
+        [HttpGet("{opportunityId:long}/followups/GetFollowUps")]
         public async Task<IActionResult> GetFollowUps(long opportunityId, CancellationToken cancellationToken)
         {
             IReadOnlyCollection<OpportunityFollowUp> followUps = await followUpService.GetFollowUpsByOpportunityId(opportunityId, cancellationToken);
@@ -212,7 +212,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite adicionar um follow-up a uma oportunidade.")]
-        [PostEndpoint("{opportunityId:long}/followups/[action]")]
+        [HttpPost("{opportunityId:long}/followups/CreateFollowUp")]
         public async Task<IActionResult> CreateFollowUp(long opportunityId, [FromBody] CreateOpportunityFollowUpRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

@@ -2,14 +2,15 @@ import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Briefcase } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck } from 'lucide-react'
+import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
   const { user: authUser, contract, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const { createMenuGroup } = useAppNavigation({})
-  const sidebarLogo = <img src="/logo-sistema.svg" alt="Agency Campaign OS" style={{ width: 28, height: 28 }} />
+  const sidebarLogo = <img src={logoAgencyCampaign} alt="Agency Campaign OS" style={{ width: 36, height: 36, objectFit: 'contain' }} />
 
   const handleLogout = async () => {
     await AuthService.logoutFromServer()
@@ -21,11 +22,11 @@ export default function AgencyCampaignLayout() {
       { key: 'dashboard', label: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     ]),
     createMenuGroup('Comercial', [
-      { key: 'comercial-oportunidades', label: 'Oportunidades', path: '/comercial/oportunidades', icon: <Briefcase size={20} /> },
+      { key: 'comercial-pipeline', label: 'Pipeline', path: '/comercial/pipeline', icon: <Columns3 size={20} /> },
       { key: 'comercial-propostas', label: 'Propostas', path: '/comercial/propostas', icon: <Tags size={20} /> },
-      { key: 'comercial-negociacoes', label: 'Negociações', path: '/comercial/negociacoes', icon: <ReceiptText size={20} /> },
       { key: 'comercial-aprovacoes', label: 'Aprovações', path: '/comercial/aprovacoes', icon: <Globe size={20} /> },
-      { key: 'comercial-followups', label: 'Follow-ups', path: '/comercial/followups', icon: <HandCoins size={20} /> },
+      { key: 'comercial-followups', label: 'Atividades', path: '/comercial/followups', icon: <HandCoins size={20} /> },
+      { key: 'comercial-responsaveis', label: 'Responsáveis', path: '/comercial/responsaveis', icon: <UserCheck size={20} /> },
     ]),
     createMenuGroup('Operação', [
       { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
@@ -38,6 +39,7 @@ export default function AgencyCampaignLayout() {
     ]),
     createMenuGroup('Configuração', [
       { key: 'configuracao-plataformas', label: 'Plataformas', path: '/configuracao/plataformas', icon: <Globe size={20} /> },
+      { key: 'configuracao-pipeline-comercial', label: 'Estágios do Comercial', path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
       { key: 'configuracao-tipos-entrega', label: 'Tipos de entrega', path: '/configuracao/tipos-entrega', icon: <Tags size={20} /> },
     ]),
   ]
@@ -50,18 +52,20 @@ export default function AgencyCampaignLayout() {
 
     const routeMap: Record<string, string> = {
       '/': 'Dashboard',
-      '/comercial': 'Oportunidades',
+      '/comercial': 'Pipeline',
+      '/comercial/pipeline': 'Pipeline',
       '/comercial/oportunidades': 'Oportunidades',
       '/comercial/propostas': 'Propostas',
-      '/comercial/negociacoes': 'Negociações',
       '/comercial/aprovacoes': 'Aprovações',
-      '/comercial/followups': 'Follow-ups',
+      '/comercial/followups': 'Atividades',
+      '/comercial/responsaveis': 'Responsáveis',
       '/marcas': 'Marcas',
       '/creators': 'Creators',
       '/campanhas': 'Campanhas',
       '/financeiro/receber': 'Contas a receber',
       '/financeiro/pagar': 'Contas a pagar',
       '/configuracao/plataformas': 'Plataformas',
+      '/configuracao/pipeline-comercial': 'Estágios do Comercial',
       '/configuracao/tipos-entrega': 'Tipos de entrega',
     }
 
@@ -71,7 +75,12 @@ export default function AgencyCampaignLayout() {
     }
 
     if (path.match(/^\/comercial\/oportunidades\/\d+$/)) {
-      crumbs.push({ label: 'Oportunidades', onClick: () => navigate('/comercial/oportunidades') })
+      crumbs.push({ label: 'Pipeline', onClick: () => navigate('/comercial/pipeline') })
+      crumbs.push({ label: 'Detalhes' })
+    }
+
+    if (path.match(/^\/comercial\/propostas\/\d+$/)) {
+      crumbs.push({ label: 'Propostas', onClick: () => navigate('/comercial/propostas') })
       crumbs.push({ label: 'Detalhes' })
     }
 

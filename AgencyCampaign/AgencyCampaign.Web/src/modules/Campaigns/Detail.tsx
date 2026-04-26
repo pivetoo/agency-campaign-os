@@ -279,7 +279,7 @@ export default function CampaignDetail() {
 
             <div>
               <p className="text-sm font-medium">Responsável interno</p>
-              <p className="text-sm text-muted-foreground">{campaign?.internalOwnerName || '-'}</p>
+              <p className="text-sm text-muted-foreground">{campaign?.commercialResponsible?.name || campaign?.internalOwnerName || '-'}</p>
             </div>
 
             <div>
@@ -328,8 +328,8 @@ export default function CampaignDetail() {
                   }}
                   emptyText="Nenhum creator vinculado à campanha"
                   loading={creatorsLoading}
-                  pageSize={3}
-                  pageSizeOptions={[3, 5, 10, 20]}
+                  pageSize={5}
+                  pageSizeOptions={[5, 10, 20, 50]}
                 />
               </CardContent>
             </Card>
@@ -367,8 +367,8 @@ export default function CampaignDetail() {
                   }}
                   emptyText="Nenhum documento cadastrado"
                   loading={documentsLoading}
-                  pageSize={3}
-                  pageSizeOptions={[3, 5, 10, 20]}
+                  pageSize={5}
+                  pageSizeOptions={[5, 10, 20, 50]}
                 />
               </CardContent>
             </Card>
@@ -396,8 +396,8 @@ export default function CampaignDetail() {
                   }}
                   emptyText="Nenhuma entrega cadastrada"
                   loading={deliverablesLoading}
-                  pageSize={3}
-                  pageSizeOptions={[3, 5, 10, 20]}
+                  pageSize={5}
+                  pageSizeOptions={[5, 10, 20, 50]}
                 />
               </CardContent>
             </Card>

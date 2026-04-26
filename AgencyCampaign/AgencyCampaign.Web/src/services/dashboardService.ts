@@ -1,5 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type { DashboardData } from '../types/dashboard'
+import type { DashboardData, DashboardChartsData } from '../types/dashboard'
 
 export const dashboardService = {
   async getData(): Promise<DashboardData> {
@@ -27,5 +27,10 @@ export const dashboardService = {
       totalGrossAmount: deliverables.reduce((sum, item) => sum + (item.grossAmount ?? 0), 0),
       totalAgencyFeeAmount: deliverables.reduce((sum, item) => sum + (item.agencyFeeAmount ?? 0), 0),
     }
+  },
+
+  async getChartsData(): Promise<DashboardChartsData> {
+    const response = await httpClient.get<DashboardChartsData>('/Dashboard/Charts')
+    return response.data
   },
 }

@@ -24,7 +24,8 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<PagedResult<Opportunity>> GetOpportunities(PagedRequest request, CancellationToken cancellationToken = default)
         {
             return await QueryWithDetails()
-                .OrderBy(item => item.Stage == OpportunityStage.Won || item.Stage == OpportunityStage.Lost)
+                .OrderBy(item => item.ClosedAt.HasValue)
+                .ThenBy(item => item.CommercialPipelineStage != null ? item.CommercialPipelineStage.DisplayOrder : int.MaxValue)
                 .ThenByDescending(item => item.Id)
                 .ToPagedResultAsync(request, cancellationToken);
         }
@@ -38,15 +39,16 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<Opportunity> CreateOpportunity(CreateOpportunityRequest request, CancellationToken cancellationToken = default)
         {
             await EnsureBrandExists(request.BrandId, cancellationToken);
+            CommercialPipelineStage initialStage = await ResolveInitialStage(request.CommercialPipelineStageId, cancellationToken);
 
             Opportunity opportunity = new(
                 request.BrandId,
+                initialStage.Id,
                 request.Name,
                 request.EstimatedValue,
                 request.ExpectedCloseAt,
                 request.Description,
-                request.InternalOwnerId,
-                request.InternalOwnerName,
+                request.CommercialResponsibleId,
                 request.ContactName,
                 request.ContactEmail,
                 request.Notes);
@@ -77,6 +79,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             await EnsureBrandExists(request.BrandId, cancellationToken);
+            CommercialPipelineStage stage = await ResolveStage(request.CommercialPipelineStageId ?? opportunity.CommercialPipelineStageId, cancellationToken);
 
             opportunity.Update(
                 request.BrandId,
@@ -84,11 +87,12 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.EstimatedValue,
                 request.ExpectedCloseAt,
                 request.Description,
-                request.InternalOwnerId,
-                request.InternalOwnerName,
+                request.CommercialResponsibleId,
                 request.ContactName,
                 request.ContactEmail,
                 request.Notes);
+
+            opportunity.ChangeStage(stage);
 
             Opportunity? result = await Update(opportunity, cancellationToken);
             if (result is null)
@@ -102,7 +106,8 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<Opportunity> ChangeStage(long id, ChangeOpportunityStageRequest request, CancellationToken cancellationToken = default)
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
-            opportunity.ChangeStage(request.Stage);
+            CommercialPipelineStage stage = await ResolveStage(request.CommercialPipelineStageId, cancellationToken);
+            opportunity.ChangeStage(stage);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -110,7 +115,8 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<Opportunity> CloseAsWon(long id, CloseOpportunityAsWonRequest request, CancellationToken cancellationToken = default)
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
-            opportunity.CloseAsWon(request.WonNotes);
+            CommercialPipelineStage wonStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Won, cancellationToken);
+            opportunity.CloseAsWon(wonStage, request.WonNotes);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -118,7 +124,8 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<Opportunity> CloseAsLost(long id, CloseOpportunityAsLostRequest request, CancellationToken cancellationToken = default)
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
-            opportunity.CloseAsLost(request.LossReason);
+            CommercialPipelineStage lostStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Lost, cancellationToken);
+            opportunity.CloseAsLost(lostStage, request.LossReason);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -126,24 +133,34 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoard(CancellationToken cancellationToken = default)
         {
             List<Opportunity> opportunities = await QueryWithDetails()
-                .OrderByDescending(item => item.Id)
+                .OrderBy(item => item.CommercialPipelineStage != null ? item.CommercialPipelineStage.DisplayOrder : int.MaxValue)
+                .ThenByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
 
-            return Enum.GetValues<OpportunityStage>()
+            List<CommercialPipelineStage> stages = await DbContext.Set<CommercialPipelineStage>()
+                .AsNoTracking()
+                .Where(item => item.IsActive)
+                .OrderBy(item => item.DisplayOrder)
+                .ThenBy(item => item.Name)
+                .ToListAsync(cancellationToken);
+
+            return stages
                 .Select(stage =>
                 {
                     List<OpportunityBoardItemModel> items = opportunities
-                        .Where(item => item.Stage == stage)
+                        .Where(item => item.CommercialPipelineStageId == stage.Id)
                         .Select(item => new OpportunityBoardItemModel
                         {
                             Id = item.Id,
                             BrandId = item.BrandId,
                             BrandName = item.Brand?.Name ?? string.Empty,
                             Name = item.Name,
-                            Stage = item.Stage,
+                            CommercialPipelineStageId = stage.Id,
+                            CommercialPipelineStageName = stage.Name,
+                            CommercialPipelineStageColor = stage.Color,
                             EstimatedValue = item.EstimatedValue,
                             ExpectedCloseAt = item.ExpectedCloseAt,
-                            InternalOwnerName = item.InternalOwnerName,
+                            CommercialResponsibleName = item.CommercialResponsible != null ? item.CommercialResponsible.Name : null,
                             ProposalCount = item.Proposals.Count,
                             PendingFollowUpsCount = item.FollowUps.Count(followUp => !followUp.IsCompleted),
                             OverdueFollowUpsCount = item.FollowUps.Count(followUp => !followUp.IsCompleted && followUp.DueAt < DateTimeOffset.UtcNow),
@@ -153,7 +170,13 @@ namespace AgencyCampaign.Infrastructure.Services
 
                     return new OpportunityBoardStageModel
                     {
-                        Stage = stage,
+                        CommercialPipelineStageId = stage.Id,
+                        Name = stage.Name,
+                        Color = stage.Color,
+                        Description = stage.Description,
+                        DisplayOrder = stage.DisplayOrder,
+                        IsFinal = stage.IsFinal,
+                        FinalBehavior = (int)stage.FinalBehavior,
                         OpportunitiesCount = items.Count,
                         EstimatedValueTotal = items.Sum(item => item.EstimatedValue),
                         Items = items
@@ -166,6 +189,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             List<Opportunity> opportunities = await DbContext.Set<Opportunity>()
                 .AsNoTracking()
+                .Include(item => item.CommercialPipelineStage)
                 .ToListAsync(cancellationToken);
 
             List<OpportunityNegotiation> negotiations = await DbContext.Set<OpportunityNegotiation>()
@@ -177,19 +201,21 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ToListAsync(cancellationToken);
 
             DateTimeOffset now = DateTimeOffset.UtcNow;
-            OpportunityStage[] openStages = [OpportunityStage.Lead, OpportunityStage.Qualified, OpportunityStage.Proposal, OpportunityStage.Negotiation];
+            bool IsOpen(Opportunity item) => !item.ClosedAt.HasValue && item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.None;
+            bool IsWon(Opportunity item) => item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Won;
+            bool IsLost(Opportunity item) => item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost;
 
             return new CommercialDashboardSummaryModel
             {
                 TotalOpportunities = opportunities.Count,
-                OpenOpportunities = opportunities.Count(item => openStages.Contains(item.Stage)),
-                WonOpportunities = opportunities.Count(item => item.Stage == OpportunityStage.Won),
-                LostOpportunities = opportunities.Count(item => item.Stage == OpportunityStage.Lost),
+                OpenOpportunities = opportunities.Count(IsOpen),
+                WonOpportunities = opportunities.Count(IsWon),
+                LostOpportunities = opportunities.Count(IsLost),
                 NegotiationsCount = negotiations.Count,
                 PendingFollowUpsCount = followUps.Count(item => !item.IsCompleted),
                 OverdueFollowUpsCount = followUps.Count(item => !item.IsCompleted && item.DueAt < now),
-                TotalPipelineValue = opportunities.Where(item => openStages.Contains(item.Stage)).Sum(item => item.EstimatedValue),
-                WonValue = opportunities.Where(item => item.Stage == OpportunityStage.Won).Sum(item => item.EstimatedValue)
+                TotalPipelineValue = opportunities.Where(IsOpen).Sum(item => item.EstimatedValue),
+                WonValue = opportunities.Where(IsWon).Sum(item => item.EstimatedValue)
             };
         }
 
@@ -197,6 +223,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             List<Opportunity> opportunities = await DbContext.Set<Opportunity>()
                 .AsNoTracking()
+                .Include(item => item.CommercialPipelineStage)
                 .ToListAsync(cancellationToken);
 
             List<OpportunityFollowUp> followUps = await DbContext.Set<OpportunityFollowUp>()
@@ -228,7 +255,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 });
             }
 
-            foreach (Opportunity opportunity in opportunities.Where(item => item.Stage != OpportunityStage.Won && item.Stage != OpportunityStage.Lost && item.ExpectedCloseAt.HasValue && item.ExpectedCloseAt.Value < now))
+            foreach (Opportunity opportunity in opportunities.Where(item => item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.None && item.ExpectedCloseAt.HasValue && item.ExpectedCloseAt.Value < now))
             {
                 alerts.Add(new CommercialAlertModel
                 {
@@ -257,6 +284,40 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
+        }
+
+        private async Task<CommercialPipelineStage> ResolveInitialStage(long? requestedStageId, CancellationToken cancellationToken)
+        {
+            if (requestedStageId.HasValue)
+            {
+                return await ResolveStage(requestedStageId.Value, cancellationToken);
+            }
+
+            CommercialPipelineStage? initialStage = await DbContext.Set<CommercialPipelineStage>()
+                .AsNoTracking()
+                .OrderByDescending(item => item.IsInitial)
+                .ThenBy(item => item.DisplayOrder)
+                .FirstOrDefaultAsync(item => item.IsActive, cancellationToken);
+
+            return initialStage ?? throw new InvalidOperationException("Nenhum estágio ativo foi configurado para o pipeline comercial.");
+        }
+
+        private async Task<CommercialPipelineStage> ResolveFinalStage(CommercialPipelineStageFinalBehavior finalBehavior, CancellationToken cancellationToken)
+        {
+            CommercialPipelineStage? stage = await DbContext.Set<CommercialPipelineStage>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.IsActive && item.IsFinal && item.FinalBehavior == finalBehavior, cancellationToken);
+
+            return stage ?? throw new InvalidOperationException("Nenhum estágio final configurado foi encontrado para o pipeline comercial.");
+        }
+
+        private async Task<CommercialPipelineStage> ResolveStage(long stageId, CancellationToken cancellationToken)
+        {
+            CommercialPipelineStage? stage = await DbContext.Set<CommercialPipelineStage>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == stageId, cancellationToken);
+
+            return stage ?? throw new InvalidOperationException(localizer["record.notFound"]);
         }
 
         private async Task<Opportunity> GetTrackedOpportunity(long id, CancellationToken cancellationToken)
@@ -289,6 +350,8 @@ namespace AgencyCampaign.Infrastructure.Services
             return DbContext.Set<Opportunity>()
                 .AsNoTracking()
                 .Include(item => item.Brand)
+                .Include(item => item.CommercialPipelineStage)
+                .Include(item => item.CommercialResponsible)
                 .Include(item => item.Negotiations)
                     .ThenInclude(item => item.ApprovalRequests)
                 .Include(item => item.FollowUps)

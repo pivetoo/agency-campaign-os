@@ -39,7 +39,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite consultar os detalhes de uma proposta.")]
-        [GetEndpoint("{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
             Proposal? proposal = await proposalService.GetProposalById(id, cancellationToken);
@@ -61,7 +61,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite atualizar os dados de uma proposta.")]
-        [PutEndpoint("{id:long}")]
+        [HttpPut("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateProposalRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -75,7 +75,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite enviar uma proposta para a marca.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/Send")]
         public async Task<IActionResult> Send(long id, CancellationToken cancellationToken)
         {
             Proposal proposal = await proposalService.MarkAsSent(id, cancellationToken);
@@ -83,7 +83,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite marcar uma proposta como visualizada.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/MarkAsViewed")]
         public async Task<IActionResult> MarkAsViewed(long id, CancellationToken cancellationToken)
         {
             Proposal proposal = await proposalService.MarkAsViewed(id, cancellationToken);
@@ -91,7 +91,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite aprovar uma proposta.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/Approve")]
         public async Task<IActionResult> Approve(long id, CancellationToken cancellationToken)
         {
             Proposal proposal = await proposalService.ApproveProposal(id, cancellationToken);
@@ -99,7 +99,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite rejeitar uma proposta.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/Reject")]
         public async Task<IActionResult> Reject(long id, CancellationToken cancellationToken)
         {
             Proposal proposal = await proposalService.RejectProposal(id, cancellationToken);
@@ -107,7 +107,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite converter uma proposta em campanha.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/ConvertToCampaign")]
         public async Task<IActionResult> ConvertToCampaign(long id, [FromBody] ConvertToCampaignRequest request, CancellationToken cancellationToken)
         {
             Proposal proposal = await proposalService.ConvertToCampaign(id, request.CampaignId, cancellationToken);
@@ -115,7 +115,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cancelar uma proposta.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/Cancel")]
         public async Task<IActionResult> Cancel(long id, CancellationToken cancellationToken)
         {
             Proposal proposal = await proposalService.CancelProposal(id, cancellationToken);
@@ -123,7 +123,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os itens de uma proposta.")]
-        [GetEndpoint("{proposalId:long}/items/[action]")]
+        [HttpGet("{proposalId:long}/items/Get")]
         public async Task<IActionResult> GetItems(long proposalId, CancellationToken cancellationToken)
         {
             IReadOnlyCollection<ProposalItem> items = await proposalItemService.GetItemsByProposalId(proposalId, cancellationToken);
@@ -131,7 +131,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite adicionar um item a uma proposta.")]
-        [PostEndpoint("{proposalId:long}/items/[action]")]
+        [HttpPost("{proposalId:long}/items/Create")]
         public async Task<IActionResult> CreateItem(long proposalId, [FromBody] CreateProposalItemRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

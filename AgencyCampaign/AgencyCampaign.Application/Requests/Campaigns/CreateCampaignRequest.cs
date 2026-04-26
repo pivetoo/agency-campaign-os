@@ -30,8 +30,8 @@ namespace AgencyCampaign.Application.Requests.Campaigns
 
         public DateTimeOffset? EndsAt { get; set; }
 
-        [StringLength(150)]
-        public string? InternalOwnerName { get; set; }
+        [Range(1, long.MaxValue)]
+        public long? CommercialResponsibleId { get; set; }
 
         [StringLength(1000)]
         public string? Notes { get; set; }

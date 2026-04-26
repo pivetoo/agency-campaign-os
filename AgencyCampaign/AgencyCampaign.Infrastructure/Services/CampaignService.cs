@@ -39,6 +39,8 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             await EnsureBrandExists(request.BrandId, cancellationToken);
 
+            string? internalOwnerName = await ResolveCommercialResponsibleName(request.CommercialResponsibleId, cancellationToken);
+
             Campaign campaign = new(
                 request.BrandId,
                 request.Name,
@@ -48,7 +50,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Objective,
                 request.Briefing,
                 request.EndsAt,
-                request.InternalOwnerName,
+                internalOwnerName,
                 request.Notes);
 
             campaign.ChangeStatus(request.Status);
@@ -80,6 +82,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await EnsureBrandExists(request.BrandId, cancellationToken);
 
+            string? internalOwnerName = await ResolveCommercialResponsibleName(request.CommercialResponsibleId, cancellationToken);
+
             campaign.Update(
                 request.BrandId,
                 request.Name,
@@ -90,7 +94,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Objective,
                 request.Briefing,
                 request.Status,
-                request.InternalOwnerName,
+                internalOwnerName,
                 request.Notes,
                 request.IsActive);
 
@@ -153,6 +157,20 @@ namespace AgencyCampaign.Infrastructure.Services
                 AgencyFeeAmountTotal = agencyFeeAmountTotal,
                 RemainingBudget = campaign.Budget - grossAmountTotal
             };
+        }
+
+        private async Task<string?> ResolveCommercialResponsibleName(long? commercialResponsibleId, CancellationToken cancellationToken)
+        {
+            if (!commercialResponsibleId.HasValue)
+            {
+                return null;
+            }
+
+            CommercialResponsible? responsible = await DbContext.Set<CommercialResponsible>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == commercialResponsibleId.Value, cancellationToken);
+
+            return responsible?.Name;
         }
 
         private async Task EnsureBrandExists(long brandId, CancellationToken cancellationToken)

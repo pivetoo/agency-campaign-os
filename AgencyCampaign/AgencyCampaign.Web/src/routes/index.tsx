@@ -6,15 +6,18 @@ import Brands from '../modules/Brands'
 import Creators from '../modules/Creators'
 import Campaigns from '../modules/Campaigns'
 import CampaignDetail from '../modules/Campaigns/Detail'
+import CommercialPipeline from '../modules/Commercial/Pipeline'
 import CommercialOpportunities from '../modules/Commercial/Opportunities'
 import CommercialOpportunityDetail from '../modules/Commercial/OpportunityDetail'
 import CommercialProposals from '../modules/Commercial/Proposals'
-import CommercialNegotiations from '../modules/Commercial/Negotiations'
+import CommercialProposalDetail from '../modules/Commercial/ProposalDetail'
 import CommercialFollowUps from '../modules/Commercial/FollowUps'
 import CommercialApprovals from '../modules/Commercial/Approvals'
+import CommercialResponsibles from '../modules/Commercial/CommercialResponsibles'
 import FinancialReceivables from '../modules/Financial/Receivables'
 import FinancialPayables from '../modules/Financial/Payables'
 import Platforms from '../modules/Configuration/Platforms'
+import CommercialPipelineStages from '../modules/Configuration/CommercialPipelineStages'
 import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_PROVIDER_WEB
@@ -53,16 +56,20 @@ function AppRoutes() {
           <Route path="creators" element={<Creators />} />
           <Route path="campanhas" element={<Campaigns />} />
           <Route path="campanhas/:id" element={<CampaignDetail />} />
-          <Route path="comercial" element={<Navigate to="/comercial/oportunidades" replace />} />
+          <Route path="comercial" element={<Navigate to="/comercial/pipeline" replace />} />
+          <Route path="comercial/pipeline" element={<CommercialPipeline />} />
           <Route path="comercial/oportunidades" element={<CommercialOpportunities />} />
           <Route path="comercial/oportunidades/:id" element={<CommercialOpportunityDetail />} />
           <Route path="comercial/propostas" element={<CommercialProposals />} />
-          <Route path="comercial/negociacoes" element={<CommercialNegotiations />} />
+          <Route path="comercial/propostas/:id" element={<CommercialProposalDetail />} />
+          <Route path="comercial/negociacoes" element={<Navigate to="/comercial/oportunidades" replace />} />
           <Route path="comercial/aprovacoes" element={<CommercialApprovals />} />
           <Route path="comercial/followups" element={<CommercialFollowUps />} />
+          <Route path="comercial/responsaveis" element={<CommercialResponsibles />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
           <Route path="configuracao/plataformas" element={<Platforms />} />
+          <Route path="configuracao/pipeline-comercial" element={<CommercialPipelineStages />} />
           <Route path="configuracao/tipos-entrega" element={<DeliverableKinds />} />
         </Route>
 

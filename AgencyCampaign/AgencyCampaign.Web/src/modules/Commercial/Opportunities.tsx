@@ -5,15 +5,6 @@ import type { DataTableColumn } from 'archon-ui'
 import { opportunityService, type Opportunity } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
 
-const stageLabels: Record<number, string> = {
-  1: 'Lead',
-  2: 'Qualificada',
-  3: 'Proposta',
-  4: 'Negociação',
-  5: 'Ganha',
-  6: 'Perdida',
-}
-
 export default function CommercialOpportunities() {
   const navigate = useNavigate()
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
@@ -41,10 +32,10 @@ export default function CommercialOpportunities() {
     {
       key: 'stage',
       title: 'Estágio',
-      dataIndex: 'stage',
-      render: (value: number) => (
-        <Badge variant={value === 5 ? 'success' : value === 6 ? 'destructive' : 'warning'}>
-          {stageLabels[value] || '-'}
+      dataIndex: 'commercialPipelineStage',
+      render: (value?: Opportunity['commercialPipelineStage']) => (
+        <Badge variant={value?.finalBehavior === 1 ? 'success' : value?.finalBehavior === 2 ? 'destructive' : 'warning'}>
+          {value?.name || '-'}
         </Badge>
       ),
     },
@@ -71,6 +62,8 @@ export default function CommercialOpportunities() {
           onRowDoubleClick={(row) => navigate(`/comercial/oportunidades/${row.id}`)}
           emptyText="Nenhuma oportunidade cadastrada"
           loading={loading}
+          pageSize={5}
+          pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>
 

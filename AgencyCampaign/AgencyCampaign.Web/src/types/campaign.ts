@@ -9,7 +9,11 @@ export interface Campaign {
   startsAt: string
   endsAt?: string
   status: number
-  internalOwnerName?: string
+  commercialResponsibleId?: number
+  commercialResponsible?: {
+    id: number
+    name: string
+  }
   notes?: string
   isActive: boolean
   brand?: {

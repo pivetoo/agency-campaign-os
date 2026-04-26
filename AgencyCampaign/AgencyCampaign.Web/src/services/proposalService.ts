@@ -22,12 +22,15 @@ export interface ProposalItem {
 
 export interface Proposal {
   id: number
-  brandId: number
   name: string
   description?: string
   status: number
   validityUntil?: string
-  opportunityId?: number
+  opportunityId: number
+  opportunity?: {
+    id: number
+    name: string
+  }
   totalValue: number
   internalOwnerId: number
   internalOwnerName?: string
@@ -47,11 +50,9 @@ export interface Proposal {
 }
 
 export interface CreateProposalRequest {
-  brandId: number
-  name: string
+  opportunityId: number
   description?: string
   validityUntil?: string
-  opportunityId?: number
   notes?: string
   internalOwnerId?: number
   internalOwnerName?: string
@@ -134,6 +135,10 @@ export const proposalService = {
 
   reject(id: number) {
     return httpClient.post<Proposal>(`${BASE_URL}/${id}/Reject`, {})
+  },
+
+  markAsViewed(id: number) {
+    return httpClient.post<Proposal>(`${BASE_URL}/${id}/MarkAsViewed`, {})
   },
 
   convertToCampaign(id: number, campaignId: number) {

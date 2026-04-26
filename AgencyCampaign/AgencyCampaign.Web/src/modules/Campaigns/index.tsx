@@ -72,6 +72,8 @@ export default function Campaigns() {
           }}
           emptyText="Nenhuma campanha cadastrada"
           loading={loading}
+          pageSize={5}
+          pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>
 

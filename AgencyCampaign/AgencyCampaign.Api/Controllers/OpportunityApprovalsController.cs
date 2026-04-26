@@ -44,7 +44,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite aprovar uma solicitação comercial.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/Approve")]
         public async Task<IActionResult> Approve(long id, [FromBody] DecideOpportunityApprovalRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -58,7 +58,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite rejeitar uma solicitação comercial.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [HttpPost("{id:long}/Reject")]
         public async Task<IActionResult> Reject(long id, [FromBody] DecideOpportunityApprovalRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
