@@ -20,6 +20,7 @@ import Platforms from '../modules/Configuration/Platforms'
 import CommercialPipelineStages from '../modules/Configuration/CommercialPipelineStages'
 import CampaignCreatorStatuses from '../modules/Configuration/CampaignCreatorStatuses'
 import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
+import Integrations from '../modules/Configuration/Integrations'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_PROVIDER_WEB
 
@@ -73,6 +74,7 @@ function AppRoutes() {
           <Route path="configuracao/pipeline-comercial" element={<CommercialPipelineStages />} />
           <Route path="configuracao/status-creators" element={<CampaignCreatorStatuses />} />
           <Route path="configuracao/tipos-entrega" element={<DeliverableKinds />} />
+          <Route path="configuracao/integracoes" element={<Integrations />} />
         </Route>
 
         <Route path="*" element={<div>Página não encontrada</div>} />
