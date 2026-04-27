@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Mail, Plus, Signature } from 'lucide-react'
+import { Mail, Pencil, Plus, Signature, Users, FileText, Package } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
 import { campaignCreatorService } from '../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../services/campaignDeliverableService'
@@ -132,7 +132,11 @@ export default function CampaignDetail() {
       key: 'status',
       title: 'Status',
       dataIndex: 'status',
-      render: (value: number) => campaignCreatorStatusLabels[value] || '-',
+      width: 140,
+      render: (value: number) => {
+        const variant = value === 3 ? 'success' : value === 5 ? 'success' : value === 6 ? 'destructive' : 'warning'
+        return <Badge variant={variant}>{campaignCreatorStatusLabels[value] || '-'}</Badge>
+      },
     },
     {
       key: 'agreedAmount',
@@ -145,6 +149,25 @@ export default function CampaignDetail() {
       title: 'Fee agência',
       dataIndex: 'agencyFeeAmount',
       render: (_value: number, record: CampaignCreator) => `R$ ${record.agencyFeeAmount.toFixed(2)} (${record.agencyFeePercent.toFixed(2)}%)`,
+    },
+    {
+      key: 'confirmedAt',
+      title: 'Confirmado em',
+      dataIndex: 'confirmedAt',
+      render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
+    },
+    {
+      key: 'actions',
+      title: '',
+      width: 48,
+      render: (_: any, record: CampaignCreator) => (
+        <button
+          className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          onClick={() => { setSelectedCampaignCreator(record); setIsCreatorFormOpen(true) }}
+        >
+          <Pencil size={14} />
+        </button>
+      ),
     },
   ]
 
@@ -172,13 +195,47 @@ export default function CampaignDetail() {
       key: 'status',
       title: 'Status',
       dataIndex: 'status',
-      render: (value: number) => deliverableStatusLabels[value] || '-',
+      width: 120,
+      render: (value: number) => {
+        const variant = value === 3 ? 'success' : value === 4 ? 'success' : value === 5 ? 'destructive' : 'warning'
+        return <Badge variant={variant}>{deliverableStatusLabels[value] || '-'}</Badge>
+      },
     },
     {
       key: 'dueAt',
       title: 'Prazo',
       dataIndex: 'dueAt',
       render: (value: string) => new Date(value).toLocaleDateString('pt-BR'),
+    },
+    {
+      key: 'grossAmount',
+      title: 'Valor bruto',
+      dataIndex: 'grossAmount',
+      render: (value: number) => `R$ ${value.toFixed(2)}`,
+    },
+    {
+      key: 'publishedUrl',
+      title: 'URL',
+      dataIndex: 'publishedUrl',
+      render: (value?: string) =>
+        value ? (
+          <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs truncate max-w-[120px] block">
+            {value}
+          </a>
+        ) : '-',
+    },
+    {
+      key: 'actions',
+      title: '',
+      width: 48,
+      render: (_: any, record: CampaignDeliverable) => (
+        <button
+          className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          onClick={() => { setSelectedDeliverable(record); setIsDeliverableFormOpen(true) }}
+        >
+          <Pencil size={14} />
+        </button>
+      ),
     },
   ]
 
@@ -203,7 +260,26 @@ export default function CampaignDetail() {
       key: 'status',
       title: 'Status',
       dataIndex: 'status',
-      render: (value: number) => documentStatusLabels[value] || '-',
+      width: 140,
+      render: (value: number) => {
+        const variant = value === 5 ? 'success' : value === 6 ? 'destructive' : value === 3 ? 'warning' : 'default'
+        return <Badge variant={variant}>{documentStatusLabels[value] || '-'}</Badge>
+      },
+    },
+    {
+      key: 'documentType',
+      title: 'Tipo',
+      dataIndex: 'documentType',
+      render: (value: number) => documentTypeLabels[value] || '-',
+    },
+    {
+      key: 'campaignCreatorId',
+      title: 'Creator',
+      dataIndex: 'campaignCreatorId',
+      render: (value?: number) => {
+        const campaignCreator = campaignCreators.find((item) => item.id === value)
+        return campaignCreator?.creator?.stageName || campaignCreator?.creator?.name || '-'
+      },
     },
     {
       key: 'sentAt',
@@ -216,6 +292,19 @@ export default function CampaignDetail() {
       title: 'Assinado em',
       dataIndex: 'signedAt',
       render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
+    },
+    {
+      key: 'actions',
+      title: '',
+      width: 48,
+      render: (_: any, record: CampaignDocument) => (
+        <button
+          className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          onClick={() => { setSelectedDocument(record); setIsDocumentFormOpen(true) }}
+        >
+          <Pencil size={14} />
+        </button>
+      ),
     },
   ]
 
@@ -247,25 +336,35 @@ export default function CampaignDetail() {
         }}
         showDefaultActions={false}
       >
-        <Card className="border-0 bg-transparent shadow-none">
-          <CardContent className="grid gap-4 px-0 pt-0 pb-0 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 pt-6">
             <div>
-              <p className="text-sm font-medium">Status</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Status</p>
               <div className="mt-1">
-                <Badge className="px-2 py-0 text-[11px]" variant={campaign?.status === 5 ? 'success' : campaign?.status === 6 ? 'destructive' : 'warning'}>
+                <Badge className="px-2 py-0.5 text-xs" variant={campaign?.status === 5 ? 'success' : campaign?.status === 6 ? 'destructive' : 'warning'}>
                   {campaign ? campaignStatusLabels[campaign.status] : '-'}
                 </Badge>
               </div>
             </div>
 
             <div>
-              <p className="text-sm font-medium">Budget</p>
-              <p className="text-sm text-muted-foreground">R$ {(campaign?.budget ?? 0).toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Budget</p>
+              <p className="text-sm font-medium mt-1">R$ {(campaign?.budget ?? 0).toFixed(2)}</p>
             </div>
 
             <div>
-              <p className="text-sm font-medium">Período</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Creators</p>
+              <p className="text-sm font-medium mt-1">{campaignCreators.length}</p>
+            </div>
+
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Entregas</p>
+              <p className="text-sm font-medium mt-1">{deliverables.length}</p>
+            </div>
+
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Período</p>
+              <p className="text-sm font-medium mt-1">
                 {campaign?.startsAt ? new Date(campaign.startsAt).toLocaleDateString('pt-BR') : '-'}
                 {' até '}
                 {campaign?.endsAt ? new Date(campaign.endsAt).toLocaleDateString('pt-BR') : '-'}
@@ -273,37 +372,46 @@ export default function CampaignDetail() {
             </div>
 
             <div>
-              <p className="text-sm font-medium">Objetivo</p>
-              <p className="text-sm text-muted-foreground">{campaign?.objective || '-'}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Responsável</p>
+              <p className="text-sm font-medium mt-1">{campaign?.commercialResponsible?.name || campaign?.internalOwnerName || '-'}</p>
             </div>
 
-            <div>
-              <p className="text-sm font-medium">Responsável interno</p>
-              <p className="text-sm text-muted-foreground">{campaign?.commercialResponsible?.name || campaign?.internalOwnerName || '-'}</p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium">Descrição</p>
-              <p className="text-sm text-muted-foreground">{campaign?.description || '-'}</p>
-            </div>
-
-            <div className="lg:col-span-3">
-              <p className="text-sm font-medium">Briefing</p>
-              <p className="text-sm text-muted-foreground">{campaign?.briefing || '-'}</p>
-            </div>
-
-            <div className="lg:col-span-3">
-              <p className="text-sm font-medium">Observações</p>
-              <p className="text-sm text-muted-foreground">{campaign?.notes || '-'}</p>
+            <div className="lg:col-span-2">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Objetivo</p>
+              <p className="text-sm font-medium mt-1">{campaign?.objective || '-'}</p>
             </div>
           </CardContent>
         </Card>
 
         <Tabs defaultValue="creators" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="creators">Creators</TabsTrigger>
-            <TabsTrigger value="documents">Documentos</TabsTrigger>
-            <TabsTrigger value="deliverables">Entregas</TabsTrigger>
+          <TabsList className="mb-4">
+            <TabsTrigger value="creators">
+              <Users size={14} className="mr-1.5" />
+              Creators
+              {campaignCreators.length > 0 && (
+                <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium">
+                  {campaignCreators.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="documents">
+              <FileText size={14} className="mr-1.5" />
+              Documentos
+              {documents.length > 0 && (
+                <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium">
+                  {documents.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="deliverables">
+              <Package size={14} className="mr-1.5" />
+              Entregas
+              {deliverables.length > 0 && (
+                <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium">
+                  {deliverables.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="creators">
@@ -322,10 +430,6 @@ export default function CampaignDetail() {
                   rowKey="id"
                   selectedRows={selectedCampaignCreator ? [selectedCampaignCreator] : []}
                   onSelectionChange={(rows) => setSelectedCampaignCreator(rows[0] ?? null)}
-                  onRowDoubleClick={(row) => {
-                    setSelectedCampaignCreator(row)
-                    setIsCreatorFormOpen(true)
-                  }}
                   emptyText="Nenhum creator vinculado à campanha"
                   loading={creatorsLoading}
                   pageSize={5}
@@ -361,10 +465,6 @@ export default function CampaignDetail() {
                   rowKey="id"
                   selectedRows={selectedDocument ? [selectedDocument] : []}
                   onSelectionChange={(rows) => setSelectedDocument(rows[0] ?? null)}
-                  onRowDoubleClick={(row) => {
-                    setSelectedDocument(row)
-                    setIsDocumentFormOpen(true)
-                  }}
                   emptyText="Nenhum documento cadastrado"
                   loading={documentsLoading}
                   pageSize={5}
@@ -390,10 +490,6 @@ export default function CampaignDetail() {
                   rowKey="id"
                   selectedRows={selectedDeliverable ? [selectedDeliverable] : []}
                   onSelectionChange={(rows) => setSelectedDeliverable(rows[0] ?? null)}
-                  onRowDoubleClick={(row) => {
-                    setSelectedDeliverable(row)
-                    setIsDeliverableFormOpen(true)
-                  }}
                   emptyText="Nenhuma entrega cadastrada"
                   loading={deliverablesLoading}
                   pageSize={5}
