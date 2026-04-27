@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, Button, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
+import { Eye } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
 import type { Campaign } from '../../types/campaign'
 import CampaignFormModal from '../../components/modals/CampaignFormModal'
@@ -49,6 +50,17 @@ export default function Campaigns() {
         </Badge>
       ),
     },
+    {
+      key: 'actions',
+      title: '',
+      dataIndex: undefined,
+      width: 56,
+      render: (_: any, record: Campaign) => (
+        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); navigate(`/campanhas/${record.id}`) }}>
+          <Eye size={16} />
+        </Button>
+      ),
+    },
   ]
 
   return (
@@ -67,9 +79,6 @@ export default function Campaigns() {
           rowKey="id"
           selectedRows={selectedCampaign ? [selectedCampaign] : []}
           onSelectionChange={(rows) => setSelectedCampaign(rows[0] ?? null)}
-          onRowDoubleClick={(row) => {
-            navigate(`/campanhas/${row.id}`)
-          }}
           emptyText="Nenhuma campanha cadastrada"
           loading={loading}
           pageSize={5}

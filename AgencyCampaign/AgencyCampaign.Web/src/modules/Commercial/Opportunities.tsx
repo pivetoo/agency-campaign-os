@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, Button, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
+import { Eye } from 'lucide-react'
 import { opportunityService, type Opportunity } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
 
@@ -41,6 +42,17 @@ export default function CommercialOpportunities() {
     },
     { key: 'followUps', title: 'Follow-ups', dataIndex: 'followUps', render: (value?: Opportunity['followUps']) => value?.filter((item) => !item.isCompleted).length ?? 0 },
     { key: 'proposals', title: 'Propostas', dataIndex: 'proposals', render: (value?: Opportunity['proposals']) => value?.length ?? 0 },
+    {
+      key: 'actions',
+      title: '',
+      dataIndex: undefined,
+      width: 56,
+      render: (_: any, record: Opportunity) => (
+        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); navigate(`/comercial/oportunidades/${record.id}`) }}>
+          <Eye size={16} />
+        </Button>
+      ),
+    },
   ]
 
   return (
@@ -59,7 +71,6 @@ export default function CommercialOpportunities() {
           rowKey="id"
           selectedRows={selectedOpportunity ? [selectedOpportunity] : []}
           onSelectionChange={(rows) => setSelectedOpportunity(rows[0] ?? null)}
-          onRowDoubleClick={(row) => navigate(`/comercial/oportunidades/${row.id}`)}
           emptyText="Nenhuma oportunidade cadastrada"
           loading={loading}
           pageSize={5}
