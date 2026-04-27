@@ -123,14 +123,29 @@ export default function Integrations() {
         }}
         selectedRowsCount={activeTab === 'integrations' && selectedIntegration ? 1 : activeTab === 'pipelines' && selectedPipeline ? 1 : 0}
       >
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="mt-4">
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsList>
-            <TabsTrigger value="integrations"><Plug size={16} className="mr-2" />Integrações</TabsTrigger>
-            <TabsTrigger value="pipelines"><GitBranch size={16} className="mr-2" />Pipelines</TabsTrigger>
-            <TabsTrigger value="logs"><ScrollText size={16} className="mr-2" />Logs</TabsTrigger>
+            <TabsTrigger
+              value="integrations"
+              className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-sm"
+            >
+              <Plug size={16} />Integrações
+            </TabsTrigger>
+            <TabsTrigger
+              value="pipelines"
+              className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-sm"
+            >
+              <GitBranch size={16} />Pipelines
+            </TabsTrigger>
+            <TabsTrigger
+              value="logs"
+              className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-sm"
+            >
+              <ScrollText size={16} />Logs
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="integrations" className="mt-4">
+          <TabsContent value="integrations">
             <DataTable
               columns={integrationColumns}
               data={integrations}
@@ -144,7 +159,7 @@ export default function Integrations() {
             />
           </TabsContent>
 
-          <TabsContent value="pipelines" className="mt-4">
+          <TabsContent value="pipelines">
             <DataTable
               columns={pipelineColumns}
               data={pipelines}
@@ -158,7 +173,7 @@ export default function Integrations() {
             />
           </TabsContent>
 
-          <TabsContent value="logs" className="mt-4">
+          <TabsContent value="logs">
             <DataTable
               columns={logColumns}
               data={logs}
