@@ -324,7 +324,7 @@ export default function CampaignDetail() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <PageLayout
         title={campaign?.name || 'Campanha'}
         subtitle={campaign?.brand?.name ? `${campaign.brand.name} · operação da campanha` : 'Operação da campanha'}
@@ -337,7 +337,7 @@ export default function CampaignDetail() {
         showDefaultActions={false}
       >
         <Card>
-          <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 pt-6">
+          <CardContent className="grid gap-3 md:grid-cols-2 lg:grid-cols-4 pt-5 pb-5">
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Status</p>
               <div className="mt-1">
@@ -371,20 +371,15 @@ export default function CampaignDetail() {
               </p>
             </div>
 
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Responsável</p>
-              <p className="text-sm font-medium mt-1">{campaign?.commercialResponsible?.name || campaign?.internalOwnerName || '-'}</p>
-            </div>
-
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Objetivo</p>
               <p className="text-sm font-medium mt-1">{campaign?.objective || '-'}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="creators" className="space-y-4">
-          <TabsList className="mb-4">
+        <Tabs defaultValue="creators">
+          <TabsList>
             <TabsTrigger value="creators">
               <Users size={14} className="mr-1.5" />
               Creators
@@ -414,16 +409,16 @@ export default function CampaignDetail() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="creators">
+          <TabsContent value="creators" className="mt-2">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Creators da campanha</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between py-3">
+                <CardTitle className="text-base">Creators da campanha</CardTitle>
                 <Button size="sm" onClick={() => { setSelectedCampaignCreator(null); setIsCreatorFormOpen(true) }}>
                   <Plus size={16} className="mr-2" />
                   Adicionar creator
                 </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <DataTable
                   columns={campaignCreatorColumns}
                   data={campaignCreators}
@@ -439,10 +434,10 @@ export default function CampaignDetail() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="documents">
+          <TabsContent value="documents" className="mt-2">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Documentos</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between py-3">
+                <CardTitle className="text-base">Documentos</CardTitle>
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => void handleMarkDocumentAsSigned()} disabled={!selectedDocument || signingDocument}>
                     <Signature size={16} className="mr-2" />
@@ -458,7 +453,7 @@ export default function CampaignDetail() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <DataTable
                   columns={documentColumns}
                   data={documents}
@@ -474,16 +469,16 @@ export default function CampaignDetail() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="deliverables">
+          <TabsContent value="deliverables" className="mt-2">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Entregas</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between py-3">
+                <CardTitle className="text-base">Entregas</CardTitle>
                 <Button size="sm" onClick={() => { setSelectedDeliverable(null); setIsDeliverableFormOpen(true) }}>
                   <Plus size={16} className="mr-2" />
                   Nova entrega
                 </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <DataTable
                   columns={deliverableColumns}
                   data={deliverables}
