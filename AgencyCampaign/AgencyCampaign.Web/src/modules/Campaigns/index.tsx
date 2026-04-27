@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, Button, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Eye } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
@@ -56,9 +56,12 @@ export default function Campaigns() {
       dataIndex: undefined,
       width: 56,
       render: (_: any, record: Campaign) => (
-        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); navigate(`/campanhas/${record.id}`) }}>
+        <button
+          className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          onClick={(e) => { e.stopPropagation(); navigate(`/campanhas/${record.id}`) }}
+        >
           <Eye size={16} />
-        </Button>
+        </button>
       ),
     },
   ]
