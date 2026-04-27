@@ -324,7 +324,7 @@ export default function CampaignDetail() {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <PageLayout
         title={campaign?.name || 'Campanha'}
         subtitle={campaign?.brand?.name ? `${campaign.brand.name} · operação da campanha` : 'Operação da campanha'}
