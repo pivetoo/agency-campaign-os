@@ -40,6 +40,7 @@ export default function AgencyCampaignLayout() {
     createMenuGroup('Configuração', [
       { key: 'configuracao-plataformas', label: 'Plataformas', path: '/configuracao/plataformas', icon: <Globe size={20} /> },
       { key: 'configuracao-pipeline-comercial', label: 'Estágios do Comercial', path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
+      { key: 'configuracao-status-creators', label: 'Status dos Creators', path: '/configuracao/status-creators', icon: <Users size={20} /> },
       { key: 'configuracao-tipos-entrega', label: 'Tipos de entrega', path: '/configuracao/tipos-entrega', icon: <Tags size={20} /> },
     ]),
   ]
@@ -66,6 +67,7 @@ export default function AgencyCampaignLayout() {
       '/financeiro/pagar': 'Contas a pagar',
       '/configuracao/plataformas': 'Plataformas',
       '/configuracao/pipeline-comercial': 'Estágios do Comercial',
+      '/configuracao/status-creators': 'Status dos Creators',
       '/configuracao/tipos-entrega': 'Tipos de entrega',
     }
 

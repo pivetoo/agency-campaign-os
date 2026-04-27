@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi } from 'archon-ui'
 import { campaignCreatorService, type CreateCampaignCreatorRequest, type UpdateCampaignCreatorRequest } from '../../services/campaignCreatorService'
+import { campaignCreatorStatusService } from '../../services/campaignCreatorStatusService'
 import { creatorService } from '../../services/creatorService'
 import type { CampaignCreator } from '../../types/campaignCreator'
+import type { CampaignCreatorStatus } from '../../types/campaignCreatorStatus'
 import type { Creator } from '../../types/creator'
 
 interface CampaignCreatorFormModalProps {
@@ -16,24 +18,35 @@ interface CampaignCreatorFormModalProps {
 const initialFormData: CreateCampaignCreatorRequest = {
   campaignId: 0,
   creatorId: 0,
+  campaignCreatorStatusId: 0,
   agreedAmount: 0,
   agencyFeePercent: 0,
   notes: '',
-  status: 1,
 }
 
 export default function CampaignCreatorFormModal({ open, onOpenChange, campaignId, campaignCreator, onSuccess }: CampaignCreatorFormModalProps) {
   const isEditing = !!campaignCreator
   const [formData, setFormData] = useState<CreateCampaignCreatorRequest>(initialFormData)
   const [creators, setCreators] = useState<Creator[]>([])
+  const [statuses, setStatuses] = useState<CampaignCreatorStatus[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: fetchCreators } = useApi<Creator[]>({ showErrorMessage: true })
+  const { execute: fetchStatuses } = useApi<CampaignCreatorStatus[]>({ showErrorMessage: true })
 
   useEffect(() => {
     if (open) {
       void fetchCreators(() => creatorService.getAll()).then((result) => {
         if (result) {
           setCreators(result.filter((creator) => creator.isActive))
+        }
+      })
+      void fetchStatuses(() => campaignCreatorStatusService.getActive()).then((result) => {
+        if (result) {
+          setStatuses(result)
+          setFormData((prev) => ({
+            ...prev,
+            campaignCreatorStatusId: prev.campaignCreatorStatusId || result.find((s) => s.isInitial)?.id || result[0]?.id || 0,
+          }))
         }
       })
     }
@@ -60,16 +73,16 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
       setFormData({
         campaignId,
         creatorId: campaignCreator.creatorId,
+        campaignCreatorStatusId: campaignCreator.campaignCreatorStatusId || statuses.find((s) => s.isInitial)?.id || 0,
         agreedAmount: campaignCreator.agreedAmount,
         agencyFeePercent: campaignCreator.agencyFeePercent,
         notes: campaignCreator.notes || '',
-        status: campaignCreator.status,
       })
       return
     }
 
-    setFormData({ ...initialFormData, campaignId })
-  }, [campaignCreator, campaignId, open])
+    setFormData({ ...initialFormData, campaignId, campaignCreatorStatusId: statuses.find((s) => s.isInitial)?.id || 0 })
+  }, [campaignCreator, campaignId, open, statuses])
 
   const calculatedAgencyFeeAmount = Number(((formData.agreedAmount * (formData.agencyFeePercent || 0)) / 100).toFixed(2))
 
@@ -91,7 +104,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
             id: campaignCreator.id,
             agreedAmount: payload.agreedAmount,
             notes: payload.notes,
-            status: payload.status,
+            campaignCreatorStatusId: payload.campaignCreatorStatusId,
           } satisfies UpdateCampaignCreatorRequest)
         : campaignCreatorService.create(payload),
     )
@@ -124,17 +137,13 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Status</label>
-              <Select value={String(formData.status)} onValueChange={(value) => setFormData((prev) => ({ ...prev, status: Number(value) }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Convidado</SelectItem>
-                  <SelectItem value="2">Pendente aprovação</SelectItem>
-                  <SelectItem value="3">Confirmado</SelectItem>
-                  <SelectItem value="4">Em execução</SelectItem>
-                  <SelectItem value="5">Entregue</SelectItem>
-                  <SelectItem value="6">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={String(formData.campaignCreatorStatusId)}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorStatusId: Number(value) }))}
+                options={statuses.map((status) => ({ value: String(status.id), label: status.name }))}
+                placeholder="Selecione um status"
+                searchPlaceholder="Buscar status"
+              />
             </div>
 
             <div className="space-y-2">

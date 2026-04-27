@@ -6,17 +6,17 @@ const BASE_URL = '/CampaignCreators'
 export interface CreateCampaignCreatorRequest {
   campaignId: number
   creatorId: number
+  campaignCreatorStatusId: number
   agreedAmount: number
   agencyFeePercent: number
   notes?: string
-  status: number
 }
 
 export interface UpdateCampaignCreatorRequest {
   id: number
+  campaignCreatorStatusId: number
   agreedAmount: number
   notes?: string
-  status: number
 }
 
 export const campaignCreatorService = {

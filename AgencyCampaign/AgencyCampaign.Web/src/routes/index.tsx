@@ -18,6 +18,7 @@ import FinancialReceivables from '../modules/Financial/Receivables'
 import FinancialPayables from '../modules/Financial/Payables'
 import Platforms from '../modules/Configuration/Platforms'
 import CommercialPipelineStages from '../modules/Configuration/CommercialPipelineStages'
+import CampaignCreatorStatuses from '../modules/Configuration/CampaignCreatorStatuses'
 import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_PROVIDER_WEB
@@ -70,6 +71,7 @@ function AppRoutes() {
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
           <Route path="configuracao/plataformas" element={<Platforms />} />
           <Route path="configuracao/pipeline-comercial" element={<CommercialPipelineStages />} />
+          <Route path="configuracao/status-creators" element={<CampaignCreatorStatuses />} />
           <Route path="configuracao/tipos-entrega" element={<DeliverableKinds />} />
         </Route>
 

@@ -2,7 +2,12 @@ export interface CampaignCreator {
   id: number
   campaignId: number
   creatorId: number
-  status: number
+  campaignCreatorStatusId: number
+  campaignCreatorStatus?: {
+    id: number
+    name: string
+    color: string
+  }
   agreedAmount: number
   agencyFeePercent: number
   agencyFeeAmount: number

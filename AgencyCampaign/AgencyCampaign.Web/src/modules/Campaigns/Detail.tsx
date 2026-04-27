@@ -33,13 +33,13 @@ const deliverableStatusLabels: Record<number, string> = {
   5: 'Cancelada',
 }
 
-const campaignCreatorStatusLabels: Record<number, string> = {
-  1: 'Convidado',
-  2: 'Pendente aprovação',
-  3: 'Confirmado',
-  4: 'Em execução',
-  5: 'Entregue',
-  6: 'Cancelado',
+function getContrastColor(hexColor: string): string {
+  const hex = hexColor.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.5 ? '#111827' : '#ffffff'
 }
 
 const documentTypeLabels: Record<number, string> = {
@@ -129,14 +129,18 @@ export default function CampaignDetail() {
       render: (value: CampaignCreator['creator']) => value?.stageName || value?.name || '-',
     },
     {
-      key: 'status',
+      key: 'campaignCreatorStatus',
       title: 'Status',
-      dataIndex: 'status',
+      dataIndex: 'campaignCreatorStatus',
       width: 140,
-      render: (value: number) => {
-        const variant = value === 3 ? 'success' : value === 5 ? 'success' : value === 6 ? 'destructive' : 'warning'
-        return <Badge variant={variant}>{campaignCreatorStatusLabels[value] || '-'}</Badge>
-      },
+      render: (value: CampaignCreator['campaignCreatorStatus']) => (
+        <span
+          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+          style={{ backgroundColor: value?.color ?? '#6b7280', color: getContrastColor(value?.color ?? '#6b7280') }}
+        >
+          {value?.name || '-'}
+        </span>
+      ),
     },
     {
       key: 'agreedAmount',
