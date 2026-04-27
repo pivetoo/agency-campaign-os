@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { campaignFinancialEntryService, type CreateCampaignFinancialEntryRequest, type UpdateCampaignFinancialEntryRequest } from '../../services/campaignFinancialEntryService'
 import type { CampaignFinancialEntry } from '../../types/campaignFinancialEntry'
 import type { CampaignDeliverable } from '../../types/campaignDeliverable'
@@ -171,15 +171,16 @@ export default function CampaignFinancialEntryFormModal({ open, onOpenChange, ca
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Entrega vinculada</label>
-              <Select value={formData.campaignDeliverableId ? String(formData.campaignDeliverableId) : '_none'} onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignDeliverableId: value === '_none' ? undefined : Number(value) }))}>
-                <SelectTrigger><SelectValue placeholder="Opcional" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="_none">Sem vínculo</SelectItem>
-                  {deliverables.map((deliverable) => (
-                    <SelectItem key={deliverable.id} value={String(deliverable.id)}>{deliverable.title}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.campaignDeliverableId ? String(formData.campaignDeliverableId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignDeliverableId: value ? Number(value) : undefined }))}
+                options={[
+                  { value: '', label: 'Sem vínculo' },
+                  ...deliverables.map((deliverable) => ({ value: String(deliverable.id), label: deliverable.title })),
+                ]}
+                placeholder="Opcional"
+                searchPlaceholder="Buscar entrega"
+              />
             </div>
 
             <div className="space-y-2">

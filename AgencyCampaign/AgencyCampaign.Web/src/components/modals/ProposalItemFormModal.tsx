@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi } from 'archon-ui'
 import { creatorService } from '../../services/creatorService'
 import { proposalService, type CreateProposalItemRequest, type ProposalItem, type UpdateProposalItemRequest } from '../../services/proposalService'
 import type { Creator } from '../../types/creator'
@@ -100,15 +100,16 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Creator</label>
-              <Select value={formData.creatorId ? String(formData.creatorId) : '_none'} onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: value === '_none' ? undefined : Number(value) }))}>
-                <SelectTrigger><SelectValue placeholder="Opcional" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="_none">Sem creator</SelectItem>
-                  {creators.map((creator) => (
-                    <SelectItem key={creator.id} value={String(creator.id)}>{creator.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.creatorId ? String(formData.creatorId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: value ? Number(value) : undefined }))}
+                options={[
+                  { value: '', label: 'Sem creator' },
+                  ...creators.map((creator) => ({ value: String(creator.id), label: creator.name })),
+                ]}
+                placeholder="Opcional"
+                searchPlaceholder="Buscar creator"
+              />
             </div>
 
             <div className="space-y-2 md:col-span-2">

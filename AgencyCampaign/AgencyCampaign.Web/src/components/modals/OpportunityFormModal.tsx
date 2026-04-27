@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi } from 'archon-ui'
 import { brandService } from '../../services/brandService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import type { Brand } from '../../types/brand'
@@ -88,14 +88,13 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Marca</label>
-              <Select value={formData.brandId ? String(formData.brandId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, brandId: Number(value) }))}>
-                <SelectTrigger><SelectValue placeholder="Selecione uma marca" /></SelectTrigger>
-                <SelectContent>
-                  {brands.map((brand) => (
-                    <SelectItem key={brand.id} value={String(brand.id)}>{brand.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.brandId ? String(formData.brandId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, brandId: Number(value) }))}
+                options={brands.map((brand) => ({ value: String(brand.id), label: brand.name }))}
+                placeholder="Selecione uma marca"
+                searchPlaceholder="Buscar marca"
+              />
             </div>
 
             <div className="space-y-2">
@@ -110,15 +109,16 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Responsável comercial</label>
-              <Select value={formData.commercialResponsibleId ? String(formData.commercialResponsibleId) : '0'} onValueChange={(value) => setFormData((prev) => ({ ...prev, commercialResponsibleId: value === '0' ? undefined : Number(value) }))}>
-                <SelectTrigger><SelectValue placeholder="Selecione um responsável" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">Nenhum</SelectItem>
-                  {responsibles.filter((r) => r.isActive).map((responsible) => (
-                    <SelectItem key={responsible.id} value={String(responsible.id)}>{responsible.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.commercialResponsibleId ? String(formData.commercialResponsibleId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, commercialResponsibleId: value ? Number(value) : undefined }))}
+                options={[
+                  { value: '', label: 'Nenhum' },
+                  ...responsibles.filter((r) => r.isActive).map((responsible) => ({ value: String(responsible.id), label: responsible.name })),
+                ]}
+                placeholder="Selecione um responsável"
+                searchPlaceholder="Buscar responsável"
+              />
             </div>
 
             <div className="space-y-2">

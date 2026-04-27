@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { campaignDocumentService, type CreateCampaignDocumentRequest, type UpdateCampaignDocumentRequest } from '../../services/campaignDocumentService'
 import type { CampaignDocument } from '../../types/campaignDocument'
 import type { CampaignCreator } from '../../types/campaignCreator'
@@ -96,15 +96,16 @@ export default function CampaignDocumentFormModal({ open, onOpenChange, campaign
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Creator da campanha</label>
-              <Select value={formData.campaignCreatorId ? String(formData.campaignCreatorId) : '_none'} onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorId: value === '_none' ? undefined : Number(value) }))}>
-                <SelectTrigger><SelectValue placeholder="Opcional" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="_none">Sem vínculo</SelectItem>
-                  {campaignCreators.map((item) => (
-                    <SelectItem key={item.id} value={String(item.id)}>{item.creator?.stageName || item.creator?.name || `Creator #${item.creatorId}`}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.campaignCreatorId ? String(formData.campaignCreatorId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorId: value ? Number(value) : undefined }))}
+                options={[
+                  { value: '', label: 'Sem vínculo' },
+                  ...campaignCreators.map((item) => ({ value: String(item.id), label: item.creator?.stageName || item.creator?.name || `Creator #${item.creatorId}` })),
+                ]}
+                placeholder="Opcional"
+                searchPlaceholder="Buscar creator"
+              />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>

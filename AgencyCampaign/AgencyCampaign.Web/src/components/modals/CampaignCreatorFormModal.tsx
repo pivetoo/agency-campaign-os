@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { campaignCreatorService, type CreateCampaignCreatorRequest, type UpdateCampaignCreatorRequest } from '../../services/campaignCreatorService'
 import { creatorService } from '../../services/creatorService'
 import type { CampaignCreator } from '../../types/campaignCreator'
@@ -112,14 +112,14 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
               <label className="text-sm font-medium">Creator</label>
-              <Select value={formData.creatorId ? String(formData.creatorId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: Number(value) }))} disabled={isEditing}>
-                <SelectTrigger><SelectValue placeholder="Selecione um creator" /></SelectTrigger>
-                <SelectContent>
-                  {creators.map((creator) => (
-                    <SelectItem key={creator.id} value={String(creator.id)}>{`${creator.stageName || creator.name} · fee ${creator.defaultAgencyFeePercent ?? 0}%`}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.creatorId ? String(formData.creatorId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: Number(value) }))}
+                options={creators.map((creator) => ({ value: String(creator.id), label: `${creator.stageName || creator.name} · fee ${creator.defaultAgencyFeePercent ?? 0}%` }))}
+                placeholder="Selecione um creator"
+                searchPlaceholder="Buscar creator"
+                disabled={isEditing}
+              />
             </div>
 
             <div className="space-y-2">

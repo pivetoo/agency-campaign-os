@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { campaignDeliverableService, type CreateCampaignDeliverableRequest, type UpdateCampaignDeliverableRequest } from '../../services/campaignDeliverableService'
 import { campaignCreatorService } from '../../services/campaignCreatorService'
 import { platformService } from '../../services/platformService'
@@ -142,16 +142,13 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
               <label className="text-sm font-medium">Creator da campanha</label>
-              <Select value={formData.campaignCreatorId ? String(formData.campaignCreatorId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorId: Number(value) }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um creator" />
-                </SelectTrigger>
-                <SelectContent>
-                  {campaignCreators.map((item) => (
-                    <SelectItem key={item.id} value={String(item.id)}>{item.creator?.stageName || item.creator?.name || `Creator #${item.creatorId}`}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.campaignCreatorId ? String(formData.campaignCreatorId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorId: Number(value) }))}
+                options={campaignCreators.map((item) => ({ value: String(item.id), label: item.creator?.stageName || item.creator?.name || `Creator #${item.creatorId}` }))}
+                placeholder="Selecione um creator"
+                searchPlaceholder="Buscar creator"
+              />
             </div>
 
             <div className="space-y-2">
@@ -180,26 +177,24 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Tipo</label>
-              <Select value={formData.deliverableKindId ? String(formData.deliverableKindId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, deliverableKindId: Number(value) }))}>
-                <SelectTrigger><SelectValue placeholder="Selecione um tipo" /></SelectTrigger>
-                <SelectContent>
-                  {deliverableKinds.map((item) => (
-                    <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.deliverableKindId ? String(formData.deliverableKindId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, deliverableKindId: Number(value) }))}
+                options={deliverableKinds.map((item) => ({ value: String(item.id), label: item.name }))}
+                placeholder="Selecione um tipo"
+                searchPlaceholder="Buscar tipo"
+              />
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Plataforma</label>
-              <Select value={formData.platformId ? String(formData.platformId) : ''} onValueChange={(value) => setFormData((prev) => ({ ...prev, platformId: Number(value) }))}>
-                <SelectTrigger><SelectValue placeholder="Selecione uma plataforma" /></SelectTrigger>
-                <SelectContent>
-                  {platforms.map((item) => (
-                    <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.platformId ? String(formData.platformId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, platformId: Number(value) }))}
+                options={platforms.map((item) => ({ value: String(item.id), label: item.name }))}
+                placeholder="Selecione uma plataforma"
+                searchPlaceholder="Buscar plataforma"
+              />
             </div>
 
             <div className="space-y-2">
