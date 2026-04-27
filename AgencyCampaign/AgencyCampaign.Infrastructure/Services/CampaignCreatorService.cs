@@ -49,14 +49,17 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .FirstAsync(item => item.Id == request.CreatorId, cancellationToken);
 
+            long statusId = request.CampaignCreatorStatusId > 0
+                ? request.CampaignCreatorStatusId
+                : await ResolveInitialStatusId(cancellationToken);
+
             CampaignCreator campaignCreator = new(
                 request.CampaignId,
                 request.CreatorId,
+                statusId,
                 request.AgreedAmount,
                 request.AgencyFeePercent > 0 ? request.AgencyFeePercent : creator.DefaultAgencyFeePercent,
                 request.Notes);
-
-            campaignCreator.ChangeStatus(request.Status);
 
             bool success = await Insert(cancellationToken, campaignCreator);
             if (!success)
@@ -84,7 +87,20 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             campaignCreator.Update(request.AgreedAmount, request.Notes);
-            campaignCreator.ChangeStatus(request.Status);
+
+            if (campaignCreator.CampaignCreatorStatusId != request.CampaignCreatorStatusId)
+            {
+                CampaignCreatorStatus? status = await DbContext.Set<CampaignCreatorStatus>()
+                    .AsTracking()
+                    .FirstOrDefaultAsync(s => s.Id == request.CampaignCreatorStatusId, cancellationToken);
+
+                if (status is null)
+                {
+                    throw new InvalidOperationException("Status não encontrado.");
+                }
+
+                campaignCreator.ChangeStatus(status);
+            }
 
             CampaignCreator? result = await Update(campaignCreator, cancellationToken);
             if (result is null)
@@ -93,6 +109,22 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return await GetCampaignCreatorById(result.Id, cancellationToken) ?? result;
+        }
+
+        private async Task<long> ResolveInitialStatusId(CancellationToken cancellationToken = default)
+        {
+            CampaignCreatorStatus? status = await DbContext.Set<CampaignCreatorStatus>()
+                .AsNoTracking()
+                .Where(s => s.IsActive && s.IsInitial)
+                .OrderBy(s => s.DisplayOrder)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (status is null)
+            {
+                throw new InvalidOperationException("Nenhum status inicial configurado.");
+            }
+
+            return status.Id;
         }
 
         private async Task EnsureReferencesExist(long campaignId, long creatorId, CancellationToken cancellationToken)
@@ -133,7 +165,8 @@ namespace AgencyCampaign.Infrastructure.Services
             return DbContext.Set<CampaignCreator>()
                 .AsNoTracking()
                 .Include(item => item.Campaign)
-                .Include(item => item.Creator);
+                .Include(item => item.Creator)
+                .Include(item => item.CampaignCreatorStatus);
         }
     }
 }

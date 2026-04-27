@@ -3,6 +3,7 @@ using AgencyCampaign.Application.Requests.CampaignDocuments;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using CampaignCreatorStatusEntity = AgencyCampaign.Domain.Entities.CampaignCreatorStatus;
 using AgencyCampaign.Infrastructure.Options;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
@@ -152,9 +153,18 @@ namespace AgencyCampaign.Infrastructure.Services
                     .AsTracking()
                     .FirstOrDefaultAsync(item => item.Id == document.CampaignCreatorId.Value, cancellationToken);
 
-                if (campaignCreator is not null && campaignCreator.Status == CampaignCreatorStatus.PendingApproval)
+                if (campaignCreator is not null && campaignCreator.CampaignCreatorStatus is not null && campaignCreator.CampaignCreatorStatus.Category == CampaignCreatorStatusCategory.InProgress)
                 {
-                    campaignCreator.ChangeStatus(CampaignCreatorStatus.Confirmed, request.SignedAt);
+                    CampaignCreatorStatusEntity? successStatus = await DbContext.Set<CampaignCreatorStatusEntity>()
+                        .AsTracking()
+                        .Where(s => s.IsActive && s.Category == CampaignCreatorStatusCategory.Success)
+                        .OrderBy(s => s.DisplayOrder)
+                        .FirstOrDefaultAsync(cancellationToken);
+
+                    if (successStatus is not null)
+                    {
+                        campaignCreator.ChangeStatus(successStatus, request.SignedAt);
+                    }
                 }
             }
 

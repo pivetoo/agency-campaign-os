@@ -1,4 +1,3 @@
-using AgencyCampaign.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 
 namespace AgencyCampaign.Application.Requests.CampaignCreators
@@ -13,6 +12,10 @@ namespace AgencyCampaign.Application.Requests.CampaignCreators
         [Range(1, long.MaxValue)]
         public long CreatorId { get; set; }
 
+        [Required]
+        [Range(1, long.MaxValue)]
+        public long CampaignCreatorStatusId { get; set; }
+
         [Range(0, double.MaxValue)]
         public decimal AgreedAmount { get; set; }
 
@@ -21,8 +24,5 @@ namespace AgencyCampaign.Application.Requests.CampaignCreators
 
         [StringLength(1000)]
         public string? Notes { get; set; }
-
-        [Required]
-        public CampaignCreatorStatus Status { get; set; } = CampaignCreatorStatus.Invited;
     }
 }

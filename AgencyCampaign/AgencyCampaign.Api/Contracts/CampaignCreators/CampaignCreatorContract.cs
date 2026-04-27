@@ -1,5 +1,4 @@
 using AgencyCampaign.Domain.Entities;
-using AgencyCampaign.Domain.ValueObjects;
 using System.Linq.Expressions;
 
 namespace AgencyCampaign.Api.Contracts.CampaignCreators
@@ -12,7 +11,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
 
         public long CreatorId { get; init; }
 
-        public CampaignCreatorStatus Status { get; init; }
+        public long CampaignCreatorStatusId { get; init; }
 
         public decimal AgreedAmount { get; init; }
 
@@ -30,6 +29,8 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
 
         public CampaignCreatorCreatorReferenceContract? Creator { get; init; }
 
+        public CampaignCreatorStatusReferenceContract? CampaignCreatorStatus { get; init; }
+
         public DateTimeOffset CreatedAt { get; init; }
 
         public DateTimeOffset? UpdatedAt { get; init; }
@@ -39,7 +40,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
             Id = item.Id,
             CampaignId = item.CampaignId,
             CreatorId = item.CreatorId,
-            Status = item.Status,
+            CampaignCreatorStatusId = item.CampaignCreatorStatusId,
             AgreedAmount = item.AgreedAmount,
             AgencyFeePercent = item.AgencyFeePercent,
             AgencyFeeAmount = item.AgencyFeeAmount,
@@ -57,6 +58,12 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
                 Name = item.Creator.Name,
                 StageName = item.Creator.StageName,
                 DefaultAgencyFeePercent = item.Creator.DefaultAgencyFeePercent
+            },
+            CampaignCreatorStatus = item.CampaignCreatorStatus == null ? null : new CampaignCreatorStatusReferenceContract
+            {
+                Id = item.CampaignCreatorStatus.Id,
+                Name = item.CampaignCreatorStatus.Name,
+                Color = item.CampaignCreatorStatus.Color
             },
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
@@ -79,5 +86,14 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
         public string? StageName { get; init; }
 
         public decimal DefaultAgencyFeePercent { get; init; }
+    }
+
+    public sealed class CampaignCreatorStatusReferenceContract
+    {
+        public long Id { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public string Color { get; init; } = "#6366f1";
     }
 }

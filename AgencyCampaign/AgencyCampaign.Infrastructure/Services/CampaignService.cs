@@ -147,7 +147,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 Status = campaign.Status,
                 Budget = campaign.Budget,
                 CampaignCreatorsCount = campaignCreators.Count,
-                ConfirmedCampaignCreatorsCount = campaignCreators.Count(item => item.Status == CampaignCreatorStatus.Confirmed || item.Status == CampaignCreatorStatus.InExecution || item.Status == CampaignCreatorStatus.Delivered),
+                ConfirmedCampaignCreatorsCount = campaignCreators.Count(item => item.CampaignCreatorStatus is not null && item.CampaignCreatorStatus.Category == CampaignCreatorStatusCategory.Success),
                 DeliverablesCount = deliverables.Count,
                 PendingDeliverablesCount = deliverables.Count(item => item.Status == DeliverableStatus.Pending || item.Status == DeliverableStatus.InReview),
                 PublishedDeliverablesCount = deliverables.Count(item => item.Status == DeliverableStatus.Published),

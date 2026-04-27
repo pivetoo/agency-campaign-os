@@ -1,4 +1,3 @@
-using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Entities;
 
 namespace AgencyCampaign.Domain.Entities
@@ -15,7 +14,9 @@ namespace AgencyCampaign.Domain.Entities
 
         public Creator? Creator { get; private set; }
 
-        public CampaignCreatorStatus Status { get; private set; } = CampaignCreatorStatus.Invited;
+        public long CampaignCreatorStatusId { get; private set; }
+
+        public CampaignCreatorStatus? CampaignCreatorStatus { get; private set; }
 
         public decimal AgreedAmount { get; private set; }
 
@@ -35,15 +36,17 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public CampaignCreator(long campaignId, long creatorId, decimal agreedAmount, decimal agencyFeePercent, string? notes = null)
+        public CampaignCreator(long campaignId, long creatorId, long campaignCreatorStatusId, decimal agreedAmount, decimal agencyFeePercent, string? notes = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignId);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(creatorId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignCreatorStatusId);
             ArgumentOutOfRangeException.ThrowIfNegative(agreedAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(agencyFeePercent);
 
             CampaignId = campaignId;
             CreatorId = creatorId;
+            CampaignCreatorStatusId = campaignCreatorStatusId;
             AgreedAmount = agreedAmount;
             AgencyFeePercent = agencyFeePercent;
             AgencyFeeAmount = CalculateAgencyFeeAmount(agreedAmount, agencyFeePercent);
@@ -61,17 +64,17 @@ namespace AgencyCampaign.Domain.Entities
 
         public void ChangeStatus(CampaignCreatorStatus status, DateTimeOffset? occurredAt = null)
         {
-            Status = status;
+            CampaignCreatorStatusId = status.Id;
             DateTimeOffset timestamp = occurredAt?.ToUniversalTime() ?? DateTimeOffset.UtcNow;
 
-            if (status == CampaignCreatorStatus.Confirmed)
+            if (status.Name == "Confirmado")
             {
                 ConfirmedAt ??= timestamp;
                 CancelledAt = null;
                 return;
             }
 
-            if (status == CampaignCreatorStatus.Cancelled)
+            if (status.Name == "Cancelado")
             {
                 CancelledAt = timestamp;
                 return;

@@ -32,6 +32,11 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey(entity => entity.CreatorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(entity => entity.CampaignCreatorStatus)
+                .WithMany()
+                .HasForeignKey(entity => entity.CampaignCreatorStatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasIndex(entity => new { entity.CampaignId, entity.CreatorId })
                 .IsUnique();
         }
