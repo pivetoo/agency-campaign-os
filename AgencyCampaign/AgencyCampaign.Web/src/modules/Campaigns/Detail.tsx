@@ -378,7 +378,7 @@ export default function CampaignDetail() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="creators">
+        <Tabs defaultValue="creators" className="mt-4">
           <TabsList>
             <TabsTrigger value="creators">
               <Users size={14} className="mr-1.5" />
