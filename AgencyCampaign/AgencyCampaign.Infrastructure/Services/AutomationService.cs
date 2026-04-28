@@ -43,10 +43,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.ConnectorId,
                 request.PipelineId,
                 request.TriggerCondition,
-                request.VariableMapping)
-            {
-                IsActive = request.IsActive
-            };
+                request.VariableMapping,
+                request.IsActive);
 
             bool success = await Insert(cancellationToken, automation);
             if (!success)

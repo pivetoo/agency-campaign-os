@@ -23,7 +23,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Automation(string name, string trigger, long connectorId, long pipelineId, string? triggerCondition = null, Dictionary<string, string>? variableMapping = null)
+        public Automation(string name, string trigger, long connectorId, long pipelineId, string? triggerCondition = null, Dictionary<string, string>? variableMapping = null, bool isActive = true)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(trigger);
@@ -34,6 +34,7 @@ namespace AgencyCampaign.Domain.Entities
             PipelineId = pipelineId;
             TriggerCondition = Normalize(triggerCondition);
             VariableMappingJson = variableMapping is not null ? JsonSerializer.Serialize(variableMapping) : "{}";
+            IsActive = isActive;
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
