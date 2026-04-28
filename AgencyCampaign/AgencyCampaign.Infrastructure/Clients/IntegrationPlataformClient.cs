@@ -61,7 +61,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorDto> GetConnectorByIdAsync(long connectorId, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/connectors/{connectorId}", cancellationToken);
+            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/connectors/GetById/{connectorId}", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
@@ -88,7 +88,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorDto> UpdateConnectorAsync(long connectorId, UpdateConnectorRequest request, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Put, $"api/connectors/{connectorId}", request, cancellationToken);
+            HttpResponseMessage response = await SendAsync(HttpMethod.Put, $"api/connectors/Update/{connectorId}", request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
@@ -106,7 +106,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorAttributeValueDto> UpdateConnectorAttributeValueAsync(long id, UpdateConnectorAttributeValueRequest request, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Put, $"api/connectorattributevalues/{id}", request, cancellationToken);
+            HttpResponseMessage response = await SendAsync(HttpMethod.Put, $"api/connectorattributevalues/Update/{id}", request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ConnectorAttributeValueDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorAttributeValueDto>>(cancellationToken);

@@ -103,7 +103,7 @@ export default function Integrations() {
       render: (_value: number, record: Connector) => (
         <Button
           size="sm"
-          variant="outline"
+          variant="secondary"
           onClick={() => {
             const integ = integrations.find((i) => i.id === record.integrationId)
             setSelectedIntegration(integ ?? null)
