@@ -59,6 +59,24 @@ namespace AgencyCampaign.Infrastructure.Clients
             return result?.Data ?? [];
         }
 
+        public async Task<ConnectorDto> GetConnectorByIdAsync(long connectorId, CancellationToken cancellationToken = default)
+        {
+            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/connectors/{connectorId}", cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
+            return result?.Data ?? throw new InvalidOperationException("Failed to get connector.");
+        }
+
+        public async Task<List<ConnectorAttributeValueDto>> GetConnectorAttributeValuesAsync(long connectorId, CancellationToken cancellationToken = default)
+        {
+            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/connectorattributevalues/connector/{connectorId}", cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            ApiResponse<List<ConnectorAttributeValueDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<ConnectorAttributeValueDto>>>(cancellationToken);
+            return result?.Data ?? [];
+        }
+
         public async Task<ConnectorDto> CreateConnectorAsync(CreateConnectorRequest request, CancellationToken cancellationToken = default)
         {
             HttpResponseMessage response = await SendAsync(HttpMethod.Post, "api/connectors/create", request, cancellationToken);
@@ -68,6 +86,15 @@ namespace AgencyCampaign.Infrastructure.Clients
             return result?.Data ?? throw new InvalidOperationException("Failed to create connector.");
         }
 
+        public async Task<ConnectorDto> UpdateConnectorAsync(long connectorId, UpdateConnectorRequest request, CancellationToken cancellationToken = default)
+        {
+            HttpResponseMessage response = await SendAsync(HttpMethod.Put, $"api/connectors/{connectorId}", request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
+            return result?.Data ?? throw new InvalidOperationException("Failed to update connector.");
+        }
+
         public async Task<ConnectorAttributeValueDto> CreateConnectorAttributeValueAsync(CreateConnectorAttributeValueRequest request, CancellationToken cancellationToken = default)
         {
             HttpResponseMessage response = await SendAsync(HttpMethod.Post, "api/connectorattributevalues/create", request, cancellationToken);
@@ -75,6 +102,15 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             ApiResponse<ConnectorAttributeValueDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorAttributeValueDto>>(cancellationToken);
             return result?.Data ?? throw new InvalidOperationException("Failed to create connector attribute value.");
+        }
+
+        public async Task<ConnectorAttributeValueDto> UpdateConnectorAttributeValueAsync(long id, UpdateConnectorAttributeValueRequest request, CancellationToken cancellationToken = default)
+        {
+            HttpResponseMessage response = await SendAsync(HttpMethod.Put, $"api/connectorattributevalues/{id}", request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            ApiResponse<ConnectorAttributeValueDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorAttributeValueDto>>(cancellationToken);
+            return result?.Data ?? throw new InvalidOperationException("Failed to update connector attribute value.");
         }
 
         public async Task<ExecutionDto> ExecutePipelineAsync(ExecutePipelineRequest request, CancellationToken cancellationToken = default)
@@ -207,9 +243,25 @@ namespace AgencyCampaign.Infrastructure.Clients
         public string? SystemApplicationId { get; set; }
     }
 
+    public sealed class UpdateConnectorRequest
+    {
+        public long Id { get; set; }
+        public long IntegrationId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? SystemApplicationId { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
     public sealed class CreateConnectorAttributeValueRequest
     {
         public long ConnectorId { get; set; }
+        public long IntegrationAttributeId { get; set; }
+        public string Value { get; set; } = string.Empty;
+    }
+
+    public sealed class UpdateConnectorAttributeValueRequest
+    {
+        public long Id { get; set; }
         public long IntegrationAttributeId { get; set; }
         public string Value { get; set; } = string.Empty;
     }

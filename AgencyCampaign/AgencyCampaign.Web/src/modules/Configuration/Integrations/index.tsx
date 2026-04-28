@@ -16,15 +16,13 @@ import {
   SearchableSelect,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Plug, GitBranch, Settings2 } from 'lucide-react'
+import { Plug, GitBranch, Settings2, Pencil } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
 import { integrationPlataformService } from '../../../services/integrationPlataformService'
 import type {
   IntegrationCategory,
   IntegrationPlataformIntegration,
-  IntegrationAttribute,
   Connector,
-  Pipeline,
 } from '../../../types/integrationPlataform'
 
 export default function Integrations() {
@@ -36,7 +34,9 @@ export default function Integrations() {
   const [integrations, setIntegrations] = useState<IntegrationPlataformIntegration[]>([])
   const [connectors, setConnectors] = useState<Connector[]>([])
   const [selectedIntegration, setSelectedIntegration] = useState<IntegrationPlataformIntegration | null>(null)
+  const [selectedConnector, setSelectedConnector] = useState<Connector | null>(null)
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false)
+  const [connectorModalMode, setConnectorModalMode] = useState<'create' | 'edit'>('create')
 
   const { execute: fetchCategories, loading: loadingCategories } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
   const { execute: fetchIntegrations, loading: loadingIntegrations } = useApi<IntegrationPlataformIntegration[]>({ showErrorMessage: true })
@@ -94,6 +94,27 @@ export default function Integrations() {
         <Badge variant={value ? 'success' : 'destructive'}>
           {value ? 'Sim' : 'Não'}
         </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'Ações',
+      dataIndex: 'id',
+      render: (_value: number, record: Connector) => (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            const integ = integrations.find((i) => i.id === record.integrationId)
+            setSelectedIntegration(integ ?? null)
+            setSelectedConnector(record)
+            setConnectorModalMode('edit')
+            setIsConnectorModalOpen(true)
+          }}
+        >
+          <Pencil size={14} className="mr-1" />
+          Editar
+        </Button>
       ),
     },
   ]
@@ -156,6 +177,8 @@ export default function Integrations() {
                           size="sm"
                           onClick={() => {
                             setSelectedIntegration(integ)
+                            setSelectedConnector(null)
+                            setConnectorModalMode('create')
                             setIsConnectorModalOpen(true)
                           }}
                         >
@@ -200,10 +223,12 @@ export default function Integrations() {
         open={isConnectorModalOpen}
         onOpenChange={setIsConnectorModalOpen}
         integration={selectedIntegration}
+        connector={selectedConnector}
         onSuccess={() => {
           if (selectedCategoryId) {
             void loadIntegrationsByCategory(selectedCategoryId)
           }
+          setSelectedConnector(null)
         }}
       />
     </>

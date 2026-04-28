@@ -51,6 +51,13 @@ export interface Connector {
   createdAt?: string
 }
 
+export interface ConnectorAttributeValue {
+  id: number
+  connectorId: number
+  integrationAttributeId: number
+  value: string
+}
+
 export interface Pipeline {
   id: number
   integrationId: number
@@ -86,6 +93,19 @@ export interface CreateConnectorPayload {
 export interface ConnectorAttributeValuePayload {
   integrationAttributeId: number
   value: string
+}
+
+export interface ConnectorDetail {
+  connector: Connector
+  attributeValues: ConnectorAttributeValue[]
+}
+
+export interface UpdateConnectorPayload {
+  integrationId: number
+  name: string
+  systemApplicationId?: string
+  isActive: boolean
+  attributeValues?: ConnectorAttributeValuePayload[]
 }
 
 export interface ExecutePipelinePayload {

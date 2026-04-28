@@ -46,6 +46,15 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(connectors);
         }
 
+        [RequireAccess("Permite obter os detalhes de um conector do IntegrationPlataform.")]
+        [GetEndpoint("connectors/detail/{connectorId:long}")]
+        public async Task<IActionResult> GetConnectorDetail(long connectorId, CancellationToken cancellationToken)
+        {
+            ConnectorDto connector = await integrationPlataformClient.GetConnectorByIdAsync(connectorId, cancellationToken);
+            List<ConnectorAttributeValueDto> values = await integrationPlataformClient.GetConnectorAttributeValuesAsync(connectorId, cancellationToken);
+            return Http200(new ConnectorDetailContract(connector, values));
+        }
+
         [RequireAccess("Permite criar um conector no IntegrationPlataform.")]
         [PostEndpoint("connectors")]
         public async Task<IActionResult> CreateConnector([FromBody] CreateConnectorPayload payload, CancellationToken cancellationToken)
@@ -75,6 +84,59 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             return Http201(connector);
+        }
+
+        [RequireAccess("Permite atualizar um conector no IntegrationPlataform.")]
+        [PutEndpoint("connectors/{connectorId:long}")]
+        public async Task<IActionResult> UpdateConnector(long connectorId, [FromBody] UpdateConnectorPayload payload, CancellationToken cancellationToken)
+        {
+            ConnectorDto connector = await integrationPlataformClient.UpdateConnectorAsync(
+                connectorId,
+                new UpdateConnectorRequest
+                {
+                    Id = connectorId,
+                    IntegrationId = payload.IntegrationId,
+                    Name = payload.Name,
+                    SystemApplicationId = payload.SystemApplicationId,
+                    IsActive = payload.IsActive
+                },
+                cancellationToken);
+
+            if (payload.AttributeValues?.Count > 0)
+            {
+                List<ConnectorAttributeValueDto> existingValues = await integrationPlataformClient.GetConnectorAttributeValuesAsync(connectorId, cancellationToken);
+
+                foreach (ConnectorAttributeValuePayload attr in payload.AttributeValues)
+                {
+                    ConnectorAttributeValueDto? existing = existingValues.FirstOrDefault(v => v.IntegrationAttributeId == attr.IntegrationAttributeId);
+
+                    if (existing != null)
+                    {
+                        await integrationPlataformClient.UpdateConnectorAttributeValueAsync(
+                            existing.Id,
+                            new UpdateConnectorAttributeValueRequest
+                            {
+                                Id = existing.Id,
+                                IntegrationAttributeId = attr.IntegrationAttributeId,
+                                Value = attr.Value
+                            },
+                            cancellationToken);
+                    }
+                    else
+                    {
+                        await integrationPlataformClient.CreateConnectorAttributeValueAsync(
+                            new CreateConnectorAttributeValueRequest
+                            {
+                                ConnectorId = connectorId,
+                                IntegrationAttributeId = attr.IntegrationAttributeId,
+                                Value = attr.Value
+                            },
+                            cancellationToken);
+                    }
+                }
+            }
+
+            return Http200(connector);
         }
 
         [RequireAccess("Permite executar um pipeline no IntegrationPlataform.")]
@@ -132,11 +194,32 @@ namespace AgencyCampaign.Api.Controllers
         public Dictionary<string, object>? InputData { get; set; }
     }
 
+    public sealed class UpdateConnectorPayload
+    {
+        public long IntegrationId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? SystemApplicationId { get; set; }
+        public bool IsActive { get; set; } = true;
+        public List<ConnectorAttributeValuePayload>? AttributeValues { get; set; }
+    }
+
     public sealed class EnqueuePipelinePayload
     {
         public long ConnectorId { get; set; }
         public long PipelineId { get; set; }
         public string? Payload { get; set; }
         public int Priority { get; set; }
+    }
+
+    public sealed class ConnectorDetailContract
+    {
+        public ConnectorDto Connector { get; set; }
+        public List<ConnectorAttributeValueDto> AttributeValues { get; set; }
+
+        public ConnectorDetailContract(ConnectorDto connector, List<ConnectorAttributeValueDto> attributeValues)
+        {
+            Connector = connector;
+            AttributeValues = attributeValues;
+        }
     }
 }

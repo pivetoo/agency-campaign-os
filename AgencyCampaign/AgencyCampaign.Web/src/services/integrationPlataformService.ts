@@ -4,10 +4,12 @@ import type {
   IntegrationPlataformIntegration,
   IntegrationAttribute,
   Connector,
+  ConnectorAttributeValue,
   Pipeline,
   Execution,
   ProcessingQueue,
   CreateConnectorPayload,
+  UpdateConnectorPayload,
   ExecutePipelinePayload,
   EnqueuePipelinePayload,
 } from '../types/integrationPlataform'
@@ -38,8 +40,18 @@ export const integrationPlataformService = {
     return response.data ?? []
   },
 
+  async getConnectorDetail(connectorId: number): Promise<ConnectorDetail> {
+    const response = await httpClient.get<ConnectorDetail>(`/IntegrationPlataformProxy/connectors/detail/${connectorId}`)
+    return response.data!
+  },
+
   async createConnector(payload: CreateConnectorPayload): Promise<Connector> {
     const response = await httpClient.post<Connector>('/IntegrationPlataformProxy/connectors', payload)
+    return response.data!
+  },
+
+  async updateConnector(connectorId: number, payload: UpdateConnectorPayload): Promise<Connector> {
+    const response = await httpClient.put<Connector>(`/IntegrationPlataformProxy/connectors/${connectorId}`, payload)
     return response.data!
   },
 

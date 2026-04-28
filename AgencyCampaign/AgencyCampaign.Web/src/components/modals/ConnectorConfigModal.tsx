@@ -16,12 +16,16 @@ import { integrationPlataformService } from '../../services/integrationPlataform
 import type {
   IntegrationPlataformIntegration,
   IntegrationAttribute,
+  Connector,
+  ConnectorAttributeValue,
+  ConnectorAttributeValuePayload,
 } from '../../types/integrationPlataform'
 
 interface ConnectorConfigModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   integration: IntegrationPlataformIntegration | null
+  connector: Connector | null
   onSuccess: () => void
 }
 
@@ -29,9 +33,12 @@ export default function ConnectorConfigModal({
   open,
   onOpenChange,
   integration,
+  connector,
   onSuccess,
 }: ConnectorConfigModalProps) {
+  const isEditing = !!connector
   const [connectorName, setConnectorName] = useState('')
+  const [isActive, setIsActive] = useState(true)
   const [attributes, setAttributes] = useState<IntegrationAttribute[]>([])
   const [values, setValues] = useState<Record<number, string>>({})
   const [visibleSensitive, setVisibleSensitive] = useState<Record<number, boolean>>({})
@@ -40,12 +47,16 @@ export default function ConnectorConfigModal({
   const { execute: fetchAttributes, loading: loadingAttributes } = useApi<IntegrationAttribute[]>({
     showErrorMessage: true,
   })
-  const { execute: createConnector, loading: saving } = useApi({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: fetchDetail, loading: loadingDetail } = useApi<{ connector: Connector; attributeValues: ConnectorAttributeValue[] }>({
+    showErrorMessage: true,
+  })
+  const { execute: saveConnector, loading: saving } = useApi({ showSuccessMessage: true, showErrorMessage: true })
   const { toast } = useToast()
 
   useEffect(() => {
     if (!open || !integration) {
       setConnectorName('')
+      setIsActive(true)
       setAttributes([])
       setValues({})
       setVisibleSensitive({})
@@ -55,6 +66,14 @@ export default function ConnectorConfigModal({
 
     void loadAttributes()
   }, [open, integration])
+
+  useEffect(() => {
+    if (!open || !connector || !integration) {
+      return
+    }
+
+    void loadExistingValues()
+  }, [open, connector])
 
   const loadAttributes = async () => {
     if (!integration) return
@@ -72,6 +91,25 @@ export default function ConnectorConfigModal({
         }
       })
       setValues(initialValues)
+    }
+  }
+
+  const loadExistingValues = async () => {
+    if (!connector) return
+
+    const detail = await fetchDetail(() =>
+      integrationPlataformService.getConnectorDetail(connector.id)
+    )
+
+    if (detail) {
+      setConnectorName(detail.connector.name)
+      setIsActive(detail.connector.isActive)
+
+      const existingValues: Record<number, string> = {}
+      detail.attributeValues.forEach((val) => {
+        existingValues[val.integrationAttributeId] = val.value
+      })
+      setValues((prev) => ({ ...prev, ...existingValues }))
     }
   }
 
@@ -110,24 +148,40 @@ export default function ConnectorConfigModal({
       return
     }
 
-    const attributeValues = attributes
+    const attributeValues: ConnectorAttributeValuePayload[] = attributes
       .filter((attr) => values[attr.id] !== undefined && values[attr.id] !== '')
       .map((attr) => ({
         integrationAttributeId: attr.id,
         value: values[attr.id],
       }))
 
-    const result = await createConnector(() =>
-      integrationPlataformService.createConnector({
-        integrationId: integration.id,
-        name: connectorName.trim(),
-        attributeValues,
-      })
-    )
+    if (isEditing && connector) {
+      const result = await saveConnector(() =>
+        integrationPlataformService.updateConnector(connector.id, {
+          integrationId: integration.id,
+          name: connectorName.trim(),
+          isActive,
+          attributeValues,
+        })
+      )
 
-    if (result !== null) {
-      onSuccess()
-      onOpenChange(false)
+      if (result !== null) {
+        onSuccess()
+        onOpenChange(false)
+      }
+    } else {
+      const result = await saveConnector(() =>
+        integrationPlataformService.createConnector({
+          integrationId: integration.id,
+          name: connectorName.trim(),
+          attributeValues,
+        })
+      )
+
+      if (result !== null) {
+        onSuccess()
+        onOpenChange(false)
+      }
     }
   }
 
@@ -296,7 +350,11 @@ export default function ConnectorConfigModal({
       <ModalContent size="full" style={{ maxWidth: '640px', width: '95vw' }}>
         <ModalHeader>
           <ModalTitle>
-            {integration ? `Configurar ${integration.name}` : 'Configurar integração'}
+            {isEditing
+              ? `Editar ${connector?.name}`
+              : integration
+                ? `Configurar ${integration.name}`
+                : 'Configurar integração'}
           </ModalTitle>
         </ModalHeader>
 
@@ -313,8 +371,22 @@ export default function ConnectorConfigModal({
             />
           </div>
 
-          {loadingAttributes ? (
-            <p className="text-sm text-muted-foreground">Carregando atributos...</p>
+          {isEditing && (
+            <div className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                <span>Ativo</span>
+              </label>
+            </div>
+          )}
+
+          {loadingAttributes || loadingDetail ? (
+            <p className="text-sm text-muted-foreground">Carregando...</p>
           ) : attributes.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Esta integração não possui atributos configuráveis.
@@ -369,9 +441,9 @@ export default function ConnectorConfigModal({
             </Button>
             <Button
               type="submit"
-              disabled={saving || !connectorName.trim() || loadingAttributes}
+              disabled={saving || !connectorName.trim() || loadingAttributes || loadingDetail}
             >
-              {saving ? 'Salvando...' : 'Salvar'}
+              {saving ? 'Salvando...' : isEditing ? 'Atualizar' : 'Salvar'}
             </Button>
           </ModalFooter>
         </form>
