@@ -185,10 +185,18 @@ export default function ConnectorConfigModal({
     }
   }
 
+  const isSensitiveField = (attr: IntegrationAttribute): boolean => {
+    if (attr.isSensitive) return true
+    const sensitiveKeywords = ['password', 'token', 'key', 'secret', 'senha', 'apikey', 'credential', 'pass', 'senha']
+    const fieldLower = attr.field.toLowerCase()
+    return sensitiveKeywords.some((kw) => fieldLower.includes(kw))
+  }
+
   const renderInput = (attr: IntegrationAttribute) => {
     const value = values[attr.id] ?? ''
     const hasError = errors[attr.id]
     const isVisible = visibleSensitive[attr.id]
+    const sensitive = isSensitiveField(attr)
 
     const commonClasses = hasError
       ? 'border-destructive focus-visible:ring-destructive'
@@ -196,7 +204,7 @@ export default function ConnectorConfigModal({
 
     switch (attr.type) {
       case 1: // Text
-        if (attr.isSensitive) {
+        if (sensitive) {
           return (
             <div className="relative">
               <Input
@@ -407,7 +415,7 @@ export default function ConnectorConfigModal({
                         {attr.isRequired && (
                           <span className="text-destructive">*</span>
                         )}
-                        {attr.isSensitive && (
+                        {sensitive && (
                           <span className="text-xs text-muted-foreground font-normal">
                             (sensível)
                           </span>
