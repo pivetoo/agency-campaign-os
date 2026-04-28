@@ -135,11 +135,11 @@ export default function Integrations() {
               Conectores
             </TabsTrigger>
             <TabsTrigger
-              value="pipelines"
+              value="automations"
               className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               <GitBranch size={16} />
-              Pipelines
+              Automações
             </TabsTrigger>
           </TabsList>
 
@@ -213,8 +213,8 @@ export default function Integrations() {
             )}
           </TabsContent>
 
-          <TabsContent value="pipelines" className="space-y-4">
-            <p className="text-sm text-muted-foreground">Pipelines em desenvolvimento.</p>
+          <TabsContent value="automations" className="space-y-4">
+            <p className="text-sm text-muted-foreground">Automações em desenvolvimento.</p>
           </TabsContent>
         </Tabs>
       </PageLayout>
