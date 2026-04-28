@@ -18,12 +18,14 @@ import {
 import type { DataTableColumn } from 'archon-ui'
 import { Plug, GitBranch, Settings2, Pencil } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
+import AutomationList from '../Automations/AutomationList'
 import { integrationPlataformService } from '../../../services/integrationPlataformService'
 import type {
   IntegrationCategory,
   IntegrationPlataformIntegration,
   Connector,
 } from '../../../types/integrationPlataform'
+import type { Automation } from '../../../types/automation'
 
 export default function Integrations() {
   const [activeTab, setActiveTab] = useState('connectors')
@@ -214,7 +216,16 @@ export default function Integrations() {
           </TabsContent>
 
           <TabsContent value="automations" className="space-y-4">
-            <p className="text-sm text-muted-foreground">Automações em desenvolvimento.</p>
+            <AutomationList
+              onCreate={() => {
+                // TODO: open creation modal
+                alert('Criar automação')
+              }}
+              onEdit={(automation: Automation) => {
+                // TODO: open edit modal
+                alert(`Editar automação: ${automation.name}`)
+              }}
+            />
           </TabsContent>
         </Tabs>
       </PageLayout>
