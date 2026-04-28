@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using Archon.Application.MultiTenancy;
 using Microsoft.Extensions.Configuration;
 
 namespace AgencyCampaign.Infrastructure.Clients
@@ -6,12 +7,25 @@ namespace AgencyCampaign.Infrastructure.Clients
     public sealed class IntegrationPlataformClient
     {
         private readonly HttpClient httpClient;
-        private readonly string integrationSecret;
+        private readonly IConfiguration configuration;
+        private readonly ITenantContext tenantContext;
 
-        public IntegrationPlataformClient(HttpClient httpClient, IConfiguration configuration)
+        public IntegrationPlataformClient(HttpClient httpClient, IConfiguration configuration, ITenantContext tenantContext)
         {
             this.httpClient = httpClient;
-            this.integrationSecret = configuration["IntegrationPlataform:IntegrationSecret"] ?? string.Empty;
+            this.configuration = configuration;
+            this.tenantContext = tenantContext;
+        }
+
+        private string GetIntegrationSecret()
+        {
+            string? tenantId = tenantContext.TenantId;
+            if (string.IsNullOrWhiteSpace(tenantId))
+            {
+                return configuration[$"TenantDatabases:default:IntegrationSecret"] ?? string.Empty;
+            }
+
+            return configuration[$"TenantDatabases:{tenantId}:IntegrationSecret"] ?? string.Empty;
         }
 
         public async Task<List<IntegrationCategoryDto>> GetActiveIntegrationCategoriesAsync(CancellationToken cancellationToken = default)
@@ -134,7 +148,7 @@ namespace AgencyCampaign.Infrastructure.Clients
         private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, CancellationToken cancellationToken)
         {
             HttpRequestMessage request = new(method, path);
-            request.Headers.Add("X-Integration-Secret", integrationSecret);
+            request.Headers.Add("X-Integration-Secret", GetIntegrationSecret());
             return await httpClient.SendAsync(request, cancellationToken);
         }
 
@@ -144,7 +158,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             {
                 Content = JsonContent.Create(body)
             };
-            request.Headers.Add("X-Integration-Secret", integrationSecret);
+            request.Headers.Add("X-Integration-Secret", GetIntegrationSecret());
             return await httpClient.SendAsync(request, cancellationToken);
         }
     }
