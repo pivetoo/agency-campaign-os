@@ -123,7 +123,7 @@ export default function Integrations() {
     <>
       <PageLayout
         title="Integrações"
-        subtitle="Configure conectores e execute pipelines do IntegrationPlataform"
+        subtitle="Configure conectores e automações do Kanvas"
       >
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
