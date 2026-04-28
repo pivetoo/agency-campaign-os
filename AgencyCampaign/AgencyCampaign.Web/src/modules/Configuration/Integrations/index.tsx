@@ -1,212 +1,209 @@
 import { useEffect, useState } from 'react'
-import { Badge, DataTable, PageLayout, Tabs, TabsList, TabsTrigger, TabsContent, useApi } from 'archon-ui'
+import {
+  Badge,
+  DataTable,
+  PageLayout,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  useApi,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  SearchableSelect,
+} from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Plug, GitBranch, ScrollText } from 'lucide-react'
-import IntegrationFormModal from '../../../components/modals/IntegrationFormModal'
-import IntegrationPipelineFormModal from '../../../components/modals/IntegrationPipelineFormModal'
-import { integrationService } from '../../../services/integrationService'
-import { integrationPipelineService } from '../../../services/integrationPipelineService'
-import { integrationLogService } from '../../../services/integrationLogService'
-import { integrationCategoryService } from '../../../services/integrationCategoryService'
-import type { Integration, IntegrationPipeline, IntegrationLog } from '../../../types/integration'
-
-const statusLabels: Record<number, string> = {
-  0: 'Pendente',
-  1: 'Sucesso',
-  2: 'Falha',
-}
+import { Plug, GitBranch, Settings2 } from 'lucide-react'
+import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
+import { integrationPlataformService } from '../../../services/integrationPlataformService'
+import type {
+  IntegrationCategory,
+  IntegrationPlataformIntegration,
+  IntegrationAttribute,
+  Connector,
+  Pipeline,
+} from '../../../types/integrationPlataform'
 
 export default function Integrations() {
-  const [activeTab, setActiveTab] = useState('integrations')
-  const [integrations, setIntegrations] = useState<Integration[]>([])
-  const [pipelines, setPipelines] = useState<IntegrationPipeline[]>([])
-  const [logs, setLogs] = useState<IntegrationLog[]>([])
-  const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null)
-  const [selectedPipeline, setSelectedPipeline] = useState<IntegrationPipeline | null>(null)
-  const [isIntegrationFormOpen, setIsIntegrationFormOpen] = useState(false)
-  const [isPipelineFormOpen, setIsPipelineFormOpen] = useState(false)
-  const [categoryNames, setCategoryNames] = useState<Record<number, string>>({})
+  const [activeTab, setActiveTab] = useState('connectors')
 
-  const { execute: fetchIntegrations, loading: loadingIntegrations } = useApi<Integration[]>({ showErrorMessage: true })
-  const { execute: fetchPipelines, loading: loadingPipelines } = useApi<IntegrationPipeline[]>({ showErrorMessage: true })
-  const { execute: fetchLogs, loading: loadingLogs } = useApi<IntegrationLog[]>({ showErrorMessage: true })
+  // Conectores tab
+  const [categories, setCategories] = useState<IntegrationCategory[]>([])
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
+  const [integrations, setIntegrations] = useState<IntegrationPlataformIntegration[]>([])
+  const [connectors, setConnectors] = useState<Connector[]>([])
+  const [selectedIntegration, setSelectedIntegration] = useState<IntegrationPlataformIntegration | null>(null)
+  const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false)
 
-  const loadIntegrations = async () => {
-    const result = await fetchIntegrations(() => integrationService.getAll())
-    if (result) setIntegrations(result)
-  }
-
-  const loadPipelines = async () => {
-    const result = await fetchPipelines(() => integrationPipelineService.getAll())
-    if (result) setPipelines(result)
-  }
-
-  const loadLogs = async () => {
-    const result = await fetchLogs(() => integrationLogService.getAll())
-    if (result) setLogs(result)
-  }
+  const { execute: fetchCategories, loading: loadingCategories } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
+  const { execute: fetchIntegrations, loading: loadingIntegrations } = useApi<IntegrationPlataformIntegration[]>({ showErrorMessage: true })
+  const { execute: fetchConnectors, loading: loadingConnectors } = useApi<Connector[]>({ showErrorMessage: true })
 
   useEffect(() => {
-    void loadIntegrations()
-    void loadPipelines()
-    void loadLogs()
+    void loadCategories()
   }, [])
 
   useEffect(() => {
-    if (integrations.length === 0) return
+    if (selectedCategoryId) {
+      void loadIntegrationsByCategory(selectedCategoryId)
+    } else {
+      setIntegrations([])
+    }
+  }, [selectedCategoryId])
 
-    const uniqueCategoryIds = [...new Set(integrations.map((i) => i.categoryId).filter((id) => id > 0))]
-    if (uniqueCategoryIds.length === 0) return
+  const loadCategories = async () => {
+    const result = await fetchCategories(() => integrationPlataformService.getActiveIntegrationCategories())
+    if (result) setCategories(result)
+  }
 
-    integrationCategoryService.getActive().then((categories) => {
-      const names: Record<number, string> = {}
-      categories.forEach((cat) => {
-        names[cat.id] = cat.name
-      })
-      setCategoryNames(names)
-    }).catch(() => {
-      // ignora erro silenciosamente - a tabela mostra o ID como fallback
-    })
-  }, [integrations])
+  const loadIntegrationsByCategory = async (categoryId: number) => {
+    const result = await fetchIntegrations(() =>
+      integrationPlataformService.getIntegrationsByCategory(categoryId)
+    )
+    if (result) {
+      setIntegrations(result)
+      // Also load connectors for all integrations
+      const allConnectors: Connector[] = []
+      for (const integ of result) {
+        const connResult = await integrationPlataformService.getConnectorsByIntegration(integ.id)
+        allConnectors.push(...connResult)
+      }
+      setConnectors(allConnectors)
+    }
+  }
 
-  const integrationColumns: DataTableColumn<Integration>[] = [
-    { key: 'identifier', title: 'Identificador', dataIndex: 'identifier' },
+  const connectorColumns: DataTableColumn<Connector>[] = [
     { key: 'name', title: 'Nome', dataIndex: 'name' },
     {
-      key: 'categoryId',
-      title: 'Categoria',
-      dataIndex: 'categoryId',
-      render: (value: number) => <span>{categoryNames[value] || `ID: ${value}`}</span>,
+      key: 'integrationId',
+      title: 'Integração',
+      dataIndex: 'integrationId',
+      render: (value: number) => {
+        const integ = integrations.find((i) => i.id === value)
+        return <span>{integ?.name || `ID: ${value}`}</span>
+      },
     },
-    { key: 'isActive', title: 'Ativo', dataIndex: 'isActive', render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Sim' : 'Não'}</Badge> },
+    {
+      key: 'isActive',
+      title: 'Ativo',
+      dataIndex: 'isActive',
+      render: (value: boolean) => (
+        <Badge variant={value ? 'success' : 'destructive'}>
+          {value ? 'Sim' : 'Não'}
+        </Badge>
+      ),
+    },
   ]
-
-  const pipelineColumns: DataTableColumn<IntegrationPipeline>[] = [
-    { key: 'integrationName', title: 'Integração', dataIndex: 'integrationName' },
-    { key: 'identifier', title: 'Identificador', dataIndex: 'identifier' },
-    { key: 'name', title: 'Nome', dataIndex: 'name' },
-    { key: 'isActive', title: 'Ativo', dataIndex: 'isActive', render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Sim' : 'Não'}</Badge> },
-  ]
-
-  const logColumns: DataTableColumn<IntegrationLog>[] = [
-    { key: 'integrationName', title: 'Integracao', dataIndex: 'integrationName' },
-    { key: 'integrationPipelineName', title: 'Pipeline', dataIndex: 'integrationPipelineName' },
-    { key: 'status', title: 'Status', dataIndex: 'status', render: (value: number) => <Badge variant={value === 1 ? 'success' : value === 2 ? 'destructive' : 'outline'}>{statusLabels[value] || 'Pendente'}</Badge> },
-    { key: 'durationMs', title: 'Duracao (ms)', dataIndex: 'durationMs', render: (value?: number) => value ? `${value}ms` : '-' },
-    { key: 'errorMessage', title: 'Erro', dataIndex: 'errorMessage', render: (value?: string) => value ? <span className="text-destructive text-xs max-w-[200px] truncate inline-block" title={value}>{value}</span> : '-' },
-    { key: 'createdAt', title: 'Data', dataIndex: 'createdAt', render: (value: string) => new Date(value).toLocaleString('pt-BR') },
-  ]
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value)
-    setSelectedIntegration(null)
-    setSelectedPipeline(null)
-  }
 
   return (
     <>
       <PageLayout
         title="Integrações"
-        subtitle="Configure as integrações e pipelines do sistema"
-        onAdd={() => {
-          if (activeTab === 'integrations') { setSelectedIntegration(null); setIsIntegrationFormOpen(true) }
-          else if (activeTab === 'pipelines') { setSelectedPipeline(null); setIsPipelineFormOpen(true) }
-        }}
-        onEdit={() => {
-          if (activeTab === 'integrations' && selectedIntegration) setIsIntegrationFormOpen(true)
-          else if (activeTab === 'pipelines' && selectedPipeline) setIsPipelineFormOpen(true)
-        }}
-        onRefresh={() => {
-          if (activeTab === 'integrations') void loadIntegrations()
-          else if (activeTab === 'pipelines') void loadPipelines()
-          else void loadLogs()
-        }}
-        selectedRowsCount={activeTab === 'integrations' && selectedIntegration ? 1 : activeTab === 'pipelines' && selectedPipeline ? 1 : 0}
+        subtitle="Configure conectores e execute pipelines do IntegrationPlataform"
       >
-        <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger
-              value="integrations"
+              value="connectors"
               className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
-              <Plug size={16} />Integrações
+              <Plug size={16} />
+              Conectores
             </TabsTrigger>
             <TabsTrigger
               value="pipelines"
               className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
-              <GitBranch size={16} />Pipelines
-            </TabsTrigger>
-            <TabsTrigger
-              value="logs"
-              className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-sm"
-            >
-              <ScrollText size={16} />Logs
+              <GitBranch size={16} />
+              Pipelines
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="integrations">
-            <DataTable
-              columns={integrationColumns}
-              data={integrations}
-              rowKey="id"
-              selectedRows={selectedIntegration ? [selectedIntegration] : []}
-              onSelectionChange={(rows) => setSelectedIntegration(rows[0] ?? null)}
-              emptyText="Nenhuma integração configurada"
-              loading={loadingIntegrations}
-              pageSize={10}
-              pageSizeOptions={[5, 10, 20, 50]}
-            />
+          <TabsContent value="connectors" className="space-y-4">
+            <div className="space-y-2 max-w-sm">
+              <label className="text-sm font-medium">Categoria</label>
+              <SearchableSelect
+                options={categories.map((cat) => ({
+                  value: String(cat.id),
+                  label: cat.name,
+                }))}
+                value={selectedCategoryId ? String(selectedCategoryId) : undefined}
+                onValueChange={(value) => setSelectedCategoryId(Number(value))}
+                placeholder={loadingCategories ? 'Carregando...' : 'Selecione uma categoria'}
+                emptyMessage="Nenhuma categoria encontrada"
+              />
+            </div>
+
+            {selectedCategoryId && integrations.length > 0 && (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {integrations.map((integ) => (
+                  <Card key={integ.id} className="cursor-pointer hover:border-primary/50 transition-colors">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">{integ.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {integ.description && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {integ.description}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline">{integ.identifier}</Badge>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setSelectedIntegration(integ)
+                            setIsConnectorModalOpen(true)
+                          }}
+                        >
+                          <Settings2 size={14} className="mr-1" />
+                          Configurar
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {selectedCategoryId && integrations.length === 0 && !loadingIntegrations && (
+              <p className="text-sm text-muted-foreground">
+                Nenhuma integração encontrada para esta categoria.
+              </p>
+            )}
+
+            {connectors.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold">Conectores configurados</h3>
+                <DataTable
+                  columns={connectorColumns}
+                  data={connectors}
+                  rowKey="id"
+                  emptyText="Nenhum conector configurado"
+                  loading={loadingConnectors}
+                  pageSize={10}
+                />
+              </div>
+            )}
           </TabsContent>
 
-          <TabsContent value="pipelines">
-            <DataTable
-              columns={pipelineColumns}
-              data={pipelines}
-              rowKey="id"
-              selectedRows={selectedPipeline ? [selectedPipeline] : []}
-              onSelectionChange={(rows) => setSelectedPipeline(rows[0] ?? null)}
-              emptyText="Nenhum pipeline configurado"
-              loading={loadingPipelines}
-              pageSize={10}
-              pageSizeOptions={[5, 10, 20, 50]}
-            />
-          </TabsContent>
-
-          <TabsContent value="logs">
-            <DataTable
-              columns={logColumns}
-              data={logs}
-              rowKey="id"
-              emptyText="Nenhum log de execução"
-              loading={loadingLogs}
-              pageSize={10}
-              pageSizeOptions={[5, 10, 20, 50]}
-            />
+          <TabsContent value="pipelines" className="space-y-4">
+            <p className="text-sm text-muted-foreground">Pipelines em desenvolvimento.</p>
           </TabsContent>
         </Tabs>
       </PageLayout>
 
-      <IntegrationFormModal
-        open={isIntegrationFormOpen}
-        onOpenChange={setIsIntegrationFormOpen}
+      <ConnectorConfigModal
+        open={isConnectorModalOpen}
+        onOpenChange={setIsConnectorModalOpen}
         integration={selectedIntegration}
         onSuccess={() => {
-          setIsIntegrationFormOpen(false)
-          setSelectedIntegration(null)
-          void loadIntegrations()
-        }}
-      />
-
-      <IntegrationPipelineFormModal
-        open={isPipelineFormOpen}
-        onOpenChange={setIsPipelineFormOpen}
-        pipeline={selectedPipeline}
-        integrations={integrations}
-        onSuccess={() => {
-          setIsPipelineFormOpen(false)
-          setSelectedPipeline(null)
-          void loadPipelines()
+          if (selectedCategoryId) {
+            void loadIntegrationsByCategory(selectedCategoryId)
+          }
         }}
       />
     </>
