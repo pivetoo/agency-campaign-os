@@ -415,7 +415,7 @@ export default function ConnectorConfigModal({
                         {attr.isRequired && (
                           <span className="text-destructive">*</span>
                         )}
-                        {sensitive && (
+                        {isSensitiveField(attr) && (
                           <span className="text-xs text-muted-foreground font-normal">
                             (sensível)
                           </span>
