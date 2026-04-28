@@ -99,7 +99,6 @@ export default function AgencyCampaignLayout() {
   return (
     <AppLayout
       title={contract?.systemApplicationName ?? 'Kanvas for Agencies'}
-      titleClassName="text-sm"
       logo={sidebarLogo}
       subtitle={contract?.companyName ?? ''}
       user={{
