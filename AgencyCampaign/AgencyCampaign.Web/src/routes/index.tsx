@@ -23,6 +23,7 @@ import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
 import Integrations from '../modules/Configuration/Integrations'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_PROVIDER_WEB
+const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID || 'agency-campaign-web'
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth()
@@ -35,6 +36,7 @@ function AppRoutes() {
           element={
             <Callback
               identityManagementUrl={identityManagementUrl}
+              oidcClientId={oidcClientId}
               redirectTo="/"
             />
           }
@@ -46,8 +48,8 @@ function AppRoutes() {
               isAuthenticated={isAuthenticated}
               redirectTo={identityManagementUrl}
               externalRedirect={true}
-              preserveExternalReturn={true}
               callbackPath="/callback"
+              oidcClientId={oidcClientId}
             >
               <AgencyCampaignLayout />
             </ProtectedRoute>
