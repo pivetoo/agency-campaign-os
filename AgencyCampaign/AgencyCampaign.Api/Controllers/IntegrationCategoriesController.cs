@@ -7,18 +7,18 @@ namespace AgencyCampaign.Api.Controllers
 {
     public sealed class IntegrationCategoriesController : ApiControllerBase
     {
-        private readonly IntegrationPlataformClient integrationPlataformClient;
+        private readonly IntegrationPlatformClient integrationPlatformClient;
 
-        public IntegrationCategoriesController(IntegrationPlataformClient integrationPlataformClient)
+        public IntegrationCategoriesController(IntegrationPlatformClient integrationPlatformClient)
         {
-            this.integrationPlataformClient = integrationPlataformClient;
+            this.integrationPlatformClient = integrationPlatformClient;
         }
 
         [RequireAccess("Permite listar as categorias de integracao disponiveis.")]
         [GetEndpoint("active")]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
-            List<IntegrationCategoryDto> categories = await integrationPlataformClient.GetActiveIntegrationCategoriesAsync(cancellationToken);
+            List<IntegrationCategoryDto> categories = await integrationPlatformClient.GetActiveIntegrationCategoriesAsync(cancellationToken);
             return Http200(categories);
         }
     }

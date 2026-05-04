@@ -1,7 +1,7 @@
 import { httpClient } from 'archon-ui'
 import type {
   IntegrationCategory,
-  IntegrationPlataformIntegration,
+  IntegrationPlatformIntegration,
   IntegrationAttribute,
   Connector,
   ConnectorAttributeValue,
@@ -12,56 +12,56 @@ import type {
   UpdateConnectorPayload,
   ExecutePipelinePayload,
   EnqueuePipelinePayload,
-} from '../types/integrationPlataform'
+} from '../types/integrationPlatform'
 
-export const integrationPlataformService = {
+export const integrationPlatformService = {
   async getActiveIntegrationCategories(): Promise<IntegrationCategory[]> {
     const response = await httpClient.get<IntegrationCategory[]>('/IntegrationCategories/active')
     return response.data ?? []
   },
 
-  async getIntegrationsByCategory(categoryId: number): Promise<IntegrationPlataformIntegration[]> {
-    const response = await httpClient.get<IntegrationPlataformIntegration[]>(`/IntegrationPlataformProxy/integrations/${categoryId}`)
+  async getIntegrationsByCategory(categoryId: number): Promise<IntegrationPlatformIntegration[]> {
+    const response = await httpClient.get<IntegrationPlatformIntegration[]>(`/IntegrationPlatformProxy/integrations/${categoryId}`)
     return response.data ?? []
   },
 
   async getIntegrationAttributes(integrationId: number): Promise<IntegrationAttribute[]> {
-    const response = await httpClient.get<IntegrationAttribute[]>(`/IntegrationPlataformProxy/integrationattributes/${integrationId}`)
+    const response = await httpClient.get<IntegrationAttribute[]>(`/IntegrationPlatformProxy/integrationattributes/${integrationId}`)
     return response.data ?? []
   },
 
   async getPipelinesByIntegration(integrationId: number): Promise<Pipeline[]> {
-    const response = await httpClient.get<Pipeline[]>(`/IntegrationPlataformProxy/pipelines/${integrationId}`)
+    const response = await httpClient.get<Pipeline[]>(`/IntegrationPlatformProxy/pipelines/${integrationId}`)
     return response.data ?? []
   },
 
   async getConnectorsByIntegration(integrationId: number): Promise<Connector[]> {
-    const response = await httpClient.get<Connector[]>(`/IntegrationPlataformProxy/connectors/${integrationId}`)
+    const response = await httpClient.get<Connector[]>(`/IntegrationPlatformProxy/connectors/${integrationId}`)
     return response.data ?? []
   },
 
   async getConnectorDetail(connectorId: number): Promise<ConnectorDetail> {
-    const response = await httpClient.get<ConnectorDetail>(`/IntegrationPlataformProxy/connectors/detail/${connectorId}`)
+    const response = await httpClient.get<ConnectorDetail>(`/IntegrationPlatformProxy/connectors/detail/${connectorId}`)
     return response.data!
   },
 
   async createConnector(payload: CreateConnectorPayload): Promise<Connector> {
-    const response = await httpClient.post<Connector>('/IntegrationPlataformProxy/connectors', payload)
+    const response = await httpClient.post<Connector>('/IntegrationPlatformProxy/connectors', payload)
     return response.data!
   },
 
   async updateConnector(connectorId: number, payload: UpdateConnectorPayload): Promise<Connector> {
-    const response = await httpClient.put<Connector>(`/IntegrationPlataformProxy/connectors/${connectorId}`, payload)
+    const response = await httpClient.put<Connector>(`/IntegrationPlatformProxy/connectors/${connectorId}`, payload)
     return response.data!
   },
 
   async executePipeline(payload: ExecutePipelinePayload): Promise<Execution> {
-    const response = await httpClient.post<Execution>('/IntegrationPlataformProxy/executions', payload)
+    const response = await httpClient.post<Execution>('/IntegrationPlatformProxy/executions', payload)
     return response.data!
   },
 
   async enqueuePipeline(payload: EnqueuePipelinePayload): Promise<ProcessingQueue> {
-    const response = await httpClient.post<ProcessingQueue>('/IntegrationPlataformProxy/processingqueues/enqueue', payload)
+    const response = await httpClient.post<ProcessingQueue>('/IntegrationPlatformProxy/processingqueues/enqueue', payload)
     return response.data!
   },
 }

@@ -19,12 +19,12 @@ import type { DataTableColumn } from 'archon-ui'
 import { Plug, GitBranch, Settings2, Pencil } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
 import AutomationList from '../Automations/AutomationList'
-import { integrationPlataformService } from '../../../services/integrationPlataformService'
+import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import type {
   IntegrationCategory,
-  IntegrationPlataformIntegration,
+  IntegrationPlatformIntegration,
   Connector,
-} from '../../../types/integrationPlataform'
+} from '../../../types/integrationPlatform'
 import type { Automation } from '../../../types/automation'
 
 export default function Integrations() {
@@ -33,15 +33,15 @@ export default function Integrations() {
   // Conectores tab
   const [categories, setCategories] = useState<IntegrationCategory[]>([])
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
-  const [integrations, setIntegrations] = useState<IntegrationPlataformIntegration[]>([])
+  const [integrations, setIntegrations] = useState<IntegrationPlatformIntegration[]>([])
   const [connectors, setConnectors] = useState<Connector[]>([])
-  const [selectedIntegration, setSelectedIntegration] = useState<IntegrationPlataformIntegration | null>(null)
+  const [selectedIntegration, setSelectedIntegration] = useState<IntegrationPlatformIntegration | null>(null)
   const [selectedConnector, setSelectedConnector] = useState<Connector | null>(null)
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false)
   const [connectorModalMode, setConnectorModalMode] = useState<'create' | 'edit'>('create')
 
   const { execute: fetchCategories, loading: loadingCategories } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
-  const { execute: fetchIntegrations, loading: loadingIntegrations } = useApi<IntegrationPlataformIntegration[]>({ showErrorMessage: true })
+  const { execute: fetchIntegrations, loading: loadingIntegrations } = useApi<IntegrationPlatformIntegration[]>({ showErrorMessage: true })
   const { execute: fetchConnectors, loading: loadingConnectors } = useApi<Connector[]>({ showErrorMessage: true })
 
   useEffect(() => {
@@ -57,20 +57,20 @@ export default function Integrations() {
   }, [selectedCategoryId])
 
   const loadCategories = async () => {
-    const result = await fetchCategories(() => integrationPlataformService.getActiveIntegrationCategories())
+    const result = await fetchCategories(() => integrationPlatformService.getActiveIntegrationCategories())
     if (result) setCategories(result)
   }
 
   const loadIntegrationsByCategory = async (categoryId: number) => {
     const result = await fetchIntegrations(() =>
-      integrationPlataformService.getIntegrationsByCategory(categoryId)
+      integrationPlatformService.getIntegrationsByCategory(categoryId)
     )
     if (result) {
       setIntegrations(result)
       // Also load connectors for all integrations
       const allConnectors: Connector[] = []
       for (const integ of result) {
-        const connResult = await integrationPlataformService.getConnectorsByIntegration(integ.id)
+        const connResult = await integrationPlatformService.getConnectorsByIntegration(integ.id)
         allConnectors.push(...connResult)
       }
       setConnectors(allConnectors)

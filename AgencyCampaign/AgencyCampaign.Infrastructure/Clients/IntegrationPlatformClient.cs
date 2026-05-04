@@ -4,14 +4,14 @@ using Archon.Application.Services;
 
 namespace AgencyCampaign.Infrastructure.Clients
 {
-    public sealed class IntegrationPlataformClient
+    public sealed class IntegrationPlatformClient
     {
-        private const string IntegrationPlataformName = "integration-plataform";
+        private const string IntegrationPlatformName = "integration-plataform";
 
         private readonly HttpClient httpClient;
         private readonly IIntegrationService integrationService;
 
-        public IntegrationPlataformClient(HttpClient httpClient, IIntegrationService integrationService)
+        public IntegrationPlatformClient(HttpClient httpClient, IIntegrationService integrationService)
         {
             this.httpClient = httpClient;
             this.integrationService = integrationService;
@@ -169,16 +169,16 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         private async Task<bool> EnsureConfiguredAsync(CancellationToken cancellationToken)
         {
-            Integration? integration = await integrationService.GetByNameAsync(IntegrationPlataformName, cancellationToken);
+            Integration? integration = await integrationService.GetByNameAsync(IntegrationPlatformName, cancellationToken);
             if (integration is null)
             {
-                Console.WriteLine("IntegrationPlataformClient: integration 'integration-plataform' was not found in table 'integrations'.");
+                Console.WriteLine("IntegrationPlatformClient: integration 'integration-plataform' was not found in table 'integrations'.");
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(integration.BaseUrl))
             {
-                Console.WriteLine("IntegrationPlataformClient: integration 'integration-plataform' is configured without baseurl.");
+                Console.WriteLine("IntegrationPlatformClient: integration 'integration-plataform' is configured without baseurl.");
                 return false;
             }
 
@@ -192,7 +192,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
             else
             {
-                Console.WriteLine("IntegrationPlataformClient: integration 'integration-plataform' is configured without IntegrationSecret.");
+                Console.WriteLine("IntegrationPlatformClient: integration 'integration-plataform' is configured without IntegrationSecret.");
             }
 
             return true;

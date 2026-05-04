@@ -7,7 +7,7 @@ export interface IntegrationCategory {
   updatedAt?: string
 }
 
-export interface IntegrationPlataformIntegration {
+export interface IntegrationPlatformIntegration {
   id: number
   identifier: string
   name: string

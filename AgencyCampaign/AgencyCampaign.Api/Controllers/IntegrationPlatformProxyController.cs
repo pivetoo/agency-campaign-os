@@ -5,20 +5,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgencyCampaign.Api.Controllers
 {
-    public sealed class IntegrationPlataformProxyController : ApiControllerBase
+    public sealed class IntegrationPlatformProxyController : ApiControllerBase
     {
-        private readonly IntegrationPlataformClient integrationPlataformClient;
+        private readonly IntegrationPlatformClient integrationPlatformClient;
 
-        public IntegrationPlataformProxyController(IntegrationPlataformClient integrationPlataformClient)
+        public IntegrationPlatformProxyController(IntegrationPlatformClient integrationPlatformClient)
         {
-            this.integrationPlataformClient = integrationPlataformClient;
+            this.integrationPlatformClient = integrationPlatformClient;
         }
 
-        [RequireAccess("Permite listar integrações disponíveis no IntegrationPlataform por categoria.")]
+        [RequireAccess("Permite listar integrações disponíveis no IntegrationPlatform por categoria.")]
         [GetEndpoint("integrations/{categoryId:long}")]
         public async Task<IActionResult> GetIntegrationsByCategory(long categoryId, CancellationToken cancellationToken)
         {
-            List<IntegrationDto> integrations = await integrationPlataformClient.GetIntegrationsByCategoryAsync(categoryId, cancellationToken);
+            List<IntegrationDto> integrations = await integrationPlatformClient.GetIntegrationsByCategoryAsync(categoryId, cancellationToken);
             return Http200(integrations);
         }
 
@@ -26,7 +26,7 @@ namespace AgencyCampaign.Api.Controllers
         [GetEndpoint("integrationattributes/{integrationId:long}")]
         public async Task<IActionResult> GetIntegrationAttributes(long integrationId, CancellationToken cancellationToken)
         {
-            List<IntegrationAttributeDto> attributes = await integrationPlataformClient.GetIntegrationAttributesAsync(integrationId, cancellationToken);
+            List<IntegrationAttributeDto> attributes = await integrationPlatformClient.GetIntegrationAttributesAsync(integrationId, cancellationToken);
             return Http200(attributes);
         }
 
@@ -34,7 +34,7 @@ namespace AgencyCampaign.Api.Controllers
         [GetEndpoint("pipelines/{integrationId:long}")]
         public async Task<IActionResult> GetPipelinesByIntegration(long integrationId, CancellationToken cancellationToken)
         {
-            List<PipelineDto> pipelines = await integrationPlataformClient.GetPipelinesByIntegrationAsync(integrationId, cancellationToken);
+            List<PipelineDto> pipelines = await integrationPlatformClient.GetPipelinesByIntegrationAsync(integrationId, cancellationToken);
             return Http200(pipelines);
         }
 
@@ -42,24 +42,24 @@ namespace AgencyCampaign.Api.Controllers
         [GetEndpoint("connectors/{integrationId:long}")]
         public async Task<IActionResult> GetConnectorsByIntegration(long integrationId, CancellationToken cancellationToken)
         {
-            List<ConnectorDto> connectors = await integrationPlataformClient.GetConnectorsByIntegrationAsync(integrationId, cancellationToken);
+            List<ConnectorDto> connectors = await integrationPlatformClient.GetConnectorsByIntegrationAsync(integrationId, cancellationToken);
             return Http200(connectors);
         }
 
-        [RequireAccess("Permite obter os detalhes de um conector do IntegrationPlataform.")]
+        [RequireAccess("Permite obter os detalhes de um conector do IntegrationPlatform.")]
         [GetEndpoint("connectors/detail/{connectorId:long}")]
         public async Task<IActionResult> GetConnectorDetail(long connectorId, CancellationToken cancellationToken)
         {
-            ConnectorDto connector = await integrationPlataformClient.GetConnectorByIdAsync(connectorId, cancellationToken);
-            List<ConnectorAttributeValueDto> values = await integrationPlataformClient.GetConnectorAttributeValuesAsync(connectorId, cancellationToken);
+            ConnectorDto connector = await integrationPlatformClient.GetConnectorByIdAsync(connectorId, cancellationToken);
+            List<ConnectorAttributeValueDto> values = await integrationPlatformClient.GetConnectorAttributeValuesAsync(connectorId, cancellationToken);
             return Http200(new ConnectorDetailContract(connector, values));
         }
 
-        [RequireAccess("Permite criar um conector no IntegrationPlataform.")]
+        [RequireAccess("Permite criar um conector no IntegrationPlatform.")]
         [PostEndpoint("connectors")]
         public async Task<IActionResult> CreateConnector([FromBody] CreateConnectorPayload payload, CancellationToken cancellationToken)
         {
-            ConnectorDto connector = await integrationPlataformClient.CreateConnectorAsync(
+            ConnectorDto connector = await integrationPlatformClient.CreateConnectorAsync(
                 new CreateConnectorRequest
                 {
                     IntegrationId = payload.IntegrationId,
@@ -72,7 +72,7 @@ namespace AgencyCampaign.Api.Controllers
             {
                 foreach (ConnectorAttributeValuePayload attr in payload.AttributeValues)
                 {
-                    await integrationPlataformClient.CreateConnectorAttributeValueAsync(
+                    await integrationPlatformClient.CreateConnectorAttributeValueAsync(
                         new CreateConnectorAttributeValueRequest
                         {
                             ConnectorId = connector.Id,
@@ -86,11 +86,11 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(connector);
         }
 
-        [RequireAccess("Permite atualizar um conector no IntegrationPlataform.")]
+        [RequireAccess("Permite atualizar um conector no IntegrationPlatform.")]
         [PutEndpoint("connectors/{connectorId:long}")]
         public async Task<IActionResult> UpdateConnector(long connectorId, [FromBody] UpdateConnectorPayload payload, CancellationToken cancellationToken)
         {
-            ConnectorDto connector = await integrationPlataformClient.UpdateConnectorAsync(
+            ConnectorDto connector = await integrationPlatformClient.UpdateConnectorAsync(
                 connectorId,
                 new UpdateConnectorRequest
                 {
@@ -104,7 +104,7 @@ namespace AgencyCampaign.Api.Controllers
 
             if (payload.AttributeValues?.Count > 0)
             {
-                List<ConnectorAttributeValueDto> existingValues = await integrationPlataformClient.GetConnectorAttributeValuesAsync(connectorId, cancellationToken);
+                List<ConnectorAttributeValueDto> existingValues = await integrationPlatformClient.GetConnectorAttributeValuesAsync(connectorId, cancellationToken);
 
                 foreach (ConnectorAttributeValuePayload attr in payload.AttributeValues)
                 {
@@ -112,7 +112,7 @@ namespace AgencyCampaign.Api.Controllers
 
                     if (existing != null)
                     {
-                        await integrationPlataformClient.UpdateConnectorAttributeValueAsync(
+                        await integrationPlatformClient.UpdateConnectorAttributeValueAsync(
                             existing.Id,
                             new UpdateConnectorAttributeValueRequest
                             {
@@ -124,7 +124,7 @@ namespace AgencyCampaign.Api.Controllers
                     }
                     else
                     {
-                        await integrationPlataformClient.CreateConnectorAttributeValueAsync(
+                        await integrationPlatformClient.CreateConnectorAttributeValueAsync(
                             new CreateConnectorAttributeValueRequest
                             {
                                 ConnectorId = connectorId,
@@ -139,11 +139,11 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(connector);
         }
 
-        [RequireAccess("Permite executar um pipeline no IntegrationPlataform.")]
+        [RequireAccess("Permite executar um pipeline no IntegrationPlatform.")]
         [PostEndpoint("executions")]
         public async Task<IActionResult> ExecutePipeline([FromBody] ExecutePipelinePayload payload, CancellationToken cancellationToken)
         {
-            ExecutionDto execution = await integrationPlataformClient.ExecutePipelineAsync(
+            ExecutionDto execution = await integrationPlatformClient.ExecutePipelineAsync(
                 new ExecutePipelineRequest
                 {
                     ConnectorId = payload.ConnectorId,
@@ -155,11 +155,11 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(execution);
         }
 
-        [RequireAccess("Permite enfileirar um pipeline no IntegrationPlataform.")]
+        [RequireAccess("Permite enfileirar um pipeline no IntegrationPlatform.")]
         [PostEndpoint("processingqueues/enqueue")]
         public async Task<IActionResult> EnqueuePipeline([FromBody] EnqueuePipelinePayload payload, CancellationToken cancellationToken)
         {
-            ProcessingQueueDto queue = await integrationPlataformClient.EnqueuePipelineAsync(
+            ProcessingQueueDto queue = await integrationPlatformClient.EnqueuePipelineAsync(
                 new EnqueuePipelineRequest
                 {
                     ConnectorId = payload.ConnectorId,

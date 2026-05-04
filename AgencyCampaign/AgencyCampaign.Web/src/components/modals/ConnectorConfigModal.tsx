@@ -12,19 +12,19 @@ import {
   useToast,
 } from 'archon-ui'
 import { Eye, EyeOff } from 'lucide-react'
-import { integrationPlataformService } from '../../services/integrationPlataformService'
+import { integrationPlatformService } from '../../services/integrationPlatformService'
 import type {
-  IntegrationPlataformIntegration,
+  IntegrationPlatformIntegration,
   IntegrationAttribute,
   Connector,
   ConnectorAttributeValue,
   ConnectorAttributeValuePayload,
-} from '../../types/integrationPlataform'
+} from '../../types/integrationPlatform'
 
 interface ConnectorConfigModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  integration: IntegrationPlataformIntegration | null
+  integration: IntegrationPlatformIntegration | null
   connector: Connector | null
   onSuccess: () => void
 }
@@ -78,7 +78,7 @@ export default function ConnectorConfigModal({
   const loadAttributes = async () => {
     if (!integration) return
     const result = await fetchAttributes(() =>
-      integrationPlataformService.getIntegrationAttributes(integration.id)
+      integrationPlatformService.getIntegrationAttributes(integration.id)
     )
     if (result) {
       const sorted = result.sort((a, b) => a.order - b.order)
@@ -98,7 +98,7 @@ export default function ConnectorConfigModal({
     if (!connector) return
 
     const detail = await fetchDetail(() =>
-      integrationPlataformService.getConnectorDetail(connector.id)
+      integrationPlatformService.getConnectorDetail(connector.id)
     )
 
     if (detail) {
@@ -157,7 +157,7 @@ export default function ConnectorConfigModal({
 
     if (isEditing && connector) {
       const result = await saveConnector(() =>
-        integrationPlataformService.updateConnector(connector.id, {
+        integrationPlatformService.updateConnector(connector.id, {
           integrationId: integration.id,
           name: connectorName.trim(),
           isActive,
@@ -171,7 +171,7 @@ export default function ConnectorConfigModal({
       }
     } else {
       const result = await saveConnector(() =>
-        integrationPlataformService.createConnector({
+        integrationPlatformService.createConnector({
           integrationId: integration.id,
           name: connectorName.trim(),
           attributeValues,
