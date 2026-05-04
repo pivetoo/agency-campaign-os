@@ -6,7 +6,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 {
     public sealed class IntegrationPlatformClient
     {
-        private const string IntegrationPlatformName = "integration-plataform";
+        private const string IntegrationPlatformName = "integration-platform";
 
         private readonly HttpClient httpClient;
         private readonly IIntegrationService integrationService;
