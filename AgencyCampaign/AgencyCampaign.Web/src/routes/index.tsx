@@ -22,8 +22,8 @@ import CampaignCreatorStatuses from '../modules/Configuration/CampaignCreatorSta
 import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
 import Integrations from '../modules/Configuration/Integrations'
 
-const identityManagementUrl = import.meta.env.VITE_IDENTITY_PROVIDER_WEB
-const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID || 'agency-campaign-web'
+const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
+const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth()

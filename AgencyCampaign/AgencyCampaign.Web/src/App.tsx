@@ -3,7 +3,7 @@ import { AuthProvider, ThemeProvider, GlobalLoaderProvider, I18nProvider, useGlo
 import AppRoutes from './routes'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-const identityManagementApiUrl = import.meta.env.VITE_IDENTITY_PROVIDER_API
+const identityManagementApiUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL
 
 if (apiBaseUrl) {
   setApiBaseURL(apiBaseUrl)
