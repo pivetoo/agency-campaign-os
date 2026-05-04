@@ -1,201 +1,247 @@
-using System.Net.Http.Json;
 using Archon.Application.Integrations;
 using Archon.Application.Services;
+using Archon.Infrastructure.RestApi;
+using Rest = Archon.Infrastructure.RestApi.RestApi;
 
 namespace AgencyCampaign.Infrastructure.Clients
 {
     public sealed class IntegrationPlatformClient
     {
-        private const string IntegrationPlatformName = "integration-platform";
+        private const string IntegrationName = "integration-platform";
 
-        private readonly HttpClient httpClient;
+        private readonly Rest restApi;
         private readonly IIntegrationService integrationService;
 
-        public IntegrationPlatformClient(HttpClient httpClient, IIntegrationService integrationService)
+        public IntegrationPlatformClient(Rest restApi, IIntegrationService integrationService)
         {
-            this.httpClient = httpClient;
+            this.restApi = restApi;
             this.integrationService = integrationService;
         }
 
-        public async Task<List<IntegrationCategoryDto>> GetActiveIntegrationCategoriesAsync(CancellationToken cancellationToken = default)
+        public async Task<List<IntegrationCategoryDto>> GetActiveIntegrationCategoriesAsync(CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                return [];
+            }
 
-            HttpResponseMessage response = await httpClient.GetAsync("api/integrationcategories/active", cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<List<IntegrationCategoryDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationCategoryDto>>>(
+                RestRequest.Get($"{baseUrl}/api/integrationcategories/active"), ct);
 
-            ApiResponse<List<IntegrationCategoryDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<IntegrationCategoryDto>>>(cancellationToken);
-            return result?.Data ?? [];
+            return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
-        public async Task<List<IntegrationDto>> GetIntegrationsByCategoryAsync(long categoryId, CancellationToken cancellationToken = default)
+        public async Task<List<IntegrationDto>> GetIntegrationsByCategoryAsync(long categoryId, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                return [];
+            }
 
-            HttpResponseMessage response = await httpClient.GetAsync($"api/integrations/category/{categoryId}", cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<List<IntegrationDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationDto>>>(
+                RestRequest.Get($"{baseUrl}/api/integrations/category/{categoryId}"), ct);
 
-            ApiResponse<List<IntegrationDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<IntegrationDto>>>(cancellationToken);
-            return result?.Data ?? [];
+            return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
-        public async Task<List<IntegrationAttributeDto>> GetIntegrationAttributesAsync(long integrationId, CancellationToken cancellationToken = default)
+        public async Task<List<IntegrationAttributeDto>> GetIntegrationAttributesAsync(long integrationId, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                return [];
+            }
 
-            HttpResponseMessage response = await httpClient.GetAsync($"api/integrationattributes/integration/{integrationId}", cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<List<IntegrationAttributeDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationAttributeDto>>>(
+                RestRequest.Get($"{baseUrl}/api/integrationattributes/integration/{integrationId}"), ct);
 
-            ApiResponse<List<IntegrationAttributeDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<IntegrationAttributeDto>>>(cancellationToken);
-            return result?.Data ?? [];
+            return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
-        public async Task<List<PipelineDto>> GetPipelinesByIntegrationAsync(long integrationId, CancellationToken cancellationToken = default)
+        public async Task<List<PipelineDto>> GetPipelinesByIntegrationAsync(long integrationId, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                return [];
+            }
 
-            HttpResponseMessage response = await httpClient.GetAsync($"api/pipelines/integration/{integrationId}", cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<List<PipelineDto>>> response = await restApi.Fetch<ApiResponse<List<PipelineDto>>>(
+                RestRequest.Get($"{baseUrl}/api/pipelines/integration/{integrationId}"), ct);
 
-            ApiResponse<List<PipelineDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<PipelineDto>>>(cancellationToken);
-            return result?.Data ?? [];
+            return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
-        public async Task<List<ConnectorDto>> GetConnectorsByIntegrationAsync(long integrationId, CancellationToken cancellationToken = default)
+        public async Task<List<ConnectorDto>> GetConnectorsByIntegrationAsync(long integrationId, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                return [];
+            }
 
-            HttpResponseMessage response = await httpClient.GetAsync($"api/connectors/integration/{integrationId}", cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<List<ConnectorDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorDto>>>(
+                RestRequest.Get($"{baseUrl}/api/connectors/integration/{integrationId}"), ct);
 
-            ApiResponse<List<ConnectorDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<ConnectorDto>>>(cancellationToken);
-            return result?.Data ?? [];
+            return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
-        public async Task<ConnectorDto> GetConnectorByIdAsync(long connectorId, CancellationToken cancellationToken = default)
+        public async Task<ConnectorDto> GetConnectorByIdAsync(long connectorId, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken))
-                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
+            }
 
-            HttpResponseMessage response = await httpClient.GetAsync($"api/connectors/GetById/{connectorId}", cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
+                RestRequest.Get($"{baseUrl}/api/connectors/GetById/{connectorId}"), ct);
 
-            ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
-            return result?.Data ?? throw new InvalidOperationException("Failed to get connector.");
+            return response.Ok
+                ? response.Data?.Data ?? throw new InvalidOperationException("Failed to get connector.")
+                : throw new InvalidOperationException("Failed to get connector.");
         }
 
-        public async Task<List<ConnectorAttributeValueDto>> GetConnectorAttributeValuesAsync(long connectorId, CancellationToken cancellationToken = default)
+        public async Task<List<ConnectorAttributeValueDto>> GetConnectorAttributeValuesAsync(long connectorId, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                return [];
+            }
 
-            HttpResponseMessage response = await httpClient.GetAsync($"api/connectorattributevalues/connector/{connectorId}", cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<List<ConnectorAttributeValueDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorAttributeValueDto>>>(
+                RestRequest.Get($"{baseUrl}/api/connectorattributevalues/connector/{connectorId}"), ct);
 
-            ApiResponse<List<ConnectorAttributeValueDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<ConnectorAttributeValueDto>>>(cancellationToken);
-            return result?.Data ?? [];
+            return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
-        public async Task<ConnectorDto> CreateConnectorAsync(CreateConnectorRequest request, CancellationToken cancellationToken = default)
+        public async Task<ConnectorDto> CreateConnectorAsync(CreateConnectorRequest request, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken))
-                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
+            }
 
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/connectors/create", request, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
+                RestRequest.Post($"{baseUrl}/api/connectors/create", request)
+                           .WithSecret(secret!), ct);
 
-            ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
-            return result?.Data ?? throw new InvalidOperationException("Failed to create connector.");
+            return response.Ok
+                ? response.Data?.Data ?? throw new InvalidOperationException("Failed to create connector.")
+                : throw new InvalidOperationException("Failed to create connector.");
         }
 
-        public async Task<ConnectorDto> UpdateConnectorAsync(long connectorId, UpdateConnectorRequest request, CancellationToken cancellationToken = default)
+        public async Task<ConnectorDto> UpdateConnectorAsync(long connectorId, UpdateConnectorRequest request, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken))
-                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
+            }
 
-            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"api/connectors/Update/{connectorId}", request, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
+                RestRequest.Put($"{baseUrl}/api/connectors/Update/{connectorId}", request)
+                           .WithSecret(secret!), ct);
 
-            ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
-            return result?.Data ?? throw new InvalidOperationException("Failed to update connector.");
+            return response.Ok
+                ? response.Data?.Data ?? throw new InvalidOperationException("Failed to update connector.")
+                : throw new InvalidOperationException("Failed to update connector.");
         }
 
-        public async Task<ConnectorAttributeValueDto> CreateConnectorAttributeValueAsync(CreateConnectorAttributeValueRequest request, CancellationToken cancellationToken = default)
+        public async Task<ConnectorAttributeValueDto> CreateConnectorAttributeValueAsync(CreateConnectorAttributeValueRequest request, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken))
-                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
+            }
 
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/connectorattributevalues/create", request, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<ConnectorAttributeValueDto>> response = await restApi.Fetch<ApiResponse<ConnectorAttributeValueDto>>(
+                RestRequest.Post($"{baseUrl}/api/connectorattributevalues/create", request)
+                           .WithSecret(secret!), ct);
 
-            ApiResponse<ConnectorAttributeValueDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorAttributeValueDto>>(cancellationToken);
-            return result?.Data ?? throw new InvalidOperationException("Failed to create connector attribute value.");
+            return response.Ok
+                ? response.Data?.Data ?? throw new InvalidOperationException("Failed to create connector attribute value.")
+                : throw new InvalidOperationException("Failed to create connector attribute value.");
         }
 
-        public async Task<ConnectorAttributeValueDto> UpdateConnectorAttributeValueAsync(long id, UpdateConnectorAttributeValueRequest request, CancellationToken cancellationToken = default)
+        public async Task<ConnectorAttributeValueDto> UpdateConnectorAttributeValueAsync(long id, UpdateConnectorAttributeValueRequest request, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken))
-                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
+            }
 
-            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"api/connectorattributevalues/Update/{id}", request, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<ConnectorAttributeValueDto>> response = await restApi.Fetch<ApiResponse<ConnectorAttributeValueDto>>(
+                RestRequest.Put($"{baseUrl}/api/connectorattributevalues/Update/{id}", request)
+                           .WithSecret(secret!), ct);
 
-            ApiResponse<ConnectorAttributeValueDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorAttributeValueDto>>(cancellationToken);
-            return result?.Data ?? throw new InvalidOperationException("Failed to update connector attribute value.");
+            return response.Ok
+                ? response.Data?.Data ?? throw new InvalidOperationException("Failed to update connector attribute value.")
+                : throw new InvalidOperationException("Failed to update connector attribute value.");
         }
 
-        public async Task<ExecutionDto> ExecutePipelineAsync(ExecutePipelineRequest request, CancellationToken cancellationToken = default)
+        public async Task<ExecutionDto> ExecutePipelineAsync(ExecutePipelineRequest request, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken))
-                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
+            }
 
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/executions/execute", request, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<ExecutionDto>> response = await restApi.Fetch<ApiResponse<ExecutionDto>>(
+                RestRequest.Post($"{baseUrl}/api/executions/execute", request)
+                           .WithSecret(secret!), ct);
 
-            ApiResponse<ExecutionDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ExecutionDto>>(cancellationToken);
-            return result?.Data ?? throw new InvalidOperationException("Failed to execute pipeline.");
+            return response.Ok
+                ? response.Data?.Data ?? throw new InvalidOperationException("Failed to execute pipeline.")
+                : throw new InvalidOperationException("Failed to execute pipeline.");
         }
 
-        public async Task<ProcessingQueueDto> EnqueuePipelineAsync(EnqueuePipelineRequest request, CancellationToken cancellationToken = default)
+        public async Task<ProcessingQueueDto> EnqueuePipelineAsync(EnqueuePipelineRequest request, CancellationToken ct = default)
         {
-            if (!await EnsureConfiguredAsync(cancellationToken))
-                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
+            }
 
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/processingqueues/enqueue", request, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            RestResponse<ApiResponse<ProcessingQueueDto>> response = await restApi.Fetch<ApiResponse<ProcessingQueueDto>>(
+                RestRequest.Post($"{baseUrl}/api/processingqueues/enqueue", request)
+                           .WithSecret(secret!), ct);
 
-            ApiResponse<ProcessingQueueDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ProcessingQueueDto>>(cancellationToken);
-            return result?.Data ?? throw new InvalidOperationException("Failed to enqueue pipeline.");
+            return response.Ok
+                ? response.Data?.Data ?? throw new InvalidOperationException("Failed to enqueue pipeline.")
+                : throw new InvalidOperationException("Failed to enqueue pipeline.");
         }
 
-        private async Task<bool> EnsureConfiguredAsync(CancellationToken cancellationToken)
+        private async Task<(string? baseUrl, string? secret)> ResolveIntegrationAsync(CancellationToken ct)
         {
-            Integration? integration = await integrationService.GetByNameAsync(IntegrationPlatformName, cancellationToken);
+            Integration? integration = await integrationService.GetByNameAsync(IntegrationName, ct);
             if (integration is null)
             {
-                Console.WriteLine("IntegrationPlatformClient: integration 'integration-plataform' was not found in table 'integrations'.");
-                return false;
+                Console.WriteLine("IntegrationPlatformClient: integration 'integration-platform' was not found in table 'integrations'.");
+                return (null, null);
             }
 
             if (string.IsNullOrWhiteSpace(integration.BaseUrl))
             {
-                Console.WriteLine("IntegrationPlatformClient: integration 'integration-plataform' is configured without baseurl.");
-                return false;
+                Console.WriteLine("IntegrationPlatformClient: integration 'integration-platform' is configured without baseurl.");
+                return (null, null);
             }
 
-            httpClient.BaseAddress = new Uri(integration.BaseUrl, UriKind.Absolute);
-
-            httpClient.DefaultRequestHeaders.Remove("X-Integration-Secret");
             string? secret = integration.GetParameter("IntegrationSecret");
-            if (!string.IsNullOrWhiteSpace(secret))
+            if (string.IsNullOrWhiteSpace(secret))
             {
-                httpClient.DefaultRequestHeaders.Add("X-Integration-Secret", secret);
-            }
-            else
-            {
-                Console.WriteLine("IntegrationPlatformClient: integration 'integration-plataform' is configured without IntegrationSecret.");
+                Console.WriteLine("IntegrationPlatformClient: integration 'integration-platform' is configured without IntegrationSecret.");
             }
 
-            return true;
+            return (integration.BaseUrl, secret);
         }
     }
 

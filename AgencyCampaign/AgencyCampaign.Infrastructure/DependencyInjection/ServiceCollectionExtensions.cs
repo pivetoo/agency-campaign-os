@@ -20,7 +20,8 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
                 typeof(DatabaseMigrator).Assembly,
                 typeof(ServiceCollectionExtensions).Assembly);
             services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
-            services.AddHttpClient<IntegrationPlatformClient>();
+            services.AddArchonRestApi();
+            services.AddScoped<IntegrationPlatformClient>();
 
             return services;
         }
