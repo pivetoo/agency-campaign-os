@@ -20,84 +20,84 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<List<IntegrationCategoryDto>> GetActiveIntegrationCategoriesAsync(CancellationToken ct = default)
         {
-            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<IntegrationCategoryDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationCategoryDto>>>(
-                RestRequest.Get($"{baseUrl}/api/integrationcategories/active"), ct);
+                RestRequest.Get($"{baseUrl}/api/integrationcategories/active").WithSecret(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<List<IntegrationDto>> GetIntegrationsByCategoryAsync(long categoryId, CancellationToken ct = default)
         {
-            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<IntegrationDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationDto>>>(
-                RestRequest.Get($"{baseUrl}/api/integrations/category/{categoryId}"), ct);
+                RestRequest.Get($"{baseUrl}/api/integrations/category/{categoryId}").WithSecret(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<List<IntegrationAttributeDto>> GetIntegrationAttributesAsync(long integrationId, CancellationToken ct = default)
         {
-            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<IntegrationAttributeDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationAttributeDto>>>(
-                RestRequest.Get($"{baseUrl}/api/integrationattributes/integration/{integrationId}"), ct);
+                RestRequest.Get($"{baseUrl}/api/integrationattributes/integration/{integrationId}").WithSecret(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<List<PipelineDto>> GetPipelinesByIntegrationAsync(long integrationId, CancellationToken ct = default)
         {
-            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<PipelineDto>>> response = await restApi.Fetch<ApiResponse<List<PipelineDto>>>(
-                RestRequest.Get($"{baseUrl}/api/pipelines/integration/{integrationId}"), ct);
+                RestRequest.Get($"{baseUrl}/api/pipelines/integration/{integrationId}").WithSecret(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<List<ConnectorDto>> GetConnectorsByIntegrationAsync(long integrationId, CancellationToken ct = default)
         {
-            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<ConnectorDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorDto>>>(
-                RestRequest.Get($"{baseUrl}/api/connectors/integration/{integrationId}"), ct);
+                RestRequest.Get($"{baseUrl}/api/connectors/integration/{integrationId}").WithSecret(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<ConnectorDto> GetConnectorByIdAsync(long connectorId, CancellationToken ct = default)
         {
-            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
             }
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
-                RestRequest.Get($"{baseUrl}/api/connectors/GetById/{connectorId}"), ct);
+                RestRequest.Get($"{baseUrl}/api/connectors/GetById/{connectorId}").WithSecret(secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to get connector.")
@@ -106,14 +106,14 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<List<ConnectorAttributeValueDto>> GetConnectorAttributeValuesAsync(long connectorId, CancellationToken ct = default)
         {
-            (string? baseUrl, _) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<ConnectorAttributeValueDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorAttributeValueDto>>>(
-                RestRequest.Get($"{baseUrl}/api/connectorattributevalues/connector/{connectorId}"), ct);
+                RestRequest.Get($"{baseUrl}/api/connectorattributevalues/connector/{connectorId}").WithSecret(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
