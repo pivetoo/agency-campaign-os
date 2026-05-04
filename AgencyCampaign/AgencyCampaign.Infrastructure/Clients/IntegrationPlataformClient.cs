@@ -1,36 +1,27 @@
 using System.Net.Http.Json;
-using Archon.Application.MultiTenancy;
-using Microsoft.Extensions.Configuration;
+using Archon.Application.Integrations;
+using Archon.Application.Services;
 
 namespace AgencyCampaign.Infrastructure.Clients
 {
     public sealed class IntegrationPlataformClient
     {
-        private readonly HttpClient httpClient;
-        private readonly IConfiguration configuration;
-        private readonly ITenantContext tenantContext;
+        private const string IntegrationPlataformName = "integration-plataform";
 
-        public IntegrationPlataformClient(HttpClient httpClient, IConfiguration configuration, ITenantContext tenantContext)
+        private readonly HttpClient httpClient;
+        private readonly IIntegrationService integrationService;
+
+        public IntegrationPlataformClient(HttpClient httpClient, IIntegrationService integrationService)
         {
             this.httpClient = httpClient;
-            this.configuration = configuration;
-            this.tenantContext = tenantContext;
-        }
-
-        private string GetIntegrationSecret()
-        {
-            string? tenantId = tenantContext.TenantId;
-            if (string.IsNullOrWhiteSpace(tenantId))
-            {
-                return configuration[$"TenantDatabases:default:IntegrationSecret"] ?? string.Empty;
-            }
-
-            return configuration[$"TenantDatabases:{tenantId}:IntegrationSecret"] ?? string.Empty;
+            this.integrationService = integrationService;
         }
 
         public async Task<List<IntegrationCategoryDto>> GetActiveIntegrationCategoriesAsync(CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Get, "api/integrationcategories/active", cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+
+            HttpResponseMessage response = await httpClient.GetAsync("api/integrationcategories/active", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<List<IntegrationCategoryDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<IntegrationCategoryDto>>>(cancellationToken);
@@ -39,7 +30,9 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<List<IntegrationDto>> GetIntegrationsByCategoryAsync(long categoryId, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/integrations/category/{categoryId}", cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+
+            HttpResponseMessage response = await httpClient.GetAsync($"api/integrations/category/{categoryId}", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<List<IntegrationDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<IntegrationDto>>>(cancellationToken);
@@ -48,7 +41,9 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<List<IntegrationAttributeDto>> GetIntegrationAttributesAsync(long integrationId, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/integrationattributes/integration/{integrationId}", cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+
+            HttpResponseMessage response = await httpClient.GetAsync($"api/integrationattributes/integration/{integrationId}", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<List<IntegrationAttributeDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<IntegrationAttributeDto>>>(cancellationToken);
@@ -57,7 +52,9 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<List<PipelineDto>> GetPipelinesByIntegrationAsync(long integrationId, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/pipelines/integration/{integrationId}", cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+
+            HttpResponseMessage response = await httpClient.GetAsync($"api/pipelines/integration/{integrationId}", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<List<PipelineDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<PipelineDto>>>(cancellationToken);
@@ -66,7 +63,9 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<List<ConnectorDto>> GetConnectorsByIntegrationAsync(long integrationId, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/connectors/integration/{integrationId}", cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+
+            HttpResponseMessage response = await httpClient.GetAsync($"api/connectors/integration/{integrationId}", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<List<ConnectorDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<ConnectorDto>>>(cancellationToken);
@@ -75,7 +74,10 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorDto> GetConnectorByIdAsync(long connectorId, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/connectors/GetById/{connectorId}", cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken))
+                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+
+            HttpResponseMessage response = await httpClient.GetAsync($"api/connectors/GetById/{connectorId}", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
@@ -84,7 +86,9 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<List<ConnectorAttributeValueDto>> GetConnectorAttributeValuesAsync(long connectorId, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Get, $"api/connectorattributevalues/connector/{connectorId}", cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken)) return [];
+
+            HttpResponseMessage response = await httpClient.GetAsync($"api/connectorattributevalues/connector/{connectorId}", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<List<ConnectorAttributeValueDto>>? result = await response.Content.ReadFromJsonAsync<ApiResponse<List<ConnectorAttributeValueDto>>>(cancellationToken);
@@ -93,7 +97,10 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorDto> CreateConnectorAsync(CreateConnectorRequest request, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Post, "api/connectors/create", request, cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken))
+                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/connectors/create", request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
@@ -102,7 +109,10 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorDto> UpdateConnectorAsync(long connectorId, UpdateConnectorRequest request, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Put, $"api/connectors/Update/{connectorId}", request, cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken))
+                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+
+            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"api/connectors/Update/{connectorId}", request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ConnectorDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorDto>>(cancellationToken);
@@ -111,7 +121,10 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorAttributeValueDto> CreateConnectorAttributeValueAsync(CreateConnectorAttributeValueRequest request, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Post, "api/connectorattributevalues/create", request, cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken))
+                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/connectorattributevalues/create", request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ConnectorAttributeValueDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorAttributeValueDto>>(cancellationToken);
@@ -120,7 +133,10 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorAttributeValueDto> UpdateConnectorAttributeValueAsync(long id, UpdateConnectorAttributeValueRequest request, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Put, $"api/connectorattributevalues/Update/{id}", request, cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken))
+                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+
+            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"api/connectorattributevalues/Update/{id}", request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ConnectorAttributeValueDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ConnectorAttributeValueDto>>(cancellationToken);
@@ -129,7 +145,10 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ExecutionDto> ExecutePipelineAsync(ExecutePipelineRequest request, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Post, "api/executions/execute", request, cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken))
+                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/executions/execute", request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ExecutionDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ExecutionDto>>(cancellationToken);
@@ -138,28 +157,45 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ProcessingQueueDto> EnqueuePipelineAsync(EnqueuePipelineRequest request, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = await SendAsync(HttpMethod.Post, "api/processingqueues/enqueue", request, cancellationToken);
+            if (!await EnsureConfiguredAsync(cancellationToken))
+                throw new InvalidOperationException("Integration 'integration-plataform' is not configured.");
+
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/processingqueues/enqueue", request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             ApiResponse<ProcessingQueueDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ProcessingQueueDto>>(cancellationToken);
             return result?.Data ?? throw new InvalidOperationException("Failed to enqueue pipeline.");
         }
 
-        private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, CancellationToken cancellationToken)
+        private async Task<bool> EnsureConfiguredAsync(CancellationToken cancellationToken)
         {
-            HttpRequestMessage request = new(method, path);
-            request.Headers.Add("X-Integration-Secret", GetIntegrationSecret());
-            return await httpClient.SendAsync(request, cancellationToken);
-        }
-
-        private async Task<HttpResponseMessage> SendAsync<T>(HttpMethod method, string path, T body, CancellationToken cancellationToken)
-        {
-            HttpRequestMessage request = new(method, path)
+            Integration? integration = await integrationService.GetByNameAsync(IntegrationPlataformName, cancellationToken);
+            if (integration is null)
             {
-                Content = JsonContent.Create(body)
-            };
-            request.Headers.Add("X-Integration-Secret", GetIntegrationSecret());
-            return await httpClient.SendAsync(request, cancellationToken);
+                Console.WriteLine("IntegrationPlataformClient: integration 'integration-plataform' was not found in table 'integrations'.");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(integration.BaseUrl))
+            {
+                Console.WriteLine("IntegrationPlataformClient: integration 'integration-plataform' is configured without baseurl.");
+                return false;
+            }
+
+            httpClient.BaseAddress = new Uri(integration.BaseUrl, UriKind.Absolute);
+
+            httpClient.DefaultRequestHeaders.Remove("X-Integration-Secret");
+            string? secret = integration.GetParameter("IntegrationSecret");
+            if (!string.IsNullOrWhiteSpace(secret))
+            {
+                httpClient.DefaultRequestHeaders.Add("X-Integration-Secret", secret);
+            }
+            else
+            {
+                Console.WriteLine("IntegrationPlataformClient: integration 'integration-plataform' is configured without IntegrationSecret.");
+            }
+
+            return true;
         }
     }
 

@@ -20,14 +20,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
                 typeof(DatabaseMigrator).Assembly,
                 typeof(ServiceCollectionExtensions).Assembly);
             services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
-            services.AddHttpClient<IntegrationPlataformClient>(client =>
-            {
-                string? baseUrl = configuration["IntegrationPlataform:BaseUrl"];
-                if (!string.IsNullOrWhiteSpace(baseUrl))
-                {
-                    client.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
-                }
-            });
+            services.AddHttpClient<IntegrationPlataformClient>();
 
             return services;
         }
