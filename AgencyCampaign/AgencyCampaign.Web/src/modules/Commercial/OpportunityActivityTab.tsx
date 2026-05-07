@@ -57,7 +57,8 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
       setStageHistory(history)
       return null
     })
-  }, [opportunityId, load])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opportunityId])
 
   const reload = async () => {
     const [commentList, history] = await Promise.all([

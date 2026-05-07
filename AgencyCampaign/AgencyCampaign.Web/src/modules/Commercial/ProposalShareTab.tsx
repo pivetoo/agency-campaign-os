@@ -48,7 +48,8 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
       await reload()
       return null
     })
-  }, [proposalId, load])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [proposalId])
 
   const generateLink = async () => {
     const expiresAtIso = expiresAt ? new Date(expiresAt).toISOString() : undefined

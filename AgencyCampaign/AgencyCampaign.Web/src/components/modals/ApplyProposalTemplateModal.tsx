@@ -37,7 +37,8 @@ export default function ApplyProposalTemplateModal(props: ApplyProposalTemplateM
     void load(() => proposalTemplateService.getAll(false)).then((result) => {
       if (result) setTemplates(result)
     })
-  }, [open, load])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
 
   const options = useMemo(
     () => templates.map((template) => ({

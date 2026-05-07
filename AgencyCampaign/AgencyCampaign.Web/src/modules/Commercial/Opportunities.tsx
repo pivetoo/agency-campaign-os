@@ -61,7 +61,8 @@ export default function CommercialOpportunities() {
     void fetchOpportunities(() => opportunityService.getAll({ pageSize: 200, ...filters })).then((result) => {
       if (result) setOpportunities(result)
     })
-  }, [search, stageFilter, responsibleFilter, statusFilter, fetchOpportunities])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, stageFilter, responsibleFilter, statusFilter])
 
   const stageOptions = useMemo(
     () => stages.map((stage) => ({ value: stage.id.toString(), label: stage.name })),
