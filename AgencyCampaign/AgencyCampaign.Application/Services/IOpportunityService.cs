@@ -29,11 +29,5 @@ namespace AgencyCampaign.Application.Services
         Task<IReadOnlyCollection<CommercialAlertModel>> GetAlerts(CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<OpportunityStageHistoryModel>> GetStageHistory(long opportunityId, CancellationToken cancellationToken = default);
-
-        Task<CommercialForecastModel> GetForecast(DateTimeOffset fromMonth, DateTimeOffset toMonth, CancellationToken cancellationToken = default);
-
-        Task<IReadOnlyCollection<CommercialFunnelStageModel>> GetFunnelConversion(CancellationToken cancellationToken = default);
-
-        Task<IReadOnlyCollection<CommercialResponsibleRankingModel>> GetResponsibleRanking(CancellationToken cancellationToken = default);
     }
 }

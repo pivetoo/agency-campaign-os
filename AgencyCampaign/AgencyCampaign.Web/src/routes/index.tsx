@@ -6,7 +6,6 @@ import Brands from '../modules/Brands'
 import Creators from '../modules/Creators'
 import Campaigns from '../modules/Campaigns'
 import CampaignDetail from '../modules/Campaigns/Detail'
-import CommercialDashboard from '../modules/Commercial/CommercialDashboard'
 import CommercialPipeline from '../modules/Commercial/Pipeline'
 import CommercialOpportunities from '../modules/Commercial/Opportunities'
 import CommercialOpportunityDetail from '../modules/Commercial/OpportunityDetail'
@@ -61,8 +60,7 @@ function AppRoutes() {
           <Route path="creators" element={<Creators />} />
           <Route path="campanhas" element={<Campaigns />} />
           <Route path="campanhas/:id" element={<CampaignDetail />} />
-          <Route path="comercial" element={<Navigate to="/comercial/dashboard" replace />} />
-          <Route path="comercial/dashboard" element={<CommercialDashboard />} />
+          <Route path="comercial" element={<Navigate to="/comercial/pipeline" replace />} />
           <Route path="comercial/pipeline" element={<CommercialPipeline />} />
           <Route path="comercial/oportunidades" element={<CommercialOpportunities />} />
           <Route path="comercial/oportunidades/:id" element={<CommercialOpportunityDetail />} />
