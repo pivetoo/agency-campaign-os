@@ -11,6 +11,7 @@ export interface CreateCampaignCreatorStatusRequest {
   isInitial: boolean
   isFinal: boolean
   category: number
+  marksAsConfirmed: boolean
 }
 
 export interface UpdateCampaignCreatorStatusRequest extends CreateCampaignCreatorStatusRequest {

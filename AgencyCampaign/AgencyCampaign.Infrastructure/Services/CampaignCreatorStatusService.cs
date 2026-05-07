@@ -56,7 +56,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Description,
                 request.IsInitial,
                 request.IsFinal,
-                request.Category);
+                request.Category,
+                request.MarksAsConfirmed);
 
             bool success = await Insert(cancellationToken, status);
             if (!success)
@@ -93,7 +94,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.IsInitial,
                 request.IsFinal,
                 request.Category,
-                request.IsActive);
+                request.IsActive,
+                request.MarksAsConfirmed);
 
             CampaignCreatorStatus? result = await Update(status, cancellationToken);
             if (result is null)

@@ -271,21 +271,6 @@ export default function CampaignDetail() {
       },
     },
     {
-      key: 'documentType',
-      title: 'Tipo',
-      dataIndex: 'documentType',
-      render: (value: number) => documentTypeLabels[value] || '-',
-    },
-    {
-      key: 'campaignCreatorId',
-      title: 'Creator',
-      dataIndex: 'campaignCreatorId',
-      render: (value?: number) => {
-        const campaignCreator = campaignCreators.find((item) => item.id === value)
-        return campaignCreator?.creator?.stageName || campaignCreator?.creator?.name || '-'
-      },
-    },
-    {
       key: 'sentAt',
       title: 'Enviado em',
       dataIndex: 'sentAt',

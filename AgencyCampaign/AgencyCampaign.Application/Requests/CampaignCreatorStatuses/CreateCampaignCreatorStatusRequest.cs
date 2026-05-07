@@ -23,5 +23,7 @@ namespace AgencyCampaign.Application.Requests.CampaignCreatorStatuses
         public bool IsFinal { get; set; }
 
         public CampaignCreatorStatusCategory Category { get; set; }
+
+        public bool MarksAsConfirmed { get; set; }
     }
 }

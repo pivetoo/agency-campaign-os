@@ -61,6 +61,7 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentOutOfRangeException.ThrowIfNegative(grossAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(creatorAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(agencyFeeAmount);
+            EnsureAmountsConsistent(grossAmount, creatorAmount, agencyFeeAmount);
 
             CampaignId = campaignId;
             CampaignCreatorId = campaignCreatorId;
@@ -83,6 +84,7 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentOutOfRangeException.ThrowIfNegative(grossAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(creatorAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(agencyFeeAmount);
+            EnsureAmountsConsistent(grossAmount, creatorAmount, agencyFeeAmount);
 
             Title = title.Trim();
             Description = Normalize(description);
@@ -124,6 +126,14 @@ namespace AgencyCampaign.Domain.Entities
         private static string? Normalize(string? value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
+
+        private static void EnsureAmountsConsistent(decimal grossAmount, decimal creatorAmount, decimal agencyFeeAmount)
+        {
+            if (creatorAmount + agencyFeeAmount > grossAmount)
+            {
+                throw new InvalidOperationException("A soma do valor do creator e do fee da agência não pode ultrapassar o valor bruto da entrega.");
+            }
         }
     }
 }

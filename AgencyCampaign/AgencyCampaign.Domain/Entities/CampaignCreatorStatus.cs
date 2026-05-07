@@ -19,13 +19,17 @@ namespace AgencyCampaign.Domain.Entities
 
         public CampaignCreatorStatusCategory Category { get; private set; }
 
+        public bool MarksAsConfirmed { get; private set; }
+
         public bool IsActive { get; private set; } = true;
+
+        public bool MarksAsCancelled => Category == CampaignCreatorStatusCategory.Failure;
 
         private CampaignCreatorStatus()
         {
         }
 
-        public CampaignCreatorStatus(string name, int displayOrder, string color, string? description = null, bool isInitial = false, bool isFinal = false, CampaignCreatorStatusCategory category = CampaignCreatorStatusCategory.InProgress)
+        public CampaignCreatorStatus(string name, int displayOrder, string color, string? description = null, bool isInitial = false, bool isFinal = false, CampaignCreatorStatusCategory category = CampaignCreatorStatusCategory.InProgress, bool marksAsConfirmed = false)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -37,11 +41,12 @@ namespace AgencyCampaign.Domain.Entities
             IsInitial = isInitial;
             IsFinal = isFinal;
             Category = category;
+            MarksAsConfirmed = marksAsConfirmed;
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void Update(string name, int displayOrder, string color, string? description, bool isInitial, bool isFinal, CampaignCreatorStatusCategory category, bool isActive)
+        public void Update(string name, int displayOrder, string color, string? description, bool isInitial, bool isFinal, CampaignCreatorStatusCategory category, bool isActive, bool marksAsConfirmed)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -53,6 +58,7 @@ namespace AgencyCampaign.Domain.Entities
             IsInitial = isInitial;
             IsFinal = isFinal;
             Category = category;
+            MarksAsConfirmed = marksAsConfirmed;
             IsActive = isActive;
             UpdatedAt = DateTimeOffset.UtcNow;
         }

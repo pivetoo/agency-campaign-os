@@ -7,6 +7,7 @@ export interface CampaignCreatorStatus {
   isInitial: boolean
   isFinal: boolean
   category: number
+  marksAsConfirmed: boolean
   isActive: boolean
   createdAt: string
   updatedAt?: string

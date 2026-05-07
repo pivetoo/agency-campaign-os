@@ -64,17 +64,19 @@ namespace AgencyCampaign.Domain.Entities
 
         public void ChangeStatus(CampaignCreatorStatus status, DateTimeOffset? occurredAt = null)
         {
+            ArgumentNullException.ThrowIfNull(status);
+
             CampaignCreatorStatusId = status.Id;
             DateTimeOffset timestamp = occurredAt?.ToUniversalTime() ?? DateTimeOffset.UtcNow;
 
-            if (status.Name == "Confirmado")
+            if (status.MarksAsConfirmed)
             {
                 ConfirmedAt ??= timestamp;
                 CancelledAt = null;
                 return;
             }
 
-            if (status.Name == "Cancelado")
+            if (status.MarksAsCancelled)
             {
                 CancelledAt = timestamp;
                 return;
