@@ -1,6 +1,6 @@
 namespace AgencyCampaign.Domain.ValueObjects
 {
-    public enum CampaignFinancialEntryStatus
+    public enum FinancialEntryStatus
     {
         Pending = 1,
         Paid = 2,

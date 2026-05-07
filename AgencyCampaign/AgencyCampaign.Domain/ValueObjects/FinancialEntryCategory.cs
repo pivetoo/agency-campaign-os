@@ -1,6 +1,6 @@
 namespace AgencyCampaign.Domain.ValueObjects
 {
-    public enum CampaignFinancialEntryCategory
+    public enum FinancialEntryCategory
     {
         BrandReceivable = 1,
         CreatorPayout = 2,

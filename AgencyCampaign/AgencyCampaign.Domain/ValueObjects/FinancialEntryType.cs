@@ -1,6 +1,6 @@
 namespace AgencyCampaign.Domain.ValueObjects
 {
-    public enum CampaignFinancialEntryType
+    public enum FinancialEntryType
     {
         Receivable = 1,
         Payable = 2

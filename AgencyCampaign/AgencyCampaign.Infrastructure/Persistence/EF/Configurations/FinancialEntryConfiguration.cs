@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
 {
-    public sealed class CampaignFinancialEntryConfiguration : IEntityTypeConfiguration<CampaignFinancialEntry>
+    public sealed class FinancialEntryConfiguration : IEntityTypeConfiguration<FinancialEntry>
     {
-        public void Configure(EntityTypeBuilder<CampaignFinancialEntry> builder)
+        public void Configure(EntityTypeBuilder<FinancialEntry> builder)
         {
-            builder.ToTable("campaignfinancialentry");
+            builder.ToTable("financialentry");
 
             builder.Property(entity => entity.Description)
                 .IsRequired()
@@ -29,15 +29,23 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Amount)
                 .HasPrecision(18, 2);
 
+            builder.HasOne(entity => entity.Account)
+                .WithMany()
+                .HasForeignKey(entity => entity.AccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasOne(entity => entity.Campaign)
                 .WithMany()
                 .HasForeignKey(entity => entity.CampaignId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasOne(entity => entity.CampaignDeliverable)
                 .WithMany()
                 .HasForeignKey(entity => entity.CampaignDeliverableId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasIndex(entity => new { entity.AccountId, entity.DueAt })
+                .HasDatabaseName("ixfinancialentryaccountiddueat");
         }
     }
 }

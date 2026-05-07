@@ -1,21 +1,27 @@
 using AgencyCampaign.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 
-namespace AgencyCampaign.Application.Requests.CampaignFinancialEntries
+namespace AgencyCampaign.Application.Requests.FinancialEntries
 {
-    public sealed class CreateCampaignFinancialEntryRequest
+    public sealed class UpdateFinancialEntryRequest
     {
         [Required]
+        public long Id { get; set; }
+
+        [Required]
         [Range(1, long.MaxValue)]
-        public long CampaignId { get; set; }
+        public long AccountId { get; set; }
+
+        [Range(1, long.MaxValue)]
+        public long? CampaignId { get; set; }
 
         public long? CampaignDeliverableId { get; set; }
 
         [Required]
-        public CampaignFinancialEntryType Type { get; set; }
+        public FinancialEntryType Type { get; set; }
 
         [Required]
-        public CampaignFinancialEntryCategory Category { get; set; }
+        public FinancialEntryCategory Category { get; set; }
 
         [Required]
         [StringLength(200, MinimumLength = 2)]
@@ -39,7 +45,7 @@ namespace AgencyCampaign.Application.Requests.CampaignFinancialEntries
         public DateTimeOffset? PaidAt { get; set; }
 
         [Required]
-        public CampaignFinancialEntryStatus Status { get; set; } = CampaignFinancialEntryStatus.Pending;
+        public FinancialEntryStatus Status { get; set; } = FinancialEntryStatus.Pending;
 
         [StringLength(150)]
         public string? CounterpartyName { get; set; }

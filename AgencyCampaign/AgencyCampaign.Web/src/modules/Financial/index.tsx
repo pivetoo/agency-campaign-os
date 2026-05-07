@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, Card, CardContent, CardHeader, CardTitle, DataTable, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { campaignFinancialEntryService } from '../../services/campaignFinancialEntryService'
-import type { CampaignFinancialEntry } from '../../types/campaignFinancialEntry'
+import { financialEntryService } from '../../services/financialEntryService'
+import type { FinancialEntry } from '../../types/financialEntry'
 
 export default function Financial() {
-  const [entries, setEntries] = useState<CampaignFinancialEntry[]>([])
-  const { execute: fetchEntries, loading } = useApi<CampaignFinancialEntry[]>({ showErrorMessage: true })
+  const [entries, setEntries] = useState<FinancialEntry[]>([])
+  const { execute: fetchEntries, loading } = useApi<FinancialEntry[]>({ showErrorMessage: true })
 
   const loadEntries = async () => {
-    const result = await fetchEntries(() => campaignFinancialEntryService.getAll())
+    const result = await fetchEntries(() => financialEntryService.getAll())
     if (result) {
       setEntries(result)
     }
@@ -28,7 +28,7 @@ export default function Financial() {
     return { receivable, payable, paid, overdue, balance: receivable - payable }
   }, [entries])
 
-  const columns: DataTableColumn<CampaignFinancialEntry>[] = [
+  const columns: DataTableColumn<FinancialEntry>[] = [
     { key: 'type', title: 'Tipo', dataIndex: 'type', render: (value: number) => value === 1 ? 'A receber' : 'A pagar' },
     { key: 'description', title: 'Descrição', dataIndex: 'description' },
     { key: 'counterpartyName', title: 'Contraparte', dataIndex: 'counterpartyName' },

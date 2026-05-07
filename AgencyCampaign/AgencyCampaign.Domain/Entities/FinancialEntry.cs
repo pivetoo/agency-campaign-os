@@ -3,9 +3,13 @@ using Archon.Core.Entities;
 
 namespace AgencyCampaign.Domain.Entities
 {
-    public sealed class CampaignFinancialEntry : Entity
+    public sealed class FinancialEntry : Entity
     {
-        public long CampaignId { get; private set; }
+        public long AccountId { get; private set; }
+
+        public FinancialAccount? Account { get; private set; }
+
+        public long? CampaignId { get; private set; }
 
         public Campaign? Campaign { get; private set; }
 
@@ -13,9 +17,9 @@ namespace AgencyCampaign.Domain.Entities
 
         public CampaignDeliverable? CampaignDeliverable { get; private set; }
 
-        public CampaignFinancialEntryType Type { get; private set; }
+        public FinancialEntryType Type { get; private set; }
 
-        public CampaignFinancialEntryCategory Category { get; private set; }
+        public FinancialEntryCategory Category { get; private set; }
 
         public string Description { get; private set; } = string.Empty;
 
@@ -31,22 +35,23 @@ namespace AgencyCampaign.Domain.Entities
 
         public DateTimeOffset? PaidAt { get; private set; }
 
-        public CampaignFinancialEntryStatus Status { get; private set; } = CampaignFinancialEntryStatus.Pending;
+        public FinancialEntryStatus Status { get; private set; } = FinancialEntryStatus.Pending;
 
         public string? CounterpartyName { get; private set; }
 
         public string? Notes { get; private set; }
 
-        private CampaignFinancialEntry()
+        private FinancialEntry()
         {
         }
 
-        public CampaignFinancialEntry(long campaignId, CampaignFinancialEntryType type, CampaignFinancialEntryCategory category, string description, decimal amount, DateTimeOffset dueAt, DateTimeOffset occurredAt, string? paymentMethod = null, string? referenceCode = null, string? counterpartyName = null, string? notes = null, long? campaignDeliverableId = null)
+        public FinancialEntry(long accountId, FinancialEntryType type, FinancialEntryCategory category, string description, decimal amount, DateTimeOffset dueAt, DateTimeOffset occurredAt, string? paymentMethod = null, string? referenceCode = null, string? counterpartyName = null, string? notes = null, long? campaignId = null, long? campaignDeliverableId = null)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(accountId);
             ArgumentException.ThrowIfNullOrWhiteSpace(description);
             ArgumentOutOfRangeException.ThrowIfNegative(amount);
 
+            AccountId = accountId;
             CampaignId = campaignId;
             CampaignDeliverableId = campaignDeliverableId;
             Type = type;
@@ -61,11 +66,15 @@ namespace AgencyCampaign.Domain.Entities
             Notes = Normalize(notes);
         }
 
-        public void Update(CampaignFinancialEntryType type, CampaignFinancialEntryCategory category, string description, decimal amount, DateTimeOffset dueAt, DateTimeOffset occurredAt, string? paymentMethod, string? referenceCode, string? counterpartyName, string? notes, long? campaignDeliverableId)
+        public void Update(long accountId, FinancialEntryType type, FinancialEntryCategory category, string description, decimal amount, DateTimeOffset dueAt, DateTimeOffset occurredAt, string? paymentMethod, string? referenceCode, string? counterpartyName, string? notes, long? campaignId, long? campaignDeliverableId)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(accountId);
             ArgumentException.ThrowIfNullOrWhiteSpace(description);
             ArgumentOutOfRangeException.ThrowIfNegative(amount);
 
+            AccountId = accountId;
+            CampaignId = campaignId;
+            CampaignDeliverableId = campaignDeliverableId;
             Type = type;
             Category = category;
             Description = description.Trim();
@@ -76,13 +85,26 @@ namespace AgencyCampaign.Domain.Entities
             ReferenceCode = Normalize(referenceCode);
             CounterpartyName = Normalize(counterpartyName);
             Notes = Normalize(notes);
-            CampaignDeliverableId = campaignDeliverableId;
         }
 
-        public void ChangeStatus(CampaignFinancialEntryStatus status, DateTimeOffset? paidAt = null)
+        public void ChangeStatus(FinancialEntryStatus status, DateTimeOffset? paidAt = null)
         {
             Status = status;
-            PaidAt = status == CampaignFinancialEntryStatus.Paid ? paidAt?.ToUniversalTime() : null;
+            PaidAt = status == FinancialEntryStatus.Paid ? paidAt?.ToUniversalTime() : null;
+        }
+
+        public void RecalculateOverdue(DateTimeOffset now)
+        {
+            if (Status == FinancialEntryStatus.Pending && DueAt < now)
+            {
+                Status = FinancialEntryStatus.Overdue;
+                return;
+            }
+
+            if (Status == FinancialEntryStatus.Overdue && DueAt >= now)
+            {
+                Status = FinancialEntryStatus.Pending;
+            }
         }
 
         private static string? Normalize(string? value)

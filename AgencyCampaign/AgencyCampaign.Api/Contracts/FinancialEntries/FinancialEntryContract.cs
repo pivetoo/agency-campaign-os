@@ -2,19 +2,27 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using System.Linq.Expressions;
 
-namespace AgencyCampaign.Api.Contracts.CampaignFinancialEntries
+namespace AgencyCampaign.Api.Contracts.FinancialEntries
 {
-    public sealed class CampaignFinancialEntryContract
+    public sealed class FinancialEntryContract
     {
         public long Id { get; init; }
 
-        public long CampaignId { get; init; }
+        public long AccountId { get; init; }
+
+        public string? AccountName { get; init; }
+
+        public string? AccountColor { get; init; }
+
+        public long? CampaignId { get; init; }
+
+        public string? CampaignName { get; init; }
 
         public long? CampaignDeliverableId { get; init; }
 
-        public CampaignFinancialEntryType Type { get; init; }
+        public FinancialEntryType Type { get; init; }
 
-        public CampaignFinancialEntryCategory Category { get; init; }
+        public FinancialEntryCategory Category { get; init; }
 
         public string Description { get; init; } = string.Empty;
 
@@ -30,7 +38,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignFinancialEntries
 
         public DateTimeOffset? PaidAt { get; init; }
 
-        public CampaignFinancialEntryStatus Status { get; init; }
+        public FinancialEntryStatus Status { get; init; }
 
         public string? CounterpartyName { get; init; }
 
@@ -40,10 +48,14 @@ namespace AgencyCampaign.Api.Contracts.CampaignFinancialEntries
 
         public DateTimeOffset? UpdatedAt { get; init; }
 
-        public static Expression<Func<CampaignFinancialEntry, CampaignFinancialEntryContract>> Projection => item => new CampaignFinancialEntryContract
+        public static Expression<Func<FinancialEntry, FinancialEntryContract>> Projection => item => new FinancialEntryContract
         {
             Id = item.Id,
+            AccountId = item.AccountId,
+            AccountName = item.Account == null ? null : item.Account.Name,
+            AccountColor = item.Account == null ? null : item.Account.Color,
             CampaignId = item.CampaignId,
+            CampaignName = item.Campaign == null ? null : item.Campaign.Name,
             CampaignDeliverableId = item.CampaignDeliverableId,
             Type = item.Type,
             Category = item.Category,
