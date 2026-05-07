@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -67,31 +67,41 @@ export default function AgencyCampaignLayout() {
     ]),
   ]
 
+  const auditGroups: typeof systemGroups = []
+
   const isInConfiguration = location.pathname.startsWith('/configuracao')
-  const currentModule = isInConfiguration ? 'configuracao' : 'sistema'
-  const menuGroups = isInConfiguration ? configurationGroups : systemGroups
+  const isInAudit = location.pathname.startsWith('/auditoria')
+  const currentModule = isInConfiguration ? 'configuracao' : isInAudit ? 'auditoria' : 'sistema'
+  const menuGroups = isInConfiguration ? configurationGroups : isInAudit ? auditGroups : systemGroups
 
   const modules = [
     { id: 'sistema', name: 'Sistema', icon: <LayoutDashboard size={16} /> },
     { id: 'configuracao', name: 'Configuração', icon: <Settings size={16} /> },
+    { id: 'auditoria', name: 'Auditoria', icon: <ScrollText size={16} /> },
   ]
 
   const handleModuleChange = (moduleId: string) => {
     if (moduleId === 'configuracao') {
-      navigate('/configuracao/empresa')
+      navigate('/configuracao')
+    } else if (moduleId === 'auditoria') {
+      navigate('/auditoria')
     } else {
       navigate('/')
     }
   }
 
+  const homePathByModule = isInConfiguration ? '/configuracao' : isInAudit ? '/auditoria' : '/'
+
   const breadcrumbs = useMemo((): BreadcrumbItem[] => {
     const path = location.pathname
     const crumbs: BreadcrumbItem[] = [
-      { label: 'Início', onClick: () => navigate('/') },
+      { label: 'Início', onClick: () => navigate(homePathByModule) },
     ]
 
     const routeMap: Record<string, string> = {
       '/': 'Dashboard',
+      '/configuracao': 'Início da Configuração',
+      '/auditoria': 'Auditoria',
       '/comercial': 'Pipeline',
       '/comercial/pipeline': 'Pipeline',
       '/comercial/oportunidades': 'Oportunidades',
@@ -123,7 +133,7 @@ export default function AgencyCampaignLayout() {
     }
 
     const currentLabel = routeMap[path]
-    if (currentLabel && currentLabel !== 'Dashboard') {
+    if (currentLabel && currentLabel !== 'Dashboard' && currentLabel !== 'Início da Configuração' && currentLabel !== 'Auditoria') {
       crumbs.push({ label: currentLabel })
     }
 
@@ -143,7 +153,7 @@ export default function AgencyCampaignLayout() {
     }
 
     return crumbs
-  }, [location.pathname, navigate])
+  }, [location.pathname, navigate, homePathByModule])
 
   return (
     <AppLayout

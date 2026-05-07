@@ -35,6 +35,8 @@ import EmailTemplates from '../modules/Configuration/EmailTemplates'
 import FinancialAccounts from '../modules/Configuration/FinancialAccounts'
 import FinancialSubcategories from '../modules/Configuration/FinancialSubcategories'
 import AgencyConfiguration from '../modules/Configuration/Agency'
+import ConfigurationDashboard from '../modules/Configuration/Dashboard'
+import AuditDashboard from '../modules/Audit'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -105,7 +107,9 @@ function AppRoutes() {
           <Route path="configuracao/templates-email" element={<EmailTemplates />} />
           <Route path="configuracao/contas-financeiras" element={<FinancialAccounts />} />
           <Route path="configuracao/subcategorias-financeiras" element={<FinancialSubcategories />} />
+          <Route path="configuracao" element={<ConfigurationDashboard />} />
           <Route path="configuracao/empresa" element={<AgencyConfiguration />} />
+          <Route path="auditoria" element={<AuditDashboard />} />
         </Route>
 
         <Route path="*" element={<div>Página não encontrada</div>} />
