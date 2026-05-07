@@ -7,6 +7,8 @@ namespace AgencyCampaign.Domain.Entities
     {
         private readonly List<ProposalItem> items = [];
         private readonly List<ProposalStatusHistory> statusHistory = [];
+        private readonly List<ProposalVersion> versions = [];
+        private readonly List<ProposalShareLink> shareLinks = [];
 
         public long? CampaignId { get; private set; }
 
@@ -35,6 +37,10 @@ namespace AgencyCampaign.Domain.Entities
         public IReadOnlyCollection<ProposalItem> Items => items.AsReadOnly();
 
         public IReadOnlyCollection<ProposalStatusHistory> StatusHistory => statusHistory.AsReadOnly();
+
+        public IReadOnlyCollection<ProposalVersion> Versions => versions.AsReadOnly();
+
+        public IReadOnlyCollection<ProposalShareLink> ShareLinks => shareLinks.AsReadOnly();
 
         private Proposal()
         {

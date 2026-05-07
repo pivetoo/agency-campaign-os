@@ -10,6 +10,7 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using System.Text.Json;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -147,10 +148,70 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> MarkAsSent(long id, CancellationToken cancellationToken = default)
         {
-            Proposal? proposal = await GetAndValidateProposal(id, cancellationToken);
+            Proposal? proposal = await DbContext.Set<Proposal>()
+                .AsTracking()
+                .Include(item => item.Items)
+                    .ThenInclude(item => item.Creator)
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (proposal is null)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+
+            int nextVersion = await DbContext.Set<ProposalVersion>()
+                .Where(item => item.ProposalId == id)
+                .CountAsync(cancellationToken) + 1;
+
+            string snapshotJson = SerializeSnapshot(proposal);
+
+            ProposalVersion version = new(
+                proposal.Id,
+                nextVersion,
+                proposal.Name,
+                proposal.Description,
+                proposal.TotalValue,
+                proposal.ValidityUntil,
+                snapshotJson,
+                currentUser.UserId,
+                currentUser.UserName);
+
+            DbContext.Set<ProposalVersion>().Add(version);
+
             proposal.MarkAsSent(currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(proposal, cancellationToken);
+        }
+
+        private static string SerializeSnapshot(Proposal proposal)
+        {
+            var snapshot = new
+            {
+                proposalId = proposal.Id,
+                name = proposal.Name,
+                description = proposal.Description,
+                totalValue = proposal.TotalValue,
+                validityUntil = proposal.ValidityUntil,
+                notes = proposal.Notes,
+                items = proposal.Items.Select(item => new
+                {
+                    id = item.Id,
+                    creatorId = item.CreatorId,
+                    creatorName = item.Creator?.Name,
+                    description = item.Description,
+                    quantity = item.Quantity,
+                    unitPrice = item.UnitPrice,
+                    total = item.Total,
+                    deliveryDeadline = item.DeliveryDeadline,
+                    observations = item.Observations,
+                    status = (int)item.Status
+                }).ToArray()
+            };
+
+            return JsonSerializer.Serialize(snapshot, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
         }
 
         public async Task<Proposal> MarkAsViewed(long id, CancellationToken cancellationToken = default)

@@ -15,14 +15,23 @@ namespace AgencyCampaign.Api.Controllers
     {
         private readonly IProposalService proposalService;
         private readonly IProposalItemService proposalItemService;
+        private readonly IProposalShareLinkService shareLinkService;
+        private readonly IProposalVersionService versionService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
         private static readonly Func<Proposal, ProposalContract> MapProposal = ProposalContract.Projection.Compile();
         private static readonly Func<ProposalItem, ProposalItemContract> MapProposalItem = ProposalItemContract.Projection.Compile();
 
-        public ProposalsController(IProposalService proposalService, IProposalItemService proposalItemService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public ProposalsController(
+            IProposalService proposalService,
+            IProposalItemService proposalItemService,
+            IProposalShareLinkService shareLinkService,
+            IProposalVersionService versionService,
+            IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.proposalService = proposalService;
             this.proposalItemService = proposalItemService;
+            this.shareLinkService = shareLinkService;
+            this.versionService = versionService;
             Localizer = localizer;
         }
 
@@ -127,6 +136,44 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> StatusHistory(long id, CancellationToken cancellationToken)
         {
             return Http200(await proposalService.GetStatusHistory(id, cancellationToken));
+        }
+
+        [RequireAccess("Permite listar as versões de uma proposta.")]
+        [HttpGet("{id:long}/versions/Get")]
+        public async Task<IActionResult> GetVersions(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await versionService.GetByProposalId(id, cancellationToken));
+        }
+
+        [RequireAccess("Permite consultar uma versão específica de proposta.")]
+        [HttpGet("versions/{versionId:long}")]
+        public async Task<IActionResult> GetVersionById(long versionId, CancellationToken cancellationToken)
+        {
+            var version = await versionService.GetById(versionId, cancellationToken);
+            return version is null ? Http404(Localizer["record.notFound"]) : Http200(version);
+        }
+
+        [RequireAccess("Permite listar os links de compartilhamento de uma proposta.")]
+        [HttpGet("{id:long}/share-links/Get")]
+        public async Task<IActionResult> GetShareLinks(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await shareLinkService.GetByProposalId(id, cancellationToken));
+        }
+
+        [RequireAccess("Permite gerar um novo link público para uma proposta.")]
+        [HttpPost("{id:long}/share-links/Create")]
+        public async Task<IActionResult> CreateShareLink(long id, [FromBody] CreateProposalShareLinkRequest request, CancellationToken cancellationToken)
+        {
+            var link = await shareLinkService.CreateShareLink(id, request, cancellationToken);
+            return Http201(link, Localizer["record.created"]);
+        }
+
+        [RequireAccess("Permite revogar um link público de proposta.")]
+        [HttpPost("share-links/{shareLinkId:long}/Revoke")]
+        public async Task<IActionResult> RevokeShareLink(long shareLinkId, CancellationToken cancellationToken)
+        {
+            var link = await shareLinkService.RevokeShareLink(shareLinkId, cancellationToken);
+            return Http200(link, Localizer["record.updated"]);
         }
 
         [RequireAccess("Permite listar os itens de uma proposta.")]
