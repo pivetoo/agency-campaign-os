@@ -35,9 +35,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar as oportunidades comerciais cadastradas.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] OpportunityListFilters filters, CancellationToken cancellationToken)
         {
-            PagedResult<Opportunity> result = await opportunityService.GetOpportunities(request, cancellationToken);
+            PagedResult<Opportunity> result = await opportunityService.GetOpportunities(request, filters, cancellationToken);
             return Http200(new PagedResult<OpportunityContract>
             {
                 Items = result.Items.Select(MapOpportunity).ToArray(),

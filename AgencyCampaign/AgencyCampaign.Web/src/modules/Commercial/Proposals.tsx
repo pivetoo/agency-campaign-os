@@ -1,10 +1,27 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import {
+  PageLayout,
+  DataTable,
+  Badge,
+  Input,
+  SearchableSelect,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Button,
+  useApi,
+} from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { CheckCircle, Clock, Eye, Search, Send, XCircle } from 'lucide-react'
-import { proposalService, type Proposal } from '../../services/proposalService'
+import { CheckCircle, Clock, Eye, Search, Send, X, XCircle } from 'lucide-react'
+import { proposalService, type Proposal, type ProposalListFilters } from '../../services/proposalService'
+import { commercialResponsibleService } from '../../services/commercialResponsibleService'
+import type { CommercialResponsible } from '../../types/commercialResponsible'
 import ProposalFormModal from '../../components/modals/ProposalFormModal'
+
+const STATUS_ALL = '__all__'
 
 const proposalStatusLabels: Record<number, string> = {
   1: 'Rascunho',
@@ -41,16 +58,36 @@ function isExpired(proposal: Proposal): boolean {
 export default function CommercialProposals() {
   const navigate = useNavigate()
   const [proposals, setProposals] = useState<Proposal[]>([])
+  const [responsibles, setResponsibles] = useState<CommercialResponsible[]>([])
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('')
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>(STATUS_ALL)
+  const [responsibleFilter, setResponsibleFilter] = useState('')
 
   const { execute: fetchProposals, loading } = useApi<Proposal[]>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
+  useEffect(() => {
+    void commercialResponsibleService.getAll().then(setResponsibles)
+  }, [])
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => setSearch(searchInput.trim()), 300)
+    return () => window.clearTimeout(handle)
+  }, [searchInput])
+
+  const buildFilters = (): ProposalListFilters => {
+    const filters: ProposalListFilters = {}
+    if (search) filters.search = search
+    if (statusFilter !== STATUS_ALL) filters.status = Number(statusFilter)
+    if (responsibleFilter) filters.internalOwnerId = Number(responsibleFilter)
+    return filters
+  }
+
   const loadProposals = async () => {
-    const result = await fetchProposals(() => proposalService.getAll())
+    const result = await fetchProposals(() => proposalService.getAll({ pageSize: 200, ...buildFilters() }))
     if (result) {
       setProposals(result)
     }
@@ -58,20 +95,21 @@ export default function CommercialProposals() {
 
   useEffect(() => {
     void loadProposals()
-  }, [])
+  }, [search, statusFilter, responsibleFilter])
 
-  const filteredProposals = useMemo(() => {
-    return proposals.filter((proposal) => {
-      const matchesSearch = !searchQuery ||
-        proposal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        proposal.brand?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        proposal.opportunity?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  const responsibleOptions = useMemo(
+    () => responsibles.map((item) => ({ value: item.id.toString(), label: item.name })),
+    [responsibles]
+  )
 
-      const matchesStatus = statusFilter === 'all' || proposal.status === Number(statusFilter)
+  const hasActiveFilters = !!search || statusFilter !== STATUS_ALL || !!responsibleFilter
 
-      return matchesSearch && matchesStatus
-    })
-  }, [proposals, searchQuery, statusFilter])
+  const clearFilters = () => {
+    setSearchInput('')
+    setSearch('')
+    setStatusFilter(STATUS_ALL)
+    setResponsibleFilter('')
+  }
 
   const runProposalAction = async (action: () => Promise<unknown>) => {
     const result = await executeAction(action)
@@ -198,39 +236,55 @@ export default function CommercialProposals() {
           },
         ]}
       >
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="relative flex-1">
+        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">
+          <div className="relative flex-1 min-w-[240px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Buscar por proposta, marca ou oportunidade..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="pl-9"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Filtrar por status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os status</SelectItem>
-              {Object.entries(proposalStatusLabels).map(([key, label]) => (
-                <SelectItem key={key} value={key}>{label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="w-full lg:w-[200px]">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={STATUS_ALL}>Todos os status</SelectItem>
+                {Object.entries(proposalStatusLabels).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-full lg:w-[200px]">
+            <SearchableSelect
+              value={responsibleFilter}
+              onValueChange={setResponsibleFilter}
+              options={responsibleOptions}
+              placeholder="Todos os responsáveis"
+              searchPlaceholder="Buscar responsável..."
+            />
+          </div>
+          {hasActiveFilters ? (
+            <Button variant="outline" size="sm" icon={<X className="h-4 w-4" />} onClick={clearFilters}>
+              Limpar
+            </Button>
+          ) : null}
         </div>
 
         <DataTable
           columns={columns}
-          data={filteredProposals}
+          data={proposals}
           rowKey="id"
           selectedRows={selectedProposal ? [selectedProposal] : []}
           onSelectionChange={(rows) => setSelectedProposal(rows[0] ?? null)}
           onRowDoubleClick={(row) => navigate(`/comercial/propostas/${row.id}`)}
-          emptyText="Nenhuma proposta cadastrada"
+          emptyText={hasActiveFilters ? 'Nenhuma proposta encontrada com os filtros atuais' : 'Nenhuma proposta cadastrada'}
           loading={loading}
-          pageSize={5}
+          pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>

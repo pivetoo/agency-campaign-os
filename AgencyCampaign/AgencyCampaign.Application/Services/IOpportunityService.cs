@@ -8,7 +8,7 @@ namespace AgencyCampaign.Application.Services
 {
     public interface IOpportunityService : ICrudService<Opportunity>
     {
-        Task<PagedResult<Opportunity>> GetOpportunities(PagedRequest request, CancellationToken cancellationToken = default);
+        Task<PagedResult<Opportunity>> GetOpportunities(PagedRequest request, OpportunityListFilters filters, CancellationToken cancellationToken = default);
 
         Task<Opportunity?> GetOpportunityById(long id, CancellationToken cancellationToken = default);
 

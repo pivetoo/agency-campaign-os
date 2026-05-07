@@ -8,7 +8,7 @@ namespace AgencyCampaign.Application.Services
 {
     public interface IProposalService : ICrudService<Proposal>
     {
-        Task<PagedResult<Proposal>> GetProposals(PagedRequest request, CancellationToken cancellationToken = default);
+        Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default);
 
         Task<Proposal?> GetProposalById(long id, CancellationToken cancellationToken = default);
 

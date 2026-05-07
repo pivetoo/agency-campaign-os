@@ -28,9 +28,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar as propostas comerciais.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] ProposalListFilters filters, CancellationToken cancellationToken)
         {
-            PagedResult<Proposal> result = await proposalService.GetProposals(request, cancellationToken);
+            PagedResult<Proposal> result = await proposalService.GetProposals(request, filters, cancellationToken);
             return Http200(new PagedResult<ProposalContract>
             {
                 Items = result.Items.Select(MapProposal).ToArray(),

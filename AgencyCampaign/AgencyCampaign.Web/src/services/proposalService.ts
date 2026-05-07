@@ -100,12 +100,27 @@ function normalizeProposalList(payload: unknown): Proposal[] {
   return []
 }
 
+export interface ProposalListFilters {
+  search?: string
+  status?: number
+  opportunityId?: number
+  internalOwnerId?: number
+  validityFrom?: string
+  validityTo?: string
+}
+
 export const proposalService = {
-  async getAll(params?: { page?: number; pageSize?: number }): Promise<Proposal[]> {
+  async getAll(params?: { page?: number; pageSize?: number } & ProposalListFilters): Promise<Proposal[]> {
     const searchParams = new URLSearchParams()
     if (params?.page) searchParams.set('page', params.page.toString())
     if (params?.pageSize) searchParams.set('pageSize', params.pageSize.toString())
-    
+    if (params?.search) searchParams.set('search', params.search)
+    if (params?.status !== undefined) searchParams.set('status', params.status.toString())
+    if (params?.opportunityId) searchParams.set('opportunityId', params.opportunityId.toString())
+    if (params?.internalOwnerId) searchParams.set('internalOwnerId', params.internalOwnerId.toString())
+    if (params?.validityFrom) searchParams.set('validityFrom', params.validityFrom)
+    if (params?.validityTo) searchParams.set('validityTo', params.validityTo)
+
     const query = searchParams.toString()
     const url = query ? `${BASE_URL}/Get?${query}` : `${BASE_URL}/Get`
     const response = await httpClient.get<unknown>(url)

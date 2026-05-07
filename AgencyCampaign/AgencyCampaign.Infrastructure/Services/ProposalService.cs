@@ -24,11 +24,54 @@ namespace AgencyCampaign.Infrastructure.Services
             this.currentUser = currentUser;
         }
 
-        public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
         {
-            return await QueryWithDetails()
+            IQueryable<Proposal> query = QueryWithDetails();
+            query = ApplyProposalFilters(query, filters);
+
+            return await query
                 .OrderByDescending(item => item.Id)
                 .ToPagedResultAsync(request, cancellationToken);
+        }
+
+        private static IQueryable<Proposal> ApplyProposalFilters(IQueryable<Proposal> query, ProposalListFilters filters)
+        {
+            if (!string.IsNullOrWhiteSpace(filters.Search))
+            {
+                string term = filters.Search.Trim().ToLower();
+                query = query.Where(item =>
+                    item.Name.ToLower().Contains(term)
+                    || (item.Opportunity != null && item.Opportunity.Name.ToLower().Contains(term))
+                    || (item.Opportunity != null && item.Opportunity.Brand != null && item.Opportunity.Brand.Name.ToLower().Contains(term)));
+            }
+
+            if (filters.Status.HasValue)
+            {
+                ProposalStatus statusValue = (ProposalStatus)filters.Status.Value;
+                query = query.Where(item => item.Status == statusValue);
+            }
+
+            if (filters.OpportunityId.HasValue)
+            {
+                query = query.Where(item => item.OpportunityId == filters.OpportunityId.Value);
+            }
+
+            if (filters.InternalOwnerId.HasValue)
+            {
+                query = query.Where(item => item.InternalOwnerId == filters.InternalOwnerId.Value);
+            }
+
+            if (filters.ValidityFrom.HasValue)
+            {
+                query = query.Where(item => item.ValidityUntil.HasValue && item.ValidityUntil.Value >= filters.ValidityFrom.Value);
+            }
+
+            if (filters.ValidityTo.HasValue)
+            {
+                query = query.Where(item => item.ValidityUntil.HasValue && item.ValidityUntil.Value <= filters.ValidityTo.Value);
+            }
+
+            return query;
         }
 
         public async Task<Proposal?> GetProposalById(long id, CancellationToken cancellationToken = default)

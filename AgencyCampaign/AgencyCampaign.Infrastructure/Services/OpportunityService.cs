@@ -24,13 +24,77 @@ namespace AgencyCampaign.Infrastructure.Services
             this.currentUser = currentUser;
         }
 
-        public async Task<PagedResult<Opportunity>> GetOpportunities(PagedRequest request, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<Opportunity>> GetOpportunities(PagedRequest request, OpportunityListFilters filters, CancellationToken cancellationToken = default)
         {
-            return await QueryWithDetails()
+            IQueryable<Opportunity> query = QueryWithDetails();
+            query = ApplyOpportunityFilters(query, filters);
+
+            return await query
                 .OrderBy(item => item.ClosedAt.HasValue)
                 .ThenBy(item => item.CommercialPipelineStage != null ? item.CommercialPipelineStage.DisplayOrder : int.MaxValue)
                 .ThenByDescending(item => item.Id)
                 .ToPagedResultAsync(request, cancellationToken);
+        }
+
+        private static IQueryable<Opportunity> ApplyOpportunityFilters(IQueryable<Opportunity> query, OpportunityListFilters filters)
+        {
+            if (!string.IsNullOrWhiteSpace(filters.Search))
+            {
+                string term = filters.Search.Trim().ToLower();
+                query = query.Where(item =>
+                    item.Name.ToLower().Contains(term)
+                    || (item.Brand != null && item.Brand.Name.ToLower().Contains(term))
+                    || (item.ContactName != null && item.ContactName.ToLower().Contains(term))
+                    || (item.ContactEmail != null && item.ContactEmail.ToLower().Contains(term)));
+            }
+
+            if (filters.BrandId.HasValue)
+            {
+                query = query.Where(item => item.BrandId == filters.BrandId.Value);
+            }
+
+            if (filters.CommercialPipelineStageId.HasValue)
+            {
+                query = query.Where(item => item.CommercialPipelineStageId == filters.CommercialPipelineStageId.Value);
+            }
+
+            if (filters.CommercialResponsibleId.HasValue)
+            {
+                query = query.Where(item => item.CommercialResponsibleId == filters.CommercialResponsibleId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filters.Status))
+            {
+                string normalized = filters.Status.Trim().ToLowerInvariant();
+                if (normalized == "open")
+                {
+                    query = query.Where(item => !item.ClosedAt.HasValue
+                        && item.CommercialPipelineStage != null
+                        && item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.None);
+                }
+                else if (normalized == "won")
+                {
+                    query = query.Where(item => item.CommercialPipelineStage != null
+                        && item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.Won);
+                }
+                else if (normalized == "lost")
+                {
+                    query = query.Where(item => item.CommercialPipelineStage != null
+                        && item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost);
+                }
+            }
+
+            if (filters.MinValue.HasValue)
+            {
+                query = query.Where(item => item.EstimatedValue >= filters.MinValue.Value);
+            }
+
+            if (filters.MaxValue.HasValue)
+            {
+                query = query.Where(item => item.EstimatedValue <= filters.MaxValue.Value);
+            }
+
+            return query;
         }
 
         public async Task<Opportunity?> GetOpportunityById(long id, CancellationToken cancellationToken = default)

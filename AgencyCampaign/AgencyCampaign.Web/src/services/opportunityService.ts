@@ -253,11 +253,28 @@ function normalizePagedItems<T>(payload: unknown): T[] {
   return []
 }
 
+export interface OpportunityListFilters {
+  search?: string
+  brandId?: number
+  commercialPipelineStageId?: number
+  commercialResponsibleId?: number
+  status?: 'open' | 'won' | 'lost'
+  minValue?: number
+  maxValue?: number
+}
+
 export const opportunityService = {
-  async getAll(params?: { page?: number; pageSize?: number }): Promise<Opportunity[]> {
+  async getAll(params?: { page?: number; pageSize?: number } & OpportunityListFilters): Promise<Opportunity[]> {
     const searchParams = new URLSearchParams()
     if (params?.page) searchParams.set('page', params.page.toString())
     if (params?.pageSize) searchParams.set('pageSize', params.pageSize.toString())
+    if (params?.search) searchParams.set('search', params.search)
+    if (params?.brandId) searchParams.set('brandId', params.brandId.toString())
+    if (params?.commercialPipelineStageId) searchParams.set('commercialPipelineStageId', params.commercialPipelineStageId.toString())
+    if (params?.commercialResponsibleId) searchParams.set('commercialResponsibleId', params.commercialResponsibleId.toString())
+    if (params?.status) searchParams.set('status', params.status)
+    if (params?.minValue !== undefined) searchParams.set('minValue', params.minValue.toString())
+    if (params?.maxValue !== undefined) searchParams.set('maxValue', params.maxValue.toString())
 
     const query = searchParams.toString()
     const url = query ? `${BASE_URL}/Get?${query}` : `${BASE_URL}/Get`
