@@ -192,11 +192,36 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
     if (!targetStep) return
     if (targetStep.route && targetStep.route !== location.pathname) return
 
-    const handle = window.setTimeout(() => {
-      setStepIndex(pendingStepIndex)
-      setPendingStepIndex(null)
-    }, 350)
-    return () => window.clearTimeout(handle)
+    const targetSelector = typeof targetStep.target === 'string' ? targetStep.target : null
+    const isBodyOrEmpty = !targetSelector || targetSelector === 'body'
+
+    if (isBodyOrEmpty) {
+      const handle = window.setTimeout(() => {
+        setStepIndex(pendingStepIndex)
+        setPendingStepIndex(null)
+      }, 250)
+      return () => window.clearTimeout(handle)
+    }
+
+    let elapsed = 0
+    const intervalMs = 100
+    const maxWaitMs = 6000
+    const interval = window.setInterval(() => {
+      elapsed += intervalMs
+      const element = document.querySelector(targetSelector)
+      if (element) {
+        window.clearInterval(interval)
+        window.setTimeout(() => {
+          setStepIndex(pendingStepIndex)
+          setPendingStepIndex(null)
+        }, 150)
+      } else if (elapsed >= maxWaitMs) {
+        window.clearInterval(interval)
+        setStepIndex(pendingStepIndex)
+        setPendingStepIndex(null)
+      }
+    }, intervalMs)
+    return () => window.clearInterval(interval)
   }, [location.pathname, pendingStepIndex])
 
   const handleCallback = (data: CallBackProps) => {
@@ -208,7 +233,7 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
       return
     }
 
-    if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+    if (type === EVENTS.STEP_AFTER) {
       const direction = action === ACTIONS.PREV ? -1 : 1
       const nextIndex = index + direction
       const nextStep = steps[nextIndex]
@@ -223,7 +248,15 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
         setPendingStepIndex(nextIndex)
         navigate(nextStep.route)
       } else {
-        setStepIndex(nextIndex)
+        setPendingStepIndex(nextIndex)
+      }
+    }
+
+    if (type === EVENTS.TARGET_NOT_FOUND) {
+      // Não avança automaticamente — o polling em pendingStepIndex aguarda o target aparecer
+      const currentStep = steps[index]
+      if (currentStep) {
+        setPendingStepIndex(index)
       }
     }
   }
