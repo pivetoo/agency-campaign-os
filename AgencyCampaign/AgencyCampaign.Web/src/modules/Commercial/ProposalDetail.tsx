@@ -302,7 +302,7 @@ export default function CommercialProposalDetail() {
               ) : null}
             </div>
 
-            <aside className="space-y-4">
+            <aside className="min-w-0 space-y-4">
               <ProposalShareTab proposalId={proposalId} />
             </aside>
           </div>

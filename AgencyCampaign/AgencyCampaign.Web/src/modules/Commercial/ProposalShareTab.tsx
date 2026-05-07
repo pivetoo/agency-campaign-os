@@ -101,8 +101,8 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
             <p className="mt-1 text-xs text-muted-foreground">
               O link envia o cliente direto para a versão mais recente da proposta. Sem login, com rastreamento de visualização.
             </p>
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end">
-              <div className="flex-1">
+            <div className="mt-3 space-y-2">
+              <div>
                 <label className="text-xs font-medium text-muted-foreground">
                   Validade (opcional)
                 </label>
@@ -110,7 +110,7 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                   type="datetime-local"
                   value={expiresAt}
                   onChange={(e) => setExpiresAt(e.target.value)}
-                  className="mt-1"
+                  className="mt-1 w-full"
                   disabled={mutating}
                 />
               </div>
@@ -119,6 +119,7 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                 icon={<Plus className="h-4 w-4" />}
                 onClick={() => void generateLink()}
                 disabled={mutating}
+                className="w-full"
               >
                 Gerar link
               </Button>
@@ -135,26 +136,32 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                 <div key={link.id} className="rounded-md border border-border/60 p-3">
                   <div className="flex flex-wrap items-center gap-2">
                     {statusBadge(link)}
-                    <span className="font-mono text-xs text-muted-foreground">{maskToken(link.token)}</span>
-                    <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Eye className="h-3 w-3" /> {link.viewCount} visualiza{link.viewCount === 1 ? 'ção' : 'ções'}
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Eye className="h-3 w-3" /> {link.viewCount}
                     </span>
                   </div>
-                  <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground sm:grid-cols-3">
-                    <div>
-                      <span className="block text-[10px] uppercase tracking-wide">Criado</span>
-                      <span className="text-foreground">{formatDateTime(link.createdAt)}</span>
-                    </div>
-                    <div>
-                      <span className="block text-[10px] uppercase tracking-wide">Expira</span>
-                      <span className="text-foreground">{link.expiresAt ? formatDateTime(link.expiresAt) : 'Sem expiração'}</span>
-                    </div>
-                    <div>
-                      <span className="block text-[10px] uppercase tracking-wide">Última visita</span>
-                      <span className="text-foreground">{formatDateTime(link.lastViewedAt)}</span>
-                    </div>
+                  <div className="mt-2 truncate font-mono text-[11px] text-muted-foreground">
+                    {maskToken(link.token)}
                   </div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <dl className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <dt className="text-[10px] uppercase tracking-wide">Criado</dt>
+                      <dd className="text-foreground">{formatDateTime(link.createdAt)}</dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <dt className="text-[10px] uppercase tracking-wide">Expira</dt>
+                      <dd className="text-foreground">
+                        {link.expiresAt ? formatDateTime(link.expiresAt) : 'Sem expiração'}
+                      </dd>
+                    </div>
+                    {link.lastViewedAt ? (
+                      <div className="flex items-baseline justify-between gap-2">
+                        <dt className="text-[10px] uppercase tracking-wide">Última visita</dt>
+                        <dd className="text-foreground">{formatDateTime(link.lastViewedAt)}</dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
                     <Button
                       size="sm"
                       variant="outline"
