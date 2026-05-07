@@ -18,11 +18,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
+        private readonly IEmailService emailService;
 
-        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
+        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IEmailService emailService) : base(dbContext)
         {
             this.localizer = localizer;
             this.currentUser = currentUser;
+            this.emailService = emailService;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -180,7 +182,9 @@ namespace AgencyCampaign.Infrastructure.Services
 
             proposal.MarkAsSent(currentUser.UserId, currentUser.UserName);
 
-            return await SaveAndReturn(proposal, cancellationToken);
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+            await NotifyEmail(EmailEventType.ProposalSent, saved, cancellationToken);
+            return saved;
         }
 
         private static string SerializeSnapshot(Proposal proposal)
@@ -227,7 +231,9 @@ namespace AgencyCampaign.Infrastructure.Services
             Proposal? proposal = await GetAndValidateProposal(id, cancellationToken);
             proposal.Approve(currentUser.UserId, currentUser.UserName);
 
-            return await SaveAndReturn(proposal, cancellationToken);
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+            await NotifyEmail(EmailEventType.ProposalApproved, saved, cancellationToken);
+            return saved;
         }
 
         public async Task<Proposal> RejectProposal(long id, CancellationToken cancellationToken = default)
@@ -235,7 +241,9 @@ namespace AgencyCampaign.Infrastructure.Services
             Proposal? proposal = await GetAndValidateProposal(id, cancellationToken);
             proposal.Reject(currentUser.UserId, currentUser.UserName);
 
-            return await SaveAndReturn(proposal, cancellationToken);
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+            await NotifyEmail(EmailEventType.ProposalRejected, saved, cancellationToken);
+            return saved;
         }
 
         public async Task<Proposal> ConvertToCampaign(long id, long campaignId, CancellationToken cancellationToken = default)
@@ -253,7 +261,40 @@ namespace AgencyCampaign.Infrastructure.Services
 
             proposal.ConvertToCampaign(campaignId, currentUser.UserId, currentUser.UserName);
 
-            return await SaveAndReturn(proposal, cancellationToken);
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+            await NotifyEmail(EmailEventType.ProposalConverted, saved, cancellationToken);
+            return saved;
+        }
+
+        private async Task NotifyEmail(EmailEventType eventType, Proposal proposal, CancellationToken cancellationToken)
+        {
+            string? recipient = proposal.Opportunity?.ContactEmail;
+            if (string.IsNullOrWhiteSpace(recipient))
+            {
+                return;
+            }
+
+            Dictionary<string, object?> payload = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["proposalId"] = proposal.Id,
+                ["proposalName"] = proposal.Name,
+                ["totalValue"] = proposal.TotalValue,
+                ["validityUntil"] = proposal.ValidityUntil?.ToString("dd/MM/yyyy"),
+                ["opportunityName"] = proposal.Opportunity?.Name,
+                ["brandName"] = proposal.Opportunity?.Brand?.Name,
+                ["contactName"] = proposal.Opportunity?.ContactName,
+                ["contactEmail"] = recipient,
+                ["responsibleName"] = proposal.InternalOwnerName
+            };
+
+            try
+            {
+                await emailService.SendForEvent(eventType, new[] { recipient }, payload, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[ProposalService] failed to dispatch email for {eventType}: {exception.Message}");
+            }
         }
 
         public async Task<Proposal> CancelProposal(long id, CancellationToken cancellationToken = default)

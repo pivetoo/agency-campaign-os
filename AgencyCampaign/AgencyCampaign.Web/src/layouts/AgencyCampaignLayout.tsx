@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -48,6 +48,7 @@ export default function AgencyCampaignLayout() {
       { key: 'configuracao-blocos-proposta', label: 'Blocos de proposta', path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
       { key: 'configuracao-origens-oportunidade', label: 'Origens de oportunidade', path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
       { key: 'configuracao-tags-oportunidade', label: 'Tags de oportunidade', path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
+      { key: 'configuracao-templates-email', label: 'Templates de e-mail', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
     ]),
   ]
 
@@ -80,6 +81,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/blocos-proposta': 'Blocos de proposta',
       '/configuracao/origens-oportunidade': 'Origens de oportunidade',
       '/configuracao/tags-oportunidade': 'Tags de oportunidade',
+      '/configuracao/templates-email': 'Templates de e-mail',
     }
 
     const currentLabel = routeMap[path]
