@@ -172,15 +172,34 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
   const location = useLocation()
   const { markCompleted } = useProductTour()
   const [stepIndex, setStepIndex] = useState(0)
-  const [navigating, setNavigating] = useState(false)
+  const [pendingStepIndex, setPendingStepIndex] = useState<number | null>(null)
 
   useEffect(() => {
     if (run) {
+      const firstStep = steps[0]
       setStepIndex(0)
+      setPendingStepIndex(null)
+      if (firstStep.route && firstStep.route !== location.pathname) {
+        navigate(firstStep.route)
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [run])
 
-  const handleCallback = async (data: CallBackProps) => {
+  useEffect(() => {
+    if (pendingStepIndex === null) return
+    const targetStep = steps[pendingStepIndex]
+    if (!targetStep) return
+    if (targetStep.route && targetStep.route !== location.pathname) return
+
+    const handle = window.setTimeout(() => {
+      setStepIndex(pendingStepIndex)
+      setPendingStepIndex(null)
+    }, 350)
+    return () => window.clearTimeout(handle)
+  }, [location.pathname, pendingStepIndex])
+
+  const handleCallback = (data: CallBackProps) => {
     const { status, type, action, index } = data
 
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
@@ -189,9 +208,11 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
       return
     }
 
-    if (type === EVENTS.STEP_AFTER) {
-      const nextIndex = action === ACTIONS.PREV ? index - 1 : index + 1
+    if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+      const direction = action === ACTIONS.PREV ? -1 : 1
+      const nextIndex = index + direction
       const nextStep = steps[nextIndex]
+
       if (!nextStep) {
         markCompleted()
         onClose()
@@ -199,23 +220,8 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
       }
 
       if (nextStep.route && nextStep.route !== location.pathname) {
-        setNavigating(true)
+        setPendingStepIndex(nextIndex)
         navigate(nextStep.route)
-        window.setTimeout(() => {
-          setStepIndex(nextIndex)
-          setNavigating(false)
-        }, 400)
-      } else {
-        setStepIndex(nextIndex)
-      }
-    }
-
-    if (type === EVENTS.TARGET_NOT_FOUND) {
-      // pula passos cujo target não está disponível na rota
-      const nextIndex = index + 1
-      if (nextIndex >= steps.length) {
-        markCompleted()
-        onClose()
       } else {
         setStepIndex(nextIndex)
       }
@@ -225,7 +231,7 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
   return (
     <Joyride
       steps={steps}
-      run={run && !navigating}
+      run={run}
       stepIndex={stepIndex}
       continuous
       showProgress
