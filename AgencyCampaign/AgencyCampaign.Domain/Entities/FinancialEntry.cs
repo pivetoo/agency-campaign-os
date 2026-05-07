@@ -17,6 +17,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public CampaignDeliverable? CampaignDeliverable { get; private set; }
 
+        public long? SourceProposalId { get; private set; }
+
+        public Proposal? SourceProposal { get; private set; }
+
         public FinancialEntryType Type { get; private set; }
 
         public FinancialEntryCategory Category { get; private set; }
@@ -91,6 +95,12 @@ namespace AgencyCampaign.Domain.Entities
         {
             Status = status;
             PaidAt = status == FinancialEntryStatus.Paid ? paidAt?.ToUniversalTime() : null;
+        }
+
+        public void LinkToProposal(long proposalId)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalId);
+            SourceProposalId = proposalId;
         }
 
         public void RecalculateOverdue(DateTimeOffset now)

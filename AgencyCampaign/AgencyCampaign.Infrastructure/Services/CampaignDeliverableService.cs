@@ -14,10 +14,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class CampaignDeliverableService : CrudService<CampaignDeliverable>, ICampaignDeliverableService
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
+        private readonly IFinancialAutoGeneration financialAutoGeneration;
 
-        public CampaignDeliverableService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public CampaignDeliverableService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IFinancialAutoGeneration financialAutoGeneration) : base(dbContext)
         {
             this.localizer = localizer;
+            this.financialAutoGeneration = financialAutoGeneration;
         }
 
         public async Task<PagedResult<CampaignDeliverable>> GetDeliverables(PagedRequest request, CancellationToken cancellationToken = default)
@@ -66,6 +68,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            if (deliverable.Status == DeliverableStatus.Published)
+            {
+                await TryGenerateCreatorPayout(deliverable, cancellationToken);
+            }
+
             return await GetDeliverableById(deliverable.Id, cancellationToken) ?? deliverable;
         }
 
@@ -88,6 +95,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await EnsureReferencesExist(deliverable.CampaignId, deliverable.CampaignCreatorId, request.DeliverableKindId, request.PlatformId, cancellationToken);
 
+            DeliverableStatus previousStatus = deliverable.Status;
+
             deliverable.Update(
                 request.Title,
                 request.DeliverableKindId,
@@ -107,7 +116,24 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            if (deliverable.Status == DeliverableStatus.Published && previousStatus != DeliverableStatus.Published)
+            {
+                await TryGenerateCreatorPayout(deliverable, cancellationToken);
+            }
+
             return await GetDeliverableById(result.Id, cancellationToken) ?? result;
+        }
+
+        private async Task TryGenerateCreatorPayout(CampaignDeliverable deliverable, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await financialAutoGeneration.GenerateForPublishedDeliverable(deliverable, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[CampaignDeliverableService] failed to generate creator payout for deliverable {deliverable.Id}: {exception.Message}");
+            }
         }
 
         public override async Task<CampaignDeliverable?> Delete(long id, CancellationToken cancellationToken = default)

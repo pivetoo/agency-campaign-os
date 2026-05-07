@@ -44,8 +44,19 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey(entity => entity.CampaignDeliverableId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasOne(entity => entity.SourceProposal)
+                .WithMany()
+                .HasForeignKey(entity => entity.SourceProposalId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             builder.HasIndex(entity => new { entity.AccountId, entity.DueAt })
                 .HasDatabaseName("ixfinancialentryaccountiddueat");
+
+            builder.HasIndex(entity => entity.SourceProposalId)
+                .HasDatabaseName("ixfinancialentrysourceproposalid");
+
+            builder.HasIndex(entity => entity.CampaignDeliverableId)
+                .HasDatabaseName("ixfinancialentrycampaigndeliverableid");
         }
     }
 }

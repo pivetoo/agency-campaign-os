@@ -19,12 +19,14 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
         private readonly IEmailService emailService;
+        private readonly IFinancialAutoGeneration financialAutoGeneration;
 
-        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IEmailService emailService) : base(dbContext)
+        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IEmailService emailService, IFinancialAutoGeneration financialAutoGeneration) : base(dbContext)
         {
             this.localizer = localizer;
             this.currentUser = currentUser;
             this.emailService = emailService;
+            this.financialAutoGeneration = financialAutoGeneration;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -262,6 +264,16 @@ namespace AgencyCampaign.Infrastructure.Services
             proposal.ConvertToCampaign(campaignId, currentUser.UserId, currentUser.UserName);
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+
+            try
+            {
+                await financialAutoGeneration.GenerateForConvertedProposal(saved, campaignId, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[ProposalService] failed to generate financial entry for proposal {saved.Id}: {exception.Message}");
+            }
+
             await NotifyEmail(EmailEventType.ProposalConverted, saved, cancellationToken);
             return saved;
         }
