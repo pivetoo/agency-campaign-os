@@ -4,6 +4,13 @@ import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem, NotificationItem } from 'archon-ui'
 import { notificationService } from '../services/notificationService'
 import type { Notification } from '../types/notification'
+import { TourProvider, useTour } from '../components/tour/TourContext'
+import ProductTour from '../components/tour/ProductTour'
+
+function TourMount() {
+  const { isOpen, closeTour } = useTour()
+  return <ProductTour run={isOpen} onClose={closeTour} />
+}
 import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
@@ -229,28 +236,31 @@ export default function AgencyCampaignLayout() {
   }, [location.pathname, navigate, homePathByModule])
 
   return (
-    <AppLayout
-      title={contract?.systemApplicationName ?? 'Kanvas for Agencies'}
-      logo={sidebarLogo}
-      subtitle={contract?.companyName ?? ''}
-      user={{
-        name: authUser?.name ?? '',
-        email: authUser?.email ?? '',
-        role: contract?.roleName,
-      }}
-      onLogout={handleLogout}
-      menuGroups={menuGroups}
-      modules={modules}
-      currentModule={currentModule}
-      onModuleChange={handleModuleChange}
-      breadcrumbs={breadcrumbs}
-      notifications={notificationItems}
-      onNotificationRead={handleNotificationRead}
-      onMarkAllAsRead={handleMarkAllRead}
-      onClearAllNotifications={handleClearAll}
-      onViewAllNotifications={handleViewAllNotifications}
-    >
-      <Outlet />
-    </AppLayout>
+    <TourProvider>
+      <AppLayout
+        title={contract?.systemApplicationName ?? 'Kanvas for Agencies'}
+        logo={sidebarLogo}
+        subtitle={contract?.companyName ?? ''}
+        user={{
+          name: authUser?.name ?? '',
+          email: authUser?.email ?? '',
+          role: contract?.roleName,
+        }}
+        onLogout={handleLogout}
+        menuGroups={menuGroups}
+        modules={modules}
+        currentModule={currentModule}
+        onModuleChange={handleModuleChange}
+        breadcrumbs={breadcrumbs}
+        notifications={notificationItems}
+        onNotificationRead={handleNotificationRead}
+        onMarkAllAsRead={handleMarkAllRead}
+        onClearAllNotifications={handleClearAll}
+        onViewAllNotifications={handleViewAllNotifications}
+      >
+        <Outlet />
+      </AppLayout>
+      <TourMount />
+    </TourProvider>
   )
 }
