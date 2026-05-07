@@ -17,7 +17,7 @@ export default function AgencyCampaignLayout() {
     logout()
   }
 
-  const menuGroups = [
+  const systemGroups = [
     createMenuGroup('Geral', [
       { key: 'dashboard', label: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     ]),
@@ -28,6 +28,28 @@ export default function AgencyCampaignLayout() {
       { key: 'comercial-aprovacoes', label: 'Aprovações', path: '/comercial/aprovacoes', icon: <Globe size={20} /> },
       { key: 'comercial-followups', label: 'Atividades', path: '/comercial/followups', icon: <HandCoins size={20} /> },
       { key: 'comercial-responsaveis', label: 'Responsáveis', path: '/comercial/responsaveis', icon: <UserCheck size={20} /> },
+    ]),
+    createMenuGroup('Operação', [
+      { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
+      { key: 'creators', label: 'Creators', path: '/creators', icon: <Users size={20} /> },
+      { key: 'campanhas', label: 'Campanhas', path: '/campanhas', icon: <Megaphone size={20} /> },
+      { key: 'operacao-aprovacoes', label: 'Aprovações', path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} /> },
+    ]),
+    createMenuGroup('Finanças', [
+      { key: 'financeiro-receber', label: 'Contas a receber', path: '/financeiro/receber', icon: <HandCoins size={20} /> },
+      { key: 'financeiro-pagar', label: 'Contas a pagar', path: '/financeiro/pagar', icon: <ReceiptText size={20} /> },
+      { key: 'financeiro-fluxo-caixa', label: 'Fluxo de caixa', path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} /> },
+      { key: 'financeiro-aging', label: 'Aging', path: '/financeiro/aging', icon: <Hourglass size={20} /> },
+    ]),
+  ]
+
+  const configurationGroups = [
+    createMenuGroup('Geral', [
+      { key: 'configuracao-empresa', label: 'Empresa', path: '/configuracao/empresa', icon: <Settings size={20} /> },
+      { key: 'configuracao-integracoes', label: 'Integrações', path: '/configuracao/integracoes', icon: <Plug size={20} /> },
+      { key: 'configuracao-templates-email', label: 'Templates de e-mail', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
+    ]),
+    createMenuGroup('Comercial', [
       { key: 'configuracao-pipeline-comercial', label: 'Estágios do funil', path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
       { key: 'configuracao-origens-oportunidade', label: 'Origens', path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
       { key: 'configuracao-tags-oportunidade', label: 'Tags', path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
@@ -35,28 +57,32 @@ export default function AgencyCampaignLayout() {
       { key: 'configuracao-blocos-proposta', label: 'Blocos de proposta', path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
     ]),
     createMenuGroup('Operação', [
-      { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
-      { key: 'creators', label: 'Creators', path: '/creators', icon: <Users size={20} /> },
-      { key: 'campanhas', label: 'Campanhas', path: '/campanhas', icon: <Megaphone size={20} /> },
-      { key: 'operacao-aprovacoes', label: 'Aprovações', path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} /> },
       { key: 'configuracao-plataformas', label: 'Redes sociais', path: '/configuracao/plataformas', icon: <Globe size={20} /> },
       { key: 'configuracao-status-creators', label: 'Status dos creators', path: '/configuracao/status-creators', icon: <Users size={20} /> },
       { key: 'configuracao-tipos-entrega', label: 'Tipos de entrega', path: '/configuracao/tipos-entrega', icon: <Tags size={20} /> },
     ]),
     createMenuGroup('Finanças', [
-      { key: 'financeiro-receber', label: 'Contas a receber', path: '/financeiro/receber', icon: <HandCoins size={20} /> },
-      { key: 'financeiro-pagar', label: 'Contas a pagar', path: '/financeiro/pagar', icon: <ReceiptText size={20} /> },
-      { key: 'financeiro-fluxo-caixa', label: 'Fluxo de caixa', path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} /> },
-      { key: 'financeiro-aging', label: 'Aging', path: '/financeiro/aging', icon: <Hourglass size={20} /> },
       { key: 'configuracao-contas-financeiras', label: 'Contas bancárias', path: '/configuracao/contas-financeiras', icon: <Wallet size={20} /> },
       { key: 'configuracao-subcategorias-financeiras', label: 'Subcategorias', path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} /> },
     ]),
-    createMenuGroup('Configuração', [
-      { key: 'configuracao-empresa', label: 'Empresa', path: '/configuracao/empresa', icon: <Settings size={20} /> },
-      { key: 'configuracao-integracoes', label: 'Integrações', path: '/configuracao/integracoes', icon: <Plug size={20} /> },
-      { key: 'configuracao-templates-email', label: 'Templates de e-mail', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
-    ]),
   ]
+
+  const isInConfiguration = location.pathname.startsWith('/configuracao')
+  const currentModule = isInConfiguration ? 'configuracao' : 'sistema'
+  const menuGroups = isInConfiguration ? configurationGroups : systemGroups
+
+  const modules = [
+    { id: 'sistema', name: 'Sistema', icon: <LayoutDashboard size={16} /> },
+    { id: 'configuracao', name: 'Configuração', icon: <Settings size={16} /> },
+  ]
+
+  const handleModuleChange = (moduleId: string) => {
+    if (moduleId === 'configuracao') {
+      navigate('/configuracao/empresa')
+    } else {
+      navigate('/')
+    }
+  }
 
   const breadcrumbs = useMemo((): BreadcrumbItem[] => {
     const path = location.pathname
@@ -131,6 +157,9 @@ export default function AgencyCampaignLayout() {
       }}
       onLogout={handleLogout}
       menuGroups={menuGroups}
+      modules={modules}
+      currentModule={currentModule}
+      onModuleChange={handleModuleChange}
       breadcrumbs={breadcrumbs}
       notifications={[]}
       onNotificationRead={() => {}}
