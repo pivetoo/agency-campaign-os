@@ -70,5 +70,35 @@ namespace AgencyCampaign.Api.Controllers
             Creator creator = await creatorService.UpdateCreator(id, request, cancellationToken);
             return Http200(MapCreator(creator), Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite consultar o resumo de performance de um creator.")]
+        [GetEndpoint("summary/{id:long}")]
+        public async Task<IActionResult> GetSummary(long id, CancellationToken cancellationToken)
+        {
+            var summary = await creatorService.GetSummary(id, cancellationToken);
+            return summary is null ? Http404(Localizer["record.notFound"]) : Http200(summary);
+        }
+
+        [RequireAccess("Permite listar as campanhas em que o creator participou.")]
+        [GetEndpoint("campaigns/{id:long}")]
+        public async Task<IActionResult> GetCampaigns(long id, CancellationToken cancellationToken)
+        {
+            var campaigns = await creatorService.GetCampaignsByCreator(id, cancellationToken);
+            return Http200(campaigns.Select(item => new
+            {
+                campaignCreatorId = item.Id,
+                campaignId = item.CampaignId,
+                campaignName = item.Campaign?.Name,
+                brandId = item.Campaign?.BrandId,
+                brandName = item.Campaign?.Brand?.Name,
+                statusId = item.CampaignCreatorStatusId,
+                statusName = item.CampaignCreatorStatus?.Name,
+                statusColor = item.CampaignCreatorStatus?.Color,
+                agreedAmount = item.AgreedAmount,
+                agencyFeeAmount = item.AgencyFeeAmount,
+                confirmedAt = item.ConfirmedAt,
+                cancelledAt = item.CancelledAt
+            }));
+        }
     }
 }

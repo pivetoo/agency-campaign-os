@@ -1,5 +1,6 @@
 import { httpClient } from 'archon-ui'
 import type { Creator } from '../types/creator'
+import type { CreatorCampaignEntry, CreatorSummary } from '../types/creatorSocialHandle'
 
 const BASE_URL = '/Creators'
 
@@ -34,5 +35,20 @@ export const creatorService = {
 
   update(id: number, data: UpdateCreatorRequest) {
     return httpClient.put<Creator>(`${BASE_URL}/Update/${id}`, data)
+  },
+
+  async getById(id: number): Promise<Creator | null> {
+    const response = await httpClient.get<Creator>(`${BASE_URL}/${id}`)
+    return response.data ?? null
+  },
+
+  async getSummary(id: number): Promise<CreatorSummary | null> {
+    const response = await httpClient.get<CreatorSummary>(`${BASE_URL}/summary/${id}`)
+    return response.data ?? null
+  },
+
+  async getCampaigns(id: number): Promise<CreatorCampaignEntry[]> {
+    const response = await httpClient.get<CreatorCampaignEntry[]>(`${BASE_URL}/campaigns/${id}`)
+    return response.data ?? []
   },
 }

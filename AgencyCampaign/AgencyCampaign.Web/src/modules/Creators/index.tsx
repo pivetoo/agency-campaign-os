@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 
@@ -7,6 +8,7 @@ import type { Creator } from '../../types/creator'
 import CreatorFormModal from '../../components/modals/CreatorFormModal'
 
 export default function Creators() {
+  const navigate = useNavigate()
   const [creators, setCreators] = useState<Creator[]>([])
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
   const [previewCreator, setPreviewCreator] = useState<Creator | null>(null)
@@ -37,6 +39,20 @@ export default function Creators() {
         <Badge variant={value ? 'success' : 'destructive'}>
           {value ? 'Ativo' : 'Inativo'}
         </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      title: '',
+      width: 96,
+      render: (_: unknown, record: Creator) => (
+        <button
+          type="button"
+          className="text-xs text-primary hover:underline"
+          onClick={(event) => { event.stopPropagation(); navigate(`/creators/${record.id}`) }}
+        >
+          Abrir 360
+        </button>
       ),
     },
   ]

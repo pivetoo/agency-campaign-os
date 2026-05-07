@@ -1,7 +1,9 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Models.Creators;
 using AgencyCampaign.Application.Requests.Creators;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -72,6 +74,82 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return result;
+        }
+
+        public async Task<CreatorSummaryModel?> GetSummary(long id, CancellationToken cancellationToken = default)
+        {
+            Creator? creator = await DbContext.Set<Creator>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (creator is null)
+            {
+                return null;
+            }
+
+            List<CampaignCreator> campaignCreators = await DbContext.Set<CampaignCreator>()
+                .AsNoTracking()
+                .Include(item => item.CampaignCreatorStatus)
+                .Where(item => item.CreatorId == id)
+                .ToListAsync(cancellationToken);
+
+            List<long> campaignCreatorIds = campaignCreators.Select(item => item.Id).ToList();
+
+            List<CampaignDeliverable> deliverables = await DbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .Include(item => item.Platform)
+                .Where(item => campaignCreatorIds.Contains(item.CampaignCreatorId))
+                .ToListAsync(cancellationToken);
+
+            int totalDeliverables = deliverables.Count;
+            int publishedDeliverables = deliverables.Count(item => item.Status == DeliverableStatus.Published);
+            DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+            int overdueDeliverables = deliverables.Count(item => item.Status != DeliverableStatus.Published && item.Status != DeliverableStatus.Cancelled && item.DueAt < utcNow);
+
+            int onTimePublished = deliverables.Count(item => item.Status == DeliverableStatus.Published && item.PublishedAt.HasValue && item.PublishedAt.Value <= item.DueAt);
+            decimal onTimeRate = publishedDeliverables == 0 ? 0 : Math.Round((decimal)onTimePublished / publishedDeliverables * 100m, 2);
+
+            var perPlatform = deliverables
+                .GroupBy(item => new { item.PlatformId, PlatformName = item.Platform?.Name ?? string.Empty })
+                .Select(group => new CreatorPerformanceByPlatformModel
+                {
+                    PlatformId = group.Key.PlatformId,
+                    PlatformName = group.Key.PlatformName,
+                    Deliverables = group.Count(),
+                    Published = group.Count(item => item.Status == DeliverableStatus.Published),
+                    GrossAmount = group.Sum(item => item.GrossAmount)
+                })
+                .OrderByDescending(item => item.GrossAmount)
+                .ToArray();
+
+            return new CreatorSummaryModel
+            {
+                CreatorId = creator.Id,
+                CreatorName = creator.StageName ?? creator.Name,
+                TotalCampaigns = campaignCreators.Select(item => item.CampaignId).Distinct().Count(),
+                ConfirmedCampaigns = campaignCreators.Count(item => item.ConfirmedAt.HasValue),
+                CancelledCampaigns = campaignCreators.Count(item => item.CancelledAt.HasValue),
+                TotalDeliverables = totalDeliverables,
+                PublishedDeliverables = publishedDeliverables,
+                OverdueDeliverables = overdueDeliverables,
+                TotalGrossAmount = deliverables.Sum(item => item.GrossAmount),
+                TotalCreatorAmount = deliverables.Sum(item => item.CreatorAmount),
+                TotalAgencyFeeAmount = deliverables.Sum(item => item.AgencyFeeAmount),
+                OnTimeDeliveryRate = onTimeRate,
+                PerformanceByPlatform = perPlatform
+            };
+        }
+
+        public async Task<IReadOnlyCollection<CampaignCreator>> GetCampaignsByCreator(long creatorId, CancellationToken cancellationToken = default)
+        {
+            return await DbContext.Set<CampaignCreator>()
+                .AsNoTracking()
+                .Include(item => item.Campaign)
+                    .ThenInclude(item => item!.Brand)
+                .Include(item => item.CampaignCreatorStatus)
+                .Where(item => item.CreatorId == creatorId)
+                .OrderByDescending(item => item.Id)
+                .ToArrayAsync(cancellationToken);
         }
     }
 }
