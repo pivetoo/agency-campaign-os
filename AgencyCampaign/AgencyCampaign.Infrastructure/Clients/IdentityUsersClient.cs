@@ -27,11 +27,11 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<List<IdentityUserDto>>> response = await restApi.Fetch<ApiResponse<List<IdentityUserDto>>>(
-                RestRequest.Get($"{baseUrl}/api/users").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/Users/GetActive").WithSecret(secret!), ct);
 
             if (!response.Ok)
             {
-                throw new HttpRequestException($"IdentityManagement /api/users returned {response.Status}");
+                throw new HttpRequestException($"IdentityManagement /api/Users/GetActive returned {response.Status}");
             }
 
             return response.Data?.Data ?? [];
@@ -46,7 +46,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<IdentityUserDto>> response = await restApi.Fetch<ApiResponse<IdentityUserDto>>(
-                RestRequest.Get($"{baseUrl}/api/users/{userId}").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/Users/GetById/{userId}").WithSecret(secret!), ct);
 
             if (!response.Ok)
             {
@@ -55,7 +55,7 @@ namespace AgencyCampaign.Infrastructure.Clients
                     return null;
                 }
 
-                throw new HttpRequestException($"IdentityManagement /api/users/{userId} returned {response.Status}");
+                throw new HttpRequestException($"IdentityManagement /api/Users/GetById/{userId} returned {response.Status}");
             }
 
             return response.Data?.Data;
