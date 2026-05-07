@@ -17,6 +17,7 @@ namespace AgencyCampaign.Api.Controllers
         private readonly IProposalItemService proposalItemService;
         private readonly IProposalShareLinkService shareLinkService;
         private readonly IProposalVersionService versionService;
+        private readonly IProposalPdfService pdfService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
         private static readonly Func<Proposal, ProposalContract> MapProposal = ProposalContract.Projection.Compile();
         private static readonly Func<ProposalItem, ProposalItemContract> MapProposalItem = ProposalItemContract.Projection.Compile();
@@ -26,13 +27,23 @@ namespace AgencyCampaign.Api.Controllers
             IProposalItemService proposalItemService,
             IProposalShareLinkService shareLinkService,
             IProposalVersionService versionService,
+            IProposalPdfService pdfService,
             IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.proposalService = proposalService;
             this.proposalItemService = proposalItemService;
             this.shareLinkService = shareLinkService;
             this.versionService = versionService;
+            this.pdfService = pdfService;
             Localizer = localizer;
+        }
+
+        [RequireAccess("Permite baixar a proposta em PDF.")]
+        [GetEndpoint("pdf/{id:long}")]
+        public async Task<IActionResult> GetPdf(long id, CancellationToken cancellationToken)
+        {
+            byte[] bytes = await pdfService.GenerateForProposalAsync(id, cancellationToken);
+            return File(bytes, "application/pdf", $"proposta-{id}.pdf");
         }
 
         [RequireAccess("Permite listar as propostas comerciais.")]

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from 'archon-ui'
-import { AlertTriangle, CalendarClock, FileText, Sparkles } from 'lucide-react'
+import { AlertTriangle, CalendarClock, FileDown, FileText, Sparkles } from 'lucide-react'
 import {
   proposalPublicService,
   type ProposalPublicSnapshot,
@@ -93,6 +93,16 @@ export default function PublicProposal() {
           <span className="ml-auto rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
             v{view.versionNumber}
           </span>
+          {token && (
+            <a
+              href={`/api/proposal-public/${encodeURIComponent(token)}/pdf`}
+              className="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"
+              download
+            >
+              <FileDown className="h-3.5 w-3.5" />
+              Baixar PDF
+            </a>
+          )}
         </div>
 
         <Card className="overflow-hidden border-border/70 shadow-sm">

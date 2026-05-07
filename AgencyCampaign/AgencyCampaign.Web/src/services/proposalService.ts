@@ -238,4 +238,18 @@ export const proposalService = {
   revokeShareLink(shareLinkId: number) {
     return httpClient.post<ProposalShareLink>(`${BASE_URL}/share-links/${shareLinkId}/Revoke`, {})
   },
+
+  async downloadPdf(id: number): Promise<void> {
+    const response = await httpClient.get<Blob>(`${BASE_URL}/pdf/${id}`, { responseType: 'blob' })
+    const blob = response.data
+    if (!blob) return
+    const url = window.URL.createObjectURL(blob as Blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `proposta-${id}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  },
 }

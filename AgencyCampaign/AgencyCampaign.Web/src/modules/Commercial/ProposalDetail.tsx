@@ -13,7 +13,7 @@ import {
   useApi,
 } from 'archon-ui'
 import type { DataTableColumn, PageAction } from 'archon-ui'
-import { CalendarClock, CheckCircle, Eye, FileCheck, Pencil, Send, Trash2, XCircle } from 'lucide-react'
+import { CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Send, Trash2, XCircle } from 'lucide-react'
 import ProposalFormModal from '../../components/modals/ProposalFormModal'
 import ProposalItemFormModal from '../../components/modals/ProposalItemFormModal'
 import ApplyProposalTemplateModal from '../../components/modals/ApplyProposalTemplateModal'
@@ -148,6 +148,14 @@ export default function CommercialProposalDetail() {
         onClick: () => void runProposalAction(() => proposalService.cancel(proposalId)),
       })
     }
+
+    actions.push({
+      key: 'pdf',
+      label: 'Baixar PDF',
+      icon: <FileDown className="h-4 w-4" />,
+      variant: 'outline',
+      onClick: () => proposalService.downloadPdf(proposalId),
+    })
 
     return actions
   }, [proposal, actionLoading, proposalId])
