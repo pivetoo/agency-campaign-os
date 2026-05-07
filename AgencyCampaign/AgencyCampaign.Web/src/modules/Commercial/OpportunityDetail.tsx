@@ -251,112 +251,128 @@ export default function OpportunityDetail() {
         onRefresh={() => void loadOpportunity()}
         showDefaultActions={false}
       >
-        <Card className="overflow-hidden border-0 shadow-lg">
-          <div
-            className="h-2 w-full"
-            style={{ backgroundColor: opportunity?.commercialPipelineStage?.color || '#6366f1' }}
-          />
-          <CardContent className="p-8">
-            <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-4">
-                <div
-                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-xl font-bold text-white shadow-md"
-                  style={{ backgroundColor: opportunity?.commercialPipelineStage?.color || '#6366f1' }}
-                >
-                  {opportunity?.brand?.name?.charAt(0).toUpperCase() || 'O'}
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">{opportunity?.name}</h2>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                    <Building2 className="h-4 w-4" />
-                    {opportunity?.brand?.name || 'Marca não informada'}
-                  </div>
-                </div>
-              </div>
-              <Badge variant={stageBadgeVariant} className="self-start px-3 py-1 text-sm md:self-auto">
-                {opportunity?.commercialPipelineStage?.name || 'Sem estágio'}
-              </Badge>
-            </div>
-
-            <div className="my-6 h-px w-full bg-border" />
-
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <CircleDollarSign className="h-4 w-4" />
-                  Valor estimado
-                </div>
-                <p className="text-xl font-bold">{formatCurrency(opportunity?.estimatedValue ?? 0)}</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  Previsão de fechamento
-                </div>
-                <p className="text-xl font-bold">{formatDate(opportunity?.expectedCloseAt)}</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <UserCheck className="h-4 w-4" />
-                  Responsável
-                </div>
-                <p className="text-xl font-bold">{opportunity?.commercialResponsible?.name || '-'}</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  Follow-ups
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="text-xl font-bold">{pendingFollowUpsCount}</p>
-                  {overdueFollowUpsCount > 0 && (
-                    <Badge variant="destructive" className="text-[10px]">{overdueFollowUpsCount} atrasado{overdueFollowUpsCount > 1 ? 's' : ''}</Badge>
-                  )}
-                </div>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex gap-5">
+            <div
+              className="w-1 shrink-0 self-stretch rounded-full"
+              style={{ backgroundColor: opportunity?.commercialPipelineStage?.color || 'hsl(var(--primary))' }}
+            />
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                <strong className="text-primary">{opportunity?.name}</strong>
+              </h1>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-base text-muted-foreground">
+                <Building2 className="h-4 w-4" />
+                <span>{opportunity?.brand?.name || 'Marca não informada'}</span>
+                <span className="text-border">·</span>
+                <Badge variant={stageBadgeVariant} className="px-2.5 py-0.5 text-xs">
+                  {opportunity?.commercialPipelineStage?.name || 'Sem estágio'}
+                </Badge>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-wrap items-center gap-2 py-2">
-          <Button variant="outline" onClick={() => setIsOpportunityFormOpen(true)}>
-            <Pencil className="mr-2 h-4 w-4" /> Editar
-          </Button>
-          <Select value={selectedStage} onValueChange={(value) => void handleChangeStage(Number(value))}>
-            <SelectTrigger className="w-[220px]">
-              <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-              <SelectValue placeholder="Mudar estágio" />
-            </SelectTrigger>
-            <SelectContent>
-              {stages.map((stage) => (
-                <SelectItem key={stage.id} value={String(stage.id)}>{stage.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Select value={selectedStage} onValueChange={(value) => void handleChangeStage(Number(value))}>
+              <SelectTrigger className="w-[200px]">
+                <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
+                <SelectValue placeholder="Mudar estágio" />
+              </SelectTrigger>
+              <SelectContent>
+                {stages.map((stage) => (
+                  <SelectItem key={stage.id} value={String(stage.id)}>{stage.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button size="sm" variant="outline" onClick={() => setIsOpportunityFormOpen(true)}>
+              <Pencil className="mr-2 h-4 w-4" /> Editar
+            </Button>
+          </div>
         </div>
 
-        <Tabs defaultValue="summary" className="mt-4">
-          <TabsList className="mb-6 h-12 w-full justify-start gap-1 rounded-xl bg-muted/50 p-1.5">
-            <TabsTrigger value="summary" className="gap-2 rounded-lg px-5 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Card className="border border-border/70 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <CircleDollarSign className="h-3.5 w-3.5 text-indigo-600" />
+                Valor estimado
+              </div>
+              <p className="mt-1 text-lg font-semibold text-foreground">{formatCurrency(opportunity?.estimatedValue ?? 0)}</p>
+            </CardContent>
+          </Card>
+          <Card className="border border-border/70 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5 text-violet-600" />
+                Previsão
+              </div>
+              <p className="mt-1 text-lg font-semibold text-foreground">{formatDate(opportunity?.expectedCloseAt)}</p>
+            </CardContent>
+          </Card>
+          <Card className="border border-border/70 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <UserCheck className="h-3.5 w-3.5 text-cyan-600" />
+                Responsável
+              </div>
+              <p className="mt-1 truncate text-lg font-semibold text-foreground">{opportunity?.commercialResponsible?.name || '-'}</p>
+            </CardContent>
+          </Card>
+          <Card className="border border-border/70 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <Clock className="h-3.5 w-3.5 text-amber-600" />
+                Follow-ups pendentes
+              </div>
+              <div className="mt-1 flex items-baseline gap-2">
+                <p className="text-lg font-semibold text-foreground">{pendingFollowUpsCount}</p>
+                {overdueFollowUpsCount > 0 ? (
+                  <span className="text-[11px] font-medium text-destructive">
+                    {overdueFollowUpsCount} atrasado{overdueFollowUpsCount > 1 ? 's' : ''}
+                  </span>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="summary" className="mt-2">
+          <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
+            <TabsTrigger value="summary" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <FileText className="h-4 w-4" /> Resumo
             </TabsTrigger>
-            <TabsTrigger value="proposals" className="gap-2 rounded-lg px-5 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <TabsTrigger value="proposals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <TrendingUp className="h-4 w-4" /> Propostas
-              {opportunity?.proposals?.length ? <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground/20 text-[10px] text-primary-foreground">{opportunity.proposals.length}</span> : null}
+              {opportunity?.proposals?.length ? (
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
+                  {opportunity.proposals.length}
+                </span>
+              ) : null}
             </TabsTrigger>
-            <TabsTrigger value="negotiations" className="gap-2 rounded-lg px-5 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <TabsTrigger value="negotiations" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <MessageSquare className="h-4 w-4" /> Negociações
-              {opportunity?.negotiations?.length ? <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground/20 text-[10px] text-primary-foreground">{opportunity.negotiations.length}</span> : null}
+              {opportunity?.negotiations?.length ? (
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
+                  {opportunity.negotiations.length}
+                </span>
+              ) : null}
             </TabsTrigger>
-            <TabsTrigger value="approvals" className="gap-2 rounded-lg px-5 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <TabsTrigger value="approvals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <CheckCircle className="h-4 w-4" /> Aprovações
-              {approvalRequests.length ? <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground/20 text-[10px] text-primary-foreground">{approvalRequests.length}</span> : null}
+              {approvalRequests.length ? (
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
+                  {approvalRequests.length}
+                </span>
+              ) : null}
             </TabsTrigger>
-            <TabsTrigger value="followups" className="gap-2 rounded-lg px-5 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <TabsTrigger value="followups" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Clock className="h-4 w-4" /> Follow-ups
-              {opportunity?.followUps?.length ? <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground/20 text-[10px] text-primary-foreground">{opportunity.followUps.length}</span> : null}
+              {opportunity?.followUps?.length ? (
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
+                  {opportunity.followUps.length}
+                </span>
+              ) : null}
             </TabsTrigger>
-            <TabsTrigger value="activity" className="gap-2 rounded-lg px-5 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <TabsTrigger value="activity" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Activity className="h-4 w-4" /> Atividades
             </TabsTrigger>
           </TabsList>
