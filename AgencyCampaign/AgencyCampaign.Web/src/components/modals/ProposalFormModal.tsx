@@ -87,7 +87,6 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
                 options={opportunityOptions}
                 placeholder="Selecione a oportunidade"
                 searchPlaceholder="Buscar oportunidade"
-                emptyMessage="Nenhuma oportunidade encontrada"
               />
             </div>
 

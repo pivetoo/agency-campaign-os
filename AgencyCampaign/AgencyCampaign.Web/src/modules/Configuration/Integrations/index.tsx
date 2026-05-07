@@ -38,11 +38,11 @@ export default function Integrations() {
   const [selectedIntegration, setSelectedIntegration] = useState<IntegrationPlatformIntegration | null>(null)
   const [selectedConnector, setSelectedConnector] = useState<Connector | null>(null)
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false)
-  const [connectorModalMode, setConnectorModalMode] = useState<'create' | 'edit'>('create')
+  const [, setConnectorModalMode] = useState<'create' | 'edit'>('create')
 
   const { execute: fetchCategories, loading: loadingCategories } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
   const { execute: fetchIntegrations, loading: loadingIntegrations } = useApi<IntegrationPlatformIntegration[]>({ showErrorMessage: true })
-  const { execute: fetchConnectors, loading: loadingConnectors } = useApi<Connector[]>({ showErrorMessage: true })
+  const { loading: loadingConnectors } = useApi<Connector[]>({ showErrorMessage: true })
 
   useEffect(() => {
     void loadCategories()
@@ -156,7 +156,6 @@ export default function Integrations() {
                 value={selectedCategoryId ? String(selectedCategoryId) : undefined}
                 onValueChange={(value) => setSelectedCategoryId(Number(value))}
                 placeholder={loadingCategories ? 'Carregando...' : 'Selecione uma categoria'}
-                emptyMessage="Nenhuma categoria encontrada"
               />
             </div>
 

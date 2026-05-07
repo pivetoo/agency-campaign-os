@@ -4,7 +4,7 @@ import type {
   IntegrationPlatformIntegration,
   IntegrationAttribute,
   Connector,
-  ConnectorAttributeValue,
+  ConnectorDetail,
   Pipeline,
   Execution,
   ProcessingQueue,
