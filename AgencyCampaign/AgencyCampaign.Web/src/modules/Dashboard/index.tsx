@@ -1,260 +1,257 @@
-import { useEffect, useRef, useState } from 'react'
+import { useMemo } from 'react'
 import {
   AreaChart,
   BarChart,
-  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   ChartContainer,
   LineChart,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalTitle,
-  ModalDescription,
   PieChart,
-  useApi,
 } from 'archon-ui'
 import {
-  LayoutDashboard,
-  TrendingUp,
-  PieChart as PieChartIcon,
+  Activity,
+  BarChart3,
   LineChart as LineChartIcon,
-  BarChart4,
+  PieChart as PieChartIcon,
+  Sparkles,
   Megaphone,
   Building2,
   Users,
   Clock,
-  CheckCircle,
-  ShieldCheck,
-  DollarSign,
-  Target,
 } from 'lucide-react'
-import { dashboardService } from '../../services/dashboardService'
-import type { DashboardData, DashboardChartsData } from '../../types/dashboard'
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value)
+const chartColors = ['#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6']
+
+function truncateLabel(value: string) {
+  const parts = value.trim().split(/\s+/)
+  return parts.length > 1 && value.length > 12 ? `${parts[0]}...` : value
+}
+
+function formatCurrencyShort(value: number) {
+  if (value >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1)}M`
+  if (value >= 1_000) return `R$ ${(value / 1_000).toFixed(0)}k`
+  return `R$ ${value}`
+}
+
+const mockMonthlyRevenue = [
+  { name: 'Jun', receita: 180000, fee: 27000 },
+  { name: 'Jul', receita: 215000, fee: 32000 },
+  { name: 'Ago', receita: 198000, fee: 29500 },
+  { name: 'Set', receita: 240000, fee: 36000 },
+  { name: 'Out', receita: 285000, fee: 42000 },
+  { name: 'Nov', receita: 312000, fee: 47000 },
+  { name: 'Dez', receita: 298000, fee: 44500 },
+  { name: 'Jan', receita: 340000, fee: 51000 },
+  { name: 'Fev', receita: 365000, fee: 54500 },
+  { name: 'Mar', receita: 398000, fee: 59500 },
+  { name: 'Abr', receita: 421000, fee: 63000 },
+  { name: 'Mai', receita: 445000, fee: 66800 },
+]
+
+const mockPipeline = [
+  { name: 'Prospecção', value: 12 },
+  { name: 'Qualificação', value: 8 },
+  { name: 'Proposta enviada', value: 5 },
+  { name: 'Negociação', value: 3 },
+  { name: 'Fechado', value: 7 },
+]
+
+const mockPlatformDistribution = [
+  { name: 'Instagram Reels', acessos: 42 },
+  { name: 'TikTok', acessos: 31 },
+  { name: 'YouTube Shorts', acessos: 18 },
+  { name: 'Instagram Stories', acessos: 12 },
+  { name: 'YouTube Long', acessos: 7 },
+]
+
+const mockCreatorGrowth = [
+  { name: 'Jun', creators: 84 },
+  { name: 'Jul', creators: 92 },
+  { name: 'Ago', creators: 98 },
+  { name: 'Set', creators: 105 },
+  { name: 'Out', creators: 118 },
+  { name: 'Nov', creators: 127 },
+  { name: 'Dez', creators: 134 },
+  { name: 'Jan', creators: 145 },
+  { name: 'Fev', creators: 156 },
+  { name: 'Mar', creators: 168 },
+  { name: 'Abr', creators: 182 },
+  { name: 'Mai', creators: 196 },
+]
+
+const mockOperationHealth = [
+  { name: 'Entregas no prazo', value: 87 },
+  { name: 'Taxa de aprovação', value: 92 },
+  { name: 'Fee / Budget', value: 15 },
+  { name: 'Pipeline ativo', value: 68 },
+]
+
+const mockHeadline = {
+  activeCampaigns: 18,
+  activeBrands: 24,
+  activeCreators: 196,
+  pendingDeliverables: 31,
+  monthRevenue: 445000,
 }
 
 export default function Dashboard() {
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [chartsData, setChartsData] = useState<DashboardChartsData | null>(null)
-  const [isStatsOpen, setIsStatsOpen] = useState(false)
-  const { execute: fetchData } = useApi<DashboardData>({ showErrorMessage: true })
-  const { execute: fetchCharts } = useApi<DashboardChartsData>({ showErrorMessage: true })
+  const platformData = useMemo(
+    () => mockPlatformDistribution.map((item) => ({ ...item, name: truncateLabel(item.name) })),
+    []
+  )
 
-  const fetchDataRef = useRef(fetchData)
-  const fetchChartsRef = useRef(fetchCharts)
-
-  useEffect(() => {
-    fetchDataRef.current = fetchData
-    fetchChartsRef.current = fetchCharts
-  })
-
-  useEffect(() => {
-    void fetchDataRef.current(() => dashboardService.getData()).then((result) => {
-      if (result) {
-        setData(result)
-      }
-    })
-    void fetchChartsRef.current(() => dashboardService.getChartsData()).then((result) => {
-      if (result) {
-        setChartsData(result)
-      }
-    })
-  }, [])
-
-  const kpiCards = [
-    {
-      title: 'Campanhas ativas',
-      value: data?.activeCampaigns ?? 0,
-      icon: <Megaphone className="h-5 w-5 text-blue-500" />,
-      description: 'Campanhas em andamento',
-    },
-    {
-      title: 'Marcas',
-      value: data?.activeBrands ?? 0,
-      icon: <Building2 className="h-5 w-5 text-violet-500" />,
-      description: 'Marcas cadastradas',
-    },
-    {
-      title: 'Creators',
-      value: data?.activeCreators ?? 0,
-      icon: <Users className="h-5 w-5 text-cyan-500" />,
-      description: 'Creators na base',
-    },
-    {
-      title: 'Entregas pendentes',
-      value: data?.pendingDeliverablesCount ?? 0,
-      icon: <Clock className="h-5 w-5 text-amber-500" />,
-      description: 'Aguardando execução',
-    },
-    {
-      title: 'Entregas publicadas',
-      value: data?.publishedDeliverablesCount ?? 0,
-      icon: <CheckCircle className="h-5 w-5 text-green-500" />,
-      description: 'Já publicadas',
-    },
-    {
-      title: 'Aprovações pendentes',
-      value: data?.pendingApprovalsCount ?? 0,
-      icon: <ShieldCheck className="h-5 w-5 text-orange-500" />,
-      description: 'Aguardando aprovação',
-    },
-    {
-      title: 'Budget total',
-      value: formatCurrency(data?.totalBudget ?? 0),
-      icon: <DollarSign className="h-5 w-5 text-purple-500" />,
-      description: 'Investimento total',
-    },
-    {
-      title: 'Fee da agência',
-      value: formatCurrency(data?.totalAgencyFeeAmount ?? 0),
-      icon: <DollarSign className="h-5 w-5 text-emerald-500" />,
-      description: 'Receita da agência',
-    },
+  const headlineChips = [
+    { label: 'Campanhas ativas', value: mockHeadline.activeCampaigns, icon: Megaphone, tone: 'text-indigo-600' },
+    { label: 'Marcas', value: mockHeadline.activeBrands, icon: Building2, tone: 'text-violet-600' },
+    { label: 'Creators', value: mockHeadline.activeCreators, icon: Users, tone: 'text-cyan-600' },
+    { label: 'Entregas pendentes', value: mockHeadline.pendingDeliverables, icon: Clock, tone: 'text-amber-600' },
   ]
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <LayoutDashboard className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            <p className="text-sm text-muted-foreground">
-              Visão geral do desempenho da agência
-            </p>
-          </div>
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="border-l-4 border-primary pl-5">
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">
+            <strong className="text-primary">Dashboard</strong>
+          </h1>
+          <p className="text-lg text-muted-foreground mt-3 leading-relaxed">
+            Visão geral do desempenho da agência
+          </p>
         </div>
-        <Button
-          variant="outline-primary"
-          icon={<BarChart4 className="h-4 w-4" />}
-          onClick={() => setIsStatsOpen(true)}
-        >
-          Estatísticas da Agência
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <ChartContainer
-          title="Evolução mensal"
-          icon={<TrendingUp className="h-4 w-4 text-primary" />}
-          height={300}
-          isEmpty={(chartsData?.monthlyRevenue ?? []).length === 0}
-          emptyMessage="Nenhuma receita registrada nos últimos 12 meses."
-        >
-          <AreaChart
-            data={chartsData?.monthlyRevenue ?? []}
-            xAxisKey="name"
-            dataKeys={['receita', 'fee']}
-            height={240}
-            colors={['hsl(142 71% 45%)', 'hsl(221.2 83.2% 53.3%)']}
-            fillOpacity={0.2}
-          />
-        </ChartContainer>
-
-        <ChartContainer
-          title="Pipeline comercial"
-          icon={<Target className="h-4 w-4 text-primary" />}
-          height={300}
-          isEmpty={(chartsData?.pipeline ?? []).length === 0}
-          emptyMessage="Nenhuma oportunidade no pipeline."
-        >
-          <BarChart
-            data={chartsData?.pipeline ?? []}
-            xAxisKey="name"
-            dataKeys={['oportunidades']}
-            height={240}
-            barSize={28}
-            colors={['hsl(221.2 83.2% 53.3%)']}
-          />
-        </ChartContainer>
-
-        <ChartContainer
-          title="Distribuição por plataforma"
-          icon={<PieChartIcon className="h-4 w-4 text-primary" />}
-          height={300}
-          isEmpty={(chartsData?.platformDistribution ?? []).length === 0}
-          emptyMessage="Nenhuma entrega cadastrada para exibir distribuição."
-        >
-          <PieChart
-            data={chartsData?.platformDistribution ?? []}
-            height={240}
-            innerRadius={50}
-            outerRadius={90}
-            colors={[
-              'hsl(221.2 83.2% 53.3%)',
-              'hsl(326 100% 60%)',
-              'hsl(0 84.2% 60.2%)',
-              'hsl(221.2 83.2% 53.3%)',
-              'hsl(220 14.3% 95.9%)',
-            ]}
-          />
-        </ChartContainer>
-
-        <ChartContainer
-          title="Crescimento de creators"
-          icon={<LineChartIcon className="h-4 w-4 text-primary" />}
-          height={300}
-          isEmpty={(chartsData?.creatorGrowth ?? []).length === 0}
-          emptyMessage="Nenhum creator cadastrado nos últimos 12 meses."
-        >
-          <LineChart
-            data={chartsData?.creatorGrowth ?? []}
-            xAxisKey="name"
-            dataKeys={['ativos', 'novos']}
-            height={240}
-            colors={['hsl(221.2 83.2% 53.3%)', 'hsl(142 71% 45%)']}
-            strokeWidth={2.5}
-            showDots
-          />
-        </ChartContainer>
-      </div>
-
-      <Modal open={isStatsOpen} onOpenChange={setIsStatsOpen}>
-        <ModalContent size="5xl">
-          <ModalHeader>
-            <ModalTitle className="flex items-center gap-2">
-              <BarChart4 className="h-5 w-5 text-primary" />
-              Estatísticas da Agência
-            </ModalTitle>
-            <ModalDescription>
-              Métricas consolidadas de todas as áreas de operação
-            </ModalDescription>
-          </ModalHeader>
-          <ModalBody>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 py-4">
-              {kpiCards.map((card) => (
-                <Card
-                  key={card.title}
-                  className="transition-all hover:shadow-md hover:-translate-y-0.5"
-                >
-                  <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
-                    <CardTitle className="text-base font-medium text-muted-foreground">
-                      {card.title}
-                    </CardTitle>
-                    {card.icon}
-                  </CardHeader>
-                  <CardContent className="px-5 pb-5">
-                    <div className="text-3xl font-bold truncate">{card.value}</div>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {card.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+        <div className="flex flex-wrap items-center gap-2">
+          {headlineChips.map(({ label, value, icon: Icon, tone }) => (
+            <div
+              key={label}
+              className="flex items-center gap-2 rounded-full border border-border/70 bg-muted/30 px-3 py-1.5 text-xs"
+            >
+              <Icon className={`h-3.5 w-3.5 ${tone}`} />
+              <span className="font-medium text-muted-foreground">{label}</span>
+              <span className="font-semibold text-foreground">{value}</span>
             </div>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1.4fr_0.9fr]">
+        <Card className="overflow-hidden border border-border/70 shadow-sm">
+          <CardHeader className="border-b bg-muted/20 pb-4">
+            <CardTitle className="flex items-center justify-between gap-2 text-base">
+              <span className="flex items-center gap-2">
+                <LineChartIcon className="h-5 w-5 text-primary" />
+                Receita dos últimos 12 meses
+              </span>
+              <span className="text-xs font-normal text-muted-foreground">
+                Mês atual: <strong className="text-foreground">{formatCurrencyShort(mockHeadline.monthRevenue)}</strong>
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5">
+            <ChartContainer title="Receita bruta x fee da agência" height={290}>
+              <AreaChart
+                data={mockMonthlyRevenue}
+                dataKeys={['receita', 'fee']}
+                colors={['#6366f1', '#22c55e']}
+                height={230}
+                showLegend={false}
+                fillOpacity={0.18}
+              />
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden border border-border/70 shadow-sm">
+          <CardHeader className="border-b bg-muted/20 pb-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <PieChartIcon className="h-5 w-5 text-violet-600" />
+              Pipeline comercial
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5">
+            <ChartContainer title="Oportunidades por estágio" height={290}>
+              <PieChart
+                data={mockPipeline}
+                colors={['#6366f1', '#06b6d4', '#f59e0b', '#ec4899', '#22c55e']}
+                height={230}
+                innerRadius={62}
+                showLabels={false}
+              />
+            </ChartContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="border border-border/70 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+              <BarChart3 className="h-4 w-4 text-amber-600" />
+              Plataformas mais entregues
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            <BarChart
+              data={platformData}
+              dataKeys={['acessos']}
+              colors={['#f59e0b']}
+              height={170}
+              showLegend={false}
+              showGrid={false}
+              layout="horizontal"
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border/70 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+              <Activity className="h-4 w-4 text-sky-600" />
+              Crescimento de creators
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            <LineChart
+              data={mockCreatorGrowth}
+              dataKeys={['creators']}
+              colors={['#06b6d4']}
+              height={170}
+              showLegend={false}
+              showDots={false}
+              enableArea
+              areaOpacity={0.14}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border/70 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+              <Sparkles className="h-4 w-4 text-emerald-600" />
+              Saúde da operação
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 px-4 pb-4">
+            {mockOperationHealth.map((item, index) => (
+              <div key={item.name} className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-foreground">{item.name}</span>
+                  <span className="font-semibold text-muted-foreground">{item.value}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${item.value}%`,
+                      backgroundColor: chartColors[index % chartColors.length],
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
