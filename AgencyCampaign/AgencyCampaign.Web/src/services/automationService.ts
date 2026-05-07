@@ -1,7 +1,7 @@
 import { httpClient } from 'archon-ui'
 import type { Automation, CreateAutomationPayload, UpdateAutomationPayload } from '../types/automation'
 
-const API_URL = '/api/automations'
+const API_URL = '/Automations'
 
 export const automationService = {
   async getAutomations(page = 1, pageSize = 10): Promise<{ items: Automation[]; pagination: { totalItems: number; totalPages: number; currentPage: number; pageSize: number } }> {

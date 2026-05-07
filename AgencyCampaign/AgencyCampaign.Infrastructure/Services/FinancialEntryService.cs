@@ -16,10 +16,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class FinancialEntryService : CrudService<FinancialEntry>, IFinancialEntryService
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
+        private readonly IAutomationDispatcher automationDispatcher;
 
-        public FinancialEntryService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public FinancialEntryService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IAutomationDispatcher automationDispatcher) : base(dbContext)
         {
             this.localizer = localizer;
+            this.automationDispatcher = automationDispatcher;
         }
 
         public async Task<PagedResult<FinancialEntry>> GetEntries(PagedRequest request, FinancialEntryFilters filters, CancellationToken cancellationToken = default)
@@ -62,6 +64,19 @@ namespace AgencyCampaign.Infrastructure.Services
             if (!success)
             {
                 throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            string createdTrigger = entry.Type == FinancialEntryType.Receivable
+                ? AutomationTriggers.FinancialReceivableCreated
+                : AutomationTriggers.FinancialPayableCreated;
+            await DispatchAutomationAsync(entry, createdTrigger, cancellationToken);
+
+            if (entry.Status == FinancialEntryStatus.Paid)
+            {
+                string settledTrigger = entry.Type == FinancialEntryType.Receivable
+                    ? AutomationTriggers.FinancialReceivableSettled
+                    : AutomationTriggers.FinancialPayableSettled;
+                await DispatchAutomationAsync(entry, settledTrigger, cancellationToken);
             }
 
             return await GetEntryById(entry.Id, cancellationToken) ?? entry;
@@ -127,6 +142,15 @@ namespace AgencyCampaign.Infrastructure.Services
                 entries[index].MarkAsInstallment(parentId, index + 1, request.InstallmentTotal);
             }
             await DbContext.SaveChangesAsync(cancellationToken);
+
+            string createdTrigger = request.Type == FinancialEntryType.Receivable
+                ? AutomationTriggers.FinancialReceivableCreated
+                : AutomationTriggers.FinancialPayableCreated;
+
+            foreach (FinancialEntry entry in entries)
+            {
+                await DispatchAutomationAsync(entry, createdTrigger, cancellationToken);
+            }
 
             return entries;
         }
@@ -262,6 +286,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            string settledTrigger = entry.Type == FinancialEntryType.Receivable
+                ? AutomationTriggers.FinancialReceivableSettled
+                : AutomationTriggers.FinancialPayableSettled;
+            await DispatchAutomationAsync(entry, settledTrigger, cancellationToken);
+
             return await GetEntryById(result.Id, cancellationToken) ?? result;
         }
 
@@ -391,6 +420,47 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Include(item => item.Campaign)
                 .Include(item => item.CampaignDeliverable)
                 .Include(item => item.Subcategory);
+        }
+
+        private async Task DispatchAutomationAsync(FinancialEntry entry, string trigger, CancellationToken cancellationToken)
+        {
+            FinancialEntry? full = await GetEntryById(entry.Id, cancellationToken);
+            FinancialEntry source = full ?? entry;
+
+            Dictionary<string, object?> payload = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["entryId"] = source.Id,
+                ["type"] = (int)source.Type,
+                ["category"] = (int)source.Category,
+                ["description"] = source.Description,
+                ["amount"] = source.Amount,
+                ["dueAt"] = source.DueAt.ToString("yyyy-MM-dd"),
+                ["dueAtBR"] = source.DueAt.ToString("dd/MM/yyyy"),
+                ["paidAt"] = source.PaidAt?.ToString("yyyy-MM-dd"),
+                ["paidAtBR"] = source.PaidAt?.ToString("dd/MM/yyyy"),
+                ["status"] = (int)source.Status,
+                ["counterpartyName"] = source.CounterpartyName,
+                ["paymentMethod"] = source.PaymentMethod,
+                ["referenceCode"] = source.ReferenceCode,
+                ["accountId"] = source.AccountId,
+                ["accountName"] = source.Account?.Name,
+                ["campaignId"] = source.CampaignId,
+                ["campaignName"] = source.Campaign?.Name,
+                ["invoiceNumber"] = source.InvoiceNumber,
+                ["invoiceUrl"] = source.InvoiceUrl,
+                ["invoiceIssuedAt"] = source.InvoiceIssuedAt?.ToString("yyyy-MM-dd"),
+                ["installmentNumber"] = source.InstallmentNumber,
+                ["installmentTotal"] = source.InstallmentTotal
+            };
+
+            try
+            {
+                await automationDispatcher.DispatchAsync(trigger, payload, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[FinancialEntryService] failed to dispatch automation '{trigger}' for entry {entry.Id}: {exception.Message}");
+            }
         }
     }
 

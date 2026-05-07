@@ -20,13 +20,15 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly ICurrentUser currentUser;
         private readonly IEmailService emailService;
         private readonly IFinancialAutoGeneration financialAutoGeneration;
+        private readonly IAutomationDispatcher automationDispatcher;
 
-        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IEmailService emailService, IFinancialAutoGeneration financialAutoGeneration) : base(dbContext)
+        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IEmailService emailService, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher) : base(dbContext)
         {
             this.localizer = localizer;
             this.currentUser = currentUser;
             this.emailService = emailService;
             this.financialAutoGeneration = financialAutoGeneration;
+            this.automationDispatcher = automationDispatcher;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -280,12 +282,6 @@ namespace AgencyCampaign.Infrastructure.Services
 
         private async Task NotifyEmail(EmailEventType eventType, Proposal proposal, CancellationToken cancellationToken)
         {
-            string? recipient = proposal.Opportunity?.ContactEmail;
-            if (string.IsNullOrWhiteSpace(recipient))
-            {
-                return;
-            }
-
             Dictionary<string, object?> payload = new(StringComparer.OrdinalIgnoreCase)
             {
                 ["proposalId"] = proposal.Id,
@@ -295,17 +291,35 @@ namespace AgencyCampaign.Infrastructure.Services
                 ["opportunityName"] = proposal.Opportunity?.Name,
                 ["brandName"] = proposal.Opportunity?.Brand?.Name,
                 ["contactName"] = proposal.Opportunity?.ContactName,
-                ["contactEmail"] = recipient,
+                ["contactEmail"] = proposal.Opportunity?.ContactEmail,
                 ["responsibleName"] = proposal.InternalOwnerName
             };
 
-            try
+            string? recipient = proposal.Opportunity?.ContactEmail;
+            if (!string.IsNullOrWhiteSpace(recipient))
             {
-                await emailService.SendForEvent(eventType, new[] { recipient }, payload, cancellationToken);
+                try
+                {
+                    await emailService.SendForEvent(eventType, new[] { recipient }, payload, cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"[ProposalService] failed to dispatch email for {eventType}: {exception.Message}");
+                }
             }
-            catch (Exception exception)
+
+            string trigger = eventType switch
             {
-                Console.WriteLine($"[ProposalService] failed to dispatch email for {eventType}: {exception.Message}");
+                EmailEventType.ProposalSent => AutomationTriggers.ProposalSent,
+                EmailEventType.ProposalApproved => AutomationTriggers.ProposalApproved,
+                EmailEventType.ProposalRejected => AutomationTriggers.ProposalRejected,
+                EmailEventType.ProposalConverted => AutomationTriggers.ProposalConverted,
+                _ => string.Empty
+            };
+
+            if (!string.IsNullOrEmpty(trigger))
+            {
+                await automationDispatcher.DispatchAsync(trigger, payload, cancellationToken);
             }
         }
 

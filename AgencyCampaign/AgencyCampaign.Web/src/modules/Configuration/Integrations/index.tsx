@@ -18,6 +18,7 @@ import {
 import type { DataTableColumn } from 'archon-ui'
 import { Plug, GitBranch, Settings2, Pencil } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
+import AutomationFormModal from '../../../components/modals/AutomationFormModal'
 import AutomationList from '../Automations/AutomationList'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import type {
@@ -39,6 +40,10 @@ export default function Integrations() {
   const [selectedConnector, setSelectedConnector] = useState<Connector | null>(null)
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false)
   const [, setConnectorModalMode] = useState<'create' | 'edit'>('create')
+
+  const [isAutomationModalOpen, setIsAutomationModalOpen] = useState(false)
+  const [selectedAutomation, setSelectedAutomation] = useState<Automation | null>(null)
+  const [automationsRefreshKey, setAutomationsRefreshKey] = useState(0)
 
   const { execute: fetchCategories, loading: loadingCategories } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
   const { execute: fetchIntegrations, loading: loadingIntegrations } = useApi<IntegrationPlatformIntegration[]>({ showErrorMessage: true })
@@ -216,14 +221,9 @@ export default function Integrations() {
 
           <TabsContent value="automations" className="space-y-4">
             <AutomationList
-              onCreate={() => {
-                // TODO: open creation modal
-                alert('Criar automação')
-              }}
-              onEdit={(automation: Automation) => {
-                // TODO: open edit modal
-                alert(`Editar automação: ${automation.name}`)
-              }}
+              key={automationsRefreshKey}
+              onCreate={() => { setSelectedAutomation(null); setIsAutomationModalOpen(true) }}
+              onEdit={(automation: Automation) => { setSelectedAutomation(automation); setIsAutomationModalOpen(true) }}
             />
           </TabsContent>
         </Tabs>
@@ -239,6 +239,17 @@ export default function Integrations() {
             void loadIntegrationsByCategory(selectedCategoryId)
           }
           setSelectedConnector(null)
+        }}
+      />
+
+      <AutomationFormModal
+        open={isAutomationModalOpen}
+        onOpenChange={setIsAutomationModalOpen}
+        automation={selectedAutomation}
+        onSuccess={() => {
+          setIsAutomationModalOpen(false)
+          setSelectedAutomation(null)
+          setAutomationsRefreshKey((prev) => prev + 1)
         }}
       />
     </>
