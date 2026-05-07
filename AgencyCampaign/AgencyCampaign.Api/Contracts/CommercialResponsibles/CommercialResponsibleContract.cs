@@ -7,6 +7,8 @@ namespace AgencyCampaign.Api.Contracts.CommercialResponsibles
     {
         public long Id { get; init; }
 
+        public long UserId { get; init; }
+
         public string Name { get; init; } = string.Empty;
 
         public string? Email { get; init; }
@@ -24,6 +26,7 @@ namespace AgencyCampaign.Api.Contracts.CommercialResponsibles
         public static Expression<Func<CommercialResponsible, CommercialResponsibleContract>> Projection => item => new CommercialResponsibleContract
         {
             Id = item.Id,
+            UserId = item.UserId,
             Name = item.Name,
             Email = item.Email,
             Phone = item.Phone,

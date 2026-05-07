@@ -70,5 +70,20 @@ namespace AgencyCampaign.Api.Controllers
             CommercialResponsible responsible = await commercialResponsibleService.UpdateCommercialResponsible(id, request, cancellationToken);
             return Http200(MapCommercialResponsible(responsible), Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite listar usuários do IdentityManagement disponíveis para virar responsáveis.")]
+        [GetEndpoint("[action]")]
+        public async Task<IActionResult> AvailableUsers(CancellationToken cancellationToken)
+        {
+            return Http200(await commercialResponsibleService.GetAvailableUsers(cancellationToken));
+        }
+
+        [RequireAccess("Permite ressincronizar nome e e-mail do responsável a partir do IdentityManagement.")]
+        [PostEndpoint("{id:long}/Sync")]
+        public async Task<IActionResult> Sync(long id, CancellationToken cancellationToken)
+        {
+            CommercialResponsible responsible = await commercialResponsibleService.SyncFromIdentityManagement(id, cancellationToken);
+            return Http200(MapCommercialResponsible(responsible), Localizer["record.updated"]);
+        }
     }
 }

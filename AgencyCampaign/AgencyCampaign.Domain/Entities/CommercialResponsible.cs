@@ -4,6 +4,8 @@ namespace AgencyCampaign.Domain.Entities
 {
     public sealed class CommercialResponsible : Entity
     {
+        public long UserId { get; private set; }
+
         public string Name { get; private set; } = string.Empty;
 
         public string? Email { get; private set; }
@@ -18,25 +20,31 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public CommercialResponsible(string name, string? email = null, string? phone = null, string? notes = null)
+        public CommercialResponsible(long userId, string name, string? email = null, string? phone = null, string? notes = null)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
+            UserId = userId;
             Name = name.Trim();
             Email = Normalize(email);
             Phone = Normalize(phone);
             Notes = Normalize(notes);
         }
 
-        public void Update(string name, string? email, string? phone, string? notes, bool isActive)
+        public void Update(string? notes, bool isActive)
+        {
+            Notes = Normalize(notes);
+            IsActive = isActive;
+        }
+
+        public void RefreshFromUser(string name, string? email, string? phone)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
             Name = name.Trim();
             Email = Normalize(email);
             Phone = Normalize(phone);
-            Notes = Normalize(notes);
-            IsActive = isActive;
         }
 
         private static string? Normalize(string? value)

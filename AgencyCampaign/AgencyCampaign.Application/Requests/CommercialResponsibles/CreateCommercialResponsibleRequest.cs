@@ -5,15 +5,8 @@ namespace AgencyCampaign.Application.Requests.CommercialResponsibles
     public sealed class CreateCommercialResponsibleRequest
     {
         [Required]
-        [StringLength(150, MinimumLength = 2)]
-        public string Name { get; set; } = string.Empty;
-
-        [StringLength(255)]
-        [EmailAddress]
-        public string? Email { get; set; }
-
-        [StringLength(50)]
-        public string? Phone { get; set; }
+        [Range(1, long.MaxValue)]
+        public long UserId { get; set; }
 
         [StringLength(1000)]
         public string? Notes { get; set; }

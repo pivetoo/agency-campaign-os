@@ -1,7 +1,18 @@
-import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, useApi } from 'archon-ui'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  Button,
+  Checkbox,
+  Input,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
+  SearchableSelect,
+  useApi,
+} from 'archon-ui'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
-import type { CommercialResponsible } from '../../types/commercialResponsible'
+import type { CommercialResponsible, CommercialUser } from '../../types/commercialResponsible'
 
 interface CommercialResponsibleFormModalProps {
   open: boolean
@@ -10,52 +21,71 @@ interface CommercialResponsibleFormModalProps {
   onSuccess: () => void
 }
 
-const initialFormData = {
-  name: '',
-  email: '',
-  phone: '',
-  notes: '',
-}
-
-export default function CommercialResponsibleFormModal({ open, onOpenChange, responsible, onSuccess }: CommercialResponsibleFormModalProps) {
+export default function CommercialResponsibleFormModal({
+  open,
+  onOpenChange,
+  responsible,
+  onSuccess,
+}: CommercialResponsibleFormModalProps) {
   const isEditing = !!responsible
-  const [formData, setFormData] = useState(initialFormData)
+  const [users, setUsers] = useState<CommercialUser[]>([])
+  const [selectedUserId, setSelectedUserId] = useState<string>('')
+  const [notes, setNotes] = useState('')
   const [isActive, setIsActive] = useState(true)
+
+  const { execute: loadUsers, loading: loadingUsers } = useApi<CommercialUser[]>({ showErrorMessage: true })
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
+    if (!open) return
+
     if (responsible) {
-      setFormData({
-        name: responsible.name,
-        email: responsible.email || '',
-        phone: responsible.phone || '',
-        notes: responsible.notes || '',
-      })
+      setSelectedUserId(String(responsible.userId))
+      setNotes(responsible.notes ?? '')
       setIsActive(responsible.isActive)
       return
     }
 
-    setFormData(initialFormData)
+    setSelectedUserId('')
+    setNotes('')
     setIsActive(true)
-  }, [responsible, open])
+    void loadUsers(() => commercialResponsibleService.getAvailableUsers()).then((result) => {
+      if (result) setUsers(result)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, responsible])
+
+  const userOptions = useMemo(
+    () => users.map((user) => ({
+      value: String(user.id),
+      label: `${user.name} · ${user.email}`,
+    })),
+    [users]
+  )
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    const result = await execute(() => (
-      isEditing
-        ? commercialResponsibleService.update(responsible.id, {
-            id: responsible.id,
-            ...formData,
-            isActive,
-          })
-        : commercialResponsibleService.create(formData)
-    ))
+    const result = await execute(() => {
+      if (isEditing && responsible) {
+        return commercialResponsibleService.update(responsible.id, {
+          id: responsible.id,
+          notes: notes || undefined,
+          isActive,
+        })
+      }
+      return commercialResponsibleService.create({
+        userId: Number(selectedUserId),
+        notes: notes || undefined,
+      })
+    })
 
     if (result !== null) {
       onSuccess()
     }
   }
+
+  const isValid = isEditing ? true : selectedUserId !== ''
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
@@ -65,27 +95,48 @@ export default function CommercialResponsibleFormModal({ open, onOpenChange, res
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Nome</label>
-            <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">E-mail</label>
-            <Input type="email" value={formData.email} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Telefone</label>
-            <Input value={formData.phone} onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} />
-          </div>
+          {isEditing && responsible ? (
+            <div className="rounded-md border border-border/70 bg-muted/30 p-3">
+              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Usuário vinculado (IdentityManagement)
+              </div>
+              <div className="mt-1 text-sm font-semibold text-foreground">{responsible.name}</div>
+              {responsible.email ? (
+                <div className="text-xs text-muted-foreground">{responsible.email}</div>
+              ) : null}
+              <div className="mt-2 text-[11px] text-muted-foreground">
+                Para alterar o usuário vinculado, exclua e recadastre.
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Usuário do IdentityManagement</label>
+              <SearchableSelect
+                value={selectedUserId}
+                onValueChange={setSelectedUserId}
+                options={userOptions}
+                placeholder={loadingUsers ? 'Carregando usuários...' : 'Selecione um usuário'}
+                searchPlaceholder="Buscar por nome ou e-mail..."
+                disabled={loadingUsers || users.length === 0}
+              />
+              {!loadingUsers && users.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Nenhum usuário disponível. Todos os usuários ativos do IdentityManagement já estão vinculados como responsáveis.
+                </p>
+              ) : null}
+            </div>
+          )}
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Observações</label>
-            <Input value={formData.notes} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
+            <Input
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Anotações internas sobre o responsável"
+            />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+          <div className="flex items-center justify-between gap-4">
             <div>
               {isEditing && (
                 <div className="flex items-center gap-2">
@@ -97,7 +148,9 @@ export default function CommercialResponsibleFormModal({ open, onOpenChange, res
 
             <ModalFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-              <Button type="submit" disabled={loading || !formData.name}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+              <Button type="submit" disabled={loading || !isValid}>
+                {loading ? 'Salvando...' : 'Salvar'}
+              </Button>
             </ModalFooter>
           </div>
         </form>

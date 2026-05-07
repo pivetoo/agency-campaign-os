@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.CommercialResponsibles;
 using AgencyCampaign.Domain.Entities;
 using Archon.Core.Pagination;
@@ -13,5 +14,9 @@ namespace AgencyCampaign.Application.Services
         Task<CommercialResponsible> CreateCommercialResponsible(CreateCommercialResponsibleRequest request, CancellationToken cancellationToken = default);
 
         Task<CommercialResponsible> UpdateCommercialResponsible(long id, UpdateCommercialResponsibleRequest request, CancellationToken cancellationToken = default);
+
+        Task<CommercialResponsible> SyncFromIdentityManagement(long id, CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<CommercialUserModel>> GetAvailableUsers(CancellationToken cancellationToken = default);
     }
 }
