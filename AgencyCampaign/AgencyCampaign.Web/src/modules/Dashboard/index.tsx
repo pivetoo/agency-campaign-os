@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   AreaChart,
   BarChart,
@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
   ChartContainer,
+  GlobalLoader,
   LineChart,
   PieChart,
 } from 'archon-ui'
@@ -21,8 +22,11 @@ import {
   Users,
   Clock,
 } from 'lucide-react'
+import { dashboardService } from '../../services/dashboardService'
+import type { DashboardOverview } from '../../types/dashboard'
 
 const chartColors = ['#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6']
+const pipelineColors = ['#6366f1', '#06b6d4', '#f59e0b', '#ec4899', '#22c55e']
 
 function truncateLabel(value: string) {
   const parts = value.trim().split(/\s+/)
@@ -32,82 +36,58 @@ function truncateLabel(value: string) {
 function formatCurrencyShort(value: number) {
   if (value >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1)}M`
   if (value >= 1_000) return `R$ ${(value / 1_000).toFixed(0)}k`
-  return `R$ ${value}`
-}
-
-const mockMonthlyRevenue = [
-  { name: 'Jun', receita: 180000, fee: 27000 },
-  { name: 'Jul', receita: 215000, fee: 32000 },
-  { name: 'Ago', receita: 198000, fee: 29500 },
-  { name: 'Set', receita: 240000, fee: 36000 },
-  { name: 'Out', receita: 285000, fee: 42000 },
-  { name: 'Nov', receita: 312000, fee: 47000 },
-  { name: 'Dez', receita: 298000, fee: 44500 },
-  { name: 'Jan', receita: 340000, fee: 51000 },
-  { name: 'Fev', receita: 365000, fee: 54500 },
-  { name: 'Mar', receita: 398000, fee: 59500 },
-  { name: 'Abr', receita: 421000, fee: 63000 },
-  { name: 'Mai', receita: 445000, fee: 66800 },
-]
-
-const mockPipeline = [
-  { name: 'Prospecção', value: 12 },
-  { name: 'Qualificação', value: 8 },
-  { name: 'Proposta enviada', value: 5 },
-  { name: 'Negociação', value: 3 },
-  { name: 'Fechado', value: 7 },
-]
-
-const mockPlatformDistribution = [
-  { name: 'Instagram Reels', acessos: 42 },
-  { name: 'TikTok', acessos: 31 },
-  { name: 'YouTube Shorts', acessos: 18 },
-  { name: 'Instagram Stories', acessos: 12 },
-  { name: 'YouTube Long', acessos: 7 },
-]
-
-const mockCreatorGrowth = [
-  { name: 'Jun', creators: 84 },
-  { name: 'Jul', creators: 92 },
-  { name: 'Ago', creators: 98 },
-  { name: 'Set', creators: 105 },
-  { name: 'Out', creators: 118 },
-  { name: 'Nov', creators: 127 },
-  { name: 'Dez', creators: 134 },
-  { name: 'Jan', creators: 145 },
-  { name: 'Fev', creators: 156 },
-  { name: 'Mar', creators: 168 },
-  { name: 'Abr', creators: 182 },
-  { name: 'Mai', creators: 196 },
-]
-
-const mockOperationHealth = [
-  { name: 'Entregas no prazo', value: 87 },
-  { name: 'Taxa de aprovação', value: 92 },
-  { name: 'Fee / Budget', value: 15 },
-  { name: 'Pipeline ativo', value: 68 },
-]
-
-const mockHeadline = {
-  activeCampaigns: 18,
-  activeBrands: 24,
-  activeCreators: 196,
-  pendingDeliverables: 31,
-  monthRevenue: 445000,
+  return `R$ ${value.toFixed(0)}`
 }
 
 export default function Dashboard() {
+  const [overview, setOverview] = useState<DashboardOverview | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    let isMounted = true
+
+    dashboardService
+      .getOverview()
+      .then((response) => {
+        if (isMounted) {
+          setOverview(response)
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const platformData = useMemo(
-    () => mockPlatformDistribution.map((item) => ({ ...item, name: truncateLabel(item.name) })),
-    []
+    () => overview?.platformDistribution.map((item) => ({ name: truncateLabel(item.name), value: item.value })) ?? [],
+    [overview]
   )
 
-  const headlineChips = [
-    { label: 'Campanhas ativas', value: mockHeadline.activeCampaigns, icon: Megaphone, tone: 'text-indigo-600' },
-    { label: 'Marcas', value: mockHeadline.activeBrands, icon: Building2, tone: 'text-violet-600' },
-    { label: 'Creators', value: mockHeadline.activeCreators, icon: Users, tone: 'text-cyan-600' },
-    { label: 'Entregas pendentes', value: mockHeadline.pendingDeliverables, icon: Clock, tone: 'text-amber-600' },
-  ]
+  const headlineChips = useMemo(() => {
+    const headline = overview?.headline
+    return [
+      { label: 'Campanhas ativas', value: headline?.activeCampaigns ?? 0, icon: Megaphone, tone: 'text-indigo-600' },
+      { label: 'Marcas', value: headline?.activeBrands ?? 0, icon: Building2, tone: 'text-violet-600' },
+      { label: 'Creators', value: headline?.activeCreators ?? 0, icon: Users, tone: 'text-cyan-600' },
+      { label: 'Entregas pendentes', value: headline?.pendingDeliverables ?? 0, icon: Clock, tone: 'text-amber-600' },
+    ]
+  }, [overview])
+
+  if (isLoading) {
+    return <GlobalLoader isVisible={true} className="bg-background" />
+  }
+
+  const monthlyRevenue = overview?.monthlyRevenue ?? []
+  const pipeline = overview?.pipeline ?? []
+  const creatorGrowth = overview?.creatorGrowth ?? []
+  const operationHealth = overview?.operationHealth ?? []
+  const monthRevenue = overview?.headline.monthRevenue ?? 0
 
   return (
     <div className="flex flex-col gap-5">
@@ -143,14 +123,19 @@ export default function Dashboard() {
                 Receita dos últimos 12 meses
               </span>
               <span className="text-xs font-normal text-muted-foreground">
-                Mês atual: <strong className="text-foreground">{formatCurrencyShort(mockHeadline.monthRevenue)}</strong>
+                Mês atual: <strong className="text-foreground">{formatCurrencyShort(monthRevenue)}</strong>
               </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5">
-            <ChartContainer title="Receita bruta x fee da agência" height={290}>
+            <ChartContainer
+              title="Receita bruta x fee da agência"
+              height={290}
+              isEmpty={monthlyRevenue.length === 0}
+              emptyMessage="Nenhuma receita registrada nos últimos 12 meses."
+            >
               <AreaChart
-                data={mockMonthlyRevenue}
+                data={monthlyRevenue}
                 dataKeys={['receita', 'fee']}
                 colors={['#6366f1', '#22c55e']}
                 height={230}
@@ -169,10 +154,15 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5">
-            <ChartContainer title="Oportunidades por estágio" height={290}>
+            <ChartContainer
+              title="Oportunidades por estágio"
+              height={290}
+              isEmpty={pipeline.length === 0}
+              emptyMessage="Nenhuma oportunidade no pipeline."
+            >
               <PieChart
-                data={mockPipeline}
-                colors={['#6366f1', '#06b6d4', '#f59e0b', '#ec4899', '#22c55e']}
+                data={pipeline.map((item) => ({ name: item.name, value: item.oportunidades }))}
+                colors={pipelineColors}
                 height={230}
                 innerRadius={62}
                 showLabels={false}
@@ -191,15 +181,21 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
-            <BarChart
-              data={platformData}
-              dataKeys={['acessos']}
-              colors={['#f59e0b']}
-              height={170}
-              showLegend={false}
-              showGrid={false}
-              layout="horizontal"
-            />
+            {platformData.length === 0 ? (
+              <div className="flex h-[170px] items-center justify-center text-xs text-muted-foreground">
+                Nenhuma entrega cadastrada.
+              </div>
+            ) : (
+              <BarChart
+                data={platformData}
+                dataKeys={['value']}
+                colors={['#f59e0b']}
+                height={170}
+                showLegend={false}
+                showGrid={false}
+                layout="horizontal"
+              />
+            )}
           </CardContent>
         </Card>
 
@@ -211,16 +207,22 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
-            <LineChart
-              data={mockCreatorGrowth}
-              dataKeys={['creators']}
-              colors={['#06b6d4']}
-              height={170}
-              showLegend={false}
-              showDots={false}
-              enableArea
-              areaOpacity={0.14}
-            />
+            {creatorGrowth.length === 0 ? (
+              <div className="flex h-[170px] items-center justify-center text-xs text-muted-foreground">
+                Nenhum creator cadastrado.
+              </div>
+            ) : (
+              <LineChart
+                data={creatorGrowth}
+                dataKeys={['ativos']}
+                colors={['#06b6d4']}
+                height={170}
+                showLegend={false}
+                showDots={false}
+                enableArea
+                areaOpacity={0.14}
+              />
+            )}
           </CardContent>
         </Card>
 
@@ -232,23 +234,29 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 px-4 pb-4">
-            {mockOperationHealth.map((item, index) => (
-              <div key={item.name} className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium text-foreground">{item.name}</span>
-                  <span className="font-semibold text-muted-foreground">{item.value}%</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${item.value}%`,
-                      backgroundColor: chartColors[index % chartColors.length],
-                    }}
-                  />
-                </div>
+            {operationHealth.length === 0 ? (
+              <div className="flex h-[140px] items-center justify-center text-xs text-muted-foreground">
+                Sem dados suficientes.
               </div>
-            ))}
+            ) : (
+              operationHealth.map((item, index) => (
+                <div key={item.name} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-foreground">{item.name}</span>
+                    <span className="font-semibold text-muted-foreground">{item.value}%</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.min(Math.max(item.value, 0), 100)}%`,
+                        backgroundColor: chartColors[index % chartColors.length],
+                      }}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>

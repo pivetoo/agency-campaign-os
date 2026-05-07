@@ -15,11 +15,11 @@ namespace AgencyCampaign.Api.Controllers
             this.dashboardService = dashboardService;
         }
 
-        [RequireAccess("Permite consultar os dados dos gráficos do dashboard.")]
+        [RequireAccess("Permite consultar a visão geral do dashboard da agência.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Charts(CancellationToken cancellationToken)
+        public async Task<IActionResult> Overview(CancellationToken cancellationToken)
         {
-            DashboardChartsModel result = await dashboardService.GetChartsData(cancellationToken);
+            DashboardOverviewModel result = await dashboardService.GetOverview(cancellationToken);
             return Http200(result);
         }
     }

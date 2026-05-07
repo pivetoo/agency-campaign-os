@@ -4,6 +4,6 @@ namespace AgencyCampaign.Application.Services
 {
     public interface IDashboardService
     {
-        Task<DashboardChartsModel> GetChartsData(CancellationToken cancellationToken = default);
+        Task<DashboardOverviewModel> GetOverview(CancellationToken cancellationToken = default);
     }
 }

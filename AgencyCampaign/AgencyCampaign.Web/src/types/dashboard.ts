@@ -1,14 +1,9 @@
-export interface DashboardData {
+export interface HeadlineSummary {
   activeCampaigns: number
   activeBrands: number
   activeCreators: number
-  deliverablesCount: number
-  pendingDeliverablesCount: number
-  publishedDeliverablesCount: number
-  pendingApprovalsCount: number
-  totalBudget: number
-  totalGrossAmount: number
-  totalAgencyFeeAmount: number
+  pendingDeliverables: number
+  monthRevenue: number
 }
 
 export interface MonthlyRevenueItem {
@@ -34,9 +29,16 @@ export interface CreatorGrowthItem {
   novos: number
 }
 
-export interface DashboardChartsData {
+export interface OperationHealthItem {
+  name: string
+  value: number
+}
+
+export interface DashboardOverview {
+  headline: HeadlineSummary
   monthlyRevenue: MonthlyRevenueItem[]
   pipeline: PipelineStageItem[]
   platformDistribution: PlatformDistributionItem[]
   creatorGrowth: CreatorGrowthItem[]
+  operationHealth: OperationHealthItem[]
 }

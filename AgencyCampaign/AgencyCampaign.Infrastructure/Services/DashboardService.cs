@@ -2,13 +2,15 @@ using AgencyCampaign.Application.Models.Dashboard;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
-using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class DashboardService : IDashboardService
     {
+        private static readonly string[] MonthNames =
+            ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
         private readonly DbContext dbContext;
 
         public DashboardService(DbContext dbContext)
@@ -16,14 +18,14 @@ namespace AgencyCampaign.Infrastructure.Services
             this.dbContext = dbContext;
         }
 
-        public async Task<DashboardChartsModel> GetChartsData(CancellationToken cancellationToken = default)
+        public async Task<DashboardOverviewModel> GetOverview(CancellationToken cancellationToken = default)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfYear = new DateTimeOffset(now.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            DateTimeOffset windowStart = new DateTimeOffset(now.Year - 1, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
 
-            List<CampaignDeliverable> monthlyDeliverables = await dbContext.Set<CampaignDeliverable>()
+            List<CampaignDeliverable> windowDeliverables = await dbContext.Set<CampaignDeliverable>()
                 .AsNoTracking()
-                .Where(item => item.CreatedAt >= startOfYear.AddYears(-1))
+                .Where(item => item.CreatedAt >= windowStart)
                 .ToListAsync(cancellationToken);
 
             List<CampaignDeliverable> allDeliverables = await dbContext.Set<CampaignDeliverable>()
@@ -37,7 +39,6 @@ namespace AgencyCampaign.Infrastructure.Services
 
             List<Creator> creators = await dbContext.Set<Creator>()
                 .AsNoTracking()
-                .Where(item => item.CreatedAt >= startOfYear.AddYears(-1))
                 .ToListAsync(cancellationToken);
 
             List<Platform> platforms = await dbContext.Set<Platform>()
@@ -45,40 +46,48 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Where(item => item.IsActive)
                 .ToListAsync(cancellationToken);
 
-            IReadOnlyCollection<MonthlyRevenueItem> monthlyRevenue = BuildMonthlyRevenue(monthlyDeliverables, now);
+            List<Campaign> campaigns = await dbContext.Set<Campaign>()
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            int activeBrands = await dbContext.Set<Brand>()
+                .AsNoTracking()
+                .CountAsync(item => item.IsActive, cancellationToken);
+
+            List<DeliverableApproval> approvals = await dbContext.Set<DeliverableApproval>()
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            IReadOnlyCollection<MonthlyRevenueItem> monthlyRevenue = BuildMonthlyRevenue(windowDeliverables, now);
             IReadOnlyCollection<PipelineStageItem> pipeline = BuildPipeline(opportunities);
             IReadOnlyCollection<PlatformDistributionItem> platformDistribution = BuildPlatformDistribution(allDeliverables, platforms);
             IReadOnlyCollection<CreatorGrowthItem> creatorGrowth = BuildCreatorGrowth(creators, now);
+            IReadOnlyCollection<OperationHealthItem> operationHealth = BuildOperationHealth(allDeliverables, approvals, opportunities, campaigns);
+            HeadlineSummary headline = BuildHeadline(campaigns, activeBrands, creators, allDeliverables, now);
 
-            return new DashboardChartsModel
+            return new DashboardOverviewModel
             {
+                Headline = headline,
                 MonthlyRevenue = monthlyRevenue,
                 Pipeline = pipeline,
                 PlatformDistribution = platformDistribution,
-                CreatorGrowth = creatorGrowth
+                CreatorGrowth = creatorGrowth,
+                OperationHealth = operationHealth
             };
         }
 
         private static IReadOnlyCollection<MonthlyRevenueItem> BuildMonthlyRevenue(List<CampaignDeliverable> deliverables, DateTimeOffset now)
         {
-            string[] monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-            int currentMonth = now.Month;
-
-            return Enumerable.Range(1, 12)
-                .Select(monthIndex =>
+            return EnumerateLast12Months(now)
+                .Select(slot =>
                 {
-                    int monthOffset = monthIndex - 1;
-                    int rawMonth = currentMonth - 11 + monthOffset;
-                    int month = ((rawMonth - 1 + 12) % 12) + 1;
-                    int year = rawMonth <= 0 ? now.Year - 1 : now.Year;
-
                     var monthDeliverables = deliverables
-                        .Where(item => item.CreatedAt.Month == month && item.CreatedAt.Year == year)
+                        .Where(item => item.CreatedAt.Month == slot.Month && item.CreatedAt.Year == slot.Year)
                         .ToList();
 
                     return new MonthlyRevenueItem
                     {
-                        Name = monthNames[month - 1],
+                        Name = MonthNames[slot.Month - 1],
                         Receita = monthDeliverables.Sum(item => item.GrossAmount),
                         Fee = monthDeliverables.Sum(item => item.AgencyFeeAmount)
                     };
@@ -138,28 +147,111 @@ namespace AgencyCampaign.Infrastructure.Services
 
         private static IReadOnlyCollection<CreatorGrowthItem> BuildCreatorGrowth(List<Creator> creators, DateTimeOffset now)
         {
-            string[] monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-            int currentMonth = now.Month;
-
-            return Enumerable.Range(1, 12)
-                .Select(monthIndex =>
+            return EnumerateLast12Months(now)
+                .Select(slot =>
                 {
-                    int monthOffset = monthIndex - 1;
-                    int rawMonth = currentMonth - 11 + monthOffset;
-                    int month = ((rawMonth - 1 + 12) % 12) + 1;
-                    int year = rawMonth <= 0 ? now.Year - 1 : now.Year;
+                    DateTimeOffset endOfMonth = new DateTimeOffset(slot.Year, slot.Month, DateTime.DaysInMonth(slot.Year, slot.Month), 23, 59, 59, TimeSpan.Zero);
 
-                    int novos = creators.Count(item => item.CreatedAt.Month == month && item.CreatedAt.Year == year);
-                    int ativos = creators.Count(item => item.CreatedAt <= new DateTimeOffset(year, month, DateTime.DaysInMonth(year, month), 23, 59, 59, TimeSpan.Zero) && item.IsActive);
+                    int novos = creators.Count(item => item.CreatedAt.Month == slot.Month && item.CreatedAt.Year == slot.Year);
+                    int ativos = creators.Count(item => item.CreatedAt <= endOfMonth && item.IsActive);
 
                     return new CreatorGrowthItem
                     {
-                        Name = monthNames[month - 1],
+                        Name = MonthNames[slot.Month - 1],
                         Ativos = ativos,
                         Novos = novos
                     };
                 })
                 .ToArray();
+        }
+
+        private static IReadOnlyCollection<OperationHealthItem> BuildOperationHealth(
+            List<CampaignDeliverable> deliverables,
+            List<DeliverableApproval> approvals,
+            List<Opportunity> opportunities,
+            List<Campaign> campaigns)
+        {
+            var publishedDeliverables = deliverables.Where(item => item.PublishedAt.HasValue).ToList();
+            decimal onTimeRate = publishedDeliverables.Count > 0
+                ? Math.Round(
+                    (decimal)publishedDeliverables.Count(item => item.PublishedAt!.Value <= item.DueAt) / publishedDeliverables.Count * 100m,
+                    1)
+                : 0m;
+
+            var resolvedApprovals = approvals
+                .Where(item => item.Status == DeliverableApprovalStatus.Approved || item.Status == DeliverableApprovalStatus.Rejected)
+                .ToList();
+            decimal approvalRate = resolvedApprovals.Count > 0
+                ? Math.Round(
+                    (decimal)resolvedApprovals.Count(item => item.Status == DeliverableApprovalStatus.Approved) / resolvedApprovals.Count * 100m,
+                    1)
+                : 0m;
+
+            decimal totalBudget = campaigns.Where(item => item.IsActive).Sum(item => item.Budget);
+            decimal totalFee = deliverables.Sum(item => item.AgencyFeeAmount);
+            decimal feeOverBudget = totalBudget > 0
+                ? Math.Min(Math.Round(totalFee / totalBudget * 100m, 1), 100m)
+                : 0m;
+
+            decimal pipelineRate = opportunities.Count > 0
+                ? Math.Round(
+                    (decimal)opportunities.Count(item => !item.ClosedAt.HasValue) / opportunities.Count * 100m,
+                    1)
+                : 0m;
+
+            return
+            [
+                new OperationHealthItem { Name = "Entregas no prazo", Value = onTimeRate },
+                new OperationHealthItem { Name = "Taxa de aprovação", Value = approvalRate },
+                new OperationHealthItem { Name = "Fee / Budget", Value = feeOverBudget },
+                new OperationHealthItem { Name = "Pipeline ativo", Value = pipelineRate }
+            ];
+        }
+
+        private static HeadlineSummary BuildHeadline(
+            List<Campaign> campaigns,
+            int activeBrandsCount,
+            List<Creator> creators,
+            List<CampaignDeliverable> deliverables,
+            DateTimeOffset now)
+        {
+            int activeCampaigns = campaigns.Count(item =>
+                item.IsActive &&
+                (item.Status == CampaignStatus.Planned ||
+                 item.Status == CampaignStatus.InProgress ||
+                 item.Status == CampaignStatus.InReview));
+
+            int activeCreators = creators.Count(item => item.IsActive);
+
+            int pendingDeliverables = deliverables.Count(item =>
+                item.Status == DeliverableStatus.Pending || item.Status == DeliverableStatus.InReview);
+
+            decimal monthRevenue = deliverables
+                .Where(item => item.CreatedAt.Year == now.Year && item.CreatedAt.Month == now.Month)
+                .Sum(item => item.GrossAmount);
+
+            return new HeadlineSummary
+            {
+                ActiveCampaigns = activeCampaigns,
+                ActiveBrands = activeBrandsCount,
+                ActiveCreators = activeCreators,
+                PendingDeliverables = pendingDeliverables,
+                MonthRevenue = monthRevenue
+            };
+        }
+
+        private static IEnumerable<(int Month, int Year)> EnumerateLast12Months(DateTimeOffset now)
+        {
+            int currentMonth = now.Month;
+
+            for (int monthIndex = 1; monthIndex <= 12; monthIndex++)
+            {
+                int monthOffset = monthIndex - 1;
+                int rawMonth = currentMonth - 11 + monthOffset;
+                int month = ((rawMonth - 1 + 12) % 12) + 1;
+                int year = rawMonth <= 0 ? now.Year - 1 : now.Year;
+                yield return (month, year);
+            }
         }
     }
 }
