@@ -5,6 +5,7 @@ import type { DataTableColumn } from 'archon-ui'
 import { CheckCircle, Eye, FileCheck, Send, XCircle } from 'lucide-react'
 import ProposalFormModal from '../../components/modals/ProposalFormModal'
 import ProposalItemFormModal from '../../components/modals/ProposalItemFormModal'
+import ApplyProposalTemplateModal from '../../components/modals/ApplyProposalTemplateModal'
 import ProposalShareTab from './ProposalShareTab'
 import { campaignService } from '../../services/campaignService'
 import { proposalService, type Proposal, type ProposalItem } from '../../services/proposalService'
@@ -50,6 +51,7 @@ export default function CommercialProposalDetail() {
   const [selectedItem, setSelectedItem] = useState<ProposalItem | null>(null)
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
   const [isItemFormOpen, setIsItemFormOpen] = useState(false)
+  const [isApplyTemplateOpen, setIsApplyTemplateOpen] = useState(false)
   const [campaignId, setCampaignId] = useState<string>('')
 
   const { execute: fetchProposal, loading } = useApi<Proposal | undefined>({ showErrorMessage: true })
@@ -137,6 +139,7 @@ export default function CommercialProposalDetail() {
                 <CardTitle>Itens da proposta</CardTitle>
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => { setSelectedItem(null); setIsItemFormOpen(true) }}>Adicionar item</Button>
+                  <Button size="sm" variant="outline" onClick={() => setIsApplyTemplateOpen(true)}>Aplicar template</Button>
                   <Button size="sm" variant="outline" disabled={!selectedItem} onClick={() => selectedItem && setIsItemFormOpen(true)}>Editar item</Button>
                   <Button size="sm" variant="outline-danger" disabled={!selectedItem} onClick={() => selectedItem && void runProposalAction(() => proposalService.deleteItem(selectedItem.id))}>Excluir item</Button>
                 </div>
@@ -186,6 +189,7 @@ export default function CommercialProposalDetail() {
 
       <ProposalFormModal open={isProposalFormOpen} onOpenChange={setIsProposalFormOpen} proposal={proposal} onSuccess={() => { setIsProposalFormOpen(false); void loadProposal() }} />
       <ProposalItemFormModal open={isItemFormOpen} onOpenChange={setIsItemFormOpen} proposalId={proposalId} item={selectedItem} onSuccess={() => { setIsItemFormOpen(false); setSelectedItem(null); void loadProposal() }} />
+      <ApplyProposalTemplateModal open={isApplyTemplateOpen} onOpenChange={setIsApplyTemplateOpen} proposalId={proposalId} onApplied={() => void loadProposal()} />
     </PageLayout>
   )
 }

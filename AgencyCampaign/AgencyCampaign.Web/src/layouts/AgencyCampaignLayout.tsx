@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -43,6 +43,8 @@ export default function AgencyCampaignLayout() {
       { key: 'configuracao-pipeline-comercial', label: 'Estágios do Comercial', path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
       { key: 'configuracao-status-creators', label: 'Status dos Creators', path: '/configuracao/status-creators', icon: <Users size={20} /> },
       { key: 'configuracao-tipos-entrega', label: 'Tipos de entrega', path: '/configuracao/tipos-entrega', icon: <Tags size={20} /> },
+      { key: 'configuracao-templates-proposta', label: 'Templates de proposta', path: '/configuracao/templates-proposta', icon: <FileText size={20} /> },
+      { key: 'configuracao-blocos-proposta', label: 'Blocos de proposta', path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
     ]),
   ]
 
@@ -71,6 +73,8 @@ export default function AgencyCampaignLayout() {
       '/configuracao/status-creators': 'Status dos Creators',
       '/configuracao/tipos-entrega': 'Tipos de entrega',
       '/configuracao/integracoes': 'Integrações',
+      '/configuracao/templates-proposta': 'Templates de proposta',
+      '/configuracao/blocos-proposta': 'Blocos de proposta',
     }
 
     const currentLabel = routeMap[path]
