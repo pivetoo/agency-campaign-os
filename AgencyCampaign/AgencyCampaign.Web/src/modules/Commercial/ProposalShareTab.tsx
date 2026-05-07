@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, useApi, useToast } from 'archon-ui'
-import { Copy, Eye, Link as LinkIcon, Plus, ShieldOff } from 'lucide-react'
+import { Copy, Eye, Link as LinkIcon, Link2, ShieldOff } from 'lucide-react'
 import {
   proposalService,
   type ProposalShareLink,
@@ -115,13 +115,12 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                 />
               </div>
               <Button
-                size="sm"
-                icon={<Plus className="h-4 w-4" />}
+                icon={<Link2 className="h-4 w-4" />}
                 onClick={() => void generateLink()}
                 disabled={mutating}
-                className="w-full"
+                fullWidth
               >
-                Gerar link
+                Gerar link público
               </Button>
             </div>
           </div>
