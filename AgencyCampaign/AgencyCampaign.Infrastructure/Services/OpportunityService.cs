@@ -218,27 +218,75 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ThenBy(item => item.Name)
                 .ToListAsync(cancellationToken);
 
+            long[] opportunityIds = opportunities.Select(item => item.Id).ToArray();
+
+            Dictionary<long, DateTimeOffset> stageEnteredAtByOpportunity = await DbContext.Set<OpportunityStageHistory>()
+                .AsNoTracking()
+                .Where(history => opportunityIds.Contains(history.OpportunityId))
+                .GroupBy(history => history.OpportunityId)
+                .Select(group => new
+                {
+                    OpportunityId = group.Key,
+                    LastChangedAt = group.Max(history => history.ChangedAt)
+                })
+                .ToDictionaryAsync(item => item.OpportunityId, item => item.LastChangedAt, cancellationToken);
+
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
             return stages
                 .Select(stage =>
                 {
+                    int? slaInDays = stage.SlaInDays;
+
                     List<OpportunityBoardItemModel> items = opportunities
                         .Where(item => item.CommercialPipelineStageId == stage.Id)
-                        .Select(item => new OpportunityBoardItemModel
+                        .Select(item =>
                         {
-                            Id = item.Id,
-                            BrandId = item.BrandId,
-                            BrandName = item.Brand?.Name ?? string.Empty,
-                            Name = item.Name,
-                            CommercialPipelineStageId = stage.Id,
-                            CommercialPipelineStageName = stage.Name,
-                            CommercialPipelineStageColor = stage.Color,
-                            EstimatedValue = item.EstimatedValue,
-                            ExpectedCloseAt = item.ExpectedCloseAt,
-                            CommercialResponsibleName = item.CommercialResponsible != null ? item.CommercialResponsible.Name : null,
-                            ProposalCount = item.Proposals.Count,
-                            PendingFollowUpsCount = item.FollowUps.Count(followUp => !followUp.IsCompleted),
-                            OverdueFollowUpsCount = item.FollowUps.Count(followUp => !followUp.IsCompleted && followUp.DueAt < DateTimeOffset.UtcNow),
-                            UpdatedAt = item.UpdatedAt
+                            DateTimeOffset stageEnteredAt = stageEnteredAtByOpportunity.TryGetValue(item.Id, out DateTimeOffset entered)
+                                ? entered
+                                : item.CreatedAt;
+
+                            int daysInStage = (int)Math.Floor((now - stageEnteredAt).TotalDays);
+
+                            string slaStatus;
+                            if (!slaInDays.HasValue || stage.FinalBehavior != CommercialPipelineStageFinalBehavior.None)
+                            {
+                                slaStatus = "ok";
+                            }
+                            else if (daysInStage >= slaInDays.Value)
+                            {
+                                slaStatus = "breached";
+                            }
+                            else if (daysInStage >= Math.Max(slaInDays.Value - 2, 1))
+                            {
+                                slaStatus = "warning";
+                            }
+                            else
+                            {
+                                slaStatus = "ok";
+                            }
+
+                            return new OpportunityBoardItemModel
+                            {
+                                Id = item.Id,
+                                BrandId = item.BrandId,
+                                BrandName = item.Brand?.Name ?? string.Empty,
+                                Name = item.Name,
+                                CommercialPipelineStageId = stage.Id,
+                                CommercialPipelineStageName = stage.Name,
+                                CommercialPipelineStageColor = stage.Color,
+                                EstimatedValue = item.EstimatedValue,
+                                ExpectedCloseAt = item.ExpectedCloseAt,
+                                CommercialResponsibleName = item.CommercialResponsible?.Name,
+                                ProposalCount = item.Proposals.Count,
+                                PendingFollowUpsCount = item.FollowUps.Count(followUp => !followUp.IsCompleted),
+                                OverdueFollowUpsCount = item.FollowUps.Count(followUp => !followUp.IsCompleted && followUp.DueAt < now),
+                                UpdatedAt = item.UpdatedAt,
+                                StageEnteredAt = stageEnteredAt,
+                                StageSlaInDays = slaInDays,
+                                DaysInStage = daysInStage,
+                                SlaStatus = slaStatus
+                            };
                         })
                         .ToList();
 
@@ -251,6 +299,7 @@ namespace AgencyCampaign.Infrastructure.Services
                         DisplayOrder = stage.DisplayOrder,
                         IsFinal = stage.IsFinal,
                         FinalBehavior = (int)stage.FinalBehavior,
+                        SlaInDays = slaInDays,
                         OpportunitiesCount = items.Count,
                         EstimatedValueTotal = items.Sum(item => item.EstimatedValue),
                         Items = items
@@ -376,6 +425,50 @@ namespace AgencyCampaign.Infrastructure.Services
                     OpportunityName = opportunity.Name,
                     DueAt = opportunity.ExpectedCloseAt
                 });
+            }
+
+            long[] openOpportunityIds = opportunities
+                .Where(item => item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.None)
+                .Select(item => item.Id)
+                .ToArray();
+
+            if (openOpportunityIds.Length > 0)
+            {
+                Dictionary<long, DateTimeOffset> stageEnteredAtByOpportunity = await DbContext.Set<OpportunityStageHistory>()
+                    .AsNoTracking()
+                    .Where(history => openOpportunityIds.Contains(history.OpportunityId))
+                    .GroupBy(history => history.OpportunityId)
+                    .Select(group => new
+                    {
+                        OpportunityId = group.Key,
+                        LastChangedAt = group.Max(history => history.ChangedAt)
+                    })
+                    .ToDictionaryAsync(item => item.OpportunityId, item => item.LastChangedAt, cancellationToken);
+
+                foreach (Opportunity opportunity in opportunities.Where(item => openOpportunityIds.Contains(item.Id) && item.CommercialPipelineStage?.SlaInDays > 0))
+                {
+                    int slaInDays = opportunity.CommercialPipelineStage!.SlaInDays!.Value;
+                    DateTimeOffset stageEnteredAt = stageEnteredAtByOpportunity.TryGetValue(opportunity.Id, out DateTimeOffset entered)
+                        ? entered
+                        : opportunity.CreatedAt;
+                    int daysInStage = (int)Math.Floor((now - stageEnteredAt).TotalDays);
+
+                    if (daysInStage < slaInDays)
+                    {
+                        continue;
+                    }
+
+                    alerts.Add(new CommercialAlertModel
+                    {
+                        Type = "stagesla",
+                        Severity = "high",
+                        Title = "SLA do estágio excedido",
+                        Description = $"Há {daysInStage} dias em \"{opportunity.CommercialPipelineStage.Name}\" (SLA: {slaInDays} dias).",
+                        OpportunityId = opportunity.Id,
+                        OpportunityName = opportunity.Name,
+                        DueAt = stageEnteredAt.AddDays(slaInDays)
+                    });
+                }
             }
 
             return alerts

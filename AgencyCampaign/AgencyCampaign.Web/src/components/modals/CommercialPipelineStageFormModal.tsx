@@ -18,6 +18,8 @@ const initialFormData: CreateCommercialPipelineStageRequest = {
   isInitial: false,
   isFinal: false,
   finalBehavior: 0,
+  defaultProbability: undefined,
+  slaInDays: undefined,
 }
 
 export default function CommercialPipelineStageFormModal({ open, onOpenChange, stage, onSuccess }: CommercialPipelineStageFormModalProps) {
@@ -36,6 +38,8 @@ export default function CommercialPipelineStageFormModal({ open, onOpenChange, s
         isInitial: stage.isInitial,
         isFinal: stage.isFinal,
         finalBehavior: stage.finalBehavior,
+        defaultProbability: stage.defaultProbability,
+        slaInDays: stage.slaInDays,
       })
       setIsActive(stage.isActive)
       return
@@ -102,6 +106,38 @@ export default function CommercialPipelineStageFormModal({ open, onOpenChange, s
                   <SelectItem value="2">Perdida</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Probabilidade padrão (%)</label>
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                step={5}
+                placeholder="-"
+                value={formData.defaultProbability ?? ''}
+                onChange={(event) => setFormData((prev) => ({
+                  ...prev,
+                  defaultProbability: event.target.value === '' ? undefined : Number(event.target.value),
+                }))}
+              />
+              <p className="text-xs text-muted-foreground">Aplicada automaticamente quando uma oportunidade entra neste estágio.</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">SLA do estágio (dias)</label>
+              <Input
+                type="number"
+                min={1}
+                placeholder="-"
+                value={formData.slaInDays ?? ''}
+                onChange={(event) => setFormData((prev) => ({
+                  ...prev,
+                  slaInDays: event.target.value === '' ? undefined : Number(event.target.value),
+                }))}
+              />
+              <p className="text-xs text-muted-foreground">Dias máximos no estágio antes do card ficar amarelo / vermelho no Kanban.</p>
             </div>
           </div>
 

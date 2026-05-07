@@ -16,6 +16,8 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public int FinalBehavior { get; init; }
 
+        public int? SlaInDays { get; init; }
+
         public int OpportunitiesCount { get; init; }
 
         public decimal EstimatedValueTotal { get; init; }

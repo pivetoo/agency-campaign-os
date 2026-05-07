@@ -49,7 +49,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             await EnsureInitialStageRules(request.IsInitial, null, cancellationToken);
 
-            CommercialPipelineStage stage = new(request.Name, request.DisplayOrder, request.Color, request.Description, request.IsInitial, request.IsFinal, request.FinalBehavior);
+            CommercialPipelineStage stage = new(request.Name, request.DisplayOrder, request.Color, request.Description, request.IsInitial, request.IsFinal, request.FinalBehavior, request.DefaultProbability, request.SlaInDays);
             bool success = await Insert(cancellationToken, stage);
             if (!success)
             {
@@ -76,7 +76,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             await EnsureInitialStageRules(request.IsInitial, stage.Id, cancellationToken);
-            stage.Update(request.Name, request.DisplayOrder, request.Color, request.Description, request.IsInitial, request.IsFinal, request.FinalBehavior, request.IsActive);
+            stage.Update(request.Name, request.DisplayOrder, request.Color, request.Description, request.IsInitial, request.IsFinal, request.FinalBehavior, request.IsActive, request.DefaultProbability, request.SlaInDays);
 
             CommercialPipelineStage? result = await Update(stage, cancellationToken);
             if (result is null)

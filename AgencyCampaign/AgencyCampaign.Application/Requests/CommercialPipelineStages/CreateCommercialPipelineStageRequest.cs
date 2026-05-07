@@ -23,5 +23,11 @@ namespace AgencyCampaign.Application.Requests.CommercialPipelineStages
         public bool IsFinal { get; set; }
 
         public CommercialPipelineStageFinalBehavior FinalBehavior { get; set; }
+
+        [Range(0, 100)]
+        public decimal? DefaultProbability { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int? SlaInDays { get; set; }
     }
 }

@@ -13,6 +13,8 @@ namespace AgencyCampaign.Api.Contracts.CommercialPipelineStages
         public bool IsInitial { get; init; }
         public bool IsFinal { get; init; }
         public int FinalBehavior { get; init; }
+        public decimal? DefaultProbability { get; init; }
+        public int? SlaInDays { get; init; }
         public bool IsActive { get; init; }
         public DateTimeOffset CreatedAt { get; init; }
         public DateTimeOffset? UpdatedAt { get; init; }
@@ -27,6 +29,8 @@ namespace AgencyCampaign.Api.Contracts.CommercialPipelineStages
             IsInitial = item.IsInitial,
             IsFinal = item.IsFinal,
             FinalBehavior = (int)item.FinalBehavior,
+            DefaultProbability = item.DefaultProbability,
+            SlaInDays = item.SlaInDays,
             IsActive = item.IsActive,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt

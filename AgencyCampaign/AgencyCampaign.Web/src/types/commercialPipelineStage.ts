@@ -7,6 +7,8 @@ export interface CommercialPipelineStage {
   isInitial: boolean
   isFinal: boolean
   finalBehavior: number
+  defaultProbability?: number
+  slaInDays?: number
   isActive: boolean
   createdAt: string
   updatedAt?: string

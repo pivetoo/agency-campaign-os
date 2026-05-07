@@ -102,6 +102,10 @@ export interface OpportunityBoardItem {
   pendingFollowUpsCount: number
   overdueFollowUpsCount: number
   updatedAt?: string
+  stageEnteredAt?: string
+  stageSlaInDays?: number
+  daysInStage?: number
+  slaStatus: 'ok' | 'warning' | 'breached'
 }
 
 export interface OpportunityBoardStage {
@@ -112,6 +116,7 @@ export interface OpportunityBoardStage {
   displayOrder: number
   isFinal: boolean
   finalBehavior: number
+  slaInDays?: number
   opportunitiesCount: number
   estimatedValueTotal: number
   items: OpportunityBoardItem[]

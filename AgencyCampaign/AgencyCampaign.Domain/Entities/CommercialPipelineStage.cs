@@ -21,13 +21,15 @@ namespace AgencyCampaign.Domain.Entities
 
         public decimal? DefaultProbability { get; private set; }
 
+        public int? SlaInDays { get; private set; }
+
         public bool IsActive { get; private set; } = true;
 
         private CommercialPipelineStage()
         {
         }
 
-        public CommercialPipelineStage(string name, int displayOrder, string color, string? description = null, bool isInitial = false, bool isFinal = false, CommercialPipelineStageFinalBehavior finalBehavior = CommercialPipelineStageFinalBehavior.None, decimal? defaultProbability = null)
+        public CommercialPipelineStage(string name, int displayOrder, string color, string? description = null, bool isInitial = false, bool isFinal = false, CommercialPipelineStageFinalBehavior finalBehavior = CommercialPipelineStageFinalBehavior.None, decimal? defaultProbability = null, int? slaInDays = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -40,11 +42,12 @@ namespace AgencyCampaign.Domain.Entities
             IsFinal = isFinal;
             FinalBehavior = isFinal ? finalBehavior : CommercialPipelineStageFinalBehavior.None;
             DefaultProbability = NormalizeProbability(defaultProbability);
+            SlaInDays = NormalizeSla(slaInDays);
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void Update(string name, int displayOrder, string color, string? description, bool isInitial, bool isFinal, CommercialPipelineStageFinalBehavior finalBehavior, bool isActive, decimal? defaultProbability = null)
+        public void Update(string name, int displayOrder, string color, string? description, bool isInitial, bool isFinal, CommercialPipelineStageFinalBehavior finalBehavior, bool isActive, decimal? defaultProbability = null, int? slaInDays = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -57,8 +60,24 @@ namespace AgencyCampaign.Domain.Entities
             IsFinal = isFinal;
             FinalBehavior = isFinal ? finalBehavior : CommercialPipelineStageFinalBehavior.None;
             DefaultProbability = NormalizeProbability(defaultProbability);
+            SlaInDays = NormalizeSla(slaInDays);
             IsActive = isActive;
             UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        private static int? NormalizeSla(int? slaInDays)
+        {
+            if (!slaInDays.HasValue)
+            {
+                return null;
+            }
+
+            if (slaInDays.Value <= 0)
+            {
+                return null;
+            }
+
+            return slaInDays.Value;
         }
 
         private static string? Normalize(string? value)

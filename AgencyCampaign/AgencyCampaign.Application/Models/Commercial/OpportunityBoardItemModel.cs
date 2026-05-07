@@ -29,5 +29,13 @@ namespace AgencyCampaign.Application.Models.Commercial
         public int OverdueFollowUpsCount { get; init; }
 
         public DateTimeOffset? UpdatedAt { get; init; }
+
+        public DateTimeOffset? StageEnteredAt { get; init; }
+
+        public int? StageSlaInDays { get; init; }
+
+        public int? DaysInStage { get; init; }
+
+        public string SlaStatus { get; init; } = "ok";
     }
 }

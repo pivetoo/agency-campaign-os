@@ -11,6 +11,8 @@ export interface CreateCommercialPipelineStageRequest {
   isInitial: boolean
   isFinal: boolean
   finalBehavior: number
+  defaultProbability?: number
+  slaInDays?: number
 }
 
 export interface UpdateCommercialPipelineStageRequest extends CreateCommercialPipelineStageRequest {
