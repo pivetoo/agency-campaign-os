@@ -74,6 +74,36 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await opportunityService.GetAlerts(cancellationToken));
         }
 
+        [RequireAccess("Permite consultar o histórico de estágios de uma oportunidade.")]
+        [HttpGet("{id:long}/StageHistory")]
+        public async Task<IActionResult> StageHistory(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await opportunityService.GetStageHistory(id, cancellationToken));
+        }
+
+        [RequireAccess("Permite consultar a previsão de receita ponderada do pipeline.")]
+        [GetEndpoint("[action]")]
+        public async Task<IActionResult> Forecast([FromQuery] DateTimeOffset? fromMonth, [FromQuery] DateTimeOffset? toMonth, CancellationToken cancellationToken)
+        {
+            DateTimeOffset start = fromMonth ?? DateTimeOffset.UtcNow;
+            DateTimeOffset end = toMonth ?? start.AddMonths(5);
+            return Http200(await opportunityService.GetForecast(start, end, cancellationToken));
+        }
+
+        [RequireAccess("Permite consultar a conversão por estágio do funil comercial.")]
+        [GetEndpoint("[action]")]
+        public async Task<IActionResult> FunnelConversion(CancellationToken cancellationToken)
+        {
+            return Http200(await opportunityService.GetFunnelConversion(cancellationToken));
+        }
+
+        [RequireAccess("Permite consultar o ranking de responsáveis comerciais.")]
+        [GetEndpoint("[action]")]
+        public async Task<IActionResult> ResponsibleRanking(CancellationToken cancellationToken)
+        {
+            return Http200(await opportunityService.GetResponsibleRanking(cancellationToken));
+        }
+
         [RequireAccess("Permite cadastrar uma nova oportunidade comercial.")]
         [PostEndpoint("[action]")]
         public async Task<IActionResult> Create([FromBody] CreateOpportunityRequest request, CancellationToken cancellationToken)

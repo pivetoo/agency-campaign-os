@@ -9,6 +9,7 @@ namespace AgencyCampaign.Domain.Entities
         private readonly List<OpportunityNegotiation> negotiations = [];
         private readonly List<OpportunityFollowUp> followUps = [];
         private readonly List<Proposal> proposals = [];
+        private readonly List<OpportunityStageHistory> stageHistory = [];
 
         public long BrandId { get; private set; }
 
@@ -23,6 +24,10 @@ namespace AgencyCampaign.Domain.Entities
         public CommercialPipelineStage? CommercialPipelineStage { get; private set; }
 
         public decimal EstimatedValue { get; private set; }
+
+        public decimal Probability { get; private set; }
+
+        public bool ProbabilityIsManual { get; private set; }
 
         public DateTimeOffset? ExpectedCloseAt { get; private set; }
 
@@ -48,6 +53,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public IReadOnlyCollection<Proposal> Proposals => proposals.AsReadOnly();
 
+        public IReadOnlyCollection<OpportunityStageHistory> StageHistory => stageHistory.AsReadOnly();
+
         [NotMapped]
         public IReadOnlyCollection<OpportunityApprovalRequest> ApprovalRequests => negotiations.SelectMany(item => item.ApprovalRequests).ToArray();
 
@@ -55,7 +62,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Opportunity(long brandId, long commercialPipelineStageId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt = null, string? description = null, long? commercialResponsibleId = null, string? contactName = null, string? contactEmail = null, string? notes = null)
+        public Opportunity(long brandId, long commercialPipelineStageId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt = null, string? description = null, long? commercialResponsibleId = null, string? contactName = null, string? contactEmail = null, string? notes = null, long? createdByUserId = null, string? createdByUserName = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(brandId);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(commercialPipelineStageId);
@@ -74,6 +81,9 @@ namespace AgencyCampaign.Domain.Entities
             Notes = Normalize(notes);
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
+
+            stageHistory.Add(new OpportunityStageHistory(
+                Id, null, commercialPipelineStageId, createdByUserId, createdByUserName, "Oportunidade criada"));
         }
 
         public void Update(long brandId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt, string? description, long? commercialResponsibleId, string? contactName, string? contactEmail, string? notes)
@@ -94,7 +104,7 @@ namespace AgencyCampaign.Domain.Entities
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void ChangeStage(CommercialPipelineStage stage)
+        public void ChangeStage(CommercialPipelineStage stage, long? changedByUserId = null, string? changedByUserName = null, string? reason = null)
         {
             ArgumentNullException.ThrowIfNull(stage);
 
@@ -103,12 +113,59 @@ namespace AgencyCampaign.Domain.Entities
                 throw new InvalidOperationException("Inactive pipeline stages cannot be used.");
             }
 
+            long? fromStageId = CommercialPipelineStageId == 0 ? null : CommercialPipelineStageId;
+            if (fromStageId == stage.Id)
+            {
+                return;
+            }
+
             CommercialPipelineStageId = stage.Id;
             ApplyStageFinalBehavior(stage, null);
+            ApplyStageProbability(stage);
+            UpdatedAt = DateTimeOffset.UtcNow;
+
+            stageHistory.Add(new OpportunityStageHistory(
+                Id, fromStageId, stage.Id, changedByUserId, changedByUserName, reason));
+        }
+
+        public void SetProbability(decimal probability)
+        {
+            if (probability < 0m || probability > 100m)
+            {
+                throw new ArgumentOutOfRangeException(nameof(probability), "Probability must be between 0 and 100.");
+            }
+
+            Probability = probability;
+            ProbabilityIsManual = true;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void CloseAsWon(CommercialPipelineStage stage, string? wonNotes)
+        private void ApplyStageProbability(CommercialPipelineStage stage)
+        {
+            if (stage.FinalBehavior == CommercialPipelineStageFinalBehavior.Won)
+            {
+                Probability = 100m;
+                return;
+            }
+
+            if (stage.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost)
+            {
+                Probability = 0m;
+                return;
+            }
+
+            if (ProbabilityIsManual)
+            {
+                return;
+            }
+
+            if (stage.DefaultProbability.HasValue)
+            {
+                Probability = stage.DefaultProbability.Value;
+            }
+        }
+
+        public void CloseAsWon(CommercialPipelineStage stage, string? wonNotes, long? changedByUserId = null, string? changedByUserName = null)
         {
             ArgumentNullException.ThrowIfNull(stage);
 
@@ -117,14 +174,19 @@ namespace AgencyCampaign.Domain.Entities
                 throw new InvalidOperationException("Opportunity is already closed.");
             }
 
+            long? fromStageId = CommercialPipelineStageId == 0 ? null : CommercialPipelineStageId;
+
             CommercialPipelineStageId = stage.Id;
             WonNotes = Normalize(wonNotes);
             LossReason = null;
             ClosedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
+
+            stageHistory.Add(new OpportunityStageHistory(
+                Id, fromStageId, stage.Id, changedByUserId, changedByUserName, WonNotes ?? "Fechada como ganha"));
         }
 
-        public void CloseAsLost(CommercialPipelineStage stage, string lossReason)
+        public void CloseAsLost(CommercialPipelineStage stage, string lossReason, long? changedByUserId = null, string? changedByUserName = null)
         {
             ArgumentNullException.ThrowIfNull(stage);
 
@@ -135,11 +197,16 @@ namespace AgencyCampaign.Domain.Entities
 
             ArgumentException.ThrowIfNullOrWhiteSpace(lossReason);
 
+            long? fromStageId = CommercialPipelineStageId == 0 ? null : CommercialPipelineStageId;
+
             CommercialPipelineStageId = stage.Id;
             LossReason = lossReason.Trim();
             WonNotes = null;
             ClosedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
+
+            stageHistory.Add(new OpportunityStageHistory(
+                Id, fromStageId, stage.Id, changedByUserId, changedByUserName, LossReason));
         }
 
         private bool IsClosed()

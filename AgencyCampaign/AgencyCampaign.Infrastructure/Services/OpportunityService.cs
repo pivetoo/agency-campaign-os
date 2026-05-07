@@ -4,6 +4,7 @@ using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Application.Abstractions;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -15,10 +16,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class OpportunityService : CrudService<Opportunity>, IOpportunityService
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
+        private readonly ICurrentUser currentUser;
 
-        public OpportunityService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public OpportunityService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
         {
             this.localizer = localizer;
+            this.currentUser = currentUser;
         }
 
         public async Task<PagedResult<Opportunity>> GetOpportunities(PagedRequest request, CancellationToken cancellationToken = default)
@@ -51,7 +54,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.CommercialResponsibleId,
                 request.ContactName,
                 request.ContactEmail,
-                request.Notes);
+                request.Notes,
+                currentUser.UserId,
+                currentUser.UserName);
 
             bool success = await Insert(cancellationToken, opportunity);
             if (!success)
@@ -92,7 +97,12 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.ContactEmail,
                 request.Notes);
 
-            opportunity.ChangeStage(stage);
+            opportunity.ChangeStage(stage, currentUser.UserId, currentUser.UserName);
+
+            if (request.Probability.HasValue)
+            {
+                opportunity.SetProbability(request.Probability.Value);
+            }
 
             Opportunity? result = await Update(opportunity, cancellationToken);
             if (result is null)
@@ -107,7 +117,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
             CommercialPipelineStage stage = await ResolveStage(request.CommercialPipelineStageId, cancellationToken);
-            opportunity.ChangeStage(stage);
+            opportunity.ChangeStage(stage, currentUser.UserId, currentUser.UserName, request.Reason);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -116,7 +126,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
             CommercialPipelineStage wonStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Won, cancellationToken);
-            opportunity.CloseAsWon(wonStage, request.WonNotes);
+            opportunity.CloseAsWon(wonStage, request.WonNotes, currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -125,7 +135,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
             CommercialPipelineStage lostStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Lost, cancellationToken);
-            opportunity.CloseAsLost(lostStage, request.LossReason);
+            opportunity.CloseAsLost(lostStage, request.LossReason, currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -217,6 +227,196 @@ namespace AgencyCampaign.Infrastructure.Services
                 TotalPipelineValue = opportunities.Where(IsOpen).Sum(item => item.EstimatedValue),
                 WonValue = opportunities.Where(IsWon).Sum(item => item.EstimatedValue)
             };
+        }
+
+        public async Task<IReadOnlyCollection<CommercialFunnelStageModel>> GetFunnelConversion(CancellationToken cancellationToken = default)
+        {
+            List<CommercialPipelineStage> stages = await DbContext.Set<CommercialPipelineStage>()
+                .AsNoTracking()
+                .Where(item => item.IsActive)
+                .OrderBy(item => item.DisplayOrder)
+                .ThenBy(item => item.Name)
+                .ToListAsync(cancellationToken);
+
+            List<Opportunity> opportunities = await DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Include(item => item.CommercialPipelineStage)
+                .ToListAsync(cancellationToken);
+
+            var enteredByStage = await DbContext.Set<OpportunityStageHistory>()
+                .AsNoTracking()
+                .GroupBy(item => item.ToStageId)
+                .Select(group => new { StageId = group.Key, Count = group.Select(item => item.OpportunityId).Distinct().Count() })
+                .ToDictionaryAsync(item => item.StageId, item => item.Count, cancellationToken);
+
+            List<CommercialFunnelStageModel> result = [];
+            int totalEntered = enteredByStage.Values.DefaultIfEmpty(0).Max();
+
+            for (int index = 0; index < stages.Count; index++)
+            {
+                CommercialPipelineStage stage = stages[index];
+                List<Opportunity> openInStage = opportunities
+                    .Where(item => item.CommercialPipelineStageId == stage.Id && !item.ClosedAt.HasValue
+                        && stage.FinalBehavior == CommercialPipelineStageFinalBehavior.None)
+                    .ToList();
+
+                int entered = enteredByStage.TryGetValue(stage.Id, out int count) ? count : 0;
+                decimal conversion = totalEntered > 0
+                    ? decimal.Round((decimal)entered / totalEntered * 100m, 1)
+                    : 0m;
+
+                result.Add(new CommercialFunnelStageModel
+                {
+                    StageId = stage.Id,
+                    Name = stage.Name,
+                    Color = stage.Color,
+                    DisplayOrder = stage.DisplayOrder,
+                    IsFinalBehavior = (int)stage.FinalBehavior,
+                    OpenCount = openInStage.Count,
+                    OpenValue = openInStage.Sum(item => item.EstimatedValue),
+                    EnteredCount = entered,
+                    ConversionRate = conversion
+                });
+            }
+
+            return result;
+        }
+
+        public async Task<IReadOnlyCollection<CommercialResponsibleRankingModel>> GetResponsibleRanking(CancellationToken cancellationToken = default)
+        {
+            List<Opportunity> opportunities = await DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Include(item => item.CommercialPipelineStage)
+                .Include(item => item.CommercialResponsible)
+                .ToListAsync(cancellationToken);
+
+            var grouped = opportunities
+                .GroupBy(item => new { item.CommercialResponsibleId, Name = item.CommercialResponsible?.Name ?? "Sem responsável" });
+
+            List<CommercialResponsibleRankingModel> result = [];
+
+            foreach (var group in grouped)
+            {
+                List<Opportunity> open = group.Where(item => !item.ClosedAt.HasValue
+                    && item.CommercialPipelineStage != null
+                    && item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.None).ToList();
+
+                List<Opportunity> won = group.Where(item => item.CommercialPipelineStage != null
+                    && item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.Won).ToList();
+
+                List<Opportunity> lost = group.Where(item => item.CommercialPipelineStage != null
+                    && item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost).ToList();
+
+                int closedTotal = won.Count + lost.Count;
+                decimal winRate = closedTotal > 0 ? decimal.Round((decimal)won.Count / closedTotal * 100m, 1) : 0m;
+
+                result.Add(new CommercialResponsibleRankingModel
+                {
+                    CommercialResponsibleId = group.Key.CommercialResponsibleId,
+                    Name = group.Key.Name,
+                    OpenOpportunities = open.Count,
+                    OpenValue = open.Sum(item => item.EstimatedValue),
+                    WonOpportunities = won.Count,
+                    WonValue = won.Sum(item => item.EstimatedValue),
+                    LostOpportunities = lost.Count,
+                    WinRate = winRate
+                });
+            }
+
+            return result
+                .OrderByDescending(item => item.WonValue)
+                .ThenByDescending(item => item.OpenValue)
+                .ToArray();
+        }
+
+        public async Task<CommercialForecastModel> GetForecast(DateTimeOffset fromMonth, DateTimeOffset toMonth, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset rangeStart = new DateTimeOffset(fromMonth.Year, fromMonth.Month, 1, 0, 0, 0, TimeSpan.Zero);
+            DateTimeOffset rangeEnd = new DateTimeOffset(toMonth.Year, toMonth.Month, 1, 0, 0, 0, TimeSpan.Zero).AddMonths(1);
+
+            if (rangeEnd <= rangeStart)
+            {
+                throw new ArgumentException("toMonth must be greater than or equal to fromMonth.");
+            }
+
+            List<Opportunity> opportunities = await DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Include(item => item.CommercialPipelineStage)
+                .Where(item => !item.ClosedAt.HasValue
+                    && item.ExpectedCloseAt.HasValue
+                    && item.ExpectedCloseAt >= rangeStart
+                    && item.ExpectedCloseAt < rangeEnd
+                    && item.CommercialPipelineStage != null
+                    && item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.None)
+                .ToListAsync(cancellationToken);
+
+            string[] monthLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+            List<CommercialForecastMonthModel> months = [];
+            DateTimeOffset cursor = rangeStart;
+
+            while (cursor < rangeEnd)
+            {
+                List<Opportunity> ofMonth = opportunities
+                    .Where(item => item.ExpectedCloseAt!.Value.Year == cursor.Year && item.ExpectedCloseAt!.Value.Month == cursor.Month)
+                    .ToList();
+
+                decimal estimated = ofMonth.Sum(item => item.EstimatedValue);
+                decimal weighted = ofMonth.Sum(item => item.EstimatedValue * (item.Probability / 100m));
+
+                months.Add(new CommercialForecastMonthModel
+                {
+                    Month = $"{cursor.Year:D4}-{cursor.Month:D2}",
+                    Label = $"{monthLabels[cursor.Month - 1]}/{cursor.Year % 100:D2}",
+                    Estimated = decimal.Round(estimated, 2),
+                    Weighted = decimal.Round(weighted, 2),
+                    Count = ofMonth.Count
+                });
+
+                cursor = cursor.AddMonths(1);
+            }
+
+            return new CommercialForecastModel
+            {
+                Months = months,
+                TotalEstimated = months.Sum(item => item.Estimated),
+                TotalWeighted = months.Sum(item => item.Weighted),
+                TotalCount = months.Sum(item => item.Count)
+            };
+        }
+
+        public async Task<IReadOnlyCollection<OpportunityStageHistoryModel>> GetStageHistory(long opportunityId, CancellationToken cancellationToken = default)
+        {
+            bool exists = await DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == opportunityId, cancellationToken);
+
+            if (!exists)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+
+            return await DbContext.Set<OpportunityStageHistory>()
+                .AsNoTracking()
+                .Include(item => item.FromStage)
+                .Include(item => item.ToStage)
+                .Where(item => item.OpportunityId == opportunityId)
+                .OrderByDescending(item => item.ChangedAt)
+                .Select(item => new OpportunityStageHistoryModel
+                {
+                    Id = item.Id,
+                    OpportunityId = item.OpportunityId,
+                    FromStageId = item.FromStageId,
+                    FromStageName = item.FromStage != null ? item.FromStage.Name : null,
+                    FromStageColor = item.FromStage != null ? item.FromStage.Color : null,
+                    ToStageId = item.ToStageId,
+                    ToStageName = item.ToStage != null ? item.ToStage.Name : string.Empty,
+                    ToStageColor = item.ToStage != null ? item.ToStage.Color : null,
+                    ChangedAt = item.ChangedAt,
+                    ChangedByUserId = item.ChangedByUserId,
+                    ChangedByUserName = item.ChangedByUserName,
+                    Reason = item.Reason
+                })
+                .ToArrayAsync(cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<CommercialAlertModel>> GetAlerts(CancellationToken cancellationToken = default)

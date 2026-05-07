@@ -1,8 +1,10 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Application.Abstractions;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -14,10 +16,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class ProposalService : CrudService<Proposal>, IProposalService
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
+        private readonly ICurrentUser currentUser;
 
-        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
         {
             this.localizer = localizer;
+            this.currentUser = currentUser;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, CancellationToken cancellationToken = default)
@@ -46,7 +50,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 commercialResponsibleId,
                 request.Description,
                 request.ValidityUntil,
-                request.Notes);
+                request.Notes,
+                currentUser.UserId,
+                currentUser.UserName);
 
             if (!string.IsNullOrWhiteSpace(commercialResponsibleName))
             {
@@ -99,7 +105,7 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<Proposal> MarkAsSent(long id, CancellationToken cancellationToken = default)
         {
             Proposal? proposal = await GetAndValidateProposal(id, cancellationToken);
-            proposal.MarkAsSent();
+            proposal.MarkAsSent(currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(proposal, cancellationToken);
         }
@@ -107,7 +113,7 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<Proposal> MarkAsViewed(long id, CancellationToken cancellationToken = default)
         {
             Proposal? proposal = await GetAndValidateProposal(id, cancellationToken);
-            proposal.MarkAsViewed();
+            proposal.MarkAsViewed(currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(proposal, cancellationToken);
         }
@@ -115,7 +121,7 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<Proposal> ApproveProposal(long id, CancellationToken cancellationToken = default)
         {
             Proposal? proposal = await GetAndValidateProposal(id, cancellationToken);
-            proposal.Approve();
+            proposal.Approve(currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(proposal, cancellationToken);
         }
@@ -123,7 +129,7 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<Proposal> RejectProposal(long id, CancellationToken cancellationToken = default)
         {
             Proposal? proposal = await GetAndValidateProposal(id, cancellationToken);
-            proposal.Reject();
+            proposal.Reject(currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(proposal, cancellationToken);
         }
@@ -141,7 +147,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(localizer["record.notFound"]);
             }
 
-            proposal.ConvertToCampaign(campaignId);
+            proposal.ConvertToCampaign(campaignId, currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(proposal, cancellationToken);
         }
@@ -149,9 +155,38 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<Proposal> CancelProposal(long id, CancellationToken cancellationToken = default)
         {
             Proposal? proposal = await GetAndValidateProposal(id, cancellationToken);
-            proposal.Cancel();
+            proposal.Cancel(currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(proposal, cancellationToken);
+        }
+
+        public async Task<IReadOnlyCollection<ProposalStatusHistoryModel>> GetStatusHistory(long proposalId, CancellationToken cancellationToken = default)
+        {
+            bool exists = await DbContext.Set<Proposal>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == proposalId, cancellationToken);
+
+            if (!exists)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+
+            return await DbContext.Set<ProposalStatusHistory>()
+                .AsNoTracking()
+                .Where(item => item.ProposalId == proposalId)
+                .OrderByDescending(item => item.ChangedAt)
+                .Select(item => new ProposalStatusHistoryModel
+                {
+                    Id = item.Id,
+                    ProposalId = item.ProposalId,
+                    FromStatus = item.FromStatus.HasValue ? (int)item.FromStatus.Value : null,
+                    ToStatus = (int)item.ToStatus,
+                    ChangedAt = item.ChangedAt,
+                    ChangedByUserId = item.ChangedByUserId,
+                    ChangedByUserName = item.ChangedByUserName,
+                    Reason = item.Reason
+                })
+                .ToArrayAsync(cancellationToken);
         }
 
         private async Task<Proposal> GetAndValidateProposal(long id, CancellationToken cancellationToken)

@@ -20,6 +20,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Color)
                 .IsRequired()
                 .HasMaxLength(32);
+
+            builder.Property(entity => entity.DefaultProbability)
+                .HasPrecision(5, 2);
         }
     }
 }

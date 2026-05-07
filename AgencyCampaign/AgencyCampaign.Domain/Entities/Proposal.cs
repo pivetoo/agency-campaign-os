@@ -6,6 +6,7 @@ namespace AgencyCampaign.Domain.Entities
     public sealed class Proposal : Entity
     {
         private readonly List<ProposalItem> items = [];
+        private readonly List<ProposalStatusHistory> statusHistory = [];
 
         public long? CampaignId { get; private set; }
 
@@ -33,11 +34,13 @@ namespace AgencyCampaign.Domain.Entities
 
         public IReadOnlyCollection<ProposalItem> Items => items.AsReadOnly();
 
+        public IReadOnlyCollection<ProposalStatusHistory> StatusHistory => statusHistory.AsReadOnly();
+
         private Proposal()
         {
         }
 
-        public Proposal(long opportunityId, string name, long internalOwnerId, string? description = null, DateTimeOffset? validityUntil = null, string? notes = null)
+        public Proposal(long opportunityId, string name, long internalOwnerId, string? description = null, DateTimeOffset? validityUntil = null, string? notes = null, long? createdByUserId = null, string? createdByUserName = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityId);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -52,6 +55,9 @@ namespace AgencyCampaign.Domain.Entities
             Status = ProposalStatus.Draft;
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
+
+            statusHistory.Add(new ProposalStatusHistory(
+                Id, null, ProposalStatus.Draft, createdByUserId, createdByUserName, "Proposta criada"));
         }
 
         public void UpdateTotalValue(decimal total)
@@ -72,52 +78,47 @@ namespace AgencyCampaign.Domain.Entities
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void ChangeStatus(ProposalStatus status)
+        public void ChangeStatus(ProposalStatus status, long? changedByUserId = null, string? changedByUserName = null, string? reason = null)
         {
-            Status = status;
-            UpdatedAt = DateTimeOffset.UtcNow;
+            ApplyStatusChange(status, changedByUserId, changedByUserName, reason);
         }
 
-        public void MarkAsSent()
+        public void MarkAsSent(long? changedByUserId = null, string? changedByUserName = null, string? reason = null)
         {
-            Status = ProposalStatus.Sent;
-            UpdatedAt = DateTimeOffset.UtcNow;
+            ApplyStatusChange(ProposalStatus.Sent, changedByUserId, changedByUserName, reason);
         }
 
-        public void MarkAsViewed()
+        public void MarkAsViewed(long? changedByUserId = null, string? changedByUserName = null, string? reason = null)
         {
             if (Status != ProposalStatus.Sent)
             {
                 throw new InvalidOperationException("Proposal must be Sent to be marked as Viewed.");
             }
 
-            Status = ProposalStatus.Viewed;
-            UpdatedAt = DateTimeOffset.UtcNow;
+            ApplyStatusChange(ProposalStatus.Viewed, changedByUserId, changedByUserName, reason);
         }
 
-        public void Approve()
+        public void Approve(long? changedByUserId = null, string? changedByUserName = null, string? reason = null)
         {
             if (Status != ProposalStatus.Sent && Status != ProposalStatus.Viewed)
             {
                 throw new InvalidOperationException("Proposal must be Sent or Viewed to be Approved.");
             }
 
-            Status = ProposalStatus.Approved;
-            UpdatedAt = DateTimeOffset.UtcNow;
+            ApplyStatusChange(ProposalStatus.Approved, changedByUserId, changedByUserName, reason);
         }
 
-        public void Reject()
+        public void Reject(long? changedByUserId = null, string? changedByUserName = null, string? reason = null)
         {
             if (Status != ProposalStatus.Sent && Status != ProposalStatus.Viewed)
             {
                 throw new InvalidOperationException("Proposal must be Sent or Viewed to be Rejected.");
             }
 
-            Status = ProposalStatus.Rejected;
-            UpdatedAt = DateTimeOffset.UtcNow;
+            ApplyStatusChange(ProposalStatus.Rejected, changedByUserId, changedByUserName, reason);
         }
 
-        public void ConvertToCampaign(long campaignId)
+        public void ConvertToCampaign(long campaignId, long? changedByUserId = null, string? changedByUserName = null)
         {
             if (Status != ProposalStatus.Approved)
             {
@@ -125,28 +126,40 @@ namespace AgencyCampaign.Domain.Entities
             }
 
             CampaignId = campaignId;
-            Status = ProposalStatus.Converted;
-            UpdatedAt = DateTimeOffset.UtcNow;
+            ApplyStatusChange(ProposalStatus.Converted, changedByUserId, changedByUserName, $"Convertida na campanha #{campaignId}");
         }
 
         public void Expire()
         {
             if (ValidityUntil.HasValue && ValidityUntil.Value < DateTimeOffset.UtcNow && Status == ProposalStatus.Sent)
             {
-                Status = ProposalStatus.Expired;
-                UpdatedAt = DateTimeOffset.UtcNow;
+                ApplyStatusChange(ProposalStatus.Expired, null, null, "Validade expirada automaticamente");
             }
         }
 
-        public void Cancel()
+        public void Cancel(long? changedByUserId = null, string? changedByUserName = null, string? reason = null)
         {
             if (Status == ProposalStatus.Converted)
             {
                 throw new InvalidOperationException("Cannot cancel a Converted proposal.");
             }
 
-            Status = ProposalStatus.Cancelled;
+            ApplyStatusChange(ProposalStatus.Cancelled, changedByUserId, changedByUserName, reason);
+        }
+
+        private void ApplyStatusChange(ProposalStatus newStatus, long? changedByUserId, string? changedByUserName, string? reason)
+        {
+            ProposalStatus previousStatus = Status;
+            Status = newStatus;
             UpdatedAt = DateTimeOffset.UtcNow;
+
+            if (previousStatus == newStatus)
+            {
+                return;
+            }
+
+            statusHistory.Add(new ProposalStatusHistory(
+                Id, previousStatus, newStatus, changedByUserId, changedByUserName, reason));
         }
 
         public void AddItem(ProposalItem item)

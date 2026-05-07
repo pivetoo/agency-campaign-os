@@ -7,5 +7,8 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         [Required]
         [Range(1, long.MaxValue)]
         public long CommercialPipelineStageId { get; set; }
+
+        [MaxLength(500)]
+        public string? Reason { get; set; }
     }
 }

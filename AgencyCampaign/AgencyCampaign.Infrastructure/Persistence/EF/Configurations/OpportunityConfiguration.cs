@@ -20,6 +20,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.EstimatedValue)
                 .HasPrecision(18, 2);
 
+            builder.Property(entity => entity.Probability)
+                .HasPrecision(5, 2);
+
             builder.Property(entity => entity.ContactName)
                 .HasMaxLength(150);
 
@@ -64,6 +67,11 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .WithOne(entity => entity.Opportunity)
                 .HasForeignKey(entity => entity.OpportunityId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasMany(entity => entity.StageHistory)
+                .WithOne(entity => entity.Opportunity)
+                .HasForeignKey(entity => entity.OpportunityId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

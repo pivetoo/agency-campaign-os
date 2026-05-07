@@ -40,6 +40,11 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .WithOne(item => item.Proposal)
                 .HasForeignKey(item => item.ProposalId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(entity => entity.StatusHistory)
+                .WithOne(item => item.Proposal)
+                .HasForeignKey(item => item.ProposalId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

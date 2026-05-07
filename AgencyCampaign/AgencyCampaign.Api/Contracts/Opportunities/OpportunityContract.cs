@@ -20,6 +20,10 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public decimal EstimatedValue { get; init; }
 
+        public decimal Probability { get; init; }
+
+        public bool ProbabilityIsManual { get; init; }
+
         public DateTimeOffset? ExpectedCloseAt { get; init; }
 
         public long? CommercialResponsibleId { get; init; }
@@ -58,6 +62,8 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
             Description = item.Description,
             CommercialPipelineStageId = item.CommercialPipelineStageId,
             EstimatedValue = item.EstimatedValue,
+            Probability = item.Probability,
+            ProbabilityIsManual = item.ProbabilityIsManual,
             ExpectedCloseAt = item.ExpectedCloseAt,
             CommercialResponsibleId = item.CommercialResponsibleId,
             ContactName = item.ContactName,

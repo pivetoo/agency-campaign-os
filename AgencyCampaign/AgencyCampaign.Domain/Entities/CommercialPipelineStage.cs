@@ -19,13 +19,15 @@ namespace AgencyCampaign.Domain.Entities
 
         public CommercialPipelineStageFinalBehavior FinalBehavior { get; private set; }
 
+        public decimal? DefaultProbability { get; private set; }
+
         public bool IsActive { get; private set; } = true;
 
         private CommercialPipelineStage()
         {
         }
 
-        public CommercialPipelineStage(string name, int displayOrder, string color, string? description = null, bool isInitial = false, bool isFinal = false, CommercialPipelineStageFinalBehavior finalBehavior = CommercialPipelineStageFinalBehavior.None)
+        public CommercialPipelineStage(string name, int displayOrder, string color, string? description = null, bool isInitial = false, bool isFinal = false, CommercialPipelineStageFinalBehavior finalBehavior = CommercialPipelineStageFinalBehavior.None, decimal? defaultProbability = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -37,11 +39,12 @@ namespace AgencyCampaign.Domain.Entities
             IsInitial = isInitial;
             IsFinal = isFinal;
             FinalBehavior = isFinal ? finalBehavior : CommercialPipelineStageFinalBehavior.None;
+            DefaultProbability = NormalizeProbability(defaultProbability);
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void Update(string name, int displayOrder, string color, string? description, bool isInitial, bool isFinal, CommercialPipelineStageFinalBehavior finalBehavior, bool isActive)
+        public void Update(string name, int displayOrder, string color, string? description, bool isInitial, bool isFinal, CommercialPipelineStageFinalBehavior finalBehavior, bool isActive, decimal? defaultProbability = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -53,6 +56,7 @@ namespace AgencyCampaign.Domain.Entities
             IsInitial = isInitial;
             IsFinal = isFinal;
             FinalBehavior = isFinal ? finalBehavior : CommercialPipelineStageFinalBehavior.None;
+            DefaultProbability = NormalizeProbability(defaultProbability);
             IsActive = isActive;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
@@ -60,6 +64,21 @@ namespace AgencyCampaign.Domain.Entities
         private static string? Normalize(string? value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
+
+        private static decimal? NormalizeProbability(decimal? probability)
+        {
+            if (!probability.HasValue)
+            {
+                return null;
+            }
+
+            if (probability.Value < 0m || probability.Value > 100m)
+            {
+                throw new ArgumentOutOfRangeException(nameof(probability), "Default probability must be between 0 and 100.");
+            }
+
+            return probability.Value;
         }
     }
 }

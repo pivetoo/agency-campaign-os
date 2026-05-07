@@ -62,6 +62,8 @@ export interface Opportunity {
   commercialPipelineStageId: number
   commercialPipelineStage?: Pick<CommercialPipelineStage, 'id' | 'name' | 'color' | 'displayOrder' | 'isFinal' | 'finalBehavior'>
   estimatedValue: number
+  probability: number
+  probabilityIsManual: boolean
   expectedCloseAt?: string
   commercialResponsibleId?: number
   commercialResponsible?: {
@@ -138,6 +140,59 @@ export interface CommercialAlert {
   dueAt?: string
 }
 
+export interface CommercialForecastMonth {
+  month: string
+  label: string
+  estimated: number
+  weighted: number
+  count: number
+}
+
+export interface CommercialForecast {
+  months: CommercialForecastMonth[]
+  totalEstimated: number
+  totalWeighted: number
+  totalCount: number
+}
+
+export interface CommercialFunnelStage {
+  stageId: number
+  name: string
+  color: string
+  displayOrder: number
+  isFinalBehavior: number
+  openCount: number
+  openValue: number
+  enteredCount: number
+  conversionRate: number
+}
+
+export interface CommercialResponsibleRanking {
+  commercialResponsibleId?: number
+  name: string
+  openOpportunities: number
+  openValue: number
+  wonOpportunities: number
+  wonValue: number
+  lostOpportunities: number
+  winRate: number
+}
+
+export interface OpportunityStageHistoryItem {
+  id: number
+  opportunityId: number
+  fromStageId?: number
+  fromStageName?: string
+  fromStageColor?: string
+  toStageId: number
+  toStageName: string
+  toStageColor?: string
+  changedAt: string
+  changedByUserId?: number
+  changedByUserName?: string
+  reason?: string
+}
+
 export interface CreateOpportunityRequest {
   brandId: number
   commercialPipelineStageId?: number
@@ -153,10 +208,12 @@ export interface CreateOpportunityRequest {
 
 export interface UpdateOpportunityRequest extends CreateOpportunityRequest {
   id: number
+  probability?: number
 }
 
 export interface ChangeOpportunityStageRequest {
   commercialPipelineStageId: number
+  reason?: string
 }
 
 export interface CloseOpportunityAsWonRequest {
@@ -263,6 +320,31 @@ export const opportunityService = {
 
   async getAlerts(): Promise<CommercialAlert[]> {
     const response = await httpClient.get<CommercialAlert[]>(`${BASE_URL}/Alerts`)
+    return response.data ?? []
+  },
+
+  async getForecast(params?: { fromMonth?: string; toMonth?: string }): Promise<CommercialForecast | null> {
+    const searchParams = new URLSearchParams()
+    if (params?.fromMonth) searchParams.set('fromMonth', params.fromMonth)
+    if (params?.toMonth) searchParams.set('toMonth', params.toMonth)
+    const query = searchParams.toString()
+    const url = query ? `${BASE_URL}/Forecast?${query}` : `${BASE_URL}/Forecast`
+    const response = await httpClient.get<CommercialForecast>(url)
+    return response.data ?? null
+  },
+
+  async getFunnelConversion(): Promise<CommercialFunnelStage[]> {
+    const response = await httpClient.get<CommercialFunnelStage[]>(`${BASE_URL}/FunnelConversion`)
+    return response.data ?? []
+  },
+
+  async getResponsibleRanking(): Promise<CommercialResponsibleRanking[]> {
+    const response = await httpClient.get<CommercialResponsibleRanking[]>(`${BASE_URL}/ResponsibleRanking`)
+    return response.data ?? []
+  },
+
+  async getStageHistory(opportunityId: number): Promise<OpportunityStageHistoryItem[]> {
+    const response = await httpClient.get<OpportunityStageHistoryItem[]>(`${BASE_URL}/${opportunityId}/StageHistory`)
     return response.data ?? []
   },
 

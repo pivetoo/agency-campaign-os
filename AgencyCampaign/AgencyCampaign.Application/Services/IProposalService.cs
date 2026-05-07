@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Services;
@@ -26,5 +27,7 @@ namespace AgencyCampaign.Application.Services
         Task<Proposal> ConvertToCampaign(long id, long campaignId, CancellationToken cancellationToken = default);
 
         Task<Proposal> CancelProposal(long id, CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<ProposalStatusHistoryModel>> GetStatusHistory(long proposalId, CancellationToken cancellationToken = default);
     }
 }

@@ -122,6 +122,13 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 
+        [RequireAccess("Permite consultar o histórico de status de uma proposta.")]
+        [HttpGet("{id:long}/StatusHistory")]
+        public async Task<IActionResult> StatusHistory(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await proposalService.GetStatusHistory(id, cancellationToken));
+        }
+
         [RequireAccess("Permite listar os itens de uma proposta.")]
         [HttpGet("{proposalId:long}/items/Get")]
         public async Task<IActionResult> GetItems(long proposalId, CancellationToken cancellationToken)

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, TrendingUp } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -22,6 +22,7 @@ export default function AgencyCampaignLayout() {
       { key: 'dashboard', label: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     ]),
     createMenuGroup('Comercial', [
+      { key: 'comercial-dashboard', label: 'Dashboard', path: '/comercial/dashboard', icon: <TrendingUp size={20} /> },
       { key: 'comercial-pipeline', label: 'Pipeline', path: '/comercial/pipeline', icon: <Columns3 size={20} /> },
       { key: 'comercial-propostas', label: 'Propostas', path: '/comercial/propostas', icon: <Tags size={20} /> },
       { key: 'comercial-aprovacoes', label: 'Aprovações', path: '/comercial/aprovacoes', icon: <Globe size={20} /> },
@@ -54,7 +55,8 @@ export default function AgencyCampaignLayout() {
 
     const routeMap: Record<string, string> = {
       '/': 'Dashboard',
-      '/comercial': 'Pipeline',
+      '/comercial': 'Dashboard comercial',
+      '/comercial/dashboard': 'Dashboard comercial',
       '/comercial/pipeline': 'Pipeline',
       '/comercial/oportunidades': 'Oportunidades',
       '/comercial/propostas': 'Propostas',
