@@ -1,0 +1,52 @@
+# Configuração nginx do host VPS para Kanvas
+# Caminho típico: /etc/nginx/sites-available/kanvas.mainstay.com.br
+# Ative com: sudo ln -s /etc/nginx/sites-available/kanvas.mainstay.com.br /etc/nginx/sites-enabled/
+#
+# Antes de habilitar HTTPS, gere o certificado:
+#   sudo certbot --nginx -d kanvas.mainstay.com.br
+# O certbot edita o bloco ssl automaticamente. Para emissão manual sem nginx-plugin:
+#   sudo certbot certonly --webroot -w /var/www/certbot -d kanvas.mainstay.com.br
+
+server {
+    listen 80;
+    server_name kanvas.mainstay.com.br;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name kanvas.mainstay.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/kanvas.mainstay.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kanvas.mainstay.com.br/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    client_max_body_size 20M;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8092/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:8093/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

@@ -1,0 +1,18 @@
+services:
+  api:
+    image: ghcr.io/pivetoo/agency-campaign-api:latest
+    container_name: kanvas-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8092:8080"
+    volumes:
+      - ./config/appsettings.Production.json:/app/appsettings.Production.json:ro
+
+  web:
+    image: ghcr.io/pivetoo/agency-campaign-web:latest
+    container_name: kanvas-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:8093:80"
