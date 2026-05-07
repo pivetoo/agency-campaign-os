@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -33,6 +33,7 @@ export default function AgencyCampaignLayout() {
       { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
       { key: 'creators', label: 'Creators', path: '/creators', icon: <Users size={20} /> },
       { key: 'campanhas', label: 'Campanhas', path: '/campanhas', icon: <Megaphone size={20} /> },
+      { key: 'operacao-aprovacoes', label: 'Aprovações', path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} /> },
     ]),
     createMenuGroup('Finanças', [
       { key: 'financeiro-receber', label: 'Contas a receber', path: '/financeiro/receber', icon: <HandCoins size={20} /> },
@@ -82,6 +83,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/origens-oportunidade': 'Origens de oportunidade',
       '/configuracao/tags-oportunidade': 'Tags de oportunidade',
       '/configuracao/templates-email': 'Templates de e-mail',
+      '/operacao/aprovacoes': 'Aprovações',
     }
 
     const currentLabel = routeMap[path]

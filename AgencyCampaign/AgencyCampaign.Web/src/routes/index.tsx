@@ -9,6 +9,8 @@ import Campaigns from '../modules/Campaigns'
 import CampaignDetail from '../modules/Campaigns/Detail'
 import CommercialPipeline from '../modules/Commercial/Pipeline'
 import PublicProposal from '../modules/PublicProposal'
+import PublicDeliverable from '../modules/PublicDeliverable'
+import OperationsApprovals from '../modules/Operations/Approvals'
 import CommercialOpportunities from '../modules/Commercial/Opportunities'
 import CommercialOpportunityDetail from '../modules/Commercial/OpportunityDetail'
 import CommercialProposals from '../modules/Commercial/Proposals'
@@ -50,6 +52,7 @@ function AppRoutes() {
         />
 
         <Route path="/p/:token" element={<PublicProposal />} />
+        <Route path="/d/:token" element={<PublicDeliverable />} />
 
         <Route
           element={
@@ -68,6 +71,7 @@ function AppRoutes() {
           <Route path="marcas" element={<Brands />} />
           <Route path="creators" element={<Creators />} />
           <Route path="creators/:id" element={<CreatorDetail />} />
+          <Route path="operacao/aprovacoes" element={<OperationsApprovals />} />
           <Route path="campanhas" element={<Campaigns />} />
           <Route path="campanhas/:id" element={<CampaignDetail />} />
           <Route path="comercial" element={<Navigate to="/comercial/pipeline" replace />} />

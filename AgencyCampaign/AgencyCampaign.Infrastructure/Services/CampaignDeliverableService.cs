@@ -78,6 +78,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             CampaignDeliverable? deliverable = await DbContext.Set<CampaignDeliverable>()
                 .AsTracking()
+                .Include(item => item.Approvals)
                 .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
             if (deliverable is null)
@@ -174,12 +175,26 @@ namespace AgencyCampaign.Infrastructure.Services
                     throw new InvalidOperationException(localizer["deliverable.publishedUrl.required"]);
                 }
 
+                EnsureBrandApprovalExists(deliverable);
+
                 deliverable.Publish(publishedUrl, evidenceUrl, DateTimeOffset.UtcNow);
                 return;
             }
 
             deliverable.ChangeStatus(status);
             deliverable.UpdateEvidence(evidenceUrl);
+        }
+
+        private static void EnsureBrandApprovalExists(CampaignDeliverable deliverable)
+        {
+            bool hasBrandApproval = deliverable.Approvals.Any(item =>
+                item.ApprovalType == DeliverableApprovalType.Brand &&
+                item.Status == DeliverableApprovalStatus.Approved);
+
+            if (!hasBrandApproval)
+            {
+                throw new InvalidOperationException("A entrega só pode ser publicada após aprovação da marca.");
+            }
         }
 
         private IQueryable<CampaignDeliverable> QueryWithDetails()
