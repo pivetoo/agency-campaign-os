@@ -4,6 +4,7 @@ using AgencyCampaign.Application.Requests.Campaigns;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Application.Abstractions;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -15,10 +16,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class CampaignService : CrudService<Campaign>, ICampaignService
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
+        private readonly ICurrentUser currentUser;
 
-        public CampaignService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public CampaignService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
         {
             this.localizer = localizer;
+            this.currentUser = currentUser;
         }
 
         public async Task<PagedResult<Campaign>> GetCampaigns(PagedRequest request, CancellationToken cancellationToken = default)
@@ -61,6 +64,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            await RegisterStatusHistory(campaign.Id, null, campaign.Status, cancellationToken);
+
             return await GetCampaignById(campaign.Id, cancellationToken) ?? campaign;
         }
 
@@ -84,6 +89,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
             string? internalOwnerName = await ResolveCommercialResponsibleName(request.CommercialResponsibleId, cancellationToken);
 
+            CampaignStatus previousStatus = campaign.Status;
+
             campaign.Update(
                 request.BrandId,
                 request.Name,
@@ -104,7 +111,28 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            if (previousStatus != campaign.Status)
+            {
+                await RegisterStatusHistory(campaign.Id, previousStatus, campaign.Status, cancellationToken);
+            }
+
             return await GetCampaignById(result.Id, cancellationToken) ?? result;
+        }
+
+        public async Task<IReadOnlyCollection<CampaignStatusHistory>> GetStatusHistory(long campaignId, CancellationToken cancellationToken = default)
+        {
+            return await DbContext.Set<CampaignStatusHistory>()
+                .AsNoTracking()
+                .Where(item => item.CampaignId == campaignId)
+                .OrderByDescending(item => item.ChangedAt)
+                .ToArrayAsync(cancellationToken);
+        }
+
+        private async Task RegisterStatusHistory(long campaignId, CampaignStatus? fromStatus, CampaignStatus toStatus, CancellationToken cancellationToken)
+        {
+            CampaignStatusHistory history = new(campaignId, fromStatus, toStatus, currentUser.UserId, currentUser.UserName);
+            DbContext.Set<CampaignStatusHistory>().Add(history);
+            await DbContext.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<CampaignSummaryModel?> GetSummary(long id, CancellationToken cancellationToken = default)

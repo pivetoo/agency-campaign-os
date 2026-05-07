@@ -2,6 +2,7 @@ using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CampaignCreators;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using Archon.Application.Abstractions;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -13,10 +14,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class CampaignCreatorService : CrudService<CampaignCreator>, ICampaignCreatorService
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
+        private readonly ICurrentUser currentUser;
 
-        public CampaignCreatorService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public CampaignCreatorService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
         {
             this.localizer = localizer;
+            this.currentUser = currentUser;
         }
 
         public async Task<PagedResult<CampaignCreator>> GetCampaignCreators(PagedRequest request, CancellationToken cancellationToken = default)
@@ -67,6 +70,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            await RegisterStatusHistory(campaignCreator.Id, null, statusId, cancellationToken);
+
             return await GetCampaignCreatorById(campaignCreator.Id, cancellationToken) ?? campaignCreator;
         }
 
@@ -88,7 +93,10 @@ namespace AgencyCampaign.Infrastructure.Services
 
             campaignCreator.Update(request.AgreedAmount, request.Notes);
 
-            if (campaignCreator.CampaignCreatorStatusId != request.CampaignCreatorStatusId)
+            long previousStatusId = campaignCreator.CampaignCreatorStatusId;
+            bool statusChanged = previousStatusId != request.CampaignCreatorStatusId;
+
+            if (statusChanged)
             {
                 CampaignCreatorStatus? status = await DbContext.Set<CampaignCreatorStatus>()
                     .AsTracking()
@@ -108,7 +116,30 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            if (statusChanged)
+            {
+                await RegisterStatusHistory(campaignCreator.Id, previousStatusId, campaignCreator.CampaignCreatorStatusId, cancellationToken);
+            }
+
             return await GetCampaignCreatorById(result.Id, cancellationToken) ?? result;
+        }
+
+        public async Task<IReadOnlyCollection<CampaignCreatorStatusHistory>> GetStatusHistory(long campaignCreatorId, CancellationToken cancellationToken = default)
+        {
+            return await DbContext.Set<CampaignCreatorStatusHistory>()
+                .AsNoTracking()
+                .Include(item => item.FromStatus)
+                .Include(item => item.ToStatus)
+                .Where(item => item.CampaignCreatorId == campaignCreatorId)
+                .OrderByDescending(item => item.ChangedAt)
+                .ToArrayAsync(cancellationToken);
+        }
+
+        private async Task RegisterStatusHistory(long campaignCreatorId, long? fromStatusId, long toStatusId, CancellationToken cancellationToken)
+        {
+            CampaignCreatorStatusHistory history = new(campaignCreatorId, fromStatusId, toStatusId, currentUser.UserId, currentUser.UserName);
+            DbContext.Set<CampaignCreatorStatusHistory>().Add(history);
+            await DbContext.SaveChangesAsync(cancellationToken);
         }
 
         private async Task<long> ResolveInitialStatusId(CancellationToken cancellationToken = default)

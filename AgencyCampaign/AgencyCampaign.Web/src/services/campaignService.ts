@@ -45,4 +45,19 @@ export const campaignService = {
   update(id: number, data: UpdateCampaignRequest) {
     return httpClient.put<Campaign>(`${BASE_URL}/Update/${id}`, data)
   },
+
+  async getStatusHistory(id: number): Promise<CampaignStatusHistoryEntry[]> {
+    const response = await httpClient.get<CampaignStatusHistoryEntry[]>(`${BASE_URL}/statushistory/${id}`)
+    return response.data ?? []
+  },
+}
+
+export interface CampaignStatusHistoryEntry {
+  id: number
+  fromStatus?: number | null
+  toStatus: number
+  changedAt: string
+  changedByUserId?: number | null
+  changedByUserName?: string | null
+  reason?: string | null
 }

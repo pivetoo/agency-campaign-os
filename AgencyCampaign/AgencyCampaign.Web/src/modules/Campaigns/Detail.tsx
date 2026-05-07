@@ -209,7 +209,29 @@ export default function CampaignDetail() {
       key: 'dueAt',
       title: 'Prazo',
       dataIndex: 'dueAt',
-      render: (value: string) => new Date(value).toLocaleDateString('pt-BR'),
+      render: (value: string, record: CampaignDeliverable) => {
+        const formatted = new Date(value).toLocaleDateString('pt-BR')
+        const sla = record.slaStatus ?? 0
+        const days = record.daysUntilDue ?? 0
+
+        if (sla === 2) {
+          return (
+            <span className="inline-flex flex-col gap-0.5">
+              <span>{formatted}</span>
+              <span className="text-[10px] font-semibold text-destructive">Atrasado {Math.abs(days)}d</span>
+            </span>
+          )
+        }
+        if (sla === 1) {
+          return (
+            <span className="inline-flex flex-col gap-0.5">
+              <span>{formatted}</span>
+              <span className="text-[10px] font-semibold text-amber-600">Em {days}d</span>
+            </span>
+          )
+        }
+        return formatted
+      },
     },
     {
       key: 'grossAmount',

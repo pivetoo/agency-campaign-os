@@ -1,10 +1,41 @@
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AgencyCampaign.Domain.Entities
 {
     public sealed class CampaignDeliverable : Entity
     {
+        private const int DueSoonThresholdInDays = 3;
+
+        [NotMapped]
+        public int DaysUntilDue => (int)Math.Floor((DueAt - DateTimeOffset.UtcNow).TotalDays);
+
+        [NotMapped]
+        public DeliverableSlaStatus SlaStatus
+        {
+            get
+            {
+                if (Status == DeliverableStatus.Published || Status == DeliverableStatus.Cancelled)
+                {
+                    return DeliverableSlaStatus.Ok;
+                }
+
+                int days = DaysUntilDue;
+                if (days < 0)
+                {
+                    return DeliverableSlaStatus.Overdue;
+                }
+
+                if (days <= DueSoonThresholdInDays)
+                {
+                    return DeliverableSlaStatus.DueSoon;
+                }
+
+                return DeliverableSlaStatus.Ok;
+            }
+        }
+
         private readonly List<DeliverableApproval> approvals = [];
 
         public long CampaignId { get; private set; }

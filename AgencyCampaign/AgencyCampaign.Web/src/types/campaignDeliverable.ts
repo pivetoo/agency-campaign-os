@@ -15,6 +15,8 @@ export interface CampaignDeliverable {
   creatorAmount: number
   agencyFeeAmount: number
   notes?: string
+  daysUntilDue?: number
+  slaStatus?: number
   campaign?: {
     id: number
     name: string

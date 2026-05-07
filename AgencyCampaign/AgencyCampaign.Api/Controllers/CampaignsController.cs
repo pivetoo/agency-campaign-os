@@ -78,5 +78,22 @@ namespace AgencyCampaign.Api.Controllers
             Campaign campaign = await campaignService.UpdateCampaign(id, request, cancellationToken);
             return Http200(MapCampaign(campaign), Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite consultar o histórico de mudanças de status de uma campanha.")]
+        [GetEndpoint("statushistory/{id:long}")]
+        public async Task<IActionResult> GetStatusHistory(long id, CancellationToken cancellationToken)
+        {
+            var history = await campaignService.GetStatusHistory(id, cancellationToken);
+            return Http200(history.Select(item => new
+            {
+                id = item.Id,
+                fromStatus = item.FromStatus.HasValue ? (int)item.FromStatus.Value : (int?)null,
+                toStatus = (int)item.ToStatus,
+                changedAt = item.ChangedAt,
+                changedByUserId = item.ChangedByUserId,
+                changedByUserName = item.ChangedByUserName,
+                reason = item.Reason
+            }));
+        }
     }
 }

@@ -16,5 +16,7 @@ namespace AgencyCampaign.Application.Services
         Task<CampaignCreator> CreateCampaignCreator(CreateCampaignCreatorRequest request, CancellationToken cancellationToken = default);
 
         Task<CampaignCreator> UpdateCampaignCreator(long id, UpdateCampaignCreatorRequest request, CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<CampaignCreatorStatusHistory>> GetStatusHistory(long campaignCreatorId, CancellationToken cancellationToken = default);
     }
 }

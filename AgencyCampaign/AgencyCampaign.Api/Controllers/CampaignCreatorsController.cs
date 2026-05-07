@@ -83,5 +83,26 @@ namespace AgencyCampaign.Api.Controllers
             CampaignCreator campaignCreator = await campaignCreatorService.UpdateCampaignCreator(id, request, cancellationToken);
             return Http200(MapCampaignCreator(campaignCreator), Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite consultar o histórico de mudanças de status de um creator na campanha.")]
+        [GetEndpoint("statushistory/{id:long}")]
+        public async Task<IActionResult> GetStatusHistory(long id, CancellationToken cancellationToken)
+        {
+            var history = await campaignCreatorService.GetStatusHistory(id, cancellationToken);
+            return Http200(history.Select(item => new
+            {
+                id = item.Id,
+                fromStatusId = item.FromStatusId,
+                fromStatusName = item.FromStatus?.Name,
+                fromStatusColor = item.FromStatus?.Color,
+                toStatusId = item.ToStatusId,
+                toStatusName = item.ToStatus?.Name,
+                toStatusColor = item.ToStatus?.Color,
+                changedAt = item.ChangedAt,
+                changedByUserId = item.ChangedByUserId,
+                changedByUserName = item.ChangedByUserName,
+                reason = item.Reason
+            }));
+        }
     }
 }
