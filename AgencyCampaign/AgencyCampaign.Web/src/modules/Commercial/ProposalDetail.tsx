@@ -5,6 +5,7 @@ import type { DataTableColumn } from 'archon-ui'
 import { CheckCircle, Eye, FileCheck, Send, XCircle } from 'lucide-react'
 import ProposalFormModal from '../../components/modals/ProposalFormModal'
 import ProposalItemFormModal from '../../components/modals/ProposalItemFormModal'
+import ProposalShareTab from './ProposalShareTab'
 import { campaignService } from '../../services/campaignService'
 import { proposalService, type Proposal, type ProposalItem } from '../../services/proposalService'
 import type { Campaign } from '../../types/campaign'
@@ -178,6 +179,10 @@ export default function CommercialProposalDetail() {
           </Card>
         </div>
       )}
+
+      <div className="mt-6">
+        <ProposalShareTab proposalId={proposalId} />
+      </div>
 
       <ProposalFormModal open={isProposalFormOpen} onOpenChange={setIsProposalFormOpen} proposal={proposal} onSuccess={() => { setIsProposalFormOpen(false); void loadProposal() }} />
       <ProposalItemFormModal open={isItemFormOpen} onOpenChange={setIsItemFormOpen} proposalId={proposalId} item={selectedItem} onSuccess={() => { setIsItemFormOpen(false); setSelectedItem(null); void loadProposal() }} />

@@ -7,6 +7,7 @@ import Creators from '../modules/Creators'
 import Campaigns from '../modules/Campaigns'
 import CampaignDetail from '../modules/Campaigns/Detail'
 import CommercialPipeline from '../modules/Commercial/Pipeline'
+import PublicProposal from '../modules/PublicProposal'
 import CommercialOpportunities from '../modules/Commercial/Opportunities'
 import CommercialOpportunityDetail from '../modules/Commercial/OpportunityDetail'
 import CommercialProposals from '../modules/Commercial/Proposals'
@@ -41,6 +42,8 @@ function AppRoutes() {
             />
           }
         />
+
+        <Route path="/p/:token" element={<PublicProposal />} />
 
         <Route
           element={

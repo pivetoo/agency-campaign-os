@@ -1,0 +1,217 @@
+import { useEffect, useState } from 'react'
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, useApi, useToast } from 'archon-ui'
+import { Copy, Eye, Link as LinkIcon, Plus, ShieldOff } from 'lucide-react'
+import {
+  proposalService,
+  type ProposalShareLink,
+  type ProposalVersion,
+} from '../../services/proposalService'
+
+interface ProposalShareTabProps {
+  proposalId: number
+}
+
+function formatDateTime(value?: string): string {
+  if (!value) return '-'
+  const date = new Date(value)
+  return `${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+}
+
+function buildPublicUrl(token: string): string {
+  return `${window.location.origin}/p/${token}`
+}
+
+function maskToken(token: string): string {
+  return `${token.slice(0, 8)}...${token.slice(-4)}`
+}
+
+export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) {
+  const [shareLinks, setShareLinks] = useState<ProposalShareLink[]>([])
+  const [versions, setVersions] = useState<ProposalVersion[]>([])
+  const [expiresAt, setExpiresAt] = useState('')
+
+  const { execute: load, loading } = useApi<unknown>({ showErrorMessage: true })
+  const { execute: runMutation, loading: mutating } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
+  const { toast } = useToast()
+
+  const reload = async () => {
+    const [links, versionList] = await Promise.all([
+      proposalService.getShareLinks(proposalId),
+      proposalService.getVersions(proposalId),
+    ])
+    setShareLinks(links)
+    setVersions(versionList)
+  }
+
+  useEffect(() => {
+    void load(async () => {
+      await reload()
+      return null
+    })
+  }, [proposalId, load])
+
+  const generateLink = async () => {
+    const expiresAtIso = expiresAt ? new Date(expiresAt).toISOString() : undefined
+    const result = await runMutation(() =>
+      proposalService.createShareLink(proposalId, expiresAtIso ? { expiresAt: expiresAtIso } : {})
+    )
+    if (result !== null) {
+      setExpiresAt('')
+      await reload()
+    }
+  }
+
+  const revokeLink = async (linkId: number) => {
+    if (!window.confirm('Revogar este link? Quem já abriu não consegue acessar mais.')) return
+    const result = await runMutation(() => proposalService.revokeShareLink(linkId))
+    if (result !== null) {
+      await reload()
+    }
+  }
+
+  const copyLink = async (token: string) => {
+    const url = buildPublicUrl(token)
+    try {
+      await navigator.clipboard.writeText(url)
+      toast({ title: 'Link copiado', description: url, variant: 'success' })
+    } catch {
+      toast({ title: 'Não foi possível copiar', description: 'Copie manualmente o link abaixo.', variant: 'destructive' })
+    }
+  }
+
+  const statusBadge = (link: ProposalShareLink) => {
+    if (link.revokedAt) return <Badge variant="destructive">Revogado</Badge>
+    if (!link.isActive) return <Badge variant="warning">Expirado</Badge>
+    return <Badge variant="success">Ativo</Badge>
+  }
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+      <Card>
+        <CardHeader className="border-b bg-muted/20">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <LinkIcon className="h-5 w-5 text-primary" />
+            Links públicos
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5 p-5">
+          <div className="rounded-md border border-dashed border-border/70 bg-muted/20 p-4">
+            <div className="text-sm font-medium text-foreground">Gerar novo link</div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              O link envia o cliente direto para a versão mais recente da proposta. Sem login, com rastreamento de visualização.
+            </p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Validade (opcional)
+                </label>
+                <Input
+                  type="datetime-local"
+                  value={expiresAt}
+                  onChange={(e) => setExpiresAt(e.target.value)}
+                  className="mt-1"
+                  disabled={mutating}
+                />
+              </div>
+              <Button
+                size="sm"
+                icon={<Plus className="h-4 w-4" />}
+                onClick={() => void generateLink()}
+                disabled={mutating}
+              >
+                Gerar link
+              </Button>
+            </div>
+          </div>
+
+          {loading && shareLinks.length === 0 ? (
+            <div className="text-sm text-muted-foreground">Carregando links...</div>
+          ) : shareLinks.length === 0 ? (
+            <div className="text-sm text-muted-foreground">Nenhum link gerado ainda.</div>
+          ) : (
+            <div className="space-y-2">
+              {shareLinks.map((link) => (
+                <div key={link.id} className="rounded-md border border-border/60 p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {statusBadge(link)}
+                    <span className="font-mono text-xs text-muted-foreground">{maskToken(link.token)}</span>
+                    <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Eye className="h-3 w-3" /> {link.viewCount} visualiza{link.viewCount === 1 ? 'ção' : 'ções'}
+                    </span>
+                  </div>
+                  <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground sm:grid-cols-3">
+                    <div>
+                      <span className="block text-[10px] uppercase tracking-wide">Criado</span>
+                      <span className="text-foreground">{formatDateTime(link.createdAt)}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] uppercase tracking-wide">Expira</span>
+                      <span className="text-foreground">{link.expiresAt ? formatDateTime(link.expiresAt) : 'Sem expiração'}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] uppercase tracking-wide">Última visita</span>
+                      <span className="text-foreground">{formatDateTime(link.lastViewedAt)}</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      icon={<Copy className="h-3.5 w-3.5" />}
+                      onClick={() => void copyLink(link.token)}
+                      disabled={!link.isActive}
+                    >
+                      Copiar
+                    </Button>
+                    {link.isActive ? (
+                      <Button
+                        size="sm"
+                        variant="outline-danger"
+                        icon={<ShieldOff className="h-3.5 w-3.5" />}
+                        onClick={() => void revokeLink(link.id)}
+                        disabled={mutating}
+                      >
+                        Revogar
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="border-b bg-muted/20">
+          <CardTitle className="text-base">Versões enviadas</CardTitle>
+        </CardHeader>
+        <CardContent className="p-5">
+          {versions.length === 0 ? (
+            <div className="text-sm text-muted-foreground">Nenhuma versão registrada. Cada vez que você clicar em Enviar, uma nova versão é gerada automaticamente.</div>
+          ) : (
+            <ol className="space-y-2">
+              {versions.map((version) => (
+                <li key={version.id} className="rounded-md border border-border/60 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium text-foreground">v{version.versionNumber}</span>
+                    <span className="text-xs text-muted-foreground">{formatDateTime(version.sentAt)}</span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                    <span>
+                      Total: <strong className="text-foreground">R$ {version.totalValue.toFixed(2)}</strong>
+                    </span>
+                    {version.sentByUserName ? <span>por {version.sentByUserName}</span> : null}
+                    {version.validityUntil ? (
+                      <span>válida até {new Date(version.validityUntil).toLocaleDateString('pt-BR')}</span>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

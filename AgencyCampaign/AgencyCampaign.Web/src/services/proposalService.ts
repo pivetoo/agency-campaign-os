@@ -109,6 +109,41 @@ export interface ProposalListFilters {
   validityTo?: string
 }
 
+export interface ProposalVersion {
+  id: number
+  proposalId: number
+  versionNumber: number
+  name: string
+  description?: string
+  totalValue: number
+  validityUntil?: string
+  sentAt: string
+  sentByUserId?: number
+  sentByUserName?: string
+}
+
+export interface ProposalVersionDetail extends ProposalVersion {
+  snapshotJson: string
+}
+
+export interface ProposalShareLink {
+  id: number
+  proposalId: number
+  token: string
+  publicUrl: string
+  expiresAt?: string
+  revokedAt?: string
+  isActive: boolean
+  createdByUserName?: string
+  createdAt: string
+  lastViewedAt?: string
+  viewCount: number
+}
+
+export interface CreateProposalShareLinkRequest {
+  expiresAt?: string
+}
+
 export const proposalService = {
   async getAll(params?: { page?: number; pageSize?: number } & ProposalListFilters): Promise<Proposal[]> {
     const searchParams = new URLSearchParams()
@@ -179,5 +214,28 @@ export const proposalService = {
 
   deleteItem(id: number) {
     return httpClient.delete(`${BASE_URL}/items/${id}`)
+  },
+
+  async getVersions(proposalId: number): Promise<ProposalVersion[]> {
+    const response = await httpClient.get<ProposalVersion[]>(`${BASE_URL}/${proposalId}/versions/Get`)
+    return response.data ?? []
+  },
+
+  async getVersionById(versionId: number): Promise<ProposalVersionDetail | null> {
+    const response = await httpClient.get<ProposalVersionDetail>(`${BASE_URL}/versions/${versionId}`)
+    return response.data ?? null
+  },
+
+  async getShareLinks(proposalId: number): Promise<ProposalShareLink[]> {
+    const response = await httpClient.get<ProposalShareLink[]>(`${BASE_URL}/${proposalId}/share-links/Get`)
+    return response.data ?? []
+  },
+
+  createShareLink(proposalId: number, data: CreateProposalShareLinkRequest) {
+    return httpClient.post<ProposalShareLink>(`${BASE_URL}/${proposalId}/share-links/Create`, data)
+  },
+
+  revokeShareLink(shareLinkId: number) {
+    return httpClient.post<ProposalShareLink>(`${BASE_URL}/share-links/${shareLinkId}/Revoke`, {})
   },
 }
