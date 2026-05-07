@@ -162,6 +162,22 @@ const steps: KanvasStep[] = [
   },
 ]
 
+const tourSteps: KanvasStep[] = steps.map((step) => {
+  if (step.placement === 'center') {
+    return {
+      ...step,
+      disableBeacon: true,
+      styles: {
+        ...(step.styles ?? {}),
+        spotlight: {
+          display: 'none',
+        },
+      },
+    }
+  }
+  return { ...step, disableBeacon: true }
+})
+
 interface ProductTourProps {
   run: boolean
   onClose: () => void
@@ -263,7 +279,7 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
 
   return (
     <Joyride
-      steps={steps}
+      steps={tourSteps}
       run={run}
       stepIndex={stepIndex}
       continuous
