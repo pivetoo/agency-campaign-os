@@ -1,10 +1,12 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Financial;
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.FinancialAccounts;
 using AgencyCampaign.Application.Requests.FinancialEntries;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -17,11 +19,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly IAutomationDispatcher automationDispatcher;
+        private readonly INotificationService notificationService;
 
-        public FinancialEntryService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IAutomationDispatcher automationDispatcher) : base(dbContext)
+        public FinancialEntryService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IAutomationDispatcher automationDispatcher, INotificationService notificationService) : base(dbContext)
         {
             this.localizer = localizer;
             this.automationDispatcher = automationDispatcher;
+            this.notificationService = notificationService;
         }
 
         public async Task<PagedResult<FinancialEntry>> GetEntries(PagedRequest request, FinancialEntryFilters filters, CancellationToken cancellationToken = default)
@@ -290,6 +294,15 @@ namespace AgencyCampaign.Infrastructure.Services
                 ? AutomationTriggers.FinancialReceivableSettled
                 : AutomationTriggers.FinancialPayableSettled;
             await DispatchAutomationAsync(entry, settledTrigger, cancellationToken);
+
+            try
+            {
+                await notificationService.Create(KanvasNotifications.FinancialEntrySettled(entry), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[FinancialEntryService] failed to create notification: {exception.Message}");
+            }
 
             return await GetEntryById(result.Id, cancellationToken) ?? result;
         }

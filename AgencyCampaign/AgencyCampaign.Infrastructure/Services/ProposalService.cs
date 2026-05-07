@@ -1,10 +1,12 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Commercial;
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
+using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -21,14 +23,16 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IEmailService emailService;
         private readonly IFinancialAutoGeneration financialAutoGeneration;
         private readonly IAutomationDispatcher automationDispatcher;
+        private readonly INotificationService notificationService;
 
-        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IEmailService emailService, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher) : base(dbContext)
+        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IEmailService emailService, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService) : base(dbContext)
         {
             this.localizer = localizer;
             this.currentUser = currentUser;
             this.emailService = emailService;
             this.financialAutoGeneration = financialAutoGeneration;
             this.automationDispatcher = automationDispatcher;
+            this.notificationService = notificationService;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -237,6 +241,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
             await NotifyEmail(EmailEventType.ProposalApproved, saved, cancellationToken);
+            await TryNotify(KanvasNotifications.ProposalApproved(saved), cancellationToken);
             return saved;
         }
 
@@ -247,6 +252,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
             await NotifyEmail(EmailEventType.ProposalRejected, saved, cancellationToken);
+            await TryNotify(KanvasNotifications.ProposalRejected(saved), cancellationToken);
             return saved;
         }
 
@@ -277,7 +283,20 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             await NotifyEmail(EmailEventType.ProposalConverted, saved, cancellationToken);
+            await TryNotify(KanvasNotifications.ProposalConverted(saved, campaignId), cancellationToken);
             return saved;
+        }
+
+        private async Task TryNotify(Archon.Core.Notifications.CreateNotificationRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await notificationService.Create(request, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[ProposalService] failed to create notification: {exception.Message}");
+            }
         }
 
         private async Task NotifyEmail(EmailEventType eventType, Proposal proposal, CancellationToken cancellationToken)

@@ -1,8 +1,10 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Application.Services;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +15,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class OpportunityApprovalRequestService : CrudService<OpportunityApprovalRequest>, IOpportunityApprovalRequestService
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
+        private readonly INotificationService notificationService;
 
-        public OpportunityApprovalRequestService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public OpportunityApprovalRequestService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, INotificationService notificationService) : base(dbContext)
         {
             this.localizer = localizer;
+            this.notificationService = notificationService;
         }
 
         public async Task<OpportunityApprovalRequest?> GetOpportunityApprovalRequestById(long id, CancellationToken cancellationToken = default)
@@ -45,6 +49,9 @@ namespace AgencyCampaign.Infrastructure.Services
             negotiation.MarkPendingApproval();
             await DbContext.SaveChangesAsync(cancellationToken);
 
+            (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
+            await TryNotify(KanvasNotifications.OpportunityApprovalRequested(approvalRequest, opportunityId, opportunityName), cancellationToken);
+
             return await GetOpportunityApprovalRequestById(approvalRequest.Id, cancellationToken) ?? approvalRequest;
         }
 
@@ -57,6 +64,10 @@ namespace AgencyCampaign.Infrastructure.Services
             negotiation.Approve();
 
             await DbContext.SaveChangesAsync(cancellationToken);
+
+            (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
+            await TryNotify(KanvasNotifications.OpportunityApprovalDecided(approvalRequest, opportunityId, opportunityName, approved: true), cancellationToken);
+
             return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
         }
 
@@ -69,7 +80,34 @@ namespace AgencyCampaign.Infrastructure.Services
             negotiation.Reject();
 
             await DbContext.SaveChangesAsync(cancellationToken);
+
+            (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
+            await TryNotify(KanvasNotifications.OpportunityApprovalDecided(approvalRequest, opportunityId, opportunityName, approved: false), cancellationToken);
+
             return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
+        }
+
+        private async Task<(long? opportunityId, string opportunityName)> ResolveOpportunityFromNegotiationAsync(long negotiationId, CancellationToken cancellationToken)
+        {
+            var info = await DbContext.Set<OpportunityNegotiation>()
+                .AsNoTracking()
+                .Where(item => item.Id == negotiationId)
+                .Select(item => new { item.OpportunityId, OpportunityName = item.Opportunity!.Name })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return info is null ? (null, "oportunidade") : (info.OpportunityId, info.OpportunityName);
+        }
+
+        private async Task TryNotify(Archon.Core.Notifications.CreateNotificationRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await notificationService.Create(request, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[OpportunityApprovalRequestService] failed to create notification: {exception.Message}");
+            }
         }
 
         public async Task<IReadOnlyCollection<OpportunityApprovalRequest>> GetApprovalsByNegotiationId(long opportunityNegotiationId, CancellationToken cancellationToken = default)

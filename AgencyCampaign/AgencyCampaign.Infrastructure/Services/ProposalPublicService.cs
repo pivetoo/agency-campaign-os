@@ -1,6 +1,8 @@
 using AgencyCampaign.Application.Models.Commercial;
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgencyCampaign.Infrastructure.Services
@@ -8,10 +10,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class ProposalPublicService : IProposalPublicService
     {
         private readonly DbContext dbContext;
+        private readonly INotificationService notificationService;
 
-        public ProposalPublicService(DbContext dbContext)
+        public ProposalPublicService(DbContext dbContext, INotificationService notificationService)
         {
             this.dbContext = dbContext;
+            this.notificationService = notificationService;
         }
 
         public async Task<ProposalPublicViewModel?> GetByToken(string token, string? ipAddress, string? userAgent, CancellationToken cancellationToken = default)
@@ -57,6 +61,18 @@ namespace AgencyCampaign.Infrastructure.Services
 
             shareLink.RegisterView(ipAddress, userAgent);
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            if (shareLink.ViewCount == 1 && proposal is not null)
+            {
+                try
+                {
+                    await notificationService.Create(KanvasNotifications.ProposalViewedByBrand(proposal, brandName), cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"[ProposalPublicService] failed to create notification: {exception.Message}");
+                }
+            }
 
             return new ProposalPublicViewModel
             {

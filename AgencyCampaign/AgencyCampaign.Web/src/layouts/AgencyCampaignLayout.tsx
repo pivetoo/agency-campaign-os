@@ -1,7 +1,9 @@
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
-import type { BreadcrumbItem } from 'archon-ui'
+import type { BreadcrumbItem, NotificationItem } from 'archon-ui'
+import { notificationService } from '../services/notificationService'
+import type { Notification } from '../types/notification'
 import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
@@ -16,6 +18,77 @@ export default function AgencyCampaignLayout() {
     await AuthService.logoutFromServer()
     logout()
   }
+
+  const [notifications, setNotifications] = useState<Notification[]>([])
+
+  const loadNotifications = useCallback(async () => {
+    try {
+      const items = await notificationService.getRecent(false, 20)
+      setNotifications(items)
+    } catch {
+      // silent — notification fetch isn't critical
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadNotifications()
+    const interval = window.setInterval(() => {
+      void loadNotifications()
+    }, 60_000)
+    return () => window.clearInterval(interval)
+  }, [loadNotifications])
+
+  const notificationItems = useMemo<NotificationItem[]>(() => {
+    const typeMap: Record<number, NotificationItem['type']> = {
+      0: 'info',
+      1: 'success',
+      2: 'warning',
+      3: 'error',
+    }
+    return notifications.map((item) => ({
+      id: String(item.id),
+      title: item.title,
+      message: item.message,
+      timestamp: new Date(item.createdAt),
+      read: item.isRead,
+      type: typeMap[item.type] ?? 'info',
+    }))
+  }, [notifications])
+
+  const handleNotificationRead = useCallback(async (id: string) => {
+    const numericId = Number(id)
+    if (!Number.isFinite(numericId)) return
+    setNotifications((prev) => prev.map((item) => (item.id === numericId ? { ...item, isRead: true } : item)))
+    const target = notifications.find((item) => item.id === numericId)
+    try {
+      await notificationService.markAsRead(numericId)
+      if (target?.link) navigate(target.link)
+    } catch {
+      // ignore
+    }
+  }, [notifications, navigate])
+
+  const handleMarkAllRead = useCallback(async () => {
+    setNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })))
+    try {
+      await notificationService.markAllAsRead()
+    } catch {
+      // ignore
+    }
+  }, [])
+
+  const handleClearAll = useCallback(async () => {
+    setNotifications([])
+    try {
+      await notificationService.clearAll()
+    } catch {
+      // ignore
+    }
+  }, [])
+
+  const handleViewAllNotifications = useCallback(() => {
+    navigate('/notificacoes')
+  }, [navigate])
 
   const systemGroups = [
     createMenuGroup('Geral', [
@@ -171,10 +244,11 @@ export default function AgencyCampaignLayout() {
       currentModule={currentModule}
       onModuleChange={handleModuleChange}
       breadcrumbs={breadcrumbs}
-      notifications={[]}
-      onNotificationRead={() => {}}
-      onMarkAllAsRead={() => {}}
-      onClearAllNotifications={() => {}}
+      notifications={notificationItems}
+      onNotificationRead={handleNotificationRead}
+      onMarkAllAsRead={handleMarkAllRead}
+      onClearAllNotifications={handleClearAll}
+      onViewAllNotifications={handleViewAllNotifications}
     >
       <Outlet />
     </AppLayout>

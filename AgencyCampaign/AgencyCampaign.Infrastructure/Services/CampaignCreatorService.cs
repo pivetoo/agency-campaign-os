@@ -1,8 +1,10 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.CampaignCreators;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Abstractions;
+using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -15,11 +17,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
+        private readonly INotificationService notificationService;
 
-        public CampaignCreatorService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
+        public CampaignCreatorService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, INotificationService notificationService) : base(dbContext)
         {
             this.localizer = localizer;
             this.currentUser = currentUser;
+            this.notificationService = notificationService;
         }
 
         public async Task<PagedResult<CampaignCreator>> GetCampaignCreators(PagedRequest request, CancellationToken cancellationToken = default)
@@ -95,19 +99,20 @@ namespace AgencyCampaign.Infrastructure.Services
 
             long previousStatusId = campaignCreator.CampaignCreatorStatusId;
             bool statusChanged = previousStatusId != request.CampaignCreatorStatusId;
+            CampaignCreatorStatus? newStatus = null;
 
             if (statusChanged)
             {
-                CampaignCreatorStatus? status = await DbContext.Set<CampaignCreatorStatus>()
+                newStatus = await DbContext.Set<CampaignCreatorStatus>()
                     .AsTracking()
                     .FirstOrDefaultAsync(s => s.Id == request.CampaignCreatorStatusId, cancellationToken);
 
-                if (status is null)
+                if (newStatus is null)
                 {
                     throw new InvalidOperationException("Status não encontrado.");
                 }
 
-                campaignCreator.ChangeStatus(status);
+                campaignCreator.ChangeStatus(newStatus);
             }
 
             CampaignCreator? result = await Update(campaignCreator, cancellationToken);
@@ -119,9 +124,46 @@ namespace AgencyCampaign.Infrastructure.Services
             if (statusChanged)
             {
                 await RegisterStatusHistory(campaignCreator.Id, previousStatusId, campaignCreator.CampaignCreatorStatusId, cancellationToken);
+                await TryNotifyStatusChange(campaignCreator, newStatus!, cancellationToken);
             }
 
             return await GetCampaignCreatorById(result.Id, cancellationToken) ?? result;
+        }
+
+        private async Task TryNotifyStatusChange(CampaignCreator campaignCreator, CampaignCreatorStatus newStatus, CancellationToken cancellationToken)
+        {
+            if (!newStatus.MarksAsConfirmed && !newStatus.MarksAsCancelled)
+            {
+                return;
+            }
+
+            try
+            {
+                var info = await DbContext.Set<CampaignCreator>()
+                    .AsNoTracking()
+                    .Where(item => item.Id == campaignCreator.Id)
+                    .Select(item => new
+                    {
+                        CreatorName = item.Creator!.StageName ?? item.Creator!.Name,
+                        CampaignName = item.Campaign!.Name
+                    })
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (info is null)
+                {
+                    return;
+                }
+
+                var notification = newStatus.MarksAsConfirmed
+                    ? KanvasNotifications.CampaignCreatorConfirmed(campaignCreator, info.CreatorName, info.CampaignName)
+                    : KanvasNotifications.CampaignCreatorCancelled(campaignCreator, info.CreatorName, info.CampaignName);
+
+                await notificationService.Create(notification, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[CampaignCreatorService] failed to create notification: {exception.Message}");
+            }
         }
 
         public async Task<IReadOnlyCollection<CampaignCreatorStatusHistory>> GetStatusHistory(long campaignCreatorId, CancellationToken cancellationToken = default)

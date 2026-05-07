@@ -1,10 +1,12 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Deliverables;
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.DeliverableShareLinks;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
+using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using System.Security.Cryptography;
@@ -112,11 +114,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
+        private readonly INotificationService notificationService;
 
-        public DeliverablePublicService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer)
+        public DeliverablePublicService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, INotificationService notificationService)
         {
             this.dbContext = dbContext;
             this.localizer = localizer;
+            this.notificationService = notificationService;
         }
 
         public async Task<DeliverablePublicViewModel?> GetByToken(string token, CancellationToken cancellationToken = default)
@@ -175,6 +179,25 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            CampaignDeliverable? deliverable = await dbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == shareLink.CampaignDeliverableId, cancellationToken);
+
+            if (deliverable is not null)
+            {
+                try
+                {
+                    var notification = approved
+                        ? KanvasNotifications.DeliverableApprovedByBrand(deliverable, request.ReviewerName)
+                        : KanvasNotifications.DeliverableRejectedByBrand(deliverable, request.ReviewerName, request.Comment);
+                    await notificationService.Create(notification, cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"[DeliverablePublicService] failed to create notification: {exception.Message}");
+                }
+            }
 
             return await BuildViewModel(shareLink.CampaignDeliverableId, cancellationToken)
                 ?? throw new InvalidOperationException(localizer["record.notFound"]);
