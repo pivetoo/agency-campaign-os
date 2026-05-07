@@ -1,5 +1,7 @@
+using AgencyCampaign.Application.Services;
 using AgencyCampaign.Infrastructure.Clients;
 using AgencyCampaign.Infrastructure.Options;
+using AgencyCampaign.Infrastructure.Services;
 using Archon.Infrastructure.DependencyInjection;
 using Archon.Infrastructure.Migrations;
 using Archon.Infrastructure.MultiTenancy;
@@ -23,6 +25,8 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddArchonRestApi();
             services.AddScoped<IntegrationPlatformClient>();
             services.AddScoped<IdentityUsersClient>();
+            services.AddScoped<IAutomationDispatcher, AutomationDispatcher>();
+            services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();
 
             return services;
         }
