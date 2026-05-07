@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -38,6 +38,8 @@ export default function AgencyCampaignLayout() {
     createMenuGroup('Finanças', [
       { key: 'financeiro-receber', label: 'Contas a receber', path: '/financeiro/receber', icon: <HandCoins size={20} /> },
       { key: 'financeiro-pagar', label: 'Contas a pagar', path: '/financeiro/pagar', icon: <ReceiptText size={20} /> },
+      { key: 'financeiro-fluxo-caixa', label: 'Fluxo de caixa', path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} /> },
+      { key: 'financeiro-aging', label: 'Aging', path: '/financeiro/aging', icon: <Hourglass size={20} /> },
     ]),
     createMenuGroup('Configuração', [
       { key: 'configuracao-integracoes', label: 'Integrações', path: '/configuracao/integracoes', icon: <Plug size={20} /> },
@@ -74,6 +76,8 @@ export default function AgencyCampaignLayout() {
       '/campanhas': 'Campanhas',
       '/financeiro/receber': 'Contas a receber',
       '/financeiro/pagar': 'Contas a pagar',
+      '/financeiro/fluxo-caixa': 'Fluxo de caixa',
+      '/financeiro/aging': 'Aging',
       '/configuracao/plataformas': 'Redes Sociais',
       '/configuracao/pipeline-comercial': 'Estágios do Comercial',
       '/configuracao/status-creators': 'Status dos Creators',

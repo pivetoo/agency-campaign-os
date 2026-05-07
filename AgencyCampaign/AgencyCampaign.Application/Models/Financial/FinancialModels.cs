@@ -26,4 +26,45 @@ namespace AgencyCampaign.Application.Models.Financial
         public int PendingCount { get; set; }
         public int OverdueCount { get; set; }
     }
+
+    public enum CashFlowGranularity
+    {
+        Day = 0,
+        Week = 1,
+        Month = 2
+    }
+
+    public sealed class CashFlowPointModel
+    {
+        public DateTimeOffset Bucket { get; set; }
+        public decimal Inflow { get; set; }
+        public decimal Outflow { get; set; }
+        public decimal Net => Inflow - Outflow;
+    }
+
+    public sealed class CashFlowSeriesModel
+    {
+        public DateTimeOffset From { get; set; }
+        public DateTimeOffset To { get; set; }
+        public CashFlowGranularity Granularity { get; set; }
+        public IReadOnlyCollection<CashFlowPointModel> Pending { get; set; } = [];
+        public IReadOnlyCollection<CashFlowPointModel> Settled { get; set; } = [];
+    }
+
+    public sealed class AgingBucketModel
+    {
+        public string Label { get; set; } = string.Empty;
+        public int MinDays { get; set; }
+        public int? MaxDays { get; set; }
+        public decimal TotalReceivable { get; set; }
+        public int ReceivableCount { get; set; }
+        public decimal TotalPayable { get; set; }
+        public int PayableCount { get; set; }
+    }
+
+    public sealed class AgingReportModel
+    {
+        public DateTimeOffset GeneratedAt { get; set; }
+        public IReadOnlyCollection<AgingBucketModel> Buckets { get; set; } = [];
+    }
 }

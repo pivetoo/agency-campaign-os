@@ -20,6 +20,8 @@ import CommercialApprovals from '../modules/Commercial/Approvals'
 import CommercialResponsibles from '../modules/Commercial/CommercialResponsibles'
 import FinancialReceivables from '../modules/Financial/Receivables'
 import FinancialPayables from '../modules/Financial/Payables'
+import FinancialCashFlow from '../modules/Financial/CashFlow'
+import FinancialAging from '../modules/Financial/Aging'
 import Platforms from '../modules/Configuration/Platforms'
 import CommercialPipelineStages from '../modules/Configuration/CommercialPipelineStages'
 import CampaignCreatorStatuses from '../modules/Configuration/CampaignCreatorStatuses'
@@ -87,6 +89,8 @@ function AppRoutes() {
           <Route path="comercial/responsaveis" element={<CommercialResponsibles />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
+          <Route path="financeiro/fluxo-caixa" element={<FinancialCashFlow />} />
+          <Route path="financeiro/aging" element={<FinancialAging />} />
           <Route path="configuracao/plataformas" element={<Platforms />} />
           <Route path="configuracao/pipeline-comercial" element={<CommercialPipelineStages />} />
           <Route path="configuracao/status-creators" element={<CampaignCreatorStatuses />} />
