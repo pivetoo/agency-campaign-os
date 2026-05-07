@@ -106,5 +106,19 @@ namespace AgencyCampaign.Api.Controllers
             FinancialEntryType entryType = (FinancialEntryType)type;
             return Http200(await financialEntryService.GetSummary(entryType, cancellationToken));
         }
+
+        [RequireAccess("Permite gerar uma série de parcelas a partir de um lançamento financeiro.")]
+        [PostEndpoint("[action]")]
+        public async Task<IActionResult> CreateInstallments([FromBody] CreateInstallmentSeriesRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var entries = await financialEntryService.CreateInstallmentSeries(request, cancellationToken);
+            return Http201(entries.Select(MapEntry).ToArray(), Localizer["record.created"]);
+        }
     }
 }

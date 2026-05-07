@@ -59,6 +59,15 @@ export interface FinancialEntry {
   status: number
   counterpartyName?: string
   notes?: string
+  subcategoryId?: number | null
+  subcategoryName?: string | null
+  subcategoryColor?: string | null
+  parentEntryId?: number | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
+  invoiceNumber?: string | null
+  invoiceUrl?: string | null
+  invoiceIssuedAt?: string | null
   createdAt: string
   updatedAt?: string
 }

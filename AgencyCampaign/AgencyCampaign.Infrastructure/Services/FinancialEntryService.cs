@@ -51,7 +51,88 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<FinancialEntry> CreateEntry(CreateFinancialEntryRequest request, CancellationToken cancellationToken = default)
         {
             await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
+            await EnsureSubcategoryExists(request.SubcategoryId, cancellationToken);
 
+            FinancialEntry entry = BuildEntry(request);
+
+            entry.ChangeStatus(request.Status, request.PaidAt);
+            entry.RecalculateOverdue(DateTimeOffset.UtcNow);
+
+            bool success = await Insert(cancellationToken, entry);
+            if (!success)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return await GetEntryById(entry.Id, cancellationToken) ?? entry;
+        }
+
+        public async Task<IReadOnlyCollection<FinancialEntry>> CreateInstallmentSeries(CreateInstallmentSeriesRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request.InstallmentTotal < 2)
+            {
+                throw new InvalidOperationException("Para gerar parcelas, o total deve ser maior que 1.");
+            }
+
+            await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
+            await EnsureSubcategoryExists(request.SubcategoryId, cancellationToken);
+
+            decimal baseAmount = Math.Round(request.Amount / request.InstallmentTotal, 2, MidpointRounding.AwayFromZero);
+            decimal lastAmount = request.Amount - (baseAmount * (request.InstallmentTotal - 1));
+
+            DateTimeOffset firstDueAt = request.DueAt;
+            List<FinancialEntry> entries = [];
+
+            for (int index = 1; index <= request.InstallmentTotal; index++)
+            {
+                decimal installmentAmount = index == request.InstallmentTotal ? lastAmount : baseAmount;
+                DateTimeOffset installmentDueAt = firstDueAt.AddMonths(index - 1);
+
+                CreateFinancialEntryRequest installmentRequest = new()
+                {
+                    AccountId = request.AccountId,
+                    CampaignId = request.CampaignId,
+                    CampaignDeliverableId = request.CampaignDeliverableId,
+                    Type = request.Type,
+                    Category = request.Category,
+                    Description = $"{request.Description} ({index}/{request.InstallmentTotal})",
+                    Amount = installmentAmount,
+                    DueAt = installmentDueAt,
+                    OccurredAt = request.OccurredAt,
+                    PaymentMethod = request.PaymentMethod,
+                    ReferenceCode = request.ReferenceCode,
+                    PaidAt = null,
+                    Status = FinancialEntryStatus.Pending,
+                    CounterpartyName = request.CounterpartyName,
+                    Notes = request.Notes,
+                    SubcategoryId = request.SubcategoryId,
+                    InvoiceNumber = request.InvoiceNumber,
+                    InvoiceUrl = request.InvoiceUrl,
+                    InvoiceIssuedAt = request.InvoiceIssuedAt
+                };
+
+                FinancialEntry entry = BuildEntry(installmentRequest);
+                entry.MarkAsInstallment(null, index, request.InstallmentTotal);
+                entry.RecalculateOverdue(DateTimeOffset.UtcNow);
+
+                DbContext.Set<FinancialEntry>().Add(entry);
+                entries.Add(entry);
+            }
+
+            await DbContext.SaveChangesAsync(cancellationToken);
+
+            long parentId = entries[0].Id;
+            for (int index = 1; index < entries.Count; index++)
+            {
+                entries[index].MarkAsInstallment(parentId, index + 1, request.InstallmentTotal);
+            }
+            await DbContext.SaveChangesAsync(cancellationToken);
+
+            return entries;
+        }
+
+        private FinancialEntry BuildEntry(CreateFinancialEntryRequest request)
+        {
             FinancialEntry entry = new(
                 request.AccountId,
                 request.Type,
@@ -67,16 +148,26 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.CampaignId,
                 request.CampaignDeliverableId);
 
-            entry.ChangeStatus(request.Status, request.PaidAt);
-            entry.RecalculateOverdue(DateTimeOffset.UtcNow);
+            entry.SetSubcategory(request.SubcategoryId);
+            entry.SetInvoice(request.InvoiceNumber, request.InvoiceUrl, request.InvoiceIssuedAt);
+            return entry;
+        }
 
-            bool success = await Insert(cancellationToken, entry);
-            if (!success)
+        private async Task EnsureSubcategoryExists(long? subcategoryId, CancellationToken cancellationToken)
+        {
+            if (!subcategoryId.HasValue)
             {
-                throw new InvalidOperationException(GetErrorMessages());
+                return;
             }
 
-            return await GetEntryById(entry.Id, cancellationToken) ?? entry;
+            bool exists = await DbContext.Set<FinancialSubcategory>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == subcategoryId.Value && item.IsActive, cancellationToken);
+
+            if (!exists)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
         }
 
         public async Task<FinancialEntry> UpdateEntry(long id, UpdateFinancialEntryRequest request, CancellationToken cancellationToken = default)
@@ -96,6 +187,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
+            await EnsureSubcategoryExists(request.SubcategoryId, cancellationToken);
 
             entry.Update(
                 request.AccountId,
@@ -111,6 +203,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Notes,
                 request.CampaignId,
                 request.CampaignDeliverableId);
+
+            entry.SetSubcategory(request.SubcategoryId);
+            entry.SetInvoice(request.InvoiceNumber, request.InvoiceUrl, request.InvoiceIssuedAt);
 
             entry.ChangeStatus(request.Status, request.PaidAt);
             entry.RecalculateOverdue(DateTimeOffset.UtcNow);
@@ -294,7 +389,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .Include(item => item.Account)
                 .Include(item => item.Campaign)
-                .Include(item => item.CampaignDeliverable);
+                .Include(item => item.CampaignDeliverable)
+                .Include(item => item.Subcategory);
         }
     }
 

@@ -33,6 +33,7 @@ import OpportunitySources from '../modules/Configuration/OpportunitySources'
 import OpportunityTags from '../modules/Configuration/OpportunityTags'
 import EmailTemplates from '../modules/Configuration/EmailTemplates'
 import FinancialAccounts from '../modules/Configuration/FinancialAccounts'
+import FinancialSubcategories from '../modules/Configuration/FinancialSubcategories'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -102,6 +103,7 @@ function AppRoutes() {
           <Route path="configuracao/tags-oportunidade" element={<OpportunityTags />} />
           <Route path="configuracao/templates-email" element={<EmailTemplates />} />
           <Route path="configuracao/contas-financeiras" element={<FinancialAccounts />} />
+          <Route path="configuracao/subcategorias-financeiras" element={<FinancialSubcategories />} />
         </Route>
 
         <Route path="*" element={<div>Página não encontrada</div>} />

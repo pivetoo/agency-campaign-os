@@ -64,7 +64,29 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   const dueSoonLabel = isReceivable ? 'A receber em 7d' : 'A pagar em 7d'
 
   const columns: DataTableColumn<FinancialEntry>[] = [
-    { key: 'description', title: 'Descrição', dataIndex: 'description' },
+    {
+      key: 'description',
+      title: 'Descrição',
+      dataIndex: 'description',
+      render: (value: string, record: FinancialEntry) => (
+        <span className="inline-flex flex-col">
+          <span className="inline-flex items-center gap-1.5">
+            <span>{value}</span>
+            {record.installmentNumber && record.installmentTotal && (
+              <Badge variant="outline">{record.installmentNumber}/{record.installmentTotal}</Badge>
+            )}
+            {record.invoiceNumber && (
+              <Badge variant="outline" className="text-[10px]">NF {record.invoiceNumber}</Badge>
+            )}
+          </span>
+          {record.subcategoryName && (
+            <span className="text-[10px]" style={{ color: record.subcategoryColor ?? undefined }}>
+              {record.subcategoryName}
+            </span>
+          )}
+        </span>
+      ),
+    },
     { key: 'counterpartyName', title: 'Contraparte', dataIndex: 'counterpartyName', render: (value?: string) => value || '-' },
     {
       key: 'category',

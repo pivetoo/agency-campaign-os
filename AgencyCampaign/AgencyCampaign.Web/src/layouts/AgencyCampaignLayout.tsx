@@ -53,6 +53,7 @@ export default function AgencyCampaignLayout() {
       { key: 'configuracao-tags-oportunidade', label: 'Tags de oportunidade', path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
       { key: 'configuracao-templates-email', label: 'Templates de e-mail', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
       { key: 'configuracao-contas-financeiras', label: 'Contas financeiras', path: '/configuracao/contas-financeiras', icon: <Wallet size={20} /> },
+      { key: 'configuracao-subcategorias-financeiras', label: 'Subcategorias financeiras', path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} /> },
     ]),
   ]
 
@@ -89,6 +90,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/tags-oportunidade': 'Tags de oportunidade',
       '/configuracao/templates-email': 'Templates de e-mail',
       '/configuracao/contas-financeiras': 'Contas financeiras',
+      '/configuracao/subcategorias-financeiras': 'Subcategorias financeiras',
       '/operacao/aprovacoes': 'Aprovações',
     }
 

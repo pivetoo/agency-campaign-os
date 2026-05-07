@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AgencyCampaign.Application.Requests.FinancialEntries
 {
-    public sealed class CreateFinancialEntryRequest
+    public class CreateFinancialEntryRequest
     {
         [Required]
         [Range(1, long.MaxValue)]
@@ -49,5 +49,16 @@ namespace AgencyCampaign.Application.Requests.FinancialEntries
 
         [StringLength(1000)]
         public string? Notes { get; set; }
+
+        [Range(1, long.MaxValue)]
+        public long? SubcategoryId { get; set; }
+
+        [StringLength(60)]
+        public string? InvoiceNumber { get; set; }
+
+        [StringLength(500)]
+        public string? InvoiceUrl { get; set; }
+
+        public DateTimeOffset? InvoiceIssuedAt { get; set; }
     }
 }

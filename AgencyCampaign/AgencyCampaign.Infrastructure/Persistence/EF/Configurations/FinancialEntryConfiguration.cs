@@ -49,6 +49,19 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey(entity => entity.SourceProposalId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasOne(entity => entity.Subcategory)
+                .WithMany()
+                .HasForeignKey(entity => entity.SubcategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(entity => entity.ParentEntry)
+                .WithMany()
+                .HasForeignKey(entity => entity.ParentEntryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(entity => entity.InvoiceNumber).HasMaxLength(60);
+            builder.Property(entity => entity.InvoiceUrl).HasMaxLength(500);
+
             builder.HasIndex(entity => new { entity.AccountId, entity.DueAt })
                 .HasDatabaseName("ixfinancialentryaccountiddueat");
 

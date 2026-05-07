@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Checkbox, Input, SearchableSelect, useApi } from 'archon-ui'
 import {
   financialEntryService,
   type CreateFinancialEntryRequest,
   type UpdateFinancialEntryRequest,
 } from '../../services/financialEntryService'
 import { financialAccountService } from '../../services/financialAccountService'
+import { financialSubcategoryService } from '../../services/financialSubcategoryService'
 import { campaignService } from '../../services/campaignService'
 import { campaignDeliverableService } from '../../services/campaignDeliverableService'
 import {
@@ -13,6 +14,7 @@ import {
   type FinancialEntry,
 } from '../../types/financialEntry'
 import type { FinancialAccount } from '../../types/financialAccount'
+import type { FinancialSubcategory } from '../../types/financialSubcategory'
 import type { Campaign } from '../../types/campaign'
 import type { CampaignDeliverable } from '../../types/campaignDeliverable'
 
@@ -41,6 +43,10 @@ const initialFormData: CreateFinancialEntryRequest = {
   status: 1,
   counterpartyName: '',
   notes: '',
+  subcategoryId: undefined,
+  invoiceNumber: '',
+  invoiceUrl: '',
+  invoiceIssuedAt: '',
 }
 
 const RECEIVABLE_CATEGORIES = [1, 5, 6, 7]
@@ -57,13 +63,17 @@ export default function FinancialEntryFormModal({
   const isEditing = !!entry
   const [formData, setFormData] = useState<CreateFinancialEntryRequest>(initialFormData)
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
+  const [subcategories, setSubcategories] = useState<FinancialSubcategory[]>([])
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [deliverables, setDeliverables] = useState<CampaignDeliverable[]>([])
+  const [installmentEnabled, setInstallmentEnabled] = useState(false)
+  const [installmentTotal, setInstallmentTotal] = useState<number>(2)
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
     if (!open) return
     void financialAccountService.getAll(false).then(setAccounts)
+    void financialSubcategoryService.getAll(false).then(setSubcategories)
     void campaignService.getAll().then(setCampaigns)
   }, [open])
 
@@ -86,7 +96,12 @@ export default function FinancialEntryFormModal({
         status: entry.status,
         counterpartyName: entry.counterpartyName || '',
         notes: entry.notes || '',
+        subcategoryId: entry.subcategoryId ?? undefined,
+        invoiceNumber: entry.invoiceNumber || '',
+        invoiceUrl: entry.invoiceUrl || '',
+        invoiceIssuedAt: entry.invoiceIssuedAt ? entry.invoiceIssuedAt.slice(0, 10) : '',
       })
+      setInstallmentEnabled(false)
       return
     }
 
@@ -121,15 +136,23 @@ export default function FinancialEntryFormModal({
       referenceCode: formData.referenceCode || undefined,
       counterpartyName: formData.counterpartyName || undefined,
       notes: formData.notes || undefined,
+      subcategoryId: formData.subcategoryId || undefined,
+      invoiceNumber: formData.invoiceNumber || undefined,
+      invoiceUrl: formData.invoiceUrl || undefined,
+      invoiceIssuedAt: formData.invoiceIssuedAt || undefined,
       campaignDeliverableId: formData.campaignDeliverableId || undefined,
       campaignId: formData.campaignId || undefined,
     }
 
-    const result = await execute(() =>
-      isEditing
-        ? financialEntryService.update(entry.id, { id: entry.id, ...payload } satisfies UpdateFinancialEntryRequest)
-        : financialEntryService.create(payload),
-    )
+    const result = await execute(() => {
+      if (isEditing) {
+        return financialEntryService.update(entry.id, { id: entry.id, ...payload } satisfies UpdateFinancialEntryRequest)
+      }
+      if (installmentEnabled && installmentTotal >= 2) {
+        return financialEntryService.createInstallments({ ...payload, installmentTotal })
+      }
+      return financialEntryService.create(payload)
+    })
 
     if (result !== null) onSuccess()
   }
@@ -271,6 +294,72 @@ export default function FinancialEntryFormModal({
               <label className="text-sm font-medium">Observações</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Subcategoria (opcional)</label>
+              <SearchableSelect
+                value={formData.subcategoryId ? String(formData.subcategoryId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, subcategoryId: value ? Number(value) : undefined }))}
+                options={[
+                  { value: '', label: 'Sem subcategoria' },
+                  ...subcategories
+                    .filter((sub) => sub.macroCategory === formData.category && sub.isActive)
+                    .map((sub) => ({ value: String(sub.id), label: sub.name })),
+                ]}
+                placeholder="Sem subcategoria"
+                searchPlaceholder="Buscar subcategoria"
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2 rounded-md border bg-muted/30 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Nota fiscal</p>
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                <Input
+                  placeholder="Número da NF"
+                  value={formData.invoiceNumber || ''}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, invoiceNumber: e.target.value }))}
+                />
+                <Input
+                  placeholder="URL do XML/PDF"
+                  value={formData.invoiceUrl || ''}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, invoiceUrl: e.target.value }))}
+                />
+                <Input
+                  type="date"
+                  value={formData.invoiceIssuedAt || ''}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, invoiceIssuedAt: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            {!isEditing && (
+              <div className="space-y-2 md:col-span-2 rounded-md border bg-muted/30 p-3">
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <Checkbox
+                    checked={installmentEnabled}
+                    onCheckedChange={(checked) => setInstallmentEnabled(!!checked)}
+                  />
+                  <span>Parcelar este lançamento</span>
+                </label>
+                {installmentEnabled && (
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">Total de parcelas</label>
+                      <Input
+                        type="number"
+                        min={2}
+                        max={60}
+                        value={installmentTotal}
+                        onChange={(e) => setInstallmentTotal(Math.max(2, Number(e.target.value) || 2))}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground self-end">
+                      Cada parcela = {(formData.amount / installmentTotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} · 1 ao mês
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <ModalFooter>

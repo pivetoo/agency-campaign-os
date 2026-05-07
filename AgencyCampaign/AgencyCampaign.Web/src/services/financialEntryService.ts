@@ -19,10 +19,18 @@ export interface CreateFinancialEntryRequest {
   status: number
   counterpartyName?: string
   notes?: string
+  subcategoryId?: number | null
+  invoiceNumber?: string
+  invoiceUrl?: string
+  invoiceIssuedAt?: string
 }
 
 export interface UpdateFinancialEntryRequest extends CreateFinancialEntryRequest {
   id: number
+}
+
+export interface CreateInstallmentSeriesRequest extends CreateFinancialEntryRequest {
+  installmentTotal: number
 }
 
 export interface FinancialEntryFilters {
@@ -81,5 +89,9 @@ export const financialEntryService = {
 
   markAsPaid(id: number, data: MarkAsPaidRequest) {
     return httpClient.post<FinancialEntry>(`${BASE_URL}/markaspaid/${id}`, data)
+  },
+
+  createInstallments(data: CreateInstallmentSeriesRequest) {
+    return httpClient.post<FinancialEntry[]>(`${BASE_URL}/CreateInstallments`, data)
   },
 }

@@ -33,5 +33,7 @@ namespace AgencyCampaign.Application.Services
         Task<FinancialEntry> MarkAsPaid(long id, MarkAsPaidRequest request, CancellationToken cancellationToken = default);
 
         Task<FinancialSummaryModel> GetSummary(FinancialEntryType type, CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<FinancialEntry>> CreateInstallmentSeries(CreateInstallmentSeriesRequest request, CancellationToken cancellationToken = default);
     }
 }

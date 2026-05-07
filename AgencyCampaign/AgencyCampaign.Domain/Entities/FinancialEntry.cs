@@ -45,6 +45,24 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? Notes { get; private set; }
 
+        public long? SubcategoryId { get; private set; }
+
+        public FinancialSubcategory? Subcategory { get; private set; }
+
+        public long? ParentEntryId { get; private set; }
+
+        public FinancialEntry? ParentEntry { get; private set; }
+
+        public int? InstallmentNumber { get; private set; }
+
+        public int? InstallmentTotal { get; private set; }
+
+        public string? InvoiceNumber { get; private set; }
+
+        public string? InvoiceUrl { get; private set; }
+
+        public DateTimeOffset? InvoiceIssuedAt { get; private set; }
+
         private FinancialEntry()
         {
         }
@@ -101,6 +119,32 @@ namespace AgencyCampaign.Domain.Entities
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalId);
             SourceProposalId = proposalId;
+        }
+
+        public void SetSubcategory(long? subcategoryId)
+        {
+            SubcategoryId = subcategoryId;
+        }
+
+        public void MarkAsInstallment(long? parentEntryId, int installmentNumber, int installmentTotal)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(installmentNumber);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(installmentTotal);
+            if (installmentNumber > installmentTotal)
+            {
+                throw new ArgumentOutOfRangeException(nameof(installmentNumber), "Número da parcela não pode ser maior que o total.");
+            }
+
+            ParentEntryId = parentEntryId;
+            InstallmentNumber = installmentNumber;
+            InstallmentTotal = installmentTotal;
+        }
+
+        public void SetInvoice(string? invoiceNumber, string? invoiceUrl, DateTimeOffset? issuedAt)
+        {
+            InvoiceNumber = Normalize(invoiceNumber);
+            InvoiceUrl = Normalize(invoiceUrl);
+            InvoiceIssuedAt = issuedAt?.ToUniversalTime();
         }
 
         public void RecalculateOverdue(DateTimeOffset now)

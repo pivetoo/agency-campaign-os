@@ -44,6 +44,24 @@ namespace AgencyCampaign.Api.Contracts.FinancialEntries
 
         public string? Notes { get; init; }
 
+        public long? SubcategoryId { get; init; }
+
+        public string? SubcategoryName { get; init; }
+
+        public string? SubcategoryColor { get; init; }
+
+        public long? ParentEntryId { get; init; }
+
+        public int? InstallmentNumber { get; init; }
+
+        public int? InstallmentTotal { get; init; }
+
+        public string? InvoiceNumber { get; init; }
+
+        public string? InvoiceUrl { get; init; }
+
+        public DateTimeOffset? InvoiceIssuedAt { get; init; }
+
         public DateTimeOffset CreatedAt { get; init; }
 
         public DateTimeOffset? UpdatedAt { get; init; }
@@ -69,6 +87,15 @@ namespace AgencyCampaign.Api.Contracts.FinancialEntries
             Status = item.Status,
             CounterpartyName = item.CounterpartyName,
             Notes = item.Notes,
+            SubcategoryId = item.SubcategoryId,
+            SubcategoryName = item.Subcategory == null ? null : item.Subcategory.Name,
+            SubcategoryColor = item.Subcategory == null ? null : item.Subcategory.Color,
+            ParentEntryId = item.ParentEntryId,
+            InstallmentNumber = item.InstallmentNumber,
+            InstallmentTotal = item.InstallmentTotal,
+            InvoiceNumber = item.InvoiceNumber,
+            InvoiceUrl = item.InvoiceUrl,
+            InvoiceIssuedAt = item.InvoiceIssuedAt,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
         };
