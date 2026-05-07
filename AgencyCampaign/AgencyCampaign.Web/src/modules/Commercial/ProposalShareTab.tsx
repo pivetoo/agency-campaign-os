@@ -87,15 +87,15 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+    <div className="space-y-4">
       <Card>
-        <CardHeader className="border-b bg-muted/20">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <LinkIcon className="h-5 w-5 text-primary" />
+        <CardHeader className="border-b bg-muted/20 py-3">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <LinkIcon className="h-4 w-4 text-primary" />
             Links públicos
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-5 p-5">
+        <CardContent className="space-y-4 p-4">
           <div className="rounded-md border border-dashed border-border/70 bg-muted/20 p-4">
             <div className="text-sm font-medium text-foreground">Gerar novo link</div>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -184,10 +184,10 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
       </Card>
 
       <Card>
-        <CardHeader className="border-b bg-muted/20">
-          <CardTitle className="text-base">Versões enviadas</CardTitle>
+        <CardHeader className="border-b bg-muted/20 py-3">
+          <CardTitle className="text-sm">Versões enviadas</CardTitle>
         </CardHeader>
-        <CardContent className="p-5">
+        <CardContent className="p-4">
           {versions.length === 0 ? (
             <div className="text-sm text-muted-foreground">Nenhuma versão registrada. Cada vez que você clicar em Enviar, uma nova versão é gerada automaticamente.</div>
           ) : (
