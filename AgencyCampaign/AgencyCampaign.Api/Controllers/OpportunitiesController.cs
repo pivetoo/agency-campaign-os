@@ -16,6 +16,7 @@ namespace AgencyCampaign.Api.Controllers
         private readonly IOpportunityService opportunityService;
         private readonly IOpportunityNegotiationService negotiationService;
         private readonly IOpportunityFollowUpService followUpService;
+        private readonly IOpportunityCommentService commentService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
         private static readonly Func<Opportunity, OpportunityContract> MapOpportunity = OpportunityContract.Projection.Compile();
         private static readonly Func<OpportunityNegotiation, OpportunityNegotiationContract> MapNegotiation = OpportunityNegotiationContract.Projection.Compile();
@@ -25,11 +26,13 @@ namespace AgencyCampaign.Api.Controllers
             IOpportunityService opportunityService,
             IOpportunityNegotiationService negotiationService,
             IOpportunityFollowUpService followUpService,
+            IOpportunityCommentService commentService,
             IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.opportunityService = opportunityService;
             this.negotiationService = negotiationService;
             this.followUpService = followUpService;
+            this.commentService = commentService;
             Localizer = localizer;
         }
 
@@ -79,6 +82,49 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> StageHistory(long id, CancellationToken cancellationToken)
         {
             return Http200(await opportunityService.GetStageHistory(id, cancellationToken));
+        }
+
+        [RequireAccess("Permite listar os comentários de uma oportunidade.")]
+        [HttpGet("{opportunityId:long}/comments/Get")]
+        public async Task<IActionResult> GetComments(long opportunityId, CancellationToken cancellationToken)
+        {
+            return Http200(await commentService.GetByOpportunityId(opportunityId, cancellationToken));
+        }
+
+        [RequireAccess("Permite adicionar um comentário a uma oportunidade.")]
+        [HttpPost("{opportunityId:long}/comments/Create")]
+        public async Task<IActionResult> CreateComment(long opportunityId, [FromBody] CreateOpportunityCommentRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var comment = await commentService.CreateComment(opportunityId, request, cancellationToken);
+            return Http201(comment, Localizer["record.created"]);
+        }
+
+        [RequireAccess("Permite atualizar um comentário.")]
+        [PutEndpoint("comments/{id:long}")]
+        public async Task<IActionResult> UpdateComment(long id, [FromBody] UpdateOpportunityCommentRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var comment = await commentService.UpdateComment(id, request, cancellationToken);
+            return Http200(comment, Localizer["record.updated"]);
+        }
+
+        [RequireAccess("Permite excluir um comentário.")]
+        [DeleteEndpoint("comments/{id:long}")]
+        public async Task<IActionResult> DeleteComment(long id, CancellationToken cancellationToken)
+        {
+            await commentService.DeleteComment(id, cancellationToken);
+            return Http204();
         }
 
 

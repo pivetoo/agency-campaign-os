@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'archon-ui'
+import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Building2, Calendar, CheckCircle, CircleDollarSign, Clock, FileText, MapPin, MessageSquare, Pencil, Tag, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
+import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, FileText, MapPin, MessageSquare, Pencil, Tag, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../services/commercialPipelineStageService'
 import { opportunityService, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
 import OpportunityNegotiationFormModal from '../../components/modals/OpportunityNegotiationFormModal'
 import OpportunityFollowUpFormModal from '../../components/modals/OpportunityFollowUpFormModal'
 import OpportunityApprovalRequestFormModal from '../../components/modals/OpportunityApprovalRequestFormModal'
+import OpportunityActivityTab from './OpportunityActivityTab'
 
 const proposalStatusLabels: Record<number, string> = {
   1: 'Rascunho',
@@ -73,6 +74,7 @@ function getStageBadgeVariant(finalBehavior?: number): 'default' | 'success' | '
 export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>()
   const opportunityId = Number(id || 0)
+  const { user: authUser } = useAuth()
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
   const [stages, setStages] = useState<Array<{ id: number; name: string; finalBehavior: number }>>([])
@@ -354,6 +356,9 @@ export default function OpportunityDetail() {
               <Clock className="h-4 w-4" /> Follow-ups
               {opportunity?.followUps?.length ? <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground/20 text-[10px] text-primary-foreground">{opportunity.followUps.length}</span> : null}
             </TabsTrigger>
+            <TabsTrigger value="activity" className="gap-2 rounded-lg px-5 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+              <Activity className="h-4 w-4" /> Atividades
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="summary" className="mt-0">
@@ -537,6 +542,10 @@ export default function OpportunityDetail() {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="activity" className="mt-0">
+            <OpportunityActivityTab opportunityId={opportunityId} currentUserId={authUser?.id ?? null} />
           </TabsContent>
         </Tabs>
       </PageLayout>

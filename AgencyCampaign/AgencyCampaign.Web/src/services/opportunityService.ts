@@ -140,6 +140,24 @@ export interface CommercialAlert {
   dueAt?: string
 }
 
+export interface OpportunityComment {
+  id: number
+  opportunityId: number
+  authorUserId?: number
+  authorName: string
+  body: string
+  createdAt: string
+  updatedAt?: string
+}
+
+export interface CreateOpportunityCommentRequest {
+  body: string
+}
+
+export interface UpdateOpportunityCommentRequest {
+  body: string
+}
+
 export interface OpportunityStageHistoryItem {
   id: number
   opportunityId: number
@@ -305,6 +323,23 @@ export const opportunityService = {
   async getStageHistory(opportunityId: number): Promise<OpportunityStageHistoryItem[]> {
     const response = await httpClient.get<OpportunityStageHistoryItem[]>(`${BASE_URL}/${opportunityId}/StageHistory`)
     return response.data ?? []
+  },
+
+  async getComments(opportunityId: number): Promise<OpportunityComment[]> {
+    const response = await httpClient.get<OpportunityComment[]>(`${BASE_URL}/${opportunityId}/comments/Get`)
+    return response.data ?? []
+  },
+
+  createComment(opportunityId: number, data: CreateOpportunityCommentRequest) {
+    return httpClient.post<OpportunityComment>(`${BASE_URL}/${opportunityId}/comments/Create`, data)
+  },
+
+  updateComment(id: number, data: UpdateOpportunityCommentRequest) {
+    return httpClient.put<OpportunityComment>(`${BASE_URL}/comments/${id}`, data)
+  },
+
+  deleteComment(id: number) {
+    return httpClient.delete(`${BASE_URL}/comments/${id}`)
   },
 
   create(data: CreateOpportunityRequest) {

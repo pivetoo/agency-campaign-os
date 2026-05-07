@@ -10,6 +10,7 @@ namespace AgencyCampaign.Domain.Entities
         private readonly List<OpportunityFollowUp> followUps = [];
         private readonly List<Proposal> proposals = [];
         private readonly List<OpportunityStageHistory> stageHistory = [];
+        private readonly List<OpportunityComment> comments = [];
 
         public long BrandId { get; private set; }
 
@@ -54,6 +55,8 @@ namespace AgencyCampaign.Domain.Entities
         public IReadOnlyCollection<Proposal> Proposals => proposals.AsReadOnly();
 
         public IReadOnlyCollection<OpportunityStageHistory> StageHistory => stageHistory.AsReadOnly();
+
+        public IReadOnlyCollection<OpportunityComment> Comments => comments.AsReadOnly();
 
         [NotMapped]
         public IReadOnlyCollection<OpportunityApprovalRequest> ApprovalRequests => negotiations.SelectMany(item => item.ApprovalRequests).ToArray();
