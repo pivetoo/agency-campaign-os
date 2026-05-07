@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
 import type { BreadcrumbItem } from 'archon-ui'
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -42,6 +42,7 @@ export default function AgencyCampaignLayout() {
       { key: 'financeiro-aging', label: 'Aging', path: '/financeiro/aging', icon: <Hourglass size={20} /> },
     ]),
     createMenuGroup('Configuração', [
+      { key: 'configuracao-empresa', label: 'Empresa', path: '/configuracao/empresa', icon: <Settings size={20} /> },
       { key: 'configuracao-integracoes', label: 'Integrações', path: '/configuracao/integracoes', icon: <Plug size={20} /> },
       { key: 'configuracao-plataformas', label: 'Redes Sociais', path: '/configuracao/plataformas', icon: <Globe size={20} /> },
       { key: 'configuracao-pipeline-comercial', label: 'Estágios do Comercial', path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
@@ -91,6 +92,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/templates-email': 'Templates de e-mail',
       '/configuracao/contas-financeiras': 'Contas financeiras',
       '/configuracao/subcategorias-financeiras': 'Subcategorias financeiras',
+      '/configuracao/empresa': 'Empresa',
       '/operacao/aprovacoes': 'Aprovações',
     }
 

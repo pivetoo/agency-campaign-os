@@ -166,35 +166,46 @@ export default function Integrations() {
 
             {selectedCategoryId && integrations.length > 0 && (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {integrations.map((integ) => (
-                  <Card key={integ.id} className="cursor-pointer hover:border-primary/50 transition-colors">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base">{integ.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {integ.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {integ.description}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline">{integ.identifier}</Badge>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setSelectedIntegration(integ)
-                            setSelectedConnector(null)
-                            setConnectorModalMode('create')
-                            setIsConnectorModalOpen(true)
-                          }}
-                        >
-                          <Settings2 size={14} className="mr-1" />
-                          Configurar
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                {integrations.map((integ) => {
+                  const integConnectors = connectors.filter((c) => c.integrationId === integ.id)
+                  const activeCount = integConnectors.filter((c) => c.isActive).length
+                  return (
+                    <Card key={integ.id} className="cursor-pointer hover:border-primary/50 transition-colors">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base">{integ.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {integ.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {integ.description}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col gap-1">
+                            <Badge variant="outline">{integ.identifier}</Badge>
+                            <span className="text-[10px] text-muted-foreground">
+                              {integConnectors.length === 0
+                                ? 'Sem conectores'
+                                : `${activeCount} ativo${activeCount === 1 ? '' : 's'} · ${integConnectors.length} total`}
+                            </span>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setSelectedIntegration(integ)
+                              setSelectedConnector(null)
+                              setConnectorModalMode('create')
+                              setIsConnectorModalOpen(true)
+                            }}
+                          >
+                            <Settings2 size={14} className="mr-1" />
+                            Configurar
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </div>
             )}
 
