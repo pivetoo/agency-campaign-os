@@ -24,6 +24,8 @@ import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
 import Integrations from '../modules/Configuration/Integrations'
 import ProposalTemplates from '../modules/Configuration/ProposalTemplates'
 import ProposalBlocks from '../modules/Configuration/ProposalBlocks'
+import OpportunitySources from '../modules/Configuration/OpportunitySources'
+import OpportunityTags from '../modules/Configuration/OpportunityTags'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -84,6 +86,8 @@ function AppRoutes() {
           <Route path="configuracao/integracoes" element={<Integrations />} />
           <Route path="configuracao/templates-proposta" element={<ProposalTemplates />} />
           <Route path="configuracao/blocos-proposta" element={<ProposalBlocks />} />
+          <Route path="configuracao/origens-oportunidade" element={<OpportunitySources />} />
+          <Route path="configuracao/tags-oportunidade" element={<OpportunityTags />} />
         </Route>
 
         <Route path="*" element={<div>Página não encontrada</div>} />

@@ -1,0 +1,104 @@
+import { useEffect, useState } from 'react'
+import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import type { DataTableColumn } from 'archon-ui'
+import { Trash2 } from 'lucide-react'
+import { opportunitySourceService } from '../../../services/opportunitySourceService'
+import type { OpportunitySource } from '../../../types/opportunitySource'
+import { OpportunitySourceFormModal } from '../../../components/modals/OpportunitySourceFormModal'
+
+export default function OpportunitySources() {
+  const [items, setItems] = useState<OpportunitySource[]>([])
+  const [selected, setSelected] = useState<OpportunitySource | null>(null)
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const { execute: fetchAll, loading } = useApi<OpportunitySource[]>({ showErrorMessage: true })
+  const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
+
+  const load = async () => {
+    const result = await fetchAll(() => opportunitySourceService.getAll(true))
+    if (result) setItems(result)
+  }
+
+  useEffect(() => {
+    void load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleDelete = async () => {
+    if (!selected) return
+    if (!window.confirm(`Excluir a origem "${selected.name}"?`)) return
+    const result = await runDelete(() => opportunitySourceService.delete(selected.id))
+    if (result !== null) {
+      setSelected(null)
+      void load()
+    }
+  }
+
+  const columns: DataTableColumn<OpportunitySource>[] = [
+    {
+      key: 'name',
+      title: 'Origem',
+      dataIndex: 'name',
+      render: (value: string, record: OpportunitySource) => (
+        <span className="flex items-center gap-2">
+          <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: record.color }} />
+          {value}
+        </span>
+      ),
+    },
+    { key: 'displayOrder', title: 'Ordem', dataIndex: 'displayOrder' },
+    {
+      key: 'isActive',
+      title: 'Status',
+      dataIndex: 'isActive',
+      render: (value: boolean) => (
+        <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativa' : 'Inativa'}</Badge>
+      ),
+    },
+  ]
+
+  return (
+    <>
+      <PageLayout
+        title="Origens de oportunidade"
+        subtitle="De onde vêm os leads. Use para análise de canal e relatórios."
+        onAdd={() => { setSelected(null); setIsFormOpen(true) }}
+        onEdit={() => selected && setIsFormOpen(true)}
+        onRefresh={() => void load()}
+        selectedRowsCount={selected ? 1 : 0}
+        actions={[
+          {
+            key: 'delete',
+            label: 'Excluir',
+            icon: <Trash2 className="h-4 w-4" />,
+            variant: 'outline-danger',
+            disabled: !selected || deleting,
+            onClick: () => void handleDelete(),
+          },
+        ]}
+      >
+        <DataTable
+          columns={columns}
+          data={items}
+          rowKey="id"
+          selectedRows={selected ? [selected] : []}
+          onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
+          emptyText="Nenhuma origem cadastrada"
+          loading={loading}
+          pageSize={10}
+          pageSizeOptions={[5, 10, 20, 50]}
+        />
+      </PageLayout>
+
+      <OpportunitySourceFormModal
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        source={selected}
+        onSuccess={() => {
+          setIsFormOpen(false)
+          setSelected(null)
+          void load()
+        }}
+      />
+    </>
+  )
+}

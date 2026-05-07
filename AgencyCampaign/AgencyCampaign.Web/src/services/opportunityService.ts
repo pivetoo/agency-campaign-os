@@ -80,11 +80,26 @@ export interface Opportunity {
     id: number
     name: string
   }
+  opportunitySourceId?: number
+  opportunitySource?: OpportunitySourceReference
+  tags: OpportunityTagReference[]
   negotiations: OpportunityNegotiation[]
   followUps: OpportunityFollowUp[]
   proposals: OpportunityProposalReference[]
   createdAt: string
   updatedAt?: string
+}
+
+export interface OpportunitySourceReference {
+  id: number
+  name: string
+  color: string
+}
+
+export interface OpportunityTagReference {
+  id: number
+  name: string
+  color: string
 }
 
 export interface OpportunityBoardItem {
@@ -189,6 +204,8 @@ export interface CreateOpportunityRequest {
   contactName?: string
   contactEmail?: string
   notes?: string
+  opportunitySourceId?: number
+  tagIds?: number[]
 }
 
 export interface UpdateOpportunityRequest extends CreateOpportunityRequest {
@@ -284,6 +301,8 @@ export interface OpportunityListFilters {
   status?: 'open' | 'won' | 'lost'
   minValue?: number
   maxValue?: number
+  opportunitySourceId?: number
+  opportunityTagId?: number
 }
 
 export const opportunityService = {
@@ -298,6 +317,8 @@ export const opportunityService = {
     if (params?.status) searchParams.set('status', params.status)
     if (params?.minValue !== undefined) searchParams.set('minValue', params.minValue.toString())
     if (params?.maxValue !== undefined) searchParams.set('maxValue', params.maxValue.toString())
+    if (params?.opportunitySourceId) searchParams.set('opportunitySourceId', params.opportunitySourceId.toString())
+    if (params?.opportunityTagId) searchParams.set('opportunityTagId', params.opportunityTagId.toString())
 
     const query = searchParams.toString()
     const url = query ? `${BASE_URL}/Get?${query}` : `${BASE_URL}/Get`

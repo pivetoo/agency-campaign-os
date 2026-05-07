@@ -94,6 +94,17 @@ namespace AgencyCampaign.Infrastructure.Services
                 query = query.Where(item => item.EstimatedValue <= filters.MaxValue.Value);
             }
 
+            if (filters.OpportunitySourceId.HasValue)
+            {
+                query = query.Where(item => item.OpportunitySourceId == filters.OpportunitySourceId.Value);
+            }
+
+            if (filters.OpportunityTagId.HasValue)
+            {
+                long tagId = filters.OpportunityTagId.Value;
+                query = query.Where(item => item.TagAssignments.Any(assignment => assignment.OpportunityTagId == tagId));
+            }
+
             return query;
         }
 
@@ -122,6 +133,16 @@ namespace AgencyCampaign.Infrastructure.Services
                 currentUser.UserId,
                 currentUser.UserName);
 
+            if (request.OpportunitySourceId.HasValue)
+            {
+                opportunity.SetSource(request.OpportunitySourceId);
+            }
+
+            if (request.TagIds is not null && request.TagIds.Count > 0)
+            {
+                opportunity.ReplaceTags(request.TagIds);
+            }
+
             bool success = await Insert(cancellationToken, opportunity);
             if (!success)
             {
@@ -140,6 +161,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             Opportunity? opportunity = await DbContext.Set<Opportunity>()
                 .AsTracking()
+                .Include(item => item.TagAssignments)
                 .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
             if (opportunity is null)
@@ -166,6 +188,13 @@ namespace AgencyCampaign.Infrastructure.Services
             if (request.Probability.HasValue)
             {
                 opportunity.SetProbability(request.Probability.Value);
+            }
+
+            opportunity.SetSource(request.OpportunitySourceId);
+
+            if (request.TagIds is not null)
+            {
+                opportunity.ReplaceTags(request.TagIds);
             }
 
             Opportunity? result = await Update(opportunity, cancellationToken);
@@ -554,10 +583,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Include(item => item.Brand)
                 .Include(item => item.CommercialPipelineStage)
                 .Include(item => item.CommercialResponsible)
+                .Include(item => item.OpportunitySource)
                 .Include(item => item.Negotiations)
                     .ThenInclude(item => item.ApprovalRequests)
                 .Include(item => item.FollowUps)
-                .Include(item => item.Proposals);
+                .Include(item => item.Proposals)
+                .Include(item => item.TagAssignments)
+                    .ThenInclude(item => item.OpportunityTag);
         }
     }
 }

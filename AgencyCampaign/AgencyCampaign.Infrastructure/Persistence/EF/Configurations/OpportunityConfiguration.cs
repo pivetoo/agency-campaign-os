@@ -77,6 +77,16 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .WithOne(entity => entity.Opportunity)
                 .HasForeignKey(entity => entity.OpportunityId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(entity => entity.OpportunitySource)
+                .WithMany()
+                .HasForeignKey(entity => entity.OpportunitySourceId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasMany(entity => entity.TagAssignments)
+                .WithOne(entity => entity.Opportunity)
+                .HasForeignKey(entity => entity.OpportunityId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

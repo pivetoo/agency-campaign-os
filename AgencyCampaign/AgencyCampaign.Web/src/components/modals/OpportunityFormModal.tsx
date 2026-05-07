@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi } from 'archon-ui'
 import { brandService } from '../../services/brandService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
+import { opportunitySourceService, opportunityTagService } from '../../services/opportunitySourceService'
 import type { Brand } from '../../types/brand'
 import type { CommercialResponsible } from '../../types/commercialResponsible'
+import type { OpportunitySource, OpportunityTag } from '../../types/opportunitySource'
 import { opportunityService, type Opportunity, type CreateOpportunityRequest, type UpdateOpportunityRequest } from '../../services/opportunityService'
 
 interface OpportunityFormModalProps {
@@ -22,6 +24,8 @@ const initialFormData: CreateOpportunityRequest = {
   contactName: '',
   contactEmail: '',
   notes: '',
+  opportunitySourceId: undefined,
+  tagIds: [],
 }
 
 export default function OpportunityFormModal({ open, onOpenChange, opportunity, onSuccess }: OpportunityFormModalProps) {
@@ -29,11 +33,15 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
   const [formData, setFormData] = useState<CreateOpportunityRequest>(initialFormData)
   const [brands, setBrands] = useState<Brand[]>([])
   const [responsibles, setResponsibles] = useState<CommercialResponsible[]>([])
+  const [sources, setSources] = useState<OpportunitySource[]>([])
+  const [tags, setTags] = useState<OpportunityTag[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
     void brandService.getAll().then(setBrands)
     void commercialResponsibleService.getAll().then(setResponsibles)
+    void opportunitySourceService.getAll(false).then(setSources)
+    void opportunityTagService.getAll(false).then(setTags)
   }, [])
 
   useEffect(() => {
@@ -48,12 +56,24 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         contactName: opportunity.contactName || '',
         contactEmail: opportunity.contactEmail || '',
         notes: opportunity.notes || '',
+        opportunitySourceId: opportunity.opportunitySourceId,
+        tagIds: opportunity.tags?.map((tag) => tag.id) ?? [],
       })
       return
     }
 
     setFormData(initialFormData)
   }, [opportunity, open])
+
+  const toggleTag = (tagId: number) => {
+    setFormData((prev) => {
+      const current = prev.tagIds ?? []
+      const next = current.includes(tagId)
+        ? current.filter((id) => id !== tagId)
+        : [...current, tagId]
+      return { ...prev, tagIds: next }
+    })
+  }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -139,6 +159,45 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
               <label className="text-sm font-medium">Observações</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Origem</label>
+              <SearchableSelect
+                value={formData.opportunitySourceId ? String(formData.opportunitySourceId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, opportunitySourceId: value ? Number(value) : undefined }))}
+                options={sources.map((source) => ({ value: String(source.id), label: source.name }))}
+                placeholder="Sem origem"
+                searchPlaceholder="Buscar origem"
+              />
+            </div>
+
+            <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
+              <label className="text-sm font-medium">Tags</label>
+              {tags.length === 0 ? (
+                <p className="text-xs text-muted-foreground">Nenhuma tag cadastrada. Crie em Configuração → Tags de oportunidade.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => {
+                    const selected = formData.tagIds?.includes(tag.id) ?? false
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => toggleTag(tag.id)}
+                        className="rounded-full border px-2.5 py-1 text-xs font-medium transition"
+                        style={{
+                          backgroundColor: selected ? `${tag.color}25` : 'transparent',
+                          borderColor: tag.color,
+                          color: selected ? tag.color : 'var(--muted-foreground)',
+                        }}
+                      >
+                        {tag.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
 

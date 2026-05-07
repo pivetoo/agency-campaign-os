@@ -15,5 +15,9 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         public decimal? MinValue { get; set; }
 
         public decimal? MaxValue { get; set; }
+
+        public long? OpportunitySourceId { get; set; }
+
+        public long? OpportunityTagId { get; set; }
     }
 }

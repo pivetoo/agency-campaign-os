@@ -44,6 +44,12 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public OpportunityBrandReferenceContract? Brand { get; init; }
 
+        public long? OpportunitySourceId { get; init; }
+
+        public OpportunitySourceReferenceContract? OpportunitySource { get; init; }
+
+        public List<OpportunityTagReferenceContract> Tags { get; init; } = [];
+
         public List<OpportunityNegotiationContract> Negotiations { get; init; } = [];
 
         public List<OpportunityFollowUpContract> FollowUps { get; init; } = [];
@@ -97,6 +103,23 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
                     Id = item.Brand.Id,
                     Name = item.Brand.Name
                 },
+            OpportunitySourceId = item.OpportunitySourceId,
+            OpportunitySource = item.OpportunitySource == null
+                ? null
+                : new OpportunitySourceReferenceContract
+                {
+                    Id = item.OpportunitySource.Id,
+                    Name = item.OpportunitySource.Name,
+                    Color = item.OpportunitySource.Color
+                },
+            Tags = item.TagAssignments
+                .Where(assignment => assignment.OpportunityTag != null)
+                .Select(assignment => new OpportunityTagReferenceContract
+                {
+                    Id = assignment.OpportunityTag!.Id,
+                    Name = assignment.OpportunityTag.Name,
+                    Color = assignment.OpportunityTag.Color
+                }).ToList(),
             Negotiations = item.Negotiations.ToList().Select(negotiation => new OpportunityNegotiationContract
             {
                 Id = negotiation.Id,
@@ -306,5 +329,23 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
         public DateTimeOffset? ValidityUntil { get; init; }
 
         public long? CampaignId { get; init; }
+    }
+
+    public sealed class OpportunitySourceReferenceContract
+    {
+        public long Id { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public string Color { get; init; } = "#6366f1";
+    }
+
+    public sealed class OpportunityTagReferenceContract
+    {
+        public long Id { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public string Color { get; init; } = "#6366f1";
     }
 }

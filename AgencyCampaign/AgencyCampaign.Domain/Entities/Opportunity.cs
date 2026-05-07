@@ -11,6 +11,7 @@ namespace AgencyCampaign.Domain.Entities
         private readonly List<Proposal> proposals = [];
         private readonly List<OpportunityStageHistory> stageHistory = [];
         private readonly List<OpportunityComment> comments = [];
+        private readonly List<OpportunityTagAssignment> tagAssignments = [];
 
         public long BrandId { get; private set; }
 
@@ -40,6 +41,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? ContactEmail { get; private set; }
 
+        public long? OpportunitySourceId { get; private set; }
+
+        public OpportunitySource? OpportunitySource { get; private set; }
+
         public string? Notes { get; private set; }
 
         public DateTimeOffset? ClosedAt { get; private set; }
@@ -57,6 +62,8 @@ namespace AgencyCampaign.Domain.Entities
         public IReadOnlyCollection<OpportunityStageHistory> StageHistory => stageHistory.AsReadOnly();
 
         public IReadOnlyCollection<OpportunityComment> Comments => comments.AsReadOnly();
+
+        public IReadOnlyCollection<OpportunityTagAssignment> TagAssignments => tagAssignments.AsReadOnly();
 
         [NotMapped]
         public IReadOnlyCollection<OpportunityApprovalRequest> ApprovalRequests => negotiations.SelectMany(item => item.ApprovalRequests).ToArray();
@@ -129,6 +136,33 @@ namespace AgencyCampaign.Domain.Entities
 
             stageHistory.Add(new OpportunityStageHistory(
                 Id, fromStageId, stage.Id, changedByUserId, changedByUserName, reason));
+        }
+
+        public void SetSource(long? opportunitySourceId)
+        {
+            OpportunitySourceId = opportunitySourceId;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        public void ReplaceTags(IEnumerable<long> tagIds)
+        {
+            ArgumentNullException.ThrowIfNull(tagIds);
+
+            HashSet<long> desired = tagIds.Distinct().ToHashSet();
+            tagAssignments.RemoveAll(item => !desired.Contains(item.OpportunityTagId));
+
+            HashSet<long> current = tagAssignments.Select(item => item.OpportunityTagId).ToHashSet();
+            foreach (long tagId in desired)
+            {
+                if (current.Contains(tagId))
+                {
+                    continue;
+                }
+
+                tagAssignments.Add(new OpportunityTagAssignment(Id, tagId));
+            }
+
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
 
         public void SetProbability(decimal probability)

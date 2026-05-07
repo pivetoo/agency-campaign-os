@@ -36,5 +36,10 @@ namespace AgencyCampaign.Application.Requests.Opportunities
 
         [StringLength(1000)]
         public string? Notes { get; set; }
+
+        [Range(1, long.MaxValue)]
+        public long? OpportunitySourceId { get; set; }
+
+        public IReadOnlyCollection<long>? TagIds { get; set; }
     }
 }
