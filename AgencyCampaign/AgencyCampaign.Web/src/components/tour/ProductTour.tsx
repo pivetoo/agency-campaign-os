@@ -26,6 +26,27 @@ const steps: KanvasStep[] = [
       'Aqui você navega entre os módulos: Comercial, Operação, Finanças e Configuração. O conteúdo muda conforme o módulo escolhido na topbar.',
   },
   {
+    target: '[data-tour="module-switcher"]',
+    placement: 'bottom',
+    title: 'Módulos: Sistema · Configuração · Auditoria',
+    content:
+      'Use este botão para alternar entre o operacional do dia-a-dia, os cadastros (configuração) e o histórico de auditoria. A sidebar muda conforme o módulo escolhido.',
+  },
+  {
+    target: '[data-tour="notifications-bell"]',
+    placement: 'bottom',
+    title: 'Notificações',
+    content:
+      'O sino mostra eventos importantes: proposta visualizada pela marca, aprovação pendente, pagamento recebido, entrega aprovada. Clique em uma para ir direto ao item.',
+  },
+  {
+    target: '[data-tour="dashboard-kpis"]',
+    placement: 'bottom',
+    title: 'Indicadores principais',
+    content:
+      'No header da Dashboard você vê em tempo real: campanhas ativas, marcas, creators e entregas pendentes. Visão rápida da saúde da operação.',
+  },
+  {
     target: 'body',
     placement: 'center',
     title: 'Pipeline comercial',
@@ -74,11 +95,11 @@ const steps: KanvasStep[] = [
     route: '/marcas',
   },
   {
-    target: 'body',
-    placement: 'center',
+    target: '[data-tour="creators-table"]',
+    placement: 'top',
     title: 'Creators 360',
     content:
-      'Cadastro de creators com handles sociais, performance por plataforma, histórico de campanhas e on-time delivery. Clique em "Abrir 360" em um creator para ver o perfil completo.',
+      'Lista de creators com botão "Abrir 360" em cada linha. O perfil 360 traz handles sociais, performance por plataforma, histórico de campanhas e on-time delivery.',
     route: '/creators',
   },
   {
@@ -98,35 +119,35 @@ const steps: KanvasStep[] = [
     route: '/operacao/aprovacoes',
   },
   {
-    target: 'body',
-    placement: 'center',
+    target: '[data-tour="financial-entries-kpis"]',
+    placement: 'bottom',
     title: 'Contas a receber',
     content:
-      'Lançamentos gerados automaticamente quando você converte uma proposta em campanha. KPIs no topo: pendente, recebido no mês, vencidos, próximos 7 dias.',
+      'KPIs em tempo real: pendente, recebido no mês, vencidos, próximos 7 dias. Lançamentos gerados automaticamente quando você converte uma proposta em campanha.',
     route: '/financeiro/receber',
   },
   {
-    target: 'body',
-    placement: 'center',
+    target: '[data-tour="financial-entries-kpis"]',
+    placement: 'bottom',
     title: 'Contas a pagar',
     content:
-      'Repasses para creators (gerados automaticamente quando você publica uma entrega) e despesas operacionais que você lança manualmente.',
+      'Mesma visão dos KPIs, agora para saídas. Inclui repasses para creators (gerados automaticamente ao publicar entregas) e despesas operacionais lançadas manualmente.',
     route: '/financeiro/pagar',
   },
   {
-    target: 'body',
-    placement: 'center',
+    target: '[data-tour="cashflow-chart"]',
+    placement: 'top',
     title: 'Fluxo de caixa',
     content:
-      'Gráfico de entradas e saídas (pendentes e realizadas) por dia, semana ou mês. Use para planejar caixa e ver tendências.',
+      'Entradas e saídas (pendentes e realizadas) por dia, semana ou mês. Use para planejar caixa e ver tendências.',
     route: '/financeiro/fluxo-caixa',
   },
   {
-    target: 'body',
-    placement: 'center',
+    target: '[data-tour="aging-buckets"]',
+    placement: 'top',
     title: 'Aging financeiro',
     content:
-      'Distribuição de pendências por faixa de atraso. Quanto mais alto o bucket "90+ dias", mais inadimplência.',
+      'Distribuição de pendências por faixa de atraso (a vencer, 0-30, 31-60, 61-90, 90+). Quanto mais à direita, mais inadimplência.',
     route: '/financeiro/aging',
   },
   {

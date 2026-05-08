@@ -162,7 +162,7 @@ export default function CashFlow() {
             </div>
           </div>
 
-          <div style={{ height: 360 }}>
+          <div style={{ height: 360 }} data-tour="cashflow-chart">
             {loading ? (
               <p className="flex h-full items-center justify-center text-sm text-muted-foreground">Carregando fluxo de caixa...</p>
             ) : chartData.length === 0 || chartData[0].data.length === 0 ? (

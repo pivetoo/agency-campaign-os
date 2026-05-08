@@ -103,16 +103,18 @@ export default function Dashboard() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <TourButton />
-          {headlineChips.map(({ label, value, icon: Icon, tone }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2 rounded-full border border-border/70 bg-muted/30 px-3 py-1.5 text-xs"
-            >
-              <Icon className={`h-3.5 w-3.5 ${tone}`} />
-              <span className="font-medium text-muted-foreground">{label}</span>
-              <span className="font-semibold text-foreground">{value}</span>
-            </div>
-          ))}
+          <div className="flex flex-wrap items-center gap-2" data-tour="dashboard-kpis">
+            {headlineChips.map(({ label, value, icon: Icon, tone }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2 rounded-full border border-border/70 bg-muted/30 px-3 py-1.5 text-xs"
+              >
+                <Icon className={`h-3.5 w-3.5 ${tone}`} />
+                <span className="font-medium text-muted-foreground">{label}</span>
+                <span className="font-semibold text-foreground">{value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

@@ -168,7 +168,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
           },
         ]}
       >
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 mb-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 mb-4" data-tour="financial-entries-kpis">
           <Card>
             <CardContent className="pt-5 pb-5">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">{isReceivable ? 'A receber' : 'A pagar'}</p>

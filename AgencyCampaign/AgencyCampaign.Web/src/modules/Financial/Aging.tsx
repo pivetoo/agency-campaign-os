@@ -57,7 +57,7 @@ export default function Aging() {
           ) : !report ? (
             <p className="text-sm text-muted-foreground">Sem dados.</p>
           ) : (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-5" data-tour="aging-buckets">
               {report.buckets.map((bucket) => {
                 const isOverdue = bucket.minDays > 0
                 return (

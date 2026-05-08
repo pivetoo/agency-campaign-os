@@ -67,18 +67,20 @@ export default function Creators() {
         onRefresh={() => void loadCreators()}
         selectedRowsCount={selectedCreator ? 1 : 0}
       >
-        <DataTable
-          columns={columns}
-          data={creators}
-          rowKey="id"
-          selectedRows={selectedCreator ? [selectedCreator] : []}
-          onSelectionChange={(rows) => setSelectedCreator(rows[0] ?? null)}
-          onRowDoubleClick={setPreviewCreator}
-          emptyText="Nenhum influenciador cadastrado"
-          loading={loading}
-          pageSize={5}
-          pageSizeOptions={[5, 10, 20, 50]}
-        />
+        <div data-tour="creators-table">
+          <DataTable
+            columns={columns}
+            data={creators}
+            rowKey="id"
+            selectedRows={selectedCreator ? [selectedCreator] : []}
+            onSelectionChange={(rows) => setSelectedCreator(rows[0] ?? null)}
+            onRowDoubleClick={setPreviewCreator}
+            emptyText="Nenhum influenciador cadastrado"
+            loading={loading}
+            pageSize={5}
+            pageSizeOptions={[5, 10, 20, 50]}
+          />
+        </div>
       </PageLayout>
 
       <CreatorFormModal
