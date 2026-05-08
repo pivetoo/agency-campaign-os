@@ -24,7 +24,6 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
             services.AddArchonRestApi();
             services.AddScoped<IntegrationPlatformClient>();
-            services.AddScoped<IdentityUsersClient>();
             services.AddScoped<IAutomationDispatcher, AutomationDispatcher>();
             services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();
 
