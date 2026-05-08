@@ -101,6 +101,9 @@ export default function AgencyCampaignLayout() {
   const systemGroups = [
     createMenuGroup('Geral', [
       { key: 'dashboard', label: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
+      ...(isRoot
+        ? [{ key: 'usuarios', label: 'Usuários', path: '/usuarios', icon: <UserCog size={20} /> }]
+        : []),
     ]),
     createMenuGroup('Comercial', [
       { key: 'comercial-pipeline', label: 'Pipeline', path: '/comercial/pipeline', icon: <Columns3 size={20} /> },
@@ -127,9 +130,6 @@ export default function AgencyCampaignLayout() {
   const configurationGroups = [
     createMenuGroup('Geral', [
       { key: 'configuracao-empresa', label: 'Empresa', path: '/configuracao/empresa', icon: <Settings size={20} /> },
-      ...(isRoot
-        ? [{ key: 'configuracao-usuarios', label: 'Usuários', path: '/configuracao/usuarios', icon: <UserCog size={20} /> }]
-        : []),
       { key: 'configuracao-integracoes', label: 'Integrações', path: '/configuracao/integracoes', icon: <Plug size={20} /> },
       { key: 'configuracao-templates-email', label: 'Templates de e-mail', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
     ]),

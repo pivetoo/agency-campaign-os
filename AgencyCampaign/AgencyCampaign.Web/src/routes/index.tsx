@@ -109,7 +109,7 @@ function AppRoutes() {
           <Route path="configuracao/subcategorias-financeiras" element={<FinancialSubcategories />} />
           <Route path="configuracao" element={<ConfigurationDashboard />} />
           <Route path="configuracao/empresa" element={<AgencyConfiguration />} />
-          <Route path="configuracao/usuarios" element={<UsersManagementPage />} />
+          <Route path="usuarios" element={<UsersManagementPage />} />
           <Route path="auditoria" element={<AuditDashboard />} />
         </Route>
 
