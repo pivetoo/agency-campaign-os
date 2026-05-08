@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { AppLayout, useAuth, useAppNavigation, AuthService } from 'archon-ui'
+import { AppLayout, useAuth, useAppNavigation, AuthService, usePermissions } from 'archon-ui'
 import type { BreadcrumbItem, NotificationItem } from 'archon-ui'
 import { notificationService } from '../services/notificationService'
 import type { Notification } from '../types/notification'
@@ -11,7 +11,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText, UserCog } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -19,6 +19,7 @@ export default function AgencyCampaignLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const { createMenuGroup } = useAppNavigation({})
+  const { isRoot } = usePermissions()
   const sidebarLogo = <img src={logoAgencyCampaign} alt="Agency Campaign OS" style={{ width: 36, height: 36, objectFit: 'contain' }} />
 
   const handleLogout = async () => {
@@ -126,6 +127,9 @@ export default function AgencyCampaignLayout() {
   const configurationGroups = [
     createMenuGroup('Geral', [
       { key: 'configuracao-empresa', label: 'Empresa', path: '/configuracao/empresa', icon: <Settings size={20} /> },
+      ...(isRoot
+        ? [{ key: 'configuracao-usuarios', label: 'Usuários', path: '/configuracao/usuarios', icon: <UserCog size={20} /> }]
+        : []),
       { key: 'configuracao-integracoes', label: 'Integrações', path: '/configuracao/integracoes', icon: <Plug size={20} /> },
       { key: 'configuracao-templates-email', label: 'Templates de e-mail', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
     ]),

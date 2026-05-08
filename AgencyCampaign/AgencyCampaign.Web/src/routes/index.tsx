@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
-import { Callback, ProtectedRoute, useAuth } from 'archon-ui'
+import { Callback, ProtectedRoute, useAuth, UsersManagementPage } from 'archon-ui'
 import AgencyCampaignLayout from '../layouts/AgencyCampaignLayout'
 import Dashboard from '../modules/Dashboard'
 import Brands from '../modules/Brands'
@@ -109,6 +109,7 @@ function AppRoutes() {
           <Route path="configuracao/subcategorias-financeiras" element={<FinancialSubcategories />} />
           <Route path="configuracao" element={<ConfigurationDashboard />} />
           <Route path="configuracao/empresa" element={<AgencyConfiguration />} />
+          <Route path="configuracao/usuarios" element={<UsersManagementPage />} />
           <Route path="auditoria" element={<AuditDashboard />} />
         </Route>
 
