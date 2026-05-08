@@ -24,7 +24,6 @@ import {
 } from 'lucide-react'
 import { dashboardService } from '../../services/dashboardService'
 import type { DashboardOverview } from '../../types/dashboard'
-import OnboardingButton from '../../components/onboarding/OnboardingButton'
 import TourButton from '../../components/tour/TourButton'
 
 const chartColors = ['#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6']
@@ -103,7 +102,6 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span data-tour="onboarding-button"><OnboardingButton /></span>
           <TourButton />
           {headlineChips.map(({ label, value, icon: Icon, tone }) => (
             <div

@@ -26,13 +26,6 @@ const steps: KanvasStep[] = [
       'Aqui você navega entre os módulos: Comercial, Operação, Finanças e Configuração. O conteúdo muda conforme o módulo escolhido na topbar.',
   },
   {
-    target: '[data-tour="onboarding-button"]',
-    placement: 'bottom',
-    title: 'Onboarding guiado',
-    content:
-      'Este botão abre um wizard que ajuda você a cadastrar os dados iniciais (marca, creator, primeira oportunidade, etc.).',
-  },
-  {
     target: 'body',
     placement: 'center',
     title: 'Pipeline comercial',
