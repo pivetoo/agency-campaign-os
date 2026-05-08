@@ -255,7 +255,6 @@ export default function CommercialPipeline() {
           </div>
         )}
 
-        <div data-tour="kanban-board">
         <div className="overflow-x-auto pb-4">
           <div className="grid min-w-[1180px] gap-4" style={{ gridTemplateColumns: `repeat(${Math.max(stages.length, 1)}, minmax(220px, 1fr))` }}>
             {stages.map((stage) => (
@@ -320,7 +319,6 @@ export default function CommercialPipeline() {
               </section>
             ))}
           </div>
-        </div>
         </div>
 
         {loading && (

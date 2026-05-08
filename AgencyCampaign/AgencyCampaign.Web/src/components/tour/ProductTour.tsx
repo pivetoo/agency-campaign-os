@@ -33,11 +33,11 @@ const steps: KanvasStep[] = [
       'Este botão abre um wizard que ajuda você a cadastrar os dados iniciais (marca, creator, primeira oportunidade, etc.).',
   },
   {
-    target: '[data-tour="kanban-board"]',
-    placement: 'top',
+    target: 'body',
+    placement: 'center',
     title: 'Pipeline comercial',
     content:
-      'Cada coluna é um estágio do funil. Arraste oportunidades para mover. Cards com borda colorida indicam SLA por estágio.',
+      'Cada coluna é um estágio do funil. Arraste oportunidades para mover entre estágios. Cards com borda colorida indicam SLA atrasado ou em risco.',
     route: '/comercial/pipeline',
   },
   {
