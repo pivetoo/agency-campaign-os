@@ -9,10 +9,10 @@ interface KanvasStep extends Step {
 }
 
 const steps: KanvasStep[] = [
+  // ─── Boas-vindas e tour pela navegação ───
   {
     target: 'body',
     placement: 'center',
-    disableBeacon: true,
     title: 'Bem-vindo ao Kanvas',
     content:
       'Vamos passear pelas principais áreas do sistema em alguns minutos. Você pode pular a qualquer momento.',
@@ -46,34 +46,57 @@ const steps: KanvasStep[] = [
     content:
       'No header da Dashboard você vê em tempo real: campanhas ativas, marcas, creators e entregas pendentes. Visão rápida da saúde da operação.',
   },
+
+  // ─── Módulo Comercial ───
   {
     target: 'body',
     placement: 'center',
-    title: 'Pipeline comercial',
+    title: 'Módulo Comercial',
     content:
-      'Cada coluna é um estágio do funil. Arraste oportunidades para mover entre estágios. Cards com borda colorida indicam SLA atrasado ou em risco.',
+      'Agora vamos passear pelo Comercial: pipeline de oportunidades, propostas, aprovações e atividades. É onde as vendas começam.',
     route: '/comercial/pipeline',
   },
   {
     target: 'body',
     placement: 'center',
-    title: 'Lista de oportunidades',
+    title: 'Comercial · Pipeline',
     content:
-      'A mesma base do Pipeline também aparece em formato de tabela com filtros por marca, status, origem e tags. Use o que for melhor para a tarefa.',
+      'Cada coluna é um estágio do funil. Arraste oportunidades para mover entre estágios. Cards com borda colorida indicam SLA atrasado ou em risco.',
+  },
+  {
+    target: 'body',
+    placement: 'center',
+    title: 'Comercial · Lista de oportunidades',
+    content:
+      'A mesma base do Pipeline em formato de tabela com filtros por marca, status, origem e tags. Use o que for melhor para a tarefa.',
     route: '/comercial/oportunidades',
   },
   {
     target: 'body',
     placement: 'center',
-    title: 'Propostas',
+    title: 'Comercial · Detalhe da oportunidade',
     content:
-      'Crie propostas a partir de uma oportunidade, gere link público para a marca, baixe em PDF e converta em campanha quando aprovada.',
+      'Ao abrir uma oportunidade, você vê tabs com Resumo, Propostas vinculadas, Negociações, Aprovações, Follow-ups e Timeline (audit trail completo). Comentários e anexos centralizam a colaboração interna.',
+  },
+  {
+    target: 'body',
+    placement: 'center',
+    title: 'Comercial · Propostas',
+    content:
+      'Lista global das propostas. Você pode filtrar por status (Rascunho, Enviada, Visualizada, Aprovada, Rejeitada, Convertida).',
     route: '/comercial/propostas',
   },
   {
     target: 'body',
     placement: 'center',
-    title: 'Aprovações',
+    title: 'Comercial · Detalhe da proposta',
+    content:
+      'Na tela da proposta você gera link público para a marca aprovar (com tracking de visualização), baixa em PDF, versiona, converte em campanha quando aprovada e dispara e-mail automático nos eventos.',
+  },
+  {
+    target: 'body',
+    placement: 'center',
+    title: 'Comercial · Aprovações',
     content:
       'Centraliza solicitações de aprovação interna em oportunidades — útil quando o vendedor precisa de OK do gerente para fechar uma proposta.',
     route: '/comercial/aprovacoes',
@@ -81,55 +104,87 @@ const steps: KanvasStep[] = [
   {
     target: 'body',
     placement: 'center',
-    title: 'Atividades',
+    title: 'Comercial · Atividades',
     content:
       'Sua agenda comercial: follow-ups e tarefas pendentes em todas as oportunidades. Notificações lembram quem está vencendo.',
     route: '/comercial/followups',
   },
+
+  // ─── Módulo Operação ───
   {
     target: 'body',
     placement: 'center',
-    title: 'Marcas',
+    title: 'Módulo Operação',
+    content:
+      'Agora a Operação: marcas atendidas, base de creators e execução das campanhas. É onde o trabalho acontece depois que a proposta é aprovada.',
+    route: '/marcas',
+  },
+  {
+    target: 'body',
+    placement: 'center',
+    title: 'Operação · Marcas',
     content:
       'Cadastro dos seus clientes (marcas atendidas). Aqui ficam as informações de contato e configuração de cada marca.',
-    route: '/marcas',
   },
   {
     target: '[data-tour="creators-table"]',
     placement: 'top',
-    title: 'Creators 360',
+    title: 'Operação · Creators',
     content:
-      'Lista de creators com botão "Abrir 360" em cada linha. O perfil 360 traz handles sociais, performance por plataforma, histórico de campanhas e on-time delivery.',
+      'Lista de creators. Cada linha tem o botão "Abrir 360" para o perfil completo.',
     route: '/creators',
   },
   {
     target: 'body',
     placement: 'center',
-    title: 'Campanhas',
+    title: 'Operação · Creator 360',
     content:
-      'Execução real do trabalho: creators participantes, deliverables com prazos, documentos e share link público para aprovação da marca.',
+      'Perfil completo do creator: handles sociais (Instagram, TikTok, YouTube) com seguidores e engajamento, métricas de performance por plataforma, histórico de todas as campanhas em que participou, faturamento gerado e taxa de on-time delivery.',
+  },
+  {
+    target: 'body',
+    placement: 'center',
+    title: 'Operação · Campanhas',
+    content:
+      'Execução real do trabalho com a marca aprovada. Cada campanha tem creators participantes, deliverables com prazos, documentos e contratos.',
     route: '/campanhas',
   },
   {
     target: 'body',
     placement: 'center',
-    title: 'Aprovações de operação',
+    title: 'Operação · Detalhe da campanha',
     content:
-      'Entregas que aguardam aprovação da marca. Você gera um link público, a marca aprova ou rejeita, e só depois a entrega pode ser publicada.',
-    route: '/operacao/aprovacoes',
+      'Tabs internas: Creators (status de participação), Documentos (contratos, briefings) e Entregas (deliverables com prazo, valor combinado, share link de aprovação para a marca, regra obrigatória de aprovação antes de publicar).',
   },
   {
-    target: '[data-tour="financial-entries-kpis"]',
-    placement: 'bottom',
-    title: 'Contas a receber',
+    target: 'body',
+    placement: 'center',
+    title: 'Operação · Aprovações',
     content:
-      'KPIs em tempo real: pendente, recebido no mês, vencidos, próximos 7 dias. Lançamentos gerados automaticamente quando você converte uma proposta em campanha.',
+      'Entregas que aguardam aprovação da marca. Você gera um link público, a marca aprova ou rejeita pelo navegador, e só depois a entrega pode ser publicada.',
+    route: '/operacao/aprovacoes',
+  },
+
+  // ─── Módulo Financeiro ───
+  {
+    target: 'body',
+    placement: 'center',
+    title: 'Módulo Financeiro',
+    content:
+      'Agora as finanças: contas a receber e a pagar, fluxo de caixa, aging e contas bancárias. Lançamentos são gerados automaticamente a partir das ações comerciais e operacionais.',
     route: '/financeiro/receber',
   },
   {
     target: '[data-tour="financial-entries-kpis"]',
     placement: 'bottom',
-    title: 'Contas a pagar',
+    title: 'Financeiro · Contas a receber',
+    content:
+      'KPIs em tempo real: pendente, recebido no mês, vencidos, próximos 7 dias. Lançamentos gerados automaticamente quando você converte uma proposta em campanha.',
+  },
+  {
+    target: '[data-tour="financial-entries-kpis"]',
+    placement: 'bottom',
+    title: 'Financeiro · Contas a pagar',
     content:
       'Mesma visão dos KPIs, agora para saídas. Inclui repasses para creators (gerados automaticamente ao publicar entregas) e despesas operacionais lançadas manualmente.',
     route: '/financeiro/pagar',
@@ -137,7 +192,7 @@ const steps: KanvasStep[] = [
   {
     target: '[data-tour="cashflow-chart"]',
     placement: 'top',
-    title: 'Fluxo de caixa',
+    title: 'Financeiro · Fluxo de caixa',
     content:
       'Entradas e saídas (pendentes e realizadas) por dia, semana ou mês. Use para planejar caixa e ver tendências.',
     route: '/financeiro/fluxo-caixa',
@@ -145,27 +200,38 @@ const steps: KanvasStep[] = [
   {
     target: '[data-tour="aging-buckets"]',
     placement: 'top',
-    title: 'Aging financeiro',
+    title: 'Financeiro · Aging',
     content:
       'Distribuição de pendências por faixa de atraso (a vencer, 0-30, 31-60, 61-90, 90+). Quanto mais à direita, mais inadimplência.',
     route: '/financeiro/aging',
   },
+
+  // ─── Módulo Configuração ───
   {
     target: 'body',
     placement: 'center',
-    title: 'Configuração da empresa',
+    title: 'Módulo Configuração',
     content:
-      'Dados da agência (logo, CNPJ, endereço, e-mail principal) e canal padrão de envio de e-mail. Tudo aqui aparece em propostas e e-mails automáticos.',
+      'Para fechar: configurações da agência, integrações e templates de e-mail. Acesse pelo switcher de módulos na topbar a qualquer momento.',
     route: '/configuracao/empresa',
   },
   {
     target: 'body',
     placement: 'center',
-    title: 'Integrações e Automações',
+    title: 'Configuração · Empresa',
+    content:
+      'Dados da agência (logo, CNPJ, endereço, e-mail principal) e canal padrão de envio de e-mail. Tudo aqui aparece em propostas e e-mails automáticos.',
+  },
+  {
+    target: 'body',
+    placement: 'center',
+    title: 'Configuração · Integrações e Automações',
     content:
       'Conecte ferramentas externas via IntegrationPlatform e configure automações: "quando proposta enviada, enviar e-mail X" ou "quando conta paga, dar baixa no ERP".',
     route: '/configuracao/integracoes',
   },
+
+  // ─── Encerramento ───
   {
     target: 'body',
     placement: 'center',
