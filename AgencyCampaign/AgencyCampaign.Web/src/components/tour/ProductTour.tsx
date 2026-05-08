@@ -3,9 +3,27 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
 import type { CallBackProps, Step } from 'react-joyride'
 import { useProductTour } from '../../hooks/useProductTour'
+import { opportunityService } from '../../services/opportunityService'
+import { proposalService } from '../../services/proposalService'
+import { creatorService } from '../../services/creatorService'
+import { campaignService } from '../../services/campaignService'
 
 interface KanvasStep extends Step {
   route?: string
+  resolveRoute?: () => Promise<string | null>
+}
+
+async function firstAvailable<T extends { id: number }>(
+  loader: () => Promise<T[]>,
+  builder: (id: number) => string,
+): Promise<string | null> {
+  try {
+    const items = await loader()
+    if (items.length === 0) return null
+    return builder(items[0].id)
+  } catch {
+    return null
+  }
 }
 
 const steps: KanvasStep[] = [
@@ -77,6 +95,11 @@ const steps: KanvasStep[] = [
     title: 'Comercial · Detalhe da oportunidade',
     content:
       'Ao abrir uma oportunidade, você vê tabs com Resumo, Propostas vinculadas, Negociações, Aprovações, Follow-ups e Timeline (audit trail completo). Comentários e anexos centralizam a colaboração interna.',
+    resolveRoute: () =>
+      firstAvailable(
+        () => opportunityService.getAll().then((items) => items.map((item) => ({ id: item.id }))),
+        (id) => `/comercial/oportunidades/${id}`,
+      ),
   },
   {
     target: 'body',
@@ -92,6 +115,11 @@ const steps: KanvasStep[] = [
     title: 'Comercial · Detalhe da proposta',
     content:
       'Na tela da proposta você gera link público para a marca aprovar (com tracking de visualização), baixa em PDF, versiona, converte em campanha quando aprovada e dispara e-mail automático nos eventos.',
+    resolveRoute: () =>
+      firstAvailable(
+        () => proposalService.getAll({ pageSize: 1 }).then((items) => items.map((item) => ({ id: item.id }))),
+        (id) => `/comercial/propostas/${id}`,
+      ),
   },
   {
     target: 'body',
@@ -140,6 +168,11 @@ const steps: KanvasStep[] = [
     title: 'Operação · Creator 360',
     content:
       'Perfil completo do creator: handles sociais (Instagram, TikTok, YouTube) com seguidores e engajamento, métricas de performance por plataforma, histórico de todas as campanhas em que participou, faturamento gerado e taxa de on-time delivery.',
+    resolveRoute: () =>
+      firstAvailable(
+        () => creatorService.getAll().then((items) => items.map((item) => ({ id: item.id }))),
+        (id) => `/creators/${id}`,
+      ),
   },
   {
     target: 'body',
@@ -155,6 +188,11 @@ const steps: KanvasStep[] = [
     title: 'Operação · Detalhe da campanha',
     content:
       'Tabs internas: Creators (status de participação), Documentos (contratos, briefings) e Entregas (deliverables com prazo, valor combinado, share link de aprovação para a marca, regra obrigatória de aprovação antes de publicar).',
+    resolveRoute: () =>
+      firstAvailable(
+        () => campaignService.getAll().then((items) => items.map((item) => ({ id: item.id }))),
+        (id) => `/campanhas/${id}`,
+      ),
   },
   {
     target: 'body',
@@ -269,12 +307,43 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
   const { markCompleted } = useProductTour()
   const [stepIndex, setStepIndex] = useState(0)
   const [pendingStepIndex, setPendingStepIndex] = useState<number | null>(null)
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null)
+
+  const advanceTo = async (targetIndex: number, direction: number) => {
+    let cursor = targetIndex
+    while (cursor >= 0 && cursor < steps.length) {
+      const step = steps[cursor]
+
+      let resolvedRoute: string | null = step.route ?? null
+      if (step.resolveRoute) {
+        resolvedRoute = await step.resolveRoute()
+        if (!resolvedRoute) {
+          cursor += direction
+          continue
+        }
+      }
+
+      if (resolvedRoute && resolvedRoute !== location.pathname) {
+        setPendingRoute(resolvedRoute)
+        setPendingStepIndex(cursor)
+        navigate(resolvedRoute)
+      } else {
+        setPendingRoute(null)
+        setPendingStepIndex(cursor)
+      }
+      return
+    }
+
+    markCompleted()
+    onClose()
+  }
 
   useEffect(() => {
     if (run) {
-      const firstStep = steps[0]
       setStepIndex(0)
       setPendingStepIndex(null)
+      setPendingRoute(null)
+      const firstStep = steps[0]
       if (firstStep.route && firstStep.route !== location.pathname) {
         navigate(firstStep.route)
       }
@@ -286,7 +355,8 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
     if (pendingStepIndex === null) return
     const targetStep = steps[pendingStepIndex]
     if (!targetStep) return
-    if (targetStep.route && targetStep.route !== location.pathname) return
+    const expectedRoute = pendingRoute ?? targetStep.route ?? null
+    if (expectedRoute && expectedRoute !== location.pathname) return
 
     const targetSelector = typeof targetStep.target === 'string' ? targetStep.target : null
     const isBodyOrEmpty = !targetSelector || targetSelector === 'body'
@@ -295,6 +365,7 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
       const handle = window.setTimeout(() => {
         setStepIndex(pendingStepIndex)
         setPendingStepIndex(null)
+        setPendingRoute(null)
       }, 250)
       return () => window.clearTimeout(handle)
     }
@@ -310,15 +381,17 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
         window.setTimeout(() => {
           setStepIndex(pendingStepIndex)
           setPendingStepIndex(null)
+          setPendingRoute(null)
         }, 150)
       } else if (elapsed >= maxWaitMs) {
         window.clearInterval(interval)
         setStepIndex(pendingStepIndex)
         setPendingStepIndex(null)
+        setPendingRoute(null)
       }
     }, intervalMs)
     return () => window.clearInterval(interval)
-  }, [location.pathname, pendingStepIndex])
+  }, [location.pathname, pendingStepIndex, pendingRoute])
 
   const handleCallback = (data: CallBackProps) => {
     const { status, type, action, index } = data
@@ -331,21 +404,7 @@ export default function ProductTour({ run, onClose }: ProductTourProps) {
 
     if (type === EVENTS.STEP_AFTER) {
       const direction = action === ACTIONS.PREV ? -1 : 1
-      const nextIndex = index + direction
-      const nextStep = steps[nextIndex]
-
-      if (!nextStep) {
-        markCompleted()
-        onClose()
-        return
-      }
-
-      if (nextStep.route && nextStep.route !== location.pathname) {
-        setPendingStepIndex(nextIndex)
-        navigate(nextStep.route)
-      } else {
-        setPendingStepIndex(nextIndex)
-      }
+      void advanceTo(index + direction, direction)
     }
 
     if (type === EVENTS.TARGET_NOT_FOUND) {
