@@ -59,7 +59,7 @@ test.describe('Proposta - itens (caminho critico de receita)', () => {
     await expect(page.getByText(itemDesc).first()).toBeVisible({ timeout: 15_000 })
 
     // 5) valor total reflete (2 * 5000 = 10000)
-    await expect(page.getByText(/10\.000/)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/10\.000/).first()).toBeVisible({ timeout: 10_000 })
 
     expectNoApiFailures()
   })
