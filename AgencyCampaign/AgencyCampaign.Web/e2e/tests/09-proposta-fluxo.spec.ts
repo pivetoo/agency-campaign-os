@@ -19,9 +19,11 @@ test.describe('Proposta - fluxo de criacao', () => {
     const valueInput = oppModal.locator('#opportunity-estimated-value')
     await valueInput.fill('15000')
     // atribuir responsavel comercial (necessario pra criar proposta)
-    // SearchableSelect mostra "Selecione um responsável" como placeholder no trigger
-    await oppModal.getByText('Selecione um responsável').first().click()
-    // a opcao "Nenhum" e a primeira; queremos um real
+    // o trigger do SearchableSelect e o proximo botao apos o label
+    const respLabel = oppModal.locator('label', { hasText: /^Responsável comercial$/ }).first()
+    await expect(respLabel).toBeVisible({ timeout: 5_000 })
+    const respTrigger = respLabel.locator('xpath=following::*[self::button or @role="combobox"][1]').first()
+    await respTrigger.click()
     const respOption = page.locator('[role="option"]').filter({ hasNotText: /^Nenhum$/i }).first()
     await expect(respOption).toBeVisible({ timeout: 10_000 })
     await respOption.click()
