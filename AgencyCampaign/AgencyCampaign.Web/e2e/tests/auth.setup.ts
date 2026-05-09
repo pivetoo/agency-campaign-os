@@ -32,28 +32,23 @@ setup('autenticar via OIDC e salvar storageState', async ({ page }) => {
   const submitButton = page.getByRole('button', { name: /Entrar|Login/i }).first()
   await submitButton.click()
 
-  // tres caminhos possiveis: redirecionou pro Kanvas (ok), erro do IdM, ou nada acontece (timeout)
-  const redirected = page.waitForURL(/kanvas\.mainstay\.com\.br/, { timeout: 30_000 })
-  const idmError = page
-    .locator('text=/credenciais|inv[aá]lid|incorret|n[aã]o possui|inativo|n[aã]o autorizado/i')
-    .first()
-    .waitFor({ state: 'visible', timeout: 30_000 })
-
-  await Promise.race([redirected, idmError])
-
-  if (page.url().includes('auth.mainstay.com.br')) {
-    const errorText = await page
-      .locator('text=/credenciais|inv[aá]lid|incorret|n[aã]o possui|inativo|n[aã]o autorizado/i')
-      .first()
-      .innerText()
-      .catch(() => 'mensagem desconhecida')
-    throw new Error(
-      `IdentityManagement rejeitou o login do usuario ${env.user}. Mensagem do IdM: "${errorText.trim()}". ` +
-        `Verifique se o usuario existe, esta ativo e tem pelo menos um contrato ativo associado ao Kanvas.`
-    )
+  try {
+    await page.waitForURL(/kanvas\.mainstay\.com\.br/, { timeout: 30_000 })
+  } catch {
+    // se nao redirecionou, provavelmente o IdM mostrou um erro no proprio form
+    if (page.url().includes('auth.mainstay.com.br')) {
+      const formError = await page
+        .locator('form')
+        .first()
+        .innerText()
+        .catch(() => '')
+      throw new Error(
+        `IdentityManagement nao redirecionou para o Kanvas. Conteudo visivel do form de login: "${formError.replace(/\s+/g, ' ').trim()}". ` +
+          `Verifique se o usuario ${env.user} esta ativo e tem contrato associado.`
+      )
+    }
+    throw new Error(`Login nao concluiu. URL atual: ${page.url()}`)
   }
-
-  await expect(page).toHaveURL(/kanvas\.mainstay\.com\.br\//, { timeout: 30_000 })
 
   await expect(page.getByText(/Campanhas ativas|Marcas|Creators/i).first()).toBeVisible({ timeout: 30_000 })
 

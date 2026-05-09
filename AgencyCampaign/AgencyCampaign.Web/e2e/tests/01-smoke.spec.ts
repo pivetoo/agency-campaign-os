@@ -10,7 +10,6 @@ test.describe('Smoke - login + dashboard', () => {
       await expect(page.getByText(label, { exact: false }).first()).toBeVisible({ timeout: 20_000 })
     }
 
-    const sidebar = page.locator('aside, nav')
-    await expect(sidebar.getByText(/Pipeline|Comercial/i).first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Dashboard/i }).first()).toBeVisible()
   })
 })

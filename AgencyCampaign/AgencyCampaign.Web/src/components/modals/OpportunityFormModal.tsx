@@ -102,8 +102,8 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nome da oportunidade</label>
-              <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
+              <label htmlFor="opportunity-name" className="text-sm font-medium">Nome da oportunidade</label>
+              <Input id="opportunity-name" value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
@@ -118,13 +118,13 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Valor estimado</label>
-              <Input type="number" value={formData.estimatedValue === 0 ? '' : formData.estimatedValue} onChange={(e) => setFormData((prev) => ({ ...prev, estimatedValue: e.target.value === '' ? 0 : Number(e.target.value) }))} />
+              <label htmlFor="opportunity-estimated-value" className="text-sm font-medium">Valor estimado</label>
+              <Input id="opportunity-estimated-value" type="number" value={formData.estimatedValue === 0 ? '' : formData.estimatedValue} onChange={(e) => setFormData((prev) => ({ ...prev, estimatedValue: e.target.value === '' ? 0 : Number(e.target.value) }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Previsão de fechamento</label>
-              <Input type="date" value={formData.expectedCloseAt?.split('T')[0] || ''} onChange={(e) => setFormData((prev) => ({ ...prev, expectedCloseAt: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
+              <label htmlFor="opportunity-expected-close-at" className="text-sm font-medium">Previsão de fechamento</label>
+              <Input id="opportunity-expected-close-at" type="date" value={formData.expectedCloseAt?.split('T')[0] || ''} onChange={(e) => setFormData((prev) => ({ ...prev, expectedCloseAt: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
             </div>
 
             <div className="space-y-2">
@@ -142,23 +142,23 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Contato</label>
-              <Input value={formData.contactName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))} />
+              <label htmlFor="opportunity-contact-name" className="text-sm font-medium">Contato</label>
+              <Input id="opportunity-contact-name" value={formData.contactName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">E-mail</label>
-              <Input type="email" value={formData.contactEmail || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactEmail: e.target.value }))} />
+              <label htmlFor="opportunity-contact-email" className="text-sm font-medium">E-mail</label>
+              <Input id="opportunity-contact-email" type="email" value={formData.contactEmail || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactEmail: e.target.value }))} />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Descrição</label>
-              <Input value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
+              <label htmlFor="opportunity-description" className="text-sm font-medium">Descrição</label>
+              <Input id="opportunity-description" value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Observações</label>
-              <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
+              <label htmlFor="opportunity-notes" className="text-sm font-medium">Observações</label>
+              <Input id="opportunity-notes" value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
