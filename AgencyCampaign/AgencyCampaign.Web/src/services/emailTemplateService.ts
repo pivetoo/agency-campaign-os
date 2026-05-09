@@ -32,10 +32,10 @@ export const emailTemplateService = {
   },
 
   update(id: number, data: UpdateEmailTemplateRequest) {
-    return httpClient.put<EmailTemplate>(`${BASE}/${id}`, data)
+    return httpClient.put<EmailTemplate>(`${BASE}/Update/${id}`, data)
   },
 
   delete(id: number) {
-    return httpClient.delete(`${BASE}/${id}`)
+    return httpClient.delete(`${BASE}/Delete/${id}`)
   },
 }

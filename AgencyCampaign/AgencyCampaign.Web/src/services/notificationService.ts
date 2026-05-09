@@ -23,7 +23,7 @@ export const notificationService = {
   },
 
   markAsRead(id: number) {
-    return httpClient.post(`${BASE_URL}/${id}/read`, {})
+    return httpClient.post(`${BASE_URL}/MarkAsRead/${id}/read`, {})
   },
 
   markAllAsRead() {
@@ -31,7 +31,7 @@ export const notificationService = {
   },
 
   delete(id: number) {
-    return httpClient.delete(`${BASE_URL}/${id}`)
+    return httpClient.delete(`${BASE_URL}/Delete/${id}`)
   },
 
   clearAll() {

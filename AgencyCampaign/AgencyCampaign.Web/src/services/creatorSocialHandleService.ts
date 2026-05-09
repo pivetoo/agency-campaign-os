@@ -29,10 +29,10 @@ export const creatorSocialHandleService = {
   },
 
   update(id: number, data: UpdateCreatorSocialHandleRequest) {
-    return httpClient.put<CreatorSocialHandle>(`${BASE}/${id}`, data)
+    return httpClient.put<CreatorSocialHandle>(`${BASE}/Update/${id}`, data)
   },
 
   delete(id: number) {
-    return httpClient.delete(`${BASE}/${id}`)
+    return httpClient.delete(`${BASE}/Delete/${id}`)
   },
 }

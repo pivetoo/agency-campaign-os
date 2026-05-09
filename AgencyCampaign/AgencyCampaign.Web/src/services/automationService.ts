@@ -18,7 +18,7 @@ export const automationService = {
   },
 
   async getAutomationById(id: number): Promise<Automation> {
-    const response = await httpClient.get(`${API_URL}/${id}`)
+    const response = await httpClient.get(`${API_URL}/GetById/${id}`)
     return response.data
   },
 
@@ -28,7 +28,7 @@ export const automationService = {
   },
 
   async updateAutomation(id: number, payload: UpdateAutomationPayload): Promise<Automation> {
-    const response = await httpClient.put(`${API_URL}/${id}`, payload)
+    const response = await httpClient.put(`${API_URL}/Update/${id}`, payload)
     return response.data
   },
 }
