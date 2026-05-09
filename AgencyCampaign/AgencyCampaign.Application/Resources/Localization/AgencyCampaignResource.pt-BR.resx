@@ -42,4 +42,7 @@
   <data name="email.configuration.invalid" xml:space="preserve">
     <value>A configuração de e-mail não está válida para envio de documentos.</value>
   </data>
+  <data name="proposal.responsibleUser.required" xml:space="preserve">
+    <value>A proposta precisa de um responsável comercial válido. Atribua um responsável à oportunidade ou informe um na própria proposta.</value>
+  </data>
 </root>

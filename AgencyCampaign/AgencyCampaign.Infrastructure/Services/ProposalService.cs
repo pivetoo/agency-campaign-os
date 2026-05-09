@@ -95,7 +95,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetOpportunity(request.OpportunityId, cancellationToken);
 
-            long responsibleUserId = request.ResponsibleUserId ?? opportunity.ResponsibleUserId ?? throw new InvalidOperationException("A proposta precisa de um responsável comercial válido.");
+            long responsibleUserId = request.ResponsibleUserId ?? opportunity.ResponsibleUserId ?? throw new InvalidOperationException(localizer["proposal.responsibleUser.required"]);
             string commercialResponsibleName = opportunity.ResponsibleUserName ?? string.Empty;
 
             Proposal proposal = new(
