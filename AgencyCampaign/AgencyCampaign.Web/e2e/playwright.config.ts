@@ -32,12 +32,13 @@ export default defineConfig({
     video: 'retain-on-failure',
     locale: 'pt-BR',
     timezoneId: 'America/Sao_Paulo',
+    viewport: { width: 1440, height: 1000 },
   },
   projects: [
     {
       name: 'setup',
       testMatch: /auth\.setup\.ts/,
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 1000 } },
     },
     {
       name: 'chromium',
@@ -46,6 +47,7 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         storageState: storageStatePath,
+        viewport: { width: 1440, height: 1000 },
       },
     },
   ],

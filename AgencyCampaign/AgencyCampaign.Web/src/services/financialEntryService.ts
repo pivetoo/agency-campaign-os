@@ -51,11 +51,6 @@ export interface MarkAsPaidRequest {
   paymentMethod?: string
 }
 
-interface PagedResponse<T> {
-  items: T[]
-  pagination: { page: number; pageSize: number; totalItems: number; totalPages: number }
-}
-
 export const financialEntryService = {
   async getAll(filters: FinancialEntryFilters = {}): Promise<FinancialEntry[]> {
     const params = new URLSearchParams()
@@ -65,8 +60,9 @@ export const financialEntryService = {
       }
     })
     if (!params.has('pageSize')) params.append('pageSize', '500')
-    const response = await httpClient.get<PagedResponse<FinancialEntry>>(`${BASE_URL}/Get?${params.toString()}`)
-    return response.data?.items ?? []
+    const response = await httpClient.get<FinancialEntry[]>(`${BASE_URL}/Get?${params.toString()}`)
+    // backend retorna paginado pelo Archon: data e o array, pagination vem fora
+    return Array.isArray(response.data) ? response.data : []
   },
 
   async getByCampaign(campaignId: number): Promise<FinancialEntry[]> {
