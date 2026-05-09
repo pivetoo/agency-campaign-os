@@ -119,20 +119,18 @@ export default function Integrations() {
         subtitle="Configure conectores externos e automações disparadas pelos eventos do Kanvas"
       >
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
+          <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger
               value="connectors"
-              className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-sm"
+              className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
             >
-              <Plug size={16} />
-              Conectores
+              <Plug className="h-4 w-4" /> Conectores
             </TabsTrigger>
             <TabsTrigger
               value="automations"
-              className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-sm"
+              className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
             >
-              <GitBranch size={16} />
-              Automações
+              <GitBranch className="h-4 w-4" /> Automações
             </TabsTrigger>
           </TabsList>
 
