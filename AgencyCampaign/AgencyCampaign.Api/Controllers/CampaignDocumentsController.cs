@@ -3,23 +3,28 @@ using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CampaignDocuments;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Infrastructure.Options;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using Archon.Core.Pagination;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Api.Controllers
 {
     public sealed class CampaignDocumentsController : ApiControllerBase
     {
         private readonly ICampaignDocumentService campaignDocumentService;
+        private readonly WebhookOptions webhookOptions;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
         private static readonly Func<CampaignDocument, CampaignDocumentContract> MapDocument = CampaignDocumentContract.Projection.Compile();
 
-        public CampaignDocumentsController(ICampaignDocumentService campaignDocumentService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public CampaignDocumentsController(ICampaignDocumentService campaignDocumentService, IOptions<WebhookOptions> webhookOptions, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.campaignDocumentService = campaignDocumentService;
+            this.webhookOptions = webhookOptions.Value;
             Localizer = localizer;
         }
 
@@ -140,10 +145,21 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapDocument(document), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite que o IntegrationPlatform notifique eventos do provider de assinatura.")]
+        [AllowAnonymous]
         [PostEndpoint("[action]")]
         public async Task<IActionResult> ProviderCallback([FromBody] CampaignDocumentProviderCallbackRequest request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(webhookOptions.ProviderCallbackSecret))
+            {
+                return Http403(Localizer["webhook.secret.notConfigured"]);
+            }
+
+            string? incomingSecret = Request.Headers["x-webhook-secret"].FirstOrDefault();
+            if (!string.Equals(incomingSecret, webhookOptions.ProviderCallbackSecret, StringComparison.Ordinal))
+            {
+                return Http403(Localizer["webhook.secret.invalid"]);
+            }
+
             IActionResult? validationResult = ValidateBody(request);
             if (validationResult is not null)
             {

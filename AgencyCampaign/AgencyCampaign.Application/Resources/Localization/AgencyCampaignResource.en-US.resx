@@ -48,4 +48,10 @@
   <data name="campaignDocument.body.required" xml:space="preserve">
     <value>The document needs content (generated body or URL) before being sent for signature.</value>
   </data>
+  <data name="webhook.secret.notConfigured" xml:space="preserve">
+    <value>Webhook endpoint is not configured. Set Webhooks:ProviderCallbackSecret in appsettings.</value>
+  </data>
+  <data name="webhook.secret.invalid" xml:space="preserve">
+    <value>Header x-webhook-secret missing or invalid.</value>
+  </data>
 </root>

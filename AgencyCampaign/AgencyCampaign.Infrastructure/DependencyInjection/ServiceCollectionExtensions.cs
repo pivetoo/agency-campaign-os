@@ -15,6 +15,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
         public static IServiceCollection AddAgencyCampaignInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<DocumentEmailOptions>(configuration.GetSection("DocumentEmail"));
+            services.Configure<WebhookOptions>(configuration.GetSection("Webhooks"));
             services.AddArchonPersistence(configuration, typeof(ServiceCollectionExtensions).Assembly);
             services.RunMigrations(
                 configuration,

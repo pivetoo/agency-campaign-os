@@ -39,6 +39,7 @@ export default function ConnectorConfigModal({
   const isEditing = !!connector
   const [connectorName, setConnectorName] = useState('')
   const [isActive, setIsActive] = useState(true)
+  const [webhookToken, setWebhookToken] = useState<string | undefined>()
   const [attributes, setAttributes] = useState<IntegrationAttribute[]>([])
   const [values, setValues] = useState<Record<number, string>>({})
   const [visibleSensitive, setVisibleSensitive] = useState<Record<number, boolean>>({})
@@ -104,12 +105,40 @@ export default function ConnectorConfigModal({
     if (detail) {
       setConnectorName(detail.connector.name)
       setIsActive(detail.connector.isActive)
+      setWebhookToken(detail.connector.webhookToken)
 
       const existingValues: Record<number, string> = {}
       detail.attributeValues.forEach((val) => {
         existingValues[val.integrationAttributeId] = val.value
       })
       setValues((prev) => ({ ...prev, ...existingValues }))
+    }
+  }
+
+  const integrationPlatformBase = useMemo(() => {
+    const apiBase = (import.meta.env.VITE_INTEGRATION_PLATFORM_URL as string | undefined)
+      ?? (import.meta.env.VITE_INTEGRATION_PLATAFORM_URL as string | undefined)
+    if (apiBase && apiBase.trim().length > 0) {
+      return apiBase.replace(/\/$/, '')
+    }
+    return null
+  }, [])
+
+  const webhookUrl = useMemo(() => {
+    if (!webhookToken) return null
+    if (integrationPlatformBase) {
+      return `${integrationPlatformBase}/api/webhooks/${webhookToken}`
+    }
+    return `[base-url-do-integration-platform]/api/webhooks/${webhookToken}`
+  }, [webhookToken, integrationPlatformBase])
+
+  const copyWebhookUrl = async () => {
+    if (!webhookUrl) return
+    try {
+      await navigator.clipboard.writeText(webhookUrl)
+      toast({ title: 'URL copiada para a área de transferência', variant: 'success' })
+    } catch {
+      toast({ title: 'Não foi possível copiar', variant: 'destructive' })
     }
   }
 
@@ -394,6 +423,30 @@ export default function ConnectorConfigModal({
                 />
                 <span>Ativo</span>
               </label>
+            </div>
+          )}
+
+          {isEditing && webhookUrl && (
+            <div className="rounded-lg border bg-primary/5 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium">URL para webhook</p>
+                  <p className="text-xs text-muted-foreground">
+                    Cadastre esta URL no painel do provedor para receber callbacks. O IntegrationPlatform direciona automaticamente ao pipeline <code className="rounded bg-background px-1 py-0.5">{integration?.identifier ?? 'identifier'}-webhook</code>.
+                  </p>
+                </div>
+                <Button type="button" size="sm" variant="outline" onClick={copyWebhookUrl}>
+                  Copiar
+                </Button>
+              </div>
+              <code className="block break-all rounded bg-background p-2 font-mono text-xs">
+                {webhookUrl}
+              </code>
+              {!integrationPlatformBase && (
+                <p className="text-xs text-amber-600">
+                  Defina <code>VITE_INTEGRATION_PLATFORM_URL</code> no env do frontend para a URL completa aparecer aqui.
+                </p>
+              )}
             </div>
           )}
 

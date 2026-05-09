@@ -48,4 +48,10 @@
   <data name="campaignDocument.body.required" xml:space="preserve">
     <value>O documento precisa ter conteúdo (corpo gerado ou URL) antes de ser enviado para assinatura.</value>
   </data>
+  <data name="webhook.secret.notConfigured" xml:space="preserve">
+    <value>Endpoint de webhook não está configurado. Defina Webhooks:ProviderCallbackSecret no appsettings.</value>
+  </data>
+  <data name="webhook.secret.invalid" xml:space="preserve">
+    <value>Header x-webhook-secret ausente ou inválido.</value>
+  </data>
 </root>

@@ -48,6 +48,7 @@ export interface Connector {
   name: string
   isActive: boolean
   systemApplicationId?: string
+  webhookToken?: string
   createdAt?: string
 }
 
