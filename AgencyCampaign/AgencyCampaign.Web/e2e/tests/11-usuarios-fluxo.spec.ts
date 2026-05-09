@@ -37,6 +37,12 @@ test.describe('Usuarios - gestao do contrato ativo', () => {
     // modal fecha
     await expect(modal).toBeHidden({ timeout: 15_000 })
 
+    // aumentar page size pra ver o usuario novo
+    const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
+    if (await pageSizeSelect.count()) {
+      await pageSizeSelect.selectOption('50').catch(() => {})
+    }
+
     // usuario aparece na listagem
     await expect(page.getByText(fullName).first()).toBeVisible({ timeout: 15_000 })
 
