@@ -10,6 +10,12 @@ import CampaignDetail from '../modules/Campaigns/Detail'
 import CommercialPipeline from '../modules/Commercial/Pipeline'
 import PublicProposal from '../modules/PublicProposal'
 import PublicDeliverable from '../modules/PublicDeliverable'
+import CreatorPortalLayout from '../modules/CreatorPortal/Layout'
+import CreatorPortalDashboard from '../modules/CreatorPortal/Dashboard'
+import CreatorPortalCampaigns from '../modules/CreatorPortal/Campaigns'
+import CreatorPortalDocuments from '../modules/CreatorPortal/Documents'
+import CreatorPortalPayments from '../modules/CreatorPortal/Payments'
+import CreatorPortalProfile from '../modules/CreatorPortal/Profile'
 import OperationsApprovals from '../modules/Operations/Approvals'
 import CommercialOpportunities from '../modules/Commercial/Opportunities'
 import CommercialOpportunityDetail from '../modules/Commercial/OpportunityDetail'
@@ -61,6 +67,14 @@ function AppRoutes() {
 
         <Route path="/p/:token" element={<PublicProposal />} />
         <Route path="/d/:token" element={<PublicDeliverable />} />
+
+        <Route path="/portal/:token" element={<CreatorPortalLayout />}>
+          <Route index element={<CreatorPortalDashboard />} />
+          <Route path="campanhas" element={<CreatorPortalCampaigns />} />
+          <Route path="contratos" element={<CreatorPortalDocuments />} />
+          <Route path="pagamentos" element={<CreatorPortalPayments />} />
+          <Route path="perfil" element={<CreatorPortalProfile />} />
+        </Route>
 
         <Route
           element={

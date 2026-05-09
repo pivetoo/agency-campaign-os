@@ -54,4 +54,7 @@
   <data name="webhook.secret.invalid" xml:space="preserve">
     <value>Header x-webhook-secret ausente ou inválido.</value>
   </data>
+  <data name="creatorPortal.token.invalid" xml:space="preserve">
+    <value>Link de acesso inválido, expirado ou revogado.</value>
+  </data>
 </root>

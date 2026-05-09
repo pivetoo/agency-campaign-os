@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
+import { Link as LinkIcon } from 'lucide-react'
 
 import { creatorService } from '../../services/creatorService'
 import type { Creator } from '../../types/creator'
 import CreatorFormModal from '../../components/modals/CreatorFormModal'
+import CreatorAccessTokensModal from '../../components/modals/CreatorAccessTokensModal'
 
 export default function Creators() {
   const navigate = useNavigate()
@@ -13,6 +15,7 @@ export default function Creators() {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
   const [previewCreator, setPreviewCreator] = useState<Creator | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isTokensOpen, setIsTokensOpen] = useState(false)
   const { execute: fetchCreators, loading } = useApi<Creator[]>({ showErrorMessage: true })
 
   const loadCreators = async () => {
@@ -66,6 +69,16 @@ export default function Creators() {
         onEdit={() => selectedCreator && setIsFormOpen(true)}
         onRefresh={() => void loadCreators()}
         selectedRowsCount={selectedCreator ? 1 : 0}
+        actions={[
+          {
+            key: 'access-tokens',
+            label: 'Links do portal',
+            icon: <LinkIcon className="h-4 w-4" />,
+            variant: 'outline',
+            disabled: !selectedCreator,
+            onClick: () => selectedCreator && setIsTokensOpen(true),
+          },
+        ]}
       >
         <div data-tour="creators-table">
           <DataTable
@@ -92,6 +105,12 @@ export default function Creators() {
           setSelectedCreator(null)
           void loadCreators()
         }}
+      />
+
+      <CreatorAccessTokensModal
+        open={isTokensOpen}
+        onOpenChange={setIsTokensOpen}
+        creator={selectedCreator}
       />
 
       <Sheet open={!!previewCreator} onOpenChange={(open) => !open && setPreviewCreator(null)}>
