@@ -55,7 +55,12 @@ test.describe('Campanha - fluxo operacional (caminho critico)', () => {
     await creatorModal.getByRole('button', { name: /^Salvar$|Adicionar/i }).first().click()
     await expect(creatorModal).toBeHidden({ timeout: 15_000 })
 
-    // 4) criar deliverable
+    // 4) trocar para tab Entregas
+    await page.getByRole('tab', { name: /Entregas/i }).click().catch(async () => {
+      await page.getByText('Entregas', { exact: false }).first().click()
+    })
+
+    // 5) criar deliverable
     await page.getByRole('button', { name: /Nova entrega/i }).first().click()
     const delivModal = page.getByRole('dialog').filter({ hasText: /Nova entrega/i })
     await expect(delivModal).toBeVisible({ timeout: 10_000 })
