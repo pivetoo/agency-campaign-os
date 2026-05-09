@@ -18,6 +18,14 @@ test.describe('Proposta - fluxo de criacao', () => {
     await page.locator('[role="option"]').first().click()
     const valueInput = oppModal.locator('#opportunity-estimated-value')
     await valueInput.fill('15000')
+    // atribuir responsavel comercial (necessario pra criar proposta)
+    const respTrigger = oppModal.locator(':text("Responsável comercial")').locator('..').locator('button, [role="combobox"]').first()
+    await respTrigger.click()
+    const respOptions = page.locator('[role="option"]')
+    await expect(respOptions.first()).toBeVisible({ timeout: 10_000 })
+    const respCount = await respOptions.count()
+    // pular "Nenhum" (primeira opcao) e pegar um responsavel real se existir
+    await respOptions.nth(respCount > 1 ? 1 : 0).click()
     await oppModal.getByRole('button', { name: /^Salvar$/i }).first().click()
     await expect(oppModal).toBeHidden({ timeout: 15_000 })
 
