@@ -84,14 +84,14 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
     },
     {
       key: 'trigger',
-      title: 'Gatilho',
+      title: 'Quando',
       render: (value: string) => (
         <Badge variant="secondary">{automationTriggerLabels[value] ?? value}</Badge>
       ),
     },
     {
       key: 'connectorId',
-      title: 'Conector',
+      title: 'Conta',
       render: (_value: number, row: Automation) => {
         const lookup = resolved[row.id]
         return lookup?.connectorName ? (
@@ -103,7 +103,7 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
     },
     {
       key: 'pipelineId',
-      title: 'Pipeline',
+      title: 'Ação',
       render: (_value: number, row: Automation) => {
         const lookup = resolved[row.id]
         return lookup?.pipelineName ? (

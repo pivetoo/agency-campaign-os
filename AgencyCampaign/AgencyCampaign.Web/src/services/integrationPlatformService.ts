@@ -64,4 +64,18 @@ export const integrationPlatformService = {
     const response = await httpClient.post<ProcessingQueue>('/IntegrationPlatformProxy/processingqueues/enqueue', payload)
     return response.data!
   },
+
+  async testConnector(connectorId: number, inputData?: Record<string, unknown>): Promise<TestConnectorResult> {
+    const response = await httpClient.post<TestConnectorResult>(
+      `/IntegrationPlatformProxy/connectors/${connectorId}/test`,
+      { inputData },
+    )
+    return response.data!
+  },
+}
+
+export interface TestConnectorResult {
+  success: boolean
+  message: string
+  latencyMs: number
 }

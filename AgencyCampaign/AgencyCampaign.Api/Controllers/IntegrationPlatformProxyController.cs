@@ -2,6 +2,7 @@ using AgencyCampaign.Infrastructure.Clients;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace AgencyCampaign.Api.Controllers
 {
@@ -155,6 +156,60 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(execution);
         }
 
+        [RequireAccess("Permite testar um conector executando o pipeline de teste correspondente.")]
+        [PostEndpoint("connectors/{connectorId:long}/test")]
+        public async Task<IActionResult> TestConnector(long connectorId, [FromBody] TestConnectorPayload? payload, CancellationToken cancellationToken)
+        {
+            ConnectorDto connector;
+            try
+            {
+                connector = await integrationPlatformClient.GetConnectorByIdAsync(connectorId, cancellationToken);
+            }
+            catch (Exception)
+            {
+                return Http200(new TestConnectorResult(false, "Conta nao encontrada no IntegrationPlatform.", 0));
+            }
+
+            if (!connector.IsActive)
+            {
+                return Http200(new TestConnectorResult(false, "Conta esta inativa. Ative-a antes de testar.", 0));
+            }
+
+            List<PipelineDto> pipelines = await integrationPlatformClient.GetPipelinesByIntegrationAsync(connector.IntegrationId, cancellationToken);
+            PipelineDto? testPipeline = pipelines.FirstOrDefault(item => item.Identifier.EndsWith("-test-connection") && item.IsActive);
+
+            if (testPipeline is null)
+            {
+                return Http200(new TestConnectorResult(false, "Pipeline de teste ainda nao foi cadastrado para esta integracao.", 0));
+            }
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            try
+            {
+                ExecutionDto execution = await integrationPlatformClient.ExecutePipelineAsync(
+                    new ExecutePipelineRequest
+                    {
+                        ConnectorId = connectorId,
+                        PipelineId = testPipeline.Id,
+                        InputData = payload?.InputData ?? new Dictionary<string, object> { ["test"] = true }
+                    },
+                    cancellationToken);
+                stopwatch.Stop();
+
+                bool success = execution.Status == 1 || execution.Status == 2;
+                string message = success
+                    ? $"Pipeline de teste executado em {stopwatch.ElapsedMilliseconds}ms."
+                    : $"Pipeline de teste retornou status {execution.Status}.";
+
+                return Http200(new TestConnectorResult(success, message, stopwatch.ElapsedMilliseconds));
+            }
+            catch (Exception exception)
+            {
+                stopwatch.Stop();
+                return Http200(new TestConnectorResult(false, $"Falha ao executar teste: {exception.Message}", stopwatch.ElapsedMilliseconds));
+            }
+        }
+
         [RequireAccess("Permite enfileirar um pipeline no IntegrationPlatform.")]
         [PostEndpoint("processingqueues/enqueue")]
         public async Task<IActionResult> EnqueuePipeline([FromBody] EnqueuePipelinePayload payload, CancellationToken cancellationToken)
@@ -220,6 +275,25 @@ namespace AgencyCampaign.Api.Controllers
         {
             Connector = connector;
             AttributeValues = attributeValues;
+        }
+    }
+
+    public sealed class TestConnectorPayload
+    {
+        public Dictionary<string, object>? InputData { get; set; }
+    }
+
+    public sealed class TestConnectorResult
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public long LatencyMs { get; set; }
+
+        public TestConnectorResult(bool success, string message, long latencyMs)
+        {
+            Success = success;
+            Message = message;
+            LatencyMs = latencyMs;
         }
     }
 }

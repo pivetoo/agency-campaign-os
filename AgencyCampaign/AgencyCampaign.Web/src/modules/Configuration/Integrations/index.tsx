@@ -14,17 +14,49 @@ import {
   TabsTrigger,
   useApi,
 } from 'archon-ui'
-import { GitBranch, Pencil, Plug, Plus, Settings2, Workflow } from 'lucide-react'
+import { CheckCircle2, CircleDashed, GitBranch, Pencil, Plug, Plus, Settings2, Sparkles, TriangleAlert, Workflow } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
+import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
 import AutomationFormModal from '../../../components/modals/AutomationFormModal'
 import AutomationList from '../Automations/AutomationList'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
+import { automationService } from '../../../services/automationService'
 import type {
   Connector,
   IntegrationCategory,
   IntegrationPlatformIntegration,
 } from '../../../types/integrationPlatform'
 import type { Automation } from '../../../types/automation'
+
+type IntegrationStatus = 'in_use' | 'configured' | 'not_configured'
+
+interface StatusConfig {
+  label: string
+  badgeVariant: 'success' | 'outline' | 'secondary'
+  icon: typeof CheckCircle2
+  iconClass: string
+}
+
+const STATUS: Record<IntegrationStatus, StatusConfig> = {
+  in_use: {
+    label: 'Em uso',
+    badgeVariant: 'success',
+    icon: CheckCircle2,
+    iconClass: 'text-emerald-500',
+  },
+  configured: {
+    label: 'Sem ações',
+    badgeVariant: 'outline',
+    icon: TriangleAlert,
+    iconClass: 'text-amber-500',
+  },
+  not_configured: {
+    label: 'Não conectada',
+    badgeVariant: 'secondary',
+    icon: CircleDashed,
+    iconClass: 'text-muted-foreground',
+  },
+}
 
 export default function Integrations() {
   const [activeTab, setActiveTab] = useState('connectors')
@@ -33,10 +65,14 @@ export default function Integrations() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
   const [integrations, setIntegrations] = useState<IntegrationPlatformIntegration[]>([])
   const [connectors, setConnectors] = useState<Connector[]>([])
+  const [automations, setAutomations] = useState<Automation[]>([])
   const [selectedIntegrationId, setSelectedIntegrationId] = useState<number | null>(null)
 
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false)
   const [editingConnector, setEditingConnector] = useState<Connector | null>(null)
+
+  const [isTestModalOpen, setIsTestModalOpen] = useState(false)
+  const [testingConnector, setTestingConnector] = useState<Connector | null>(null)
 
   const [isAutomationModalOpen, setIsAutomationModalOpen] = useState(false)
   const [selectedAutomation, setSelectedAutomation] = useState<Automation | null>(null)
@@ -47,6 +83,7 @@ export default function Integrations() {
 
   useEffect(() => {
     void loadCategories()
+    void loadAutomations()
   }, [])
 
   useEffect(() => {
@@ -62,6 +99,15 @@ export default function Integrations() {
   const loadCategories = async () => {
     const result = await fetchCategories(() => integrationPlatformService.getActiveIntegrationCategories())
     if (result) setCategories(result)
+  }
+
+  const loadAutomations = async () => {
+    try {
+      const result = await automationService.getAutomations(1, 200)
+      setAutomations(result.items)
+    } catch {
+      setAutomations([])
+    }
   }
 
   const loadIntegrationsByCategory = async (categoryId: number) => {
@@ -102,6 +148,20 @@ export default function Integrations() {
   const totalConnectors = connectors.length
   const activeConnectors = connectors.filter((connector) => connector.isActive).length
 
+  const computeStatus = (integrationId: number): IntegrationStatus => {
+    const integrationConnectors = connectors.filter(
+      (connector) => connector.integrationId === integrationId && connector.isActive,
+    )
+    if (integrationConnectors.length === 0) return 'not_configured'
+
+    const connectorIds = new Set(integrationConnectors.map((connector) => connector.id))
+    const hasActiveAutomation = automations.some(
+      (automation) => automation.isActive && connectorIds.has(automation.connectorId),
+    )
+
+    return hasActiveAutomation ? 'in_use' : 'configured'
+  }
+
   const openCreateConnector = () => {
     setEditingConnector(null)
     setIsConnectorModalOpen(true)
@@ -112,11 +172,16 @@ export default function Integrations() {
     setIsConnectorModalOpen(true)
   }
 
+  const openTestConnector = (connector: Connector) => {
+    setTestingConnector(connector)
+    setIsTestModalOpen(true)
+  }
+
   return (
     <>
       <PageLayout
         title="Integrações"
-        subtitle="Configure conectores externos e automações disparadas pelos eventos do Kanvas"
+        subtitle="Conecte contas externas e configure ações automáticas para os eventos do Kanvas"
       >
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
@@ -124,7 +189,7 @@ export default function Integrations() {
               value="connectors"
               className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
             >
-              <Plug className="h-4 w-4" /> Conectores
+              <Plug className="h-4 w-4" /> Contas conectadas
             </TabsTrigger>
             <TabsTrigger
               value="automations"
@@ -155,11 +220,11 @@ export default function Integrations() {
                 </p>
               </div>
               <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Conectores configurados</span>
+                <span className="text-xs text-muted-foreground">Contas configuradas</span>
                 <p className="font-medium">{selectedCategory ? totalConnectors : '—'}</p>
               </div>
               <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Ativos</span>
+                <span className="text-xs text-muted-foreground">Ativas</span>
                 <div className="mt-1">
                   {selectedCategory ? (
                     <Badge variant={activeConnectors > 0 ? 'success' : 'outline'}>
@@ -178,7 +243,7 @@ export default function Integrations() {
                   <Plug size={42} className="mb-3 opacity-50" />
                   <p className="text-base font-medium">Selecione uma categoria para começar</p>
                   <p className="mt-1 text-sm">
-                    Categorias agrupam integrações por domínio (Email, Contratos, Pagamentos, etc.).
+                    Categorias agrupam integrações por finalidade (Email, WhatsApp, Cobrança, etc.).
                   </p>
                 </CardContent>
               </Card>
@@ -188,7 +253,7 @@ export default function Integrations() {
                   <Workflow size={42} className="mb-3 opacity-50" />
                   <p className="text-base font-medium">Nenhuma integração nesta categoria</p>
                   <p className="mt-1 text-sm">
-                    Cadastre integrações no IntegrationPlatform para que elas apareçam aqui.
+                    Cadastre integrações no IntegrationPlatform para que apareçam aqui.
                   </p>
                 </CardContent>
               </Card>
@@ -198,7 +263,7 @@ export default function Integrations() {
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base">Integrações</CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Selecione uma integração para ver e configurar seus conectores.
+                      Selecione uma integração para gerenciar as contas conectadas.
                     </p>
                   </CardHeader>
                   <CardContent>
@@ -209,6 +274,9 @@ export default function Integrations() {
                         )
                         const integrationActive = integrationConnectors.filter((connector) => connector.isActive).length
                         const isSelected = selectedIntegrationId === integration.id
+                        const status = computeStatus(integration.id)
+                        const statusConfig = STATUS[status]
+                        const StatusIcon = statusConfig.icon
 
                         return (
                           <button
@@ -232,16 +300,17 @@ export default function Integrations() {
                                   <span className="truncate text-sm font-semibold text-foreground">
                                     {integration.name}
                                   </span>
-                                  <Badge variant={integration.isActive ? 'success' : 'outline'}>
-                                    {integration.isActive ? 'Ativa' : 'Inativa'}
+                                  <Badge variant={statusConfig.badgeVariant} className="gap-1">
+                                    <StatusIcon size={11} className={statusConfig.iconClass} />
+                                    {statusConfig.label}
                                   </Badge>
                                 </div>
                                 <div className="mt-1.5 flex flex-wrap gap-1.5 text-xs">
                                   <Badge variant="outline">{integration.identifier}</Badge>
                                   <Badge variant="outline">
                                     {integrationConnectors.length === 0
-                                      ? 'Sem conectores'
-                                      : `${integrationActive} ativo${integrationActive === 1 ? '' : 's'} · ${integrationConnectors.length} total`}
+                                      ? 'Sem contas'
+                                      : `${integrationActive} ativa${integrationActive === 1 ? '' : 's'} · ${integrationConnectors.length} total`}
                                   </Badge>
                                 </div>
                               </div>
@@ -255,9 +324,9 @@ export default function Integrations() {
 
                 <Card className="lg:col-span-7">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Conectores</CardTitle>
+                    <CardTitle className="text-base">Contas conectadas</CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Cada conector é uma instância configurada da integração com credenciais próprias.
+                      Cada conta é uma instância configurada da integração com credenciais próprias.
                     </p>
                   </CardHeader>
                   <CardContent>
@@ -278,26 +347,34 @@ export default function Integrations() {
                           </div>
                           <Button size="sm" onClick={openCreateConnector}>
                             <Plus size={14} className="mr-1.5" />
-                            Novo conector
+                            Conectar conta
                           </Button>
                         </div>
 
                         <div className="flex flex-wrap gap-2">
-                          <Badge variant={selectedIntegration.isActive ? 'success' : 'destructive'}>
-                            {selectedIntegration.isActive ? 'Integração ativa' : 'Integração inativa'}
-                          </Badge>
+                          {(() => {
+                            const status = computeStatus(selectedIntegration.id)
+                            const cfg = STATUS[status]
+                            const Icon = cfg.icon
+                            return (
+                              <Badge variant={cfg.badgeVariant} className="gap-1">
+                                <Icon size={12} className={cfg.iconClass} />
+                                {cfg.label}
+                              </Badge>
+                            )
+                          })()}
                           <Badge variant="outline">{selectedIntegration.identifier}</Badge>
                           <Badge variant="outline">
-                            {connectorsForSelectedIntegration.length} conector{connectorsForSelectedIntegration.length === 1 ? '' : 'es'}
+                            {connectorsForSelectedIntegration.length} {connectorsForSelectedIntegration.length === 1 ? 'conta' : 'contas'}
                           </Badge>
                         </div>
 
                         {connectorsForSelectedIntegration.length === 0 ? (
                           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-10 text-muted-foreground">
                             <Settings2 size={36} className="mb-3 opacity-50" />
-                            <p className="text-sm font-medium">Nenhum conector configurado</p>
+                            <p className="text-sm font-medium">Nenhuma conta conectada</p>
                             <p className="mt-1 text-xs">
-                              Use o botão "Novo conector" acima para criar o primeiro.
+                              Use o botão "Conectar conta" acima para configurar a primeira.
                             </p>
                           </div>
                         ) : (
@@ -313,7 +390,7 @@ export default function Integrations() {
                                       {connector.name}
                                     </span>
                                     <Badge variant={connector.isActive ? 'success' : 'outline'}>
-                                      {connector.isActive ? 'Ativo' : 'Inativo'}
+                                      {connector.isActive ? 'Ativa' : 'Inativa'}
                                     </Badge>
                                   </div>
                                   {connector.systemApplicationId && (
@@ -323,6 +400,16 @@ export default function Integrations() {
                                   )}
                                 </div>
                                 <div className="flex items-center gap-1">
+                                  {connector.isActive && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => openTestConnector(connector)}
+                                    >
+                                      <Sparkles size={14} className="mr-1" />
+                                      Testar
+                                    </Button>
+                                  )}
                                   <Button
                                     size="sm"
                                     variant="ghost"
@@ -369,6 +456,7 @@ export default function Integrations() {
           if (selectedCategoryId) {
             void loadIntegrationsByCategory(selectedCategoryId)
           }
+          void loadAutomations()
           setEditingConnector(null)
         }}
       />
@@ -381,7 +469,16 @@ export default function Integrations() {
           setIsAutomationModalOpen(false)
           setSelectedAutomation(null)
           setAutomationsRefreshKey((prev) => prev + 1)
+          void loadAutomations()
         }}
+      />
+
+      <ConnectorTestModal
+        open={isTestModalOpen}
+        onOpenChange={setIsTestModalOpen}
+        connector={testingConnector}
+        integration={selectedIntegration}
+        category={selectedCategory}
       />
     </>
   )

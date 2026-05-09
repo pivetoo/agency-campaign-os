@@ -11,8 +11,9 @@ import {
   useApi,
   useToast,
 } from 'archon-ui'
-import { Eye, EyeOff } from 'lucide-react'
+import { ExternalLink, Eye, EyeOff, Sparkles } from 'lucide-react'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
+import { getDocLink, smtpPresets } from '../../lib/integrationDocs'
 import type {
   IntegrationPlatformIntegration,
   IntegrationAttribute,
@@ -386,6 +387,24 @@ export default function ConnectorConfigModal({
     }
   }
 
+  const applySmtpPreset = (presetId: string) => {
+    const preset = smtpPresets.find((item) => item.id === presetId)
+    if (!preset) return
+
+    setValues((prev) => {
+      const next = { ...prev }
+      for (const attr of attributes) {
+        const presetValue = preset.values[attr.field]
+        if (presetValue !== undefined) {
+          next[attr.id] = presetValue
+        }
+      }
+      return next
+    })
+  }
+
+  const showSmtpPresets = integration?.identifier === 'smtp' && !isEditing
+
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '640px', width: '95vw' }}>
@@ -394,23 +413,51 @@ export default function ConnectorConfigModal({
             {isEditing
               ? `Editar ${connector?.name}`
               : integration
-                ? `Configurar ${integration.name}`
-                : 'Configurar integração'}
+                ? `Conectar ${integration.name}`
+                : 'Conectar conta'}
           </ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <label className="text-sm font-medium">
-              Nome do conector <span className="text-destructive">*</span>
+              Apelido da conta <span className="text-destructive">*</span>
             </label>
             <Input
               value={connectorName}
               onChange={(e) => setConnectorName(e.target.value)}
-              placeholder="Ex: Conector de produção"
+              placeholder="Ex.: Conta principal"
               required
             />
+            <p className="text-xs text-muted-foreground">
+              Use um apelido que ajude a reconhecer (ex.: "Gmail da agência", "SendGrid prod").
+            </p>
           </div>
+
+          {showSmtpPresets && (
+            <div className="rounded-lg border bg-primary/5 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className="text-primary" />
+                <p className="text-sm font-medium">Configurações rápidas</p>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Selecione um servidor conhecido para preencher host, porta e SSL automaticamente.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {smtpPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => applySmtpPreset(preset.id)}
+                    title={preset.description}
+                    className="rounded-full border border-primary/30 bg-background px-3 py-1 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {isEditing && (
             <div className="flex items-center gap-2">
@@ -454,7 +501,7 @@ export default function ConnectorConfigModal({
             <p className="text-sm text-muted-foreground">Carregando...</p>
           ) : attributes.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Esta integração não possui atributos configuráveis.
+              Esta integração não exige configurações adicionais.
             </p>
           ) : (
             Object.entries(groupedAttributes).map(([group, groupAttrs]) => (
@@ -465,32 +512,48 @@ export default function ConnectorConfigModal({
                   </h4>
                 )}
                 <div className="space-y-4">
-                  {groupAttrs.map((attr) => (
-                    <div key={attr.id} className="space-y-1.5">
-                      <label className="text-sm font-medium flex items-center gap-1">
-                        {attr.label}
-                        {attr.isRequired && (
-                          <span className="text-destructive">*</span>
+                  {groupAttrs.map((attr) => {
+                    const docLink = getDocLink(integration?.identifier, attr.field)
+                    return (
+                      <div key={attr.id} className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-sm font-medium flex items-center gap-1">
+                            {attr.label}
+                            {attr.isRequired && (
+                              <span className="text-destructive">*</span>
+                            )}
+                            {isSensitiveField(attr) && (
+                              <span className="text-xs text-muted-foreground font-normal">
+                                (sensível)
+                              </span>
+                            )}
+                          </label>
+                          {docLink && (
+                            <a
+                              href={docLink.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                            >
+                              {docLink.label ?? 'Onde encontrar?'}
+                              <ExternalLink size={11} />
+                            </a>
+                          )}
+                        </div>
+                        {attr.description && (
+                          <p className="text-xs text-muted-foreground">
+                            {attr.description}
+                          </p>
                         )}
-                        {isSensitiveField(attr) && (
-                          <span className="text-xs text-muted-foreground font-normal">
-                            (sensível)
-                          </span>
+                        {renderInput(attr)}
+                        {errors[attr.id] && (
+                          <p className="text-xs text-destructive">
+                            Campo obrigatório
+                          </p>
                         )}
-                      </label>
-                      {attr.description && (
-                        <p className="text-xs text-muted-foreground">
-                          {attr.description}
-                        </p>
-                      )}
-                      {renderInput(attr)}
-                      {errors[attr.id] && (
-                        <p className="text-xs text-destructive">
-                          Campo obrigatório
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             ))

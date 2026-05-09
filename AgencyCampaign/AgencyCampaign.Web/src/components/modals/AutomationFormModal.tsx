@@ -237,23 +237,23 @@ export default function AutomationFormModal({ open, onOpenChange, automation, on
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Conector</label>
+              <label className="text-sm font-medium">Conta conectada</label>
               <SearchableSelect
                 value={connectorId ? String(connectorId) : ''}
                 onValueChange={(value) => setConnectorId(Number(value))}
                 options={connectors.filter((c) => c.isActive).map((c) => ({ value: String(c.id), label: c.name }))}
                 placeholder="Selecione"
-                searchPlaceholder="Buscar conector"
+                searchPlaceholder="Buscar conta"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Pipeline a executar</label>
+              <label className="text-sm font-medium">Ação a executar</label>
               <SearchableSelect
                 value={pipelineId ? String(pipelineId) : ''}
                 onValueChange={(value) => setPipelineId(Number(value))}
                 options={pipelines.map((p) => ({ value: String(p.id), label: p.name }))}
                 placeholder="Selecione"
-                searchPlaceholder="Buscar pipeline"
+                searchPlaceholder="Buscar ação"
               />
             </div>
 
@@ -269,14 +269,14 @@ export default function AutomationFormModal({ open, onOpenChange, automation, on
 
             <div className="space-y-2 md:col-span-2 rounded-md border bg-muted/30 p-3">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Mapeamento de variáveis (payload do pipeline)</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Variáveis enviadas para a ação</p>
                 <Button type="button" size="sm" variant="outline" onClick={addMappingRow}>
                   <Plus size={12} className="mr-1" />
                   Variável
                 </Button>
               </div>
               {mappingRows.length === 0 ? (
-                <p className="text-[10px] text-muted-foreground">Sem variáveis. Use o botão acima para mapear chave do pipeline → valor (Mustache).</p>
+                <p className="text-[10px] text-muted-foreground">Sem variáveis. Use o botão acima para mapear chave da ação → valor (Mustache).</p>
               ) : (
                 <div className="space-y-2">
                   {mappingRows.map((row) => (
