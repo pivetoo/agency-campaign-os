@@ -1,9 +1,11 @@
 import { test as setup, expect } from '@playwright/test'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { env, assertCredentials } from '../fixtures/env'
 
-const storageStatePath = path.join(__dirname, '..', '.auth', 'user.json')
+const here = path.dirname(fileURLToPath(import.meta.url))
+const storageStatePath = path.join(here, '..', '.auth', 'user.json')
 
 setup('autenticar via OIDC e salvar storageState', async ({ page }) => {
   assertCredentials()

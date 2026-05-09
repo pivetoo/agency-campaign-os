@@ -1,11 +1,14 @@
 import { defineConfig, devices } from '@playwright/test'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import * as dotenv from 'dotenv'
 
-dotenv.config({ path: path.join(__dirname, '.env') })
+const here = path.dirname(fileURLToPath(import.meta.url))
+
+dotenv.config({ path: path.join(here, '.env') })
 
 const baseURL = process.env.E2E_BASE_URL ?? 'https://kanvas.mainstay.com.br'
-const storageStatePath = path.join(__dirname, '.auth', 'user.json')
+const storageStatePath = path.join(here, '.auth', 'user.json')
 
 export default defineConfig({
   testDir: './tests',
