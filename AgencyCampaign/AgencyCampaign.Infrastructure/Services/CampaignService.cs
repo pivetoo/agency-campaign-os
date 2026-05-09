@@ -6,6 +6,7 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
 using Archon.Core.Pagination;
+using Archon.Infrastructure.IdentityManagement;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +18,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
+        private readonly IdentityUsersClient identityUsersClient;
 
-        public CampaignService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
+        public CampaignService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IdentityUsersClient identityUsersClient) : base(dbContext)
         {
             this.localizer = localizer;
             this.currentUser = currentUser;
+            this.identityUsersClient = identityUsersClient;
         }
 
         public async Task<PagedResult<Campaign>> GetCampaigns(PagedRequest request, CancellationToken cancellationToken = default)
@@ -42,7 +45,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             await EnsureBrandExists(request.BrandId, cancellationToken);
 
-            string? internalOwnerName = await ResolveCommercialResponsibleName(request.CommercialResponsibleId, cancellationToken);
+            string? internalOwnerName = await ResolveCommercialResponsibleName(request.ResponsibleUserId, cancellationToken);
 
             Campaign campaign = new(
                 request.BrandId,
@@ -87,7 +90,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await EnsureBrandExists(request.BrandId, cancellationToken);
 
-            string? internalOwnerName = await ResolveCommercialResponsibleName(request.CommercialResponsibleId, cancellationToken);
+            string? internalOwnerName = await ResolveCommercialResponsibleName(request.ResponsibleUserId, cancellationToken);
 
             CampaignStatus previousStatus = campaign.Status;
 
@@ -187,18 +190,22 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
-        private async Task<string?> ResolveCommercialResponsibleName(long? commercialResponsibleId, CancellationToken cancellationToken)
+        private async Task<string?> ResolveCommercialResponsibleName(long? responsibleUserId, CancellationToken cancellationToken)
         {
-            if (!commercialResponsibleId.HasValue)
+            if (!responsibleUserId.HasValue)
             {
                 return null;
             }
 
-            CommercialResponsible? responsible = await DbContext.Set<CommercialResponsible>()
-                .AsNoTracking()
-                .FirstOrDefaultAsync(item => item.Id == commercialResponsibleId.Value, cancellationToken);
-
-            return responsible?.Name;
+            try
+            {
+                IdentityUserDto? user = await identityUsersClient.GetUserByIdAsync(responsibleUserId.Value, cancellationToken);
+                return user?.Name;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private async Task EnsureBrandExists(long brandId, CancellationToken cancellationToken)

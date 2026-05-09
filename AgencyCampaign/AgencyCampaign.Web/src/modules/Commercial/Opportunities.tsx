@@ -55,7 +55,7 @@ export default function CommercialOpportunities() {
     const filters: OpportunityListFilters = {}
     if (search) filters.search = search
     if (stageFilter) filters.commercialPipelineStageId = Number(stageFilter)
-    if (responsibleFilter) filters.commercialResponsibleId = Number(responsibleFilter)
+    if (responsibleFilter) filters.responsibleUserId = Number(responsibleFilter)
     if (statusFilter !== STATUS_ALL) filters.status = statusFilter as OpportunityListFilters['status']
 
     void fetchOpportunities(() => opportunityService.getAll({ pageSize: 200, ...filters })).then((result) => {
@@ -88,7 +88,7 @@ export default function CommercialOpportunities() {
     const filters: OpportunityListFilters = {}
     if (search) filters.search = search
     if (stageFilter) filters.commercialPipelineStageId = Number(stageFilter)
-    if (responsibleFilter) filters.commercialResponsibleId = Number(responsibleFilter)
+    if (responsibleFilter) filters.responsibleUserId = Number(responsibleFilter)
     if (statusFilter !== STATUS_ALL) filters.status = statusFilter as OpportunityListFilters['status']
 
     void fetchOpportunities(() => opportunityService.getAll({ pageSize: 200, ...filters })).then((result) => {

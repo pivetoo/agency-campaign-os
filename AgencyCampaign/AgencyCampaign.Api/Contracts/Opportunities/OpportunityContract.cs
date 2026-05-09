@@ -26,7 +26,7 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public DateTimeOffset? ExpectedCloseAt { get; init; }
 
-        public long? CommercialResponsibleId { get; init; }
+        public long? ResponsibleUserId { get; init; }
 
         public CommercialResponsibleReferenceContract? CommercialResponsible { get; init; }
 
@@ -71,7 +71,7 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
             Probability = item.Probability,
             ProbabilityIsManual = item.ProbabilityIsManual,
             ExpectedCloseAt = item.ExpectedCloseAt,
-            CommercialResponsibleId = item.CommercialResponsibleId,
+            ResponsibleUserId = item.ResponsibleUserId,
             ContactName = item.ContactName,
             ContactEmail = item.ContactEmail,
             Notes = item.Notes,
@@ -89,13 +89,13 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
                     IsFinal = item.CommercialPipelineStage.IsFinal,
                     FinalBehavior = (int)item.CommercialPipelineStage.FinalBehavior
                 },
-            CommercialResponsible = item.CommercialResponsible == null
-                ? null
-                : new CommercialResponsibleReferenceContract
+            CommercialResponsible = item.ResponsibleUserId.HasValue
+                ? new CommercialResponsibleReferenceContract
                 {
-                    Id = item.CommercialResponsible.Id,
-                    Name = item.CommercialResponsible.Name
-                },
+                    Id = item.ResponsibleUserId.Value,
+                    Name = item.ResponsibleUserName ?? string.Empty
+                }
+                : null,
             Brand = item.Brand == null
                 ? null
                 : new OpportunityBrandReferenceContract

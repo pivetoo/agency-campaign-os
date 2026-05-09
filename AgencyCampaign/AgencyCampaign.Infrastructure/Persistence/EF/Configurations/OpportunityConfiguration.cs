@@ -48,10 +48,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey(entity => entity.BrandId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(entity => entity.CommercialResponsible)
-                .WithMany()
-                .HasForeignKey(entity => entity.CommercialResponsibleId)
-                .OnDelete(DeleteBehavior.SetNull);
+            builder.Property(entity => entity.ResponsibleUserId);
 
             builder.HasMany(entity => entity.Negotiations)
                 .WithOne(entity => entity.Opportunity)

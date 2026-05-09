@@ -36,7 +36,7 @@ namespace AgencyCampaign.Application.Requests.Campaigns
         public CampaignStatus Status { get; set; } = CampaignStatus.Draft;
 
         [Range(1, long.MaxValue)]
-        public long? CommercialResponsibleId { get; set; }
+        public long? ResponsibleUserId { get; set; }
 
         [StringLength(1000)]
         public string? Notes { get; set; }

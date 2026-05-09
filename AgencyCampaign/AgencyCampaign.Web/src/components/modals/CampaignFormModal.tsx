@@ -67,7 +67,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
         budget: campaign.budget,
         startsAt: campaign.startsAt.slice(0, 10),
         endsAt: campaign.endsAt ? campaign.endsAt.slice(0, 10) : '',
-        commercialResponsibleId: campaign.commercialResponsibleId,
+        responsibleUserId: campaign.responsibleUserId,
         notes: campaign.notes || '',
         status: campaign.status,
       })
@@ -92,7 +92,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
       description: formData.description || undefined,
       objective: formData.objective || undefined,
       briefing: formData.briefing || undefined,
-      commercialResponsibleId: formData.commercialResponsibleId,
+      responsibleUserId: formData.responsibleUserId,
       notes: formData.notes || undefined,
     }
 
@@ -153,8 +153,8 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
             <div className="space-y-2">
               <label className="text-sm font-medium">Responsável comercial</label>
               <SearchableSelect
-                value={formData.commercialResponsibleId ? String(formData.commercialResponsibleId) : ''}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, commercialResponsibleId: value ? Number(value) : undefined }))}
+                value={formData.responsibleUserId ? String(formData.responsibleUserId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, responsibleUserId: value ? Number(value) : undefined }))}
                 options={[
                   { value: '', label: 'Nenhum' },
                   ...responsibles.filter((r) => r.isActive).map((responsible) => ({ value: String(responsible.id), label: responsible.name })),

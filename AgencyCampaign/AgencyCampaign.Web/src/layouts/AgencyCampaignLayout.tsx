@@ -11,7 +11,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, UserCheck, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText, UserCog } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText, UserCog } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -111,7 +111,6 @@ export default function AgencyCampaignLayout() {
       { key: 'comercial-propostas', label: 'Propostas', path: '/comercial/propostas', icon: <Tags size={20} /> },
       { key: 'comercial-aprovacoes', label: 'Aprovações', path: '/comercial/aprovacoes', icon: <Globe size={20} /> },
       { key: 'comercial-followups', label: 'Atividades', path: '/comercial/followups', icon: <HandCoins size={20} /> },
-      { key: 'comercial-responsaveis', label: 'Responsáveis', path: '/comercial/responsaveis', icon: <UserCheck size={20} /> },
     ]),
     createMenuGroup('Operação', [
       { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
@@ -192,7 +191,6 @@ export default function AgencyCampaignLayout() {
       '/comercial/propostas': 'Propostas',
       '/comercial/aprovacoes': 'Aprovações',
       '/comercial/followups': 'Atividades',
-      '/comercial/responsaveis': 'Responsáveis',
       '/marcas': 'Marcas',
       '/creators': 'Creators',
       '/campanhas': 'Campanhas',

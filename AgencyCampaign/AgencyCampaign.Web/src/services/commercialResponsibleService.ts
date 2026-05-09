@@ -1,39 +1,19 @@
-import { httpClient } from 'archon-ui'
-import type { CommercialResponsible, CommercialUser } from '../types/commercialResponsible'
+import { UsersManagementService } from 'archon-ui'
+import type { CommercialResponsible } from '../types/commercialResponsible'
 
-const BASE_URL = '/CommercialResponsibles'
-
-export interface CreateCommercialResponsibleRequest {
-  userId: number
-  notes?: string
-}
-
-export interface UpdateCommercialResponsibleRequest {
-  id: number
-  notes?: string
-  isActive: boolean
-}
+const RESPONSIBLE_ROLE = 'Responsável Comercial'
 
 export const commercialResponsibleService = {
   async getAll(): Promise<CommercialResponsible[]> {
-    const response = await httpClient.get<CommercialResponsible[]>(`${BASE_URL}/Get`)
-    return response.data ?? []
-  },
-
-  async getAvailableUsers(): Promise<CommercialUser[]> {
-    const response = await httpClient.get<CommercialUser[]>(`${BASE_URL}/AvailableUsers`)
-    return response.data ?? []
-  },
-
-  create(data: CreateCommercialResponsibleRequest) {
-    return httpClient.post<CommercialResponsible>(`${BASE_URL}/Create`, data)
-  },
-
-  update(id: number, data: UpdateCommercialResponsibleRequest) {
-    return httpClient.put<CommercialResponsible>(`${BASE_URL}/Update/${id}`, data)
-  },
-
-  sync(id: number) {
-    return httpClient.post<CommercialResponsible>(`${BASE_URL}/${id}/Sync`, {})
+    const users = await UsersManagementService.listInCurrentContract()
+    return users
+      .filter((user) => user.isActive && user.roleName === RESPONSIBLE_ROLE)
+      .map((user) => ({
+        id: user.userId,
+        userId: user.userId,
+        name: user.name,
+        email: user.email,
+        isActive: user.isActive,
+      }))
   },
 }

@@ -8,7 +8,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
 
         public long? CommercialPipelineStageId { get; set; }
 
-        public long? CommercialResponsibleId { get; set; }
+        public long? ResponsibleUserId { get; set; }
 
         public string? Status { get; set; }
 

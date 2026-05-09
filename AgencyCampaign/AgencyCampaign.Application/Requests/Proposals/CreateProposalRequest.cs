@@ -16,6 +16,6 @@ namespace AgencyCampaign.Application.Requests.Proposals
         [StringLength(1000)]
         public string? Notes { get; set; }
 
-        public long? CommercialResponsibleId { get; set; }
+        public long? ResponsibleUserId { get; set; }
     }
 }

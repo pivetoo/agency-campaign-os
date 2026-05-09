@@ -25,7 +25,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         public DateTimeOffset? ExpectedCloseAt { get; set; }
 
         [Range(1, long.MaxValue)]
-        public long? CommercialResponsibleId { get; set; }
+        public long? ResponsibleUserId { get; set; }
 
         [StringLength(150)]
         public string? ContactName { get; set; }

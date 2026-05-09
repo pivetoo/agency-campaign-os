@@ -12,7 +12,7 @@ export interface CreateCampaignRequest {
   budget: number
   startsAt: string
   endsAt?: string
-  commercialResponsibleId?: number
+  responsibleUserId?: number
   notes?: string
   status: number
 }

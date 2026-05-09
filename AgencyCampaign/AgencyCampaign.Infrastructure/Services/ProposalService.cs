@@ -95,13 +95,13 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetOpportunity(request.OpportunityId, cancellationToken);
 
-            long commercialResponsibleId = request.CommercialResponsibleId ?? opportunity.CommercialResponsibleId ?? throw new InvalidOperationException("A proposta precisa de um responsável comercial válido.");
-            string commercialResponsibleName = opportunity.CommercialResponsible?.Name ?? string.Empty;
+            long responsibleUserId = request.ResponsibleUserId ?? opportunity.ResponsibleUserId ?? throw new InvalidOperationException("A proposta precisa de um responsável comercial válido.");
+            string commercialResponsibleName = opportunity.ResponsibleUserName ?? string.Empty;
 
             Proposal proposal = new(
                 request.OpportunityId,
                 opportunity.Name,
-                commercialResponsibleId,
+                responsibleUserId,
                 request.Description,
                 request.ValidityUntil,
                 request.Notes,
@@ -110,7 +110,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!string.IsNullOrWhiteSpace(commercialResponsibleName))
             {
-                proposal.SetInternalOwner(commercialResponsibleId, commercialResponsibleName);
+                proposal.SetInternalOwner(responsibleUserId, commercialResponsibleName);
             }
 
             bool success = await Insert(cancellationToken, proposal);

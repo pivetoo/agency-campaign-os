@@ -9,7 +9,7 @@ export interface Campaign {
   startsAt: string
   endsAt?: string
   status: number
-  commercialResponsibleId?: number
+  responsibleUserId?: number
   commercialResponsible?: {
     id: number
     name: string

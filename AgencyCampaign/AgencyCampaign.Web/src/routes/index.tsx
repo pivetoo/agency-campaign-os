@@ -17,7 +17,6 @@ import CommercialProposals from '../modules/Commercial/Proposals'
 import CommercialProposalDetail from '../modules/Commercial/ProposalDetail'
 import CommercialFollowUps from '../modules/Commercial/FollowUps'
 import CommercialApprovals from '../modules/Commercial/Approvals'
-import CommercialResponsibles from '../modules/Commercial/CommercialResponsibles'
 import FinancialReceivables from '../modules/Financial/Receivables'
 import FinancialPayables from '../modules/Financial/Payables'
 import FinancialCashFlow from '../modules/Financial/CashFlow'
@@ -90,7 +89,6 @@ function AppRoutes() {
           <Route path="comercial/negociacoes" element={<Navigate to="/comercial/oportunidades" replace />} />
           <Route path="comercial/aprovacoes" element={<CommercialApprovals />} />
           <Route path="comercial/followups" element={<CommercialFollowUps />} />
-          <Route path="comercial/responsaveis" element={<CommercialResponsibles />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
           <Route path="financeiro/fluxo-caixa" element={<FinancialCashFlow />} />

@@ -52,7 +52,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         description: opportunity.description || '',
         estimatedValue: opportunity.estimatedValue,
         expectedCloseAt: opportunity.expectedCloseAt,
-        commercialResponsibleId: opportunity.commercialResponsibleId,
+        responsibleUserId: opportunity.responsibleUserId,
         contactName: opportunity.contactName || '',
         contactEmail: opportunity.contactEmail || '',
         notes: opportunity.notes || '',
@@ -130,8 +130,8 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
             <div className="space-y-2">
               <label className="text-sm font-medium">Responsável comercial</label>
               <SearchableSelect
-                value={formData.commercialResponsibleId ? String(formData.commercialResponsibleId) : ''}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, commercialResponsibleId: value ? Number(value) : undefined }))}
+                value={formData.responsibleUserId ? String(formData.responsibleUserId) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, responsibleUserId: value ? Number(value) : undefined }))}
                 options={[
                   { value: '', label: 'Nenhum' },
                   ...responsibles.filter((r) => r.isActive).map((responsible) => ({ value: String(responsible.id), label: responsible.name })),

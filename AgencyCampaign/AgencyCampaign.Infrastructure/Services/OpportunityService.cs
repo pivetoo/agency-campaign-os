@@ -6,6 +6,7 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
 using Archon.Core.Pagination;
+using Archon.Infrastructure.IdentityManagement;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +18,27 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
+        private readonly IdentityUsersClient identityUsersClient;
 
-        public OpportunityService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
+        public OpportunityService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IdentityUsersClient identityUsersClient) : base(dbContext)
         {
             this.localizer = localizer;
             this.currentUser = currentUser;
+            this.identityUsersClient = identityUsersClient;
+        }
+
+        private async Task<string?> ResolveResponsibleUserName(long? userId, CancellationToken cancellationToken)
+        {
+            if (!userId.HasValue) return null;
+            try
+            {
+                IdentityUserDto? user = await identityUsersClient.GetUserByIdAsync(userId.Value, cancellationToken);
+                return user?.Name;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<PagedResult<Opportunity>> GetOpportunities(PagedRequest request, OpportunityListFilters filters, CancellationToken cancellationToken = default)
@@ -58,9 +75,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 query = query.Where(item => item.CommercialPipelineStageId == filters.CommercialPipelineStageId.Value);
             }
 
-            if (filters.CommercialResponsibleId.HasValue)
+            if (filters.ResponsibleUserId.HasValue)
             {
-                query = query.Where(item => item.CommercialResponsibleId == filters.CommercialResponsibleId.Value);
+                query = query.Where(item => item.ResponsibleUserId == filters.ResponsibleUserId.Value);
             }
 
             if (!string.IsNullOrWhiteSpace(filters.Status))
@@ -119,6 +136,8 @@ namespace AgencyCampaign.Infrastructure.Services
             await EnsureBrandExists(request.BrandId, cancellationToken);
             CommercialPipelineStage initialStage = await ResolveInitialStage(request.CommercialPipelineStageId, cancellationToken);
 
+            string? responsibleUserName = await ResolveResponsibleUserName(request.ResponsibleUserId, cancellationToken);
+
             Opportunity opportunity = new(
                 request.BrandId,
                 initialStage.Id,
@@ -126,7 +145,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.EstimatedValue,
                 request.ExpectedCloseAt,
                 request.Description,
-                request.CommercialResponsibleId,
+                request.ResponsibleUserId,
+                responsibleUserName,
                 request.ContactName,
                 request.ContactEmail,
                 request.Notes,
@@ -172,13 +192,16 @@ namespace AgencyCampaign.Infrastructure.Services
             await EnsureBrandExists(request.BrandId, cancellationToken);
             CommercialPipelineStage stage = await ResolveStage(request.CommercialPipelineStageId ?? opportunity.CommercialPipelineStageId, cancellationToken);
 
+            string? responsibleUserName = await ResolveResponsibleUserName(request.ResponsibleUserId, cancellationToken);
+
             opportunity.Update(
                 request.BrandId,
                 request.Name,
                 request.EstimatedValue,
                 request.ExpectedCloseAt,
                 request.Description,
-                request.CommercialResponsibleId,
+                request.ResponsibleUserId,
+                responsibleUserName,
                 request.ContactName,
                 request.ContactEmail,
                 request.Notes);
@@ -306,7 +329,7 @@ namespace AgencyCampaign.Infrastructure.Services
                                 CommercialPipelineStageColor = stage.Color,
                                 EstimatedValue = item.EstimatedValue,
                                 ExpectedCloseAt = item.ExpectedCloseAt,
-                                CommercialResponsibleName = item.CommercialResponsible?.Name,
+                                CommercialResponsibleName = item.ResponsibleUserName,
                                 ProposalCount = item.Proposals.Count,
                                 PendingFollowUpsCount = item.FollowUps.Count(followUp => !followUp.IsCompleted),
                                 OverdueFollowUpsCount = item.FollowUps.Count(followUp => !followUp.IsCompleted && followUp.DueAt < now),
@@ -582,7 +605,6 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .Include(item => item.Brand)
                 .Include(item => item.CommercialPipelineStage)
-                .Include(item => item.CommercialResponsible)
                 .Include(item => item.OpportunitySource)
                 .Include(item => item.Negotiations)
                     .ThenInclude(item => item.ApprovalRequests)

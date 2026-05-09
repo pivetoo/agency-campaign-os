@@ -65,7 +65,7 @@ export interface Opportunity {
   probability: number
   probabilityIsManual: boolean
   expectedCloseAt?: string
-  commercialResponsibleId?: number
+  responsibleUserId?: number
   commercialResponsible?: {
     id: number
     name: string
@@ -200,7 +200,7 @@ export interface CreateOpportunityRequest {
   description?: string
   estimatedValue: number
   expectedCloseAt?: string
-  commercialResponsibleId?: number
+  responsibleUserId?: number
   contactName?: string
   contactEmail?: string
   notes?: string
@@ -297,7 +297,7 @@ export interface OpportunityListFilters {
   search?: string
   brandId?: number
   commercialPipelineStageId?: number
-  commercialResponsibleId?: number
+  responsibleUserId?: number
   status?: 'open' | 'won' | 'lost'
   minValue?: number
   maxValue?: number
@@ -313,7 +313,7 @@ export const opportunityService = {
     if (params?.search) searchParams.set('search', params.search)
     if (params?.brandId) searchParams.set('brandId', params.brandId.toString())
     if (params?.commercialPipelineStageId) searchParams.set('commercialPipelineStageId', params.commercialPipelineStageId.toString())
-    if (params?.commercialResponsibleId) searchParams.set('commercialResponsibleId', params.commercialResponsibleId.toString())
+    if (params?.responsibleUserId) searchParams.set('responsibleUserId', params.responsibleUserId.toString())
     if (params?.status) searchParams.set('status', params.status)
     if (params?.minValue !== undefined) searchParams.set('minValue', params.minValue.toString())
     if (params?.maxValue !== undefined) searchParams.set('maxValue', params.maxValue.toString())
