@@ -143,6 +143,7 @@ export default function AgencyCampaignLayout() {
       { key: 'configuracao-plataformas', label: 'Redes sociais', path: '/configuracao/plataformas', icon: <Globe size={20} /> },
       { key: 'configuracao-status-creators', label: 'Status dos creators', path: '/configuracao/status-creators', icon: <Users size={20} /> },
       { key: 'configuracao-tipos-entrega', label: 'Tipos de entrega', path: '/configuracao/tipos-entrega', icon: <Tags size={20} /> },
+      { key: 'configuracao-templates-documento', label: 'Templates de documento', path: '/configuracao/templates-documento', icon: <FileText size={20} /> },
     ]),
     createMenuGroup('Finanças', [
       { key: 'configuracao-contas-financeiras', label: 'Contas bancárias', path: '/configuracao/contas-financeiras', icon: <Wallet size={20} /> },
@@ -208,6 +209,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/origens-oportunidade': 'Origens de oportunidade',
       '/configuracao/tags-oportunidade': 'Tags de oportunidade',
       '/configuracao/templates-email': 'Templates de e-mail',
+      '/configuracao/templates-documento': 'Templates de documento',
       '/configuracao/contas-financeiras': 'Contas financeiras',
       '/configuracao/subcategorias-financeiras': 'Subcategorias financeiras',
       '/configuracao/empresa': 'Empresa',

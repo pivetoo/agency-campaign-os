@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Mail, Pencil, Plus, Signature, Users, FileText, Package } from 'lucide-react'
+import { Eye, Mail, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
 import { campaignCreatorService } from '../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../services/campaignDeliverableService'
@@ -15,6 +15,9 @@ import CampaignCreatorFormModal from '../../components/modals/CampaignCreatorFor
 import CampaignDeliverableFormModal from '../../components/modals/CampaignDeliverableFormModal'
 import CampaignDocumentFormModal from '../../components/modals/CampaignDocumentFormModal'
 import CampaignDocumentEmailModal from '../../components/modals/CampaignDocumentEmailModal'
+import CampaignDocumentGenerateFromTemplateModal from '../../components/modals/CampaignDocumentGenerateFromTemplateModal'
+import CampaignDocumentSendForSignatureModal from '../../components/modals/CampaignDocumentSendForSignatureModal'
+import CampaignDocumentDetailsModal from '../../components/modals/CampaignDocumentDetailsModal'
 
 const campaignStatusLabels: Record<number, string> = {
   1: 'Rascunho',
@@ -75,6 +78,9 @@ export default function CampaignDetail() {
   const [isDeliverableFormOpen, setIsDeliverableFormOpen] = useState(false)
   const [isDocumentFormOpen, setIsDocumentFormOpen] = useState(false)
   const [isDocumentEmailOpen, setIsDocumentEmailOpen] = useState(false)
+  const [isDocumentGenerateOpen, setIsDocumentGenerateOpen] = useState(false)
+  const [isDocumentSignatureOpen, setIsDocumentSignatureOpen] = useState(false)
+  const [isDocumentDetailsOpen, setIsDocumentDetailsOpen] = useState(false)
 
   const { execute: fetchCampaign } = useApi<Campaign | null>({ showErrorMessage: true })
   const { execute: fetchCampaignCreators, loading: creatorsLoading } = useApi<CampaignCreator[]>({ showErrorMessage: true })
@@ -307,14 +313,24 @@ export default function CampaignDetail() {
     {
       key: 'actions',
       title: '',
-      width: 48,
+      width: 96,
       render: (_: any, record: CampaignDocument) => (
-        <button
-          className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          onClick={() => { setSelectedDocument(record); setIsDocumentFormOpen(true) }}
-        >
-          <Pencil size={14} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            onClick={() => { setSelectedDocument(record); setIsDocumentDetailsOpen(true) }}
+            title="Ver detalhes"
+          >
+            <Eye size={14} />
+          </button>
+          <button
+            className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            onClick={() => { setSelectedDocument(record); setIsDocumentFormOpen(true) }}
+            title="Editar"
+          >
+            <Pencil size={14} />
+          </button>
+        </div>
       ),
     },
   ]
@@ -449,7 +465,11 @@ export default function CampaignDetail() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
                 <CardTitle className="text-base">Documentos</CardTitle>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setIsDocumentSignatureOpen(true)} disabled={!selectedDocument}>
+                    <Send size={16} className="mr-2" />
+                    Enviar para assinatura
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => void handleMarkDocumentAsSigned()} disabled={!selectedDocument || signingDocument}>
                     <Signature size={16} className="mr-2" />
                     Marcar assinado
@@ -457,6 +477,10 @@ export default function CampaignDetail() {
                   <Button size="sm" variant="outline" onClick={() => setIsDocumentEmailOpen(true)} disabled={!selectedDocument}>
                     <Mail size={16} className="mr-2" />
                     Enviar e-mail
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => { setSelectedDocument(null); setIsDocumentGenerateOpen(true) }}>
+                    <Sparkles size={16} className="mr-2" />
+                    Gerar de template
                   </Button>
                   <Button size="sm" onClick={() => { setSelectedDocument(null); setIsDocumentFormOpen(true) }}>
                     <Plus size={16} className="mr-2" />
@@ -553,6 +577,33 @@ export default function CampaignDetail() {
           setIsDocumentEmailOpen(false)
           void loadDocuments()
         }}
+      />
+
+      <CampaignDocumentGenerateFromTemplateModal
+        open={isDocumentGenerateOpen}
+        onOpenChange={setIsDocumentGenerateOpen}
+        campaignId={campaignId}
+        campaignCreators={campaignCreators}
+        onSuccess={() => {
+          setIsDocumentGenerateOpen(false)
+          void loadDocuments()
+        }}
+      />
+
+      <CampaignDocumentSendForSignatureModal
+        open={isDocumentSignatureOpen}
+        onOpenChange={setIsDocumentSignatureOpen}
+        document={selectedDocument}
+        onSuccess={() => {
+          setIsDocumentSignatureOpen(false)
+          void loadDocuments()
+        }}
+      />
+
+      <CampaignDocumentDetailsModal
+        open={isDocumentDetailsOpen}
+        onOpenChange={setIsDocumentDetailsOpen}
+        documentId={selectedDocument?.id ?? null}
       />
     </div>
   )
