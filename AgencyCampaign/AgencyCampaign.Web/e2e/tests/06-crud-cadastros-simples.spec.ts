@@ -44,6 +44,12 @@ test.describe('CRUD - cadastros simples (cria registro novo)', () => {
       // modal fecha
       await expect(modal).toBeHidden({ timeout: 15_000 })
 
+      // aumentar page size pra garantir que o registro recem criado esteja visivel
+      const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
+      if (await pageSizeSelect.count()) {
+        await pageSizeSelect.selectOption('50').catch(() => {})
+      }
+
       // registro aparece (na listagem ou em qualquer parte da pagina)
       await expect(page.getByText(recordName).first()).toBeVisible({ timeout: 15_000 })
 
