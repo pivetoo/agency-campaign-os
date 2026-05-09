@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, useApi } from 'archon-ui'
 import { creatorService, type CreateCreatorRequest, type UpdateCreatorRequest } from '../../services/creatorService'
 import type { Creator } from '../../types/creator'
+import { cleanFormPayload } from '../../lib/cleanFormPayload'
 
 interface CreatorFormModalProps {
   open: boolean
@@ -56,14 +57,16 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
+    const cleaned = cleanFormPayload(formData)
+
     const result = await execute(() =>
       isEditing
         ? creatorService.update(creator.id, {
             id: creator.id,
-            ...formData,
+            ...cleaned,
             isActive,
           } satisfies UpdateCreatorRequest)
-        : creatorService.create(formData),
+        : creatorService.create(cleaned),
     )
 
     if (result !== null) {

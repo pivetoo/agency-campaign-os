@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, useApi } from 'archon-ui'
 import { brandService, type CreateBrandRequest, type UpdateBrandRequest } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
+import { cleanFormPayload } from '../../lib/cleanFormPayload'
 
 interface BrandFormModalProps {
   open: boolean
@@ -46,14 +47,16 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
+    const cleaned = cleanFormPayload(formData)
+
     const result = await execute(() =>
       isEditing
         ? brandService.update(brand.id, {
             id: brand.id,
-            ...formData,
+            ...cleaned,
             isActive,
           } satisfies UpdateBrandRequest)
-        : brandService.create(formData),
+        : brandService.create(cleaned),
     )
 
     if (result !== null) {

@@ -7,6 +7,7 @@ import type { Brand } from '../../types/brand'
 import type { CommercialResponsible } from '../../types/commercialResponsible'
 import type { OpportunitySource, OpportunityTag } from '../../types/opportunitySource'
 import { opportunityService, type Opportunity, type CreateOpportunityRequest, type UpdateOpportunityRequest } from '../../services/opportunityService'
+import { cleanFormPayload } from '../../lib/cleanFormPayload'
 
 interface OpportunityFormModalProps {
   open: boolean
@@ -78,26 +79,15 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    const cleanText = (value?: string) => {
-      const trimmed = value?.trim()
-      return trimmed ? trimmed : undefined
-    }
-
-    const payload: CreateOpportunityRequest = {
-      ...formData,
-      description: cleanText(formData.description),
-      contactName: cleanText(formData.contactName),
-      contactEmail: cleanText(formData.contactEmail),
-      notes: cleanText(formData.notes),
-    }
+    const cleaned = cleanFormPayload(formData)
 
     const result = await execute(() => (
       isEditing
         ? opportunityService.update(opportunity.id, {
             id: opportunity.id,
-            ...payload,
+            ...cleaned,
           } satisfies UpdateOpportunityRequest)
-        : opportunityService.create(payload)
+        : opportunityService.create(cleaned)
     ))
 
     if (result !== null) {
