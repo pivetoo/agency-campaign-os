@@ -297,12 +297,8 @@ export default function Integrations() {
                             <Settings2 size={36} className="mb-3 opacity-50" />
                             <p className="text-sm font-medium">Nenhum conector configurado</p>
                             <p className="mt-1 text-xs">
-                              Crie um conector para usar essa integração nas automações.
+                              Use o botão "Novo conector" acima para criar o primeiro.
                             </p>
-                            <Button size="sm" className="mt-3" onClick={openCreateConnector}>
-                              <Plus size={14} className="mr-1.5" />
-                              Criar primeiro conector
-                            </Button>
                           </div>
                         ) : (
                           <div className="space-y-2">
