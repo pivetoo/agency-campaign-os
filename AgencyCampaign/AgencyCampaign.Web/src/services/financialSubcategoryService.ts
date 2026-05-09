@@ -26,10 +26,10 @@ export const financialSubcategoryService = {
   },
 
   update(id: number, data: UpdateFinancialSubcategoryRequest) {
-    return httpClient.put<FinancialSubcategory>(`${BASE_URL}/${id}`, data)
+    return httpClient.put<FinancialSubcategory>(`${BASE_URL}/Update/${id}`, data)
   },
 
   delete(id: number) {
-    return httpClient.delete(`${BASE_URL}/${id}`)
+    return httpClient.delete(`${BASE_URL}/Delete/${id}`)
   },
 }

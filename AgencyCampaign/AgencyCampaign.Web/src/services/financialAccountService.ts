@@ -26,7 +26,7 @@ export const financialAccountService = {
   },
 
   async getById(id: number): Promise<FinancialAccount | null> {
-    const response = await httpClient.get<FinancialAccount>(`${BASE_URL}/${id}`)
+    const response = await httpClient.get<FinancialAccount>(`${BASE_URL}/GetById/${id}`)
     return response.data ?? null
   },
 
@@ -35,10 +35,10 @@ export const financialAccountService = {
   },
 
   update(id: number, data: UpdateFinancialAccountRequest) {
-    return httpClient.put<FinancialAccount>(`${BASE_URL}/${id}`, data)
+    return httpClient.put<FinancialAccount>(`${BASE_URL}/Update/${id}`, data)
   },
 
   delete(id: number) {
-    return httpClient.delete(`${BASE_URL}/${id}`)
+    return httpClient.delete(`${BASE_URL}/Delete/${id}`)
   },
 }

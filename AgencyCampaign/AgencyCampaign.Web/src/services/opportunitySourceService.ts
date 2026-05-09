@@ -37,11 +37,11 @@ export const opportunitySourceService = {
   },
 
   update(id: number, data: UpdateOpportunitySourceRequest) {
-    return httpClient.put<OpportunitySource>(`${SOURCE_BASE}/${id}`, data)
+    return httpClient.put<OpportunitySource>(`${SOURCE_BASE}/Update/${id}`, data)
   },
 
   delete(id: number) {
-    return httpClient.delete(`${SOURCE_BASE}/${id}`)
+    return httpClient.delete(`${SOURCE_BASE}/Delete/${id}`)
   },
 }
 
@@ -57,10 +57,10 @@ export const opportunityTagService = {
   },
 
   update(id: number, data: UpdateOpportunityTagRequest) {
-    return httpClient.put<OpportunityTag>(`${TAG_BASE}/${id}`, data)
+    return httpClient.put<OpportunityTag>(`${TAG_BASE}/Update/${id}`, data)
   },
 
   delete(id: number) {
-    return httpClient.delete(`${TAG_BASE}/${id}`)
+    return httpClient.delete(`${TAG_BASE}/Delete/${id}`)
   },
 }
