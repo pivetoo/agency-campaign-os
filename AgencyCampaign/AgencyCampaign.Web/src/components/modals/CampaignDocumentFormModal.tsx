@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
 import { campaignDocumentService, type CreateCampaignDocumentRequest, type UpdateCampaignDocumentRequest } from '../../services/campaignDocumentService'
-import type { CampaignDocument } from '../../types/campaignDocument'
+import { CampaignDocumentType, type CampaignDocument, type CampaignDocumentTypeValue } from '../../types/campaignDocument'
 import type { CampaignCreator } from '../../types/campaignCreator'
 
 interface CampaignDocumentFormModalProps {
@@ -16,7 +16,7 @@ interface CampaignDocumentFormModalProps {
 const initialFormData: CreateCampaignDocumentRequest = {
   campaignId: 0,
   campaignCreatorId: undefined,
-  documentType: 1,
+  documentType: CampaignDocumentType.CreatorAgreement,
   title: '',
   documentUrl: '',
   notes: '',
@@ -82,7 +82,7 @@ export default function CampaignDocumentFormModal({ open, onOpenChange, campaign
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
               <label className="text-sm font-medium">Tipo</label>
-              <Select value={String(formData.documentType)} onValueChange={(value) => setFormData((prev) => ({ ...prev, documentType: Number(value) }))}>
+              <Select value={String(formData.documentType)} onValueChange={(value) => setFormData((prev) => ({ ...prev, documentType: Number(value) as CampaignDocumentTypeValue }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1">Aceite do creator</SelectItem>

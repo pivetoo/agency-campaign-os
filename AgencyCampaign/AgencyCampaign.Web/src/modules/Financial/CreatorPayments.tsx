@@ -8,7 +8,7 @@ import {
   useApi,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Ban, Eye, FileText, Pencil, Plus, Receipt, Send, Signature } from 'lucide-react'
+import { Ban, Eye, Pencil, Plus, Receipt, Send, Signature } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
 import type { Campaign } from '../../types/campaign'
@@ -264,7 +264,6 @@ export default function CreatorPaymentsPage() {
             rowKey="id"
             selectedRows={selected}
             onSelectionChange={(rows) => setSelected(rows)}
-            multiSelect
             emptyText={loading ? 'Carregando...' : 'Nenhum pagamento neste filtro'}
             loading={loading}
             pageSize={20}
