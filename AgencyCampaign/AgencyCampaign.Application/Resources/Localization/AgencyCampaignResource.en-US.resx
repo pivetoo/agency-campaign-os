@@ -45,4 +45,7 @@
   <data name="proposal.responsibleUser.required" xml:space="preserve">
     <value>The proposal requires a valid commercial responsible. Assign a responsible to the opportunity or provide one in the proposal itself.</value>
   </data>
+  <data name="campaignDocument.body.required" xml:space="preserve">
+    <value>The document needs content (generated body or URL) before being sent for signature.</value>
+  </data>
 </root>

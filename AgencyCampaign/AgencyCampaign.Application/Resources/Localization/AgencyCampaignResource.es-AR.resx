@@ -45,4 +45,7 @@
   <data name="proposal.responsibleUser.required" xml:space="preserve">
     <value>La propuesta requiere un responsable comercial válido. Asigna un responsable a la oportunidad o indica uno en la propia propuesta.</value>
   </data>
+  <data name="campaignDocument.body.required" xml:space="preserve">
+    <value>El documento necesita contenido (cuerpo generado o URL) antes de ser enviado para firma.</value>
+  </data>
 </root>

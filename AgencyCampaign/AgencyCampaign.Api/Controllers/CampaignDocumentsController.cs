@@ -111,5 +111,47 @@ namespace AgencyCampaign.Api.Controllers
             CampaignDocument document = await campaignDocumentService.MarkAsSigned(id, request, cancellationToken);
             return Http200(MapDocument(document), Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite gerar um documento a partir de um template.")]
+        [PostEndpoint("[action]")]
+        public async Task<IActionResult> GenerateFromTemplate([FromBody] GenerateCampaignDocumentFromTemplateRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            CampaignDocument document = await campaignDocumentService.GenerateFromTemplate(request, cancellationToken);
+            return Http201(MapDocument(document), Localizer["record.created"]);
+        }
+
+        [RequireAccess("Permite enviar um documento para assinatura digital via IntegrationPlatform.")]
+        [PostEndpoint("{id:long}/send-signature")]
+        public async Task<IActionResult> SendForSignature(long id, [FromBody] SendCampaignDocumentForSignatureRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            CampaignDocument document = await campaignDocumentService.SendForSignature(id, request, cancellationToken);
+            return Http200(MapDocument(document), Localizer["record.updated"]);
+        }
+
+        [RequireAccess("Permite que o IntegrationPlatform notifique eventos do provider de assinatura.")]
+        [PostEndpoint("[action]")]
+        public async Task<IActionResult> ProviderCallback([FromBody] CampaignDocumentProviderCallbackRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            CampaignDocument document = await campaignDocumentService.HandleProviderCallback(request, cancellationToken);
+            return Http200(MapDocument(document), Localizer["record.updated"]);
+        }
     }
 }

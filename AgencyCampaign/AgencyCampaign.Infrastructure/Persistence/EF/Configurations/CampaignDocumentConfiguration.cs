@@ -17,6 +17,18 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.DocumentUrl)
                 .HasMaxLength(1000);
 
+            builder.Property(entity => entity.Body)
+                .HasColumnType("text");
+
+            builder.Property(entity => entity.Provider)
+                .HasMaxLength(50);
+
+            builder.Property(entity => entity.ProviderDocumentId)
+                .HasMaxLength(150);
+
+            builder.Property(entity => entity.SignedDocumentUrl)
+                .HasMaxLength(1000);
+
             builder.Property(entity => entity.RecipientEmail)
                 .HasMaxLength(150);
 
@@ -38,6 +50,27 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .WithMany()
                 .HasForeignKey(entity => entity.CampaignCreatorId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(entity => entity.Template)
+                .WithMany()
+                .HasForeignKey(entity => entity.TemplateId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasMany(entity => entity.Signatures)
+                .WithOne(entity => entity.CampaignDocument)
+                .HasForeignKey(entity => entity.CampaignDocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(entity => entity.Events)
+                .WithOne(entity => entity.CampaignDocument)
+                .HasForeignKey(entity => entity.CampaignDocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Metadata.FindNavigation(nameof(CampaignDocument.Signatures))!
+                .SetPropertyAccessMode(PropertyAccessMode.Field);
+
+            builder.Metadata.FindNavigation(nameof(CampaignDocument.Events))!
+                .SetPropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }
