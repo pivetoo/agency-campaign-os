@@ -78,13 +78,26 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
+    const cleanText = (value?: string) => {
+      const trimmed = value?.trim()
+      return trimmed ? trimmed : undefined
+    }
+
+    const payload: CreateOpportunityRequest = {
+      ...formData,
+      description: cleanText(formData.description),
+      contactName: cleanText(formData.contactName),
+      contactEmail: cleanText(formData.contactEmail),
+      notes: cleanText(formData.notes),
+    }
+
     const result = await execute(() => (
       isEditing
         ? opportunityService.update(opportunity.id, {
             id: opportunity.id,
-            ...formData,
+            ...payload,
           } satisfies UpdateOpportunityRequest)
-        : opportunityService.create(formData)
+        : opportunityService.create(payload)
     ))
 
     if (result !== null) {
