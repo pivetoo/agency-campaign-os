@@ -1,3 +1,4 @@
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Entities;
 
 namespace AgencyCampaign.Domain.Entities
@@ -16,6 +17,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? PixKey { get; private set; }
 
+        public PixKeyType? PixKeyType { get; private set; }
+
         public string? PrimaryNiche { get; private set; }
 
         public string? City { get; private set; }
@@ -32,7 +35,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Creator(string name, string? stageName = null, string? email = null, string? phone = null, string? document = null, string? pixKey = null, string? primaryNiche = null, string? city = null, string? state = null, string? notes = null, decimal defaultAgencyFeePercent = 0)
+        public Creator(string name, string? stageName = null, string? email = null, string? phone = null, string? document = null, string? pixKey = null, PixKeyType? pixKeyType = null, string? primaryNiche = null, string? city = null, string? state = null, string? notes = null, decimal defaultAgencyFeePercent = 0)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentOutOfRangeException.ThrowIfNegative(defaultAgencyFeePercent);
@@ -43,6 +46,7 @@ namespace AgencyCampaign.Domain.Entities
             Phone = Normalize(phone);
             Document = Normalize(document);
             PixKey = Normalize(pixKey);
+            PixKeyType = pixKeyType;
             PrimaryNiche = Normalize(primaryNiche);
             City = Normalize(city);
             State = Normalize(state);
@@ -50,7 +54,7 @@ namespace AgencyCampaign.Domain.Entities
             DefaultAgencyFeePercent = defaultAgencyFeePercent;
         }
 
-        public void Update(string name, string? stageName, string? email, string? phone, string? document, string? pixKey, string? primaryNiche, string? city, string? state, string? notes, decimal defaultAgencyFeePercent, bool isActive)
+        public void Update(string name, string? stageName, string? email, string? phone, string? document, string? pixKey, PixKeyType? pixKeyType, string? primaryNiche, string? city, string? state, string? notes, decimal defaultAgencyFeePercent, bool isActive)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentOutOfRangeException.ThrowIfNegative(defaultAgencyFeePercent);
@@ -61,6 +65,7 @@ namespace AgencyCampaign.Domain.Entities
             Phone = Normalize(phone);
             Document = Normalize(document);
             PixKey = Normalize(pixKey);
+            PixKeyType = pixKeyType;
             PrimaryNiche = Normalize(primaryNiche);
             City = Normalize(city);
             State = Normalize(state);

@@ -1,3 +1,4 @@
+using AgencyCampaign.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 
 namespace AgencyCampaign.Application.Requests.Creators
@@ -26,6 +27,8 @@ namespace AgencyCampaign.Application.Requests.Creators
 
         [StringLength(150)]
         public string? PixKey { get; set; }
+
+        public PixKeyType? PixKeyType { get; set; }
 
         [StringLength(120)]
         public string? PrimaryNiche { get; set; }

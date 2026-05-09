@@ -1,4 +1,5 @@
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using System.Linq.Expressions;
 
 namespace AgencyCampaign.Api.Contracts.Creators
@@ -18,6 +19,8 @@ namespace AgencyCampaign.Api.Contracts.Creators
         public string? Document { get; init; }
 
         public string? PixKey { get; init; }
+
+        public PixKeyType? PixKeyType { get; init; }
 
         public string? PrimaryNiche { get; init; }
 
@@ -44,6 +47,7 @@ namespace AgencyCampaign.Api.Contracts.Creators
             Phone = item.Phone,
             Document = item.Document,
             PixKey = item.PixKey,
+            PixKeyType = item.PixKeyType,
             PrimaryNiche = item.PrimaryNiche,
             City = item.City,
             State = item.State,
