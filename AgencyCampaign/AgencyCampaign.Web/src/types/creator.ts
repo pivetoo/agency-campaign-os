@@ -1,3 +1,5 @@
+import type { PixKeyTypeValue } from './creatorPayment'
+
 export interface Creator {
   id: number
   name: string
@@ -6,6 +8,7 @@ export interface Creator {
   phone?: string
   document?: string
   pixKey?: string
+  pixKeyType?: PixKeyTypeValue
   primaryNiche?: string
   city?: string
   state?: string

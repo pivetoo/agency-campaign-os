@@ -121,6 +121,7 @@ export default function AgencyCampaignLayout() {
     createMenuGroup('Finanças', [
       { key: 'financeiro-receber', label: 'Contas a receber', path: '/financeiro/receber', icon: <HandCoins size={20} /> },
       { key: 'financeiro-pagar', label: 'Contas a pagar', path: '/financeiro/pagar', icon: <ReceiptText size={20} /> },
+      { key: 'financeiro-repasses-creators', label: 'Repasses para creators', path: '/financeiro/repasses-creators', icon: <HandCoins size={20} /> },
       { key: 'financeiro-fluxo-caixa', label: 'Fluxo de caixa', path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} /> },
       { key: 'financeiro-aging', label: 'Aging', path: '/financeiro/aging', icon: <Hourglass size={20} /> },
     ]),
@@ -197,6 +198,7 @@ export default function AgencyCampaignLayout() {
       '/campanhas': 'Campanhas',
       '/financeiro/receber': 'Contas a receber',
       '/financeiro/pagar': 'Contas a pagar',
+      '/financeiro/repasses-creators': 'Repasses para creators',
       '/financeiro/fluxo-caixa': 'Fluxo de caixa',
       '/financeiro/aging': 'Aging',
       '/configuracao/plataformas': 'Redes Sociais',

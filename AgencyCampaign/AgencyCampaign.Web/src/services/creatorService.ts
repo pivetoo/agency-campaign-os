@@ -1,5 +1,6 @@
 import { httpClient } from 'archon-ui'
 import type { Creator } from '../types/creator'
+import type { PixKeyTypeValue } from '../types/creatorPayment'
 import type { CreatorCampaignEntry, CreatorSummary } from '../types/creatorSocialHandle'
 
 const BASE_URL = '/Creators'
@@ -11,6 +12,7 @@ export interface CreateCreatorRequest {
   phone?: string
   document?: string
   pixKey?: string
+  pixKeyType?: PixKeyTypeValue
   primaryNiche?: string
   city?: string
   state?: string

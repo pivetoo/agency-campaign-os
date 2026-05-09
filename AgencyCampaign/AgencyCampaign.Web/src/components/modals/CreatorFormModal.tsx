@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, SearchableSelect, useApi } from 'archon-ui'
 import { creatorService, type CreateCreatorRequest, type UpdateCreatorRequest } from '../../services/creatorService'
 import type { Creator } from '../../types/creator'
+import { PixKeyType, pixKeyTypeLabels, type PixKeyTypeValue } from '../../types/creatorPayment'
 import { cleanFormPayload } from '../../lib/cleanFormPayload'
 
 interface CreatorFormModalProps {
@@ -18,12 +19,21 @@ const initialFormData: CreateCreatorRequest = {
   phone: '',
   document: '',
   pixKey: '',
+  pixKeyType: undefined,
   primaryNiche: '',
   city: '',
   state: '',
   notes: '',
   defaultAgencyFeePercent: 0,
 }
+
+const pixKeyTypeOptions = [
+  { value: '', label: 'Não informado' },
+  ...Object.values(PixKeyType).map((value) => ({
+    value: String(value),
+    label: pixKeyTypeLabels[value as PixKeyTypeValue],
+  })),
+]
 
 export default function CreatorFormModal({ open, onOpenChange, creator, onSuccess }: CreatorFormModalProps) {
   const isEditing = !!creator
@@ -40,6 +50,7 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
         phone: creator.phone || '',
         document: creator.document || '',
         pixKey: creator.pixKey || '',
+        pixKeyType: creator.pixKeyType,
         primaryNiche: creator.primaryNiche || '',
         city: creator.city || '',
         state: creator.state || '',
@@ -106,6 +117,16 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
             <div className="space-y-2">
               <label className="text-sm font-medium">Chave PIX</label>
               <Input value={formData.pixKey || ''} onChange={(e) => setFormData((prev) => ({ ...prev, pixKey: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Tipo da chave PIX</label>
+              <SearchableSelect
+                value={formData.pixKeyType ? String(formData.pixKeyType) : ''}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, pixKeyType: value ? (Number(value) as PixKeyTypeValue) : undefined }))}
+                options={pixKeyTypeOptions}
+                placeholder="Não informado"
+                searchPlaceholder="Buscar"
+              />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Nicho principal</label>

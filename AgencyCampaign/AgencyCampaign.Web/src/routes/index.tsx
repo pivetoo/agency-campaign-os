@@ -19,6 +19,7 @@ import CommercialFollowUps from '../modules/Commercial/FollowUps'
 import CommercialApprovals from '../modules/Commercial/Approvals'
 import FinancialReceivables from '../modules/Financial/Receivables'
 import FinancialPayables from '../modules/Financial/Payables'
+import CreatorPayments from '../modules/Financial/CreatorPayments'
 import FinancialCashFlow from '../modules/Financial/CashFlow'
 import FinancialAging from '../modules/Financial/Aging'
 import Platforms from '../modules/Configuration/Platforms'
@@ -92,6 +93,7 @@ function AppRoutes() {
           <Route path="comercial/followups" element={<CommercialFollowUps />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
+          <Route path="financeiro/repasses-creators" element={<CreatorPayments />} />
           <Route path="financeiro/fluxo-caixa" element={<FinancialCashFlow />} />
           <Route path="financeiro/aging" element={<FinancialAging />} />
           <Route path="configuracao/plataformas" element={<Platforms />} />
