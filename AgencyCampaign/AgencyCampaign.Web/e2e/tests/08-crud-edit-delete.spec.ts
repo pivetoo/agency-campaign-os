@@ -46,6 +46,13 @@ test.describe('CRUD - edit + delete (cadastros simples)', () => {
         await pageSizeSelect.selectOption('50')
       }
 
+      // se tabela tem muitas paginas, ir pra ultima onde o registro novo esta
+      const lastPageBtn = page.locator('button[aria-label*="última" i], button[title*="última" i]').first()
+      if (await lastPageBtn.count() && await lastPageBtn.isEnabled()) {
+        await lastPageBtn.click().catch(() => {})
+        await page.waitForTimeout(300)
+      }
+
       const row = page.locator('[data-row="true"]', { hasText: original }).first()
       await expect(row).toBeVisible({ timeout: 15_000 })
 
