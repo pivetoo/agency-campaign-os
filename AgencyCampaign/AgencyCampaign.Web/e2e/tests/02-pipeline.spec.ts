@@ -55,8 +55,40 @@ test.describe('Pipeline comercial - criar oportunidade e arrastar entre estagios
     const targetColumn = allColumns.nth(targetIndex)
     await expect(targetColumn).toBeVisible()
 
-    // drag-and-drop HTML5 nativo
-    await card.dragTo(targetColumn)
+    // drag-and-drop HTML5 nativo — Playwright dragTo() nao dispara dataTransfer corretamente.
+    // Disparamos os eventos manualmente com pausa entre eles para dar tempo ao React de processar
+    // o setDraggedItem (state) antes do drop.
+    const dispatchDragEvent = async (selector: string, eventName: 'dragstart' | 'dragend') => {
+      await page.evaluate(
+        ({ name, evt }) => {
+          const cards = Array.from(document.querySelectorAll('main section[style*="border-top"] [draggable="true"]')) as HTMLElement[]
+          const el = cards.find((card) => card.textContent?.includes(name))
+          if (!el) throw new Error('card nao encontrado: ' + name)
+          el.dispatchEvent(new DragEvent(evt, { bubbles: true, cancelable: true, dataTransfer: new DataTransfer() }))
+        },
+        { name: selector, evt: eventName }
+      )
+    }
+
+    const dispatchDropEvent = async (idx: number, eventName: 'dragenter' | 'dragover' | 'drop') => {
+      await page.evaluate(
+        ({ index, evt }) => {
+          const cols = Array.from(document.querySelectorAll('main section[style*="border-top"]')) as HTMLElement[]
+          const el = cols[index]
+          if (!el) throw new Error('coluna nao encontrada: ' + index)
+          el.dispatchEvent(new DragEvent(evt, { bubbles: true, cancelable: true, dataTransfer: new DataTransfer() }))
+        },
+        { index: idx, evt: eventName }
+      )
+    }
+
+    await dispatchDragEvent(opportunityName, 'dragstart')
+    await page.waitForTimeout(80)
+    await dispatchDropEvent(targetIndex, 'dragenter')
+    await dispatchDropEvent(targetIndex, 'dragover')
+    await page.waitForTimeout(80)
+    await dispatchDropEvent(targetIndex, 'drop')
+    await dispatchDragEvent(opportunityName, 'dragend')
 
     // o card deve estar agora dentro da coluna alvo
     await expect.poll(
