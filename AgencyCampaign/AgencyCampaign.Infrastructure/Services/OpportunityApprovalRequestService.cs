@@ -31,7 +31,12 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<OpportunityApprovalRequest> CreateOpportunityApprovalRequest(CreateOpportunityApprovalRequest request, CancellationToken cancellationToken = default)
         {
+            // Atualizar status da negociacao antes do Insert: Insert (via CrudService.ExecuteInTransaction)
+            // limpa o ChangeTracker no finally, o que detacharia esta entidade e o SaveChanges seguinte
+            // nao persistiria a transicao para PendingApproval.
             OpportunityNegotiation negotiation = await GetTrackedNegotiation(request.OpportunityNegotiationId, cancellationToken);
+            negotiation.MarkPendingApproval();
+            await DbContext.SaveChangesAsync(cancellationToken);
 
             OpportunityApprovalRequest approvalRequest = new(
                 request.OpportunityNegotiationId,
@@ -45,9 +50,6 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 throw new InvalidOperationException(GetErrorMessages());
             }
-
-            negotiation.MarkPendingApproval();
-            await DbContext.SaveChangesAsync(cancellationToken);
 
             (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
             await TryNotify(KanvasNotifications.OpportunityApprovalRequested(approvalRequest, opportunityId, opportunityName), cancellationToken);

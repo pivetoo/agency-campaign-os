@@ -75,5 +75,46 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Events.Should().Contain(item => item.EventType == CampaignDocumentEventType.Signed);
         }
 
+        [Test]
+        public async Task CreateDocument_should_throw_when_campaign_not_found()
+        {
+            CreateCampaignDocumentRequest request = new()
+            {
+                CampaignId = 99,
+                DocumentType = CampaignDocumentType.CreatorAgreement,
+                Title = "Contrato"
+            };
+
+            Func<Task> act = () => service.CreateDocument(request);
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task CreateDocument_should_persist_with_ready_to_send_status_and_creation_events()
+        {
+            db.Add(new Brand("Acme"));
+            await db.SaveChangesAsync();
+            Campaign campaign = new(1, "C", 0m, DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+
+            CampaignDocument result = await service.CreateDocument(new CreateCampaignDocumentRequest
+            {
+                CampaignId = campaign.Id,
+                DocumentType = CampaignDocumentType.CreatorAgreement,
+                Title = "Contrato"
+            });
+
+            result.Status.Should().Be(CampaignDocumentStatus.ReadyToSend);
+
+            db.ChangeTracker.Clear();
+            CampaignDocument persisted = await db.Set<CampaignDocument>()
+                .AsNoTracking()
+                .Include(item => item.Events)
+                .SingleAsync();
+
+            persisted.Events.Should().Contain(item => item.EventType == CampaignDocumentEventType.Created);
+            persisted.Events.Should().Contain(item => item.EventType == CampaignDocumentEventType.ReadyToSend);
+        }
     }
 }

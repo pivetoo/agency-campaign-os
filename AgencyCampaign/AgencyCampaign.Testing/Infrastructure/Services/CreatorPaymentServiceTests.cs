@@ -42,6 +42,59 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
 
+        private async Task<DomainEntities.CampaignCreator> SeedCampaignCreatorAsync(string? pixKey = "foo@x", PixKeyType? pixKeyType = PixKeyType.Email)
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            Creator creator = new("Foo", pixKey: pixKey, pixKeyType: pixKeyType);
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            Campaign campaign = new(brand.Id, "C", 0m, DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+
+            DomainEntities.CampaignCreator cc = new(campaign.Id, creator.Id, 1, 100m, 10m);
+            db.Add(cc);
+            await db.SaveChangesAsync();
+            return cc;
+        }
+
+        [Test]
+        public async Task CreatePayment_should_snapshot_pix_data_from_creator_when_available()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 1000m,
+                Method = PaymentMethod.Pix
+            });
+
+            payment.PixKey.Should().Be("foo@x");
+            payment.PixKeyType.Should().Be(PixKeyType.Email);
+
+            db.ChangeTracker.Clear();
+            CreatorPayment persisted = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).SingleAsync();
+            persisted.Events.Should().ContainSingle(item => item.EventType == CreatorPaymentEventType.Created);
+        }
+
+        [Test]
+        public async Task CreatePayment_should_skip_pix_snapshot_when_creator_has_no_pix()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync(pixKey: null, pixKeyType: null);
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 1000m,
+                Method = PaymentMethod.Pix
+            });
+
+            payment.PixKey.Should().BeNull();
+        }
+
         [Test]
         public async Task UpdatePayment_should_throw_when_id_mismatch()
         {

@@ -80,15 +80,32 @@ namespace AgencyCampaign.Infrastructure.Services
                 payment.SnapshotPixDestination(campaignCreator.Creator.PixKey, campaignCreator.Creator.PixKeyType.Value);
             }
 
-            payment.RegisterEvent(CreatorPaymentEventType.Created, $"Pagamento criado para {campaignCreator.Creator.Name}.");
-
             bool success = await Insert(cancellationToken, payment);
             if (!success)
             {
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            // Registrar evento somente apos o Insert: o construtor de CreatorPaymentEvent exige
+            // creatorPaymentId > 0, que so e atribuido pelo SaveChanges do Insert.
+            await RegisterCreatedEventAsync(payment.Id, $"Pagamento criado para {campaignCreator.Creator.Name}.", cancellationToken);
+
             return await GetPaymentById(payment.Id, cancellationToken) ?? payment;
+        }
+
+        private async Task RegisterCreatedEventAsync(long paymentId, string description, CancellationToken cancellationToken)
+        {
+            CreatorPayment? tracked = await DbContext.Set<CreatorPayment>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == paymentId, cancellationToken);
+
+            if (tracked is null)
+            {
+                return;
+            }
+
+            tracked.RegisterEvent(CreatorPaymentEventType.Created, description);
+            await DbContext.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<CreatorPayment> UpdatePayment(long id, UpdateCreatorPaymentRequest request, CancellationToken cancellationToken = default)

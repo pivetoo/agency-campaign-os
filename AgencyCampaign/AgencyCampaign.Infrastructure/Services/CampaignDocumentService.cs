@@ -71,14 +71,16 @@ namespace AgencyCampaign.Infrastructure.Services
 
             CampaignDocument document = new(request.CampaignId, request.DocumentType, request.Title, request.DocumentUrl, request.Notes, request.CampaignCreatorId);
             document.MarkReadyToSend();
-            document.RegisterEvent(CampaignDocumentEventType.Created, "Documento criado manualmente.");
-            document.RegisterEvent(CampaignDocumentEventType.ReadyToSend);
 
             bool success = await Insert(cancellationToken, document);
             if (!success)
             {
                 throw new InvalidOperationException(GetErrorMessages());
             }
+
+            // Registrar eventos somente apos o Insert: CampaignDocumentEvent exige campaignDocumentId > 0,
+            // que so e atribuido pelo SaveChanges do Insert.
+            await RegisterCreationEventsAsync(document.Id, "Documento criado manualmente.", cancellationToken);
 
             return await GetDocumentById(document.Id, cancellationToken) ?? document;
         }
@@ -110,8 +112,6 @@ namespace AgencyCampaign.Infrastructure.Services
                 body: body);
 
             document.MarkReadyToSend();
-            document.RegisterEvent(CampaignDocumentEventType.Created, $"Documento gerado a partir do template '{template.Name}'.");
-            document.RegisterEvent(CampaignDocumentEventType.ReadyToSend);
 
             bool success = await Insert(cancellationToken, document);
             if (!success)
@@ -119,7 +119,27 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
+            // Registrar eventos somente apos o Insert: CampaignDocumentEvent exige campaignDocumentId > 0,
+            // que so e atribuido pelo SaveChanges do Insert.
+            await RegisterCreationEventsAsync(document.Id, $"Documento gerado a partir do template '{template.Name}'.", cancellationToken);
+
             return await GetDocumentById(document.Id, cancellationToken) ?? document;
+        }
+
+        private async Task RegisterCreationEventsAsync(long documentId, string createdDescription, CancellationToken cancellationToken)
+        {
+            CampaignDocument? tracked = await DbContext.Set<CampaignDocument>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == documentId, cancellationToken);
+
+            if (tracked is null)
+            {
+                return;
+            }
+
+            tracked.RegisterEvent(CampaignDocumentEventType.Created, createdDescription);
+            tracked.RegisterEvent(CampaignDocumentEventType.ReadyToSend);
+            await DbContext.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<CampaignDocument> UpdateDocument(long id, UpdateCampaignDocumentRequest request, CancellationToken cancellationToken = default)

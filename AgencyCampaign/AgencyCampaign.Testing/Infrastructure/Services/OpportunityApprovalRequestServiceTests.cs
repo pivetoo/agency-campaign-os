@@ -59,7 +59,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task CreateOpportunityApprovalRequest_should_persist_and_notify()
+        public async Task CreateOpportunityApprovalRequest_should_persist_mark_negotiation_pending_and_notify()
         {
             OpportunityNegotiation negotiation = await SeedNegotiationAsync();
 
@@ -73,7 +73,34 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             result.Status.Should().Be(OpportunityApprovalStatus.Pending);
             (await db.Set<OpportunityApprovalRequest>().CountAsync()).Should().Be(1);
+
+            db.ChangeTracker.Clear();
+            OpportunityNegotiation persisted = await db.Set<OpportunityNegotiation>().AsNoTracking().SingleAsync();
+            persisted.Status.Should().Be(OpportunityNegotiationStatus.PendingApproval);
+
             notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task CreateOpportunityApprovalRequest_should_throw_when_negotiation_already_approved()
+        {
+            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            negotiation.Approve();
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            CreateOpportunityApprovalRequest request = new()
+            {
+                OpportunityNegotiationId = negotiation.Id,
+                ApprovalType = OpportunityApprovalType.DiscountApproval,
+                Reason = "10%",
+                RequestedByUserName = "Tester"
+            };
+
+            Func<Task> act = () => service.CreateOpportunityApprovalRequest(request);
+            await act.Should().ThrowAsync<InvalidOperationException>();
+
+            (await db.Set<OpportunityApprovalRequest>().CountAsync()).Should().Be(0);
         }
 
         [Test]
