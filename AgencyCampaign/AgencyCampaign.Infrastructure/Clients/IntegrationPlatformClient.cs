@@ -20,98 +20,98 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<List<IntegrationCategoryDto>> GetActiveIntegrationCategoriesAsync(CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<IntegrationCategoryDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationCategoryDto>>>(
-                RestRequest.Get($"{baseUrl}/api/integrationcategories/active").WithApiKey(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/integrationcategories/active").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<List<IntegrationDto>> GetIntegrationsByCategoryAsync(long categoryId, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<IntegrationDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationDto>>>(
-                RestRequest.Get($"{baseUrl}/api/integrations/category/{categoryId}").WithApiKey(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/integrations/category/{categoryId}").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<List<IntegrationAttributeDto>> GetIntegrationAttributesAsync(long integrationId, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<IntegrationAttributeDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationAttributeDto>>>(
-                RestRequest.Get($"{baseUrl}/api/integrationattributes/integration/{integrationId}").WithApiKey(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/integrationattributes/integration/{integrationId}").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<List<PipelineDto>> GetPipelinesByIntegrationAsync(long integrationId, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<PipelineDto>>> response = await restApi.Fetch<ApiResponse<List<PipelineDto>>>(
-                RestRequest.Get($"{baseUrl}/api/pipelines/integration/{integrationId}").WithApiKey(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/pipelines/integration/{integrationId}").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<List<ConnectorDto>> GetConnectorsByIntegrationAsync(long integrationId, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<ConnectorDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorDto>>>(
-                RestRequest.Get($"{baseUrl}/api/connectors/integration/{integrationId}").WithApiKey(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/connectors/integration/{integrationId}").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<List<ConnectorDto>> GetActiveConnectorsAsync(CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<ConnectorDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorDto>>>(
-                RestRequest.Get($"{baseUrl}/api/connectors/active").WithApiKey(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/connectors/active").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<ConnectorDto> GetConnectorByIdAsync(long connectorId, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
             }
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
-                RestRequest.Get($"{baseUrl}/api/connectors/GetById/{connectorId}").WithApiKey(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/connectors/GetById/{connectorId}").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to get connector.")
@@ -120,21 +120,21 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<List<ConnectorAttributeValueDto>> GetConnectorAttributeValuesAsync(long connectorId, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 return [];
             }
 
             RestResponse<ApiResponse<List<ConnectorAttributeValueDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorAttributeValueDto>>>(
-                RestRequest.Get($"{baseUrl}/api/connectorattributevalues/connector/{connectorId}").WithApiKey(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/connectorattributevalues/connector/{connectorId}").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
         public async Task<ConnectorDto> CreateConnectorAsync(CreateConnectorRequest request, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
@@ -142,7 +142,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
                 RestRequest.Post($"{baseUrl}/api/connectors/create", request)
-                           .WithApiKey(secret!), ct);
+                           .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to create connector.")
@@ -151,7 +151,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorDto> UpdateConnectorAsync(long connectorId, UpdateConnectorRequest request, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
@@ -159,7 +159,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
                 RestRequest.Put($"{baseUrl}/api/connectors/Update/{connectorId}", request)
-                           .WithApiKey(secret!), ct);
+                           .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to update connector.")
@@ -168,14 +168,14 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task DeleteConnectorAsync(long connectorId, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
             }
 
             RestResponse<ApiResponse<object>> response = await restApi.Fetch<ApiResponse<object>>(
-                RestRequest.Delete($"{baseUrl}/api/connectors/Delete/{connectorId}").WithApiKey(secret!), ct);
+                RestRequest.Delete($"{baseUrl}/api/connectors/Delete/{connectorId}").WithTenantApiKey(tenantId, secret!), ct);
 
             if (!response.Ok)
             {
@@ -185,7 +185,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorAttributeValueDto> CreateConnectorAttributeValueAsync(CreateConnectorAttributeValueRequest request, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
@@ -193,7 +193,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ConnectorAttributeValueDto>> response = await restApi.Fetch<ApiResponse<ConnectorAttributeValueDto>>(
                 RestRequest.Post($"{baseUrl}/api/connectorattributevalues/create", request)
-                           .WithApiKey(secret!), ct);
+                           .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to create connector attribute value.")
@@ -202,7 +202,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ConnectorAttributeValueDto> UpdateConnectorAttributeValueAsync(long id, UpdateConnectorAttributeValueRequest request, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
@@ -210,7 +210,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ConnectorAttributeValueDto>> response = await restApi.Fetch<ApiResponse<ConnectorAttributeValueDto>>(
                 RestRequest.Put($"{baseUrl}/api/connectorattributevalues/Update/{id}", request)
-                           .WithApiKey(secret!), ct);
+                           .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to update connector attribute value.")
@@ -219,7 +219,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ExecutionDto> ExecutePipelineAsync(ExecutePipelineRequest request, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
@@ -227,7 +227,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ExecutionDto>> response = await restApi.Fetch<ApiResponse<ExecutionDto>>(
                 RestRequest.Post($"{baseUrl}/api/executions/execute", request)
-                           .WithApiKey(secret!), ct);
+                           .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to execute pipeline.")
@@ -236,7 +236,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public async Task<ProcessingQueueDto> EnqueuePipelineAsync(EnqueuePipelineRequest request, CancellationToken ct = default)
         {
-            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
                 throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
@@ -244,35 +244,36 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ProcessingQueueDto>> response = await restApi.Fetch<ApiResponse<ProcessingQueueDto>>(
                 RestRequest.Post($"{baseUrl}/api/processingqueues/enqueue", request)
-                           .WithApiKey(secret!), ct);
+                           .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to enqueue pipeline.")
                 : throw new InvalidOperationException("Failed to enqueue pipeline.");
         }
 
-        private async Task<(string? baseUrl, string? secret)> ResolveIntegrationAsync(CancellationToken ct)
+        private async Task<(string? baseUrl, string? tenantId, string? apiKey)> ResolveIntegrationAsync(CancellationToken ct)
         {
             Integration? integration = await integrationService.GetByNameAsync(IntegrationName, ct);
             if (integration is null)
             {
                 Console.WriteLine("IntegrationPlatformClient: integration 'integration-platform' was not found in table 'integrations'.");
-                return (null, null);
+                return (null, null, null);
             }
 
             if (string.IsNullOrWhiteSpace(integration.BaseUrl))
             {
                 Console.WriteLine("IntegrationPlatformClient: integration 'integration-platform' is configured without baseurl.");
-                return (null, null);
+                return (null, null, null);
             }
 
+            string? tenantId = integration.GetParameter("TenantId");
             string? apiKey = integration.GetParameter("ApiKey") ?? integration.GetParameter("IntegrationSecret");
             if (string.IsNullOrWhiteSpace(apiKey))
             {
                 Console.WriteLine("IntegrationPlatformClient: integration 'integration-platform' is configured without ApiKey.");
             }
 
-            return (integration.BaseUrl, apiKey);
+            return (integration.BaseUrl, tenantId, apiKey);
         }
     }
 
