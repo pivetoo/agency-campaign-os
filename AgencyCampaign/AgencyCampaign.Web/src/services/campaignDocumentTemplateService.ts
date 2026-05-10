@@ -1,5 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type { CampaignDocumentTemplate } from '../types/campaignDocumentTemplate'
+import type { CampaignDocumentTemplate, CampaignDocumentTemplateVariableMap } from '../types/campaignDocumentTemplate'
 import type { CampaignDocumentTypeValue } from '../types/campaignDocument'
 
 const BASE_URL = '/CampaignDocumentTemplates'
@@ -45,5 +45,10 @@ export const campaignDocumentTemplateService = {
 
   delete(id: number) {
     return httpClient.delete(`${BASE_URL}/Delete/${id}`)
+  },
+
+  async getVariables(): Promise<CampaignDocumentTemplateVariableMap> {
+    const response = await httpClient.get<CampaignDocumentTemplateVariableMap>(`${BASE_URL}/Variables`)
+    return response.data ?? {}
   },
 }

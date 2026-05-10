@@ -1,4 +1,5 @@
 using AgencyCampaign.Api.Contracts.CampaignDocumentTemplates;
+using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CampaignDocumentTemplates;
 using AgencyCampaign.Application.Services;
@@ -51,6 +52,15 @@ namespace AgencyCampaign.Api.Controllers
             CampaignDocumentType type = (CampaignDocumentType)documentType;
             List<CampaignDocumentTemplate> templates = await templateService.GetActiveByDocumentType(type, cancellationToken);
             return Http200(templates.Select(MapTemplate).ToList());
+        }
+
+        [RequireAccess("Permite listar as variaveis disponiveis por tipo de documento.")]
+        [GetEndpoint("[action]")]
+        public IActionResult Variables()
+        {
+            var result = CampaignDocumentTemplateVariableCatalog.All
+                .ToDictionary(item => (int)item.Key, item => item.Value);
+            return Http200(result);
         }
 
         [RequireAccess("Permite cadastrar um template de documento.")]

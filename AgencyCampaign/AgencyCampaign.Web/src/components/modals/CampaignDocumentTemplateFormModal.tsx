@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Button,
   Checkbox,
@@ -11,13 +11,18 @@ import {
   SearchableSelect,
   useApi,
 } from 'archon-ui'
+import { Braces } from 'lucide-react'
 import { campaignDocumentTemplateService } from '../../services/campaignDocumentTemplateService'
 import {
   CampaignDocumentType,
   campaignDocumentTypeLabels,
   type CampaignDocumentTypeValue,
 } from '../../types/campaignDocument'
-import type { CampaignDocumentTemplate } from '../../types/campaignDocumentTemplate'
+import type {
+  CampaignDocumentTemplate,
+  CampaignDocumentTemplateVariable,
+  CampaignDocumentTemplateVariableMap,
+} from '../../types/campaignDocumentTemplate'
 
 interface Props {
   open: boolean
@@ -31,9 +36,6 @@ const documentTypeOptions = Object.values(CampaignDocumentType).map((value) => (
   label: campaignDocumentTypeLabels[value as CampaignDocumentTypeValue],
 }))
 
-const placeholdersHint =
-  'Variáveis disponíveis: {{ today }}, {{ campaignName }}, {{ campaignDescription }}, {{ campaignObjective }}, {{ campaignBriefing }}, {{ campaignStartDate }}, {{ campaignEndDate }}, {{ campaignBudget }}, {{ brandName }}, {{ brandTradeName }}, {{ brandDocument }}, {{ brandContactName }}, {{ brandContactEmail }}, {{ creatorName }}, {{ creatorStageName }}, {{ creatorEmail }}, {{ creatorDocument }}, {{ creatorAgreedAmount }}, {{ creatorAgencyFeePercent }}, {{ creatorAgencyFeeAmount }}, {{ scopeNotes }}.'
-
 export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, template, onSuccess }: Props) {
   const isEditing = !!template
   const [name, setName] = useState('')
@@ -41,6 +43,10 @@ export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, 
   const [documentType, setDocumentType] = useState<CampaignDocumentTypeValue>(CampaignDocumentType.CreatorAgreement)
   const [body, setBody] = useState('')
   const [isActive, setIsActive] = useState(true)
+  const [variableMap, setVariableMap] = useState<CampaignDocumentTemplateVariableMap>({})
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const bodyRef = useRef<HTMLTextAreaElement | null>(null)
+  const pickerContainerRef = useRef<HTMLDivElement | null>(null)
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
@@ -58,12 +64,82 @@ export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, 
       setBody('')
       setIsActive(true)
     }
+    setPickerOpen(false)
   }, [open, template])
+
+  useEffect(() => {
+    if (!open || Object.keys(variableMap).length > 0) return
+    let cancelled = false
+    void campaignDocumentTemplateService
+      .getVariables()
+      .then((map) => {
+        if (!cancelled) setVariableMap(map)
+      })
+      .catch(() => {
+        // silencioso — picker fica vazio se falhar
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [open, variableMap])
+
+  useEffect(() => {
+    if (!pickerOpen) return
+    const handleClickOutside = (event: MouseEvent) => {
+      if (pickerContainerRef.current && !pickerContainerRef.current.contains(event.target as Node)) {
+        setPickerOpen(false)
+      }
+    }
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setPickerOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [pickerOpen])
+
+  const variablesForType = useMemo<CampaignDocumentTemplateVariable[]>(
+    () => variableMap[String(documentType)] ?? [],
+    [variableMap, documentType],
+  )
+
+  const groupedVariables = useMemo(() => {
+    const groups = new Map<string, CampaignDocumentTemplateVariable[]>()
+    variablesForType.forEach((variable) => {
+      const list = groups.get(variable.group) ?? []
+      list.push(variable)
+      groups.set(variable.group, list)
+    })
+    return Array.from(groups.entries())
+  }, [variablesForType])
 
   const isValid = useMemo(
     () => name.trim().length >= 2 && body.trim().length >= 10,
     [name, body],
   )
+
+  const insertVariable = (key: string) => {
+    const token = `{{ ${key} }}`
+    const el = bodyRef.current
+    if (!el) {
+      setBody((prev) => prev + token)
+      setPickerOpen(false)
+      return
+    }
+    const start = el.selectionStart ?? body.length
+    const end = el.selectionEnd ?? body.length
+    const next = body.slice(0, start) + token + body.slice(end)
+    setBody(next)
+    setPickerOpen(false)
+    requestAnimationFrame(() => {
+      el.focus()
+      const caret = start + token.length
+      el.setSelectionRange(caret, caret)
+    })
+  }
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -118,14 +194,58 @@ export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, 
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Corpo do contrato</label>
+              <div className="flex items-center justify-between gap-2">
+                <label className="text-sm font-medium">Corpo do contrato</label>
+                <div ref={pickerContainerRef} className="relative">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPickerOpen((prev) => !prev)}
+                  >
+                    <Braces className="mr-1 h-3 w-3" /> Inserir variável
+                  </Button>
+                  {pickerOpen && (
+                    groupedVariables.length === 0 ? (
+                      <div className="absolute right-0 top-full z-50 mt-1 w-72 rounded-md border bg-popover p-3 text-xs text-muted-foreground shadow-md">
+                        Nenhuma variável disponível.
+                      </div>
+                    ) : (
+                      <div className="absolute right-0 top-full z-50 mt-1 w-96 max-h-[420px] overflow-y-auto rounded-md border bg-popover shadow-md">
+                        {groupedVariables.map(([group, items]) => (
+                          <div key={group}>
+                            <div className="sticky top-0 z-10 border-b bg-muted/40 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              {group}
+                            </div>
+                            <ul className="divide-y">
+                              {items.map((variable) => (
+                                <li key={variable.key}>
+                                  <button
+                                    type="button"
+                                    onClick={() => insertVariable(variable.key)}
+                                    className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-muted/60"
+                                  >
+                                    <code className="text-xs font-medium text-primary">{`{{ ${variable.key} }}`}</code>
+                                    <span className="text-xs font-medium">{variable.label}</span>
+                                    <span className="text-[11px] text-muted-foreground">{variable.description}</span>
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
               <textarea
+                ref={bodyRef}
                 className="min-h-[320px] w-full rounded-md border bg-background p-3 font-mono text-xs"
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder={'CONTRATO DE PARCERIA\n\nPelo presente instrumento, {{ brandName }}, CNPJ {{ brandDocument }}, e o creator {{ creatorName }}, CPF {{ creatorDocument }}, firmam o seguinte acordo no escopo da campanha {{ campaignName }}.\n\nValor combinado: {{ creatorAgreedAmount }}.\nVigência: {{ campaignStartDate }} a {{ campaignEndDate }}.\n\nAssinado em {{ today }}.'}
               />
-              <p className="text-xs text-muted-foreground">{placeholdersHint}</p>
             </div>
           </div>
           {isEditing && (
