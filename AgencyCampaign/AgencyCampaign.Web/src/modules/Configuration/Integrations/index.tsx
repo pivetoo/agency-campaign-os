@@ -499,10 +499,12 @@ export default function Integrations() {
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            {connectorsForSelectedIntegration.map((connector) => (
+                            {connectorsForSelectedIntegration.map((connector) => {
+                              const isDefaultEmail = isEmailCategory && defaultEmailConnectorId === connector.id
+                              return (
                               <div
                                 key={connector.id}
-                                className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"
+                                className={`flex items-center justify-between gap-3 rounded-lg border bg-card p-3 ${isDefaultEmail ? 'border-l-4 border-l-primary' : ''}`}
                               >
                                 <div className="min-w-0 flex-1">
                                   <div className="flex items-center gap-2">
@@ -512,14 +514,14 @@ export default function Integrations() {
                                     <Badge variant={connector.isActive ? 'success' : 'outline'}>
                                       {connector.isActive ? 'Ativa' : 'Inativa'}
                                     </Badge>
-                                    {isEmailCategory && defaultEmailConnectorId === connector.id && (
-                                      <Badge variant="secondary" className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-100">
-                                        <Star size={10} className="fill-amber-500 text-amber-500" />
-                                        Padrão de e-mail
-                                      </Badge>
-                                    )}
                                   </div>
-                                  {connector.systemApplicationId && (
+                                  {isDefaultEmail && (
+                                    <p className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                                      <Star size={11} className="fill-primary text-primary" />
+                                      E-mail padrão da agência
+                                    </p>
+                                  )}
+                                  {!isDefaultEmail && connector.systemApplicationId && (
                                     <p className="mt-1 text-xs text-muted-foreground">
                                       App: {connector.systemApplicationId}
                                     </p>
@@ -531,21 +533,21 @@ export default function Integrations() {
                                       <Button
                                         size="sm"
                                         variant="ghost"
-                                        title="Remover como padrão de e-mail"
+                                        title="Remover como e-mail padrão"
                                         onClick={() => void handleSetDefaultEmail(null)}
                                       >
-                                        <Star size={14} className="mr-1 fill-amber-500 text-amber-500" />
+                                        <Star size={14} className="mr-1 fill-primary text-primary" />
                                         Remover padrão
                                       </Button>
                                     ) : (
                                       <Button
                                         size="sm"
                                         variant="ghost"
-                                        title="Definir como conta padrão de e-mail"
+                                        title="Definir como e-mail padrão"
                                         onClick={() => void handleSetDefaultEmail(connector.id)}
                                       >
                                         <Star size={14} className="mr-1" />
-                                        Padrão de e-mail
+                                        E-mail padrão
                                       </Button>
                                     )
                                   )}
@@ -608,7 +610,8 @@ export default function Integrations() {
                                   </Button>
                                 </div>
                               </div>
-                            ))}
+                              )
+                            })}
                           </div>
                         )}
 
