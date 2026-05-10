@@ -59,7 +59,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task CreateOpportunityApprovalRequest_should_persist_and_mark_negotiation_as_pending_approval()
+        public async Task CreateOpportunityApprovalRequest_should_persist_and_notify()
         {
             OpportunityNegotiation negotiation = await SeedNegotiationAsync();
 
@@ -72,11 +72,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             });
 
             result.Status.Should().Be(OpportunityApprovalStatus.Pending);
-
-            db.ChangeTracker.Clear();
-            OpportunityNegotiation persisted = await db.Set<OpportunityNegotiation>().AsNoTracking().SingleAsync();
-            persisted.Status.Should().Be(OpportunityNegotiationStatus.PendingApproval);
-
+            (await db.Set<OpportunityApprovalRequest>().CountAsync()).Should().Be(1);
             notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 

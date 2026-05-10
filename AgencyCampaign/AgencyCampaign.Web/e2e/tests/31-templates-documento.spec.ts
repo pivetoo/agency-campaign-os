@@ -46,6 +46,7 @@ test.describe('Configuracao - Templates de documento', () => {
 
     // 4) seleciona, abre Editar
     await row.click()
+    await expect(row).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
     await page.getByRole('button', { name: /^Editar$/ }).first().click()
     const editModal = page.getByRole('dialog').filter({ hasText: /Editar template de documento/i })
     await expect(editModal).toBeVisible({ timeout: 10_000 })
@@ -61,6 +62,7 @@ test.describe('Configuracao - Templates de documento', () => {
     // 5) exclui (com confirm)
     page.on('dialog', (d) => { void d.accept() })
     await renamedRow.click()
+    await expect(renamedRow).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
     await page.getByRole('button', { name: /^Excluir$/ }).click()
     await expect(page.locator('[data-row="true"]', { hasText: renamed })).toHaveCount(0, { timeout: 15_000 })
 
