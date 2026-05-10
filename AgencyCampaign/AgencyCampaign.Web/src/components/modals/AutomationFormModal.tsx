@@ -11,7 +11,6 @@ import {
   SearchableSelect,
   useApi,
 } from 'archon-ui'
-import { Plus, Trash2 } from 'lucide-react'
 import { automationService } from '../../services/automationService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import {
@@ -178,16 +177,6 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
     if (result !== null) onSuccess()
   }
 
-  const addMappingRow = () => {
-    setMappingRows((prev) => [...prev, { id: `new-${Date.now()}`, key: '', value: '' }])
-  }
-  const removeMappingRow = (id: string) => {
-    setMappingRows((prev) => prev.filter((row) => row.id !== id))
-  }
-  const updateMappingRow = (id: string, field: 'key' | 'value', value: string) => {
-    setMappingRows((prev) => prev.map((row) => (row.id === id ? { ...row, [field]: value } : row)))
-  }
-
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '880px', width: '95vw' }}>
@@ -262,57 +251,7 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
               />
             </div>
 
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Condição (opcional)</label>
-              <Input
-                value={triggerCondition}
-                onChange={(e) => setTriggerCondition(e.target.value)}
-                placeholder='Ex.: amount > 1000 (ainda não avaliado em runtime)'
-              />
-              <p className="text-[10px] text-muted-foreground">Reservado para versão futura. Hoje toda automação ativa do trigger é disparada.</p>
-            </div>
-
-            <div className="space-y-2 md:col-span-2 rounded-md border bg-muted/30 p-3">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Variáveis enviadas para a ação</p>
-                <Button type="button" size="sm" variant="outline" onClick={addMappingRow}>
-                  <Plus size={12} className="mr-1" />
-                  Variável
-                </Button>
-              </div>
-              {mappingRows.length === 0 ? (
-                <p className="text-[10px] text-muted-foreground">Sem variáveis. Use o botão acima para mapear chave da ação → valor (Mustache).</p>
-              ) : (
-                <div className="space-y-2">
-                  {mappingRows.map((row) => (
-                    <div key={row.id} className="grid grid-cols-1 gap-2 md:grid-cols-[1fr_2fr_auto]">
-                      <Input
-                        placeholder="chave (ex.: to)"
-                        value={row.key}
-                        onChange={(e) => updateMappingRow(row.id, 'key', e.target.value)}
-                      />
-                      <Input
-                        placeholder="valor (ex.: {{ contactEmail }})"
-                        value={row.value}
-                        onChange={(e) => updateMappingRow(row.id, 'value', e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => removeMappingRow(row.id)}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <p className="text-[10px] text-muted-foreground">
-                Variáveis disponíveis dependem do trigger selecionado (ex.: <code>{'{{ proposalName }}'}</code>, <code>{'{{ contactEmail }}'}</code>, <code>{'{{ amount }}'}</code>).
-              </p>
-            </div>
-
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-2 text-sm md:col-span-2">
               <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
               <span>Automação ativa</span>
             </label>
