@@ -4,6 +4,7 @@ import { Button, Card, CardContent, PageLayout, useApi } from 'archon-ui'
 import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
+import { resolveAssetUrl } from '../../lib/assetUrl'
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -54,9 +55,19 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
       className={`w-full cursor-grab rounded-xl border p-4 text-left shadow-sm transition active:cursor-grabbing hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md ${slaClass} ${isDragging ? 'scale-[0.98] opacity-50 ring-2 ring-primary/30' : ''}`}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-foreground">{item.name}</div>
-          <div className="mt-1 truncate text-xs text-muted-foreground">{item.brandName}</div>
+        <div className="flex min-w-0 items-start gap-2.5">
+          {item.brandLogoUrl && (
+            <img
+              src={resolveAssetUrl(item.brandLogoUrl)}
+              alt=""
+              className="h-7 w-7 shrink-0 rounded-md border bg-card object-contain p-0.5"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+            />
+          )}
+          <div className="min-w-0">
+            <div className="truncate text-sm font-semibold text-foreground">{item.name}</div>
+            <div className="mt-1 truncate text-xs text-muted-foreground">{item.brandName}</div>
+          </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {item.overdueFollowUpsCount > 0 && (

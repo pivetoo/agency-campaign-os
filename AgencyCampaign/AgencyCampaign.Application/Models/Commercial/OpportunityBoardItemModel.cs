@@ -8,6 +8,8 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public string BrandName { get; init; } = string.Empty;
 
+        public string? BrandLogoUrl { get; init; }
+
         public string Name { get; init; } = string.Empty;
 
         public long CommercialPipelineStageId { get; init; }

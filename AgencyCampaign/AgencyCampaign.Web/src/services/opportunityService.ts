@@ -107,6 +107,7 @@ export interface OpportunityBoardItem {
   id: number
   brandId: number
   brandName: string
+  brandLogoUrl?: string
   name: string
   commercialPipelineStageId: number
   commercialPipelineStageName: string

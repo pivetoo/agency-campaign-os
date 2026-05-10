@@ -323,6 +323,7 @@ namespace AgencyCampaign.Infrastructure.Services
                                 Id = item.Id,
                                 BrandId = item.BrandId,
                                 BrandName = item.Brand?.Name ?? string.Empty,
+                                BrandLogoUrl = item.Brand?.LogoUrl,
                                 Name = item.Name,
                                 CommercialPipelineStageId = stage.Id,
                                 CommercialPipelineStageName = stage.Name,
