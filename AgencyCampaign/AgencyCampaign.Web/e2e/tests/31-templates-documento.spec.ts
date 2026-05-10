@@ -59,12 +59,30 @@ test.describe('Configuracao - Templates de documento', () => {
     const renamedRow = page.locator('[data-row="true"]', { hasText: renamed }).first()
     await expect(renamedRow).toBeVisible({ timeout: 10_000 })
 
-    // 5) exclui (com confirm)
+    // 5) exclui (com confirm). Para template novo nunca usado, o backend remove
+    //    do banco; quando ja vinculado a documentos, marca como Inativo.
+    //    Aceita as duas situacoes.
     page.on('dialog', (d) => { void d.accept() })
     await renamedRow.click()
-    await expect(renamedRow).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
-    await page.getByRole('button', { name: /^Excluir$/ }).click()
-    await expect(page.locator('[data-row="true"]', { hasText: renamed })).toHaveCount(0, { timeout: 15_000 })
+    const excluirBtn = page.getByRole('button', { name: /^Excluir$/ })
+    await expect(excluirBtn).toBeEnabled({ timeout: 5_000 })
+
+    const deleteResp = page.waitForResponse(
+      (resp) => /\/api\/CampaignDocumentTemplates\/Delete\/\d+/i.test(resp.url()),
+      { timeout: 15_000 },
+    )
+    await excluirBtn.click()
+    const resp = await deleteResp
+    expect(resp.status(), `delete deveria retornar sucesso, recebeu ${resp.status()}`).toBeLessThan(400)
+
+    const finalRow = page.locator('[data-row="true"]', { hasText: renamed })
+    await expect
+      .poll(async () => {
+        if ((await finalRow.count()) === 0) return 'removed'
+        const text = (await finalRow.first().innerText()).toLowerCase()
+        return text.includes('inativo') ? 'inactive' : 'still-active'
+      }, { timeout: 15_000 })
+      .not.toBe('still-active')
 
     expectNoApiFailures()
   })
