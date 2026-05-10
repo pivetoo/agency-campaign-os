@@ -10,12 +10,16 @@ namespace AgencyCampaign.Api.Controllers
 {
     public sealed class AgencySettingsController : ApiControllerBase
     {
+        private const long MaxLogoBytes = 2 * 1024 * 1024;
+
         private readonly IAgencySettingsService service;
+        private readonly IImageUploadStorage imageStorage;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
 
-        public AgencySettingsController(IAgencySettingsService service, IStringLocalizer<AgencyCampaignResource> localizer)
+        public AgencySettingsController(IAgencySettingsService service, IImageUploadStorage imageStorage, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.service = service;
+            this.imageStorage = imageStorage;
             Localizer = localizer;
         }
 
@@ -37,6 +41,41 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             var result = await service.Update(request, cancellationToken);
+            return Http200(result, Localizer["record.updated"]);
+        }
+
+        [RequireAccess("Permite enviar a logo da agência.")]
+        [PostEndpoint("[action]")]
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(MaxLogoBytes)]
+        public async Task<IActionResult> UploadLogo([FromForm] IFormFile file, CancellationToken cancellationToken)
+        {
+            if (file is null || file.Length == 0)
+            {
+                return Http400("Arquivo nao informado.");
+            }
+
+            if (file.Length > MaxLogoBytes)
+            {
+                return Http400("Arquivo excede o limite de 2MB.");
+            }
+
+            var current = await service.Get(cancellationToken);
+
+            await using Stream stream = file.OpenReadStream();
+            string logoUrl = await imageStorage.SaveAsync("agency", current.Id, stream, file.ContentType, cancellationToken);
+
+            var result = await service.SetLogo(logoUrl, cancellationToken);
+            return Http200(result, Localizer["record.updated"]);
+        }
+
+        [RequireAccess("Permite remover a logo da agência.")]
+        [DeleteEndpoint("[action]")]
+        public async Task<IActionResult> RemoveLogo(CancellationToken cancellationToken)
+        {
+            var current = await service.Get(cancellationToken);
+            await imageStorage.RemoveAsync("agency", current.Id, cancellationToken);
+            var result = await service.RemoveLogo(cancellationToken);
             return Http200(result, Localizer["record.updated"]);
         }
     }

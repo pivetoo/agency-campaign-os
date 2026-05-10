@@ -50,6 +50,11 @@ namespace AgencyCampaign.Domain.Entities
             DefaultEmailPipelineId = defaultEmailPipelineId;
         }
 
+        public void SetLogo(string? logoUrl)
+        {
+            LogoUrl = Normalize(logoUrl);
+        }
+
         private static string? Normalize(string? value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();

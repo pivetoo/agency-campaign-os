@@ -45,6 +45,22 @@ namespace AgencyCampaign.Infrastructure.Services
             return Map(settings);
         }
 
+        public async Task<AgencySettingsModel> SetLogo(string logoUrl, CancellationToken cancellationToken = default)
+        {
+            AgencySettings settings = await ResolveOrCreate(cancellationToken);
+            settings.SetLogo(logoUrl);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return Map(settings);
+        }
+
+        public async Task<AgencySettingsModel> RemoveLogo(CancellationToken cancellationToken = default)
+        {
+            AgencySettings settings = await ResolveOrCreate(cancellationToken);
+            settings.SetLogo(null);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return Map(settings);
+        }
+
         private async Task<AgencySettings> ResolveOrCreate(CancellationToken cancellationToken)
         {
             AgencySettings? existing = await dbContext.Set<AgencySettings>()

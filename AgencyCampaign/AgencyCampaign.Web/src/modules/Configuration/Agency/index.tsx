@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PageLayout, Card, CardContent, Button, Input, useApi, SearchableSelect } from 'archon-ui'
-import { agencySettingsService } from '../../../services/agencySettingsService'
+import { ImagePlus, Trash2 } from 'lucide-react'
+import { agencySettingsService, resolveAgencyLogoUrl } from '../../../services/agencySettingsService'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import type { AgencySettings } from '../../../types/agencySettings'
+
+const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+const MAX_BYTES = 2 * 1024 * 1024
 import type {
   Connector,
   IntegrationCategory,
@@ -30,8 +34,12 @@ export default function AgencyConfiguration() {
   const [connectors, setConnectors] = useState<Connector[]>([])
   const [pipelines, setPipelines] = useState<Pipeline[]>([])
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [logoError, setLogoError] = useState<string | null>(null)
   const { execute: fetchSettings, loading } = useApi<AgencySettings | null>({ showErrorMessage: true })
   const { execute: saveSettings, loading: saving } = useApi({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: runLogoUpload, loading: uploadingLogo } = useApi<AgencySettings | null>({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: runLogoRemove, loading: removingLogo } = useApi<AgencySettings | null>({ showSuccessMessage: true, showErrorMessage: true })
 
   const load = async () => {
     const result = await fetchSettings(() => agencySettingsService.get())
@@ -81,6 +89,41 @@ export default function AgencyConfiguration() {
     void integrationPlatformService.getPipelinesByIntegration(emailIntegrationId).then(setPipelines)
   }, [emailIntegrationId])
 
+  const handleSelectLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    setLogoError(null)
+
+    if (!file) return
+
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      setLogoError('Formato invalido. Use PNG, JPG ou WEBP.')
+      return
+    }
+
+    if (file.size > MAX_BYTES) {
+      setLogoError('Arquivo excede o limite de 2MB.')
+      return
+    }
+
+    const result = await runLogoUpload(async () => {
+      const response = await agencySettingsService.uploadLogo(file)
+      return response.data ?? null
+    })
+
+    if (result) setLogoUrl(result.logoUrl ?? '')
+  }
+
+  const handleRemoveLogo = async () => {
+    if (!logoUrl) return
+    const result = await runLogoRemove(async () => {
+      const response = await agencySettingsService.removeLogo()
+      return response.data ?? null
+    })
+
+    if (result) setLogoUrl(result.logoUrl ?? '')
+  }
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
     const result = await saveSettings(() =>
@@ -129,8 +172,53 @@ export default function AgencyConfiguration() {
                 <Input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">URL do logo</label>
-                <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://..." />
+                <label className="text-sm font-medium">Logo da agência</label>
+                <div className="flex items-start gap-4">
+                  <div
+                    className="relative flex items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted/30 shrink-0"
+                    style={{ width: 140, height: 140 }}
+                  >
+                    {logoUrl ? (
+                      <img src={resolveAgencyLogoUrl(logoUrl)} alt="Logo da agência" className="h-full w-full object-contain" />
+                    ) : (
+                      <div className="flex flex-col items-center gap-1 text-xs text-muted-foreground">
+                        <ImagePlus className="h-6 w-6" />
+                        <span>Sem logo</span>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ACCEPTED_TYPES.join(',')}
+                    onChange={(e) => void handleSelectLogo(e)}
+                    className="hidden"
+                  />
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingLogo || removingLogo}
+                    >
+                      {uploadingLogo ? 'Enviando...' : (logoUrl ? 'Trocar logo' : 'Enviar logo')}
+                    </Button>
+                    {logoUrl && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => void handleRemoveLogo()}
+                        disabled={uploadingLogo || removingLogo}
+                      >
+                        <Trash2 className="mr-1 h-3 w-3" /> Remover
+                      </Button>
+                    )}
+                    <p className="text-xs text-muted-foreground">PNG, JPG ou WEBP. Máximo 2MB.</p>
+                    {logoError && <p className="text-xs text-destructive">{logoError}</p>}
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
