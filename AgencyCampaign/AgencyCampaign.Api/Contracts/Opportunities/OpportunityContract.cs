@@ -101,7 +101,8 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
                 : new OpportunityBrandReferenceContract
                 {
                     Id = item.Brand.Id,
-                    Name = item.Brand.Name
+                    Name = item.Brand.Name,
+                    LogoUrl = item.Brand.LogoUrl
                 },
             OpportunitySourceId = item.OpportunitySourceId,
             OpportunitySource = item.OpportunitySource == null
@@ -314,6 +315,8 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
         public long Id { get; init; }
 
         public string Name { get; init; } = string.Empty;
+
+        public string? LogoUrl { get; init; }
     }
 
     public sealed class OpportunityProposalReferenceContract

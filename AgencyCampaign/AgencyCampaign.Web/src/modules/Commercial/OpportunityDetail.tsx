@@ -263,8 +263,24 @@ export default function OpportunityDetail() {
                 {opportunity?.commercialPipelineStage?.name || 'Sem estágio'}
               </Badge>
               <span className="hidden text-border sm:inline">·</span>
-              <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Building2 className="h-3.5 w-3.5" />
+              <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                {opportunity?.brand?.logoUrl ? (
+                  <img
+                    src={opportunity.brand.logoUrl}
+                    alt={opportunity.brand?.name ?? ''}
+                    className="h-6 w-6 rounded-md border bg-card object-contain p-0.5"
+                    onError={(e) => {
+                      const img = e.currentTarget as HTMLImageElement
+                      img.style.display = 'none'
+                      const fallback = img.nextElementSibling as HTMLElement | null
+                      if (fallback) fallback.style.display = 'inline-flex'
+                    }}
+                  />
+                ) : null}
+                <Building2
+                  className="h-3.5 w-3.5"
+                  style={{ display: opportunity?.brand?.logoUrl ? 'none' : 'inline-flex' }}
+                />
                 {opportunity?.brand?.name || 'Marca não informada'}
               </span>
             </div>

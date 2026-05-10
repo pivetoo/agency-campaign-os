@@ -79,6 +79,7 @@ export interface Opportunity {
   brand?: {
     id: number
     name: string
+    logoUrl?: string
   }
   opportunitySourceId?: number
   opportunitySource?: OpportunitySourceReference
