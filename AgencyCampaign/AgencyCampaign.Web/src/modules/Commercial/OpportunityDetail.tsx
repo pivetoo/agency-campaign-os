@@ -468,18 +468,20 @@ export default function OpportunityDetail() {
 
           <TabsContent value="proposals" className="mt-0">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-muted-foreground" /> Propostas vinculadas
-                </CardTitle>
-                <Button size="sm" onClick={() => setIsProposalFormOpen(true)}>
-                  <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-xs text-muted-foreground">
+              <CardHeader>
+                <div className="flex items-center justify-between gap-3">
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-muted-foreground" /> Propostas vinculadas
+                  </CardTitle>
+                  <Button size="sm" onClick={() => setIsProposalFormOpen(true)}>
+                    <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
+                  </Button>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
                   Cada proposta tem itens (creators, plataformas, valores), PDF, link público, status e conversão em campanha. Clique numa linha para abrir o detalhe completo.
                 </p>
+              </CardHeader>
+              <CardContent>
                 <DataTable
                   columns={proposalColumns}
                   data={opportunity?.proposals || []}
