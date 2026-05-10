@@ -69,7 +69,7 @@ export default function EmailTemplates() {
   return (
     <>
       <PageLayout
-        title="Templates de e-mail"
+        title="Templates de email"
         subtitle="Modelos disparados automaticamente em eventos de proposta e oportunidade."
         onAdd={() => {
           setSelected(null)

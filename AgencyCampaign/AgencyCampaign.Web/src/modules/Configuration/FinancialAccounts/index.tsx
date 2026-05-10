@@ -63,7 +63,7 @@ export default function FinancialAccounts() {
   return (
     <>
       <PageLayout
-        title="Contas financeiras"
+        title="Contas bancárias"
         subtitle="Caixa, contas bancárias e cartões usados nos lançamentos."
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}

@@ -11,7 +11,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Tags, Columns3, Plug, FileText, Blocks, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Blocks, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.svg'
 
 export default function AgencyCampaignLayout() {
@@ -129,26 +129,26 @@ export default function AgencyCampaignLayout() {
   const configurationGroups = [
     createMenuGroup('Geral', [
       { key: 'configuracao-minha-agencia', label: 'Dashboard', path: '/configuracao', icon: <LayoutDashboard size={20} /> },
-      { key: 'configuracao-empresa', label: 'Empresa', path: '/configuracao/empresa', icon: <Settings size={20} /> },
+      { key: 'configuracao-empresa', label: 'Dados da agência', path: '/configuracao/empresa', icon: <Briefcase size={20} /> },
       { key: 'configuracao-integracoes', label: 'Integrações', path: '/configuracao/integracoes', icon: <Plug size={20} /> },
-      { key: 'configuracao-templates-email', label: 'Templates de e-mail', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
+      { key: 'configuracao-templates-email', label: 'Templates de email', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
     ]),
     createMenuGroup('Comercial', [
-      { key: 'configuracao-pipeline-comercial', label: 'Estágios do funil', path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
-      { key: 'configuracao-origens-oportunidade', label: 'Origens', path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
-      { key: 'configuracao-tags-oportunidade', label: 'Tags', path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
-      { key: 'configuracao-templates-proposta', label: 'Templates de proposta', path: '/configuracao/templates-proposta', icon: <FileText size={20} /> },
+      { key: 'configuracao-pipeline-comercial', label: 'Funil comercial', path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
+      { key: 'configuracao-origens-oportunidade', label: 'Origens de oportunidade', path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
+      { key: 'configuracao-tags-oportunidade', label: 'Tags de oportunidade', path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
+      { key: 'configuracao-templates-proposta', label: 'Templates de proposta', path: '/configuracao/templates-proposta', icon: <FileSignature size={20} /> },
       { key: 'configuracao-blocos-proposta', label: 'Blocos de proposta', path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
     ]),
     createMenuGroup('Operação', [
-      { key: 'configuracao-plataformas', label: 'Redes sociais', path: '/configuracao/plataformas', icon: <Globe size={20} /> },
-      { key: 'configuracao-status-creators', label: 'Status dos creators', path: '/configuracao/status-creators', icon: <Users size={20} /> },
-      { key: 'configuracao-tipos-entrega', label: 'Tipos de entrega', path: '/configuracao/tipos-entrega', icon: <Tags size={20} /> },
-      { key: 'configuracao-templates-documento', label: 'Templates de documento', path: '/configuracao/templates-documento', icon: <FileText size={20} /> },
+      { key: 'configuracao-plataformas', label: 'Redes sociais', path: '/configuracao/plataformas', icon: <Share2 size={20} /> },
+      { key: 'configuracao-status-creators', label: 'Status do creator', path: '/configuracao/status-creators', icon: <UserCheck size={20} /> },
+      { key: 'configuracao-tipos-entrega', label: 'Tipos de entrega', path: '/configuracao/tipos-entrega', icon: <Package size={20} /> },
+      { key: 'configuracao-templates-documento', label: 'Modelos de contrato', path: '/configuracao/templates-documento', icon: <ScrollText size={20} /> },
     ]),
     createMenuGroup('Finanças', [
       { key: 'configuracao-contas-financeiras', label: 'Contas bancárias', path: '/configuracao/contas-financeiras', icon: <Wallet size={20} /> },
-      { key: 'configuracao-subcategorias-financeiras', label: 'Subcategorias', path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} /> },
+      { key: 'configuracao-subcategorias-financeiras', label: 'Subcategorias financeiras', path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} /> },
     ]),
   ]
 
@@ -194,20 +194,20 @@ export default function AgencyCampaignLayout() {
       '/financeiro/repasses-creators': 'Repasses para creators',
       '/financeiro/fluxo-caixa': 'Fluxo de caixa',
       '/financeiro/aging': 'Aging',
-      '/configuracao/plataformas': 'Redes Sociais',
-      '/configuracao/pipeline-comercial': 'Estágios do Comercial',
-      '/configuracao/status-creators': 'Status dos Creators',
+      '/configuracao/plataformas': 'Redes sociais',
+      '/configuracao/pipeline-comercial': 'Funil comercial',
+      '/configuracao/status-creators': 'Status do creator',
       '/configuracao/tipos-entrega': 'Tipos de entrega',
       '/configuracao/integracoes': 'Integrações',
       '/configuracao/templates-proposta': 'Templates de proposta',
       '/configuracao/blocos-proposta': 'Blocos de proposta',
       '/configuracao/origens-oportunidade': 'Origens de oportunidade',
       '/configuracao/tags-oportunidade': 'Tags de oportunidade',
-      '/configuracao/templates-email': 'Templates de e-mail',
-      '/configuracao/templates-documento': 'Templates de documento',
-      '/configuracao/contas-financeiras': 'Contas financeiras',
+      '/configuracao/templates-email': 'Templates de email',
+      '/configuracao/templates-documento': 'Modelos de contrato',
+      '/configuracao/contas-financeiras': 'Contas bancárias',
       '/configuracao/subcategorias-financeiras': 'Subcategorias financeiras',
-      '/configuracao/empresa': 'Empresa',
+      '/configuracao/empresa': 'Dados da agência',
       '/operacao/aprovacoes': 'Aprovações',
     }
 

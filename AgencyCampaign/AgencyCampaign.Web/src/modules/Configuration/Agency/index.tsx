@@ -102,8 +102,8 @@ export default function AgencyConfiguration() {
 
   return (
     <PageLayout
-      title="Configurações da agência"
-      subtitle="Identidade, contato e canal padrão de envio de e-mail"
+      title="Dados da agência"
+      subtitle="Identidade, contato e canal padrão de envio de email"
       onRefresh={() => void load()}
       showDefaultActions={false}
     >

@@ -71,8 +71,8 @@ export default function CampaignDocumentTemplates() {
   return (
     <>
       <PageLayout
-        title="Templates de documento"
-        subtitle="Modelos de contrato e termos com variáveis que são preenchidas automaticamente ao gerar um documento da campanha."
+        title="Modelos de contrato"
+        subtitle="Contratos e termos com variáveis preenchidas automaticamente ao gerar o documento da campanha."
         onAdd={() => {
           setSelected(null)
           setIsFormOpen(true)

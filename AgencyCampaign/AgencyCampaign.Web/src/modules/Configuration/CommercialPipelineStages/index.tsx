@@ -40,8 +40,8 @@ export default function CommercialPipelineStages() {
   return (
     <>
       <PageLayout
-        title="Estágios do Comercial"
-        subtitle="Configure os estágios do funil comercial da agência e personalize o Kanban por cliente"
+        title="Funil comercial"
+        subtitle="Estágios do pipeline (Lead, Qualificado, Proposta, Negociação, Ganho, Perdido) com cores e probabilidade."
         onAdd={() => { setSelectedStage(null); setIsFormOpen(true) }}
         onEdit={() => selectedStage && setIsFormOpen(true)}
         onRefresh={() => void loadStages()}

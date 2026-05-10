@@ -50,8 +50,8 @@ export default function CampaignCreatorStatuses() {
   return (
     <>
       <PageLayout
-        title="Status dos Creators"
-        subtitle="Configure os status dos creators vinculados às campanhas"
+        title="Status do creator"
+        subtitle="Etapas do creator dentro da campanha (convidado, aceito, em produção, publicado)."
         onAdd={() => { setSelectedStatus(null); setIsFormOpen(true) }}
         onEdit={() => selectedStatus && setIsFormOpen(true)}
         onRefresh={() => void loadStatuses()}
