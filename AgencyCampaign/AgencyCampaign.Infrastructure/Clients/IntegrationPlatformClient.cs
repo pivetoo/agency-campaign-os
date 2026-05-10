@@ -27,7 +27,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<List<IntegrationCategoryDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationCategoryDto>>>(
-                RestRequest.Get($"{baseUrl}/api/integrationcategories/active").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/integrationcategories/active").WithApiKey(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
@@ -41,7 +41,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<List<IntegrationDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationDto>>>(
-                RestRequest.Get($"{baseUrl}/api/integrations/category/{categoryId}").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/integrations/category/{categoryId}").WithApiKey(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
@@ -55,7 +55,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<List<IntegrationAttributeDto>>> response = await restApi.Fetch<ApiResponse<List<IntegrationAttributeDto>>>(
-                RestRequest.Get($"{baseUrl}/api/integrationattributes/integration/{integrationId}").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/integrationattributes/integration/{integrationId}").WithApiKey(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
@@ -69,7 +69,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<List<PipelineDto>>> response = await restApi.Fetch<ApiResponse<List<PipelineDto>>>(
-                RestRequest.Get($"{baseUrl}/api/pipelines/integration/{integrationId}").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/pipelines/integration/{integrationId}").WithApiKey(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
@@ -83,7 +83,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<List<ConnectorDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorDto>>>(
-                RestRequest.Get($"{baseUrl}/api/connectors/integration/{integrationId}").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/connectors/integration/{integrationId}").WithApiKey(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
@@ -97,7 +97,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<List<ConnectorDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorDto>>>(
-                RestRequest.Get($"{baseUrl}/api/connectors/active").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/connectors/active").WithApiKey(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
@@ -111,7 +111,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
-                RestRequest.Get($"{baseUrl}/api/connectors/GetById/{connectorId}").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/connectors/GetById/{connectorId}").WithApiKey(secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to get connector.")
@@ -127,7 +127,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<List<ConnectorAttributeValueDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorAttributeValueDto>>>(
-                RestRequest.Get($"{baseUrl}/api/connectorattributevalues/connector/{connectorId}").WithSecret(secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/connectorattributevalues/connector/{connectorId}").WithApiKey(secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
@@ -142,7 +142,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
                 RestRequest.Post($"{baseUrl}/api/connectors/create", request)
-                           .WithSecret(secret!), ct);
+                           .WithApiKey(secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to create connector.")
@@ -159,7 +159,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
                 RestRequest.Put($"{baseUrl}/api/connectors/Update/{connectorId}", request)
-                           .WithSecret(secret!), ct);
+                           .WithApiKey(secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to update connector.")
@@ -175,7 +175,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<object>> response = await restApi.Fetch<ApiResponse<object>>(
-                RestRequest.Delete($"{baseUrl}/api/connectors/Delete/{connectorId}").WithSecret(secret!), ct);
+                RestRequest.Delete($"{baseUrl}/api/connectors/Delete/{connectorId}").WithApiKey(secret!), ct);
 
             if (!response.Ok)
             {
@@ -193,7 +193,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ConnectorAttributeValueDto>> response = await restApi.Fetch<ApiResponse<ConnectorAttributeValueDto>>(
                 RestRequest.Post($"{baseUrl}/api/connectorattributevalues/create", request)
-                           .WithSecret(secret!), ct);
+                           .WithApiKey(secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to create connector attribute value.")
@@ -210,7 +210,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ConnectorAttributeValueDto>> response = await restApi.Fetch<ApiResponse<ConnectorAttributeValueDto>>(
                 RestRequest.Put($"{baseUrl}/api/connectorattributevalues/Update/{id}", request)
-                           .WithSecret(secret!), ct);
+                           .WithApiKey(secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to update connector attribute value.")
@@ -227,7 +227,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ExecutionDto>> response = await restApi.Fetch<ApiResponse<ExecutionDto>>(
                 RestRequest.Post($"{baseUrl}/api/executions/execute", request)
-                           .WithSecret(secret!), ct);
+                           .WithApiKey(secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to execute pipeline.")
@@ -244,7 +244,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             RestResponse<ApiResponse<ProcessingQueueDto>> response = await restApi.Fetch<ApiResponse<ProcessingQueueDto>>(
                 RestRequest.Post($"{baseUrl}/api/processingqueues/enqueue", request)
-                           .WithSecret(secret!), ct);
+                           .WithApiKey(secret!), ct);
 
             return response.Ok
                 ? response.Data?.Data ?? throw new InvalidOperationException("Failed to enqueue pipeline.")
@@ -266,13 +266,13 @@ namespace AgencyCampaign.Infrastructure.Clients
                 return (null, null);
             }
 
-            string? secret = integration.GetParameter("IntegrationSecret");
-            if (string.IsNullOrWhiteSpace(secret))
+            string? apiKey = integration.GetParameter("ApiKey") ?? integration.GetParameter("IntegrationSecret");
+            if (string.IsNullOrWhiteSpace(apiKey))
             {
-                Console.WriteLine("IntegrationPlatformClient: integration 'integration-platform' is configured without IntegrationSecret.");
+                Console.WriteLine("IntegrationPlatformClient: integration 'integration-platform' is configured without ApiKey.");
             }
 
-            return (integration.BaseUrl, secret);
+            return (integration.BaseUrl, apiKey);
         }
     }
 
