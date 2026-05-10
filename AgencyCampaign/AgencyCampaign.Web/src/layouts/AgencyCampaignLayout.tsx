@@ -29,9 +29,9 @@ export default function AgencyCampaignLayout() {
 
   const [notifications, setNotifications] = useState<Notification[]>([])
 
-  const loadNotifications = useCallback(async () => {
+  const loadNotifications = useCallback(async (silent = false) => {
     try {
-      const items = await notificationService.getRecent(false, 20)
+      const items = await notificationService.getRecent(false, 20, { silent })
       setNotifications(items)
     } catch {
       // silent — notification fetch isn't critical
@@ -41,7 +41,7 @@ export default function AgencyCampaignLayout() {
   useEffect(() => {
     void loadNotifications()
     const interval = window.setInterval(() => {
-      void loadNotifications()
+      void loadNotifications(true)
     }, 60_000)
     return () => window.clearInterval(interval)
   }, [loadNotifications])

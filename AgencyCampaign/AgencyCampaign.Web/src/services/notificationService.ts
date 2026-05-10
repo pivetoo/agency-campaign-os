@@ -9,16 +9,19 @@ interface PagedResponse<T> {
 }
 
 export const notificationService = {
-  async getRecent(unreadOnly = false, pageSize = 20): Promise<Notification[]> {
+  async getRecent(unreadOnly = false, pageSize = 20, options: { silent?: boolean } = {}): Promise<Notification[]> {
     const params = new URLSearchParams()
     if (unreadOnly) params.append('unreadOnly', 'true')
     params.append('pageSize', String(pageSize))
-    const response = await httpClient.get<PagedResponse<Notification>>(`${BASE_URL}/Get?${params.toString()}`)
+    const response = await httpClient.get<PagedResponse<Notification>>(
+      `${BASE_URL}/Get?${params.toString()}`,
+      { silent: options.silent },
+    )
     return response.data?.items ?? []
   },
 
-  async getUnreadCount(): Promise<number> {
-    const response = await httpClient.get<{ count: number }>(`${BASE_URL}/unread-count`)
+  async getUnreadCount(options: { silent?: boolean } = {}): Promise<number> {
+    const response = await httpClient.get<{ count: number }>(`${BASE_URL}/unread-count`, { silent: options.silent })
     return response.data?.count ?? 0
   },
 
