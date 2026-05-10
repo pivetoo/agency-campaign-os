@@ -47,5 +47,20 @@ namespace AgencyCampaign.Testing.Domain.Entities
             Action act = () => brand.Update("  ", null, null, null, null, null, true);
             act.Should().Throw<ArgumentException>();
         }
+
+        [Test]
+        public void SetLogo_should_normalize_input()
+        {
+            Brand brand = new("Acme");
+
+            brand.SetLogo("  https://logo  ");
+            brand.LogoUrl.Should().Be("https://logo");
+
+            brand.SetLogo(null);
+            brand.LogoUrl.Should().BeNull();
+
+            brand.SetLogo("   ");
+            brand.LogoUrl.Should().BeNull();
+        }
     }
 }
