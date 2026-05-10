@@ -32,7 +32,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(account);
             await db.SaveChangesAsync();
 
-            Proposal proposal = new(opportunityId: 1, name: "P1", internalOwnerId: 1).WithId(10);
+            Proposal proposal = new Proposal(opportunityId: 1, name: "P1", internalOwnerId: 1).WithId(10);
             FinancialEntry existing = new(
                 accountId: account.Id,
                 type: FinancialEntryType.Receivable,
@@ -54,7 +54,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GenerateForConvertedProposal_should_skip_when_no_active_account()
         {
-            Proposal proposal = new(1, "P1", 1).WithId(10);
+            Proposal proposal = new Proposal(1, "P1", 1).WithId(10);
             proposal.UpdateTotalValue(500m);
 
             await service.GenerateForConvertedProposal(proposal, campaignId: 1);
@@ -78,7 +78,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await db.SaveChangesAsync();
 
             DateTimeOffset validity = DateTimeOffset.UtcNow.AddDays(7);
-            Proposal proposal = new(opportunityId: 1, name: "Proposta X", internalOwnerId: 1, validityUntil: validity).WithId(10);
+            Proposal proposal = new Proposal(opportunityId: 1, name: "Proposta X", internalOwnerId: 1, validityUntil: validity).WithId(10);
             proposal.UpdateTotalValue(2500m);
 
             await service.GenerateForConvertedProposal(proposal, campaignId: campaign.Id);
@@ -101,7 +101,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(account);
             await db.SaveChangesAsync();
 
-            Proposal proposal = new(1, "P", 1).WithId(11);
+            Proposal proposal = new Proposal(1, "P", 1).WithId(11);
             proposal.UpdateTotalValue(100m);
 
             await service.GenerateForConvertedProposal(proposal, campaignId: 99);
