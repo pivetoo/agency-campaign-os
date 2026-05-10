@@ -19,9 +19,6 @@ export default function AgencyConfiguration() {
   const [agencyName, setAgencyName] = useState('')
   const [tradeName, setTradeName] = useState('')
   const [document, setDocument] = useState('')
-  const [primaryEmail, setPrimaryEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [address, setAddress] = useState('')
   const [logoUrl, setLogoUrl] = useState('')
   const [primaryColor, setPrimaryColor] = useState('#6366f1')
   const [emailCategoryId, setEmailCategoryId] = useState<number | null>(null)
@@ -48,9 +45,6 @@ export default function AgencyConfiguration() {
       setAgencyName(result.agencyName)
       setTradeName(result.tradeName ?? '')
       setDocument(result.document ?? '')
-      setPrimaryEmail(result.primaryEmail ?? '')
-      setPhone(result.phone ?? '')
-      setAddress(result.address ?? '')
       setLogoUrl(result.logoUrl ?? '')
       setPrimaryColor(result.primaryColor ?? '#6366f1')
       setEmailConnectorId(result.defaultEmailConnectorId ?? null)
@@ -131,9 +125,6 @@ export default function AgencyConfiguration() {
         agencyName: agencyName.trim(),
         tradeName: tradeName.trim() || null,
         document: document.trim() || null,
-        primaryEmail: primaryEmail.trim() || null,
-        phone: phone.trim() || null,
-        address: address.trim() || null,
         logoUrl: logoUrl.trim() || null,
         primaryColor: primaryColor.trim() || null,
         defaultEmailConnectorId: emailConnectorId,
@@ -146,7 +137,7 @@ export default function AgencyConfiguration() {
   return (
     <PageLayout
       title="Dados da agência"
-      subtitle="Identidade, contato e canal padrão de envio de email"
+      subtitle="Identidade e canal padrão de envio de email"
       onRefresh={() => void load()}
       showDefaultActions={false}
     >
@@ -219,26 +210,6 @@ export default function AgencyConfiguration() {
                     {logoError && <p className="text-xs text-destructive">{logoError}</p>}
                   </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-5 pb-5 space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Contato</h3>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">E-mail principal</label>
-                <Input type="email" value={primaryEmail} onChange={(e) => setPrimaryEmail(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Telefone</label>
-                <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">Endereço</label>
-                <Input value={address} onChange={(e) => setAddress(e.target.value)} />
               </div>
             </div>
           </CardContent>
