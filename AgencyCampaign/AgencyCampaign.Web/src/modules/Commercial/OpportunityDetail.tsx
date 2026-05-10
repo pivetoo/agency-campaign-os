@@ -548,22 +548,24 @@ export default function OpportunityDetail() {
           <TabsContent value="approvals" className="mt-0">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-muted-foreground" /> Aprovações
-                </CardTitle>
+                <div className="flex items-center justify-between gap-3">
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-muted-foreground" /> Aprovações
+                  </CardTitle>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline-success" onClick={() => void handleApproveRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>
+                      <ThumbsUp className="mr-1.5 h-4 w-4" /> Aprovar
+                    </Button>
+                    <Button size="sm" variant="outline-danger" onClick={() => void handleRejectRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>
+                      <ThumbsDown className="mr-1.5 h-4 w-4" /> Rejeitar
+                    </Button>
+                  </div>
+                </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Aprovações são criadas a partir das negociações. Vá na aba Negociações, selecione uma e clique em "Solicitar aprovação".
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="mb-3 flex flex-wrap gap-2">
-                  <Button size="sm" variant="outline-success" onClick={() => void handleApproveRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>
-                    <ThumbsUp className="mr-2 h-4 w-4" /> Aprovar
-                  </Button>
-                  <Button size="sm" variant="outline-danger" onClick={() => void handleRejectRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>
-                    <ThumbsDown className="mr-2 h-4 w-4" /> Rejeitar
-                  </Button>
-                </div>
                 <DataTable
                   columns={approvalColumns}
                   data={approvalRequests}
