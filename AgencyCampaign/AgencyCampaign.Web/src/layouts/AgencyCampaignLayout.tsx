@@ -157,7 +157,7 @@ export default function AgencyCampaignLayout() {
   const menuGroups = isInConfiguration ? configurationGroups : systemGroups
 
   const modules = [
-    { id: 'sistema', name: 'Sistema', icon: <LayoutDashboard size={16} /> },
+    { id: 'sistema', name: 'Painel', icon: <LayoutDashboard size={16} /> },
     { id: 'configuracao', name: 'Configuração', icon: <Settings size={16} /> },
   ]
 
