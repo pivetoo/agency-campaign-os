@@ -199,4 +199,16 @@
   <data name="brands.preview.description" xml:space="preserve"><value>Quick summary of the selected brand</value></data>
   <data name="brands.preview.dataSection" xml:space="preserve"><value>Main data</value></data>
   <data name="brands.preview.dataSectionDesc" xml:space="preserve"><value>Brand registration information</value></data>
+  <data name="creators.title" xml:space="preserve"><value>Creators</value></data>
+  <data name="creators.subtitle" xml:space="preserve"><value>Register and track the agency's creator base</value></data>
+  <data name="creators.empty" xml:space="preserve"><value>No creators registered</value></data>
+  <data name="creators.action.portalLinks" xml:space="preserve"><value>Portal links</value></data>
+  <data name="creators.action.open360" xml:space="preserve"><value>Open 360</value></data>
+  <data name="creators.field.stageName" xml:space="preserve"><value>Stage name</value></data>
+  <data name="creators.field.niche" xml:space="preserve"><value>Niche</value></data>
+  <data name="creators.field.pixKey" xml:space="preserve"><value>PIX key</value></data>
+  <data name="creators.field.defaultFee" xml:space="preserve"><value>Default fee (%)</value></data>
+  <data name="creators.preview.description" xml:space="preserve"><value>Quick summary of the selected creator</value></data>
+  <data name="creators.preview.dataSection" xml:space="preserve"><value>Main data</value></data>
+  <data name="creators.preview.dataSectionDesc" xml:space="preserve"><value>Creator registration and operational information</value></data>
 </root>

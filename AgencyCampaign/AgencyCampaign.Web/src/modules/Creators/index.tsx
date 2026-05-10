@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge } from 'archon-ui'
+import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Link as LinkIcon } from 'lucide-react'
 
@@ -10,6 +10,7 @@ import CreatorFormModal from '../../components/modals/CreatorFormModal'
 import CreatorAccessTokensModal from '../../components/modals/CreatorAccessTokensModal'
 
 export default function Creators() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [creators, setCreators] = useState<Creator[]>([])
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
@@ -45,17 +46,17 @@ export default function Creators() {
 
   const columns: DataTableColumn<Creator>[] = [
     { key: 'photo', title: '', dataIndex: 'photoUrl', width: 56, render: renderPhotoCell },
-    { key: 'name', title: 'Nome', dataIndex: 'name' },
-    { key: 'stageName', title: 'Nome artístico', dataIndex: 'stageName', render: (value?: string) => value || '-' },
-    { key: 'primaryNiche', title: 'Nicho', dataIndex: 'primaryNiche', render: (value?: string) => value || '-' },
-    { key: 'city', title: 'Cidade', dataIndex: 'city', render: (value?: string) => value || '-' },
+    { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
+    { key: 'stageName', title: t('creators.field.stageName'), dataIndex: 'stageName', render: (value?: string) => value || '-' },
+    { key: 'primaryNiche', title: t('creators.field.niche'), dataIndex: 'primaryNiche', render: (value?: string) => value || '-' },
+    { key: 'city', title: t('common.field.city'), dataIndex: 'city', render: (value?: string) => value || '-' },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'destructive'}>
-          {value ? 'Ativo' : 'Inativo'}
+          {value ? t('common.status.active') : t('common.status.inactive')}
         </Badge>
       ),
     },
@@ -69,7 +70,7 @@ export default function Creators() {
           className="text-xs text-primary hover:underline"
           onClick={(event) => { event.stopPropagation(); navigate(`/creators/${record.id}`) }}
         >
-          Abrir 360
+          {t('creators.action.open360')}
         </button>
       ),
     },
@@ -78,8 +79,8 @@ export default function Creators() {
   return (
     <>
       <PageLayout
-        title="Creators"
-        subtitle="Cadastre e acompanhe a base de creators da agência"
+        title={t('creators.title')}
+        subtitle={t('creators.subtitle')}
         onAdd={() => { setSelectedCreator(null); setIsFormOpen(true) }}
         onEdit={() => selectedCreator && setIsFormOpen(true)}
         onRefresh={() => void loadCreators()}
@@ -87,7 +88,7 @@ export default function Creators() {
         actions={[
           {
             key: 'access-tokens',
-            label: 'Links do portal',
+            label: t('creators.action.portalLinks'),
             icon: <LinkIcon className="h-4 w-4" />,
             variant: 'outline',
             disabled: !selectedCreator,
@@ -103,7 +104,7 @@ export default function Creators() {
             selectedRows={selectedCreator ? [selectedCreator] : []}
             onSelectionChange={(rows) => setSelectedCreator(rows[0] ?? null)}
             onRowDoubleClick={setPreviewCreator}
-            emptyText="Nenhum influenciador cadastrado"
+            emptyText={t('creators.empty')}
             loading={loading}
             pageSize={5}
             pageSizeOptions={[5, 10, 20, 50]}
@@ -151,26 +152,26 @@ export default function Creators() {
                 title={previewCreator.stageName || previewCreator.name}
                 meta={
                   <Badge variant={previewCreator.isActive ? 'success' : 'destructive'}>
-                    {previewCreator.isActive ? 'Ativo' : 'Inativo'}
+                    {previewCreator.isActive ? t('common.status.active') : t('common.status.inactive')}
                   </Badge>
                 }
-                description="Resumo rápido do creator selecionado"
+                description={t('creators.preview.description')}
               />
 
               <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
-                <SheetPreviewSection title="Dados principais" description="Informações cadastrais e operacionais do creator">
+                <SheetPreviewSection title={t('creators.preview.dataSection')} description={t('creators.preview.dataSectionDesc')}>
                   <SheetPreviewGrid>
-                    <SheetPreviewField label="Nome" value={previewCreator.name} />
-                    <SheetPreviewField label="Nome artístico" value={previewCreator.stageName || '-'} />
-                    <SheetPreviewField label="Documento" value={previewCreator.document || '-'} />
-                    <SheetPreviewField label="Telefone" value={previewCreator.phone || '-'} />
-                    <SheetPreviewField label="Chave PIX" value={previewCreator.pixKey || '-'} />
-                    <SheetPreviewField label="Nicho" value={previewCreator.primaryNiche || '-'} />
-                    <SheetPreviewField label="Cidade" value={previewCreator.city || '-'} />
-                    <SheetPreviewField label="Estado" value={previewCreator.state || '-'} />
-                    <SheetPreviewField label="Fee padrão (%)" value={previewCreator.defaultAgencyFeePercent.toFixed(2)} />
-                    <SheetPreviewField className="sm:col-span-2" label="E-mail" value={previewCreator.email || '-'} />
-                    <SheetPreviewField className="sm:col-span-2" label="Observações" value={previewCreator.notes || '-'} />
+                    <SheetPreviewField label={t('common.field.name')} value={previewCreator.name} />
+                    <SheetPreviewField label={t('creators.field.stageName')} value={previewCreator.stageName || '-'} />
+                    <SheetPreviewField label={t('common.field.document')} value={previewCreator.document || '-'} />
+                    <SheetPreviewField label={t('common.field.phone')} value={previewCreator.phone || '-'} />
+                    <SheetPreviewField label={t('creators.field.pixKey')} value={previewCreator.pixKey || '-'} />
+                    <SheetPreviewField label={t('creators.field.niche')} value={previewCreator.primaryNiche || '-'} />
+                    <SheetPreviewField label={t('common.field.city')} value={previewCreator.city || '-'} />
+                    <SheetPreviewField label={t('common.field.state')} value={previewCreator.state || '-'} />
+                    <SheetPreviewField label={t('creators.field.defaultFee')} value={previewCreator.defaultAgencyFeePercent.toFixed(2)} />
+                    <SheetPreviewField className="sm:col-span-2" label={t('common.field.email')} value={previewCreator.email || '-'} />
+                    <SheetPreviewField className="sm:col-span-2" label={t('common.field.notes')} value={previewCreator.notes || '-'} />
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
               </div>

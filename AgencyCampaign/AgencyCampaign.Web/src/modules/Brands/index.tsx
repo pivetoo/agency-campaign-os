@@ -62,8 +62,8 @@ export default function Brands() {
   return (
     <>
       <PageLayout
-        title="Marcas"
-        subtitle="Cadastre e gerencie as marcas atendidas pela agência"
+        title={t('brands.title')}
+        subtitle={t('brands.subtitle')}
         onAdd={() => { setSelectedBrand(null); setIsFormOpen(true) }}
         onEdit={() => selectedBrand && setIsFormOpen(true)}
         onRefresh={() => void loadBrands()}
@@ -76,7 +76,7 @@ export default function Brands() {
           selectedRows={selectedBrand ? [selectedBrand] : []}
           onSelectionChange={(rows) => setSelectedBrand(rows[0] ?? null)}
           onRowDoubleClick={setPreviewBrand}
-          emptyText="Nenhuma marca cadastrada"
+          emptyText={t('brands.empty')}
           loading={loading}
           pageSize={5}
           pageSizeOptions={[5, 10, 20, 50]}
@@ -116,21 +116,21 @@ export default function Brands() {
                 title={previewBrand.name}
                 meta={
                   <Badge variant={previewBrand.isActive ? 'success' : 'destructive'}>
-                    {previewBrand.isActive ? 'Ativa' : 'Inativa'}
+                    {previewBrand.isActive ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}
                   </Badge>
                 }
-                description="Resumo rápido da marca selecionada"
+                description={t('brands.preview.description')}
               />
 
               <div className="mt-6 flex-1 space-y-4 overflow-y-auto">
-                <SheetPreviewSection title="Dados principais" description="Informações cadastrais da marca">
+                <SheetPreviewSection title={t('brands.preview.dataSection')} description={t('brands.preview.dataSectionDesc')}>
                   <SheetPreviewGrid>
-                    <SheetPreviewField label="Nome" value={previewBrand.name} />
-                    <SheetPreviewField label="Nome fantasia" value={previewBrand.tradeName || '-'} />
-                    <SheetPreviewField label="Documento" value={previewBrand.document || '-'} />
-                    <SheetPreviewField label="Contato" value={previewBrand.contactName || '-'} />
-                    <SheetPreviewField label="E-mail" value={previewBrand.contactEmail || '-'} />
-                    <SheetPreviewField className="sm:col-span-2" label="Observações" value={previewBrand.notes || '-'} />
+                    <SheetPreviewField label={t('common.field.name')} value={previewBrand.name} />
+                    <SheetPreviewField label={t('common.field.tradeName')} value={previewBrand.tradeName || '-'} />
+                    <SheetPreviewField label={t('common.field.document')} value={previewBrand.document || '-'} />
+                    <SheetPreviewField label={t('common.field.contact')} value={previewBrand.contactName || '-'} />
+                    <SheetPreviewField label={t('common.field.email')} value={previewBrand.contactEmail || '-'} />
+                    <SheetPreviewField className="sm:col-span-2" label={t('common.field.notes')} value={previewBrand.notes || '-'} />
                   </SheetPreviewGrid>
                 </SheetPreviewSection>
               </div>

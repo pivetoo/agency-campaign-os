@@ -199,4 +199,16 @@
   <data name="brands.preview.description" xml:space="preserve"><value>Resumo rápido da marca selecionada</value></data>
   <data name="brands.preview.dataSection" xml:space="preserve"><value>Dados principais</value></data>
   <data name="brands.preview.dataSectionDesc" xml:space="preserve"><value>Informações cadastrais da marca</value></data>
+  <data name="creators.title" xml:space="preserve"><value>Creators</value></data>
+  <data name="creators.subtitle" xml:space="preserve"><value>Cadastre e acompanhe a base de creators da agência</value></data>
+  <data name="creators.empty" xml:space="preserve"><value>Nenhum influenciador cadastrado</value></data>
+  <data name="creators.action.portalLinks" xml:space="preserve"><value>Links do portal</value></data>
+  <data name="creators.action.open360" xml:space="preserve"><value>Abrir 360</value></data>
+  <data name="creators.field.stageName" xml:space="preserve"><value>Nome artístico</value></data>
+  <data name="creators.field.niche" xml:space="preserve"><value>Nicho</value></data>
+  <data name="creators.field.pixKey" xml:space="preserve"><value>Chave PIX</value></data>
+  <data name="creators.field.defaultFee" xml:space="preserve"><value>Fee padrão (%)</value></data>
+  <data name="creators.preview.description" xml:space="preserve"><value>Resumo rápido do creator selecionado</value></data>
+  <data name="creators.preview.dataSection" xml:space="preserve"><value>Dados principais</value></data>
+  <data name="creators.preview.dataSectionDesc" xml:space="preserve"><value>Informações cadastrais e operacionais do creator</value></data>
 </root>
