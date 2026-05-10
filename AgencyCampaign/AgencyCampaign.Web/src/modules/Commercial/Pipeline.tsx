@@ -111,6 +111,7 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
 }
 
 export default function CommercialPipeline() {
+  const navigate = useNavigate()
   const [board, setBoard] = useState<OpportunityBoardStage[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [draggedItem, setDraggedItem] = useState<OpportunityBoardItem | null>(null)
