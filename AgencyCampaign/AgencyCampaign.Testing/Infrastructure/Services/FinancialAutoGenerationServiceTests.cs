@@ -25,10 +25,15 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Dispose();
         }
 
+        private static FinancialAccount NewAccount(string name = "Conta principal")
+        {
+            return new FinancialAccount(name, FinancialAccountType.Bank, initialBalance: 0m, color: "#6366f1");
+        }
+
         [Test]
         public async Task GenerateForConvertedProposal_should_be_no_op_when_entry_already_exists()
         {
-            FinancialAccount account = new("Conta principal", FinancialAccountType.Bank, initialBalance: 0m, color: "#6366f1");
+            FinancialAccount account = NewAccount();
             db.Add(account);
             await db.SaveChangesAsync();
 
@@ -66,7 +71,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GenerateForConvertedProposal_should_create_receivable_with_brand_name_and_validity_due_date()
         {
-            FinancialAccount account = new("Conta principal", FinancialAccountType.Bank, initialBalance: 0m, color: "#6366f1");
+            FinancialAccount account = NewAccount();
             db.Add(account);
 
             Brand brand = new("Acme");
@@ -97,7 +102,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GenerateForConvertedProposal_should_use_default_due_date_when_validity_missing()
         {
-            FinancialAccount account = new("Conta principal", FinancialAccountType.Bank, initialBalance: 0m, color: "#6366f1");
+            FinancialAccount account = NewAccount();
             db.Add(account);
             await db.SaveChangesAsync();
 
@@ -121,7 +126,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GenerateForPublishedDeliverable_should_skip_when_creator_amount_is_zero()
         {
-            CampaignDeliverable deliverable = new(
+            CampaignDeliverable deliverable = new CampaignDeliverable(
                 campaignId: 1, campaignCreatorId: 1, title: "x", deliverableKindId: 1, platformId: 1,
                 dueAt: DateTimeOffset.UtcNow, grossAmount: 100m, creatorAmount: 0m, agencyFeeAmount: 0m).WithId(5);
 
@@ -133,11 +138,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GenerateForPublishedDeliverable_should_skip_when_entry_already_exists()
         {
-            FinancialAccount account = new("Conta", FinancialAccountType.Bank, initialBalance: 0m, color: "#6366f1");
+            FinancialAccount account = NewAccount("Conta");
             db.Add(account);
             await db.SaveChangesAsync();
 
-            CampaignDeliverable deliverable = new(
+            CampaignDeliverable deliverable = new CampaignDeliverable(
                 campaignId: 1, campaignCreatorId: 1, title: "x", deliverableKindId: 1, platformId: 1,
                 dueAt: DateTimeOffset.UtcNow, grossAmount: 1000m, creatorAmount: 800m, agencyFeeAmount: 100m).WithId(5);
 
@@ -156,7 +161,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GenerateForPublishedDeliverable_should_create_payable_with_creator_stage_name()
         {
-            FinancialAccount account = new("Conta", FinancialAccountType.Bank, initialBalance: 0m, color: "#6366f1");
+            FinancialAccount account = NewAccount("Conta");
             db.Add(account);
 
             Creator creator = new("Foo Real", stageName: "Foo Stage");
@@ -168,7 +173,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await db.SaveChangesAsync();
 
             DateTimeOffset publishedAt = DateTimeOffset.UtcNow.AddDays(-1);
-            CampaignDeliverable deliverable = new(
+            CampaignDeliverable deliverable = new CampaignDeliverable(
                 campaignId: 1, campaignCreatorId: campaignCreator.Id, title: "Story", deliverableKindId: 1, platformId: 1,
                 dueAt: DateTimeOffset.UtcNow, grossAmount: 1000m, creatorAmount: 800m, agencyFeeAmount: 100m).WithId(7);
             deliverable.Publish("https://x", null, publishedAt);
