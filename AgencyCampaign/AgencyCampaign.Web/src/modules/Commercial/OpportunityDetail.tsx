@@ -498,13 +498,18 @@ export default function OpportunityDetail() {
 
           <TabsContent value="negotiations" className="mt-0">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-muted-foreground" /> Negociações
-                </CardTitle>
-                <Button size="sm" onClick={() => { setSelectedNegotiation(null); setIsNegotiationFormOpen(true) }}>
-                  <TrendingUp className="mr-2 h-4 w-4" /> Nova negociação
-                </Button>
+              <CardHeader>
+                <div className="flex items-center justify-between gap-3">
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-muted-foreground" /> Negociações
+                  </CardTitle>
+                  <Button size="sm" onClick={() => { setSelectedNegotiation(null); setIsNegotiationFormOpen(true) }}>
+                    <TrendingUp className="mr-1.5 h-4 w-4" /> Nova negociação
+                  </Button>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Cada negociação registra uma rodada de oferta com valor e motivo (proposta inicial, contraproposta, ajuste de desconto). Selecione uma para editar ou pedir aprovação interna.
+                </p>
               </CardHeader>
               <CardContent>
                 <div className="mb-3 flex flex-wrap gap-2">
@@ -583,13 +588,18 @@ export default function OpportunityDetail() {
 
           <TabsContent value="followups" className="mt-0">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-muted-foreground" /> Follow-ups
-                </CardTitle>
-                <Button size="sm" onClick={() => { setSelectedFollowUp(null); setIsFollowUpFormOpen(true) }}>
-                  <Clock className="mr-2 h-4 w-4" /> Novo follow-up
-                </Button>
+              <CardHeader>
+                <div className="flex items-center justify-between gap-3">
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-muted-foreground" /> Follow-ups
+                  </CardTitle>
+                  <Button size="sm" onClick={() => { setSelectedFollowUp(null); setIsFollowUpFormOpen(true) }}>
+                    <Clock className="mr-1.5 h-4 w-4" /> Novo follow-up
+                  </Button>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Compromissos e tarefas desta oportunidade (ligações, envio de proposta, retornos). Marque como concluído após cada contato para manter o histórico.
+                </p>
               </CardHeader>
               <CardContent>
                 <div className="mb-3 flex flex-wrap gap-2">
