@@ -29,6 +29,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public decimal DefaultAgencyFeePercent { get; private set; }
 
+        public string? PhotoUrl { get; private set; }
+
         public bool IsActive { get; private set; } = true;
 
         private Creator()
@@ -72,6 +74,11 @@ namespace AgencyCampaign.Domain.Entities
             Notes = Normalize(notes);
             DefaultAgencyFeePercent = defaultAgencyFeePercent;
             IsActive = isActive;
+        }
+
+        public void SetPhoto(string? photoUrl)
+        {
+            PhotoUrl = Normalize(photoUrl);
         }
 
         private static string? Normalize(string? value)

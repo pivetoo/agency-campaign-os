@@ -7,10 +7,10 @@ using SixLabors.ImageSharp.Processing;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
-    public sealed class BrandLogoStorage : IBrandLogoStorage
+    public sealed class ImageUploadStorage : IImageUploadStorage
     {
         private const int MaxDimension = 512;
-        private const string RelativeRoot = "uploads/brands";
+        private const string UploadsRoot = "uploads";
 
         private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -23,24 +23,25 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IWebHostEnvironment environment;
         private readonly ITenantContext tenantContext;
 
-        public BrandLogoStorage(IWebHostEnvironment environment, ITenantContext tenantContext)
+        public ImageUploadStorage(IWebHostEnvironment environment, ITenantContext tenantContext)
         {
             this.environment = environment;
             this.tenantContext = tenantContext;
         }
 
-        public async Task<string> SaveAsync(long brandId, Stream content, string contentType, CancellationToken cancellationToken = default)
+        public async Task<string> SaveAsync(string section, long entityId, Stream content, string contentType, CancellationToken cancellationToken = default)
         {
             if (!AllowedContentTypes.Contains(contentType))
             {
                 throw new InvalidOperationException("Tipo de arquivo nao suportado. Use PNG, JPG ou WEBP.");
             }
 
+            string normalizedSection = NormalizeSection(section);
             string tenantSegment = ResolveTenantSegment();
-            string folder = Path.Combine(GetWebRootPath(), RelativeRoot, tenantSegment);
+            string folder = Path.Combine(GetWebRootPath(), UploadsRoot, normalizedSection, tenantSegment);
             Directory.CreateDirectory(folder);
 
-            string fileName = $"{brandId}.webp";
+            string fileName = $"{entityId}.webp";
             string fullPath = Path.Combine(folder, fileName);
 
             using Image image = await Image.LoadAsync(content, cancellationToken);
@@ -54,14 +55,15 @@ namespace AgencyCampaign.Infrastructure.Services
             await image.SaveAsync(fullPath, encoder, cancellationToken);
 
             string version = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-            return $"/{RelativeRoot}/{tenantSegment}/{fileName}?v={version}";
+            return $"/{UploadsRoot}/{normalizedSection}/{tenantSegment}/{fileName}?v={version}";
         }
 
-        public Task RemoveAsync(long brandId, string? currentLogoUrl, CancellationToken cancellationToken = default)
+        public Task RemoveAsync(string section, long entityId, CancellationToken cancellationToken = default)
         {
+            string normalizedSection = NormalizeSection(section);
             string tenantSegment = ResolveTenantSegment();
-            string folder = Path.Combine(GetWebRootPath(), RelativeRoot, tenantSegment);
-            string fileName = $"{brandId}.webp";
+            string folder = Path.Combine(GetWebRootPath(), UploadsRoot, normalizedSection, tenantSegment);
+            string fileName = $"{entityId}.webp";
             string fullPath = Path.Combine(folder, fileName);
 
             if (File.Exists(fullPath))
@@ -70,6 +72,22 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return Task.CompletedTask;
+        }
+
+        private static string NormalizeSection(string section)
+        {
+            if (string.IsNullOrWhiteSpace(section))
+            {
+                throw new ArgumentException("Section is required.", nameof(section));
+            }
+
+            string trimmed = section.Trim().ToLowerInvariant();
+            if (trimmed.Contains('/') || trimmed.Contains('\\') || trimmed.Contains(".."))
+            {
+                throw new ArgumentException("Section contains invalid characters.", nameof(section));
+            }
+
+            return trimmed;
         }
 
         private string GetWebRootPath()

@@ -16,14 +16,14 @@ namespace AgencyCampaign.Api.Controllers
         private const long MaxLogoBytes = 2 * 1024 * 1024;
 
         private readonly IBrandService brandService;
-        private readonly IBrandLogoStorage brandLogoStorage;
+        private readonly IImageUploadStorage imageStorage;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
         private static readonly Func<Brand, BrandContract> MapBrand = BrandContract.Projection.Compile();
 
-        public BrandsController(IBrandService brandService, IBrandLogoStorage brandLogoStorage, IStringLocalizer<AgencyCampaignResource> localizer)
+        public BrandsController(IBrandService brandService, IImageUploadStorage imageStorage, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.brandService = brandService;
-            this.brandLogoStorage = brandLogoStorage;
+            this.imageStorage = imageStorage;
             Localizer = localizer;
         }
 
@@ -98,7 +98,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             await using Stream stream = file.OpenReadStream();
-            string logoUrl = await brandLogoStorage.SaveAsync(id, stream, file.ContentType, cancellationToken);
+            string logoUrl = await imageStorage.SaveAsync("brands", id, stream, file.ContentType, cancellationToken);
 
             Brand brand = await brandService.SetBrandLogo(id, logoUrl, cancellationToken);
             return Http200(MapBrand(brand), Localizer["record.updated"]);
@@ -114,7 +114,7 @@ namespace AgencyCampaign.Api.Controllers
                 return Http404(Localizer["record.notFound"]);
             }
 
-            await brandLogoStorage.RemoveAsync(id, existing.LogoUrl, cancellationToken);
+            await imageStorage.RemoveAsync("brands", id, cancellationToken);
             Brand brand = await brandService.RemoveBrandLogo(id, cancellationToken);
             return Http200(MapBrand(brand), Localizer["record.updated"]);
         }

@@ -46,6 +46,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
 
             builder.Property(entity => entity.DefaultAgencyFeePercent)
                 .HasDefaultValue(0);
+
+            builder.Property(entity => entity.PhotoUrl)
+                .HasMaxLength(255);
         }
     }
 }

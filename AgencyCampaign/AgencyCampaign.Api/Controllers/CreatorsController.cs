@@ -13,13 +13,17 @@ namespace AgencyCampaign.Api.Controllers
 {
     public sealed class CreatorsController : ApiControllerBase
     {
+        private const long MaxPhotoBytes = 2 * 1024 * 1024;
+
         private readonly ICreatorService creatorService;
+        private readonly IImageUploadStorage imageStorage;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
         private static readonly Func<Creator, CreatorContract> MapCreator = CreatorContract.Projection.Compile();
 
-        public CreatorsController(ICreatorService creatorService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public CreatorsController(ICreatorService creatorService, IImageUploadStorage imageStorage, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.creatorService = creatorService;
+            this.imageStorage = imageStorage;
             Localizer = localizer;
         }
 
@@ -77,6 +81,50 @@ namespace AgencyCampaign.Api.Controllers
         {
             var summary = await creatorService.GetSummary(id, cancellationToken);
             return summary is null ? Http404(Localizer["record.notFound"]) : Http200(summary);
+        }
+
+        [RequireAccess("Permite enviar a foto do creator.")]
+        [PostEndpoint("[action]/{id:long}")]
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(MaxPhotoBytes)]
+        public async Task<IActionResult> UploadPhoto(long id, [FromForm] IFormFile file, CancellationToken cancellationToken)
+        {
+            if (file is null || file.Length == 0)
+            {
+                return Http400("Arquivo nao informado.");
+            }
+
+            if (file.Length > MaxPhotoBytes)
+            {
+                return Http400("Arquivo excede o limite de 2MB.");
+            }
+
+            Creator? existing = await creatorService.GetCreatorById(id, cancellationToken);
+            if (existing is null)
+            {
+                return Http404(Localizer["record.notFound"]);
+            }
+
+            await using Stream stream = file.OpenReadStream();
+            string photoUrl = await imageStorage.SaveAsync("creators", id, stream, file.ContentType, cancellationToken);
+
+            Creator creator = await creatorService.SetCreatorPhoto(id, photoUrl, cancellationToken);
+            return Http200(MapCreator(creator), Localizer["record.updated"]);
+        }
+
+        [RequireAccess("Permite remover a foto do creator.")]
+        [DeleteEndpoint("[action]/{id:long}")]
+        public async Task<IActionResult> RemovePhoto(long id, CancellationToken cancellationToken)
+        {
+            Creator? existing = await creatorService.GetCreatorById(id, cancellationToken);
+            if (existing is null)
+            {
+                return Http404(Localizer["record.notFound"]);
+            }
+
+            await imageStorage.RemoveAsync("creators", id, cancellationToken);
+            Creator creator = await creatorService.RemoveCreatorPhoto(id, cancellationToken);
+            return Http200(MapCreator(creator), Localizer["record.updated"]);
         }
 
         [RequireAccess("Permite listar as campanhas em que o creator participou.")]

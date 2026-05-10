@@ -1,20 +1,10 @@
-import { httpClient, getApiBaseURL } from 'archon-ui'
+import { httpClient } from 'archon-ui'
 import type { Brand } from '../types/brand'
+import { resolveUploadUrl } from '../lib/uploadUrl'
 
 const BASE_URL = '/Brands'
 
-export const resolveBrandLogoUrl = (logoUrl?: string | null): string | undefined => {
-  if (!logoUrl) {
-    return undefined
-  }
-
-  if (/^https?:\/\//i.test(logoUrl)) {
-    return logoUrl
-  }
-
-  const base = (getApiBaseURL() || '').replace(/\/api\/?$/, '').replace(/\/+$/, '')
-  return `${base}${logoUrl.startsWith('/') ? '' : '/'}${logoUrl}`
-}
+export const resolveBrandLogoUrl = resolveUploadUrl
 
 export interface CreateBrandRequest {
   name: string

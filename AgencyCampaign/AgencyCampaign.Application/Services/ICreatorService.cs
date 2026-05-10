@@ -19,5 +19,9 @@ namespace AgencyCampaign.Application.Services
         Task<CreatorSummaryModel?> GetSummary(long id, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<CampaignCreator>> GetCampaignsByCreator(long creatorId, CancellationToken cancellationToken = default);
+
+        Task<Creator> SetCreatorPhoto(long id, string photoUrl, CancellationToken cancellationToken = default);
+
+        Task<Creator> RemoveCreatorPhoto(long id, CancellationToken cancellationToken = default);
     }
 }

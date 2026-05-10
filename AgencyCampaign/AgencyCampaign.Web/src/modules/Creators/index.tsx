@@ -4,7 +4,7 @@ import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, 
 import type { DataTableColumn } from 'archon-ui'
 import { Link as LinkIcon } from 'lucide-react'
 
-import { creatorService } from '../../services/creatorService'
+import { creatorService, resolveCreatorPhotoUrl } from '../../services/creatorService'
 import type { Creator } from '../../types/creator'
 import CreatorFormModal from '../../components/modals/CreatorFormModal'
 import CreatorAccessTokensModal from '../../components/modals/CreatorAccessTokensModal'
@@ -29,7 +29,22 @@ export default function Creators() {
     void loadCreators()
   }, [])
 
+  const renderPhotoCell = (_: unknown, record: Creator) => {
+    const url = resolveCreatorPhotoUrl(record.photoUrl)
+    const initial = (record.stageName?.trim() || record.name?.trim() || '?').charAt(0).toUpperCase()
+    return (
+      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border bg-muted/30">
+        {url ? (
+          <img src={url} alt={record.name} className="h-full w-full object-cover" />
+        ) : (
+          <span className="text-xs font-semibold text-muted-foreground">{initial}</span>
+        )}
+      </div>
+    )
+  }
+
   const columns: DataTableColumn<Creator>[] = [
+    { key: 'photo', title: '', dataIndex: 'photoUrl', width: 56, render: renderPhotoCell },
     { key: 'name', title: 'Nome', dataIndex: 'name' },
     { key: 'stageName', title: 'Nome artístico', dataIndex: 'stageName', render: (value?: string) => value || '-' },
     { key: 'primaryNiche', title: 'Nicho', dataIndex: 'primaryNiche', render: (value?: string) => value || '-' },
@@ -117,6 +132,21 @@ export default function Creators() {
         <SheetContent side="right" className="w-full sm:max-w-md">
           {previewCreator ? (
             <div className="flex h-full flex-col">
+              {(() => {
+                const photoSrc = resolveCreatorPhotoUrl(previewCreator.photoUrl)
+                const initial = (previewCreator.stageName?.trim() || previewCreator.name?.trim() || '?').charAt(0).toUpperCase()
+                return (
+                  <div className="mb-4 flex items-center justify-center">
+                    <div className="flex items-center justify-center overflow-hidden rounded-full border bg-muted/20" style={{ width: 140, height: 140 }}>
+                      {photoSrc ? (
+                        <img src={photoSrc} alt={previewCreator.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-4xl font-semibold text-muted-foreground">{initial}</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })()}
               <SheetPreviewHeader
                 title={previewCreator.stageName || previewCreator.name}
                 meta={

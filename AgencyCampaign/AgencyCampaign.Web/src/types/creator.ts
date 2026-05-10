@@ -14,6 +14,7 @@ export interface Creator {
   state?: string
   notes?: string
   defaultAgencyFeePercent: number
+  photoUrl?: string
   isActive: boolean
   createdAt: string
   updatedAt?: string

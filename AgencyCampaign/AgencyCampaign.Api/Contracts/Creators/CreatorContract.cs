@@ -32,6 +32,8 @@ namespace AgencyCampaign.Api.Contracts.Creators
 
         public decimal DefaultAgencyFeePercent { get; init; }
 
+        public string? PhotoUrl { get; init; }
+
         public bool IsActive { get; init; }
 
         public DateTimeOffset CreatedAt { get; init; }
@@ -53,6 +55,7 @@ namespace AgencyCampaign.Api.Contracts.Creators
             State = item.State,
             Notes = item.Notes,
             DefaultAgencyFeePercent = item.DefaultAgencyFeePercent,
+            PhotoUrl = item.PhotoUrl,
             IsActive = item.IsActive,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt

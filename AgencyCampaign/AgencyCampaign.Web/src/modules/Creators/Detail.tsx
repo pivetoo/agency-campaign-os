@@ -15,7 +15,7 @@ import {
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { ExternalLink, Plus, Pencil, Trash2, Users, Activity, Megaphone } from 'lucide-react'
-import { creatorService } from '../../services/creatorService'
+import { creatorService, resolveCreatorPhotoUrl } from '../../services/creatorService'
 import { creatorSocialHandleService } from '../../services/creatorSocialHandleService'
 import type { Creator } from '../../types/creator'
 import type {

@@ -76,6 +76,48 @@ namespace AgencyCampaign.Infrastructure.Services
             return result;
         }
 
+        public async Task<Creator> SetCreatorPhoto(long id, string photoUrl, CancellationToken cancellationToken = default)
+        {
+            Creator creator = await LoadTrackedCreator(id, cancellationToken);
+            creator.SetPhoto(photoUrl);
+
+            Creator? result = await Update(creator, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return result;
+        }
+
+        public async Task<Creator> RemoveCreatorPhoto(long id, CancellationToken cancellationToken = default)
+        {
+            Creator creator = await LoadTrackedCreator(id, cancellationToken);
+            creator.SetPhoto(null);
+
+            Creator? result = await Update(creator, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return result;
+        }
+
+        private async Task<Creator> LoadTrackedCreator(long id, CancellationToken cancellationToken)
+        {
+            Creator? creator = await DbContext.Set<Creator>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (creator is null)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+
+            return creator;
+        }
+
         public async Task<CreatorSummaryModel?> GetSummary(long id, CancellationToken cancellationToken = default)
         {
             Creator? creator = await DbContext.Set<Creator>()
