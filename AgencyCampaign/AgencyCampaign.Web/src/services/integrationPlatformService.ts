@@ -40,6 +40,11 @@ export const integrationPlatformService = {
     return response.data ?? []
   },
 
+  async getActiveConnectors(): Promise<Connector[]> {
+    const response = await httpClient.get<Connector[]>('/IntegrationPlatformProxy/connectors/active')
+    return response.data ?? []
+  },
+
   async getConnectorDetail(connectorId: number): Promise<ConnectorDetail> {
     const response = await httpClient.get<ConnectorDetail>(`/IntegrationPlatformProxy/connectors/detail/${connectorId}`)
     return response.data!

@@ -84,6 +84,7 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
   const [categories, setCategories] = useState<IntegrationCategory[]>([])
   const [integrations, setIntegrations] = useState<IntegrationPlatformIntegration[]>([])
   const [connectors, setConnectors] = useState<Connector[]>([])
+  const [activeConnectors, setActiveConnectors] = useState<Connector[]>([])
   const [pipelines, setPipelines] = useState<Pipeline[]>([])
 
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -91,6 +92,7 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
   useEffect(() => {
     if (!open) return
     void integrationPlatformService.getActiveIntegrationCategories().then(setCategories)
+    void integrationPlatformService.getActiveConnectors().then(setActiveConnectors)
   }, [open])
 
   useEffect(() => {
@@ -138,8 +140,11 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
       setIntegrations([])
       return
     }
-    void integrationPlatformService.getIntegrationsByCategory(categoryId).then(setIntegrations)
-  }, [categoryId])
+    void integrationPlatformService.getIntegrationsByCategory(categoryId).then((all) => {
+      const connectedIds = new Set(activeConnectors.map((connector) => connector.integrationId))
+      setIntegrations(all.filter((integration) => connectedIds.has(integration.id)))
+    })
+  }, [categoryId, activeConnectors])
 
   useEffect(() => {
     if (!integrationId) {
@@ -225,9 +230,15 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
                   setPipelineId(null)
                 }}
                 options={integrations.map((integ) => ({ value: String(integ.id), label: integ.name }))}
-                placeholder="Selecione"
+                placeholder={categoryId && integrations.length === 0 ? 'Sem contas conectadas nesta categoria' : 'Selecione'}
                 searchPlaceholder="Buscar integração"
+                disabled={!categoryId || integrations.length === 0}
               />
+              {categoryId && integrations.length === 0 && (
+                <p className="text-[10px] text-muted-foreground">
+                  Conecte uma conta primeiro em Configuração → Integrações.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">

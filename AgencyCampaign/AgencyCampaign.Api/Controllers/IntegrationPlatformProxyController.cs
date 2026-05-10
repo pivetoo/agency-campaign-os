@@ -47,6 +47,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(connectors);
         }
 
+        [RequireAccess("Permite listar todos os conectores ativos do tenant.")]
+        [GetEndpoint("connectors/active")]
+        public async Task<IActionResult> GetActiveConnectors(CancellationToken cancellationToken)
+        {
+            List<ConnectorDto> connectors = await integrationPlatformClient.GetActiveConnectorsAsync(cancellationToken);
+            return Http200(connectors);
+        }
+
         [RequireAccess("Permite obter os detalhes de um conector do IntegrationPlatform.")]
         [GetEndpoint("connectors/detail/{connectorId:long}")]
         public async Task<IActionResult> GetConnectorDetail(long connectorId, CancellationToken cancellationToken)

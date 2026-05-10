@@ -88,6 +88,20 @@ namespace AgencyCampaign.Infrastructure.Clients
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
+        public async Task<List<ConnectorDto>> GetActiveConnectorsAsync(CancellationToken ct = default)
+        {
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                return [];
+            }
+
+            RestResponse<ApiResponse<List<ConnectorDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorDto>>>(
+                RestRequest.Get($"{baseUrl}/api/connectors/active").WithSecret(secret!), ct);
+
+            return response.Ok ? response.Data?.Data ?? [] : [];
+        }
+
         public async Task<ConnectorDto> GetConnectorByIdAsync(long connectorId, CancellationToken ct = default)
         {
             (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
