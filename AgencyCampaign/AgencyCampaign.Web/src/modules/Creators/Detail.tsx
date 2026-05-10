@@ -262,29 +262,29 @@ export default function CreatorDetail() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="handles" className="mt-4">
-          <TabsList>
-            <TabsTrigger value="handles">
-              <Users size={14} className="mr-1.5" />
+        <Tabs defaultValue="handles" className="pt-2">
+          <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
+            <TabsTrigger value="handles" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+              <Users size={14} />
               Redes sociais
               {handles.length > 0 && (
-                <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium">{handles.length}</span>
+                <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">{handles.length}</span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="campaigns">
-              <Megaphone size={14} className="mr-1.5" />
+            <TabsTrigger value="campaigns" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+              <Megaphone size={14} />
               Campanhas
               {campaigns.length > 0 && (
-                <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium">{campaigns.length}</span>
+                <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">{campaigns.length}</span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="performance">
-              <Activity size={14} className="mr-1.5" />
+            <TabsTrigger value="performance" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+              <Activity size={14} />
               Performance por plataforma
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="handles" className="mt-2">
+          <TabsContent value="handles" className="mt-0">
             <Card>
               <CardContent className="pt-4">
                 <div className="mb-3 flex justify-end">
@@ -305,7 +305,7 @@ export default function CreatorDetail() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="campaigns" className="mt-2">
+          <TabsContent value="campaigns" className="mt-0">
             <Card>
               <CardContent className="pt-4">
                 <DataTable
@@ -320,7 +320,7 @@ export default function CreatorDetail() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="performance" className="mt-2">
+          <TabsContent value="performance" className="mt-0">
             <Card>
               <CardContent className="pt-4">
                 <DataTable
