@@ -100,9 +100,10 @@ test.describe('Cleanup E2E artifacts (opt-in)', () => {
 
     // Ordem: dependentes primeiro
     // 1) Oportunidades — apaga em cascata comentarios/negociacoes/follow-ups
+    //    Usa filtro `search` para nao pegar paginacao parcial.
     await cleanup({
       entity: 'Opportunities',
-      listUrl: '/api/Opportunities/Get?pageSize=500',
+      listUrl: `/api/Opportunities/Get?pageSize=500&search=${encodeURIComponent(PREFIX)}`,
       deleteUrl: (id) => `/api/Opportunities/${id}`,
     })
 
