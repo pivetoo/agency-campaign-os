@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Card, CardContent, CardHeader, CardTitle, PageLayout, useApi } from 'archon-ui'
+import { Button, Card, CardContent, PageLayout, useApi } from 'archon-ui'
 import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
@@ -221,39 +221,30 @@ export default function CommercialPipeline() {
       onRefresh={() => void loadBoard()}
     >
       <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Oportunidades no funil</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{summary.count}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Valor estimado</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{formatCurrency(summary.value)}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Follow-ups pendentes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{summary.pendingFollowUps}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Follow-ups atrasados</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className={summary.overdueFollowUps > 0 ? 'text-3xl font-bold text-destructive' : 'text-3xl font-bold'}>{summary.overdueFollowUps}</div>
-            </CardContent>
-          </Card>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border bg-card px-4 py-2.5 text-sm">
+          <div className="flex items-center gap-2">
+            <UserRound className="h-4 w-4 text-muted-foreground" />
+            <span className="text-muted-foreground">Oportunidades</span>
+            <span className="font-semibold text-foreground">{summary.count}</span>
+          </div>
+          <div className="hidden h-4 w-px bg-border sm:block" />
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <span className="text-muted-foreground">Valor em funil</span>
+            <span className="font-semibold text-foreground">{formatCurrency(summary.value)}</span>
+          </div>
+          <div className="hidden h-4 w-px bg-border sm:block" />
+          <div className="flex items-center gap-2">
+            <CalendarClock className="h-4 w-4 text-muted-foreground" />
+            <span className="text-muted-foreground">Follow-ups pendentes</span>
+            <span className="font-semibold text-foreground">{summary.pendingFollowUps}</span>
+          </div>
+          <div className="hidden h-4 w-px bg-border sm:block" />
+          <div className="flex items-center gap-2">
+            <AlertTriangle className={`h-4 w-4 ${summary.overdueFollowUps > 0 ? 'text-destructive' : 'text-muted-foreground'}`} />
+            <span className="text-muted-foreground">Atrasados</span>
+            <span className={`font-semibold ${summary.overdueFollowUps > 0 ? 'text-destructive' : 'text-foreground'}`}>{summary.overdueFollowUps}</span>
+          </div>
         </div>
 
         {summary.overdueFollowUps > 0 && (
