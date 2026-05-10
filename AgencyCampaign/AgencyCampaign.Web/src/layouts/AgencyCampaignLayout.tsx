@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { AppLayout, useAuth, useAppNavigation, AuthService, usePermissions } from 'archon-ui'
+import { AppLayout, useAuth, useAppNavigation, AuthService, usePermissions, useI18n } from 'archon-ui'
 import type { BreadcrumbItem, NotificationItem } from 'archon-ui'
 import { notificationService } from '../services/notificationService'
 import type { Notification } from '../types/notification'
@@ -20,6 +20,7 @@ export default function AgencyCampaignLayout() {
   const navigate = useNavigate()
   const { createMenuGroup } = useAppNavigation({})
   const { isRoot } = usePermissions()
+  const { t } = useI18n()
   const sidebarLogo = <img src={logoAgencyCampaign} alt="Mainstay" style={{ width: 28, height: 28, objectFit: 'contain' }} />
 
   const handleLogout = async () => {
@@ -99,56 +100,56 @@ export default function AgencyCampaignLayout() {
   }, [navigate])
 
   const systemGroups = [
-    createMenuGroup('Geral', [
-      { key: 'dashboard', label: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
+    createMenuGroup(t('nav.group.general'), [
+      { key: 'dashboard', label: t('nav.item.dashboard'), path: '/', icon: <LayoutDashboard size={20} /> },
       ...(isRoot
-        ? [{ key: 'usuarios', label: 'Usuários', path: '/usuarios', icon: <UserCog size={20} /> }]
+        ? [{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> }]
         : []),
     ]),
-    createMenuGroup('Comercial', [
-      { key: 'comercial-pipeline', label: 'Pipeline', path: '/comercial/pipeline', icon: <Columns3 size={20} /> },
-      { key: 'comercial-propostas', label: 'Propostas', path: '/comercial/propostas', icon: <Tags size={20} /> },
-      { key: 'comercial-aprovacoes', label: 'Aprovações', path: '/comercial/aprovacoes', icon: <Globe size={20} /> },
-      { key: 'comercial-followups', label: 'Atividades', path: '/comercial/followups', icon: <ListChecks size={20} /> },
+    createMenuGroup(t('nav.group.commercial'), [
+      { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} /> },
+      { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} /> },
+      { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} /> },
+      { key: 'comercial-followups', label: t('nav.item.activities'), path: '/comercial/followups', icon: <ListChecks size={20} /> },
     ]),
-    createMenuGroup('Operação', [
-      { key: 'marcas', label: 'Marcas', path: '/marcas', icon: <Building2 size={20} /> },
-      { key: 'creators', label: 'Creators', path: '/creators', icon: <Users size={20} /> },
-      { key: 'campanhas', label: 'Campanhas', path: '/campanhas', icon: <Megaphone size={20} /> },
-      { key: 'operacao-aprovacoes', label: 'Aprovações', path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} /> },
+    createMenuGroup(t('nav.group.operations'), [
+      { key: 'marcas', label: t('nav.item.brands'), path: '/marcas', icon: <Building2 size={20} /> },
+      { key: 'creators', label: t('nav.item.creators'), path: '/creators', icon: <Users size={20} /> },
+      { key: 'campanhas', label: t('nav.item.campaigns'), path: '/campanhas', icon: <Megaphone size={20} /> },
+      { key: 'operacao-aprovacoes', label: t('nav.item.approvals'), path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} /> },
     ]),
-    createMenuGroup('Finanças', [
-      { key: 'financeiro-receber', label: 'Contas a receber', path: '/financeiro/receber', icon: <HandCoins size={20} /> },
-      { key: 'financeiro-pagar', label: 'Contas a pagar', path: '/financeiro/pagar', icon: <ReceiptText size={20} /> },
-      { key: 'financeiro-repasses-creators', label: 'Repasses para creators', path: '/financeiro/repasses-creators', icon: <HandCoins size={20} /> },
-      { key: 'financeiro-fluxo-caixa', label: 'Fluxo de caixa', path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} /> },
-      { key: 'financeiro-aging', label: 'Aging', path: '/financeiro/aging', icon: <Hourglass size={20} /> },
+    createMenuGroup(t('nav.group.finance'), [
+      { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} /> },
+      { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} /> },
+      { key: 'financeiro-repasses-creators', label: t('nav.item.creatorPayments'), path: '/financeiro/repasses-creators', icon: <HandCoins size={20} /> },
+      { key: 'financeiro-fluxo-caixa', label: t('nav.item.cashFlow'), path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} /> },
+      { key: 'financeiro-aging', label: t('nav.item.aging'), path: '/financeiro/aging', icon: <Hourglass size={20} /> },
     ]),
   ]
 
   const configurationGroups = [
-    createMenuGroup('Geral', [
-      { key: 'configuracao-minha-agencia', label: 'Dashboard', path: '/configuracao', icon: <LayoutDashboard size={20} /> },
-      { key: 'configuracao-empresa', label: 'Dados da agência', path: '/configuracao/empresa', icon: <Briefcase size={20} /> },
-      { key: 'configuracao-integracoes', label: 'Integrações', path: '/configuracao/integracoes', icon: <Plug size={20} /> },
-      { key: 'configuracao-templates-email', label: 'Templates de email', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
+    createMenuGroup(t('nav.group.general'), [
+      { key: 'configuracao-minha-agencia', label: t('nav.item.dashboard'), path: '/configuracao', icon: <LayoutDashboard size={20} /> },
+      { key: 'configuracao-empresa', label: t('nav.item.agencyData'), path: '/configuracao/empresa', icon: <Briefcase size={20} /> },
+      { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} /> },
+      { key: 'configuracao-templates-email', label: t('nav.item.emailTemplates'), path: '/configuracao/templates-email', icon: <Mail size={20} /> },
     ]),
-    createMenuGroup('Comercial', [
-      { key: 'configuracao-pipeline-comercial', label: 'Funil comercial', path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
-      { key: 'configuracao-origens-oportunidade', label: 'Origens de oportunidade', path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
-      { key: 'configuracao-tags-oportunidade', label: 'Tags de oportunidade', path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
-      { key: 'configuracao-templates-proposta', label: 'Templates de proposta', path: '/configuracao/templates-proposta', icon: <FileSignature size={20} /> },
-      { key: 'configuracao-blocos-proposta', label: 'Blocos de proposta', path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
+    createMenuGroup(t('nav.group.commercial'), [
+      { key: 'configuracao-pipeline-comercial', label: t('nav.item.commercialFunnel'), path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
+      { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
+      { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
+      { key: 'configuracao-templates-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/templates-proposta', icon: <FileSignature size={20} /> },
+      { key: 'configuracao-blocos-proposta', label: t('nav.item.proposalBlocks'), path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
     ]),
-    createMenuGroup('Operação', [
-      { key: 'configuracao-plataformas', label: 'Redes sociais', path: '/configuracao/plataformas', icon: <Share2 size={20} /> },
-      { key: 'configuracao-status-creators', label: 'Status do creator', path: '/configuracao/status-creators', icon: <UserCheck size={20} /> },
-      { key: 'configuracao-tipos-entrega', label: 'Tipos de entrega', path: '/configuracao/tipos-entrega', icon: <Package size={20} /> },
-      { key: 'configuracao-templates-documento', label: 'Modelos de contrato', path: '/configuracao/templates-documento', icon: <ScrollText size={20} /> },
+    createMenuGroup(t('nav.group.operations'), [
+      { key: 'configuracao-plataformas', label: t('nav.item.socialNetworks'), path: '/configuracao/plataformas', icon: <Share2 size={20} /> },
+      { key: 'configuracao-status-creators', label: t('nav.item.creatorStatus'), path: '/configuracao/status-creators', icon: <UserCheck size={20} /> },
+      { key: 'configuracao-tipos-entrega', label: t('nav.item.deliverableKinds'), path: '/configuracao/tipos-entrega', icon: <Package size={20} /> },
+      { key: 'configuracao-templates-documento', label: t('nav.item.contractTemplates'), path: '/configuracao/templates-documento', icon: <ScrollText size={20} /> },
     ]),
-    createMenuGroup('Finanças', [
-      { key: 'configuracao-contas-financeiras', label: 'Contas bancárias', path: '/configuracao/contas-financeiras', icon: <Wallet size={20} /> },
-      { key: 'configuracao-subcategorias-financeiras', label: 'Subcategorias financeiras', path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} /> },
+    createMenuGroup(t('nav.group.finance'), [
+      { key: 'configuracao-contas-financeiras', label: t('nav.item.bankAccounts'), path: '/configuracao/contas-financeiras', icon: <Wallet size={20} /> },
+      { key: 'configuracao-subcategorias-financeiras', label: t('nav.item.financialSubcategories'), path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} /> },
     ]),
   ]
 
@@ -157,8 +158,8 @@ export default function AgencyCampaignLayout() {
   const menuGroups = isInConfiguration ? configurationGroups : systemGroups
 
   const modules = [
-    { id: 'sistema', name: 'Painel', icon: <LayoutDashboard size={16} /> },
-    { id: 'configuracao', name: 'Configuração', icon: <Settings size={16} /> },
+    { id: 'sistema', name: t('nav.module.panel'), icon: <LayoutDashboard size={16} /> },
+    { id: 'configuracao', name: t('nav.module.configuration'), icon: <Settings size={16} /> },
   ]
 
   const handleModuleChange = (moduleId: string) => {
@@ -174,70 +175,70 @@ export default function AgencyCampaignLayout() {
   const breadcrumbs = useMemo((): BreadcrumbItem[] => {
     const path = location.pathname
     const crumbs: BreadcrumbItem[] = [
-      { label: 'Início', onClick: () => navigate(homePathByModule) },
+      { label: t('breadcrumb.home'), onClick: () => navigate(homePathByModule) },
     ]
 
     const routeMap: Record<string, string> = {
-      '/': 'Dashboard',
-      '/configuracao': 'Dashboard',
-      '/comercial': 'Pipeline',
-      '/comercial/pipeline': 'Pipeline',
-      '/comercial/oportunidades': 'Oportunidades',
-      '/comercial/propostas': 'Propostas',
-      '/comercial/aprovacoes': 'Aprovações',
-      '/comercial/followups': 'Atividades',
-      '/marcas': 'Marcas',
-      '/creators': 'Creators',
-      '/campanhas': 'Campanhas',
-      '/financeiro/receber': 'Contas a receber',
-      '/financeiro/pagar': 'Contas a pagar',
-      '/financeiro/repasses-creators': 'Repasses para creators',
-      '/financeiro/fluxo-caixa': 'Fluxo de caixa',
-      '/financeiro/aging': 'Aging',
-      '/configuracao/plataformas': 'Redes sociais',
-      '/configuracao/pipeline-comercial': 'Funil comercial',
-      '/configuracao/status-creators': 'Status do creator',
-      '/configuracao/tipos-entrega': 'Tipos de entrega',
-      '/configuracao/integracoes': 'Integrações',
-      '/configuracao/templates-proposta': 'Templates de proposta',
-      '/configuracao/blocos-proposta': 'Blocos de proposta',
-      '/configuracao/origens-oportunidade': 'Origens de oportunidade',
-      '/configuracao/tags-oportunidade': 'Tags de oportunidade',
-      '/configuracao/templates-email': 'Templates de email',
-      '/configuracao/templates-documento': 'Modelos de contrato',
-      '/configuracao/contas-financeiras': 'Contas bancárias',
-      '/configuracao/subcategorias-financeiras': 'Subcategorias financeiras',
-      '/configuracao/empresa': 'Dados da agência',
-      '/operacao/aprovacoes': 'Aprovações',
+      '/': t('nav.item.dashboard'),
+      '/configuracao': t('nav.item.dashboard'),
+      '/comercial': t('nav.item.pipeline'),
+      '/comercial/pipeline': t('nav.item.pipeline'),
+      '/comercial/oportunidades': t('nav.item.opportunities'),
+      '/comercial/propostas': t('nav.item.proposals'),
+      '/comercial/aprovacoes': t('nav.item.approvals'),
+      '/comercial/followups': t('nav.item.activities'),
+      '/marcas': t('nav.item.brands'),
+      '/creators': t('nav.item.creators'),
+      '/campanhas': t('nav.item.campaigns'),
+      '/financeiro/receber': t('nav.item.accountsReceivable'),
+      '/financeiro/pagar': t('nav.item.accountsPayable'),
+      '/financeiro/repasses-creators': t('nav.item.creatorPayments'),
+      '/financeiro/fluxo-caixa': t('nav.item.cashFlow'),
+      '/financeiro/aging': t('nav.item.aging'),
+      '/configuracao/plataformas': t('nav.item.socialNetworks'),
+      '/configuracao/pipeline-comercial': t('nav.item.commercialFunnel'),
+      '/configuracao/status-creators': t('nav.item.creatorStatus'),
+      '/configuracao/tipos-entrega': t('nav.item.deliverableKinds'),
+      '/configuracao/integracoes': t('nav.item.integrations'),
+      '/configuracao/templates-proposta': t('nav.item.proposalTemplates'),
+      '/configuracao/blocos-proposta': t('nav.item.proposalBlocks'),
+      '/configuracao/origens-oportunidade': t('nav.item.opportunitySources'),
+      '/configuracao/tags-oportunidade': t('nav.item.opportunityTags'),
+      '/configuracao/templates-email': t('nav.item.emailTemplates'),
+      '/configuracao/templates-documento': t('nav.item.contractTemplates'),
+      '/configuracao/contas-financeiras': t('nav.item.bankAccounts'),
+      '/configuracao/subcategorias-financeiras': t('nav.item.financialSubcategories'),
+      '/configuracao/empresa': t('nav.item.agencyData'),
+      '/operacao/aprovacoes': t('nav.item.approvals'),
     }
 
     const currentLabel = routeMap[path]
-    if (currentLabel && currentLabel !== 'Dashboard' && currentLabel !== 'Auditoria') {
+    if (currentLabel && currentLabel !== t('nav.item.dashboard')) {
       crumbs.push({ label: currentLabel })
     }
 
     if (path.match(/^\/comercial\/oportunidades\/\d+$/)) {
-      crumbs.push({ label: 'Pipeline', onClick: () => navigate('/comercial/pipeline') })
-      crumbs.push({ label: 'Detalhes' })
+      crumbs.push({ label: t('nav.item.pipeline'), onClick: () => navigate('/comercial/pipeline') })
+      crumbs.push({ label: t('breadcrumb.details') })
     }
 
     if (path.match(/^\/comercial\/propostas\/\d+$/)) {
-      crumbs.push({ label: 'Propostas', onClick: () => navigate('/comercial/propostas') })
-      crumbs.push({ label: 'Detalhes' })
+      crumbs.push({ label: t('nav.item.proposals'), onClick: () => navigate('/comercial/propostas') })
+      crumbs.push({ label: t('breadcrumb.details') })
     }
 
     if (path.match(/^\/campanhas\/\d+$/)) {
-      crumbs.push({ label: 'Campanhas', onClick: () => navigate('/campanhas') })
-      crumbs.push({ label: 'Detalhes' })
+      crumbs.push({ label: t('nav.item.campaigns'), onClick: () => navigate('/campanhas') })
+      crumbs.push({ label: t('breadcrumb.details') })
     }
 
     if (path.match(/^\/creators\/\d+$/)) {
-      crumbs.push({ label: 'Creators', onClick: () => navigate('/creators') })
-      crumbs.push({ label: 'Detalhes' })
+      crumbs.push({ label: t('nav.item.creators'), onClick: () => navigate('/creators') })
+      crumbs.push({ label: t('breadcrumb.details') })
     }
 
     return crumbs
-  }, [location.pathname, navigate, homePathByModule])
+  }, [location.pathname, navigate, homePathByModule, t])
 
   return (
     <TourProvider>

@@ -10,6 +10,7 @@ import {
   GlobalLoader,
   LineChart,
   PieChart,
+  useI18n,
 } from 'archon-ui'
 import {
   Activity,
@@ -41,6 +42,7 @@ function formatCurrencyShort(value: number) {
 }
 
 export default function Dashboard() {
+  const { t } = useI18n()
   const [overview, setOverview] = useState<DashboardOverview | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -73,12 +75,12 @@ export default function Dashboard() {
   const headlineChips = useMemo(() => {
     const headline = overview?.headline
     return [
-      { label: 'Campanhas ativas', value: headline?.activeCampaigns ?? 0, icon: Megaphone, tone: 'text-indigo-600' },
-      { label: 'Marcas', value: headline?.activeBrands ?? 0, icon: Building2, tone: 'text-violet-600' },
-      { label: 'Creators', value: headline?.activeCreators ?? 0, icon: Users, tone: 'text-cyan-600' },
-      { label: 'Entregas pendentes', value: headline?.pendingDeliverables ?? 0, icon: Clock, tone: 'text-amber-600' },
+      { label: t('dashboard.kpi.activeCampaigns'), value: headline?.activeCampaigns ?? 0, icon: Megaphone, tone: 'text-indigo-600' },
+      { label: t('dashboard.kpi.activeBrands'), value: headline?.activeBrands ?? 0, icon: Building2, tone: 'text-violet-600' },
+      { label: t('dashboard.kpi.activeCreators'), value: headline?.activeCreators ?? 0, icon: Users, tone: 'text-cyan-600' },
+      { label: t('dashboard.kpi.pendingDeliverables'), value: headline?.pendingDeliverables ?? 0, icon: Clock, tone: 'text-amber-600' },
     ]
-  }, [overview])
+  }, [overview, t])
 
   if (isLoading) {
     return <GlobalLoader isVisible={true} className="bg-background" />
@@ -95,10 +97,10 @@ export default function Dashboard() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="border-l-4 border-primary pl-5">
           <h1 className="text-3xl font-bold text-foreground tracking-tight">
-            <strong className="text-primary">Dashboard</strong>
+            <strong className="text-primary">{t('dashboard.title')}</strong>
           </h1>
           <p className="text-lg text-muted-foreground mt-3 leading-relaxed">
-            Visão geral do desempenho da agência
+            {t('dashboard.subtitle')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -124,19 +126,19 @@ export default function Dashboard() {
             <CardTitle className="flex items-center justify-between gap-2 text-base">
               <span className="flex items-center gap-2">
                 <LineChartIcon className="h-5 w-5 text-primary" />
-                Receita dos últimos 12 meses
+                {t('dashboard.revenue.title')}
               </span>
               <span className="text-xs font-normal text-muted-foreground">
-                Mês atual: <strong className="text-foreground">{formatCurrencyShort(monthRevenue)}</strong>
+                {t('dashboard.revenue.currentMonth')}: <strong className="text-foreground">{formatCurrencyShort(monthRevenue)}</strong>
               </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5">
             <ChartContainer
-              title="Receita bruta x fee da agência"
+              title={t('dashboard.revenue.chartTitle')}
               height={290}
               isEmpty={monthlyRevenue.length === 0}
-              emptyMessage="Nenhuma receita registrada nos últimos 12 meses."
+              emptyMessage={t('dashboard.revenue.empty')}
             >
               <AreaChart
                 data={monthlyRevenue}
@@ -154,15 +156,15 @@ export default function Dashboard() {
           <CardHeader className="border-b bg-muted/20 pb-4">
             <CardTitle className="flex items-center gap-2 text-base">
               <PieChartIcon className="h-5 w-5 text-violet-600" />
-              Pipeline comercial
+              {t('dashboard.pipeline.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5">
             <ChartContainer
-              title="Oportunidades por estágio"
+              title={t('dashboard.pipeline.chartTitle')}
               height={290}
               isEmpty={pipeline.length === 0}
-              emptyMessage="Nenhuma oportunidade no pipeline."
+              emptyMessage={t('dashboard.pipeline.empty')}
             >
               <PieChart
                 data={pipeline.map((item) => ({ name: item.name, value: item.oportunidades }))}
@@ -181,13 +183,13 @@ export default function Dashboard() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
               <BarChart3 className="h-4 w-4 text-amber-600" />
-              Plataformas mais entregues
+              {t('dashboard.platforms.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {platformData.length === 0 ? (
               <div className="flex h-[170px] items-center justify-center text-xs text-muted-foreground">
-                Nenhuma entrega cadastrada.
+                {t('dashboard.platforms.empty')}
               </div>
             ) : (
               <BarChart
@@ -207,13 +209,13 @@ export default function Dashboard() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
               <Activity className="h-4 w-4 text-sky-600" />
-              Crescimento de creators
+              {t('dashboard.creatorGrowth.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {creatorGrowth.length === 0 ? (
               <div className="flex h-[170px] items-center justify-center text-xs text-muted-foreground">
-                Nenhum creator cadastrado.
+                {t('dashboard.creatorGrowth.empty')}
               </div>
             ) : (
               <LineChart
@@ -234,13 +236,13 @@ export default function Dashboard() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
               <Sparkles className="h-4 w-4 text-emerald-600" />
-              Saúde da operação
+              {t('dashboard.operationHealth.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 px-4 pb-4">
             {operationHealth.length === 0 ? (
               <div className="flex h-[140px] items-center justify-center text-xs text-muted-foreground">
-                Sem dados suficientes.
+                {t('dashboard.operationHealth.empty')}
               </div>
             ) : (
               operationHealth.map((item, index) => (

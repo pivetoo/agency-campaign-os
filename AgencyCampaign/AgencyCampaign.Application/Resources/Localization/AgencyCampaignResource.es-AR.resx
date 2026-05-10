@@ -123,4 +123,80 @@
   <data name="integrationPlatform.pipeline.enqueueFailed" xml:space="preserve">
     <value>Error al encolar el pipeline en IntegrationPlatform.</value>
   </data>
+  <data name="nav.module.panel" xml:space="preserve"><value>Panel</value></data>
+  <data name="nav.module.configuration" xml:space="preserve"><value>Configuración</value></data>
+  <data name="nav.group.general" xml:space="preserve"><value>General</value></data>
+  <data name="nav.group.commercial" xml:space="preserve"><value>Comercial</value></data>
+  <data name="nav.group.operations" xml:space="preserve"><value>Operación</value></data>
+  <data name="nav.group.finance" xml:space="preserve"><value>Finanzas</value></data>
+  <data name="nav.item.dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="nav.item.users" xml:space="preserve"><value>Usuarios</value></data>
+  <data name="nav.item.pipeline" xml:space="preserve"><value>Pipeline</value></data>
+  <data name="nav.item.opportunities" xml:space="preserve"><value>Oportunidades</value></data>
+  <data name="nav.item.proposals" xml:space="preserve"><value>Propuestas</value></data>
+  <data name="nav.item.approvals" xml:space="preserve"><value>Aprobaciones</value></data>
+  <data name="nav.item.activities" xml:space="preserve"><value>Actividades</value></data>
+  <data name="nav.item.brands" xml:space="preserve"><value>Marcas</value></data>
+  <data name="nav.item.creators" xml:space="preserve"><value>Creators</value></data>
+  <data name="nav.item.campaigns" xml:space="preserve"><value>Campañas</value></data>
+  <data name="nav.item.accountsReceivable" xml:space="preserve"><value>Cuentas por cobrar</value></data>
+  <data name="nav.item.accountsPayable" xml:space="preserve"><value>Cuentas por pagar</value></data>
+  <data name="nav.item.creatorPayments" xml:space="preserve"><value>Pagos a creators</value></data>
+  <data name="nav.item.cashFlow" xml:space="preserve"><value>Flujo de caja</value></data>
+  <data name="nav.item.aging" xml:space="preserve"><value>Aging</value></data>
+  <data name="nav.item.agencyData" xml:space="preserve"><value>Datos de la agencia</value></data>
+  <data name="nav.item.integrations" xml:space="preserve"><value>Integraciones</value></data>
+  <data name="nav.item.emailTemplates" xml:space="preserve"><value>Plantillas de email</value></data>
+  <data name="nav.item.commercialFunnel" xml:space="preserve"><value>Embudo comercial</value></data>
+  <data name="nav.item.opportunitySources" xml:space="preserve"><value>Orígenes de oportunidad</value></data>
+  <data name="nav.item.opportunityTags" xml:space="preserve"><value>Etiquetas de oportunidad</value></data>
+  <data name="nav.item.proposalTemplates" xml:space="preserve"><value>Plantillas de propuesta</value></data>
+  <data name="nav.item.proposalBlocks" xml:space="preserve"><value>Bloques de propuesta</value></data>
+  <data name="nav.item.socialNetworks" xml:space="preserve"><value>Redes sociales</value></data>
+  <data name="nav.item.creatorStatus" xml:space="preserve"><value>Estado del creator</value></data>
+  <data name="nav.item.deliverableKinds" xml:space="preserve"><value>Tipos de entrega</value></data>
+  <data name="nav.item.contractTemplates" xml:space="preserve"><value>Modelos de contrato</value></data>
+  <data name="nav.item.bankAccounts" xml:space="preserve"><value>Cuentas bancarias</value></data>
+  <data name="nav.item.financialSubcategories" xml:space="preserve"><value>Subcategorías financieras</value></data>
+  <data name="breadcrumb.home" xml:space="preserve"><value>Inicio</value></data>
+  <data name="breadcrumb.details" xml:space="preserve"><value>Detalles</value></data>
+  <data name="dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="dashboard.subtitle" xml:space="preserve"><value>Visión general del rendimiento de la agencia</value></data>
+  <data name="dashboard.kpi.activeCampaigns" xml:space="preserve"><value>Campañas activas</value></data>
+  <data name="dashboard.kpi.activeBrands" xml:space="preserve"><value>Marcas</value></data>
+  <data name="dashboard.kpi.activeCreators" xml:space="preserve"><value>Creators</value></data>
+  <data name="dashboard.kpi.pendingDeliverables" xml:space="preserve"><value>Entregas pendientes</value></data>
+  <data name="dashboard.revenue.title" xml:space="preserve"><value>Ingresos de los últimos 12 meses</value></data>
+  <data name="dashboard.revenue.currentMonth" xml:space="preserve"><value>Mes actual</value></data>
+  <data name="dashboard.revenue.chartTitle" xml:space="preserve"><value>Ingresos brutos vs fee de la agencia</value></data>
+  <data name="dashboard.revenue.empty" xml:space="preserve"><value>No hay ingresos registrados en los últimos 12 meses.</value></data>
+  <data name="dashboard.pipeline.title" xml:space="preserve"><value>Pipeline comercial</value></data>
+  <data name="dashboard.pipeline.chartTitle" xml:space="preserve"><value>Oportunidades por etapa</value></data>
+  <data name="dashboard.pipeline.empty" xml:space="preserve"><value>No hay oportunidades en el pipeline.</value></data>
+  <data name="dashboard.platforms.title" xml:space="preserve"><value>Plataformas con más entregas</value></data>
+  <data name="dashboard.platforms.empty" xml:space="preserve"><value>No hay entregas registradas.</value></data>
+  <data name="dashboard.creatorGrowth.title" xml:space="preserve"><value>Crecimiento de creators</value></data>
+  <data name="dashboard.creatorGrowth.empty" xml:space="preserve"><value>No hay creators registrados.</value></data>
+  <data name="dashboard.operationHealth.title" xml:space="preserve"><value>Salud de la operación</value></data>
+  <data name="dashboard.operationHealth.empty" xml:space="preserve"><value>Datos insuficientes.</value></data>
+  <data name="common.field.name" xml:space="preserve"><value>Nombre</value></data>
+  <data name="common.field.tradeName" xml:space="preserve"><value>Nombre de fantasía</value></data>
+  <data name="common.field.document" xml:space="preserve"><value>Documento</value></data>
+  <data name="common.field.contact" xml:space="preserve"><value>Contacto</value></data>
+  <data name="common.field.email" xml:space="preserve"><value>Correo electrónico</value></data>
+  <data name="common.field.phone" xml:space="preserve"><value>Teléfono</value></data>
+  <data name="common.field.notes" xml:space="preserve"><value>Observaciones</value></data>
+  <data name="common.field.status" xml:space="preserve"><value>Estado</value></data>
+  <data name="common.field.city" xml:space="preserve"><value>Ciudad</value></data>
+  <data name="common.field.state" xml:space="preserve"><value>Provincia</value></data>
+  <data name="common.status.active" xml:space="preserve"><value>Activo</value></data>
+  <data name="common.status.inactive" xml:space="preserve"><value>Inactivo</value></data>
+  <data name="common.status.activeFemale" xml:space="preserve"><value>Activa</value></data>
+  <data name="common.status.inactiveFemale" xml:space="preserve"><value>Inactiva</value></data>
+  <data name="brands.title" xml:space="preserve"><value>Marcas</value></data>
+  <data name="brands.subtitle" xml:space="preserve"><value>Registre y gestione las marcas atendidas por la agencia</value></data>
+  <data name="brands.empty" xml:space="preserve"><value>No hay marcas registradas</value></data>
+  <data name="brands.preview.description" xml:space="preserve"><value>Resumen rápido de la marca seleccionada</value></data>
+  <data name="brands.preview.dataSection" xml:space="preserve"><value>Datos principales</value></data>
+  <data name="brands.preview.dataSectionDesc" xml:space="preserve"><value>Información de registro de la marca</value></data>
 </root>

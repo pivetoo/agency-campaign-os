@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 
 import { brandService, resolveBrandLogoUrl } from '../../services/brandService'
@@ -7,6 +7,7 @@ import type { Brand } from '../../types/brand'
 import BrandFormModal from '../../components/modals/BrandFormModal'
 
 export default function Brands() {
+  const { t } = useI18n()
   const [brands, setBrands] = useState<Brand[]>([])
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null)
   const [previewBrand, setPreviewBrand] = useState<Brand | null>(null)
@@ -41,18 +42,18 @@ export default function Brands() {
 
   const columns: DataTableColumn<Brand>[] = [
     { key: 'logo', title: '', dataIndex: 'logoUrl', width: 56, render: renderLogoCell },
-    { key: 'name', title: 'Nome', dataIndex: 'name' },
-    { key: 'tradeName', title: 'Nome fantasia', dataIndex: 'tradeName', render: (value?: string) => value || '-' },
-    { key: 'document', title: 'Documento', dataIndex: 'document', render: (value?: string) => value || '-' },
-    { key: 'contactName', title: 'Contato', dataIndex: 'contactName' },
-    { key: 'contactEmail', title: 'E-mail', dataIndex: 'contactEmail' },
+    { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
+    { key: 'tradeName', title: t('common.field.tradeName'), dataIndex: 'tradeName', render: (value?: string) => value || '-' },
+    { key: 'document', title: t('common.field.document'), dataIndex: 'document', render: (value?: string) => value || '-' },
+    { key: 'contactName', title: t('common.field.contact'), dataIndex: 'contactName' },
+    { key: 'contactEmail', title: t('common.field.email'), dataIndex: 'contactEmail' },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'destructive'}>
-          {value ? 'Ativa' : 'Inativa'}
+          {value ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}
         </Badge>
       ),
     },
