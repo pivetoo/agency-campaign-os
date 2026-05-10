@@ -13,13 +13,17 @@ namespace AgencyCampaign.Api.Controllers
 {
     public sealed class BrandsController : ApiControllerBase
     {
+        private const long MaxLogoBytes = 2 * 1024 * 1024;
+
         private readonly IBrandService brandService;
+        private readonly IBrandLogoStorage brandLogoStorage;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
         private static readonly Func<Brand, BrandContract> MapBrand = BrandContract.Projection.Compile();
 
-        public BrandsController(IBrandService brandService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public BrandsController(IBrandService brandService, IBrandLogoStorage brandLogoStorage, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.brandService = brandService;
+            this.brandLogoStorage = brandLogoStorage;
             Localizer = localizer;
         }
 

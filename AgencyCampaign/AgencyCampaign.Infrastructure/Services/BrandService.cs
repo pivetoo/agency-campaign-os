@@ -73,5 +73,47 @@ namespace AgencyCampaign.Infrastructure.Services
 
             return result;
         }
+
+        public async Task<Brand> SetBrandLogo(long id, string logoUrl, CancellationToken cancellationToken = default)
+        {
+            Brand brand = await LoadTrackedBrand(id, cancellationToken);
+            brand.SetLogo(logoUrl);
+
+            Brand? result = await Update(brand, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return result;
+        }
+
+        public async Task<Brand> RemoveBrandLogo(long id, CancellationToken cancellationToken = default)
+        {
+            Brand brand = await LoadTrackedBrand(id, cancellationToken);
+            brand.SetLogo(null);
+
+            Brand? result = await Update(brand, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return result;
+        }
+
+        private async Task<Brand> LoadTrackedBrand(long id, CancellationToken cancellationToken)
+        {
+            Brand? brand = await DbContext.Set<Brand>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (brand is null)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+
+            return brand;
+        }
     }
 }

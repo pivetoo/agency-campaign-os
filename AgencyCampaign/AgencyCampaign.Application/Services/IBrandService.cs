@@ -14,5 +14,9 @@ namespace AgencyCampaign.Application.Services
         Task<Brand> CreateBrand(CreateBrandRequest request, CancellationToken cancellationToken = default);
 
         Task<Brand> UpdateBrand(long id, UpdateBrandRequest request, CancellationToken cancellationToken = default);
+
+        Task<Brand> SetBrandLogo(long id, string logoUrl, CancellationToken cancellationToken = default);
+
+        Task<Brand> RemoveBrandLogo(long id, CancellationToken cancellationToken = default);
     }
 }

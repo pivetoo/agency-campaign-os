@@ -27,6 +27,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddScoped<IntegrationPlatformClient>();
             services.AddScoped<IAutomationDispatcher, AutomationDispatcher>();
             services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();
+            services.AddScoped<IBrandLogoStorage, BrandLogoStorage>();
 
             return services;
         }
