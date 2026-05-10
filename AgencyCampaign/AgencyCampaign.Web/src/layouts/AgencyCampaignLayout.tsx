@@ -231,6 +231,11 @@ export default function AgencyCampaignLayout() {
       crumbs.push({ label: 'Detalhes' })
     }
 
+    if (path.match(/^\/creators\/\d+$/)) {
+      crumbs.push({ label: 'Creators', onClick: () => navigate('/creators') })
+      crumbs.push({ label: 'Detalhes' })
+    }
+
     return crumbs
   }, [location.pathname, navigate, homePathByModule])
 
