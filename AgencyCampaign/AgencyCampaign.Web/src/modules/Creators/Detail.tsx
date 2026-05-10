@@ -203,6 +203,40 @@ export default function CreatorDetail() {
           void loadCampaigns()
         }}
       >
+        {creator && (
+          <Card className="mb-3">
+            <CardContent className="flex items-center gap-4 pt-5 pb-5">
+              {(() => {
+                const photoSrc = resolveCreatorPhotoUrl(creator.photoUrl)
+                const initial = (creator.stageName?.trim() || creator.name?.trim() || '?').charAt(0).toUpperCase()
+                return (
+                  <div className="flex items-center justify-center overflow-hidden rounded-full border bg-muted/30 shrink-0" style={{ width: 96, height: 96 }}>
+                    {photoSrc ? (
+                      <img src={photoSrc} alt={creator.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="text-3xl font-semibold text-muted-foreground">{initial}</span>
+                    )}
+                  </div>
+                )
+              })()}
+              <div className="flex-1 min-w-0">
+                <p className="text-xl font-semibold truncate">{creator.stageName || creator.name}</p>
+                {creator.stageName && creator.name !== creator.stageName && (
+                  <p className="text-sm text-muted-foreground truncate">{creator.name}</p>
+                )}
+                <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-muted-foreground">
+                  {creator.primaryNiche && <span>{creator.primaryNiche}</span>}
+                  {creator.city && <span>· {creator.city}{creator.state ? `/${creator.state}` : ''}</span>}
+                  {creator.email && <span>· {creator.email}</span>}
+                  <Badge variant={creator.isActive ? 'success' : 'destructive'} className="ml-1">
+                    {creator.isActive ? 'Ativo' : 'Inativo'}
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardContent className="grid gap-3 md:grid-cols-2 lg:grid-cols-4 pt-5 pb-5">
             <div>
