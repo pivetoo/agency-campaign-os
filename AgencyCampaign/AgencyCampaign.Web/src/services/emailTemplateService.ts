@@ -1,5 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type { EmailTemplate, EmailEventTypeValue } from '../types/emailTemplate'
+import type { EmailTemplate, EmailEventTypeValue, EmailTemplateVariableMap } from '../types/emailTemplate'
 
 export interface CreateEmailTemplateRequest {
   name: string
@@ -37,5 +37,10 @@ export const emailTemplateService = {
 
   delete(id: number) {
     return httpClient.delete(`${BASE}/Delete/${id}`)
+  },
+
+  async getVariables(): Promise<EmailTemplateVariableMap> {
+    const response = await httpClient.get<EmailTemplateVariableMap>(`${BASE}/Variables`)
+    return response.data ?? {}
   },
 }

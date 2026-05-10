@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.EmailTemplates;
 using AgencyCampaign.Application.Services;
@@ -24,6 +25,15 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> Get([FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(includeInactive, cancellationToken));
+        }
+
+        [RequireAccess("Permite listar as variaveis disponiveis por evento de e-mail.")]
+        [GetEndpoint("[action]")]
+        public IActionResult Variables()
+        {
+            var result = EmailTemplateVariableCatalog.All
+                .ToDictionary(item => (int)item.Key, item => item.Value);
+            return Http200(result);
         }
 
         [RequireAccess("Permite consultar um template de e-mail por id.")]

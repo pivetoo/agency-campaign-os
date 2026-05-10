@@ -20,6 +20,14 @@ export const emailEventTypeLabels: Record<EmailEventTypeValue, string> = {
   [EmailEventType.OpportunityApprovalRequested]: 'Aprovação de oportunidade solicitada',
 }
 
+export interface EmailTemplateVariable {
+  key: string
+  label: string
+  description: string
+}
+
+export type EmailTemplateVariableMap = Record<string, EmailTemplateVariable[]>
+
 export interface EmailTemplate {
   id: number
   name: string
