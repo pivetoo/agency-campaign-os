@@ -238,17 +238,11 @@ export default function ConnectorConfigModal({
           return (
             <div className="relative">
               <Input
-                key={isVisible ? 'text' : 'password'}
                 type={isVisible ? 'text' : 'password'}
                 placeholder={attr.placeholder || ''}
-                value={isVisible ? value : (value ? '••••••••' : '')}
-                readOnly={!isVisible}
-                onChange={(e) => {
-                  if (isVisible) {
-                    setValues((prev) => ({ ...prev, [attr.id]: e.target.value }))
-                  }
-                }}
-                className={commonClasses}
+                value={value}
+                onChange={(e) => setValues((prev) => ({ ...prev, [attr.id]: e.target.value }))}
+                className={`pr-10 ${commonClasses}`}
               />
               <button
                 type="button"
