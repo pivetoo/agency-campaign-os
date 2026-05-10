@@ -28,6 +28,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
 
             builder.Property(entity => entity.Notes)
                 .HasMaxLength(1000);
+
+            builder.Property(entity => entity.LogoUrl)
+                .HasMaxLength(255);
         }
     }
 }

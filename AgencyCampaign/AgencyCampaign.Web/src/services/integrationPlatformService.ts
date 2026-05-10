@@ -72,6 +72,14 @@ export const integrationPlatformService = {
     )
     return response.data!
   },
+
+  async setConnectorActive(connectorId: number, isActive: boolean): Promise<Connector> {
+    const response = await httpClient.post<Connector>(
+      `/IntegrationPlatformProxy/connectors/${connectorId}/setactive`,
+      { isActive },
+    )
+    return response.data!
+  },
 }
 
 export interface TestConnectorResult {

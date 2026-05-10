@@ -14,7 +14,7 @@ import {
   TabsTrigger,
   useApi,
 } from 'archon-ui'
-import { CheckCircle2, CircleDashed, GitBranch, Pencil, Plug, Plus, Settings2, Sparkles, TriangleAlert, Workflow } from 'lucide-react'
+import { CheckCircle2, CircleDashed, GitBranch, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, TriangleAlert, Workflow, Zap } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
 import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
 import AutomationFormModal from '../../../components/modals/AutomationFormModal'
@@ -27,6 +27,7 @@ import type {
   IntegrationPlatformIntegration,
 } from '../../../types/integrationPlatform'
 import type { Automation } from '../../../types/automation'
+import { automationTriggerLabels } from '../../../types/automationTrigger'
 
 type IntegrationStatus = 'in_use' | 'configured' | 'not_configured'
 
@@ -76,6 +77,7 @@ export default function Integrations() {
 
   const [isAutomationModalOpen, setIsAutomationModalOpen] = useState(false)
   const [selectedAutomation, setSelectedAutomation] = useState<Automation | null>(null)
+  const [automationPresetConnectorId, setAutomationPresetConnectorId] = useState<number | null>(null)
   const [automationsRefreshKey, setAutomationsRefreshKey] = useState(0)
 
   const { execute: fetchCategories, loading: loadingCategories } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
@@ -145,6 +147,11 @@ export default function Integrations() {
     [connectors, selectedIntegrationId],
   )
 
+  const automationsForSelectedIntegration = useMemo(() => {
+    const connectorIds = new Set(connectorsForSelectedIntegration.map((c) => c.id))
+    return automations.filter((automation) => connectorIds.has(automation.connectorId))
+  }, [automations, connectorsForSelectedIntegration])
+
   const totalConnectors = connectors.length
   const activeConnectors = connectors.filter((connector) => connector.isActive).length
 
@@ -175,6 +182,37 @@ export default function Integrations() {
   const openTestConnector = (connector: Connector) => {
     setTestingConnector(connector)
     setIsTestModalOpen(true)
+  }
+
+  const toggleConnectorActive = async (connector: Connector) => {
+    try {
+      await integrationPlatformService.setConnectorActive(connector.id, !connector.isActive)
+      if (selectedCategoryId) {
+        await loadIntegrationsByCategory(selectedCategoryId)
+      }
+      void loadAutomations()
+    } catch {
+      // erro ja exibido pelo httpClient
+    }
+  }
+
+  const openCreateAutomationForConnector = (connector: Connector) => {
+    setSelectedAutomation(null)
+    setAutomationPresetConnectorId(connector.id)
+    setIsAutomationModalOpen(true)
+  }
+
+  const openCreateAutomationForIntegration = () => {
+    setSelectedAutomation(null)
+    const firstActive = connectorsForSelectedIntegration.find((c) => c.isActive)
+    setAutomationPresetConnectorId(firstActive?.id ?? null)
+    setIsAutomationModalOpen(true)
+  }
+
+  const editAutomation = (automation: Automation) => {
+    setSelectedAutomation(automation)
+    setAutomationPresetConnectorId(null)
+    setIsAutomationModalOpen(true)
   }
 
   return (
@@ -430,15 +468,46 @@ export default function Integrations() {
                                     <Button
                                       size="sm"
                                       variant="ghost"
+                                      title="Testar conexão"
                                       onClick={() => openTestConnector(connector)}
                                     >
                                       <Sparkles size={14} className="mr-1" />
                                       Testar
                                     </Button>
                                   )}
+                                  {connector.isActive && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      title="Vincular evento (criar automação)"
+                                      onClick={() => openCreateAutomationForConnector(connector)}
+                                    >
+                                      <Zap size={14} className="mr-1" />
+                                      Vincular
+                                    </Button>
+                                  )}
                                   <Button
                                     size="sm"
                                     variant="ghost"
+                                    title={connector.isActive ? 'Pausar conta' : 'Reativar conta'}
+                                    onClick={() => toggleConnectorActive(connector)}
+                                  >
+                                    {connector.isActive ? (
+                                      <>
+                                        <Pause size={14} className="mr-1" />
+                                        Pausar
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Play size={14} className="mr-1" />
+                                        Reativar
+                                      </>
+                                    )}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    title="Editar configurações"
                                     onClick={() => openEditConnector(connector)}
                                   >
                                     <Pencil size={14} className="mr-1" />
@@ -449,6 +518,66 @@ export default function Integrations() {
                             ))}
                           </div>
                         )}
+
+                        <div className="border-t pt-4 space-y-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <Zap size={16} className="text-primary" />
+                              <p className="text-sm font-semibold">Automações usando esta integração</p>
+                              <Badge variant="outline" className="ml-1">
+                                {automationsForSelectedIntegration.length}
+                              </Badge>
+                            </div>
+                            {connectorsForSelectedIntegration.some((c) => c.isActive) && (
+                              <Button size="sm" variant="outline" onClick={openCreateAutomationForIntegration}>
+                                <Plus size={14} className="mr-1.5" />
+                                Vincular evento
+                              </Button>
+                            )}
+                          </div>
+
+                          {automationsForSelectedIntegration.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-6 text-muted-foreground">
+                              <p className="text-xs">
+                                {connectorsForSelectedIntegration.some((c) => c.isActive)
+                                  ? 'Esta integração ainda não dispara nenhuma ação automática.'
+                                  : 'Conecte e ative uma conta para começar a vincular eventos.'}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="space-y-1.5">
+                              {automationsForSelectedIntegration.map((automation) => {
+                                const connector = connectorsForSelectedIntegration.find((c) => c.id === automation.connectorId)
+                                return (
+                                  <div
+                                    key={automation.id}
+                                    className="flex items-center justify-between gap-3 rounded-lg border bg-card p-2.5"
+                                  >
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        <span className="truncate text-sm font-medium">{automation.name}</span>
+                                        <Badge variant="secondary" className="text-[10px]">
+                                          {automationTriggerLabels[automation.trigger] ?? automation.trigger}
+                                        </Badge>
+                                        <Badge variant={automation.isActive ? 'success' : 'outline'} className="text-[10px]">
+                                          {automation.isActive ? 'Ativa' : 'Pausada'}
+                                        </Badge>
+                                      </div>
+                                      {connector && (
+                                        <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                          via {connector.name}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <Button size="sm" variant="ghost" onClick={() => editAutomation(automation)}>
+                                      <Pencil size={12} />
+                                    </Button>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </CardContent>
@@ -462,10 +591,12 @@ export default function Integrations() {
               key={automationsRefreshKey}
               onCreate={() => {
                 setSelectedAutomation(null)
+                setAutomationPresetConnectorId(null)
                 setIsAutomationModalOpen(true)
               }}
               onEdit={(automation: Automation) => {
                 setSelectedAutomation(automation)
+                setAutomationPresetConnectorId(null)
                 setIsAutomationModalOpen(true)
               }}
             />
@@ -491,9 +622,11 @@ export default function Integrations() {
         open={isAutomationModalOpen}
         onOpenChange={setIsAutomationModalOpen}
         automation={selectedAutomation}
+        presetConnectorId={automationPresetConnectorId}
         onSuccess={() => {
           setIsAutomationModalOpen(false)
           setSelectedAutomation(null)
+          setAutomationPresetConnectorId(null)
           setAutomationsRefreshKey((prev) => prev + 1)
           void loadAutomations()
         }}

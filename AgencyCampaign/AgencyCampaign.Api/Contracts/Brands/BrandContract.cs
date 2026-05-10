@@ -19,6 +19,8 @@ namespace AgencyCampaign.Api.Contracts.Brands
 
         public string? Notes { get; init; }
 
+        public string? LogoUrl { get; init; }
+
         public bool IsActive { get; init; }
 
         public DateTimeOffset CreatedAt { get; init; }
@@ -34,6 +36,7 @@ namespace AgencyCampaign.Api.Contracts.Brands
             ContactName = item.ContactName,
             ContactEmail = item.ContactEmail,
             Notes = item.Notes,
+            LogoUrl = item.LogoUrl,
             IsActive = item.IsActive,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt

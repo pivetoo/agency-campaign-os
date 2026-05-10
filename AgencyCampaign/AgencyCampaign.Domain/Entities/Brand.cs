@@ -16,6 +16,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? Notes { get; private set; }
 
+        public string? LogoUrl { get; private set; }
+
         public bool IsActive { get; private set; } = true;
 
         private Brand()
@@ -45,6 +47,11 @@ namespace AgencyCampaign.Domain.Entities
             ContactEmail = Normalize(contactEmail);
             Notes = Normalize(notes);
             IsActive = isActive;
+        }
+
+        public void SetLogo(string? logoUrl)
+        {
+            LogoUrl = Normalize(logoUrl);
         }
 
         private static string? Normalize(string? value)

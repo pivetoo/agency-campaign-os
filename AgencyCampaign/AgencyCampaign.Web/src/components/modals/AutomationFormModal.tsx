@@ -30,6 +30,7 @@ interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   automation: Automation | null
+  presetConnectorId?: number | null
   onSuccess: () => void
 }
 
@@ -69,7 +70,7 @@ function mappingToObject(rows: MappingRow[]): Record<string, string> {
   }, {})
 }
 
-export default function AutomationFormModal({ open, onOpenChange, automation, onSuccess }: Props) {
+export default function AutomationFormModal({ open, onOpenChange, automation, presetConnectorId, onSuccess }: Props) {
   const isEditing = !!automation
   const [name, setName] = useState('')
   const [trigger, setTrigger] = useState<string>('proposal_sent')
@@ -111,12 +112,16 @@ export default function AutomationFormModal({ open, onOpenChange, automation, on
       setTriggerCondition('')
       setCategoryId(null)
       setIntegrationId(null)
-      setConnectorId(null)
+      setConnectorId(presetConnectorId ?? null)
       setPipelineId(null)
       setMappingRows([])
       setIsActive(true)
+
+      if (presetConnectorId) {
+        void resolveSelectionFromConnector(presetConnectorId)
+      }
     }
-  }, [open, automation])
+  }, [open, automation, presetConnectorId])
 
   const resolveSelectionFromConnector = async (connectorIdValue: number) => {
     try {

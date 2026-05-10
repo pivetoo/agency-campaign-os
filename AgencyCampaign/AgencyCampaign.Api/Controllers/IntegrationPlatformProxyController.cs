@@ -304,6 +304,11 @@ namespace AgencyCampaign.Api.Controllers
         public Dictionary<string, object>? InputData { get; set; }
     }
 
+    public sealed class SetConnectorActivePayload
+    {
+        public bool IsActive { get; set; }
+    }
+
     public sealed class TestConnectorResult
     {
         public bool Success { get; set; }
