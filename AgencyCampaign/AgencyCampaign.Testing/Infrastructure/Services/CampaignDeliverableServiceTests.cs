@@ -102,12 +102,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             await SeedReferencesAsync();
             CampaignDeliverable deliverable = new(10, 20, "x", 1, 1, DateTimeOffset.UtcNow.AddDays(5), 1000m, 800m, 100m);
-            DeliverableApproval approval = new(0, DeliverableApprovalType.Brand, "Brand");
-            approval.Approve();
             db.Add(deliverable);
             await db.SaveChangesAsync();
 
-            // Reattach approval with proper FK after deliverable Id is generated
             DeliverableApproval brand = new(deliverable.Id, DeliverableApprovalType.Brand, "Brand");
             brand.Approve();
             db.Add(brand);
