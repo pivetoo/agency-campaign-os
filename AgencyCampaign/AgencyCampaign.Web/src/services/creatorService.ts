@@ -40,7 +40,7 @@ export const creatorService = {
   },
 
   async getById(id: number): Promise<Creator | null> {
-    const response = await httpClient.get<Creator>(`${BASE_URL}/${id}`)
+    const response = await httpClient.get<Creator>(`${BASE_URL}/GetById/${id}`)
     return response.data ?? null
   },
 
