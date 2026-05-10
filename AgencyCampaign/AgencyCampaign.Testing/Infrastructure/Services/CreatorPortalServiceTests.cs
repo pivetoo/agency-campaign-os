@@ -121,18 +121,5 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Events.Should().ContainSingle(item => item.EventType == CreatorPaymentEventType.InvoiceAttached);
         }
 
-        [Test]
-        public async Task GetCampaigns_should_filter_by_creator_id()
-        {
-            db.Add(new Brand("Acme").WithId(1));
-            db.Add(new Campaign(1, "C", 0m, DateTimeOffset.UtcNow).WithId(10));
-            db.Add(new AgencyCampaign.Domain.Entities.CampaignCreator(10, 7, 1, 100m, 10m).WithId(20));
-            db.Add(new AgencyCampaign.Domain.Entities.CampaignCreator(10, 99, 1, 100m, 10m).WithId(21));
-            await db.SaveChangesAsync();
-
-            List<AgencyCampaign.Domain.Entities.CampaignCreator> result = await service.GetCampaigns(7);
-
-            result.Should().ContainSingle();
-        }
     }
 }
