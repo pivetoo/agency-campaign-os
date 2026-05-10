@@ -545,13 +545,13 @@ export default function OpportunityDetail() {
 
           <TabsContent value="approvals" className="mt-0">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-muted-foreground" /> Aprovações
                 </CardTitle>
-                <Button size="sm" onClick={() => setIsApprovalRequestFormOpen(true)} disabled={!selectedNegotiation}>
-                  <CheckCircle className="mr-2 h-4 w-4" /> Nova aprovação
-                </Button>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Aprovações são criadas a partir das negociações. Vá na aba Negociações, selecione uma e clique em "Solicitar aprovação".
+                </p>
               </CardHeader>
               <CardContent>
                 <div className="mb-3 flex flex-wrap gap-2">
@@ -568,7 +568,7 @@ export default function OpportunityDetail() {
                   rowKey="id"
                   selectedRows={selectedApprovalRequest ? [selectedApprovalRequest] : []}
                   onSelectionChange={(rows) => setSelectedApprovalRequest(rows[0] ?? null)}
-                  emptyText="Nenhuma aprovação cadastrada"
+                  emptyText="Nenhuma aprovação registrada. Crie a partir de uma negociação na aba Negociações."
                   loading={loading}
                   pageSize={5}
                   pageSizeOptions={[5, 10, 20, 50]}
