@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, FileText, MapPin, MessageSquare, Pencil, Tag, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
+import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, FileText, MapPin, MessageSquare, Pencil, Plus, Tag, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../services/commercialPipelineStageService'
 import { opportunityService, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
@@ -10,6 +10,7 @@ import OpportunityNegotiationFormModal from '../../components/modals/Opportunity
 import OpportunityFollowUpFormModal from '../../components/modals/OpportunityFollowUpFormModal'
 import OpportunityApprovalRequestFormModal from '../../components/modals/OpportunityApprovalRequestFormModal'
 import OpportunityActivityTab from './OpportunityActivityTab'
+import ProposalFormModal from '../../components/modals/ProposalFormModal'
 import { resolveAssetUrl } from '../../lib/assetUrl'
 
 const proposalStatusLabels: Record<number, string> = {
@@ -75,6 +76,7 @@ function getStageBadgeVariant(finalBehavior?: number): 'default' | 'success' | '
 export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>()
   const opportunityId = Number(id || 0)
+  const navigate = useNavigate()
   const { user: authUser } = useAuth()
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
@@ -86,6 +88,7 @@ export default function OpportunityDetail() {
   const [isNegotiationFormOpen, setIsNegotiationFormOpen] = useState(false)
   const [isApprovalRequestFormOpen, setIsApprovalRequestFormOpen] = useState(false)
   const [isFollowUpFormOpen, setIsFollowUpFormOpen] = useState(false)
+  const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
   const [selectedStage, setSelectedStage] = useState<string>('1')
 
   const { execute: fetchOpportunity, loading } = useApi<Opportunity | null>({ showErrorMessage: true })
@@ -447,10 +450,13 @@ export default function OpportunityDetail() {
 
           <TabsContent value="proposals" className="mt-0">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-muted-foreground" /> Propostas vinculadas
                 </CardTitle>
+                <Button size="sm" onClick={() => setIsProposalFormOpen(true)}>
+                  <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
+                </Button>
               </CardHeader>
               <CardContent>
                 <DataTable
@@ -622,6 +628,20 @@ export default function OpportunityDetail() {
         onSuccess={() => {
           setIsApprovalRequestFormOpen(false)
           void loadOpportunity()
+        }}
+      />
+
+      <ProposalFormModal
+        open={isProposalFormOpen}
+        onOpenChange={setIsProposalFormOpen}
+        proposal={null}
+        presetOpportunityId={opportunity?.id ?? null}
+        onSuccess={(created) => {
+          setIsProposalFormOpen(false)
+          void loadOpportunity()
+          if (created?.id) {
+            navigate(`/comercial/propostas/${created.id}`)
+          }
         }}
       />
     </div>

@@ -7,6 +7,7 @@ interface ProposalFormModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   proposal: Proposal | null
+  presetOpportunityId?: number | null
   onSuccess: (proposal?: Proposal) => void
 }
 
@@ -17,7 +18,7 @@ const initialFormData: CreateProposalRequest = {
   notes: '',
 }
 
-export default function ProposalFormModal({ open, onOpenChange, proposal, onSuccess }: ProposalFormModalProps) {
+export default function ProposalFormModal({ open, onOpenChange, proposal, presetOpportunityId, onSuccess }: ProposalFormModalProps) {
   const isEditing = !!proposal
   const [formData, setFormData] = useState<CreateProposalRequest>(initialFormData)
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
@@ -38,8 +39,8 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
       return
     }
 
-    setFormData(initialFormData)
-  }, [proposal, open])
+    setFormData({ ...initialFormData, opportunityId: presetOpportunityId ?? 0 })
+  }, [proposal, open, presetOpportunityId])
 
   const opportunityOptions = opportunities.map((opportunity) => ({
     value: String(opportunity.id),
@@ -79,16 +80,18 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, onSucc
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Oportunidade</label>
-              <SearchableSelect
-                value={formData.opportunityId ? String(formData.opportunityId) : ''}
-                onValueChange={handleOpportunityChange}
-                options={opportunityOptions}
-                placeholder="Selecione a oportunidade"
-                searchPlaceholder="Buscar oportunidade"
-              />
-            </div>
+            {!presetOpportunityId && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Oportunidade</label>
+                <SearchableSelect
+                  value={formData.opportunityId ? String(formData.opportunityId) : ''}
+                  onValueChange={handleOpportunityChange}
+                  options={opportunityOptions}
+                  placeholder="Selecione a oportunidade"
+                  searchPlaceholder="Buscar oportunidade"
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Validade</label>
