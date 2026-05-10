@@ -57,4 +57,43 @@
   <data name="creatorPortal.token.invalid" xml:space="preserve">
     <value>Link de acesso inválido, expirado ou revogado.</value>
   </data>
+  <data name="campaignCreatorStatus.initial.duplicate" xml:space="preserve">
+    <value>Já existe um status inicial configurado.</value>
+  </data>
+  <data name="campaignCreator.status.notFound" xml:space="preserve">
+    <value>Status não encontrado.</value>
+  </data>
+  <data name="campaignCreator.initialStatus.missing" xml:space="preserve">
+    <value>Nenhum status inicial configurado.</value>
+  </data>
+  <data name="deliverable.publish.brandApprovalRequired" xml:space="preserve">
+    <value>A entrega só pode ser publicada após aprovação da marca.</value>
+  </data>
+  <data name="commercialPipelineStage.initial.duplicate" xml:space="preserve">
+    <value>Já existe um estágio inicial configurado para o pipeline comercial.</value>
+  </data>
+  <data name="commercialPipelineStage.initial.missing" xml:space="preserve">
+    <value>Nenhum estágio ativo foi configurado para o pipeline comercial.</value>
+  </data>
+  <data name="commercialPipelineStage.final.missing" xml:space="preserve">
+    <value>Nenhum estágio final configurado foi encontrado para o pipeline comercial.</value>
+  </data>
+  <data name="imageUpload.fileType.unsupported" xml:space="preserve">
+    <value>Tipo de arquivo não suportado. Use PNG, JPG ou WEBP.</value>
+  </data>
+  <data name="financialEntry.installments.totalRequired" xml:space="preserve">
+    <value>Para gerar parcelas, o total deve ser maior que 1.</value>
+  </data>
+  <data name="financialAccount.hasEntries.cannotDelete" xml:space="preserve">
+    <value>Conta possui lançamentos vinculados; inative ao invés de excluir.</value>
+  </data>
+  <data name="opportunityApproval.notPending" xml:space="preserve">
+    <value>Apenas solicitações de aprovação pendentes podem ser decididas.</value>
+  </data>
+  <data name="opportunityNegotiation.statusTransition.unsupported" xml:space="preserve">
+    <value>Transição de status de negociação não suportada.</value>
+  </data>
+  <data name="opportunityComment.delete.onlyAuthor" xml:space="preserve">
+    <value>Apenas o autor do comentário pode excluí-lo.</value>
+  </data>
 </root>

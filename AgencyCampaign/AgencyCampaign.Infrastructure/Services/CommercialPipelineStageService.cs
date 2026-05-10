@@ -100,7 +100,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (anotherInitialExists)
             {
-                throw new InvalidOperationException("Já existe um estágio inicial configurado para o pipeline comercial.");
+                throw new InvalidOperationException(localizer["commercialPipelineStage.initial.duplicate"]);
             }
         }
     }

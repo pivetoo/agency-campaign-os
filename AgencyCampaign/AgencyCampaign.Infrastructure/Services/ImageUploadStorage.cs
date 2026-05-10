@@ -1,6 +1,8 @@
+using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Services;
 using Archon.Application.MultiTenancy;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Localization;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
@@ -22,18 +24,20 @@ namespace AgencyCampaign.Infrastructure.Services
 
         private readonly IWebHostEnvironment environment;
         private readonly ITenantContext tenantContext;
+        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public ImageUploadStorage(IWebHostEnvironment environment, ITenantContext tenantContext)
+        public ImageUploadStorage(IWebHostEnvironment environment, ITenantContext tenantContext, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.environment = environment;
             this.tenantContext = tenantContext;
+            this.localizer = localizer;
         }
 
         public async Task<string> SaveAsync(string section, long entityId, Stream content, string contentType, CancellationToken cancellationToken = default)
         {
             if (!AllowedContentTypes.Contains(contentType))
             {
-                throw new InvalidOperationException("Tipo de arquivo nao suportado. Use PNG, JPG ou WEBP.");
+                throw new InvalidOperationException(localizer["imageUpload.fileType.unsupported"]);
             }
 
             string normalizedSection = NormalizeSection(section);

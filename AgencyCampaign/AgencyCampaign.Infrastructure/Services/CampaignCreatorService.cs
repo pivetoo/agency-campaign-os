@@ -109,7 +109,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
                 if (newStatus is null)
                 {
-                    throw new InvalidOperationException("Status não encontrado.");
+                    throw new InvalidOperationException(localizer["campaignCreator.status.notFound"]);
                 }
 
                 campaignCreator.ChangeStatus(newStatus);
@@ -194,7 +194,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (status is null)
             {
-                throw new InvalidOperationException("Nenhum status inicial configurado.");
+                throw new InvalidOperationException(localizer["campaignCreator.initialStatus.missing"]);
             }
 
             return status.Id;

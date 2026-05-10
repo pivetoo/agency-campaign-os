@@ -163,7 +163,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (creatorAmount + agencyFeeAmount > grossAmount)
             {
-                throw new InvalidOperationException("A soma do valor do creator e do fee da agência não pode ultrapassar o valor bruto da entrega.");
+                throw new InvalidOperationException("Creator amount plus agency fee cannot exceed deliverable gross amount.");
             }
         }
     }

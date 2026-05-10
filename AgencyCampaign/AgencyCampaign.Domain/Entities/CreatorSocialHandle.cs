@@ -63,12 +63,12 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (followers.HasValue && followers.Value < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(followers), "Quantidade de seguidores não pode ser negativa.");
+                throw new ArgumentOutOfRangeException(nameof(followers), "Followers cannot be negative.");
             }
 
             if (engagementRate.HasValue && (engagementRate.Value < 0 || engagementRate.Value > 100))
             {
-                throw new ArgumentOutOfRangeException(nameof(engagementRate), "Engajamento deve estar entre 0 e 100.");
+                throw new ArgumentOutOfRangeException(nameof(engagementRate), "Engagement rate must be between 0 and 100.");
             }
         }
 

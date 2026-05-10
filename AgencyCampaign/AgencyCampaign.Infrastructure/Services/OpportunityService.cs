@@ -554,7 +554,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ThenBy(item => item.DisplayOrder)
                 .FirstOrDefaultAsync(item => item.IsActive, cancellationToken);
 
-            return initialStage ?? throw new InvalidOperationException("Nenhum estágio ativo foi configurado para o pipeline comercial.");
+            return initialStage ?? throw new InvalidOperationException(localizer["commercialPipelineStage.initial.missing"]);
         }
 
         private async Task<CommercialPipelineStage> ResolveFinalStage(CommercialPipelineStageFinalBehavior finalBehavior, CancellationToken cancellationToken)
@@ -563,7 +563,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(item => item.IsActive && item.IsFinal && item.FinalBehavior == finalBehavior, cancellationToken);
 
-            return stage ?? throw new InvalidOperationException("Nenhum estágio final configurado foi encontrado para o pipeline comercial.");
+            return stage ?? throw new InvalidOperationException(localizer["commercialPipelineStage.final.missing"]);
         }
 
         private async Task<CommercialPipelineStage> ResolveStage(long stageId, CancellationToken cancellationToken)

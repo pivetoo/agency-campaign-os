@@ -211,7 +211,7 @@ namespace AgencyCampaign.Infrastructure.Services
             deliverable.UpdateEvidence(evidenceUrl);
         }
 
-        private static void EnsureBrandApprovalExists(CampaignDeliverable deliverable)
+        private void EnsureBrandApprovalExists(CampaignDeliverable deliverable)
         {
             bool hasBrandApproval = deliverable.Approvals.Any(item =>
                 item.ApprovalType == DeliverableApprovalType.Brand &&
@@ -219,7 +219,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!hasBrandApproval)
             {
-                throw new InvalidOperationException("A entrega só pode ser publicada após aprovação da marca.");
+                throw new InvalidOperationException(localizer["deliverable.publish.brandApprovalRequired"]);
             }
         }
 

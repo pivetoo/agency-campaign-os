@@ -97,7 +97,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     negotiation.MarkAcceptedByClient();
                     break;
                 default:
-                    throw new InvalidOperationException("Unsupported negotiation status transition.");
+                    throw new InvalidOperationException(localizer["opportunityNegotiation.statusTransition.unsupported"]);
             }
 
             OpportunityNegotiation? result = await Update(negotiation, cancellationToken);

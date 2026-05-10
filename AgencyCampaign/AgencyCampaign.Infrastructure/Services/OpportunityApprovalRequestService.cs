@@ -134,7 +134,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (approvalRequest.Status != OpportunityApprovalStatus.Pending)
             {
-                throw new InvalidOperationException("Only pending approval requests can be decided.");
+                throw new InvalidOperationException(localizer["opportunityApproval.notPending"]);
             }
 
             return approvalRequest;

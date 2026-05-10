@@ -57,4 +57,43 @@
   <data name="creatorPortal.token.invalid" xml:space="preserve">
     <value>El enlace de acceso es inválido, expiró o fue revocado.</value>
   </data>
+  <data name="campaignCreatorStatus.initial.duplicate" xml:space="preserve">
+    <value>Ya existe un estado inicial configurado.</value>
+  </data>
+  <data name="campaignCreator.status.notFound" xml:space="preserve">
+    <value>Estado no encontrado.</value>
+  </data>
+  <data name="campaignCreator.initialStatus.missing" xml:space="preserve">
+    <value>No hay estado inicial configurado.</value>
+  </data>
+  <data name="deliverable.publish.brandApprovalRequired" xml:space="preserve">
+    <value>La entrega solo puede publicarse tras la aprobación de la marca.</value>
+  </data>
+  <data name="commercialPipelineStage.initial.duplicate" xml:space="preserve">
+    <value>Ya existe una etapa inicial configurada para el pipeline comercial.</value>
+  </data>
+  <data name="commercialPipelineStage.initial.missing" xml:space="preserve">
+    <value>No hay etapa activa configurada para el pipeline comercial.</value>
+  </data>
+  <data name="commercialPipelineStage.final.missing" xml:space="preserve">
+    <value>No hay etapa final configurada para el pipeline comercial.</value>
+  </data>
+  <data name="imageUpload.fileType.unsupported" xml:space="preserve">
+    <value>Tipo de archivo no compatible. Use PNG, JPG o WEBP.</value>
+  </data>
+  <data name="financialEntry.installments.totalRequired" xml:space="preserve">
+    <value>Para generar cuotas, el total debe ser mayor que 1.</value>
+  </data>
+  <data name="financialAccount.hasEntries.cannotDelete" xml:space="preserve">
+    <value>La cuenta tiene asientos vinculados; desactívela en lugar de eliminarla.</value>
+  </data>
+  <data name="opportunityApproval.notPending" xml:space="preserve">
+    <value>Solo se pueden decidir solicitudes de aprobación pendientes.</value>
+  </data>
+  <data name="opportunityNegotiation.statusTransition.unsupported" xml:space="preserve">
+    <value>Transición de estado de negociación no compatible.</value>
+  </data>
+  <data name="opportunityComment.delete.onlyAuthor" xml:space="preserve">
+    <value>Solo el autor del comentario puede eliminarlo.</value>
+  </data>
 </root>

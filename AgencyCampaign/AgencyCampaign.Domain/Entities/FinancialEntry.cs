@@ -132,7 +132,7 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(installmentTotal);
             if (installmentNumber > installmentTotal)
             {
-                throw new ArgumentOutOfRangeException(nameof(installmentNumber), "Número da parcela não pode ser maior que o total.");
+                throw new ArgumentOutOfRangeException(nameof(installmentNumber), "Installment number cannot exceed total.");
             }
 
             ParentEntryId = parentEntryId;

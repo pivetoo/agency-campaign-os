@@ -120,7 +120,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (hasInitial)
             {
-                throw new InvalidOperationException("Já existe um status inicial configurado.");
+                throw new InvalidOperationException(localizer["campaignCreatorStatus.initial.duplicate"]);
             }
         }
     }

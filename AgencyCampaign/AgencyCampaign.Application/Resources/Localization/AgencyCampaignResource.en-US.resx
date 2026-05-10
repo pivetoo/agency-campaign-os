@@ -57,4 +57,43 @@
   <data name="creatorPortal.token.invalid" xml:space="preserve">
     <value>Access link is invalid, expired or revoked.</value>
   </data>
+  <data name="campaignCreatorStatus.initial.duplicate" xml:space="preserve">
+    <value>An initial status is already configured.</value>
+  </data>
+  <data name="campaignCreator.status.notFound" xml:space="preserve">
+    <value>Status not found.</value>
+  </data>
+  <data name="campaignCreator.initialStatus.missing" xml:space="preserve">
+    <value>No initial status configured.</value>
+  </data>
+  <data name="deliverable.publish.brandApprovalRequired" xml:space="preserve">
+    <value>Deliverable can only be published after brand approval.</value>
+  </data>
+  <data name="commercialPipelineStage.initial.duplicate" xml:space="preserve">
+    <value>An initial stage is already configured for the commercial pipeline.</value>
+  </data>
+  <data name="commercialPipelineStage.initial.missing" xml:space="preserve">
+    <value>No active stage configured for the commercial pipeline.</value>
+  </data>
+  <data name="commercialPipelineStage.final.missing" xml:space="preserve">
+    <value>No final stage configured for the commercial pipeline.</value>
+  </data>
+  <data name="imageUpload.fileType.unsupported" xml:space="preserve">
+    <value>Unsupported file type. Use PNG, JPG or WEBP.</value>
+  </data>
+  <data name="financialEntry.installments.totalRequired" xml:space="preserve">
+    <value>To generate installments, the total must be greater than 1.</value>
+  </data>
+  <data name="financialAccount.hasEntries.cannotDelete" xml:space="preserve">
+    <value>Account has linked entries; deactivate instead of deleting.</value>
+  </data>
+  <data name="opportunityApproval.notPending" xml:space="preserve">
+    <value>Only pending approval requests can be decided.</value>
+  </data>
+  <data name="opportunityNegotiation.statusTransition.unsupported" xml:space="preserve">
+    <value>Unsupported negotiation status transition.</value>
+  </data>
+  <data name="opportunityComment.delete.onlyAuthor" xml:space="preserve">
+    <value>Only the comment author can delete it.</value>
+  </data>
 </root>

@@ -90,7 +90,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (request.InstallmentTotal < 2)
             {
-                throw new InvalidOperationException("Para gerar parcelas, o total deve ser maior que 1.");
+                throw new InvalidOperationException(localizer["financialEntry.installments.totalRequired"]);
             }
 
             await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
@@ -583,7 +583,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (inUse)
             {
-                throw new InvalidOperationException("Conta possui lançamentos vinculados; inative ao invés de excluir.");
+                throw new InvalidOperationException(localizer["financialAccount.hasEntries.cannotDelete"]);
             }
 
             dbContext.Set<FinancialAccount>().Remove(account);

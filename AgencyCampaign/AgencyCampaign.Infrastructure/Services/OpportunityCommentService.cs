@@ -62,7 +62,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!comment.CanBeDeletedBy(currentUser.UserId))
             {
-                throw new InvalidOperationException("Only the comment author can delete it.");
+                throw new InvalidOperationException(localizer["opportunityComment.delete.onlyAuthor"]);
             }
 
             dbContext.Set<OpportunityComment>().Remove(comment);
