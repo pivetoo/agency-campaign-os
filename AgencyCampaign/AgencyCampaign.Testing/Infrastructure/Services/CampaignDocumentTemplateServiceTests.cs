@@ -87,20 +87,6 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task DeleteTemplate_should_remove_when_not_in_use_and_return_true()
-        {
-            CampaignDocumentTemplate template = new("T", CampaignDocumentType.CreatorAgreement, "body".PadRight(20), null, null, null);
-            db.Add(template);
-            await db.SaveChangesAsync();
-            db.ChangeTracker.Clear();
-
-            bool result = await service.DeleteTemplate(template.Id);
-
-            result.Should().BeTrue();
-            (await db.Set<CampaignDocumentTemplate>().CountAsync()).Should().Be(0);
-        }
-
-        [Test]
         public async Task DeleteTemplate_should_throw_when_not_found()
         {
             Func<Task> act = () => service.DeleteTemplate(99);

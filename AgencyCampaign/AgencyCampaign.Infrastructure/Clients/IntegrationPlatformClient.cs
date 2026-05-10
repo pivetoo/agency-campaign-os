@@ -161,7 +161,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<object>> response = await restApi.Fetch<ApiResponse<object>>(
-                RestRequest.Delete($"{baseUrl}/api/connectors/{connectorId}").WithSecret(secret!), ct);
+                RestRequest.Delete($"{baseUrl}/api/connectors/Delete/{connectorId}").WithSecret(secret!), ct);
 
             if (!response.Ok)
             {
