@@ -135,6 +135,31 @@ test.describe('Portal do Creator - link de acesso publico', () => {
     await expect(invalidPage.getByText(/Acesso n[ãa]o autorizado/i)).toBeVisible({ timeout: 15_000 })
     await invalidContext.close()
 
+    // 14) revoga o token na sessao da agencia (modal de confirmacao + api)
+    await page.bringToFront()
+    await page.getByRole('button', { name: /Links do portal/i }).first().click()
+    const reopenedTokenModal = page.getByRole('dialog').filter({ hasText: /Links de acesso ao portal/i })
+    await expect(reopenedTokenModal).toBeVisible({ timeout: 10_000 })
+
+    // botao de revogar = botao "outline-danger" com icone Ban (apenas em tokens nao revogados)
+    const revokeRowBtn = reopenedTokenModal.locator('button.btn-outline-danger, button[class*="danger"]').first()
+    await revokeRowBtn.click()
+
+    const confirmDialog = page.getByRole('dialog').filter({ hasText: /Revogar link de acesso/i })
+    await expect(confirmDialog).toBeVisible({ timeout: 10_000 })
+    await expect(confirmDialog.getByText(/perde acesso ao portal/i)).toBeVisible()
+
+    const revokeApi = page.waitForResponse(
+      (resp) => /\/api\/CreatorAccessTokens\/Revoke\/\d+\/revoke/i.test(resp.url()),
+      { timeout: 15_000 },
+    )
+    await confirmDialog.getByRole('button', { name: /^Revogar$/ }).click()
+    const revokeResp = await revokeApi
+    expect(revokeResp.status(), `revoke deveria ser 2xx, recebeu ${revokeResp.status()}`).toBeLessThan(400)
+
+    // badge da linha vira "Revogado"
+    await expect(reopenedTokenModal.getByText(/^Revogado$/).first()).toBeVisible({ timeout: 10_000 })
+
     expectNoApiFailures()
   })
 })

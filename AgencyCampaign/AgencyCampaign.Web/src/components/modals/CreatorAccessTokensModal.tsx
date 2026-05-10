@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   Badge,
   Button,
+  ConfirmModal,
   Input,
   Modal,
   ModalContent,
@@ -26,6 +27,7 @@ export default function CreatorAccessTokensModal({ open, onOpenChange, creator }
   const [tokens, setTokens] = useState<CreatorAccessToken[]>([])
   const [expiresAt, setExpiresAt] = useState('')
   const [note, setNote] = useState('')
+  const [tokenToRevoke, setTokenToRevoke] = useState<CreatorAccessToken | null>(null)
   const { toast } = useToast()
 
   const { execute: fetchTokens, loading } = useApi<CreatorAccessToken[]>({ showErrorMessage: true })
@@ -66,10 +68,13 @@ export default function CreatorAccessTokensModal({ open, onOpenChange, creator }
     }
   }
 
-  const handleRevoke = async (id: number) => {
-    if (!window.confirm('Revogar este link de acesso?')) return
-    const result = await revokeToken(() => creatorAccessTokenService.revoke(id))
-    if (result !== null) void load()
+  const confirmRevoke = async () => {
+    if (!tokenToRevoke) return
+    const result = await revokeToken(() => creatorAccessTokenService.revoke(tokenToRevoke.id))
+    if (result !== null) {
+      setTokenToRevoke(null)
+      void load()
+    }
   }
 
   const copyUrl = async (token: string) => {
@@ -145,7 +150,7 @@ export default function CreatorAccessTokensModal({ open, onOpenChange, creator }
                       <Copy size={14} />
                     </Button>
                     {!tk.revokedAt && (
-                      <Button size="sm" variant="outline-danger" disabled={revoking} onClick={() => void handleRevoke(tk.id)}>
+                      <Button size="sm" variant="outline-danger" disabled={revoking} onClick={() => setTokenToRevoke(tk)}>
                         <Ban size={14} />
                       </Button>
                     )}
@@ -160,6 +165,22 @@ export default function CreatorAccessTokensModal({ open, onOpenChange, creator }
           <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
         </ModalFooter>
       </ModalContent>
+
+      <ConfirmModal
+        open={tokenToRevoke !== null}
+        onOpenChange={(value) => { if (!value) setTokenToRevoke(null) }}
+        title="Revogar link de acesso"
+        description={
+          tokenToRevoke
+            ? `Tem certeza que deseja revogar este link${tokenToRevoke.note ? ` (${tokenToRevoke.note})` : ''}? O creator perde acesso ao portal imediatamente e a ação não pode ser desfeita.`
+            : ''
+        }
+        confirmText="Revogar"
+        cancelText="Cancelar"
+        variant="danger"
+        loading={revoking}
+        onConfirm={() => void confirmRevoke()}
+      />
     </Modal>
   )
 }
