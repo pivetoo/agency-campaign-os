@@ -20,7 +20,7 @@ export default function AgencyCampaignLayout() {
   const navigate = useNavigate()
   const { createMenuGroup } = useAppNavigation({})
   const { isRoot } = usePermissions()
-  const sidebarLogo = <img src={logoAgencyCampaign} alt="Mainstay" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+  const sidebarLogo = <img src={logoAgencyCampaign} alt="Mainstay" style={{ width: 28, height: 28, objectFit: 'contain' }} />
 
   const handleLogout = async () => {
     await AuthService.logoutFromServer()
