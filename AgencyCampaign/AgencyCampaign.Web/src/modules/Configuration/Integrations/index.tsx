@@ -291,7 +291,23 @@ export default function Integrations() {
                             ].join(' ')}
                           >
                             <div className="flex items-start gap-3">
-                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                              {integration.iconUrl ? (
+                                <img
+                                  src={integration.iconUrl}
+                                  alt=""
+                                  className="h-9 w-9 rounded-md border bg-card object-contain p-1"
+                                  onError={(e) => {
+                                    const img = e.currentTarget as HTMLImageElement
+                                    img.style.display = 'none'
+                                    const fallback = img.nextElementSibling as HTMLElement | null
+                                    if (fallback) fallback.style.display = 'flex'
+                                  }}
+                                />
+                              ) : null}
+                              <div
+                                className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary"
+                                style={{ display: integration.iconUrl ? 'none' : 'flex' }}
+                              >
                                 <Plug size={16} />
                               </div>
 
@@ -337,13 +353,23 @@ export default function Integrations() {
                     ) : (
                       <div className="space-y-4">
                         <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-lg font-semibold">{selectedIntegration.name}</p>
-                            {selectedIntegration.description && (
-                              <p className="mt-1 text-sm text-muted-foreground">
-                                {selectedIntegration.description}
-                              </p>
+                          <div className="flex items-start gap-3">
+                            {selectedIntegration.iconUrl && (
+                              <img
+                                src={selectedIntegration.iconUrl}
+                                alt=""
+                                className="h-12 w-12 rounded-md border bg-card object-contain p-1.5"
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                              />
                             )}
+                            <div>
+                              <p className="text-lg font-semibold">{selectedIntegration.name}</p>
+                              {selectedIntegration.description && (
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                  {selectedIntegration.description}
+                                </p>
+                              )}
+                            </div>
                           </div>
                           <Button size="sm" onClick={openCreateConnector}>
                             <Plus size={14} className="mr-1.5" />

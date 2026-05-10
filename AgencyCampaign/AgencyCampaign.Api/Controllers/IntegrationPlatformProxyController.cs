@@ -156,6 +156,27 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(execution);
         }
 
+        [RequireAccess("Permite ativar ou desativar um conector sem reenviar todas as configuracoes.")]
+        [PostEndpoint("connectors/{connectorId:long}/setactive")]
+        public async Task<IActionResult> SetConnectorActive(long connectorId, [FromBody] SetConnectorActivePayload payload, CancellationToken cancellationToken)
+        {
+            ConnectorDto connector = await integrationPlatformClient.GetConnectorByIdAsync(connectorId, cancellationToken);
+
+            ConnectorDto updated = await integrationPlatformClient.UpdateConnectorAsync(
+                connectorId,
+                new UpdateConnectorRequest
+                {
+                    Id = connectorId,
+                    IntegrationId = connector.IntegrationId,
+                    Name = connector.Name,
+                    SystemApplicationId = connector.SystemApplicationId,
+                    IsActive = payload.IsActive
+                },
+                cancellationToken);
+
+            return Http200(updated);
+        }
+
         [RequireAccess("Permite testar um conector executando o pipeline de teste correspondente.")]
         [PostEndpoint("connectors/{connectorId:long}/test")]
         public async Task<IActionResult> TestConnector(long connectorId, [FromBody] TestConnectorPayload? payload, CancellationToken cancellationToken)

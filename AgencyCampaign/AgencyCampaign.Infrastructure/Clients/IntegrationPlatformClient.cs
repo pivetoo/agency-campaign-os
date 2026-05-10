@@ -267,6 +267,7 @@ namespace AgencyCampaign.Infrastructure.Clients
         public string Identifier { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public string? IconUrl { get; set; }
         public bool IsActive { get; set; }
     }
 
