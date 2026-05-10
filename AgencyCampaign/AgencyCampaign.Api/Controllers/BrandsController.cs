@@ -77,8 +77,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite enviar a logo da marca.")]
         [PostEndpoint("[action]/{id:long}")]
+        [Consumes("multipart/form-data")]
         [RequestSizeLimit(MaxLogoBytes)]
-        public async Task<IActionResult> UploadLogo(long id, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> UploadLogo(long id, [FromForm] IFormFile file, CancellationToken cancellationToken)
         {
             if (file is null || file.Length == 0)
             {

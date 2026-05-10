@@ -47,7 +47,9 @@ export const brandService = {
   uploadLogo(id: number, file: File) {
     const formData = new FormData()
     formData.append('file', file)
-    return httpClient.post<Brand>(`${BASE_URL}/UploadLogo/${id}`, formData)
+    return httpClient.post<Brand>(`${BASE_URL}/UploadLogo/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
   },
 
   removeLogo(id: number) {
