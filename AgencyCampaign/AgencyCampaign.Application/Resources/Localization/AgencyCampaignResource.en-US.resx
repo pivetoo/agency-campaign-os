@@ -96,4 +96,31 @@
   <data name="opportunityComment.delete.onlyAuthor" xml:space="preserve">
     <value>Only the comment author can delete it.</value>
   </data>
+  <data name="integrationPlatform.notConfigured" xml:space="preserve">
+    <value>Integration 'integration-platform' is not configured for this tenant.</value>
+  </data>
+  <data name="integrationPlatform.connector.getFailed" xml:space="preserve">
+    <value>Failed to get connector from IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connector.createFailed" xml:space="preserve">
+    <value>Failed to create connector on IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connector.updateFailed" xml:space="preserve">
+    <value>Failed to update connector on IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connector.deleteFailed" xml:space="preserve">
+    <value>Failed to delete connector on IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connectorAttribute.createFailed" xml:space="preserve">
+    <value>Failed to create connector attribute value on IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connectorAttribute.updateFailed" xml:space="preserve">
+    <value>Failed to update connector attribute value on IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.pipeline.executeFailed" xml:space="preserve">
+    <value>Failed to execute pipeline on IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.pipeline.enqueueFailed" xml:space="preserve">
+    <value>Failed to enqueue pipeline on IntegrationPlatform.</value>
+  </data>
 </root>

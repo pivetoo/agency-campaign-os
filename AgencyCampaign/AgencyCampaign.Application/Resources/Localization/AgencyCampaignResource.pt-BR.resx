@@ -96,4 +96,31 @@
   <data name="opportunityComment.delete.onlyAuthor" xml:space="preserve">
     <value>Apenas o autor do comentário pode excluí-lo.</value>
   </data>
+  <data name="integrationPlatform.notConfigured" xml:space="preserve">
+    <value>A integração 'integration-platform' não está configurada para este tenant.</value>
+  </data>
+  <data name="integrationPlatform.connector.getFailed" xml:space="preserve">
+    <value>Falha ao obter o conector na IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connector.createFailed" xml:space="preserve">
+    <value>Falha ao criar o conector na IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connector.updateFailed" xml:space="preserve">
+    <value>Falha ao atualizar o conector na IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connector.deleteFailed" xml:space="preserve">
+    <value>Falha ao excluir o conector na IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connectorAttribute.createFailed" xml:space="preserve">
+    <value>Falha ao criar o valor de atributo do conector na IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.connectorAttribute.updateFailed" xml:space="preserve">
+    <value>Falha ao atualizar o valor de atributo do conector na IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.pipeline.executeFailed" xml:space="preserve">
+    <value>Falha ao executar o pipeline na IntegrationPlatform.</value>
+  </data>
+  <data name="integrationPlatform.pipeline.enqueueFailed" xml:space="preserve">
+    <value>Falha ao enfileirar o pipeline na IntegrationPlatform.</value>
+  </data>
 </root>
