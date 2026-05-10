@@ -405,38 +405,38 @@ export default function CampaignDetail() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="creators" className="mt-4">
-          <TabsList>
-            <TabsTrigger value="creators">
-              <Users size={14} className="mr-1.5" />
+        <Tabs defaultValue="creators" className="pt-2">
+          <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
+            <TabsTrigger value="creators" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+              <Users size={14} />
               Creators
               {campaignCreators.length > 0 && (
-                <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium">
+                <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">
                   {campaignCreators.length}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="documents">
-              <FileText size={14} className="mr-1.5" />
+            <TabsTrigger value="documents" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+              <FileText size={14} />
               Documentos
               {documents.length > 0 && (
-                <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium">
+                <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">
                   {documents.length}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="deliverables">
-              <Package size={14} className="mr-1.5" />
+            <TabsTrigger value="deliverables" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+              <Package size={14} />
               Entregas
               {deliverables.length > 0 && (
-                <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium">
+                <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">
                   {deliverables.length}
                 </span>
               )}
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="creators" className="mt-2">
+          <TabsContent value="creators" className="mt-0">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
                 <CardTitle className="text-base">Creators da campanha</CardTitle>
@@ -461,7 +461,7 @@ export default function CampaignDetail() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="documents" className="mt-2">
+          <TabsContent value="documents" className="mt-0">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
                 <CardTitle className="text-base">Documentos</CardTitle>
@@ -504,7 +504,7 @@ export default function CampaignDetail() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="deliverables" className="mt-2">
+          <TabsContent value="deliverables" className="mt-0">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
                 <CardTitle className="text-base">Entregas</CardTitle>

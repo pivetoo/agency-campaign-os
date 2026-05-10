@@ -102,14 +102,19 @@ export default function CreatorPaymentDetailsModal({ open, onOpenChange, payment
               )}
             </div>
 
-            <Tabs defaultValue="info">
-              <TabsList>
-                <TabsTrigger value="info">Dados</TabsTrigger>
-                <TabsTrigger value="invoice">Nota fiscal</TabsTrigger>
-                <TabsTrigger value="events">Histórico ({payment.events.length})</TabsTrigger>
+            <Tabs defaultValue="info" className="pt-2">
+              <TabsList className="mb-4 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
+                <TabsTrigger value="info" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">Dados</TabsTrigger>
+                <TabsTrigger value="invoice" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">Nota fiscal</TabsTrigger>
+                <TabsTrigger value="events" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+                  Histórico
+                  {payment.events.length > 0 && (
+                    <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">{payment.events.length}</span>
+                  )}
+                </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="info" className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <TabsContent value="info" className="mt-0 grid grid-cols-1 gap-3 md:grid-cols-2">
                 <Field label="Chave PIX (snapshot)" value={payment.pixKey ?? payment.creatorPixKey ?? '—'} />
                 <Field
                   label="Tipo PIX"
@@ -133,7 +138,7 @@ export default function CreatorPaymentDetailsModal({ open, onOpenChange, payment
                 />
               </TabsContent>
 
-              <TabsContent value="invoice" className="mt-3 space-y-2">
+              <TabsContent value="invoice" className="mt-0 space-y-2">
                 <Field label="Número" value={payment.invoiceNumber ?? '—'} />
                 <Field
                   label="Emitida em"
@@ -153,7 +158,7 @@ export default function CreatorPaymentDetailsModal({ open, onOpenChange, payment
                 )}
               </TabsContent>
 
-              <TabsContent value="events" className="mt-3">
+              <TabsContent value="events" className="mt-0">
                 {payment.events.length === 0 ? (
                   <p className="text-sm text-muted-foreground">Sem eventos registrados.</p>
                 ) : (
