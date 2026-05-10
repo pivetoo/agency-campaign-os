@@ -509,7 +509,19 @@ export default function OpportunityDetail() {
                   <Button size="sm" variant="outline" onClick={() => selectedNegotiation && setIsNegotiationFormOpen(true)} disabled={!selectedNegotiation}>
                     <Pencil className="mr-2 h-4 w-4" /> Editar
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setIsApprovalRequestFormOpen(true)} disabled={!selectedNegotiation}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsApprovalRequestFormOpen(true)}
+                    disabled={!selectedNegotiation || selectedNegotiation.status !== 1}
+                    title={
+                      !selectedNegotiation
+                        ? 'Selecione uma negociação'
+                        : selectedNegotiation.status !== 1
+                          ? `Disponível apenas para negociações em Rascunho (atual: ${negotiationStatusLabels[selectedNegotiation.status] ?? '-'})`
+                          : 'Solicitar aprovação interna desta negociação'
+                    }
+                  >
                     <CheckCircle className="mr-2 h-4 w-4" /> Solicitar aprovação
                   </Button>
                   <Button size="sm" variant="outline-danger" onClick={() => void handleDeleteNegotiation()} disabled={!selectedNegotiation || actionLoading}>
