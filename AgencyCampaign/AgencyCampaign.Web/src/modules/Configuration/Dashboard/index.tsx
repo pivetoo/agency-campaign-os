@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, Card, CardContent, Badge, Button, useApi } from 'archon-ui'
+import { Card, CardContent, Badge, Button, useApi } from 'archon-ui'
 import { ResponsivePie } from '@nivo/pie'
 import {
   Building2,
@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Tag,
   Sparkles,
+  RefreshCw,
 } from 'lucide-react'
 import { agencySettingsService } from '../../../services/agencySettingsService'
 import { automationService } from '../../../services/automationService'
@@ -132,12 +133,21 @@ export default function ConfigurationDashboard() {
   const healthPercent = Math.round((completedHealth / healthChecks.length) * 100)
 
   return (
-    <PageLayout
-      title={agency?.tradeName || agency?.agencyName || 'Configuração'}
-      subtitle="Visão geral dos cadastros, automações e integrações"
-      onRefresh={() => void load()}
-      showDefaultActions={false}
-    >
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="border-l-4 border-primary pl-5">
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">
+            <strong className="text-primary">Dashboard</strong>
+          </h1>
+          <p className="text-lg text-muted-foreground mt-3 leading-relaxed">
+            Visão geral dos cadastros, automações e integrações
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => void load()}>
+          <RefreshCw className="mr-1 h-3.5 w-3.5" /> Atualizar
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 mb-4">
         <Card>
           <CardContent className="pt-5 pb-5 flex items-start justify-between">
@@ -356,6 +366,6 @@ export default function ConfigurationDashboard() {
       {loading && (
         <p className="mt-4 text-center text-xs text-muted-foreground">Carregando...</p>
       )}
-    </PageLayout>
+    </div>
   )
 }
