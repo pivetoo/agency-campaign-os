@@ -159,6 +159,17 @@ export default function Integrations() {
   const totalConnectors = connectors.length
   const activeConnectors = connectors.filter((connector) => connector.isActive).length
 
+  const sortedIntegrations = useMemo(() => {
+    const connectedIds = new Set(
+      connectors.filter((connector) => connector.isActive).map((connector) => connector.integrationId),
+    )
+    return [...integrations].sort((a, b) => {
+      const aConnected = connectedIds.has(a.id) ? 0 : 1
+      const bConnected = connectedIds.has(b.id) ? 0 : 1
+      return aConnected - bConnected
+    })
+  }, [integrations, connectors])
+
   const computeStatus = (integrationId: number): IntegrationStatus => {
     const integrationConnectors = connectors.filter(
       (connector) => connector.integrationId === integrationId && connector.isActive,
@@ -331,7 +342,7 @@ export default function Integrations() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {integrations.map((integration) => {
+                      {sortedIntegrations.map((integration) => {
                         const integrationConnectors = connectors.filter(
                           (connector) => connector.integrationId === integration.id,
                         )
