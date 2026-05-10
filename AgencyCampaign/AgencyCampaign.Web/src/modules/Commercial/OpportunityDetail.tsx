@@ -10,6 +10,7 @@ import OpportunityNegotiationFormModal from '../../components/modals/Opportunity
 import OpportunityFollowUpFormModal from '../../components/modals/OpportunityFollowUpFormModal'
 import OpportunityApprovalRequestFormModal from '../../components/modals/OpportunityApprovalRequestFormModal'
 import OpportunityActivityTab from './OpportunityActivityTab'
+import { resolveAssetUrl } from '../../lib/assetUrl'
 
 const proposalStatusLabels: Record<number, string> = {
   1: 'Rascunho',
@@ -266,7 +267,7 @@ export default function OpportunityDetail() {
               <span className="flex items-center gap-2 text-sm text-muted-foreground">
                 {opportunity?.brand?.logoUrl ? (
                   <img
-                    src={opportunity.brand.logoUrl}
+                    src={resolveAssetUrl(opportunity.brand.logoUrl)}
                     alt={opportunity.brand?.name ?? ''}
                     className="h-6 w-6 rounded-md border bg-card object-contain p-0.5"
                     onError={(e) => {
