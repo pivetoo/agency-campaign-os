@@ -10,7 +10,7 @@ namespace AgencyCampaign.Testing.Builders
         private string name = "Confirmado";
         private int displayOrder = 1;
         private string color = "#22c55e";
-        private string? description;
+        private string? description = null;
         private bool isInitial;
         private bool isFinal;
         private CampaignCreatorStatusCategory category = CampaignCreatorStatusCategory.InProgress;
