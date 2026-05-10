@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import { dashboardService } from '../../services/dashboardService'
 import type { DashboardOverview } from '../../types/dashboard'
-import TourButton from '../../components/tour/TourButton'
+// import TourButton from '../../components/tour/TourButton'
 
 const chartColors = ['#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6']
 const pipelineColors = ['#6366f1', '#06b6d4', '#f59e0b', '#ec4899', '#22c55e']
@@ -102,7 +102,7 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <TourButton />
+          {/* <TourButton /> */}
           <div className="flex flex-wrap items-center gap-2" data-tour="dashboard-kpis">
             {headlineChips.map(({ label, value, icon: Icon, tone }) => (
               <div
