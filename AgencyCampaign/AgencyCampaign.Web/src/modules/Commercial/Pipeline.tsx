@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Card, CardContent, CardHeader, CardTitle, PageLayout, useApi } from 'archon-ui'
-import { AlertTriangle, CalendarClock, DollarSign, Plus, RefreshCcw, UserRound } from 'lucide-react'
+import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
 
@@ -202,6 +202,13 @@ export default function CommercialPipeline() {
       title="Pipeline Comercial"
       subtitle="Acompanhe leads e oportunidades por estágio, valor em funil e follow-ups críticos"
       actions={[
+        {
+          key: 'list-view',
+          label: 'Ver lista',
+          icon: <List className="h-4 w-4" />,
+          variant: 'outline',
+          onClick: () => navigate('/comercial/oportunidades'),
+        },
         {
           key: 'new-lead',
           label: 'Novo Lead',
