@@ -1,5 +1,5 @@
-using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using CampaignCreatorStatus = AgencyCampaign.Domain.Entities.CampaignCreatorStatus;
 
 namespace AgencyCampaign.Testing.Domain.Entities
 {

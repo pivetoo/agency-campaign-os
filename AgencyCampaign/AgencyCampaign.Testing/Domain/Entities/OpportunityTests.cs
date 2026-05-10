@@ -1,6 +1,7 @@
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Testing.Builders;
+using AgencyCampaign.Testing.TestSupport;
 
 namespace AgencyCampaign.Testing.Domain.Entities
 {
@@ -198,7 +199,7 @@ namespace AgencyCampaign.Testing.Domain.Entities
         [Test]
         public void ReplaceTags_should_add_missing_tags_and_remove_extras()
         {
-            Opportunity subject = BuildDefault();
+            Opportunity subject = BuildDefault().WithId(1);
             subject.ReplaceTags(new long[] { 1, 2, 3 });
             subject.TagAssignments.Should().HaveCount(3);
 
@@ -210,7 +211,7 @@ namespace AgencyCampaign.Testing.Domain.Entities
         [Test]
         public void ReplaceTags_should_dedupe_input()
         {
-            Opportunity subject = BuildDefault();
+            Opportunity subject = BuildDefault().WithId(1);
 
             subject.ReplaceTags(new long[] { 1, 1, 2, 2, 3 });
 

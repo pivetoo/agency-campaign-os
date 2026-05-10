@@ -11,7 +11,7 @@ namespace AgencyCampaign.Testing.Domain.Entities
             FinancialEntry entry = new(
                 accountId: 1,
                 type: FinancialEntryType.Receivable,
-                category: FinancialEntryCategory.CampaignRevenue,
+                category: FinancialEntryCategory.BrandReceivable,
                 description: "  pagamento  ",
                 amount: 100m,
                 dueAt: dueAt ?? DateTimeOffset.UtcNow.AddDays(5),
@@ -39,7 +39,7 @@ namespace AgencyCampaign.Testing.Domain.Entities
         [Test]
         public void Constructor_should_reject_negative_amount()
         {
-            Action act = () => _ = new FinancialEntry(1, FinancialEntryType.Receivable, FinancialEntryCategory.CampaignRevenue,
+            Action act = () => _ = new FinancialEntry(1, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable,
                 "x", -1m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
             act.Should().Throw<ArgumentOutOfRangeException>();
         }

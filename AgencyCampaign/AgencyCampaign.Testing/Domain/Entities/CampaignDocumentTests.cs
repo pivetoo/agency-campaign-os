@@ -1,5 +1,6 @@
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using AgencyCampaign.Testing.TestSupport;
 
 namespace AgencyCampaign.Testing.Domain.Entities
 {
@@ -8,7 +9,8 @@ namespace AgencyCampaign.Testing.Domain.Entities
     {
         private static CampaignDocument BuildDefault()
         {
-            return new CampaignDocument(campaignId: 1, documentType: CampaignDocumentType.CreatorAgreement, title: "  Contrato  ");
+            CampaignDocument doc = new(campaignId: 1, documentType: CampaignDocumentType.CreatorAgreement, title: "  Contrato  ");
+            return doc.WithId(1);
         }
 
         [Test]

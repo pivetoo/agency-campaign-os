@@ -1,5 +1,6 @@
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using AgencyCampaign.Testing.TestSupport;
 
 namespace AgencyCampaign.Testing.Domain.Entities
 {
@@ -27,11 +28,11 @@ namespace AgencyCampaign.Testing.Domain.Entities
         {
             CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);
 
-            subject.Update(grossAmount: 500m, discounts: 50m, method: PaymentMethod.BankTransfer, description: null);
+            subject.Update(grossAmount: 500m, discounts: 50m, method: PaymentMethod.Ted, description: null);
 
             subject.GrossAmount.Should().Be(500m);
             subject.NetAmount.Should().Be(450m);
-            subject.Method.Should().Be(PaymentMethod.BankTransfer);
+            subject.Method.Should().Be(PaymentMethod.Ted);
         }
 
         [Test]
@@ -105,7 +106,7 @@ namespace AgencyCampaign.Testing.Domain.Entities
         [Test]
         public void RegisterEvent_should_append_to_events_list()
         {
-            CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);
+            CreatorPayment subject = new CreatorPayment(1, 2, 1000m, 0m, PaymentMethod.Pix).WithId(1);
 
             subject.RegisterEvent(CreatorPaymentEventType.Created);
             subject.RegisterEvent(CreatorPaymentEventType.Paid);

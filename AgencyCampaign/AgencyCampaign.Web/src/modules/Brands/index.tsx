@@ -97,6 +97,20 @@ export default function Brands() {
         <SheetContent side="right" className="w-full sm:max-w-md">
           {previewBrand ? (
             <div className="flex h-full flex-col">
+              {(() => {
+                const logoSrc = resolveBrandLogoUrl(previewBrand.logoUrl)
+                return (
+                  <div className="mb-4 flex items-center justify-center overflow-hidden rounded-lg border bg-muted/20" style={{ height: 140 }}>
+                    {logoSrc ? (
+                      <img src={logoSrc} alt={previewBrand.name} className="h-full w-full object-contain p-3" />
+                    ) : (
+                      <span className="text-3xl font-semibold text-muted-foreground">
+                        {previewBrand.name?.charAt(0).toUpperCase() ?? '?'}
+                      </span>
+                    )}
+                  </div>
+                )
+              })()}
               <SheetPreviewHeader
                 title={previewBrand.name}
                 meta={
