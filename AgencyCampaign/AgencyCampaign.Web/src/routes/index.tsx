@@ -44,6 +44,7 @@ import FinancialSubcategories from '../modules/Configuration/FinancialSubcategor
 import AgencyConfiguration from '../modules/Configuration/Agency'
 import ConfigurationDashboard from '../modules/Configuration/Dashboard'
 import AuditDashboard from '../modules/Audit'
+import AuditActivities from '../modules/Audit/Activities'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -127,6 +128,7 @@ function AppRoutes() {
           <Route path="configuracao/empresa" element={<AgencyConfiguration />} />
           <Route path="usuarios" element={<UsersManagementPage />} />
           <Route path="auditoria" element={<AuditDashboard />} />
+          <Route path="auditoria/atividades" element={<AuditActivities />} />
         </Route>
 
         <Route path="*" element={<div>Página não encontrada</div>} />

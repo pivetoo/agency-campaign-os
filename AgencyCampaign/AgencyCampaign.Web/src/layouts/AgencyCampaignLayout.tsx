@@ -192,7 +192,8 @@ export default function AgencyCampaignLayout() {
     const routeMap: Record<string, string> = {
       '/': 'Dashboard',
       '/configuracao': 'Dashboard',
-      '/auditoria': 'Auditoria',
+      '/auditoria': 'Dashboard',
+      '/auditoria/atividades': 'Atividades',
       '/comercial': 'Pipeline',
       '/comercial/pipeline': 'Pipeline',
       '/comercial/oportunidades': 'Oportunidades',
