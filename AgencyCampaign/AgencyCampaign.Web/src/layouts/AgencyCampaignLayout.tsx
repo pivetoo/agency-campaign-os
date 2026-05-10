@@ -11,7 +11,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Tags, Columns3, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText, UserCog, History } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Tags, Columns3, Plug, FileText, Blocks, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText, UserCog, History } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.svg'
 
 export default function AgencyCampaignLayout() {
