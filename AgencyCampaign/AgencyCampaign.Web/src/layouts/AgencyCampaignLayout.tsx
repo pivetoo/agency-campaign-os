@@ -12,7 +12,7 @@ function TourMount() {
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
 import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText, UserCog, History } from 'lucide-react'
-import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
+import logoAgencyCampaign from '../assets/logo-agency-campaign.svg'
 
 export default function AgencyCampaignLayout() {
   const { user: authUser, contract, logout } = useAuth()
