@@ -129,6 +129,7 @@ export default function AgencyCampaignLayout() {
 
   const configurationGroups = [
     createMenuGroup('Geral', [
+      { key: 'configuracao-minha-agencia', label: 'Minha agência', path: '/configuracao', icon: <LayoutDashboard size={20} /> },
       { key: 'configuracao-empresa', label: 'Empresa', path: '/configuracao/empresa', icon: <Settings size={20} /> },
       { key: 'configuracao-integracoes', label: 'Integrações', path: '/configuracao/integracoes', icon: <Plug size={20} /> },
       { key: 'configuracao-templates-email', label: 'Templates de e-mail', path: '/configuracao/templates-email', icon: <Mail size={20} /> },
@@ -185,7 +186,7 @@ export default function AgencyCampaignLayout() {
 
     const routeMap: Record<string, string> = {
       '/': 'Dashboard',
-      '/configuracao': 'Início da Configuração',
+      '/configuracao': 'Minha agência',
       '/auditoria': 'Auditoria',
       '/comercial': 'Pipeline',
       '/comercial/pipeline': 'Pipeline',
@@ -219,7 +220,7 @@ export default function AgencyCampaignLayout() {
     }
 
     const currentLabel = routeMap[path]
-    if (currentLabel && currentLabel !== 'Dashboard' && currentLabel !== 'Início da Configuração' && currentLabel !== 'Auditoria') {
+    if (currentLabel && currentLabel !== 'Dashboard' && currentLabel !== 'Auditoria') {
       crumbs.push({ label: currentLabel })
     }
 
