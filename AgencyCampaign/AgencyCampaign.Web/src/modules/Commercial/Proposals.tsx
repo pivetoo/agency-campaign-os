@@ -15,7 +15,7 @@ import {
   useApi,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { CheckCircle, Clock, Eye, Search, Send, X, XCircle } from 'lucide-react'
+import { CheckCircle, Clock, Eye, FileText, Search, Send, X, XCircle } from 'lucide-react'
 import { proposalService, type Proposal, type ProposalListFilters } from '../../services/proposalService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import type { CommercialResponsible } from '../../types/commercialResponsible'
@@ -182,6 +182,24 @@ export default function CommercialProposals() {
       render: (value?: Proposal['campaign']) => value?.name || '-',
     },
     { key: 'items', title: 'Itens', dataIndex: 'items', render: (value?: Proposal['items']) => value?.length ?? 0 },
+    {
+      key: 'actions',
+      title: '',
+      dataIndex: 'id',
+      width: 110,
+      render: (_value: number, record: Proposal) => (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={(e) => {
+            e.stopPropagation()
+            navigate(`/comercial/propostas/${record.id}`)
+          }}
+        >
+          Abrir <FileText className="ml-1.5 h-3.5 w-3.5" />
+        </Button>
+      ),
+    },
   ]
 
   return (

@@ -186,6 +186,24 @@ export default function OpportunityDetail() {
       ),
     },
     { key: 'validityUntil', title: 'Validade', dataIndex: 'validityUntil', render: (value?: string) => formatDate(value) },
+    {
+      key: 'actions',
+      title: '',
+      dataIndex: 'id',
+      width: 110,
+      render: (_value: number, record: NonNullable<Opportunity['proposals']>[number]) => (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={(e) => {
+            e.stopPropagation()
+            navigate(`/comercial/propostas/${record.id}`)
+          }}
+        >
+          Abrir <FileText className="ml-1.5 h-3.5 w-3.5" />
+        </Button>
+      ),
+    },
   ]
 
   const handleChangeStage = async (stageId: number) => {
@@ -458,15 +476,19 @@ export default function OpportunityDetail() {
                   <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
                 </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
+                <p className="text-xs text-muted-foreground">
+                  Cada proposta tem itens (creators, plataformas, valores), PDF, link público, status e conversão em campanha. Clique numa linha para abrir o detalhe completo.
+                </p>
                 <DataTable
                   columns={proposalColumns}
                   data={opportunity?.proposals || []}
                   rowKey="id"
-                  emptyText="Nenhuma proposta vinculada a esta oportunidade"
+                  emptyText="Nenhuma proposta vinculada. Use o botão Nova proposta acima para criar a primeira."
                   loading={loading}
                   pageSize={5}
                   pageSizeOptions={[5, 10, 20, 50]}
+                  onRowClick={(record) => navigate(`/comercial/propostas/${record.id}`)}
                 />
               </CardContent>
             </Card>
