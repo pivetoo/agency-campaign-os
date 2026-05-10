@@ -80,6 +80,10 @@ export const integrationPlatformService = {
     )
     return response.data!
   },
+
+  async deleteConnector(connectorId: number): Promise<void> {
+    await httpClient.delete(`/IntegrationPlatformProxy/connectors/${connectorId}`)
+  },
 }
 
 export interface TestConnectorResult {

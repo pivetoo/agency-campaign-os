@@ -152,6 +152,23 @@ namespace AgencyCampaign.Infrastructure.Clients
                 : throw new InvalidOperationException("Failed to update connector.");
         }
 
+        public async Task DeleteConnectorAsync(long connectorId, CancellationToken ct = default)
+        {
+            (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("Integration 'integration-platform' is not configured.");
+            }
+
+            RestResponse<ApiResponse<object>> response = await restApi.Fetch<ApiResponse<object>>(
+                RestRequest.Delete($"{baseUrl}/api/connectors/{connectorId}").WithSecret(secret!), ct);
+
+            if (!response.Ok)
+            {
+                throw new InvalidOperationException("Failed to delete connector.");
+            }
+        }
+
         public async Task<ConnectorAttributeValueDto> CreateConnectorAttributeValueAsync(CreateConnectorAttributeValueRequest request, CancellationToken ct = default)
         {
             (string? baseUrl, string? secret) = await ResolveIntegrationAsync(ct);

@@ -156,6 +156,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(execution);
         }
 
+        [RequireAccess("Permite excluir um conector do IntegrationPlatform.")]
+        [DeleteEndpoint("connectors/{connectorId:long}")]
+        public async Task<IActionResult> DeleteConnector(long connectorId, CancellationToken cancellationToken)
+        {
+            await integrationPlatformClient.DeleteConnectorAsync(connectorId, cancellationToken);
+            return Http200(new { id = connectorId });
+        }
+
         [RequireAccess("Permite ativar ou desativar um conector sem reenviar todas as configuracoes.")]
         [PostEndpoint("connectors/{connectorId:long}/setactive")]
         public async Task<IActionResult> SetConnectorActive(long connectorId, [FromBody] SetConnectorActivePayload payload, CancellationToken cancellationToken)
