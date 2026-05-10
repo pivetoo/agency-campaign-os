@@ -11,7 +11,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Tags, Columns3, Plug, FileText, Blocks, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText, UserCog, History } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Tags, Columns3, Plug, FileText, Blocks, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.svg'
 
 export default function AgencyCampaignLayout() {
@@ -152,35 +152,24 @@ export default function AgencyCampaignLayout() {
     ]),
   ]
 
-  const auditGroups = [
-    createMenuGroup('Geral', [
-      { key: 'auditoria-dashboard', label: 'Dashboard', path: '/auditoria', icon: <LayoutDashboard size={20} /> },
-      { key: 'auditoria-atividades', label: 'Atividades', path: '/auditoria/atividades', icon: <History size={20} /> },
-    ]),
-  ]
-
   const isInConfiguration = location.pathname.startsWith('/configuracao')
-  const isInAudit = location.pathname.startsWith('/auditoria')
-  const currentModule = isInConfiguration ? 'configuracao' : isInAudit ? 'auditoria' : 'sistema'
-  const menuGroups = isInConfiguration ? configurationGroups : isInAudit ? auditGroups : systemGroups
+  const currentModule = isInConfiguration ? 'configuracao' : 'sistema'
+  const menuGroups = isInConfiguration ? configurationGroups : systemGroups
 
   const modules = [
     { id: 'sistema', name: 'Sistema', icon: <LayoutDashboard size={16} /> },
     { id: 'configuracao', name: 'Configuração', icon: <Settings size={16} /> },
-    { id: 'auditoria', name: 'Auditoria', icon: <ScrollText size={16} /> },
   ]
 
   const handleModuleChange = (moduleId: string) => {
     if (moduleId === 'configuracao') {
       navigate('/configuracao')
-    } else if (moduleId === 'auditoria') {
-      navigate('/auditoria')
     } else {
       navigate('/')
     }
   }
 
-  const homePathByModule = isInConfiguration ? '/configuracao' : isInAudit ? '/auditoria' : '/'
+  const homePathByModule = isInConfiguration ? '/configuracao' : '/'
 
   const breadcrumbs = useMemo((): BreadcrumbItem[] => {
     const path = location.pathname
@@ -191,8 +180,6 @@ export default function AgencyCampaignLayout() {
     const routeMap: Record<string, string> = {
       '/': 'Dashboard',
       '/configuracao': 'Dashboard',
-      '/auditoria': 'Dashboard',
-      '/auditoria/atividades': 'Atividades',
       '/comercial': 'Pipeline',
       '/comercial/pipeline': 'Pipeline',
       '/comercial/oportunidades': 'Oportunidades',
