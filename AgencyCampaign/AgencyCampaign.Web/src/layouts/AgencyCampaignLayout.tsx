@@ -11,7 +11,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText, UserCog } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, Megaphone, HandCoins, ReceiptText, Globe, Tags, Columns3, Plug, FileText, Blocks, List, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, ScrollText, UserCog, History } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-agency-campaign.png'
 
 export default function AgencyCampaignLayout() {
@@ -153,7 +153,12 @@ export default function AgencyCampaignLayout() {
     ]),
   ]
 
-  const auditGroups: typeof systemGroups = []
+  const auditGroups = [
+    createMenuGroup('Geral', [
+      { key: 'auditoria-dashboard', label: 'Dashboard', path: '/auditoria', icon: <LayoutDashboard size={20} /> },
+      { key: 'auditoria-atividades', label: 'Atividades', path: '/auditoria/atividades', icon: <History size={20} /> },
+    ]),
+  ]
 
   const isInConfiguration = location.pathname.startsWith('/configuracao')
   const isInAudit = location.pathname.startsWith('/auditoria')
