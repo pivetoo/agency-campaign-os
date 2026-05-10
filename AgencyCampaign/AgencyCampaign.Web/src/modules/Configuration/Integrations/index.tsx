@@ -6,6 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  ConfirmModal,
   PageLayout,
   SearchableSelect,
   Tabs,
@@ -14,7 +15,7 @@ import {
   TabsTrigger,
   useApi,
 } from 'archon-ui'
-import { CheckCircle2, CircleDashed, GitBranch, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, TriangleAlert, Workflow, Zap } from 'lucide-react'
+import { CheckCircle2, CircleDashed, GitBranch, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
 import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
 import AutomationFormModal from '../../../components/modals/AutomationFormModal'
@@ -74,6 +75,9 @@ export default function Integrations() {
 
   const [isTestModalOpen, setIsTestModalOpen] = useState(false)
   const [testingConnector, setTestingConnector] = useState<Connector | null>(null)
+
+  const [deletingConnector, setDeletingConnector] = useState<Connector | null>(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
   const [isAutomationModalOpen, setIsAutomationModalOpen] = useState(false)
   const [selectedAutomation, setSelectedAutomation] = useState<Automation | null>(null)
@@ -182,6 +186,27 @@ export default function Integrations() {
   const openTestConnector = (connector: Connector) => {
     setTestingConnector(connector)
     setIsTestModalOpen(true)
+  }
+
+  const askDeleteConnector = (connector: Connector) => {
+    setDeletingConnector(connector)
+    setIsDeleteModalOpen(true)
+  }
+
+  const confirmDeleteConnector = async () => {
+    if (!deletingConnector) return
+    try {
+      await integrationPlatformService.deleteConnector(deletingConnector.id)
+      if (selectedCategoryId) {
+        await loadIntegrationsByCategory(selectedCategoryId)
+      }
+      void loadAutomations()
+    } catch {
+      // erro ja exibido pelo httpClient
+    } finally {
+      setIsDeleteModalOpen(false)
+      setDeletingConnector(null)
+    }
   }
 
   const toggleConnectorActive = async (connector: Connector) => {
@@ -513,6 +538,14 @@ export default function Integrations() {
                                     <Pencil size={14} className="mr-1" />
                                     Editar
                                   </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    title="Excluir conta"
+                                    onClick={() => askDeleteConnector(connector)}
+                                  >
+                                    <Trash2 size={14} className="text-destructive" />
+                                  </Button>
                                 </div>
                               </div>
                             ))}
@@ -638,6 +671,24 @@ export default function Integrations() {
         connector={testingConnector}
         integration={selectedIntegration}
         category={selectedCategory}
+      />
+
+      <ConfirmModal
+        open={isDeleteModalOpen}
+        onOpenChange={(open) => {
+          setIsDeleteModalOpen(open)
+          if (!open) setDeletingConnector(null)
+        }}
+        onConfirm={confirmDeleteConnector}
+        title="Excluir conta"
+        description={
+          deletingConnector
+            ? `Tem certeza que deseja excluir a conta "${deletingConnector.name}"? Esta ação não pode ser desfeita e as automações que dependem dela vão parar de funcionar.`
+            : ''
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        variant="danger"
       />
     </>
   )
