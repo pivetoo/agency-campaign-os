@@ -25,12 +25,10 @@ test.describe('Configuracao - Integracoes', () => {
     // 3) seleciona primeira categoria
     const categoryCombobox = page.getByRole('combobox').first()
     await categoryCombobox.click()
-    const firstCategoryOption = page.getByRole('option').first()
-    if (await firstCategoryOption.count() === 0) {
-      test.skip(true, 'Sem categorias de integracao cadastradas no IntegrationPlatform.')
-      return
-    }
-    await firstCategoryOption.click()
+    // espera as options aparecerem (Radix Select usa role=option em SelectItem)
+    const allOptions = page.getByRole('option')
+    await expect.poll(async () => allOptions.count(), { timeout: 10_000 }).toBeGreaterThan(0)
+    await allOptions.first().click()
 
     // 4) painel de integracoes aparece
     await expect(page.getByRole('heading', { name: /^Integrações$/, level: 4 }).or(page.getByText(/^Integrações$/).nth(1))).toBeVisible({ timeout: 15_000 }).catch(() => {})
@@ -42,10 +40,7 @@ test.describe('Configuracao - Integracoes', () => {
       .filter({ hasText: /(Em uso|Sem ações|Não conectada)/i })
       .first()
 
-    if ((await firstIntegrationButton.count()) === 0) {
-      test.skip(true, 'Categoria selecionada nao tem integracoes.')
-      return
-    }
+    await expect(firstIntegrationButton).toBeVisible({ timeout: 15_000 })
     await firstIntegrationButton.click()
 
     // 5) painel direito: titulo da integracao e botao Conectar conta
