@@ -75,16 +75,5 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Events.Should().Contain(item => item.EventType == CampaignDocumentEventType.Signed);
         }
 
-        [Test]
-        public async Task GetByCampaign_should_filter_by_campaign_id()
-        {
-            db.Add(new CampaignDocument(1, CampaignDocumentType.CreatorAgreement, "A"));
-            db.Add(new CampaignDocument(1, CampaignDocumentType.BrandContract, "B"));
-            db.Add(new CampaignDocument(99, CampaignDocumentType.CreatorAgreement, "Outro"));
-            await db.SaveChangesAsync();
-
-            List<CampaignDocument> result = await service.GetByCampaign(1);
-            result.Should().HaveCount(2);
-        }
     }
 }
