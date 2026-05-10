@@ -12,7 +12,7 @@ function TourMount() {
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
 import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Blocks, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog } from 'lucide-react'
-import logoAgencyCampaign from '../assets/logo-agency-campaign.svg'
+import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
   const { user: authUser, contract, logout } = useAuth()
@@ -20,7 +20,7 @@ export default function AgencyCampaignLayout() {
   const navigate = useNavigate()
   const { createMenuGroup } = useAppNavigation({})
   const { isRoot } = usePermissions()
-  const sidebarLogo = <img src={logoAgencyCampaign} alt="Agency Campaign OS" style={{ width: 36, height: 36, objectFit: 'contain' }} />
+  const sidebarLogo = <img src={logoAgencyCampaign} alt="Mainstay" style={{ width: 36, height: 36, objectFit: 'contain' }} />
 
   const handleLogout = async () => {
     await AuthService.logoutFromServer()
@@ -237,9 +237,9 @@ export default function AgencyCampaignLayout() {
   return (
     <TourProvider>
       <AppLayout
-        title={contract?.systemApplicationName ?? 'Kanvas for Agencies'}
+        title={contract?.systemApplicationName ?? 'Kanvas'}
         logo={sidebarLogo}
-        subtitle={contract?.companyName ?? ''}
+        subtitle="by Mainstay"
         user={{
           name: authUser?.name ?? '',
           email: authUser?.email ?? '',
