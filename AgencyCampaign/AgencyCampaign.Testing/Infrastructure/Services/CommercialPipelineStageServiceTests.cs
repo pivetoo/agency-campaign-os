@@ -63,7 +63,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             PagedResult<CommercialPipelineStage> result = await service.GetStages(new PagedRequest { Page = 1, PageSize = 3 });
 
-            result.TotalCount.Should().Be(5);
+            result.Pagination.TotalCount.Should().Be(5);
             result.Items.Should().HaveCount(3);
         }
 
