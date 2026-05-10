@@ -88,7 +88,7 @@ export default function ApplyProposalTemplateModal(props: ApplyProposalTemplateM
                 {selectedTemplate.description ? (
                   <p className="mt-1 text-xs text-muted-foreground">{selectedTemplate.description}</p>
                 ) : null}
-                <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                <div className="mt-2 max-h-[35vh] space-y-1 overflow-y-auto pr-1 text-xs text-muted-foreground">
                   {selectedTemplate.items.map((item, index) => (
                     <div key={item.id ?? index} className="flex items-center justify-between gap-2">
                       <span className="truncate">{item.description}</span>
