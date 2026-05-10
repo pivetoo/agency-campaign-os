@@ -6,6 +6,7 @@ export interface Brand {
   contactName?: string
   contactEmail?: string
   notes?: string
+  logoUrl?: string
   isActive: boolean
   createdAt: string
   updatedAt?: string

@@ -1,7 +1,20 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, getApiBaseURL } from 'archon-ui'
 import type { Brand } from '../types/brand'
 
 const BASE_URL = '/Brands'
+
+export const resolveBrandLogoUrl = (logoUrl?: string | null): string | undefined => {
+  if (!logoUrl) {
+    return undefined
+  }
+
+  if (/^https?:\/\//i.test(logoUrl)) {
+    return logoUrl
+  }
+
+  const base = (getApiBaseURL() || '').replace(/\/api\/?$/, '').replace(/\/+$/, '')
+  return `${base}${logoUrl.startsWith('/') ? '' : '/'}${logoUrl}`
+}
 
 export interface CreateBrandRequest {
   name: string
@@ -29,5 +42,15 @@ export const brandService = {
 
   update(id: number, data: UpdateBrandRequest) {
     return httpClient.put<Brand>(`${BASE_URL}/Update/${id}`, data)
+  },
+
+  uploadLogo(id: number, file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return httpClient.post<Brand>(`${BASE_URL}/UploadLogo/${id}`, formData)
+  },
+
+  removeLogo(id: number) {
+    return httpClient.delete<Brand>(`${BASE_URL}/RemoveLogo/${id}`)
   },
 }

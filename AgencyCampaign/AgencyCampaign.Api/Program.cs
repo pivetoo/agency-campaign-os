@@ -33,6 +33,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AgencyCampaignCors");
+app.UseStaticFiles();
 app.UseArchonApi();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { PageLayout, DataTable, Badge, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 
-import { brandService } from '../../services/brandService'
+import { brandService, resolveBrandLogoUrl } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
 import BrandFormModal from '../../components/modals/BrandFormModal'
 
@@ -24,7 +24,23 @@ export default function Brands() {
     void loadBrands()
   }, [])
 
+  const renderLogoCell = (_: unknown, record: Brand) => {
+    const url = resolveBrandLogoUrl(record.logoUrl)
+    return (
+      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded border bg-muted/30">
+        {url ? (
+          <img src={url} alt={record.name} className="h-full w-full object-contain" />
+        ) : (
+          <span className="text-xs font-semibold text-muted-foreground">
+            {record.name?.charAt(0).toUpperCase() ?? '?'}
+          </span>
+        )}
+      </div>
+    )
+  }
+
   const columns: DataTableColumn<Brand>[] = [
+    { key: 'logo', title: '', dataIndex: 'logoUrl', width: 56, render: renderLogoCell },
     { key: 'name', title: 'Nome', dataIndex: 'name' },
     { key: 'tradeName', title: 'Nome fantasia', dataIndex: 'tradeName', render: (value?: string) => value || '-' },
     { key: 'document', title: 'Documento', dataIndex: 'document', render: (value?: string) => value || '-' },

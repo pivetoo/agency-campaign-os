@@ -74,5 +74,48 @@ namespace AgencyCampaign.Api.Controllers
             Brand brand = await brandService.UpdateBrand(id, request, cancellationToken);
             return Http200(MapBrand(brand), Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite enviar a logo da marca.")]
+        [PostEndpoint("[action]/{id:long}")]
+        [RequestSizeLimit(MaxLogoBytes)]
+        public async Task<IActionResult> UploadLogo(long id, IFormFile file, CancellationToken cancellationToken)
+        {
+            if (file is null || file.Length == 0)
+            {
+                return Http400("Arquivo nao informado.");
+            }
+
+            if (file.Length > MaxLogoBytes)
+            {
+                return Http400("Arquivo excede o limite de 2MB.");
+            }
+
+            Brand? existing = await brandService.GetBrandById(id, cancellationToken);
+            if (existing is null)
+            {
+                return Http404(Localizer["record.notFound"]);
+            }
+
+            await using Stream stream = file.OpenReadStream();
+            string logoUrl = await brandLogoStorage.SaveAsync(id, stream, file.ContentType, cancellationToken);
+
+            Brand brand = await brandService.SetBrandLogo(id, logoUrl, cancellationToken);
+            return Http200(MapBrand(brand), Localizer["record.updated"]);
+        }
+
+        [RequireAccess("Permite remover a logo da marca.")]
+        [DeleteEndpoint("[action]/{id:long}")]
+        public async Task<IActionResult> RemoveLogo(long id, CancellationToken cancellationToken)
+        {
+            Brand? existing = await brandService.GetBrandById(id, cancellationToken);
+            if (existing is null)
+            {
+                return Http404(Localizer["record.notFound"]);
+            }
+
+            await brandLogoStorage.RemoveAsync(id, existing.LogoUrl, cancellationToken);
+            Brand brand = await brandService.RemoveBrandLogo(id, cancellationToken);
+            return Http200(MapBrand(brand), Localizer["record.updated"]);
+        }
     }
 }

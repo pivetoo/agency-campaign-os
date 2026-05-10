@@ -1,0 +1,5 @@
+*
+!.gitignore
+!brands/
+brands/*
+!brands/.gitkeep
