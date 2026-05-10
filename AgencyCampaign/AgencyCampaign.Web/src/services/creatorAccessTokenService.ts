@@ -20,6 +20,6 @@ export const creatorAccessTokenService = {
   },
 
   revoke(id: number) {
-    return httpClient.post<{ revoked: boolean }>(`${BASE_URL}/${id}/revoke`, {})
+    return httpClient.post<{ revoked: boolean }>(`${BASE_URL}/Revoke/${id}/revoke`, {})
   },
 }
