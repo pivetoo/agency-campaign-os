@@ -12,5 +12,7 @@ namespace AgencyCampaign.Application.Services
         Task<AgencySettingsModel> SetLogo(string logoUrl, CancellationToken cancellationToken = default);
 
         Task<AgencySettingsModel> RemoveLogo(CancellationToken cancellationToken = default);
+
+        Task<AgencySettingsModel> SetDefaultEmailConnector(long? connectorId, CancellationToken cancellationToken = default);
     }
 }

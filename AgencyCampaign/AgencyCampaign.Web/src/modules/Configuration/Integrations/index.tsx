@@ -15,13 +15,15 @@ import {
   TabsTrigger,
   useApi,
 } from 'archon-ui'
-import { CheckCircle2, CircleDashed, GitBranch, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
+import { CheckCircle2, CircleDashed, GitBranch, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Star, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
 import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
 import AutomationFormModal from '../../../components/modals/AutomationFormModal'
 import AutomationList from '../Automations/AutomationList'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import { automationService } from '../../../services/automationService'
+import { agencySettingsService } from '../../../services/agencySettingsService'
+import type { AgencySettings } from '../../../types/agencySettings'
 import type {
   Connector,
   IntegrationCategory,
@@ -83,14 +85,37 @@ export default function Integrations() {
   const [selectedAutomation, setSelectedAutomation] = useState<Automation | null>(null)
   const [automationPresetConnectorId, setAutomationPresetConnectorId] = useState<number | null>(null)
   const [automationsRefreshKey, setAutomationsRefreshKey] = useState(0)
+  const [agencySettings, setAgencySettings] = useState<AgencySettings | null>(null)
 
   const { execute: fetchCategories, loading: loadingCategories } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
   const { execute: fetchIntegrations, loading: loadingIntegrations } = useApi<IntegrationPlatformIntegration[]>({ showErrorMessage: true })
+  const { execute: runSetDefaultEmail } = useApi<AgencySettings | null>({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
     void loadCategories()
     void loadAutomations()
+    void agencySettingsService.get().then((s) => setAgencySettings(s))
   }, [])
+
+  const selectedCategory = useMemo(
+    () => categories.find((c) => c.id === selectedCategoryId) ?? null,
+    [categories, selectedCategoryId],
+  )
+
+  const isEmailCategory = useMemo(() => {
+    const name = selectedCategory?.name?.toLowerCase() ?? ''
+    return name.includes('email') || name.includes('e-mail')
+  }, [selectedCategory])
+
+  const defaultEmailConnectorId = agencySettings?.defaultEmailConnectorId ?? null
+
+  const handleSetDefaultEmail = async (connectorId: number | null) => {
+    const result = await runSetDefaultEmail(async () => {
+      const response = await agencySettingsService.setDefaultEmailConnector(connectorId)
+      return response.data ?? null
+    })
+    if (result) setAgencySettings(result)
+  }
 
   useEffect(() => {
     if (selectedCategoryId) {
@@ -492,6 +517,12 @@ export default function Integrations() {
                                     <Badge variant={connector.isActive ? 'success' : 'outline'}>
                                       {connector.isActive ? 'Ativa' : 'Inativa'}
                                     </Badge>
+                                    {isEmailCategory && defaultEmailConnectorId === connector.id && (
+                                      <Badge variant="secondary" className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-100">
+                                        <Star size={10} className="fill-amber-500 text-amber-500" />
+                                        Padrão de e-mail
+                                      </Badge>
+                                    )}
                                   </div>
                                   {connector.systemApplicationId && (
                                     <p className="mt-1 text-xs text-muted-foreground">
@@ -500,6 +531,29 @@ export default function Integrations() {
                                   )}
                                 </div>
                                 <div className="flex items-center gap-1">
+                                  {isEmailCategory && connector.isActive && (
+                                    defaultEmailConnectorId === connector.id ? (
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        title="Remover como padrão de e-mail"
+                                        onClick={() => void handleSetDefaultEmail(null)}
+                                      >
+                                        <Star size={14} className="mr-1 fill-amber-500 text-amber-500" />
+                                        Remover padrão
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        title="Definir como conta padrão de e-mail"
+                                        onClick={() => void handleSetDefaultEmail(connector.id)}
+                                      >
+                                        <Star size={14} className="mr-1" />
+                                        Padrão de e-mail
+                                      </Button>
+                                    )
+                                  )}
                                   {connector.isActive && (
                                     <Button
                                       size="sm"

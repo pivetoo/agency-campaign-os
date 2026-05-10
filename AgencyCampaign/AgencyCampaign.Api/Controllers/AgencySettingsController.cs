@@ -78,5 +78,13 @@ namespace AgencyCampaign.Api.Controllers
             var result = await service.RemoveLogo(cancellationToken);
             return Http200(result, Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite definir o conector padrao para envio de e-mail.")]
+        [PutEndpoint("[action]")]
+        public async Task<IActionResult> SetDefaultEmailConnector([FromQuery] long? connectorId, CancellationToken cancellationToken)
+        {
+            var result = await service.SetDefaultEmailConnector(connectorId, cancellationToken);
+            return Http200(result, Localizer["record.updated"]);
+        }
     }
 }

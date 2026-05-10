@@ -1,18 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { PageLayout, Card, CardContent, Button, Input, useApi, SearchableSelect } from 'archon-ui'
+import { PageLayout, Card, CardContent, Button, Input, useApi } from 'archon-ui'
 import { ImagePlus, Trash2 } from 'lucide-react'
 import { agencySettingsService, resolveAgencyLogoUrl } from '../../../services/agencySettingsService'
-import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import type { AgencySettings } from '../../../types/agencySettings'
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
 const MAX_BYTES = 2 * 1024 * 1024
-import type {
-  Connector,
-  IntegrationCategory,
-  IntegrationPlatformIntegration,
-  Pipeline,
-} from '../../../types/integrationPlatform'
 
 export default function AgencyConfiguration() {
   const [settings, setSettings] = useState<AgencySettings | null>(null)
@@ -21,15 +14,6 @@ export default function AgencyConfiguration() {
   const [document, setDocument] = useState('')
   const [logoUrl, setLogoUrl] = useState('')
   const [primaryColor, setPrimaryColor] = useState('#6366f1')
-  const [emailCategoryId, setEmailCategoryId] = useState<number | null>(null)
-  const [emailIntegrationId, setEmailIntegrationId] = useState<number | null>(null)
-  const [emailConnectorId, setEmailConnectorId] = useState<number | null>(null)
-  const [emailPipelineId, setEmailPipelineId] = useState<number | null>(null)
-
-  const [categories, setCategories] = useState<IntegrationCategory[]>([])
-  const [integrations, setIntegrations] = useState<IntegrationPlatformIntegration[]>([])
-  const [connectors, setConnectors] = useState<Connector[]>([])
-  const [pipelines, setPipelines] = useState<Pipeline[]>([])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [logoError, setLogoError] = useState<string | null>(null)
@@ -47,41 +31,13 @@ export default function AgencyConfiguration() {
       setDocument(result.document ?? '')
       setLogoUrl(result.logoUrl ?? '')
       setPrimaryColor(result.primaryColor ?? '#6366f1')
-      setEmailConnectorId(result.defaultEmailConnectorId ?? null)
-      setEmailPipelineId(result.defaultEmailPipelineId ?? null)
     }
   }
 
   useEffect(() => {
     void load()
-    void integrationPlatformService.getActiveIntegrationCategories().then(setCategories)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  useEffect(() => {
-    if (!emailConnectorId) return
-    void integrationPlatformService.getConnectorDetail(emailConnectorId).then((detail) => {
-      if (detail?.connector?.integrationId) setEmailIntegrationId(detail.connector.integrationId)
-    })
-  }, [emailConnectorId])
-
-  useEffect(() => {
-    if (!emailCategoryId) {
-      setIntegrations([])
-      return
-    }
-    void integrationPlatformService.getIntegrationsByCategory(emailCategoryId).then(setIntegrations)
-  }, [emailCategoryId])
-
-  useEffect(() => {
-    if (!emailIntegrationId) {
-      setConnectors([])
-      setPipelines([])
-      return
-    }
-    void integrationPlatformService.getConnectorsByIntegration(emailIntegrationId).then(setConnectors)
-    void integrationPlatformService.getPipelinesByIntegration(emailIntegrationId).then(setPipelines)
-  }, [emailIntegrationId])
 
   const handleSelectLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -127,8 +83,8 @@ export default function AgencyConfiguration() {
         document: document.trim() || null,
         logoUrl: logoUrl.trim() || null,
         primaryColor: primaryColor.trim() || null,
-        defaultEmailConnectorId: emailConnectorId,
-        defaultEmailPipelineId: emailPipelineId,
+        defaultEmailConnectorId: settings?.defaultEmailConnectorId ?? null,
+        defaultEmailPipelineId: settings?.defaultEmailPipelineId ?? null,
       }),
     )
     if (result !== null) void load()
@@ -137,7 +93,7 @@ export default function AgencyConfiguration() {
   return (
     <PageLayout
       title="Dados da agência"
-      subtitle="Identidade e canal padrão de envio de email"
+      subtitle="Identidade visual da agência"
       onRefresh={() => void load()}
       showDefaultActions={false}
     >
@@ -210,62 +166,6 @@ export default function AgencyConfiguration() {
                     {logoError && <p className="text-xs text-destructive">{logoError}</p>}
                   </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-5 pb-5 space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Canal padrão de envio de e-mail</h3>
-            <p className="text-xs text-muted-foreground">
-              Conector e pipeline a serem usados automaticamente em fluxos que enviam e-mail (templates de proposta, follow-up, etc.).
-            </p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Categoria</label>
-                <SearchableSelect
-                  value={emailCategoryId ? String(emailCategoryId) : ''}
-                  onValueChange={(value) => {
-                    setEmailCategoryId(Number(value))
-                    setEmailIntegrationId(null)
-                    setEmailConnectorId(null)
-                    setEmailPipelineId(null)
-                  }}
-                  options={categories.map((cat) => ({ value: String(cat.id), label: cat.name }))}
-                  placeholder="Selecione"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Integração</label>
-                <SearchableSelect
-                  value={emailIntegrationId ? String(emailIntegrationId) : ''}
-                  onValueChange={(value) => {
-                    setEmailIntegrationId(Number(value))
-                    setEmailConnectorId(null)
-                    setEmailPipelineId(null)
-                  }}
-                  options={integrations.map((integ) => ({ value: String(integ.id), label: integ.name }))}
-                  placeholder="Selecione"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Conector</label>
-                <SearchableSelect
-                  value={emailConnectorId ? String(emailConnectorId) : ''}
-                  onValueChange={(value) => setEmailConnectorId(Number(value))}
-                  options={connectors.filter((c) => c.isActive).map((c) => ({ value: String(c.id), label: c.name }))}
-                  placeholder="Selecione"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Pipeline</label>
-                <SearchableSelect
-                  value={emailPipelineId ? String(emailPipelineId) : ''}
-                  onValueChange={(value) => setEmailPipelineId(Number(value))}
-                  options={pipelines.map((p) => ({ value: String(p.id), label: p.name }))}
-                  placeholder="Selecione"
-                />
               </div>
             </div>
           </CardContent>

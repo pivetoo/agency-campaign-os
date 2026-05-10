@@ -61,6 +61,24 @@ namespace AgencyCampaign.Infrastructure.Services
             return Map(settings);
         }
 
+        public async Task<AgencySettingsModel> SetDefaultEmailConnector(long? connectorId, CancellationToken cancellationToken = default)
+        {
+            AgencySettings settings = await ResolveOrCreate(cancellationToken);
+            settings.Update(
+                settings.AgencyName,
+                settings.TradeName,
+                settings.Document,
+                settings.PrimaryEmail,
+                settings.Phone,
+                settings.Address,
+                settings.LogoUrl,
+                settings.PrimaryColor,
+                connectorId,
+                null);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return Map(settings);
+        }
+
         private async Task<AgencySettings> ResolveOrCreate(CancellationToken cancellationToken)
         {
             AgencySettings? existing = await dbContext.Set<AgencySettings>()
