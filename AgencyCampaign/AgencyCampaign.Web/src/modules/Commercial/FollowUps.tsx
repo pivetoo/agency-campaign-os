@@ -143,6 +143,15 @@ export default function CommercialFollowUps() {
       subtitle="Agenda do comercial — atrasadas, de hoje, próximas e concluídas"
       onRefresh={() => void loadData()}
       showDefaultActions={false}
+      actions={[
+        {
+          key: 'go-pipeline',
+          label: 'Ir para o pipeline',
+          icon: <ExternalLink className="h-4 w-4" />,
+          variant: 'outline',
+          onClick: () => navigate('/comercial/pipeline'),
+        },
+      ]}
     >
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -267,11 +276,6 @@ export default function CommercialFollowUps() {
           </ul>
         )}
 
-        <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={() => navigate('/comercial/pipeline')}>
-            <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Ir para o pipeline
-          </Button>
-        </div>
       </div>
     </PageLayout>
   )
