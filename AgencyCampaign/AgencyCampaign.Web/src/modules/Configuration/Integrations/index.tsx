@@ -97,16 +97,6 @@ export default function Integrations() {
     void agencySettingsService.get().then((s) => setAgencySettings(s))
   }, [])
 
-  const selectedCategory = useMemo(
-    () => categories.find((c) => c.id === selectedCategoryId) ?? null,
-    [categories, selectedCategoryId],
-  )
-
-  const isEmailCategory = useMemo(() => {
-    const name = selectedCategory?.name?.toLowerCase() ?? ''
-    return name.includes('email') || name.includes('e-mail')
-  }, [selectedCategory])
-
   const defaultEmailConnectorId = agencySettings?.defaultEmailConnectorId ?? null
 
   const handleSetDefaultEmail = async (connectorId: number | null) => {
@@ -170,6 +160,11 @@ export default function Integrations() {
     () => integrations.find((integration) => integration.id === selectedIntegrationId) ?? null,
     [integrations, selectedIntegrationId],
   )
+
+  const isEmailCategory = useMemo(() => {
+    const name = selectedCategory?.name?.toLowerCase() ?? ''
+    return name.includes('email') || name.includes('e-mail')
+  }, [selectedCategory])
 
   const connectorsForSelectedIntegration = useMemo(
     () => connectors.filter((connector) => connector.integrationId === selectedIntegrationId),

@@ -107,9 +107,9 @@ export default function ConfigurationDashboard() {
         cta: () => navigate('/configuracao/empresa'),
       },
       {
-        label: 'Pipeline de envio de e-mail',
-        ok: !!agency?.defaultEmailConnectorId && !!agency?.defaultEmailPipelineId,
-        cta: () => navigate('/configuracao/empresa'),
+        label: 'Conta padrão de e-mail',
+        ok: !!agency?.defaultEmailConnectorId,
+        cta: () => navigate('/configuracao/integracoes'),
       },
       {
         label: 'Templates de e-mail ativos',
