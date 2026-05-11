@@ -254,7 +254,7 @@ export default function CreatorDetail() {
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Faturamento (bruto)</p>
               <p className="text-lg font-semibold mt-1">{formatCurrency(summary?.totalGrossAmount ?? 0)}</p>
-              <p className="text-[10px] text-muted-foreground">{t('creators.detail.finance', formatCurrency(summary?.totalCreatorAmount ?? 0))} · Fee: {formatCurrency(summary?.totalAgencyFeeAmount ?? 0)}</p>
+              <p className="text-[10px] text-muted-foreground">{t('creators.detail.finance').replace('{0}', formatCurrency(summary?.totalCreatorAmount ?? 0))} · Fee: {formatCurrency(summary?.totalAgencyFeeAmount ?? 0)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">On-time delivery</p>
