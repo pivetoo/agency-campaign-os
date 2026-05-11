@@ -409,4 +409,61 @@
   <data name="proposalDetail.convert.campaignPlaceholder" xml:space="preserve"><value>Select a campaign</value></data>
   <data name="proposalDetail.convert.campaignSearch" xml:space="preserve"><value>Search campaign</value></data>
   <data name="proposalDetail.convert.button" xml:space="preserve"><value>Convert</value></data>
+  <data name="negotiation.status.draft" xml:space="preserve"><value>Draft</value></data>
+  <data name="negotiation.status.pendingApproval" xml:space="preserve"><value>Pending approval</value></data>
+  <data name="negotiation.status.approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="negotiation.status.rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="negotiation.status.sentToClient" xml:space="preserve"><value>Sent to client</value></data>
+  <data name="negotiation.status.acceptedByClient" xml:space="preserve"><value>Accepted by client</value></data>
+  <data name="negotiation.status.cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="followupStatus.completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="followupStatus.overdue" xml:space="preserve"><value>Overdue</value></data>
+  <data name="followupStatus.pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="negotiation.field.title" xml:space="preserve"><value>Title</value></data>
+  <data name="negotiation.field.amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="negotiation.field.date" xml:space="preserve"><value>Date</value></data>
+  <data name="approvals.field.reason" xml:space="preserve"><value>Reason</value></data>
+  <data name="followup.field.subject" xml:space="preserve"><value>Subject</value></data>
+  <data name="opportunityDetail.fallbackTitle" xml:space="preserve"><value>Opportunity</value></data>
+  <data name="opportunityDetail.subtitle" xml:space="preserve"><value>Commercial detail</value></data>
+  <data name="opportunityDetail.subtitleWithBrand" xml:space="preserve"><value>{0} · commercial detail</value></data>
+  <data name="opportunityDetail.stage.placeholder" xml:space="preserve"><value>Change stage</value></data>
+  <data name="opportunityDetail.stage.none" xml:space="preserve"><value>No stage</value></data>
+  <data name="opportunityDetail.brand.unknown" xml:space="preserve"><value>Brand not informed</value></data>
+  <data name="opportunityDetail.overdueSingle" xml:space="preserve"><value>{0} overdue</value></data>
+  <data name="opportunityDetail.overdueMany" xml:space="preserve"><value>{0} overdue</value></data>
+  <data name="opportunityDetail.kpi.estimatedValue" xml:space="preserve"><value>Estimated value</value></data>
+  <data name="opportunityDetail.kpi.forecast" xml:space="preserve"><value>Forecast</value></data>
+  <data name="opportunityDetail.kpi.pendingFollowUps" xml:space="preserve"><value>Pending follow-ups</value></data>
+  <data name="opportunityDetail.tab.summary" xml:space="preserve"><value>Summary</value></data>
+  <data name="opportunityDetail.tab.proposals" xml:space="preserve"><value>Proposals</value></data>
+  <data name="opportunityDetail.tab.negotiations" xml:space="preserve"><value>Negotiations</value></data>
+  <data name="opportunityDetail.tab.approvals" xml:space="preserve"><value>Approvals</value></data>
+  <data name="opportunityDetail.tab.followups" xml:space="preserve"><value>Follow-ups</value></data>
+  <data name="opportunityDetail.tab.activity" xml:space="preserve"><value>Activity</value></data>
+  <data name="opportunityDetail.summary.title" xml:space="preserve"><value>Opportunity information</value></data>
+  <data name="opportunityDetail.summary.description" xml:space="preserve"><value>Description</value></data>
+  <data name="opportunityDetail.summary.closedAt" xml:space="preserve"><value>Closed on</value></data>
+  <data name="opportunityDetail.summary.lossReason" xml:space="preserve"><value>Loss reason</value></data>
+  <data name="opportunityDetail.summary.wonNotes" xml:space="preserve"><value>Win notes</value></data>
+  <data name="opportunityDetail.proposals.title" xml:space="preserve"><value>Linked proposals</value></data>
+  <data name="opportunityDetail.proposals.new" xml:space="preserve"><value>New proposal</value></data>
+  <data name="opportunityDetail.proposals.description" xml:space="preserve"><value>Each proposal has items (creators, platforms, values), PDF, public link, status and conversion into campaign. Click a row to open the full detail.</value></data>
+  <data name="opportunityDetail.proposals.empty" xml:space="preserve"><value>No proposals linked. Use the New proposal button above to create the first one.</value></data>
+  <data name="opportunityDetail.negotiations.new" xml:space="preserve"><value>New negotiation</value></data>
+  <data name="opportunityDetail.negotiations.description" xml:space="preserve"><value>Each negotiation records a round of offer with value and reason (initial proposal, counter offer, discount adjustment). Select one to edit or request internal approval.</value></data>
+  <data name="opportunityDetail.negotiations.requestApproval" xml:space="preserve"><value>Request approval</value></data>
+  <data name="opportunityDetail.negotiations.empty" xml:space="preserve"><value>No negotiations registered</value></data>
+  <data name="opportunityDetail.negotiations.title.selectFirst" xml:space="preserve"><value>Select a negotiation</value></data>
+  <data name="opportunityDetail.negotiations.title.onlyDraft" xml:space="preserve"><value>Available only for Draft negotiations (current: {0})</value></data>
+  <data name="opportunityDetail.negotiations.title.request" xml:space="preserve"><value>Request internal approval for this negotiation</value></data>
+  <data name="opportunityDetail.approvals.description" xml:space="preserve"><value>Approvals are created from negotiations. Go to Negotiations tab, select one and click "Request approval".</value></data>
+  <data name="opportunityDetail.approvals.empty" xml:space="preserve"><value>No approval recorded. Create one from a negotiation in the Negotiations tab.</value></data>
+  <data name="opportunityDetail.approvals.decision.approved" xml:space="preserve"><value>Approval made in the commercial flow.</value></data>
+  <data name="opportunityDetail.approvals.decision.rejected" xml:space="preserve"><value>Rejected in the commercial flow.</value></data>
+  <data name="opportunityDetail.approvals.userFallback" xml:space="preserve"><value>Internal approver</value></data>
+  <data name="opportunityDetail.followups.new" xml:space="preserve"><value>New follow-up</value></data>
+  <data name="opportunityDetail.followups.description" xml:space="preserve"><value>Commitments and tasks for this opportunity (calls, proposal sending, returns). Mark as completed after each contact to keep history.</value></data>
+  <data name="opportunityDetail.followups.complete" xml:space="preserve"><value>Complete</value></data>
+  <data name="opportunityDetail.followups.empty" xml:space="preserve"><value>No follow-up registered</value></data>
 </root>

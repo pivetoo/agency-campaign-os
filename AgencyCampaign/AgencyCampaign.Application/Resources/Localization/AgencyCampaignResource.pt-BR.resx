@@ -409,4 +409,61 @@
   <data name="proposalDetail.convert.campaignPlaceholder" xml:space="preserve"><value>Selecione uma campanha</value></data>
   <data name="proposalDetail.convert.campaignSearch" xml:space="preserve"><value>Buscar campanha</value></data>
   <data name="proposalDetail.convert.button" xml:space="preserve"><value>Converter</value></data>
+  <data name="negotiation.status.draft" xml:space="preserve"><value>Rascunho</value></data>
+  <data name="negotiation.status.pendingApproval" xml:space="preserve"><value>Pendente aprovação</value></data>
+  <data name="negotiation.status.approved" xml:space="preserve"><value>Aprovada</value></data>
+  <data name="negotiation.status.rejected" xml:space="preserve"><value>Rejeitada</value></data>
+  <data name="negotiation.status.sentToClient" xml:space="preserve"><value>Enviada ao cliente</value></data>
+  <data name="negotiation.status.acceptedByClient" xml:space="preserve"><value>Aceita pelo cliente</value></data>
+  <data name="negotiation.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="followupStatus.completed" xml:space="preserve"><value>Concluído</value></data>
+  <data name="followupStatus.overdue" xml:space="preserve"><value>Atrasado</value></data>
+  <data name="followupStatus.pending" xml:space="preserve"><value>Pendente</value></data>
+  <data name="negotiation.field.title" xml:space="preserve"><value>Título</value></data>
+  <data name="negotiation.field.amount" xml:space="preserve"><value>Valor</value></data>
+  <data name="negotiation.field.date" xml:space="preserve"><value>Data</value></data>
+  <data name="approvals.field.reason" xml:space="preserve"><value>Motivo</value></data>
+  <data name="followup.field.subject" xml:space="preserve"><value>Assunto</value></data>
+  <data name="opportunityDetail.fallbackTitle" xml:space="preserve"><value>Oportunidade</value></data>
+  <data name="opportunityDetail.subtitle" xml:space="preserve"><value>Detalhe comercial</value></data>
+  <data name="opportunityDetail.subtitleWithBrand" xml:space="preserve"><value>{0} · detalhe comercial</value></data>
+  <data name="opportunityDetail.stage.placeholder" xml:space="preserve"><value>Mudar estágio</value></data>
+  <data name="opportunityDetail.stage.none" xml:space="preserve"><value>Sem estágio</value></data>
+  <data name="opportunityDetail.brand.unknown" xml:space="preserve"><value>Marca não informada</value></data>
+  <data name="opportunityDetail.overdueSingle" xml:space="preserve"><value>{0} atrasado</value></data>
+  <data name="opportunityDetail.overdueMany" xml:space="preserve"><value>{0} atrasados</value></data>
+  <data name="opportunityDetail.kpi.estimatedValue" xml:space="preserve"><value>Valor estimado</value></data>
+  <data name="opportunityDetail.kpi.forecast" xml:space="preserve"><value>Previsão</value></data>
+  <data name="opportunityDetail.kpi.pendingFollowUps" xml:space="preserve"><value>Follow-ups pendentes</value></data>
+  <data name="opportunityDetail.tab.summary" xml:space="preserve"><value>Resumo</value></data>
+  <data name="opportunityDetail.tab.proposals" xml:space="preserve"><value>Propostas</value></data>
+  <data name="opportunityDetail.tab.negotiations" xml:space="preserve"><value>Negociações</value></data>
+  <data name="opportunityDetail.tab.approvals" xml:space="preserve"><value>Aprovações</value></data>
+  <data name="opportunityDetail.tab.followups" xml:space="preserve"><value>Follow-ups</value></data>
+  <data name="opportunityDetail.tab.activity" xml:space="preserve"><value>Atividades</value></data>
+  <data name="opportunityDetail.summary.title" xml:space="preserve"><value>Informações da oportunidade</value></data>
+  <data name="opportunityDetail.summary.description" xml:space="preserve"><value>Descrição</value></data>
+  <data name="opportunityDetail.summary.closedAt" xml:space="preserve"><value>Fechada em</value></data>
+  <data name="opportunityDetail.summary.lossReason" xml:space="preserve"><value>Motivo de perda</value></data>
+  <data name="opportunityDetail.summary.wonNotes" xml:space="preserve"><value>Notas de ganho</value></data>
+  <data name="opportunityDetail.proposals.title" xml:space="preserve"><value>Propostas vinculadas</value></data>
+  <data name="opportunityDetail.proposals.new" xml:space="preserve"><value>Nova proposta</value></data>
+  <data name="opportunityDetail.proposals.description" xml:space="preserve"><value>Cada proposta tem itens (creators, plataformas, valores), PDF, link público, status e conversão em campanha. Clique numa linha para abrir o detalhe completo.</value></data>
+  <data name="opportunityDetail.proposals.empty" xml:space="preserve"><value>Nenhuma proposta vinculada. Use o botão Nova proposta acima para criar a primeira.</value></data>
+  <data name="opportunityDetail.negotiations.new" xml:space="preserve"><value>Nova negociação</value></data>
+  <data name="opportunityDetail.negotiations.description" xml:space="preserve"><value>Cada negociação registra uma rodada de oferta com valor e motivo (proposta inicial, contraproposta, ajuste de desconto). Selecione uma para editar ou pedir aprovação interna.</value></data>
+  <data name="opportunityDetail.negotiations.requestApproval" xml:space="preserve"><value>Solicitar aprovação</value></data>
+  <data name="opportunityDetail.negotiations.empty" xml:space="preserve"><value>Nenhuma negociação cadastrada</value></data>
+  <data name="opportunityDetail.negotiations.title.selectFirst" xml:space="preserve"><value>Selecione uma negociação</value></data>
+  <data name="opportunityDetail.negotiations.title.onlyDraft" xml:space="preserve"><value>Disponível apenas para negociações em Rascunho (atual: {0})</value></data>
+  <data name="opportunityDetail.negotiations.title.request" xml:space="preserve"><value>Solicitar aprovação interna desta negociação</value></data>
+  <data name="opportunityDetail.approvals.description" xml:space="preserve"><value>Aprovações são criadas a partir das negociações. Vá na aba Negociações, selecione uma e clique em "Solicitar aprovação".</value></data>
+  <data name="opportunityDetail.approvals.empty" xml:space="preserve"><value>Nenhuma aprovação registrada. Crie a partir de uma negociação na aba Negociações.</value></data>
+  <data name="opportunityDetail.approvals.decision.approved" xml:space="preserve"><value>Aprovação realizada no fluxo comercial.</value></data>
+  <data name="opportunityDetail.approvals.decision.rejected" xml:space="preserve"><value>Rejeitada no fluxo comercial.</value></data>
+  <data name="opportunityDetail.approvals.userFallback" xml:space="preserve"><value>Aprovador interno</value></data>
+  <data name="opportunityDetail.followups.new" xml:space="preserve"><value>Novo follow-up</value></data>
+  <data name="opportunityDetail.followups.description" xml:space="preserve"><value>Compromissos e tarefas desta oportunidade (ligações, envio de proposta, retornos). Marque como concluído após cada contato para manter o histórico.</value></data>
+  <data name="opportunityDetail.followups.complete" xml:space="preserve"><value>Concluir</value></data>
+  <data name="opportunityDetail.followups.empty" xml:space="preserve"><value>Nenhum follow-up cadastrado</value></data>
 </root>
