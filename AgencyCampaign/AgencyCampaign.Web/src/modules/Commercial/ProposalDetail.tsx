@@ -11,6 +11,7 @@ import {
   PageLayout,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import type { DataTableColumn, PageAction } from 'archon-ui'
 import { CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Send, Trash2, XCircle } from 'lucide-react'
@@ -22,15 +23,15 @@ import { campaignService } from '../../services/campaignService'
 import { proposalService, type Proposal, type ProposalItem } from '../../services/proposalService'
 import type { Campaign } from '../../types/campaign'
 
-const proposalStatusLabels: Record<number, string> = {
-  1: 'Rascunho',
-  2: 'Enviada',
-  3: 'Visualizada',
-  4: 'Aprovada',
-  5: 'Rejeitada',
-  6: 'Convertida',
-  7: 'Expirada',
-  8: 'Cancelada',
+const proposalStatusKeys: Record<number, string> = {
+  1: 'proposal.status.draft',
+  2: 'proposal.status.sent',
+  3: 'proposal.status.viewed',
+  4: 'proposal.status.approved',
+  5: 'proposal.status.rejected',
+  6: 'proposal.status.converted',
+  7: 'proposal.status.expired',
+  8: 'proposal.status.cancelled',
 }
 
 const proposalStatusVariant: Record<number, 'default' | 'warning' | 'success' | 'destructive'> = {
@@ -53,6 +54,7 @@ function formatDate(value?: string) {
 }
 
 export default function CommercialProposalDetail() {
+  const { t } = useI18n()
   const { id } = useParams()
   const navigate = useNavigate()
   const proposalId = Number(id)
@@ -104,7 +106,7 @@ export default function CommercialProposalDetail() {
     if (status === 1) {
       actions.push({
         key: 'send',
-        label: 'Enviar',
+        label: t('proposals.action.send'),
         icon: <Send className="h-4 w-4" />,
         variant: 'outline-primary',
         disabled: actionLoading,
@@ -114,7 +116,7 @@ export default function CommercialProposalDetail() {
     if (status === 2) {
       actions.push({
         key: 'viewed',
-        label: 'Marcar como visualizada',
+        label: t('proposals.action.markViewedLong'),
         icon: <Eye className="h-4 w-4" />,
         variant: 'outline',
         disabled: actionLoading,
@@ -124,7 +126,7 @@ export default function CommercialProposalDetail() {
     if (status === 2 || status === 3) {
       actions.push({
         key: 'approve',
-        label: 'Aprovar',
+        label: t('proposals.action.approve'),
         icon: <CheckCircle className="h-4 w-4" />,
         variant: 'outline-success',
         disabled: actionLoading,
@@ -132,7 +134,7 @@ export default function CommercialProposalDetail() {
       })
       actions.push({
         key: 'reject',
-        label: 'Rejeitar',
+        label: t('proposals.action.reject'),
         icon: <XCircle className="h-4 w-4" />,
         variant: 'outline-danger',
         disabled: actionLoading,
@@ -142,7 +144,7 @@ export default function CommercialProposalDetail() {
     if (status !== 6 && status !== 8) {
       actions.push({
         key: 'cancel',
-        label: 'Cancelar',
+        label: t('proposals.action.cancel'),
         variant: 'outline-danger',
         disabled: actionLoading,
         onClick: () => void runProposalAction(() => proposalService.cancel(proposalId)),
@@ -151,28 +153,29 @@ export default function CommercialProposalDetail() {
 
     actions.push({
       key: 'pdf',
-      label: 'Baixar PDF',
+      label: t('proposals.action.downloadPdf'),
       icon: <FileDown className="h-4 w-4" />,
       variant: 'outline',
       onClick: () => proposalService.downloadPdf(proposalId),
     })
 
     return actions
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [proposal, actionLoading, proposalId])
 
   const columns: DataTableColumn<ProposalItem>[] = [
-    { key: 'description', title: 'Item', dataIndex: 'description' },
-    { key: 'creator', title: 'Creator', dataIndex: 'creator', render: (value?: ProposalItem['creator']) => value?.name || '-' },
-    { key: 'quantity', title: 'Qtd.', dataIndex: 'quantity' },
-    { key: 'unitPrice', title: 'Valor unitário', dataIndex: 'unitPrice', render: (value: number) => formatCurrency(value) },
-    { key: 'deliveryDeadline', title: 'Prazo', dataIndex: 'deliveryDeadline', render: (value?: string) => formatDate(value) },
-    { key: 'total', title: 'Total', dataIndex: 'total', render: (value: number) => formatCurrency(value) },
+    { key: 'description', title: t('proposalDetail.item.field.item'), dataIndex: 'description' },
+    { key: 'creator', title: t('nav.item.creators'), dataIndex: 'creator', render: (value?: ProposalItem['creator']) => value?.name || '-' },
+    { key: 'quantity', title: t('proposalDetail.item.field.qty'), dataIndex: 'quantity' },
+    { key: 'unitPrice', title: t('proposalDetail.item.field.unitPrice'), dataIndex: 'unitPrice', render: (value: number) => formatCurrency(value) },
+    { key: 'deliveryDeadline', title: t('proposalDetail.item.field.deadline'), dataIndex: 'deliveryDeadline', render: (value?: string) => formatDate(value) },
+    { key: 'total', title: t('proposalDetail.item.field.total'), dataIndex: 'total', render: (value: number) => formatCurrency(value) },
   ]
 
   if (!proposal && !loading) {
     return (
-      <PageLayout title="Proposta não encontrada" showDefaultActions={false}>
-        <Button variant="outline" onClick={() => navigate('/comercial/propostas')}>Voltar para propostas</Button>
+      <PageLayout title={t('proposalDetail.notFound')} showDefaultActions={false}>
+        <Button variant="outline" onClick={() => navigate('/comercial/propostas')}>{t('proposalDetail.backToList')}</Button>
       </PageLayout>
     )
   }
@@ -180,12 +183,12 @@ export default function CommercialProposalDetail() {
   const isApproved = proposal?.status === 4
   const subtitleParts: string[] = []
   if (proposal?.brand?.name) subtitleParts.push(proposal.brand.name)
-  if (proposal?.opportunity?.name) subtitleParts.push(`vinculada a ${proposal.opportunity.name}`)
-  const subtitle = subtitleParts.length > 0 ? subtitleParts.join(' · ') : 'Detalhe da proposta'
+  if (proposal?.opportunity?.name) subtitleParts.push(t('proposalDetail.linkedTo').replace('{0}', proposal.opportunity.name))
+  const subtitle = subtitleParts.length > 0 ? subtitleParts.join(' · ') : t('proposalDetail.fallbackSubtitle')
 
   return (
     <PageLayout
-      title={proposal?.name ?? 'Proposta'}
+      title={proposal?.name ?? t('proposalDetail.fallbackTitle')}
       subtitle={subtitle}
       onEdit={() => setIsProposalFormOpen(true)}
       selectedRowsCount={proposal ? 1 : 0}
@@ -196,20 +199,20 @@ export default function CommercialProposalDetail() {
         <div className="space-y-6">
           <div className="flex flex-wrap items-center gap-4 rounded-md border border-border/70 bg-muted/20 px-4 py-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">Status</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('common.field.status')}</span>
               <Badge variant={proposalStatusVariant[proposal.status] || 'default'}>
-                {proposalStatusLabels[proposal.status] || '-'}
+                {proposalStatusKeys[proposal.status] ? t(proposalStatusKeys[proposal.status]) : '-'}
               </Badge>
             </div>
             <span className="hidden text-border md:inline">·</span>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">Total</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('proposalDetail.item.field.total')}</span>
               <strong className="text-base text-foreground">{formatCurrency(total || proposal.totalValue)}</strong>
             </div>
             <span className="hidden text-border md:inline">·</span>
             <div className="flex items-center gap-2">
               <CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">Validade</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('common.field.validity')}</span>
               <span className="text-sm text-foreground">{formatDate(proposal.validityUntil)}</span>
             </div>
             {proposal.campaign?.name ? (
@@ -217,7 +220,7 @@ export default function CommercialProposalDetail() {
                 <span className="hidden text-border md:inline">·</span>
                 <div className="flex items-center gap-2">
                   <FileCheck className="h-3.5 w-3.5 text-emerald-600" />
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground">Campanha</span>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('proposals.field.campaign')}</span>
                   <span className="text-sm text-foreground">{proposal.campaign.name}</span>
                 </div>
               </>
@@ -229,16 +232,16 @@ export default function CommercialProposalDetail() {
               <Card>
                 <CardHeader className="border-b bg-muted/20 py-3">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <CardTitle className="text-sm">Itens da proposta</CardTitle>
+                    <CardTitle className="text-sm">{t('proposalDetail.items.title')}</CardTitle>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         size="sm"
                         onClick={() => { setSelectedItem(null); setIsItemFormOpen(true) }}
                       >
-                        Adicionar
+                        {t('common.action.add')}
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => setIsApplyTemplateOpen(true)}>
-                        Aplicar template
+                        {t('proposalDetail.items.applyTemplate')}
                       </Button>
                       <Button
                         size="sm"
@@ -247,7 +250,7 @@ export default function CommercialProposalDetail() {
                         disabled={!selectedItem}
                         onClick={() => selectedItem && setIsItemFormOpen(true)}
                       >
-                        Editar
+                        {t('common.action.edit')}
                       </Button>
                       <Button
                         size="sm"
@@ -256,7 +259,7 @@ export default function CommercialProposalDetail() {
                         disabled={!selectedItem}
                         onClick={() => selectedItem && void runProposalAction(() => proposalService.deleteItem(selectedItem.id))}
                       >
-                        Excluir
+                        {t('common.action.delete')}
                       </Button>
                     </div>
                   </div>
@@ -268,7 +271,7 @@ export default function CommercialProposalDetail() {
                     rowKey="id"
                     selectedRows={selectedItem ? [selectedItem] : []}
                     onSelectionChange={(rows) => setSelectedItem(rows[0] ?? null)}
-                    emptyText="Nenhum item cadastrado para esta proposta"
+                    emptyText={t('proposalDetail.items.empty')}
                     pageSize={10}
                     pageSizeOptions={[5, 10, 20, 50]}
                   />
@@ -280,29 +283,29 @@ export default function CommercialProposalDetail() {
                   <CardHeader className="border-b bg-muted/20 py-3">
                     <CardTitle className="flex items-center gap-2 text-sm">
                       <FileCheck className="h-4 w-4 text-emerald-600" />
-                      Conversão em campanha
+                      {t('proposalDetail.convert.title')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4">
                     <p className="mb-3 text-xs text-muted-foreground">
-                      Vincule esta proposta aprovada a uma campanha existente. Os itens já cadastrados serão referenciados pela campanha.
+                      {t('proposalDetail.convert.description')}
                     </p>
                     <div className="flex flex-col gap-3 md:flex-row md:items-end">
                       <div className="w-full md:max-w-md">
-                        <label className="mb-1 block text-xs font-medium text-muted-foreground">Campanha</label>
+                        <label className="mb-1 block text-xs font-medium text-muted-foreground">{t('proposals.field.campaign')}</label>
                         <SearchableSelect
                           value={campaignId}
                           onValueChange={setCampaignId}
                           options={campaignOptions}
-                          placeholder="Selecione uma campanha"
-                          searchPlaceholder="Buscar campanha"
+                          placeholder={t('proposalDetail.convert.campaignPlaceholder')}
+                          searchPlaceholder={t('proposalDetail.convert.campaignSearch')}
                         />
                       </div>
                       <Button
                         disabled={!campaignId || actionLoading}
                         onClick={() => void runProposalAction(() => proposalService.convertToCampaign(proposalId, Number(campaignId)))}
                       >
-                        <FileCheck className="mr-2 h-4 w-4" /> Converter
+                        <FileCheck className="mr-2 h-4 w-4" /> {t('proposalDetail.convert.button')}
                       </Button>
                     </div>
                   </CardContent>

@@ -385,4 +385,28 @@
   <data name="opportunityActivity.empty" xml:space="preserve"><value>Nenhuma atividade registrada ainda.</value></data>
   <data name="opportunityActivity.editedBadge" xml:space="preserve"><value>(editado)</value></data>
   <data name="opportunityActivity.confirm.delete" xml:space="preserve"><value>Excluir este comentário?</value></data>
+  <data name="common.action.add" xml:space="preserve"><value>Adicionar</value></data>
+  <data name="common.action.edit" xml:space="preserve"><value>Editar</value></data>
+  <data name="common.action.delete" xml:space="preserve"><value>Excluir</value></data>
+  <data name="common.action.back" xml:space="preserve"><value>Voltar</value></data>
+  <data name="proposals.action.markViewedLong" xml:space="preserve"><value>Marcar como visualizada</value></data>
+  <data name="proposals.action.downloadPdf" xml:space="preserve"><value>Baixar PDF</value></data>
+  <data name="proposalDetail.notFound" xml:space="preserve"><value>Proposta não encontrada</value></data>
+  <data name="proposalDetail.backToList" xml:space="preserve"><value>Voltar para propostas</value></data>
+  <data name="proposalDetail.fallbackSubtitle" xml:space="preserve"><value>Detalhe da proposta</value></data>
+  <data name="proposalDetail.fallbackTitle" xml:space="preserve"><value>Proposta</value></data>
+  <data name="proposalDetail.linkedTo" xml:space="preserve"><value>vinculada a {0}</value></data>
+  <data name="proposalDetail.items.title" xml:space="preserve"><value>Itens da proposta</value></data>
+  <data name="proposalDetail.items.applyTemplate" xml:space="preserve"><value>Aplicar template</value></data>
+  <data name="proposalDetail.items.empty" xml:space="preserve"><value>Nenhum item cadastrado para esta proposta</value></data>
+  <data name="proposalDetail.item.field.item" xml:space="preserve"><value>Item</value></data>
+  <data name="proposalDetail.item.field.qty" xml:space="preserve"><value>Qtd.</value></data>
+  <data name="proposalDetail.item.field.unitPrice" xml:space="preserve"><value>Valor unitário</value></data>
+  <data name="proposalDetail.item.field.deadline" xml:space="preserve"><value>Prazo</value></data>
+  <data name="proposalDetail.item.field.total" xml:space="preserve"><value>Total</value></data>
+  <data name="proposalDetail.convert.title" xml:space="preserve"><value>Conversão em campanha</value></data>
+  <data name="proposalDetail.convert.description" xml:space="preserve"><value>Vincule esta proposta aprovada a uma campanha existente. Os itens já cadastrados serão referenciados pela campanha.</value></data>
+  <data name="proposalDetail.convert.campaignPlaceholder" xml:space="preserve"><value>Selecione uma campanha</value></data>
+  <data name="proposalDetail.convert.campaignSearch" xml:space="preserve"><value>Buscar campanha</value></data>
+  <data name="proposalDetail.convert.button" xml:space="preserve"><value>Converter</value></data>
 </root>
