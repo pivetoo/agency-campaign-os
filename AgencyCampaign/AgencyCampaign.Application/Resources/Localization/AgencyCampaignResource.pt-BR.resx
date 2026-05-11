@@ -320,4 +320,29 @@
   <data name="opportunities.status.open" xml:space="preserve"><value>Abertas</value></data>
   <data name="opportunities.status.won" xml:space="preserve"><value>Ganhas</value></data>
   <data name="opportunities.status.lost" xml:space="preserve"><value>Perdidas</value></data>
+  <data name="followups.title" xml:space="preserve"><value>Atividades</value></data>
+  <data name="followups.subtitle" xml:space="preserve"><value>Agenda do comercial — atrasadas, de hoje, próximas e concluídas</value></data>
+  <data name="followups.action.goToPipeline" xml:space="preserve"><value>Ir para o pipeline</value></data>
+  <data name="followups.action.openOpportunity" xml:space="preserve"><value>Abrir oportunidade</value></data>
+  <data name="followups.loading" xml:space="preserve"><value>Carregando atividades...</value></data>
+  <data name="followups.tab.overdue" xml:space="preserve"><value>Atrasadas</value></data>
+  <data name="followups.tab.today" xml:space="preserve"><value>Hoje</value></data>
+  <data name="followups.tab.upcoming" xml:space="preserve"><value>Próximas</value></data>
+  <data name="followups.tab.completed" xml:space="preserve"><value>Concluídas</value></data>
+  <data name="followups.relative.completed" xml:space="preserve"><value>Concluído</value></data>
+  <data name="followups.relative.overdueOne" xml:space="preserve"><value>Atrasado 1 dia</value></data>
+  <data name="followups.relative.overdueMany" xml:space="preserve"><value>Atrasado {0} dias</value></data>
+  <data name="followups.relative.today" xml:space="preserve"><value>Hoje</value></data>
+  <data name="followups.relative.tomorrow" xml:space="preserve"><value>Amanhã</value></data>
+  <data name="followups.relative.inDays" xml:space="preserve"><value>Em {0} dias · {1}</value></data>
+  <data name="followups.empty.overdue.title" xml:space="preserve"><value>Sem atividades atrasadas</value></data>
+  <data name="followups.empty.overdue.subtitle" xml:space="preserve"><value>Bom trabalho! Você está em dia com tudo.</value></data>
+  <data name="followups.empty.today.title" xml:space="preserve"><value>Nada pra hoje</value></data>
+  <data name="followups.empty.today.subtitle" xml:space="preserve"><value>Aproveita pra adiantar atividades futuras.</value></data>
+  <data name="followups.empty.upcoming.title" xml:space="preserve"><value>Sem próximas atividades</value></data>
+  <data name="followups.empty.upcoming.subtitle" xml:space="preserve"><value>Crie follow-ups dentro das oportunidades pra não perder o ritmo.</value></data>
+  <data name="followups.empty.completed.title" xml:space="preserve"><value>Nenhuma atividade concluída ainda</value></data>
+  <data name="followups.empty.completed.subtitle" xml:space="preserve"><value>Quando marcar como concluída, ela aparece aqui.</value></data>
+  <data name="followups.markComplete.title" xml:space="preserve"><value>Marcar como concluída</value></data>
+  <data name="followups.markComplete.alreadyDone" xml:space="preserve"><value>Já concluída</value></data>
 </root>

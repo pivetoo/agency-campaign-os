@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Badge, Button, PageLayout, useApi } from 'archon-ui'
+import { Badge, Button, PageLayout, useApi, useI18n } from 'archon-ui'
 import { ArrowRight, Building2, Check, CheckCircle2, ClipboardCheck, Clock, ExternalLink, Loader2, Sparkles } from 'lucide-react'
 import { opportunityService, type Opportunity, type OpportunityFollowUp } from '../../services/opportunityService'
 
@@ -25,8 +25,8 @@ function formatDateBR(value: string) {
   return new Date(value).toLocaleDateString('pt-BR')
 }
 
-function relativeLabel(dueAt: string, isCompleted: boolean): { label: string; tone: 'overdue' | 'today' | 'upcoming' | 'completed' } {
-  if (isCompleted) return { label: 'Concluído', tone: 'completed' }
+function relativeLabel(dueAt: string, isCompleted: boolean, t: (key: string) => string): { label: string; tone: 'overdue' | 'today' | 'upcoming' | 'completed' } {
+  if (isCompleted) return { label: t('followups.relative.completed'), tone: 'completed' }
 
   const due = new Date(dueAt)
   const now = new Date()
@@ -38,11 +38,11 @@ function relativeLabel(dueAt: string, isCompleted: boolean): { label: string; to
 
   if (diffDays < 0) {
     const days = Math.abs(diffDays)
-    return { label: days === 1 ? 'Atrasado 1 dia' : `Atrasado ${days} dias`, tone: 'overdue' }
+    return { label: days === 1 ? t('followups.relative.overdueOne') : t('followups.relative.overdueMany').replace('{0}', String(days)), tone: 'overdue' }
   }
-  if (diffDays === 0) return { label: 'Hoje', tone: 'today' }
-  if (diffDays === 1) return { label: 'Amanhã', tone: 'upcoming' }
-  return { label: `Em ${diffDays} dias · ${formatDateBR(dueAt)}`, tone: 'upcoming' }
+  if (diffDays === 0) return { label: t('followups.relative.today'), tone: 'today' }
+  if (diffDays === 1) return { label: t('followups.relative.tomorrow'), tone: 'upcoming' }
+  return { label: t('followups.relative.inDays').replace('{0}', String(diffDays)).replace('{1}', formatDateBR(dueAt)), tone: 'upcoming' }
 }
 
 const TONE_BADGE: Record<'overdue' | 'today' | 'upcoming' | 'completed', { variant: 'destructive' | 'warning' | 'secondary' | 'success'; className: string }> = {
@@ -52,37 +52,38 @@ const TONE_BADGE: Record<'overdue' | 'today' | 'upcoming' | 'completed', { varia
   completed: { variant: 'success', className: '' },
 }
 
-const STATUS_TABS: Array<{ key: StatusKey; label: string; tone: 'destructive' | 'primary' | 'primary' | 'success' }> = [
-  { key: 'overdue', label: 'Atrasadas', tone: 'destructive' },
-  { key: 'today', label: 'Hoje', tone: 'primary' },
-  { key: 'upcoming', label: 'Próximas', tone: 'primary' },
-  { key: 'completed', label: 'Concluídas', tone: 'success' },
+const STATUS_TABS: Array<{ key: StatusKey; labelKey: string; tone: 'destructive' | 'primary' | 'primary' | 'success' }> = [
+  { key: 'overdue', labelKey: 'followups.tab.overdue', tone: 'destructive' },
+  { key: 'today', labelKey: 'followups.tab.today', tone: 'primary' },
+  { key: 'upcoming', labelKey: 'followups.tab.upcoming', tone: 'primary' },
+  { key: 'completed', labelKey: 'followups.tab.completed', tone: 'success' },
 ]
 
-const EMPTY_STATES: Record<StatusKey, { icon: typeof Clock; title: string; subtitle: string }> = {
+const EMPTY_STATES: Record<StatusKey, { icon: typeof Clock; titleKey: string; subtitleKey: string }> = {
   overdue: {
     icon: CheckCircle2,
-    title: 'Sem atividades atrasadas',
-    subtitle: 'Bom trabalho! Você está em dia com tudo.',
+    titleKey: 'followups.empty.overdue.title',
+    subtitleKey: 'followups.empty.overdue.subtitle',
   },
   today: {
     icon: Sparkles,
-    title: 'Nada pra hoje',
-    subtitle: 'Aproveita pra adiantar atividades futuras.',
+    titleKey: 'followups.empty.today.title',
+    subtitleKey: 'followups.empty.today.subtitle',
   },
   upcoming: {
     icon: Clock,
-    title: 'Sem próximas atividades',
-    subtitle: 'Crie follow-ups dentro das oportunidades pra não perder o ritmo.',
+    titleKey: 'followups.empty.upcoming.title',
+    subtitleKey: 'followups.empty.upcoming.subtitle',
   },
   completed: {
     icon: ClipboardCheck,
-    title: 'Nenhuma atividade concluída ainda',
-    subtitle: 'Quando marcar como concluída, ela aparece aqui.',
+    titleKey: 'followups.empty.completed.title',
+    subtitleKey: 'followups.empty.completed.subtitle',
   },
 }
 
 export default function CommercialFollowUps() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const [selectedStatus, setSelectedStatus] = useState<StatusKey>('overdue')
@@ -139,14 +140,14 @@ export default function CommercialFollowUps() {
 
   return (
     <PageLayout
-      title="Atividades"
-      subtitle="Agenda do comercial — atrasadas, de hoje, próximas e concluídas"
+      title={t('followups.title')}
+      subtitle={t('followups.subtitle')}
       onRefresh={() => void loadData()}
       showDefaultActions={false}
       actions={[
         {
           key: 'go-pipeline',
-          label: 'Ir para o pipeline',
+          label: t('followups.action.goToPipeline'),
           icon: <ExternalLink className="h-4 w-4" />,
           variant: 'outline',
           onClick: () => navigate('/comercial/pipeline'),
@@ -176,7 +177,7 @@ export default function CommercialFollowUps() {
                 onClick={() => setSelectedStatus(tab.key)}
                 className={`rounded-xl border p-4 text-left transition-colors ${colorClass}`}
               >
-                <div className="text-sm text-muted-foreground">{tab.label}</div>
+                <div className="text-sm text-muted-foreground">{t(tab.labelKey)}</div>
                 <div className={`text-2xl font-bold ${valueClass}`}>{count}</div>
               </button>
             )
@@ -185,18 +186,18 @@ export default function CommercialFollowUps() {
 
         {loading ? (
           <div className="flex items-center justify-center rounded-xl border border-dashed py-16 text-sm text-muted-foreground">
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Carregando atividades...
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('followups.loading')}
           </div>
         ) : visibleActivities.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center text-muted-foreground">
             <EmptyIcon className="mb-3 h-10 w-10 opacity-50" />
-            <p className="text-sm font-medium text-foreground">{emptyState.title}</p>
-            <p className="mt-1 text-xs">{emptyState.subtitle}</p>
+            <p className="text-sm font-medium text-foreground">{t(emptyState.titleKey)}</p>
+            <p className="mt-1 text-xs">{t(emptyState.subtitleKey)}</p>
           </div>
         ) : (
           <ul className="space-y-2">
             {visibleActivities.map((activity) => {
-              const rel = relativeLabel(activity.dueAt, activity.isCompleted)
+              const rel = relativeLabel(activity.dueAt, activity.isCompleted, t)
               const badge = TONE_BADGE[rel.tone]
               const isCompleting = completingId === activity.id
               return (
@@ -211,7 +212,7 @@ export default function CommercialFollowUps() {
                       event.stopPropagation()
                       void completeActivity(activity)
                     }}
-                    title={activity.isCompleted ? 'Já concluída' : 'Marcar como concluída'}
+                    title={activity.isCompleted ? t('followups.markComplete.alreadyDone') : t('followups.markComplete.title')}
                     className={[
                       'mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors',
                       activity.isCompleted
@@ -266,9 +267,9 @@ export default function CommercialFollowUps() {
                       navigate(`/comercial/oportunidades/${activity.opportunityId}`)
                     }}
                     className="opacity-0 transition-opacity group-hover:opacity-100"
-                    title="Abrir oportunidade"
+                    title={t('followups.action.openOpportunity')}
                   >
-                    Abrir <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                    {t('common.action.open')} <ArrowRight className="ml-1 h-3.5 w-3.5" />
                   </Button>
                 </li>
               )
