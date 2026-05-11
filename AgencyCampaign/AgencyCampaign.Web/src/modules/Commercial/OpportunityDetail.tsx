@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'archon-ui'
+import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, FileText, MapPin, MessageSquare, Pencil, Plus, Tag, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../services/commercialPipelineStageService'
@@ -13,15 +13,15 @@ import OpportunityActivityTab from './OpportunityActivityTab'
 import ProposalFormModal from '../../components/modals/ProposalFormModal'
 import { resolveAssetUrl } from '../../lib/assetUrl'
 
-const proposalStatusLabels: Record<number, string> = {
-  1: 'Rascunho',
-  2: 'Enviada',
-  3: 'Visualizada',
-  4: 'Aprovada',
-  5: 'Rejeitada',
-  6: 'Convertida',
-  7: 'Expirada',
-  8: 'Cancelada',
+const proposalStatusKeys: Record<number, string> = {
+  1: 'proposal.status.draft',
+  2: 'proposal.status.sent',
+  3: 'proposal.status.viewed',
+  4: 'proposal.status.approved',
+  5: 'proposal.status.rejected',
+  6: 'proposal.status.converted',
+  7: 'proposal.status.expired',
+  8: 'proposal.status.cancelled',
 }
 
 const proposalStatusVariant: Record<number, 'default' | 'warning' | 'success' | 'destructive'> = {
@@ -35,28 +35,28 @@ const proposalStatusVariant: Record<number, 'default' | 'warning' | 'success' | 
   8: 'destructive',
 }
 
-const negotiationStatusLabels: Record<number, string> = {
-  1: 'Rascunho',
-  2: 'Pendente aprovação',
-  3: 'Aprovada',
-  4: 'Rejeitada',
-  5: 'Enviada ao cliente',
-  6: 'Aceita pelo cliente',
-  7: 'Cancelada',
+const negotiationStatusKeys: Record<number, string> = {
+  1: 'negotiation.status.draft',
+  2: 'negotiation.status.pendingApproval',
+  3: 'negotiation.status.approved',
+  4: 'negotiation.status.rejected',
+  5: 'negotiation.status.sentToClient',
+  6: 'negotiation.status.acceptedByClient',
+  7: 'negotiation.status.cancelled',
 }
 
-const approvalTypeLabels: Record<number, string> = {
-  1: 'Desconto',
-  2: 'Margem',
-  3: 'Prazo',
-  4: 'Exceção',
+const approvalTypeKeys: Record<number, string> = {
+  1: 'approvals.type.discount',
+  2: 'approvals.type.margin',
+  3: 'approvals.type.deadline',
+  4: 'approvals.type.exception',
 }
 
-const approvalStatusLabels: Record<number, string> = {
-  1: 'Pendente',
-  2: 'Aprovada',
-  3: 'Rejeitada',
-  4: 'Cancelada',
+const approvalStatusKeys: Record<number, string> = {
+  1: 'approvals.status.pending',
+  2: 'approvals.status.approved',
+  3: 'approvals.status.rejected',
+  4: 'approvals.status.cancelled',
 }
 
 function formatCurrency(value: number) {
@@ -74,6 +74,7 @@ function getStageBadgeVariant(finalBehavior?: number): 'default' | 'success' | '
 }
 
 export default function OpportunityDetail() {
+  const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const opportunityId = Number(id || 0)
   const navigate = useNavigate()
@@ -115,77 +116,77 @@ export default function OpportunityDetail() {
   const overdueFollowUpsCount = useMemo(() => opportunity?.followUps.filter((item) => !item.isCompleted && new Date(item.dueAt) < new Date()).length ?? 0, [opportunity])
 
   const negotiationColumns: DataTableColumn<OpportunityNegotiation>[] = [
-    { key: 'title', title: 'Título', dataIndex: 'title' },
-    { key: 'amount', title: 'Valor', dataIndex: 'amount', render: (value: number) => formatCurrency(value) },
+    { key: 'title', title: t('negotiation.field.title'), dataIndex: 'title' },
+    { key: 'amount', title: t('negotiation.field.amount'), dataIndex: 'amount', render: (value: number) => formatCurrency(value) },
     {
       key: 'status',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'status',
       render: (value: number) => (
         <Badge variant={value === 3 || value === 6 ? 'success' : value === 4 || value === 7 ? 'destructive' : 'warning'}>
-          {negotiationStatusLabels[value] || '-'}
+          {negotiationStatusKeys[value] ? t(negotiationStatusKeys[value]) : '-'}
         </Badge>
       ),
     },
-    { key: 'negotiatedAt', title: 'Data', dataIndex: 'negotiatedAt', render: (value: string) => formatDate(value) },
-    { key: 'notes', title: 'Observações', dataIndex: 'notes', render: (value?: string) => value || '-' },
+    { key: 'negotiatedAt', title: t('negotiation.field.date'), dataIndex: 'negotiatedAt', render: (value: string) => formatDate(value) },
+    { key: 'notes', title: t('common.field.notes'), dataIndex: 'notes', render: (value?: string) => value || '-' },
   ]
 
   const approvalColumns: DataTableColumn<OpportunityApprovalRequest>[] = [
-    { key: 'approvalType', title: 'Tipo', dataIndex: 'approvalType', render: (value: number) => approvalTypeLabels[value] || '-' },
+    { key: 'approvalType', title: t('common.field.type'), dataIndex: 'approvalType', render: (value: number) => approvalTypeKeys[value] ? t(approvalTypeKeys[value]) : '-' },
     {
       key: 'status',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'status',
       render: (value: number) => (
         <Badge variant={value === 2 ? 'success' : value === 3 ? 'destructive' : 'warning'}>
-          {approvalStatusLabels[value] || '-'}
+          {approvalStatusKeys[value] ? t(approvalStatusKeys[value]) : '-'}
         </Badge>
       ),
     },
-    { key: 'requestedByUserName', title: 'Solicitado por', dataIndex: 'requestedByUserName' },
-    { key: 'reason', title: 'Motivo', dataIndex: 'reason' },
-    { key: 'requestedAt', title: 'Solicitado em', dataIndex: 'requestedAt', render: (value: string) => formatDate(value) },
+    { key: 'requestedByUserName', title: t('approvals.field.requestedBy'), dataIndex: 'requestedByUserName' },
+    { key: 'reason', title: t('approvals.field.reason'), dataIndex: 'reason' },
+    { key: 'requestedAt', title: t('approvals.field.requestedAt'), dataIndex: 'requestedAt', render: (value: string) => formatDate(value) },
   ]
 
   const followUpColumns: DataTableColumn<OpportunityFollowUp>[] = [
-    { key: 'subject', title: 'Assunto', dataIndex: 'subject' },
-    { key: 'dueAt', title: 'Prazo', dataIndex: 'dueAt', render: (value: string) => formatDate(value) },
+    { key: 'subject', title: t('followup.field.subject'), dataIndex: 'subject' },
+    { key: 'dueAt', title: t('proposalDetail.item.field.deadline'), dataIndex: 'dueAt', render: (value: string) => formatDate(value) },
     {
       key: 'isCompleted',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isCompleted',
       render: (value: boolean, record: OpportunityFollowUp) => {
         const isOverdue = !value && new Date(record.dueAt) < new Date()
         return (
           <Badge variant={value ? 'success' : isOverdue ? 'destructive' : 'warning'}>
-            {value ? 'Concluído' : isOverdue ? 'Atrasado' : 'Pendente'}
+            {value ? t('followupStatus.completed') : isOverdue ? t('followupStatus.overdue') : t('followupStatus.pending')}
           </Badge>
         )
       },
     },
-    { key: 'notes', title: 'Observações', dataIndex: 'notes', render: (value?: string) => value || '-' },
+    { key: 'notes', title: t('common.field.notes'), dataIndex: 'notes', render: (value?: string) => value || '-' },
   ]
 
   const proposalColumns: DataTableColumn<NonNullable<Opportunity['proposals']>[number]>[] = [
     {
       key: 'name',
-      title: 'Proposta',
+      title: t('proposals.field.proposal'),
       dataIndex: 'name',
       render: (value: string) => <span className="font-medium">{value}</span>,
     },
-    { key: 'totalValue', title: 'Valor', dataIndex: 'totalValue', render: (value: number) => formatCurrency(value) },
+    { key: 'totalValue', title: t('negotiation.field.amount'), dataIndex: 'totalValue', render: (value: number) => formatCurrency(value) },
     {
       key: 'status',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'status',
       render: (value: number) => (
         <Badge variant={proposalStatusVariant[value] || 'default'}>
-          {proposalStatusLabels[value] || '-'}
+          {proposalStatusKeys[value] ? t(proposalStatusKeys[value]) : '-'}
         </Badge>
       ),
     },
-    { key: 'validityUntil', title: 'Validade', dataIndex: 'validityUntil', render: (value?: string) => formatDate(value) },
+    { key: 'validityUntil', title: t('common.field.validity'), dataIndex: 'validityUntil', render: (value?: string) => formatDate(value) },
     {
       key: 'actions',
       title: '',
@@ -200,7 +201,7 @@ export default function OpportunityDetail() {
             navigate(`/comercial/propostas/${record.id}`)
           }}
         >
-          Abrir <FileText className="ml-1.5 h-3.5 w-3.5" />
+          {t('common.action.open')} <FileText className="ml-1.5 h-3.5 w-3.5" />
         </Button>
       ),
     },
@@ -225,8 +226,8 @@ export default function OpportunityDetail() {
   const handleApproveRequest = async () => {
     if (!selectedApprovalRequest) return
     const result = await executeAction(() => opportunityService.approveRequest(selectedApprovalRequest.id, {
-      approvedByUserName: 'Aprovador interno',
-      decisionNotes: 'Aprovação realizada no fluxo comercial.',
+      approvedByUserName: t('opportunityDetail.approvals.userFallback'),
+      decisionNotes: t('opportunityDetail.approvals.decision.approved'),
     }))
     if (result !== null) {
       setSelectedApprovalRequest(null)
@@ -237,8 +238,8 @@ export default function OpportunityDetail() {
   const handleRejectRequest = async () => {
     if (!selectedApprovalRequest) return
     const result = await executeAction(() => opportunityService.rejectRequest(selectedApprovalRequest.id, {
-      approvedByUserName: 'Aprovador interno',
-      decisionNotes: 'Rejeitada no fluxo comercial.',
+      approvedByUserName: t('opportunityDetail.approvals.userFallback'),
+      decisionNotes: t('opportunityDetail.approvals.decision.rejected'),
     }))
     if (result !== null) {
       setSelectedApprovalRequest(null)
@@ -268,8 +269,8 @@ export default function OpportunityDetail() {
   return (
     <div className="space-y-6">
       <PageLayout
-        title={opportunity?.name || 'Oportunidade'}
-        subtitle={opportunity?.brand?.name ? `${opportunity.brand.name} · detalhe comercial` : 'Detalhe comercial'}
+        title={opportunity?.name || t('opportunityDetail.fallbackTitle')}
+        subtitle={opportunity?.brand?.name ? t('opportunityDetail.subtitleWithBrand').replace('{0}', opportunity.brand.name) : t('opportunityDetail.subtitle')}
         onRefresh={() => void loadOpportunity()}
         showDefaultActions={false}
       >
@@ -282,7 +283,7 @@ export default function OpportunityDetail() {
                 aria-hidden
               />
               <Badge variant={stageBadgeVariant} className="px-2.5 py-0.5 text-xs">
-                {opportunity?.commercialPipelineStage?.name || 'Sem estágio'}
+                {opportunity?.commercialPipelineStage?.name || t('opportunityDetail.stage.none')}
               </Badge>
               <span className="hidden text-border sm:inline">·</span>
               <span className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -303,14 +304,14 @@ export default function OpportunityDetail() {
                   className="h-3.5 w-3.5"
                   style={{ display: opportunity?.brand?.logoUrl ? 'none' : 'inline-flex' }}
                 />
-                {opportunity?.brand?.name || 'Marca não informada'}
+                {opportunity?.brand?.name || t('opportunityDetail.brand.unknown')}
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Select value={selectedStage} onValueChange={(value) => void handleChangeStage(Number(value))}>
                 <SelectTrigger className="w-full sm:w-[200px]">
                   <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-                  <SelectValue placeholder="Mudar estágio" />
+                  <SelectValue placeholder={t('opportunityDetail.stage.placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {stages.map((stage) => (
@@ -319,7 +320,7 @@ export default function OpportunityDetail() {
                 </SelectContent>
               </Select>
               <Button size="sm" variant="outline" onClick={() => setIsOpportunityFormOpen(true)}>
-                <Pencil className="mr-2 h-4 w-4" /> Editar
+                <Pencil className="mr-2 h-4 w-4" /> {t('common.action.edit')}
               </Button>
             </div>
           </div>
@@ -329,7 +330,7 @@ export default function OpportunityDetail() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <CircleDollarSign className="h-3.5 w-3.5 text-indigo-600" />
-                  Valor estimado
+                  {t('opportunityDetail.kpi.estimatedValue')}
                 </div>
                 <p className="mt-1.5 text-lg font-semibold text-foreground">{formatCurrency(opportunity?.estimatedValue ?? 0)}</p>
               </CardContent>
@@ -338,7 +339,7 @@ export default function OpportunityDetail() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5 text-violet-600" />
-                  Previsão
+                  {t('opportunityDetail.kpi.forecast')}
                 </div>
                 <p className="mt-1.5 text-lg font-semibold text-foreground">{formatDate(opportunity?.expectedCloseAt)}</p>
               </CardContent>
@@ -347,7 +348,7 @@ export default function OpportunityDetail() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <UserCheck className="h-3.5 w-3.5 text-cyan-600" />
-                  Responsável
+                  {t('common.field.responsible')}
                 </div>
                 <p className="mt-1.5 truncate text-lg font-semibold text-foreground">{opportunity?.commercialResponsible?.name || '-'}</p>
               </CardContent>
@@ -356,13 +357,13 @@ export default function OpportunityDetail() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Clock className="h-3.5 w-3.5 text-amber-600" />
-                  Follow-ups pendentes
+                  {t('opportunityDetail.kpi.pendingFollowUps')}
                 </div>
                 <div className="mt-1.5 flex items-baseline gap-2">
                   <p className="text-lg font-semibold text-foreground">{pendingFollowUpsCount}</p>
                   {overdueFollowUpsCount > 0 ? (
                     <span className="text-[11px] font-medium text-destructive">
-                      {overdueFollowUpsCount} atrasado{overdueFollowUpsCount > 1 ? 's' : ''}
+                      {(overdueFollowUpsCount === 1 ? t('opportunityDetail.overdueSingle') : t('opportunityDetail.overdueMany')).replace('{0}', String(overdueFollowUpsCount))}
                     </span>
                   ) : null}
                 </div>
@@ -373,10 +374,10 @@ export default function OpportunityDetail() {
         <Tabs defaultValue="summary" className="pt-2">
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger value="summary" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-              <FileText className="h-4 w-4" /> Resumo
+              <FileText className="h-4 w-4" /> {t('opportunityDetail.tab.summary')}
             </TabsTrigger>
             <TabsTrigger value="proposals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-              <TrendingUp className="h-4 w-4" /> Propostas
+              <TrendingUp className="h-4 w-4" /> {t('opportunityDetail.tab.proposals')}
               {opportunity?.proposals?.length ? (
                 <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
                   {opportunity.proposals.length}
@@ -384,7 +385,7 @@ export default function OpportunityDetail() {
               ) : null}
             </TabsTrigger>
             <TabsTrigger value="negotiations" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-              <MessageSquare className="h-4 w-4" /> Negociações
+              <MessageSquare className="h-4 w-4" /> {t('opportunityDetail.tab.negotiations')}
               {opportunity?.negotiations?.length ? (
                 <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
                   {opportunity.negotiations.length}
@@ -392,7 +393,7 @@ export default function OpportunityDetail() {
               ) : null}
             </TabsTrigger>
             <TabsTrigger value="approvals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-              <CheckCircle className="h-4 w-4" /> Aprovações
+              <CheckCircle className="h-4 w-4" /> {t('opportunityDetail.tab.approvals')}
               {approvalRequests.length ? (
                 <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
                   {approvalRequests.length}
@@ -400,7 +401,7 @@ export default function OpportunityDetail() {
               ) : null}
             </TabsTrigger>
             <TabsTrigger value="followups" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-              <Clock className="h-4 w-4" /> Follow-ups
+              <Clock className="h-4 w-4" /> {t('opportunityDetail.tab.followups')}
               {opportunity?.followUps?.length ? (
                 <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
                   {opportunity.followUps.length}
@@ -408,7 +409,7 @@ export default function OpportunityDetail() {
               ) : null}
             </TabsTrigger>
             <TabsTrigger value="activity" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-              <Activity className="h-4 w-4" /> Atividades
+              <Activity className="h-4 w-4" /> {t('opportunityDetail.tab.activity')}
             </TabsTrigger>
           </TabsList>
 
@@ -416,39 +417,39 @@ export default function OpportunityDetail() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-muted-foreground" /> Informações da oportunidade
+                  <FileText className="h-5 w-5 text-muted-foreground" /> {t('opportunityDetail.summary.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   <div className="space-y-1">
                     <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <FileText className="h-3.5 w-3.5" /> Descrição
+                      <FileText className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.description')}
                     </p>
                     <p className="text-sm">{opportunity?.description || '-'}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <User className="h-3.5 w-3.5" /> Contato
+                      <User className="h-3.5 w-3.5" /> {t('common.field.contact')}
                     </p>
                     <p className="text-sm">{opportunity?.contactName || '-'}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <Tag className="h-3.5 w-3.5" /> Observações
+                      <Tag className="h-3.5 w-3.5" /> {t('common.field.notes')}
                     </p>
                     <p className="text-sm">{opportunity?.notes || '-'}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <Calendar className="h-3.5 w-3.5" /> Fechada em
+                      <Calendar className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.closedAt')}
                     </p>
                     <p className="text-sm">{formatDate(opportunity?.closedAt)}</p>
                   </div>
                   {opportunity?.lossReason && (
                     <div className="space-y-1">
                       <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                        <XCircle className="h-3.5 w-3.5" /> Motivo de perda
+                        <XCircle className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.lossReason')}
                       </p>
                       <p className="text-sm text-destructive">{opportunity.lossReason}</p>
                     </div>
@@ -456,7 +457,7 @@ export default function OpportunityDetail() {
                   {opportunity?.wonNotes && (
                     <div className="space-y-1">
                       <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                        <CheckCircle className="h-3.5 w-3.5" /> Notas de ganho
+                        <CheckCircle className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.wonNotes')}
                       </p>
                       <p className="text-sm text-success">{opportunity.wonNotes}</p>
                     </div>
@@ -471,14 +472,14 @@ export default function OpportunityDetail() {
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
                   <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-muted-foreground" /> Propostas vinculadas
+                    <TrendingUp className="h-5 w-5 text-muted-foreground" /> {t('opportunityDetail.proposals.title')}
                   </CardTitle>
                   <Button size="sm" onClick={() => setIsProposalFormOpen(true)}>
-                    <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
+                    <Plus className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.proposals.new')}
                   </Button>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Cada proposta tem itens (creators, plataformas, valores), PDF, link público, status e conversão em campanha. Clique numa linha para abrir o detalhe completo.
+                  {t('opportunityDetail.proposals.description')}
                 </p>
               </CardHeader>
               <CardContent>
@@ -486,7 +487,7 @@ export default function OpportunityDetail() {
                   columns={proposalColumns}
                   data={opportunity?.proposals || []}
                   rowKey="id"
-                  emptyText="Nenhuma proposta vinculada. Use o botão Nova proposta acima para criar a primeira."
+                  emptyText={t('opportunityDetail.proposals.empty')}
                   loading={loading}
                   pageSize={5}
                   pageSizeOptions={[5, 10, 20, 50]}
@@ -501,20 +502,20 @@ export default function OpportunityDetail() {
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
                   <CardTitle className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-muted-foreground" /> Negociações
+                    <MessageSquare className="h-5 w-5 text-muted-foreground" /> {t('opportunityDetail.tab.negotiations')}
                   </CardTitle>
                   <Button size="sm" onClick={() => { setSelectedNegotiation(null); setIsNegotiationFormOpen(true) }}>
-                    <TrendingUp className="mr-1.5 h-4 w-4" /> Nova negociação
+                    <TrendingUp className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.negotiations.new')}
                   </Button>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Cada negociação registra uma rodada de oferta com valor e motivo (proposta inicial, contraproposta, ajuste de desconto). Selecione uma para editar ou pedir aprovação interna.
+                  {t('opportunityDetail.negotiations.description')}
                 </p>
               </CardHeader>
               <CardContent>
                 <div className="mb-3 flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" onClick={() => selectedNegotiation && setIsNegotiationFormOpen(true)} disabled={!selectedNegotiation}>
-                    <Pencil className="mr-2 h-4 w-4" /> Editar
+                    <Pencil className="mr-2 h-4 w-4" /> {t('common.action.edit')}
                   </Button>
                   <Button
                     size="sm"
@@ -523,16 +524,16 @@ export default function OpportunityDetail() {
                     disabled={!selectedNegotiation || selectedNegotiation.status !== 1}
                     title={
                       !selectedNegotiation
-                        ? 'Selecione uma negociação'
+                        ? t('opportunityDetail.negotiations.title.selectFirst')
                         : selectedNegotiation.status !== 1
-                          ? `Disponível apenas para negociações em Rascunho (atual: ${negotiationStatusLabels[selectedNegotiation.status] ?? '-'})`
-                          : 'Solicitar aprovação interna desta negociação'
+                          ? t('opportunityDetail.negotiations.title.onlyDraft').replace('{0}', negotiationStatusKeys[selectedNegotiation.status] ? t(negotiationStatusKeys[selectedNegotiation.status]) : '-')
+                          : t('opportunityDetail.negotiations.title.request')
                     }
                   >
-                    <CheckCircle className="mr-2 h-4 w-4" /> Solicitar aprovação
+                    <CheckCircle className="mr-2 h-4 w-4" /> {t('opportunityDetail.negotiations.requestApproval')}
                   </Button>
                   <Button size="sm" variant="outline-danger" onClick={() => void handleDeleteNegotiation()} disabled={!selectedNegotiation || actionLoading}>
-                    <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                    <Trash2 className="mr-2 h-4 w-4" /> {t('common.action.delete')}
                   </Button>
                 </div>
                 <DataTable
@@ -541,7 +542,7 @@ export default function OpportunityDetail() {
                   rowKey="id"
                   selectedRows={selectedNegotiation ? [selectedNegotiation] : []}
                   onSelectionChange={(rows) => setSelectedNegotiation(rows[0] ?? null)}
-                  emptyText="Nenhuma negociação cadastrada"
+                  emptyText={t('opportunityDetail.negotiations.empty')}
                   loading={loading}
                   pageSize={5}
                   pageSizeOptions={[5, 10, 20, 50]}
@@ -555,19 +556,19 @@ export default function OpportunityDetail() {
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
                   <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-muted-foreground" /> Aprovações
+                    <CheckCircle className="h-5 w-5 text-muted-foreground" /> {t('opportunityDetail.tab.approvals')}
                   </CardTitle>
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="outline-success" onClick={() => void handleApproveRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>
-                      <ThumbsUp className="mr-1.5 h-4 w-4" /> Aprovar
+                      <ThumbsUp className="mr-1.5 h-4 w-4" /> {t('proposals.action.approve')}
                     </Button>
                     <Button size="sm" variant="outline-danger" onClick={() => void handleRejectRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>
-                      <ThumbsDown className="mr-1.5 h-4 w-4" /> Rejeitar
+                      <ThumbsDown className="mr-1.5 h-4 w-4" /> {t('proposals.action.reject')}
                     </Button>
                   </div>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Aprovações são criadas a partir das negociações. Vá na aba Negociações, selecione uma e clique em "Solicitar aprovação".
+                  {t('opportunityDetail.approvals.description')}
                 </p>
               </CardHeader>
               <CardContent>
@@ -577,7 +578,7 @@ export default function OpportunityDetail() {
                   rowKey="id"
                   selectedRows={selectedApprovalRequest ? [selectedApprovalRequest] : []}
                   onSelectionChange={(rows) => setSelectedApprovalRequest(rows[0] ?? null)}
-                  emptyText="Nenhuma aprovação registrada. Crie a partir de uma negociação na aba Negociações."
+                  emptyText={t('opportunityDetail.approvals.empty')}
                   loading={loading}
                   pageSize={5}
                   pageSizeOptions={[5, 10, 20, 50]}
@@ -591,26 +592,26 @@ export default function OpportunityDetail() {
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
                   <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-muted-foreground" /> Follow-ups
+                    <Clock className="h-5 w-5 text-muted-foreground" /> {t('opportunityDetail.tab.followups')}
                   </CardTitle>
                   <Button size="sm" onClick={() => { setSelectedFollowUp(null); setIsFollowUpFormOpen(true) }}>
-                    <Clock className="mr-1.5 h-4 w-4" /> Novo follow-up
+                    <Clock className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.followups.new')}
                   </Button>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Compromissos e tarefas desta oportunidade (ligações, envio de proposta, retornos). Marque como concluído após cada contato para manter o histórico.
+                  {t('opportunityDetail.followups.description')}
                 </p>
               </CardHeader>
               <CardContent>
                 <div className="mb-3 flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" onClick={() => selectedFollowUp && setIsFollowUpFormOpen(true)} disabled={!selectedFollowUp}>
-                    <Pencil className="mr-2 h-4 w-4" /> Editar
+                    <Pencil className="mr-2 h-4 w-4" /> {t('common.action.edit')}
                   </Button>
                   <Button size="sm" variant="outline-success" onClick={() => void handleCompleteFollowUp()} disabled={!selectedFollowUp || selectedFollowUp?.isCompleted || actionLoading}>
-                    <CheckCircle className="mr-2 h-4 w-4" /> Concluir
+                    <CheckCircle className="mr-2 h-4 w-4" /> {t('opportunityDetail.followups.complete')}
                   </Button>
                   <Button size="sm" variant="outline-danger" onClick={() => void handleDeleteFollowUp()} disabled={!selectedFollowUp || actionLoading}>
-                    <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                    <Trash2 className="mr-2 h-4 w-4" /> {t('common.action.delete')}
                   </Button>
                 </div>
                 <DataTable
@@ -619,7 +620,7 @@ export default function OpportunityDetail() {
                   rowKey="id"
                   selectedRows={selectedFollowUp ? [selectedFollowUp] : []}
                   onSelectionChange={(rows) => setSelectedFollowUp(rows[0] ?? null)}
-                  emptyText="Nenhum follow-up cadastrado"
+                  emptyText={t('opportunityDetail.followups.empty')}
                   loading={loading}
                   pageSize={5}
                   pageSizeOptions={[5, 10, 20, 50]}
