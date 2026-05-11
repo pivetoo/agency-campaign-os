@@ -152,7 +152,7 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+          <div className="grid grid-cols-1 gap-6 items-start sm:grid-cols-[160px_1fr]">
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.photo')}</label>
               <div
@@ -192,7 +192,7 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
               {photoError && <p className="text-xs text-destructive">{photoError}</p>}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t('common.field.name')}</label>
                 <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
@@ -250,7 +250,7 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               {isEditing && (
                 <div className="flex items-center gap-2">

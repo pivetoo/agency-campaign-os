@@ -123,7 +123,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('creators.singular')}</label>
               <SearchableSelect

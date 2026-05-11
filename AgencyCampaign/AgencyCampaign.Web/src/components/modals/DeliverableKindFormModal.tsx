@@ -62,7 +62,7 @@ export default function DeliverableKindFormModal({ open, onOpenChange, deliverab
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.name')}</label>
               <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
@@ -74,7 +74,7 @@ export default function DeliverableKindFormModal({ open, onOpenChange, deliverab
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               {isEditing && (
                 <div className="flex items-center gap-2">

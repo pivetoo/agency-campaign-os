@@ -104,7 +104,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <label htmlFor="opportunity-name" className="text-sm font-medium">{t('modal.opportunity.field.name')}</label>
               <Input id="opportunity-name" value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />

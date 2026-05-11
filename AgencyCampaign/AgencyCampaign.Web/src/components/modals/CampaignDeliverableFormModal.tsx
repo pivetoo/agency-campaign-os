@@ -140,7 +140,7 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.deliverable.field.campaignCreator')}</label>
               <SearchableSelect
@@ -219,7 +219,7 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.deliverable.field.grossAmount')}</label>
               <Input type="number" value={formData.grossAmount} onChange={(e) => setFormData((prev) => ({ ...prev, grossAmount: Number(e.target.value) }))} required />

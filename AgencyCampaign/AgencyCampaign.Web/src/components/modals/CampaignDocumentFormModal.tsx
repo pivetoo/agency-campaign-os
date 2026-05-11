@@ -80,7 +80,7 @@ export default function CampaignDocumentFormModal({ open, onOpenChange, campaign
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.document.field.documentType')}</label>
               <Select value={String(formData.documentType)} onValueChange={(value) => setFormData((prev) => ({ ...prev, documentType: Number(value) as CampaignDocumentTypeValue }))}>

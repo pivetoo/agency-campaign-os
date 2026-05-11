@@ -63,7 +63,7 @@ export default function OpportunityFollowUpFormModal({ open, onOpenChange, oppor
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
               <label className="text-sm font-medium">{t('common.field.subject')}</label>
               <Input value={formData.subject} onChange={(e) => setFormData((prev) => ({ ...prev, subject: e.target.value }))} required />
