@@ -47,9 +47,9 @@ export default function Creators() {
   const columns: DataTableColumn<Creator>[] = [
     { key: 'photo', title: '', dataIndex: 'photoUrl', width: 56, render: renderPhotoCell },
     { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
-    { key: 'stageName', title: t('creators.field.stageName'), dataIndex: 'stageName', render: (value?: string) => value || '-' },
-    { key: 'primaryNiche', title: t('creators.field.niche'), dataIndex: 'primaryNiche', render: (value?: string) => value || '-' },
-    { key: 'city', title: t('common.field.city'), dataIndex: 'city', render: (value?: string) => value || '-' },
+    { key: 'stageName', title: t('creators.field.stageName'), dataIndex: 'stageName', hiddenBelow: 'sm', render: (value?: string) => value || '-' },
+    { key: 'primaryNiche', title: t('creators.field.niche'), dataIndex: 'primaryNiche', hiddenBelow: 'md', render: (value?: string) => value || '-' },
+    { key: 'city', title: t('common.field.city'), dataIndex: 'city', hiddenBelow: 'md', render: (value?: string) => value || '-' },
     {
       key: 'isActive',
       title: t('common.field.status'),

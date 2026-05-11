@@ -919,4 +919,8 @@
   <data name="modal.campaign.status.inReview" xml:space="preserve"><value>Em revisão</value></data>
   <data name="modal.campaign.status.completed" xml:space="preserve"><value>Concluída</value></data>
   <data name="modal.campaign.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="common.table.rowsPerPage" xml:space="preserve"><value>Linhas por página:</value></data>
+  <data name="common.state.noRecordsFound" xml:space="preserve"><value>Nenhum registro encontrado</value></data>
+  <data name="common.state.noResults" xml:space="preserve"><value>Sem resultados</value></data>
+  <data name="common.state.adjustFilters" xml:space="preserve"><value>Ajuste os filtros ou adicione um novo registro.</value></data>
 </root>

@@ -38,9 +38,9 @@ export default function Campaigns() {
   const columns: DataTableColumn<Campaign>[] = [
     { key: 'name', title: t('campaign.field.campaign'), dataIndex: 'name' },
     { key: 'brand', title: t('campaign.field.brand'), dataIndex: 'brand', render: (value: Campaign['brand']) => value?.name || '-' },
-    { key: 'objective', title: t('campaign.field.objective'), dataIndex: 'objective', render: (value?: string) => value || '-' },
-    { key: 'budget', title: t('campaign.field.budget'), dataIndex: 'budget', render: (value: number) => `R$ ${value.toFixed(2)}` },
-    { key: 'startsAt', title: t('common.field.startDate'), dataIndex: 'startsAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
+    { key: 'objective', title: t('campaign.field.objective'), dataIndex: 'objective', hiddenBelow: 'md', render: (value?: string) => value || '-' },
+    { key: 'budget', title: t('campaign.field.budget'), dataIndex: 'budget', hiddenBelow: 'md', render: (value: number) => `R$ ${value.toFixed(2)}` },
+    { key: 'startsAt', title: t('common.field.startDate'), dataIndex: 'startsAt', hiddenBelow: 'lg', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
     {
       key: 'status',
       title: t('common.field.status'),

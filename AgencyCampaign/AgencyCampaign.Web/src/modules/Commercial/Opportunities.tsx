@@ -101,8 +101,8 @@ export default function CommercialOpportunities() {
   const columns: DataTableColumn<Opportunity>[] = [
     { key: 'name', title: t('opportunities.field.opportunity'), dataIndex: 'name' },
     { key: 'brand', title: t('campaign.field.brand'), dataIndex: 'brand', render: (value?: Opportunity['brand']) => value?.name || '-' },
-    { key: 'estimatedValue', title: t('opportunities.field.estimatedValue'), dataIndex: 'estimatedValue', render: (value: number) => `R$ ${value.toFixed(2)}` },
-    { key: 'expectedCloseAt', title: t('opportunities.field.expectedCloseAt'), dataIndex: 'expectedCloseAt', render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-' },
+    { key: 'estimatedValue', title: t('opportunities.field.estimatedValue'), dataIndex: 'estimatedValue', hiddenBelow: 'md', render: (value: number) => `R$ ${value.toFixed(2)}` },
+    { key: 'expectedCloseAt', title: t('opportunities.field.expectedCloseAt'), dataIndex: 'expectedCloseAt', hiddenBelow: 'md', render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-' },
     {
       key: 'stage',
       title: t('opportunities.field.stage'),
@@ -117,10 +117,11 @@ export default function CommercialOpportunities() {
       key: 'responsible',
       title: t('common.field.responsible'),
       dataIndex: 'commercialResponsible',
+      hiddenBelow: 'lg',
       render: (value?: Opportunity['commercialResponsible']) => value?.name || '-',
     },
-    { key: 'followUps', title: t('opportunities.field.followUps'), dataIndex: 'followUps', render: (value?: Opportunity['followUps']) => value?.filter((item) => !item.isCompleted).length ?? 0 },
-    { key: 'proposals', title: t('opportunities.field.proposals'), dataIndex: 'proposals', render: (value?: Opportunity['proposals']) => value?.length ?? 0 },
+    { key: 'followUps', title: t('opportunities.field.followUps'), dataIndex: 'followUps', hiddenBelow: 'lg', render: (value?: Opportunity['followUps']) => value?.filter((item) => !item.isCompleted).length ?? 0 },
+    { key: 'proposals', title: t('opportunities.field.proposals'), dataIndex: 'proposals', hiddenBelow: 'lg', render: (value?: Opportunity['proposals']) => value?.length ?? 0 },
     {
       key: 'actions',
       title: '',

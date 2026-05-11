@@ -16,7 +16,7 @@ import {
   useI18n,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { CheckCircle, Clock, Eye, FileText, Search, Send, X, XCircle } from 'lucide-react'
+import { CheckCircle, Clock, Eye, Search, Send, X, XCircle } from 'lucide-react'
 import { proposalService, type Proposal, type ProposalListFilters } from '../../services/proposalService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import type { CommercialResponsible } from '../../types/commercialResponsible'
@@ -140,6 +140,7 @@ export default function CommercialProposals() {
       key: 'opportunity',
       title: t('proposals.field.opportunity'),
       dataIndex: 'opportunity',
+      hiddenBelow: 'md',
       render: (value?: Proposal['opportunity']) => value ? `${value.name} (#${value.id})` : '-',
     },
     {
@@ -152,6 +153,7 @@ export default function CommercialProposals() {
       key: 'validityUntil',
       title: t('common.field.validity'),
       dataIndex: 'validityUntil',
+      hiddenBelow: 'md',
       render: (value?: string, record?: Proposal) => {
         if (!value) return '-'
         const date = new Date(value).toLocaleDateString('pt-BR')
@@ -175,31 +177,30 @@ export default function CommercialProposals() {
       key: 'internalOwnerName',
       title: t('common.field.responsible'),
       dataIndex: 'internalOwnerName',
+      hiddenBelow: 'lg',
       render: (value?: string) => value || '-',
     },
     {
       key: 'campaign',
       title: t('proposals.field.campaign'),
       dataIndex: 'campaign',
+      hiddenBelow: 'lg',
       render: (value?: Proposal['campaign']) => value?.name || '-',
     },
-    { key: 'items', title: t('common.field.items'), dataIndex: 'items', render: (value?: Proposal['items']) => value?.length ?? 0 },
+    { key: 'items', title: t('common.field.items'), dataIndex: 'items', hiddenBelow: 'lg', render: (value?: Proposal['items']) => value?.length ?? 0 },
     {
       key: 'actions',
       title: '',
-      dataIndex: 'id',
-      width: 110,
-      render: (_value: number, record: Proposal) => (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={(e) => {
-            e.stopPropagation()
-            navigate(`/comercial/propostas/${record.id}`)
-          }}
+      dataIndex: undefined,
+      width: 56,
+      render: (_: any, record: Proposal) => (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); navigate(`/comercial/propostas/${record.id}`) }}
+          className="inline-flex items-center justify-center p-1 rounded hover:bg-accent hover:text-foreground text-muted-foreground transition-colors"
         >
-          {t('common.action.open')} <FileText className="ml-1.5 h-3.5 w-3.5" />
-        </Button>
+          <Eye size={16} />
+        </button>
       ),
     },
   ]

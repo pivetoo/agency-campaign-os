@@ -88,23 +88,26 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
         </span>
       ),
     },
-    { key: 'counterpartyName', title: 'Contraparte', dataIndex: 'counterpartyName', render: (value?: string) => value || '-' },
+    { key: 'counterpartyName', title: 'Contraparte', dataIndex: 'counterpartyName', hiddenBelow: 'md', render: (value?: string) => value || '-' },
     {
       key: 'category',
       title: 'Categoria',
       dataIndex: 'category',
+      hiddenBelow: 'md',
       render: (value: number) => <Badge variant="outline">{financialEntryCategoryLabels[value] || '-'}</Badge>,
     },
     {
       key: 'campaignName',
       title: 'Campanha',
       dataIndex: 'campaignName',
+      hiddenBelow: 'lg',
       render: (value?: string | null) => value || <span className="text-xs text-muted-foreground">—</span>,
     },
     {
       key: 'accountName',
       title: 'Conta',
       dataIndex: 'accountName',
+      hiddenBelow: 'lg',
       render: (value: string | null | undefined, record: FinancialEntry) => (
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: record.accountColor ?? '#6b7280' }} />

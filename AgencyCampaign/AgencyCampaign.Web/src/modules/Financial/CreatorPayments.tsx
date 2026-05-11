@@ -153,6 +153,7 @@ export default function CreatorPaymentsPage() {
       title: 'NF',
       dataIndex: 'invoiceNumber',
       width: 90,
+      hiddenBelow: 'md',
       render: (value: string | undefined) =>
         value ? (
           <Badge variant="success">#{value}</Badge>
@@ -165,6 +166,7 @@ export default function CreatorPaymentsPage() {
       title: 'Agendado',
       dataIndex: 'scheduledFor',
       width: 130,
+      hiddenBelow: 'md',
       render: (value?: string) => (value ? new Date(value).toLocaleDateString('pt-BR') : '—'),
     },
     {
@@ -172,6 +174,7 @@ export default function CreatorPaymentsPage() {
       title: 'Pago em',
       dataIndex: 'paidAt',
       width: 130,
+      hiddenBelow: 'lg',
       render: (value?: string) => (value ? new Date(value).toLocaleDateString('pt-BR') : '—'),
     },
     {

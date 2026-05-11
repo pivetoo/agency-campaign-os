@@ -43,10 +43,10 @@ export default function Brands() {
   const columns: DataTableColumn<Brand>[] = [
     { key: 'logo', title: '', dataIndex: 'logoUrl', width: 56, render: renderLogoCell },
     { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
-    { key: 'tradeName', title: t('common.field.tradeName'), dataIndex: 'tradeName', render: (value?: string) => value || '-' },
-    { key: 'document', title: t('common.field.document'), dataIndex: 'document', render: (value?: string) => value || '-' },
-    { key: 'contactName', title: t('common.field.contact'), dataIndex: 'contactName' },
-    { key: 'contactEmail', title: t('common.field.email'), dataIndex: 'contactEmail' },
+    { key: 'tradeName', title: t('common.field.tradeName'), dataIndex: 'tradeName', hiddenBelow: 'sm', render: (value?: string) => value || '-' },
+    { key: 'document', title: t('common.field.document'), dataIndex: 'document', hiddenBelow: 'md', render: (value?: string) => value || '-' },
+    { key: 'contactName', title: t('common.field.contact'), dataIndex: 'contactName', hiddenBelow: 'lg' },
+    { key: 'contactEmail', title: t('common.field.email'), dataIndex: 'contactEmail', hiddenBelow: 'lg' },
     {
       key: 'isActive',
       title: t('common.field.status'),
