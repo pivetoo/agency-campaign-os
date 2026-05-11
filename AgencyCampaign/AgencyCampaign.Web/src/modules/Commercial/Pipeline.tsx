@@ -33,6 +33,7 @@ function getContrastColor(hexColor: string) {
 
 function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: OpportunityBoardItem; isDragging: boolean; onDragStart: () => void; onDragEnd: () => void }) {
   const navigate = useNavigate()
+  const { t } = useI18n()
 
   const slaClass =
     item.slaStatus === 'breached'
@@ -71,7 +72,7 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {item.overdueFollowUpsCount > 0 && (
-            <span className="rounded-full bg-destructive px-2 py-1 text-[11px] font-semibold text-destructive-foreground">Atraso</span>
+            <span className="rounded-full bg-destructive px-2 py-1 text-[11px] font-semibold text-destructive-foreground">{t('pipeline.card.overdueBadge')}</span>
           )}
           {item.slaStatus === 'breached' && item.daysInStage != null && item.stageSlaInDays != null && (
             <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[11px] font-semibold text-destructive">
@@ -94,27 +95,27 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
       <div className="mt-3 space-y-2 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <CalendarClock className="h-3.5 w-3.5" />
-          <span>{formatDate(item.expectedCloseAt)}</span>
+          <span>{formatDate(item.expectedCloseAt, t('pipeline.card.noForecast'))}</span>
         </div>
 
         <div className="flex items-center gap-2">
           <UserRound className="h-3.5 w-3.5" />
-          <span className="truncate">{item.commercialResponsibleName || 'Sem responsável'}</span>
+          <span className="truncate">{item.commercialResponsibleName || t('pipeline.card.noOwner')}</span>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
         <div className="rounded-lg bg-muted px-2 py-2">
           <div className="font-semibold text-foreground">{item.proposalCount}</div>
-          <div className="text-muted-foreground">Propostas</div>
+          <div className="text-muted-foreground">{t('pipeline.card.proposals')}</div>
         </div>
         <div className="rounded-lg bg-muted px-2 py-2">
           <div className="font-semibold text-foreground">{item.pendingFollowUpsCount}</div>
-          <div className="text-muted-foreground">Pendentes</div>
+          <div className="text-muted-foreground">{t('pipeline.card.pending')}</div>
         </div>
         <div className="rounded-lg bg-muted px-2 py-2">
           <div className={item.overdueFollowUpsCount > 0 ? 'font-semibold text-destructive' : 'font-semibold text-foreground'}>{item.overdueFollowUpsCount}</div>
-          <div className="text-muted-foreground">Atrasados</div>
+          <div className="text-muted-foreground">{t('pipeline.card.overdue')}</div>
         </div>
       </div>
     </button>
@@ -122,6 +123,7 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
 }
 
 export default function CommercialPipeline() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [board, setBoard] = useState<OpportunityBoardStage[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -211,19 +213,19 @@ export default function CommercialPipeline() {
 
   return (
     <PageLayout
-      title="Pipeline Comercial"
-      subtitle="Acompanhe leads e oportunidades por estágio, valor em funil e follow-ups críticos"
+      title={t('pipeline.title')}
+      subtitle={t('pipeline.subtitle')}
       actions={[
         {
           key: 'list-view',
-          label: 'Ver lista',
+          label: t('pipeline.action.viewList'),
           icon: <List className="h-4 w-4" />,
           variant: 'outline',
           onClick: () => navigate('/comercial/oportunidades'),
         },
         {
           key: 'new-lead',
-          label: 'Novo Lead',
+          label: t('pipeline.action.newLead'),
           icon: <Plus className="h-4 w-4" />,
           variant: 'secondary',
           onClick: () => setIsFormOpen(true),
@@ -235,25 +237,25 @@ export default function CommercialPipeline() {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border bg-card px-4 py-2.5 text-sm">
           <div className="flex items-center gap-2">
             <UserRound className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Oportunidades</span>
+            <span className="text-muted-foreground">{t('pipeline.summary.opportunities')}</span>
             <span className="font-semibold text-foreground">{summary.count}</span>
           </div>
           <div className="hidden h-4 w-px bg-border sm:block" />
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Valor em funil</span>
+            <span className="text-muted-foreground">{t('pipeline.summary.value')}</span>
             <span className="font-semibold text-foreground">{formatCurrency(summary.value)}</span>
           </div>
           <div className="hidden h-4 w-px bg-border sm:block" />
           <div className="flex items-center gap-2">
             <CalendarClock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Follow-ups pendentes</span>
+            <span className="text-muted-foreground">{t('pipeline.summary.pendingFollowUps')}</span>
             <span className="font-semibold text-foreground">{summary.pendingFollowUps}</span>
           </div>
           <div className="hidden h-4 w-px bg-border sm:block" />
           <div className="flex items-center gap-2">
             <AlertTriangle className={`h-4 w-4 ${summary.overdueFollowUps > 0 ? 'text-destructive' : 'text-muted-foreground'}`} />
-            <span className="text-muted-foreground">Atrasados</span>
+            <span className="text-muted-foreground">{t('pipeline.summary.overdue')}</span>
             <span className={`font-semibold ${summary.overdueFollowUps > 0 ? 'text-destructive' : 'text-foreground'}`}>{summary.overdueFollowUps}</span>
           </div>
         </div>
@@ -261,7 +263,7 @@ export default function CommercialPipeline() {
         {summary.overdueFollowUps > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             <AlertTriangle className="h-4 w-4" />
-            Existem follow-ups atrasados no pipeline. Priorize estes cards.
+            {t('pipeline.alert.overdue')}
           </div>
         )}
 
@@ -302,7 +304,7 @@ export default function CommercialPipeline() {
                   </div>
                   <div>
                     <div className="text-sm font-semibold">{formatCurrency(stage.estimatedValueTotal)}</div>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{stage.description || 'Estágio configurável do funil comercial.'}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{stage.description || t('pipeline.stage.defaultDescription')}</p>
                   </div>
                 </div>
 
@@ -322,7 +324,7 @@ export default function CommercialPipeline() {
 
                   {!loading && stage.items.length === 0 && (
                     <div className="rounded-xl border border-dashed border-border px-3 py-8 text-center text-xs text-muted-foreground">
-                      Nenhuma oportunidade neste estágio.
+                      {t('pipeline.stage.empty')}
                     </div>
                   )}
                 </div>
@@ -334,19 +336,19 @@ export default function CommercialPipeline() {
         {loading && (
           <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-6 text-sm text-muted-foreground">
             <RefreshCcw className="h-4 w-4 animate-spin" />
-            Carregando pipeline comercial...
+            {t('pipeline.loading')}
           </div>
         )}
 
         {!loading && summary.count === 0 && (
           <Card>
             <CardContent className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-              <div className="text-lg font-semibold">Nenhuma oportunidade no pipeline</div>
+              <div className="text-lg font-semibold">{t('pipeline.empty.title')}</div>
               <p className="max-w-lg text-sm text-muted-foreground">
-                Cadastre leads para visualizar o funil comercial por estágio, valor estimado e follow-ups.
+                {t('pipeline.empty.description')}
               </p>
               <Button type="button" onClick={() => setIsFormOpen(true)}>
-                Cadastrar lead
+                {t('pipeline.action.registerLead')}
               </Button>
             </CardContent>
           </Card>
