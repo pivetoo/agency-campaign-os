@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
+import { FileSpreadsheet, Download, Upload } from 'lucide-react'
 
 import { brandService, resolveBrandLogoUrl } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
@@ -59,11 +60,34 @@ export default function Brands() {
     },
   ]
 
+  const excelButton = (
+    <Dropdown>
+      <DropdownTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3.5 py-1.5 text-sm font-medium text-[#1d6f42] transition-colors hover:bg-[#1d6f42]/8 hover:border-[#1d6f42]/40">
+          <FileSpreadsheet size={15} className="text-[#1d6f42]" />
+          Excel
+        </button>
+      </DropdownTrigger>
+      <DropdownContent align="end" className="w-40">
+        <DropdownItem className="gap-2 cursor-pointer">
+          <Upload size={14} />
+          Importar
+        </DropdownItem>
+        <DropdownSeparator />
+        <DropdownItem className="gap-2 cursor-pointer">
+          <Download size={14} />
+          Exportar
+        </DropdownItem>
+      </DropdownContent>
+    </Dropdown>
+  )
+
   return (
     <>
       <PageLayout
         title={t('brands.title')}
         subtitle={t('brands.subtitle')}
+        actionsSlot={excelButton}
         onAdd={() => { setSelectedBrand(null); setIsFormOpen(true) }}
         onEdit={() => selectedBrand && setIsFormOpen(true)}
         onRefresh={() => void loadBrands()}

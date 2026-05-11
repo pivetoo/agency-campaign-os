@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Card, CardContent, PageLayout, useApi, useI18n } from 'archon-ui'
+import { Button, PageLayout, useApi, useI18n } from 'archon-ui'
 import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
