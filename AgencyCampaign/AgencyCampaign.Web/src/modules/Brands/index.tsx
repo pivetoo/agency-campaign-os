@@ -63,7 +63,7 @@ export default function Brands() {
   const excelButton = (
     <Dropdown>
       <DropdownTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3.5 py-1.5 text-sm font-medium text-[#1d6f42] transition-colors hover:bg-[#1d6f42]/8 hover:border-[#1d6f42]/40">
+        <button className="inline-flex items-center gap-1.5 rounded-lg border border-[#1d6f42]/50 px-3.5 py-1.5 text-sm font-medium text-[#1d6f42] transition-colors hover:bg-[#1d6f42]/8 hover:border-[#1d6f42]">
           <FileSpreadsheet size={15} className="text-[#1d6f42]" />
           Excel
         </button>
