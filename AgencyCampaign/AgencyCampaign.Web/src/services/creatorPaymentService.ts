@@ -45,7 +45,7 @@ export interface SchedulePaymentBatchRequest {
 
 export const creatorPaymentService = {
   async getById(id: number): Promise<CreatorPayment | null> {
-    const response = await httpClient.get<CreatorPayment>(`${BASE_URL}/${id}`)
+    const response = await httpClient.get<CreatorPayment>(`${BASE_URL}/GetById/${id}`)
     return response.data ?? null
   },
 

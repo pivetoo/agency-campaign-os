@@ -26,7 +26,7 @@ export const campaignDocumentTemplateService = {
   },
 
   async getById(id: number): Promise<CampaignDocumentTemplate | null> {
-    const response = await httpClient.get<CampaignDocumentTemplate>(`${BASE_URL}/${id}`)
+    const response = await httpClient.get<CampaignDocumentTemplate>(`${BASE_URL}/GetById/${id}`)
     return response.data ?? null
   },
 

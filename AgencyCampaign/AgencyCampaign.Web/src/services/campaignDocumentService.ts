@@ -53,7 +53,7 @@ export interface SendCampaignDocumentForSignatureRequest {
 
 export const campaignDocumentService = {
   async getById(id: number): Promise<CampaignDocument | null> {
-    const response = await httpClient.get<CampaignDocument>(`${BASE_URL}/${id}`)
+    const response = await httpClient.get<CampaignDocument>(`${BASE_URL}/GetById/${id}`)
     return response.data ?? null
   },
 
