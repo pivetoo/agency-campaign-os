@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Card, CardContent, useApi } from 'archon-ui'
+import { Button, Card, CardContent, useApi, useI18n } from 'archon-ui'
 import { ArrowRight, MessageSquare, Pencil, Send, Trash2 } from 'lucide-react'
 import {
   opportunityService,
@@ -24,20 +24,21 @@ function formatDateTime(value: string): string {
   return `${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
 }
 
-function relativeTime(value: string): string {
+function relativeTime(value: string, t: (key: string) => string): string {
   const date = new Date(value)
   const diffMs = Date.now() - date.getTime()
   const diffMin = Math.floor(diffMs / 60000)
-  if (diffMin < 1) return 'agora'
-  if (diffMin < 60) return `há ${diffMin}min`
+  if (diffMin < 1) return t('common.relative.now')
+  if (diffMin < 60) return t('common.relative.minutesAgo').replace('{0}', String(diffMin))
   const diffHours = Math.floor(diffMin / 60)
-  if (diffHours < 24) return `há ${diffHours}h`
+  if (diffHours < 24) return t('common.relative.hoursAgo').replace('{0}', String(diffHours))
   const diffDays = Math.floor(diffHours / 24)
-  if (diffDays < 30) return `há ${diffDays}d`
+  if (diffDays < 30) return t('common.relative.daysAgo').replace('{0}', String(diffDays))
   return date.toLocaleDateString('pt-BR')
 }
 
 export default function OpportunityActivityTab({ opportunityId, currentUserId }: OpportunityActivityTabProps) {
+  const { t } = useI18n()
   const [comments, setComments] = useState<OpportunityComment[]>([])
   const [stageHistory, setStageHistory] = useState<OpportunityStageHistoryItem[]>([])
   const [body, setBody] = useState('')
@@ -121,7 +122,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
   }
 
   const removeComment = async (id: number) => {
-    if (!window.confirm('Excluir este comentário?')) return
+    if (!window.confirm(t('opportunityActivity.confirm.delete'))) return
     const result = await runMutation(() => opportunityService.deleteComment(id))
     if (result !== null) {
       await reload()
@@ -137,12 +138,12 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <MessageSquare className="h-4 w-4 text-primary" />
-            Adicionar comentário
+            {t('opportunityActivity.title')}
           </div>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Escreva um comentário interno sobre a oportunidade..."
+            placeholder={t('opportunityActivity.placeholder')}
             rows={3}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             disabled={mutating}
@@ -154,18 +155,18 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
               onClick={() => void submitComment()}
               disabled={mutating || !body.trim()}
             >
-              Comentar
+              {t('opportunityActivity.submit')}
             </Button>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="text-sm font-semibold text-foreground">Linha do tempo</div>
+          <div className="text-sm font-semibold text-foreground">{t('opportunityActivity.timeline.title')}</div>
 
           {loading && timeline.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Carregando atividades...</div>
+            <div className="text-sm text-muted-foreground">{t('opportunityActivity.loading')}</div>
           ) : timeline.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Nenhuma atividade registrada ainda.</div>
+            <div className="text-sm text-muted-foreground">{t('opportunityActivity.empty')}</div>
           ) : (
             <ol className="relative ml-3 space-y-4 border-l border-border pl-6">
               {timeline.map((item) => (
@@ -183,7 +184,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
                   </span>
 
                   {item.kind === 'stage' ? (
-                    <StageEvent entry={item.data as OpportunityStageHistoryItem} />
+                    <StageEvent entry={item.data as OpportunityStageHistoryItem} t={t} />
                   ) : (
                     <CommentEvent
                       comment={item.data as OpportunityComment}
@@ -196,6 +197,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
                       onSaveEdit={saveEditing}
                       onChangeEdit={setEditingBody}
                       onDelete={removeComment}
+                      t={t}
                     />
                   )}
                 </li>
@@ -208,7 +210,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
   )
 }
 
-function StageEvent({ entry }: { entry: OpportunityStageHistoryItem }) {
+function StageEvent({ entry, t }: { entry: OpportunityStageHistoryItem; t: (key: string) => string }) {
   return (
     <div className="space-y-1">
       <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -224,10 +226,10 @@ function StageEvent({ entry }: { entry: OpportunityStageHistoryItem }) {
           )}
         </span>
         {entry.changedByUserName ? (
-          <span className="text-xs text-muted-foreground">por {entry.changedByUserName}</span>
+          <span className="text-xs text-muted-foreground">{t('common.byUser').replace('{0}', entry.changedByUserName)}</span>
         ) : null}
         <span className="text-xs text-muted-foreground" title={formatDateTime(entry.changedAt)}>
-          {relativeTime(entry.changedAt)}
+          {relativeTime(entry.changedAt, t)}
         </span>
       </div>
       {entry.reason ? (
@@ -248,20 +250,21 @@ interface CommentEventProps {
   onSaveEdit: () => void
   onChangeEdit: (value: string) => void
   onDelete: (id: number) => void
+  t: (key: string) => string
 }
 
 function CommentEvent(props: CommentEventProps) {
-  const { comment, isEditing, editingBody, canEdit, mutating, onStartEdit, onCancelEdit, onSaveEdit, onChangeEdit, onDelete } = props
+  const { comment, isEditing, editingBody, canEdit, mutating, onStartEdit, onCancelEdit, onSaveEdit, onChangeEdit, onDelete, t } = props
 
   return (
     <div className="space-y-1">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="font-medium text-foreground">{comment.authorName}</span>
         <span className="text-xs text-muted-foreground" title={formatDateTime(comment.createdAt)}>
-          {relativeTime(comment.createdAt)}
+          {relativeTime(comment.createdAt, t)}
         </span>
         {comment.updatedAt && comment.updatedAt !== comment.createdAt ? (
-          <span className="text-xs italic text-muted-foreground">(editado)</span>
+          <span className="text-xs italic text-muted-foreground">{t('opportunityActivity.editedBadge')}</span>
         ) : null}
         {canEdit && !isEditing ? (
           <span className="ml-auto flex gap-1">
@@ -293,10 +296,10 @@ function CommentEvent(props: CommentEventProps) {
           />
           <div className="flex gap-2">
             <Button size="sm" onClick={onSaveEdit} disabled={mutating || !editingBody.trim()}>
-              Salvar
+              {t('common.action.save')}
             </Button>
             <Button size="sm" variant="outline" onClick={onCancelEdit} disabled={mutating}>
-              Cancelar
+              {t('common.action.cancel')}
             </Button>
           </div>
         </div>

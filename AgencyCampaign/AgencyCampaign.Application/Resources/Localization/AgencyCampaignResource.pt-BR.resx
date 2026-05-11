@@ -370,4 +370,19 @@
   <data name="proposalShare.versions.totalLabel" xml:space="preserve"><value>Total</value></data>
   <data name="proposalShare.versions.byUser" xml:space="preserve"><value>por {0}</value></data>
   <data name="proposalShare.versions.validUntil" xml:space="preserve"><value>válida até {0}</value></data>
+  <data name="common.action.save" xml:space="preserve"><value>Salvar</value></data>
+  <data name="common.action.cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="common.byUser" xml:space="preserve"><value>por {0}</value></data>
+  <data name="common.relative.now" xml:space="preserve"><value>agora</value></data>
+  <data name="common.relative.minutesAgo" xml:space="preserve"><value>há {0}min</value></data>
+  <data name="common.relative.hoursAgo" xml:space="preserve"><value>há {0}h</value></data>
+  <data name="common.relative.daysAgo" xml:space="preserve"><value>há {0}d</value></data>
+  <data name="opportunityActivity.title" xml:space="preserve"><value>Adicionar comentário</value></data>
+  <data name="opportunityActivity.placeholder" xml:space="preserve"><value>Escreva um comentário interno sobre a oportunidade...</value></data>
+  <data name="opportunityActivity.submit" xml:space="preserve"><value>Comentar</value></data>
+  <data name="opportunityActivity.timeline.title" xml:space="preserve"><value>Linha do tempo</value></data>
+  <data name="opportunityActivity.loading" xml:space="preserve"><value>Carregando atividades...</value></data>
+  <data name="opportunityActivity.empty" xml:space="preserve"><value>Nenhuma atividade registrada ainda.</value></data>
+  <data name="opportunityActivity.editedBadge" xml:space="preserve"><value>(editado)</value></data>
+  <data name="opportunityActivity.confirm.delete" xml:space="preserve"><value>Excluir este comentário?</value></data>
 </root>
