@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AppLayout, useAuth, useAppNavigation, AuthService, usePermissions, useI18n } from 'archon-ui'
 import type { BreadcrumbItem, NotificationItem } from 'archon-ui'
 import { notificationService } from '../services/notificationService'
+import { profileApiService } from '../services/profileApiService'
 import type { Notification } from '../types/notification'
 import { TourProvider, useTour } from '../components/tour/TourContext'
 import ProductTour from '../components/tour/ProductTour'
@@ -250,8 +251,11 @@ export default function AgencyCampaignLayout() {
         user={{
           name: authUser?.name ?? '',
           email: authUser?.email ?? '',
+          username: authUser?.username,
           role: contract?.roleName,
+          avatarUrl: authUser?.avatarUrl,
         }}
+        onAvatarUpload={profileApiService.uploadAvatar}
         onLogout={handleLogout}
         menuGroups={menuGroups}
         modules={modules}
