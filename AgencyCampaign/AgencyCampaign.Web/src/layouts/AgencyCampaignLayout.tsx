@@ -245,7 +245,8 @@ export default function AgencyCampaignLayout() {
       <AppLayout
         title={contract?.systemApplicationName ?? 'Kanvas'}
         logo={sidebarLogo}
-        subtitle={contract?.companyName}
+        subtitle="by Mainstay"
+        navbarCompanyName={contract?.companyName}
         user={{
           name: authUser?.name ?? '',
           email: authUser?.email ?? '',
