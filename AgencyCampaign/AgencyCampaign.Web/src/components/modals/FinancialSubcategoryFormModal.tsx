@@ -10,6 +10,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { financialSubcategoryService } from '../../services/financialSubcategoryService'
 import { financialEntryCategoryLabels } from '../../types/financialEntry'
@@ -25,6 +26,7 @@ interface Props {
 const macroOptions = Object.entries(financialEntryCategoryLabels).map(([value, label]) => ({ value, label }))
 
 export default function FinancialSubcategoryFormModal({ open, onOpenChange, subcategory, onSuccess }: Props) {
+  const { t } = useI18n()
   const isEditing = !!subcategory
   const [name, setName] = useState('')
   const [macroCategory, setMacroCategory] = useState<number>(1)
@@ -65,16 +67,16 @@ export default function FinancialSubcategoryFormModal({ open, onOpenChange, subc
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="form">
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar subcategoria' : 'Nova subcategoria financeira'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.financialSubcategory.title.edit') : t('modal.financialSubcategory.title.new')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Nome</label>
+              <label className="text-sm font-medium">{t('common.field.name')}</label>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Patrocínio anual, Software SaaS..." required />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Categoria macro</label>
+              <label className="text-sm font-medium">{t('modal.financialSubcategory.field.macroCategory')}</label>
               <SearchableSelect
                 value={String(macroCategory)}
                 onValueChange={(value) => setMacroCategory(Number(value))}
@@ -82,19 +84,19 @@ export default function FinancialSubcategoryFormModal({ open, onOpenChange, subc
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Cor</label>
+              <label className="text-sm font-medium">{t('common.field.color')}</label>
               <Input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
             </div>
           </div>
           {isEditing && (
             <label className="flex items-center gap-2 text-sm">
               <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-              <span>Ativa</span>
+              <span>{t('common.status.activeFemale')}</span>
             </label>
           )}
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !isValid}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !isValid}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

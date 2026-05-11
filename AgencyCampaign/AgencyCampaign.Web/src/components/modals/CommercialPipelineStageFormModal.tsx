@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useI18n } from 'archon-ui'
 import { commercialPipelineStageService, type CreateCommercialPipelineStageRequest, type UpdateCommercialPipelineStageRequest } from '../../services/commercialPipelineStageService'
 import type { CommercialPipelineStage } from '../../types/commercialPipelineStage'
 
@@ -23,6 +23,7 @@ const initialFormData: CreateCommercialPipelineStageRequest = {
 }
 
 export default function CommercialPipelineStageFormModal({ open, onOpenChange, stage, onSuccess }: CommercialPipelineStageFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!stage
   const [formData, setFormData] = useState<CreateCommercialPipelineStageRequest>(initialFormData)
   const [isActive, setIsActive] = useState(true)
@@ -71,33 +72,33 @@ export default function CommercialPipelineStageFormModal({ open, onOpenChange, s
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '860px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar estágio do pipeline' : 'Novo estágio do pipeline'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.pipelineStage.title.edit') : t('modal.pipelineStage.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nome</label>
+              <label className="text-sm font-medium">{t('common.field.name')}</label>
               <Input value={formData.name} onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Ordem</label>
+              <label className="text-sm font-medium">{t('common.field.order')}</label>
               <Input type="number" value={formData.displayOrder} onChange={(event) => setFormData((prev) => ({ ...prev, displayOrder: Number(event.target.value) }))} />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Descrição</label>
+              <label className="text-sm font-medium">{t('common.field.description')}</label>
               <Input value={formData.description || ''} onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Cor</label>
+              <label className="text-sm font-medium">{t('common.field.color')}</label>
               <Input type="color" value={formData.color} onChange={(event) => setFormData((prev) => ({ ...prev, color: event.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Comportamento final</label>
+              <label className="text-sm font-medium">{t('modal.pipelineStage.field.finalBehavior')}</label>
               <Select value={String(formData.finalBehavior)} onValueChange={(value) => setFormData((prev) => ({ ...prev, finalBehavior: Number(value), isFinal: value !== '0' ? true : prev.isFinal }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -109,7 +110,7 @@ export default function CommercialPipelineStageFormModal({ open, onOpenChange, s
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Probabilidade padrão (%)</label>
+              <label className="text-sm font-medium">{t('modal.pipelineStage.field.defaultProbability')}</label>
               <Input
                 type="number"
                 min={0}
@@ -126,7 +127,7 @@ export default function CommercialPipelineStageFormModal({ open, onOpenChange, s
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">SLA do estágio (dias)</label>
+              <label className="text-sm font-medium">{t('modal.pipelineStage.field.slaInDays')}</label>
               <Input
                 type="number"
                 min={1}
@@ -144,12 +145,12 @@ export default function CommercialPipelineStageFormModal({ open, onOpenChange, s
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isInitial} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isInitial: !!checked }))} /><span>Estágio inicial</span></label>
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isFinal} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isFinal: !!checked, finalBehavior: !checked ? 0 : prev.finalBehavior }))} /><span>Estágio final</span></label>
-            {isEditing && <label className="flex items-center gap-2 text-sm"><Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} /><span>Ativo</span></label>}
+            {isEditing && <label className="flex items-center gap-2 text-sm"><Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} /><span>{t('common.status.active')}</span></label>}
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !formData.name}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !formData.name}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

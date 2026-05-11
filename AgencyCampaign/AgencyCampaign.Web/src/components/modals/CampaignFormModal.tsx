@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useI18n } from 'archon-ui'
 import { campaignService, type CreateCampaignRequest, type UpdateCampaignRequest } from '../../services/campaignService'
 import { brandService } from '../../services/brandService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
@@ -27,17 +27,18 @@ const initialFormData: CreateCampaignRequest = {
   status: 1,
 }
 
-const campaignStatusOptions = [
-  { value: 1, label: 'Rascunho' },
-  { value: 2, label: 'Planejada' },
-  { value: 3, label: 'Em execução' },
-  { value: 4, label: 'Em revisão' },
-  { value: 5, label: 'Concluída' },
-  { value: 6, label: 'Cancelada' },
-]
-
 export default function CampaignFormModal({ open, onOpenChange, campaign, onSuccess }: CampaignFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!campaign
+
+  const campaignStatusOptions = [
+    { value: 1, label: t('modal.campaign.status.draft') },
+    { value: 2, label: t('modal.campaign.status.planned') },
+    { value: 3, label: t('modal.campaign.status.executing') },
+    { value: 4, label: t('modal.campaign.status.inReview') },
+    { value: 5, label: t('modal.campaign.status.completed') },
+    { value: 6, label: t('modal.campaign.status.cancelled') },
+  ]
   const [formData, setFormData] = useState<CreateCampaignRequest>(initialFormData)
   const [isActive, setIsActive] = useState(true)
   const [brands, setBrands] = useState<Brand[]>([])
@@ -115,29 +116,29 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '1180px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar campanha' : 'Nova campanha'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.campaign.title.edit') : t('modal.campaign.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Marca</label>
+              <label className="text-sm font-medium">{t('common.field.brand')}</label>
               <SearchableSelect
                 value={formData.brandId ? String(formData.brandId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, brandId: Number(value) }))}
                 options={brands.map((brand) => ({ value: String(brand.id), label: brand.tradeName || brand.name }))}
-                placeholder="Selecione uma marca"
-                searchPlaceholder="Buscar marca"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nome</label>
+              <label className="text-sm font-medium">{t('common.field.name')}</label>
               <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Status</label>
+              <label className="text-sm font-medium">{t('common.field.status')}</label>
               <Select value={String(formData.status)} onValueChange={(value) => setFormData((prev) => ({ ...prev, status: Number(value) }))}>
                 <SelectTrigger>
                   <SelectValue />
@@ -151,7 +152,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Responsável comercial</label>
+              <label className="text-sm font-medium">{t('modal.campaign.field.responsible')}</label>
               <SearchableSelect
                 value={formData.responsibleUserId ? String(formData.responsibleUserId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, responsibleUserId: value ? Number(value) : undefined }))}
@@ -159,43 +160,43 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
                   { value: '', label: 'Nenhum' },
                   ...responsibles.filter((r) => r.isActive).map((responsible) => ({ value: String(responsible.id), label: responsible.name })),
                 ]}
-                placeholder="Selecione um responsável"
-                searchPlaceholder="Buscar responsável"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Descrição</label>
+              <label className="text-sm font-medium">{t('common.field.description')}</label>
               <Input value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Objetivo</label>
+              <label className="text-sm font-medium">{t('common.field.objective')}</label>
               <Input value={formData.objective || ''} onChange={(e) => setFormData((prev) => ({ ...prev, objective: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Briefing</label>
+              <label className="text-sm font-medium">{t('common.field.briefing')}</label>
               <Input value={formData.briefing || ''} onChange={(e) => setFormData((prev) => ({ ...prev, briefing: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Budget</label>
+              <label className="text-sm font-medium">{t('common.field.budget')}</label>
               <Input type="number" value={formData.budget} onChange={(e) => setFormData((prev) => ({ ...prev, budget: Number(e.target.value) }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Início</label>
+              <label className="text-sm font-medium">{t('common.field.startDate')}</label>
               <Input type="date" value={formData.startsAt} onChange={(e) => setFormData((prev) => ({ ...prev, startsAt: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Fim</label>
+              <label className="text-sm font-medium">{t('common.field.endDate')}</label>
               <Input type="date" value={formData.endsAt || ''} onChange={(e) => setFormData((prev) => ({ ...prev, endsAt: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Observações</label>
+              <label className="text-sm font-medium">{t('common.field.notes')}</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
@@ -205,14 +206,14 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
               {isEditing && (
                 <div className="flex items-center gap-2">
                   <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-                  <span className="text-sm">Ativa</span>
+                  <span className="text-sm">{t('common.status.activeFemale')}</span>
                 </div>
               )}
             </div>
 
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-              <Button type="submit" disabled={loading || !formData.brandId}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+              <Button type="submit" disabled={loading || !formData.brandId}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
             </ModalFooter>
           </div>
         </form>

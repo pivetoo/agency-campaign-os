@@ -650,4 +650,273 @@
   <data name="public.proposal.field.qty" xml:space="preserve"><value>Qtd</value></data>
   <data name="public.proposal.field.unitPrice" xml:space="preserve"><value>Unitário</value></data>
   <data name="public.proposal.field.total" xml:space="preserve"><value>Total</value></data>
+  <data name="common.action.saving" xml:space="preserve"><value>Salvando...</value></data>
+  <data name="common.action.confirm" xml:space="preserve"><value>Confirmar</value></data>
+  <data name="common.action.close" xml:space="preserve"><value>Fechar</value></data>
+  <data name="common.action.apply" xml:space="preserve"><value>Aplicar</value></data>
+  <data name="common.action.applying" xml:space="preserve"><value>Aplicando...</value></data>
+  <data name="common.action.send" xml:space="preserve"><value>Enviar</value></data>
+  <data name="common.action.sending" xml:space="preserve"><value>Enviando...</value></data>
+  <data name="common.action.attach" xml:space="preserve"><value>Anexar</value></data>
+  <data name="common.action.generate" xml:space="preserve"><value>Gerar</value></data>
+  <data name="common.action.generating" xml:space="preserve"><value>Gerando...</value></data>
+  <data name="common.action.copy" xml:space="preserve"><value>Copiar</value></data>
+  <data name="common.action.request" xml:space="preserve"><value>Solicitar</value></data>
+  <data name="common.action.testing" xml:space="preserve"><value>Testando...</value></data>
+  <data name="common.action.test" xml:space="preserve"><value>Executar teste</value></data>
+  <data name="common.action.retest" xml:space="preserve"><value>Testar de novo</value></data>
+  <data name="common.action.insertVariable" xml:space="preserve"><value>Inserir variável</value></data>
+  <data name="common.field.description" xml:space="preserve"><value>Descrição</value></data>
+  <data name="common.field.color" xml:space="preserve"><value>Cor</value></data>
+  <data name="common.field.title" xml:space="preserve"><value>Título</value></data>
+  <data name="common.field.subject" xml:space="preserve"><value>Assunto</value></data>
+  <data name="common.field.brand" xml:space="preserve"><value>Marca</value></data>
+  <data name="common.field.order" xml:space="preserve"><value>Ordem</value></data>
+  <data name="common.field.category" xml:space="preserve"><value>Categoria</value></data>
+  <data name="common.field.platform" xml:space="preserve"><value>Plataforma</value></data>
+  <data name="common.field.logo" xml:space="preserve"><value>Logo</value></data>
+  <data name="common.field.photo" xml:space="preserve"><value>Foto</value></data>
+  <data name="common.field.budget" xml:space="preserve"><value>Budget</value></data>
+  <data name="common.field.briefing" xml:space="preserve"><value>Briefing</value></data>
+  <data name="common.field.objective" xml:space="preserve"><value>Objetivo</value></data>
+  <data name="common.field.value" xml:space="preserve"><value>Valor</value></data>
+  <data name="common.field.dueDate" xml:space="preserve"><value>Prazo</value></data>
+  <data name="common.field.amountBrl" xml:space="preserve"><value>Valor (R$)</value></data>
+  <data name="common.field.origin" xml:space="preserve"><value>Origem</value></data>
+  <data name="common.field.tags" xml:space="preserve"><value>Tags</value></data>
+  <data name="common.field.message" xml:space="preserve"><value>Mensagem</value></data>
+  <data name="common.field.paidAt" xml:space="preserve"><value>Pago em</value></data>
+  <data name="common.field.date" xml:space="preserve"><value>Data</value></data>
+  <data name="common.placeholder.select" xml:space="preserve"><value>Selecione</value></data>
+  <data name="common.placeholder.search" xml:space="preserve"><value>Buscar</value></data>
+  <data name="common.status.none" xml:space="preserve"><value>Nenhum</value></data>
+  <data name="common.status.noneF" xml:space="preserve"><value>Nenhuma</value></data>
+  <data name="modal.automation.title.edit" xml:space="preserve"><value>Editar automação</value></data>
+  <data name="modal.automation.title.new" xml:space="preserve"><value>Nova automação</value></data>
+  <data name="modal.automation.field.triggerOn" xml:space="preserve"><value>Disparar quando</value></data>
+  <data name="modal.automation.field.integrationCategory" xml:space="preserve"><value>Categoria de integração</value></data>
+  <data name="modal.automation.field.integration" xml:space="preserve"><value>Integração</value></data>
+  <data name="modal.automation.field.connectedAccount" xml:space="preserve"><value>Conta conectada</value></data>
+  <data name="modal.automation.field.action" xml:space="preserve"><value>Ação a executar</value></data>
+  <data name="modal.automation.field.isActive" xml:space="preserve"><value>Automação ativa</value></data>
+  <data name="modal.automation.placeholder.event" xml:space="preserve"><value>Selecione um evento</value></data>
+  <data name="modal.automation.placeholder.searchEvent" xml:space="preserve"><value>Buscar evento</value></data>
+  <data name="modal.automation.placeholder.noAccounts" xml:space="preserve"><value>Sem contas conectadas nesta categoria</value></data>
+  <data name="modal.automation.placeholder.searchIntegration" xml:space="preserve"><value>Buscar integração</value></data>
+  <data name="modal.automation.placeholder.searchAccount" xml:space="preserve"><value>Buscar conta</value></data>
+  <data name="modal.automation.placeholder.searchAction" xml:space="preserve"><value>Buscar ação</value></data>
+  <data name="modal.automation.hint.connectFirst" xml:space="preserve"><value>Conecte uma conta primeiro em Configuração → Integrações.</value></data>
+  <data name="modal.applyProposalTemplate.title" xml:space="preserve"><value>Aplicar template</value></data>
+  <data name="modal.applyProposalTemplate.description" xml:space="preserve"><value>Os itens do template serão adicionados à proposta. Itens existentes não são removidos.</value></data>
+  <data name="modal.applyProposalTemplate.placeholder.noTemplate" xml:space="preserve"><value>Nenhum template disponível</value></data>
+  <data name="modal.applyProposalTemplate.placeholder.selectTemplate" xml:space="preserve"><value>Selecione um template</value></data>
+  <data name="modal.brand.title.edit" xml:space="preserve"><value>Editar marca</value></data>
+  <data name="modal.brand.title.new" xml:space="preserve"><value>Nova marca</value></data>
+  <data name="modal.brand.action.changeLogo" xml:space="preserve"><value>Trocar logo</value></data>
+  <data name="modal.brand.action.uploadLogo" xml:space="preserve"><value>Enviar logo</value></data>
+  <data name="modal.brand.photo.hint" xml:space="preserve"><value>PNG, JPG ou WEBP. Máximo 2MB.</value></data>
+  <data name="modal.campaignCreator.title.edit" xml:space="preserve"><value>Editar influenciador da campanha</value></data>
+  <data name="modal.campaignCreator.title.new" xml:space="preserve"><value>Adicionar influenciador à campanha</value></data>
+  <data name="modal.campaignCreator.field.agreedAmount" xml:space="preserve"><value>Valor combinado</value></data>
+  <data name="modal.campaignCreator.field.agencyFeePercent" xml:space="preserve"><value>Fee da agência (%)</value></data>
+  <data name="modal.campaignCreator.field.agencyFeeCalc" xml:space="preserve"><value>Fee calculado</value></data>
+  <data name="modal.campaignCreatorStatus.title.edit" xml:space="preserve"><value>Editar status de influenciador</value></data>
+  <data name="modal.campaignCreatorStatus.title.new" xml:space="preserve"><value>Novo status de influenciador</value></data>
+  <data name="modal.campaignCreatorStatus.field.finalBehavior" xml:space="preserve"><value>Comportamento final</value></data>
+  <data name="modal.deliverable.title.edit" xml:space="preserve"><value>Editar entrega</value></data>
+  <data name="modal.deliverable.title.new" xml:space="preserve"><value>Nova entrega</value></data>
+  <data name="modal.deliverable.field.campaignCreator" xml:space="preserve"><value>Influenciador da campanha</value></data>
+  <data name="modal.deliverable.field.kind" xml:space="preserve"><value>Tipo de entrega</value></data>
+  <data name="modal.deliverable.field.publishedUrl" xml:space="preserve"><value>URL publicada</value></data>
+  <data name="modal.deliverable.field.evidence" xml:space="preserve"><value>Evidência</value></data>
+  <data name="modal.deliverable.field.grossAmount" xml:space="preserve"><value>Valor bruto</value></data>
+  <data name="modal.deliverable.field.creatorAmount" xml:space="preserve"><value>Repasse influenciador</value></data>
+  <data name="modal.deliverable.field.agencyFee" xml:space="preserve"><value>Fee agência</value></data>
+  <data name="modal.document.title.details" xml:space="preserve"><value>Detalhes do documento</value></data>
+  <data name="modal.document.title.edit" xml:space="preserve"><value>Editar documento</value></data>
+  <data name="modal.document.title.new" xml:space="preserve"><value>Novo documento</value></data>
+  <data name="modal.document.title.sendEmail" xml:space="preserve"><value>Enviar documento por e-mail</value></data>
+  <data name="modal.document.title.generate" xml:space="preserve"><value>Gerar documento a partir de template</value></data>
+  <data name="modal.document.title.sendForSignature" xml:space="preserve"><value>Enviar para assinatura digital</value></data>
+  <data name="modal.document.tab.content" xml:space="preserve"><value>Conteúdo</value></data>
+  <data name="modal.document.tab.signers" xml:space="preserve"><value>Signatários</value></data>
+  <data name="modal.document.tab.history" xml:space="preserve"><value>Histórico</value></data>
+  <data name="modal.document.noSigners" xml:space="preserve"><value>Nenhum signatário registrado ainda.</value></data>
+  <data name="modal.document.noEvents" xml:space="preserve"><value>Sem eventos registrados.</value></data>
+  <data name="modal.document.noTemplate" xml:space="preserve"><value>Este documento não foi gerado a partir de um template. Use a URL acima para acessar o conteúdo original.</value></data>
+  <data name="modal.document.field.recipient" xml:space="preserve"><value>Destinatário</value></data>
+  <data name="modal.document.field.documentUrl" xml:space="preserve"><value>URL do documento</value></data>
+  <data name="modal.document.field.campaignCreator" xml:space="preserve"><value>Influenciador da campanha</value></data>
+  <data name="modal.document.field.documentType" xml:space="preserve"><value>Tipo de documento</value></data>
+  <data name="modal.document.field.documentTitle" xml:space="preserve"><value>Título do documento</value></data>
+  <data name="modal.document.field.sendPipeline" xml:space="preserve"><value>Pipeline de envio</value></data>
+  <data name="modal.document.field.signers" xml:space="preserve"><value>Signatários</value></data>
+  <data name="modal.document.field.linkedCreator" xml:space="preserve"><value>Creator vinculado</value></data>
+  <data name="modal.document.action.sendEmail" xml:space="preserve"><value>Enviar e-mail</value></data>
+  <data name="modal.document.action.generate" xml:space="preserve"><value>Gerar documento</value></data>
+  <data name="modal.document.action.sendForSignature" xml:space="preserve"><value>Enviar para assinatura</value></data>
+  <data name="modal.document.placeholder.noTemplates" xml:space="preserve"><value>Sem templates ativos para este tipo</value></data>
+  <data name="modal.document.placeholder.noIntegration" xml:space="preserve"><value>Nenhuma integração nessa categoria</value></data>
+  <data name="modal.document.placeholder.configureConnector" xml:space="preserve"><value>Configure um conector primeiro</value></data>
+  <data name="modal.document.placeholder.noPipelines" xml:space="preserve"><value>Sem pipelines disponíveis</value></data>
+  <data name="modal.document.addSigner" xml:space="preserve"><value>Adicione ao menos um signatário.</value></data>
+  <data name="modal.documentTemplate.title.edit" xml:space="preserve"><value>Editar template de documento</value></data>
+  <data name="modal.documentTemplate.title.new" xml:space="preserve"><value>Novo template de documento</value></data>
+  <data name="modal.documentTemplate.field.body" xml:space="preserve"><value>Corpo do contrato</value></data>
+  <data name="modal.pipelineStage.title.edit" xml:space="preserve"><value>Editar estágio do pipeline</value></data>
+  <data name="modal.pipelineStage.title.new" xml:space="preserve"><value>Novo estágio do pipeline</value></data>
+  <data name="modal.pipelineStage.field.finalBehavior" xml:space="preserve"><value>Comportamento final</value></data>
+  <data name="modal.pipelineStage.field.defaultProbability" xml:space="preserve"><value>Probabilidade padrão (%)</value></data>
+  <data name="modal.pipelineStage.field.slaInDays" xml:space="preserve"><value>SLA do estágio (dias)</value></data>
+  <data name="modal.connector.title.edit" xml:space="preserve"><value>Editar {0}</value></data>
+  <data name="modal.connector.title.test" xml:space="preserve"><value>Testar {0}</value></data>
+  <data name="modal.connector.field.accountAlias" xml:space="preserve"><value>Apelido da conta</value></data>
+  <data name="modal.connector.action.copyWebhook" xml:space="preserve"><value>Copiar</value></data>
+  <data name="modal.connector.placeholder.accountAlias" xml:space="preserve"><value>Ex.: Conta principal</value></data>
+  <data name="modal.creatorTokens.title" xml:space="preserve"><value>Links de acesso ao portal — {0}</value></data>
+  <data name="modal.creator.title.edit" xml:space="preserve"><value>Editar influenciador</value></data>
+  <data name="modal.creator.title.new" xml:space="preserve"><value>Novo influenciador</value></data>
+  <data name="modal.creator.field.stageName" xml:space="preserve"><value>Nome artístico</value></data>
+  <data name="modal.creator.field.pixKey" xml:space="preserve"><value>Chave PIX</value></data>
+  <data name="modal.creator.field.pixKeyType" xml:space="preserve"><value>Tipo da chave PIX</value></data>
+  <data name="modal.creator.field.primaryNiche" xml:space="preserve"><value>Nicho principal</value></data>
+  <data name="modal.creator.field.agencyFeePercent" xml:space="preserve"><value>Fee padrão da agência (%)</value></data>
+  <data name="modal.creator.field.notInformed" xml:space="preserve"><value>Não informado</value></data>
+  <data name="modal.creator.action.changePhoto" xml:space="preserve"><value>Trocar foto</value></data>
+  <data name="modal.creator.action.uploadPhoto" xml:space="preserve"><value>Enviar foto</value></data>
+  <data name="modal.creator.photo.hint" xml:space="preserve"><value>PNG, JPG ou WEBP. Máximo 2MB.</value></data>
+  <data name="modal.creator.photo.error.invalidFormat" xml:space="preserve"><value>Formato invalido. Use PNG, JPG ou WEBP.</value></data>
+  <data name="modal.creator.photo.error.tooLarge" xml:space="preserve"><value>Arquivo excede o limite de 2MB.</value></data>
+  <data name="modal.creatorPayment.title.details" xml:space="preserve"><value>Detalhes do pagamento</value></data>
+  <data name="modal.creatorPayment.title.edit" xml:space="preserve"><value>Editar pagamento</value></data>
+  <data name="modal.creatorPayment.title.new" xml:space="preserve"><value>Novo pagamento ao influenciador</value></data>
+  <data name="modal.creatorPayment.title.attachInvoice" xml:space="preserve"><value>Anexar nota fiscal</value></data>
+  <data name="modal.creatorPayment.title.markPaid" xml:space="preserve"><value>Marcar como pago</value></data>
+  <data name="modal.creatorPayment.title.scheduleBatch" xml:space="preserve"><value>Agendar lote de pagamentos</value></data>
+  <data name="modal.creatorPayment.tab.data" xml:space="preserve"><value>Dados</value></data>
+  <data name="modal.creatorPayment.tab.invoice" xml:space="preserve"><value>Nota fiscal</value></data>
+  <data name="modal.creatorPayment.tab.history" xml:space="preserve"><value>Histórico</value></data>
+  <data name="modal.creatorPayment.field.campaignCreator" xml:space="preserve"><value>Influenciador vinculado à campanha</value></data>
+  <data name="modal.creatorPayment.field.grossAmount" xml:space="preserve"><value>Valor bruto (R$)</value></data>
+  <data name="modal.creatorPayment.field.discounts" xml:space="preserve"><value>Descontos (R$)</value></data>
+  <data name="modal.creatorPayment.field.netAmount" xml:space="preserve"><value>Valor líquido</value></data>
+  <data name="modal.creatorPayment.field.method" xml:space="preserve"><value>Método</value></data>
+  <data name="modal.creatorPayment.field.invoiceNumber" xml:space="preserve"><value>Número da NF</value></data>
+  <data name="modal.creatorPayment.field.issuedAt" xml:space="preserve"><value>Data de emissão</value></data>
+  <data name="modal.creatorPayment.field.invoiceUrl" xml:space="preserve"><value>URL do PDF da NF</value></data>
+  <data name="modal.creatorPayment.field.paidAt" xml:space="preserve"><value>Data e hora do pagamento</value></data>
+  <data name="modal.creatorPayment.field.provider" xml:space="preserve"><value>Provider (opcional)</value></data>
+  <data name="modal.creatorPayment.field.transactionId" xml:space="preserve"><value>ID da transação (opcional)</value></data>
+  <data name="modal.creatorPayment.field.scheduledFor" xml:space="preserve"><value>Data prevista de pagamento (opcional)</value></data>
+  <data name="modal.creatorPayment.action.confirmPayment" xml:space="preserve"><value>Confirmar pagamento</value></data>
+  <data name="modal.creatorPayment.action.attachInvoice" xml:space="preserve"><value>Anexar</value></data>
+  <data name="modal.creatorPayment.action.sendBatch" xml:space="preserve"><value>Enviar {0} pagamento(s)</value></data>
+  <data name="modal.creatorPayment.noEvents" xml:space="preserve"><value>Sem eventos registrados.</value></data>
+  <data name="modal.socialHandle.title.edit" xml:space="preserve"><value>Editar handle social</value></data>
+  <data name="modal.socialHandle.title.new" xml:space="preserve"><value>Novo handle social</value></data>
+  <data name="modal.socialHandle.field.handle" xml:space="preserve"><value>Handle (@)</value></data>
+  <data name="modal.socialHandle.field.profileUrl" xml:space="preserve"><value>URL do perfil</value></data>
+  <data name="modal.socialHandle.field.followers" xml:space="preserve"><value>Seguidores</value></data>
+  <data name="modal.socialHandle.field.engagement" xml:space="preserve"><value>Engajamento (%)</value></data>
+  <data name="modal.socialHandle.field.isPrimary" xml:space="preserve"><value>Conta principal</value></data>
+  <data name="modal.deliverableKind.title.edit" xml:space="preserve"><value>Editar tipo de entrega</value></data>
+  <data name="modal.deliverableKind.title.new" xml:space="preserve"><value>Novo tipo de entrega</value></data>
+  <data name="modal.emailTemplate.title.edit" xml:space="preserve"><value>Editar template de e-mail</value></data>
+  <data name="modal.emailTemplate.title.new" xml:space="preserve"><value>Novo template de e-mail</value></data>
+  <data name="modal.emailTemplate.field.event" xml:space="preserve"><value>Evento</value></data>
+  <data name="modal.emailTemplate.field.body" xml:space="preserve"><value>Corpo (HTML)</value></data>
+  <data name="modal.emailTemplate.placeholder.noVariables" xml:space="preserve"><value>Nenhuma variável disponível para este evento.</value></data>
+  <data name="modal.financialAccount.title.edit" xml:space="preserve"><value>Editar conta</value></data>
+  <data name="modal.financialAccount.title.new" xml:space="preserve"><value>Nova conta financeira</value></data>
+  <data name="modal.financialAccount.field.bank" xml:space="preserve"><value>Banco</value></data>
+  <data name="modal.financialAccount.field.initialBalance" xml:space="preserve"><value>Saldo inicial (R$)</value></data>
+  <data name="modal.financialAccount.field.agency" xml:space="preserve"><value>Agência</value></data>
+  <data name="modal.financialAccount.field.number" xml:space="preserve"><value>Conta</value></data>
+  <data name="modal.financialEntry.title.edit" xml:space="preserve"><value>Editar lançamento</value></data>
+  <data name="modal.financialEntry.title.new" xml:space="preserve"><value>Novo lançamento</value></data>
+  <data name="modal.financialEntry.field.account" xml:space="preserve"><value>Conta</value></data>
+  <data name="modal.financialEntry.field.counterparty" xml:space="preserve"><value>Contraparte</value></data>
+  <data name="modal.financialEntry.field.campaign" xml:space="preserve"><value>Campanha (opcional)</value></data>
+  <data name="modal.financialEntry.field.deliverable" xml:space="preserve"><value>Entrega vinculada</value></data>
+  <data name="modal.financialEntry.field.occurrence" xml:space="preserve"><value>Ocorrência</value></data>
+  <data name="modal.financialEntry.field.dueDate" xml:space="preserve"><value>Vencimento</value></data>
+  <data name="modal.financialEntry.field.paymentMethod" xml:space="preserve"><value>Forma de pagamento</value></data>
+  <data name="modal.financialEntry.field.reference" xml:space="preserve"><value>Referência (NF, boleto, etc.)</value></data>
+  <data name="modal.financialEntry.field.subcategory" xml:space="preserve"><value>Subcategoria (opcional)</value></data>
+  <data name="modal.financialEntry.section.invoice" xml:space="preserve"><value>Nota fiscal</value></data>
+  <data name="modal.financialEntry.field.installments" xml:space="preserve"><value>Parcelar este lançamento</value></data>
+  <data name="modal.financialEntry.field.installmentTotal" xml:space="preserve"><value>Total de parcelas</value></data>
+  <data name="modal.financialEntry.type.receivable" xml:space="preserve"><value>A receber</value></data>
+  <data name="modal.financialEntry.type.payable" xml:space="preserve"><value>A pagar</value></data>
+  <data name="modal.financialEntry.status.pending" xml:space="preserve"><value>Pendente</value></data>
+  <data name="modal.financialEntry.status.paid" xml:space="preserve"><value>Pago</value></data>
+  <data name="modal.financialEntry.status.cancelled" xml:space="preserve"><value>Cancelado</value></data>
+  <data name="modal.financialEntry.placeholder.noCampaign" xml:space="preserve"><value>Sem vínculo de campanha</value></data>
+  <data name="modal.financialEntry.placeholder.noDeliverable" xml:space="preserve"><value>Sem entrega</value></data>
+  <data name="modal.financialEntry.placeholder.noSubcategory" xml:space="preserve"><value>Sem subcategoria</value></data>
+  <data name="modal.financialEntry.placeholder.paymentMethod" xml:space="preserve"><value>PIX, boleto, transferência...</value></data>
+  <data name="modal.financialEntry.placeholder.counterparty" xml:space="preserve"><value>Quem paga ou recebe</value></data>
+  <data name="modal.financialSubcategory.title.edit" xml:space="preserve"><value>Editar subcategoria</value></data>
+  <data name="modal.financialSubcategory.title.new" xml:space="preserve"><value>Nova subcategoria financeira</value></data>
+  <data name="modal.financialSubcategory.field.macroCategory" xml:space="preserve"><value>Categoria macro</value></data>
+  <data name="modal.markAsPaid.title.receive" xml:space="preserve"><value>Confirmar recebimento</value></data>
+  <data name="modal.markAsPaid.title.pay" xml:space="preserve"><value>Confirmar pagamento</value></data>
+  <data name="modal.markAsPaid.field.destinationAccount" xml:space="preserve"><value>Conta de destino</value></data>
+  <data name="modal.markAsPaid.field.method" xml:space="preserve"><value>Forma</value></data>
+  <data name="modal.opportunityApproval.title" xml:space="preserve"><value>Solicitar aprovação</value></data>
+  <data name="modal.opportunityApproval.field.type" xml:space="preserve"><value>Tipo de aprovação</value></data>
+  <data name="modal.opportunityApproval.field.requestedBy" xml:space="preserve"><value>Solicitado por</value></data>
+  <data name="modal.opportunityApproval.field.reason" xml:space="preserve"><value>Motivo</value></data>
+  <data name="modal.opportunityApproval.type.discount" xml:space="preserve"><value>Desconto</value></data>
+  <data name="modal.opportunityApproval.type.margin" xml:space="preserve"><value>Margem</value></data>
+  <data name="modal.opportunityApproval.type.term" xml:space="preserve"><value>Prazo</value></data>
+  <data name="modal.opportunityApproval.type.exception" xml:space="preserve"><value>Exceção</value></data>
+  <data name="modal.opportunityFollowUp.title.edit" xml:space="preserve"><value>Editar follow-up</value></data>
+  <data name="modal.opportunityFollowUp.title.new" xml:space="preserve"><value>Novo follow-up</value></data>
+  <data name="modal.opportunity.title.edit" xml:space="preserve"><value>Editar oportunidade</value></data>
+  <data name="modal.opportunity.title.new" xml:space="preserve"><value>Nova oportunidade</value></data>
+  <data name="modal.opportunity.field.name" xml:space="preserve"><value>Nome da oportunidade</value></data>
+  <data name="modal.opportunity.field.estimatedValue" xml:space="preserve"><value>Valor estimado</value></data>
+  <data name="modal.opportunity.field.expectedClose" xml:space="preserve"><value>Previsão de fechamento</value></data>
+  <data name="modal.opportunity.field.responsible" xml:space="preserve"><value>Responsável comercial</value></data>
+  <data name="modal.opportunity.action.createContinue" xml:space="preserve"><value>Criar e continuar</value></data>
+  <data name="modal.opportunity.placeholder.noTags" xml:space="preserve"><value>Nenhuma tag cadastrada. Crie em Configuração → Tags de oportunidade.</value></data>
+  <data name="modal.opportunityNegotiation.title.edit" xml:space="preserve"><value>Editar negociação</value></data>
+  <data name="modal.opportunityNegotiation.title.new" xml:space="preserve"><value>Nova negociação</value></data>
+  <data name="modal.opportunityNegotiation.field.amount" xml:space="preserve"><value>Valor</value></data>
+  <data name="modal.opportunityNegotiation.field.date" xml:space="preserve"><value>Data da negociação</value></data>
+  <data name="modal.opportunitySource.title.edit" xml:space="preserve"><value>Editar origem</value></data>
+  <data name="modal.opportunitySource.title.new" xml:space="preserve"><value>Nova origem de oportunidade</value></data>
+  <data name="modal.opportunityTag.title.edit" xml:space="preserve"><value>Editar tag</value></data>
+  <data name="modal.opportunityTag.title.new" xml:space="preserve"><value>Nova tag de oportunidade</value></data>
+  <data name="modal.platform.title.edit" xml:space="preserve"><value>Editar plataforma</value></data>
+  <data name="modal.platform.title.new" xml:space="preserve"><value>Nova plataforma</value></data>
+  <data name="modal.proposalBlock.title.edit" xml:space="preserve"><value>Editar bloco</value></data>
+  <data name="modal.proposalBlock.title.new" xml:space="preserve"><value>Novo bloco reutilizável</value></data>
+  <data name="modal.proposalBlock.description" xml:space="preserve"><value>Cláusulas, condições comerciais, descrições padrão. Use os blocos para inserir trechos prontos no editor da proposta.</value></data>
+  <data name="modal.proposalBlock.field.category" xml:space="preserve"><value>Categoria</value></data>
+  <data name="modal.proposalBlock.field.content" xml:space="preserve"><value>Conteúdo</value></data>
+  <data name="modal.proposal.title.edit" xml:space="preserve"><value>Editar proposta</value></data>
+  <data name="modal.proposal.title.new" xml:space="preserve"><value>Criar proposta comercial</value></data>
+  <data name="modal.proposal.field.opportunity" xml:space="preserve"><value>Oportunidade</value></data>
+  <data name="modal.proposal.action.createContinue" xml:space="preserve"><value>Criar e continuar</value></data>
+  <data name="modal.proposalItem.title.edit" xml:space="preserve"><value>Editar item da proposta</value></data>
+  <data name="modal.proposalItem.title.new" xml:space="preserve"><value>Novo item da proposta</value></data>
+  <data name="modal.proposalItem.field.quantity" xml:space="preserve"><value>Quantidade</value></data>
+  <data name="modal.proposalItem.field.unitPrice" xml:space="preserve"><value>Valor unitário</value></data>
+  <data name="modal.proposalItem.field.deliveryDeadline" xml:space="preserve"><value>Prazo de entrega</value></data>
+  <data name="modal.proposalItem.field.observations" xml:space="preserve"><value>Observações</value></data>
+  <data name="modal.proposalItem.action.save" xml:space="preserve"><value>Salvar item</value></data>
+  <data name="modal.proposalTemplate.title.edit" xml:space="preserve"><value>Editar template</value></data>
+  <data name="modal.proposalTemplate.title.new" xml:space="preserve"><value>Novo template de proposta</value></data>
+  <data name="modal.proposalTemplate.description" xml:space="preserve"><value>Defina um modelo reutilizável com os itens padrão da proposta. Ao aplicar a um deal, os itens são copiados para a proposta.</value></data>
+  <data name="modal.campaign.title.edit" xml:space="preserve"><value>Editar campanha</value></data>
+  <data name="modal.campaign.title.new" xml:space="preserve"><value>Nova campanha</value></data>
+  <data name="modal.campaign.field.responsible" xml:space="preserve"><value>Responsável comercial</value></data>
+  <data name="modal.campaign.status.draft" xml:space="preserve"><value>Rascunho</value></data>
+  <data name="modal.campaign.status.planned" xml:space="preserve"><value>Planejada</value></data>
+  <data name="modal.campaign.status.executing" xml:space="preserve"><value>Em execução</value></data>
+  <data name="modal.campaign.status.inReview" xml:space="preserve"><value>Em revisão</value></data>
+  <data name="modal.campaign.status.completed" xml:space="preserve"><value>Concluída</value></data>
+  <data name="modal.campaign.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
 </root>

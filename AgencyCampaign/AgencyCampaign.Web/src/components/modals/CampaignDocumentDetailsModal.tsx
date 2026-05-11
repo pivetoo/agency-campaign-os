@@ -12,6 +12,7 @@ import {
   TabsList,
   TabsTrigger,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { Check, Clock, Download, ExternalLink } from 'lucide-react'
 import { campaignDocumentService } from '../../services/campaignDocumentService'
@@ -41,6 +42,7 @@ const STATUS_VARIANTS: Record<CampaignDocumentStatusValue, 'default' | 'success'
 }
 
 export default function CampaignDocumentDetailsModal({ open, onOpenChange, documentId }: Props) {
+  const { t } = useI18n()
   const [document, setDocument] = useState<CampaignDocument | null>(null)
   const { execute, loading } = useApi<CampaignDocument | null>({ showErrorMessage: true })
 
@@ -59,10 +61,10 @@ export default function CampaignDocumentDetailsModal({ open, onOpenChange, docum
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '960px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>Detalhes do documento</ModalTitle>
+          <ModalTitle>{t('modal.document.title.details')}</ModalTitle>
         </ModalHeader>
 
-        {loading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+        {loading && <p className="text-sm text-muted-foreground">{t('common.loading')}</p>}
 
         {document && (
           <div className="space-y-4">
@@ -110,16 +112,16 @@ export default function CampaignDocumentDetailsModal({ open, onOpenChange, docum
             <Tabs defaultValue="body" className="pt-2">
               <TabsList className="mb-4 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
                 <TabsTrigger value="body" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-                  Conteúdo
+                  {t('modal.document.tab.content')}
                 </TabsTrigger>
                 <TabsTrigger value="signers" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-                  Signatários
+                  {t('modal.document.tab.signers')}
                   {document.signatures.length > 0 && (
                     <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">{document.signatures.length}</span>
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="events" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-                  Histórico
+                  {t('modal.document.tab.history')}
                   {document.events.length > 0 && (
                     <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">{document.events.length}</span>
                   )}
@@ -133,14 +135,14 @@ export default function CampaignDocumentDetailsModal({ open, onOpenChange, docum
                   </pre>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    Este documento não foi gerado a partir de um template. Use a URL acima para acessar o conteúdo original.
+                    {t('modal.document.noTemplate')}
                   </p>
                 )}
               </TabsContent>
 
               <TabsContent value="signers" className="mt-0">
                 {document.signatures.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Nenhum signatário registrado ainda.</p>
+                  <p className="text-sm text-muted-foreground">{t('modal.document.noSigners')}</p>
                 ) : (
                   <div className="space-y-2">
                     {document.signatures.map((signature) => (
@@ -186,7 +188,7 @@ export default function CampaignDocumentDetailsModal({ open, onOpenChange, docum
 
               <TabsContent value="events" className="mt-0">
                 {document.events.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Sem eventos registrados.</p>
+                  <p className="text-sm text-muted-foreground">{t('modal.document.noEvents')}</p>
                 ) : (
                   <div className="relative space-y-3 border-l-2 border-primary/15 pl-4">
                     {document.events.map((event) => (
@@ -214,7 +216,7 @@ export default function CampaignDocumentDetailsModal({ open, onOpenChange, docum
 
         <ModalFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Fechar
+            {t('common.action.close')}
           </Button>
         </ModalFooter>
       </ModalContent>

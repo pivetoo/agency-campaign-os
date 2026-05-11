@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useI18n } from 'archon-ui'
 import { campaignCreatorStatusService, type CreateCampaignCreatorStatusRequest, type UpdateCampaignCreatorStatusRequest } from '../../services/campaignCreatorStatusService'
 import type { CampaignCreatorStatus } from '../../types/campaignCreatorStatus'
 
@@ -22,6 +22,7 @@ const initialFormData: CreateCampaignCreatorStatusRequest = {
 }
 
 export default function CampaignCreatorStatusFormModal({ open, onOpenChange, status, onSuccess }: CampaignCreatorStatusFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!status
   const [formData, setFormData] = useState<CreateCampaignCreatorStatusRequest>(initialFormData)
   const [isActive, setIsActive] = useState(true)
@@ -69,33 +70,33 @@ export default function CampaignCreatorStatusFormModal({ open, onOpenChange, sta
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '860px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar status de creator' : 'Novo status de creator'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.campaignCreatorStatus.title.edit') : t('modal.campaignCreatorStatus.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nome</label>
+              <label className="text-sm font-medium">{t('common.field.name')}</label>
               <Input value={formData.name} onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Ordem</label>
+              <label className="text-sm font-medium">{t('common.field.order')}</label>
               <Input type="number" value={formData.displayOrder} onChange={(event) => setFormData((prev) => ({ ...prev, displayOrder: Number(event.target.value) }))} />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Descrição</label>
+              <label className="text-sm font-medium">{t('common.field.description')}</label>
               <Input value={formData.description || ''} onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Cor</label>
+              <label className="text-sm font-medium">{t('common.field.color')}</label>
               <Input type="color" value={formData.color} onChange={(event) => setFormData((prev) => ({ ...prev, color: event.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Categoria</label>
+              <label className="text-sm font-medium">{t('common.field.category')}</label>
               <Select value={String(formData.category)} onValueChange={(value) => setFormData((prev) => ({ ...prev, category: Number(value) }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -111,12 +112,12 @@ export default function CampaignCreatorStatusFormModal({ open, onOpenChange, sta
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isInitial} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isInitial: !!checked }))} /><span>Status inicial</span></label>
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isFinal} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isFinal: !!checked }))} /><span>Status final</span></label>
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.marksAsConfirmed} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, marksAsConfirmed: !!checked }))} /><span>Marca creator como confirmado</span></label>
-            {isEditing && <label className="flex items-center gap-2 text-sm"><Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} /><span>Ativo</span></label>}
+            {isEditing && <label className="flex items-center gap-2 text-sm"><Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} /><span>{t('common.status.active')}</span></label>}
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !formData.name}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !formData.name}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

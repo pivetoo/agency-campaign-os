@@ -10,6 +10,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import {
   proposalTemplateService,
@@ -24,6 +25,7 @@ interface ApplyProposalTemplateModalProps {
 }
 
 export default function ApplyProposalTemplateModal(props: ApplyProposalTemplateModalProps) {
+  const { t } = useI18n()
   const { open, onOpenChange, proposalId, onApplied } = props
   const [templates, setTemplates] = useState<ProposalTemplate[]>([])
   const [selectedId, setSelectedId] = useState<string>('')
@@ -66,9 +68,9 @@ export default function ApplyProposalTemplateModal(props: ApplyProposalTemplateM
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="lg">
         <ModalHeader>
-          <ModalTitle>Aplicar template</ModalTitle>
+          <ModalTitle>{t('modal.applyProposalTemplate.title')}</ModalTitle>
           <ModalDescription>
-            Os itens do template serão adicionados à proposta. Itens existentes não são removidos.
+            {t('modal.applyProposalTemplate.description')}
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
@@ -77,7 +79,7 @@ export default function ApplyProposalTemplateModal(props: ApplyProposalTemplateM
               value={selectedId}
               onValueChange={setSelectedId}
               options={options}
-              placeholder={templates.length === 0 ? 'Nenhum template disponível' : 'Selecione um template'}
+              placeholder={templates.length === 0 ? t('modal.applyProposalTemplate.placeholder.noTemplate') : t('modal.applyProposalTemplate.placeholder.selectTemplate')}
               searchPlaceholder="Buscar template..."
               disabled={templates.length === 0}
             />
@@ -104,10 +106,10 @@ export default function ApplyProposalTemplateModal(props: ApplyProposalTemplateM
         </ModalBody>
         <ModalFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={applying}>
-            Cancelar
+            {t('common.action.cancel')}
           </Button>
           <Button onClick={() => void apply()} disabled={!selectedTemplate || applying}>
-            Aplicar template
+            {applying ? t('common.action.applying') : t('common.action.apply')}
           </Button>
         </ModalFooter>
       </ModalContent>

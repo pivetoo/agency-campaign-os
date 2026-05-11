@@ -9,6 +9,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { financialEntryService } from '../../services/financialEntryService'
 import { financialAccountService } from '../../services/financialAccountService'
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export default function MarkAsPaidModal({ open, onOpenChange, entry, onSuccess }: Props) {
+  const { t } = useI18n()
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
   const [accountId, setAccountId] = useState<number>(0)
   const [paymentMethod, setPaymentMethod] = useState('')
@@ -54,7 +56,7 @@ export default function MarkAsPaidModal({ open, onOpenChange, entry, onSuccess }
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="form">
         <ModalHeader>
-          <ModalTitle>{entry?.type === 1 ? 'Confirmar recebimento' : 'Confirmar pagamento'}</ModalTitle>
+          <ModalTitle>{entry?.type === 1 ? t('modal.markAsPaid.title.receive') : t('modal.markAsPaid.title.pay')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="rounded-md border bg-muted/40 p-3 text-sm">
@@ -66,7 +68,7 @@ export default function MarkAsPaidModal({ open, onOpenChange, entry, onSuccess }
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Conta de destino</label>
+              <label className="text-sm font-medium">{t('modal.markAsPaid.field.destinationAccount')}</label>
               <SearchableSelect
                 value={accountId ? String(accountId) : ''}
                 onValueChange={(value) => setAccountId(Number(value))}
@@ -76,17 +78,17 @@ export default function MarkAsPaidModal({ open, onOpenChange, entry, onSuccess }
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Data</label>
+              <label className="text-sm font-medium">{t('common.field.date')}</label>
               <Input type="date" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Forma</label>
+              <label className="text-sm font-medium">{t('modal.markAsPaid.field.method')}</label>
               <Input value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} placeholder="PIX, boleto, transferência..." />
             </div>
           </div>
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || accountId === 0}>{loading ? 'Salvando...' : 'Confirmar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || accountId === 0}>{loading ? t('common.action.saving') : t('common.action.confirm')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

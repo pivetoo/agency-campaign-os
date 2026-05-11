@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { Plus, Trash2 } from 'lucide-react'
 import { campaignDocumentService, type CampaignDocumentSignerInput } from '../../services/campaignDocumentService'
@@ -41,6 +42,7 @@ interface Props {
 const SIGNATURE_CATEGORY_HINTS = ['assinatura', 'signature']
 
 export default function CampaignDocumentSendForSignatureModal({ open, onOpenChange, document, onSuccess }: Props) {
+  const { t } = useI18n()
   const [categories, setCategories] = useState<IntegrationCategory[]>([])
   const [categoryId, setCategoryId] = useState<number | undefined>()
   const [integrations, setIntegrations] = useState<IntegrationPlatformIntegration[]>([])
@@ -166,29 +168,29 @@ export default function CampaignDocumentSendForSignatureModal({ open, onOpenChan
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '880px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>Enviar para assinatura digital</ModalTitle>
+          <ModalTitle>{t('modal.document.title.sendForSignature')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Categoria de integração</label>
+              <label className="text-sm font-medium">{t('modal.automation.field.integrationCategory')}</label>
               <SearchableSelect
                 value={categoryId ? String(categoryId) : ''}
                 onValueChange={(value) => setCategoryId(value ? Number(value) : undefined)}
                 options={categoryOptions}
-                placeholder={catLoading ? 'Carregando...' : 'Selecione'}
-                searchPlaceholder="Buscar"
+                placeholder={catLoading ? t('common.loading') : t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={catLoading}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Integração</label>
+              <label className="text-sm font-medium">{t('modal.automation.field.integration')}</label>
               <SearchableSelect
                 value={integrationId ? String(integrationId) : ''}
                 onValueChange={(value) => setIntegrationId(value ? Number(value) : undefined)}
                 options={integrationOptions}
-                placeholder={intLoading ? 'Carregando...' : integrationOptions.length === 0 ? 'Nenhuma integração nessa categoria' : 'Selecione'}
-                searchPlaceholder="Buscar"
+                placeholder={intLoading ? t('common.loading') : integrationOptions.length === 0 ? t('modal.document.placeholder.noIntegration') : t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={intLoading || integrationOptions.length === 0}
               />
             </div>
@@ -198,19 +200,19 @@ export default function CampaignDocumentSendForSignatureModal({ open, onOpenChan
                 value={connectorId ? String(connectorId) : ''}
                 onValueChange={(value) => setConnectorId(value ? Number(value) : undefined)}
                 options={connectorOptions}
-                placeholder={connLoading ? 'Carregando...' : connectorOptions.length === 0 ? 'Configure um conector primeiro' : 'Selecione'}
-                searchPlaceholder="Buscar"
+                placeholder={connLoading ? t('common.loading') : connectorOptions.length === 0 ? t('modal.document.placeholder.configureConnector') : t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={connLoading || connectorOptions.length === 0}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Pipeline de envio</label>
+              <label className="text-sm font-medium">{t('modal.document.field.sendPipeline')}</label>
               <SearchableSelect
                 value={pipelineId ? String(pipelineId) : ''}
                 onValueChange={(value) => setPipelineId(value ? Number(value) : undefined)}
                 options={pipelineOptions}
-                placeholder={pipeLoading ? 'Carregando...' : pipelineOptions.length === 0 ? 'Sem pipelines disponíveis' : 'Selecione'}
-                searchPlaceholder="Buscar"
+                placeholder={pipeLoading ? t('common.loading') : pipelineOptions.length === 0 ? t('modal.document.placeholder.noPipelines') : t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={pipeLoading || pipelineOptions.length === 0}
               />
             </div>
@@ -218,13 +220,13 @@ export default function CampaignDocumentSendForSignatureModal({ open, onOpenChan
 
           <div className="space-y-3 rounded-lg border bg-primary/5 p-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Signatários</span>
+              <span className="text-sm font-medium">{t('modal.document.field.signers')}</span>
               <Button type="button" size="sm" variant="outline" onClick={addSigner}>
-                <Plus className="mr-1 h-4 w-4" /> Adicionar
+                <Plus className="mr-1 h-4 w-4" /> {t('common.action.add')}
               </Button>
             </div>
             {signers.length === 0 && (
-              <p className="text-sm text-muted-foreground">Adicione ao menos um signatário.</p>
+              <p className="text-sm text-muted-foreground">{t('modal.document.addSigner')}</p>
             )}
             {signers.map((signer, index) => (
               <div key={index} className="grid grid-cols-1 gap-2 rounded-md border bg-background p-3 md:grid-cols-12">
@@ -267,10 +269,10 @@ export default function CampaignDocumentSendForSignatureModal({ open, onOpenChan
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              {t('common.action.cancel')}
             </Button>
             <Button type="submit" disabled={sending || !isValid}>
-              {sending ? 'Enviando...' : 'Enviar para assinatura'}
+              {sending ? t('common.action.sending') : t('modal.document.action.sendForSignature')}
             </Button>
           </ModalFooter>
         </form>

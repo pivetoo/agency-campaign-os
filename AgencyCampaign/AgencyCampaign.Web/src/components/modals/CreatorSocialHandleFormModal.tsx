@@ -10,6 +10,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { creatorSocialHandleService } from '../../services/creatorSocialHandleService'
 import { platformService } from '../../services/platformService'
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export default function CreatorSocialHandleFormModal({ open, onOpenChange, creatorId, handle, onSuccess }: Props) {
+  const { t } = useI18n()
   const isEditing = !!handle
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [platformId, setPlatformId] = useState<number>(0)
@@ -86,52 +88,52 @@ export default function CreatorSocialHandleFormModal({ open, onOpenChange, creat
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="form">
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar handle social' : 'Novo handle social'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.socialHandle.title.edit') : t('modal.socialHandle.title.new')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Plataforma</label>
+              <label className="text-sm font-medium">{t('common.field.platform')}</label>
               <SearchableSelect
                 value={platformId ? String(platformId) : ''}
                 onValueChange={(value) => setPlatformId(Number(value))}
                 options={platforms.filter((p) => p.isActive).map((p) => ({ value: String(p.id), label: p.name }))}
-                placeholder="Selecione a plataforma"
-                searchPlaceholder="Buscar plataforma"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Handle (@)</label>
+              <label className="text-sm font-medium">{t('modal.socialHandle.field.handle')}</label>
               <Input value={handleText} onChange={(e) => setHandleText(e.target.value)} placeholder="@usuario" required />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">URL do perfil</label>
+              <label className="text-sm font-medium">{t('modal.socialHandle.field.profileUrl')}</label>
               <Input value={profileUrl} onChange={(e) => setProfileUrl(e.target.value)} placeholder="https://..." />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Seguidores</label>
+              <label className="text-sm font-medium">{t('modal.socialHandle.field.followers')}</label>
               <Input type="number" value={followers} onChange={(e) => setFollowers(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Engajamento (%)</label>
+              <label className="text-sm font-medium">{t('modal.socialHandle.field.engagement')}</label>
               <Input type="number" step="0.01" min="0" max="100" value={engagementRate} onChange={(e) => setEngagementRate(e.target.value)} />
             </div>
           </div>
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 text-sm">
               <Checkbox checked={isPrimary} onCheckedChange={(checked) => setIsPrimary(!!checked)} />
-              <span>Conta principal</span>
+              <span>{t('modal.socialHandle.field.isPrimary')}</span>
             </label>
             {isEditing && (
               <label className="flex items-center gap-2 text-sm">
                 <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-                <span>Ativo</span>
+                <span>{t('common.status.active')}</span>
               </label>
             )}
           </div>
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !isValid}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !isValid}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

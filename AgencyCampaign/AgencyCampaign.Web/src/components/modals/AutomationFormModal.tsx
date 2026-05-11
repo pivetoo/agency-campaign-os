@@ -10,6 +10,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { automationService } from '../../services/automationService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
@@ -70,6 +71,7 @@ function mappingToObject(rows: MappingRow[]): Record<string, string> {
 }
 
 export default function AutomationFormModal({ open, onOpenChange, automation, presetConnectorId, onSuccess }: Props) {
+  const { t } = useI18n()
   const isEditing = !!automation
   const [name, setName] = useState('')
   const [trigger, setTrigger] = useState<string>('proposal_sent')
@@ -186,28 +188,28 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '880px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar automação' : 'Nova automação'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.automation.title.edit') : t('modal.automation.title.new')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Nome</label>
+              <label className="text-sm font-medium">{t('common.field.name')}</label>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Enviar boleto quando criar conta a receber" required />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Disparar quando</label>
+              <label className="text-sm font-medium">{t('modal.automation.field.triggerOn')}</label>
               <SearchableSelect
                 value={trigger}
                 onValueChange={setTrigger}
                 options={triggerOptions}
-                placeholder="Selecione um evento"
-                searchPlaceholder="Buscar evento"
+                placeholder={t('modal.automation.placeholder.event')}
+                searchPlaceholder={t('modal.automation.placeholder.searchEvent')}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Categoria de integração</label>
+              <label className="text-sm font-medium">{t('modal.automation.field.integrationCategory')}</label>
               <SearchableSelect
                 value={categoryId ? String(categoryId) : ''}
                 onValueChange={(value) => {
@@ -221,7 +223,7 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Integração</label>
+              <label className="text-sm font-medium">{t('modal.automation.field.integration')}</label>
               <SearchableSelect
                 value={integrationId ? String(integrationId) : ''}
                 onValueChange={(value) => {
@@ -230,47 +232,47 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
                   setPipelineId(null)
                 }}
                 options={integrations.map((integ) => ({ value: String(integ.id), label: integ.name }))}
-                placeholder={categoryId && integrations.length === 0 ? 'Sem contas conectadas nesta categoria' : 'Selecione'}
-                searchPlaceholder="Buscar integração"
+                placeholder={categoryId && integrations.length === 0 ? t('modal.automation.placeholder.noAccounts') : 'Selecione'}
+                searchPlaceholder={t('modal.automation.placeholder.searchIntegration')}
                 disabled={!categoryId || integrations.length === 0}
               />
               {categoryId && integrations.length === 0 && (
                 <p className="text-[10px] text-muted-foreground">
-                  Conecte uma conta primeiro em Configuração → Integrações.
+                  {t('modal.automation.hint.connectFirst')}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Conta conectada</label>
+              <label className="text-sm font-medium">{t('modal.automation.field.connectedAccount')}</label>
               <SearchableSelect
                 value={connectorId ? String(connectorId) : ''}
                 onValueChange={(value) => setConnectorId(Number(value))}
                 options={connectors.filter((c) => c.isActive).map((c) => ({ value: String(c.id), label: c.name }))}
                 placeholder="Selecione"
-                searchPlaceholder="Buscar conta"
+                searchPlaceholder={t('modal.automation.placeholder.searchAccount')}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Ação a executar</label>
+              <label className="text-sm font-medium">{t('modal.automation.field.action')}</label>
               <SearchableSelect
                 value={pipelineId ? String(pipelineId) : ''}
                 onValueChange={(value) => setPipelineId(Number(value))}
                 options={pipelines.map((p) => ({ value: String(p.id), label: p.name }))}
                 placeholder="Selecione"
-                searchPlaceholder="Buscar ação"
+                searchPlaceholder={t('modal.automation.placeholder.searchAction')}
               />
             </div>
 
             <label className="flex items-center gap-2 text-sm md:col-span-2">
               <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-              <span>Automação ativa</span>
+              <span>{t('modal.automation.field.isActive')}</span>
             </label>
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !isValid}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !isValid}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

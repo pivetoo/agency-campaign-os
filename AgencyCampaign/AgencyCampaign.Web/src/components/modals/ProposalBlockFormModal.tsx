@@ -11,6 +11,7 @@ import {
   ModalTitle,
   Switch,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import {
   proposalBlockService,
@@ -28,6 +29,7 @@ const SUGGESTED_CATEGORIES = ['Cláusula', 'Condição comercial', 'Descrição 
 
 export default function ProposalBlockFormModal(props: ProposalBlockFormModalProps) {
   const { open, onOpenChange, block, onSuccess } = props
+  const { t } = useI18n()
   const [name, setName] = useState('')
   const [body, setBody] = useState('')
   const [category, setCategory] = useState('')
@@ -77,20 +79,20 @@ export default function ProposalBlockFormModal(props: ProposalBlockFormModalProp
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="2xl">
         <ModalHeader>
-          <ModalTitle>{block ? 'Editar bloco' : 'Novo bloco reutilizável'}</ModalTitle>
+          <ModalTitle>{block ? t('modal.proposalBlock.title.edit') : t('modal.proposalBlock.title.new')}</ModalTitle>
           <ModalDescription>
-            Cláusulas, condições comerciais, descrições padrão. Use os blocos para inserir trechos prontos no editor da proposta.
+            {t('modal.proposalBlock.description')}
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium">Nome</label>
+                <label className="mb-1 block text-sm font-medium">{t('common.field.name')}</label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Cláusula de exclusividade" />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium">Categoria</label>
+                <label className="mb-1 block text-sm font-medium">{t('modal.proposalBlock.field.category')}</label>
                 <Input
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
@@ -106,7 +108,7 @@ export default function ProposalBlockFormModal(props: ProposalBlockFormModalProp
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Conteúdo</label>
+              <label className="mb-1 block text-sm font-medium">{t('modal.proposalBlock.field.content')}</label>
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
@@ -126,10 +128,10 @@ export default function ProposalBlockFormModal(props: ProposalBlockFormModalProp
         </ModalBody>
         <ModalFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancelar
+            {t('common.action.cancel')}
           </Button>
           <Button onClick={() => void submit()} disabled={!isValid || loading}>
-            {block ? 'Salvar' : 'Criar bloco'}
+            {loading ? t('common.action.saving') : t('common.action.save')}
           </Button>
         </ModalFooter>
       </ModalContent>

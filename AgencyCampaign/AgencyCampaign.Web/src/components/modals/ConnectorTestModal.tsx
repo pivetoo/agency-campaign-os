@@ -7,6 +7,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
+  useI18n,
 } from 'archon-ui'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { integrationPlatformService, type TestConnectorResult } from '../../services/integrationPlatformService'
@@ -55,6 +56,7 @@ function getTestFields(categoryName: string | undefined): TestField[] {
 }
 
 export default function ConnectorTestModal({ open, onOpenChange, connector, integration, category }: Props) {
+  const { t } = useI18n()
   const [inputs, setInputs] = useState<Record<string, string>>({})
   const [testing, setTesting] = useState(false)
   const [result, setResult] = useState<TestConnectorResult | null>(null)
@@ -103,7 +105,7 @@ export default function ConnectorTestModal({ open, onOpenChange, connector, inte
       <ModalContent size="full" style={{ maxWidth: '520px', width: '95vw' }}>
         <ModalHeader>
           <ModalTitle>
-            Testar {connector?.name ?? 'conta'}
+            {t('modal.connector.title.test').replace('{0}', connector?.name ?? 'conta')}
           </ModalTitle>
         </ModalHeader>
 
@@ -160,11 +162,11 @@ export default function ConnectorTestModal({ open, onOpenChange, connector, inte
 
         <ModalFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Fechar
+            {t('common.action.close')}
           </Button>
           <Button type="button" onClick={runTest} disabled={testing || !isValid}>
             {testing && <Loader2 size={14} className="mr-1.5 animate-spin" />}
-            {testing ? 'Testando...' : result ? 'Testar de novo' : 'Executar teste'}
+            {testing ? t('common.action.testing') : result ? t('common.action.retest') : t('common.action.test')}
           </Button>
         </ModalFooter>
       </ModalContent>

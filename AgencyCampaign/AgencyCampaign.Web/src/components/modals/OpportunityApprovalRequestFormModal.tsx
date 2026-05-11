@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useI18n } from 'archon-ui'
 import { opportunityService, type CreateOpportunityApprovalRequest, type OpportunityNegotiation } from '../../services/opportunityService'
 
 interface OpportunityApprovalRequestFormModalProps {
@@ -17,6 +17,7 @@ const initialFormData: CreateOpportunityApprovalRequest = {
 }
 
 export default function OpportunityApprovalRequestFormModal({ open, onOpenChange, negotiation, onSuccess }: OpportunityApprovalRequestFormModalProps) {
+  const { t } = useI18n()
   const [formData, setFormData] = useState<CreateOpportunityApprovalRequest>(initialFormData)
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
@@ -47,38 +48,38 @@ export default function OpportunityApprovalRequestFormModal({ open, onOpenChange
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '720px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>Solicitar aprovação</ModalTitle>
+          <ModalTitle>{t('modal.opportunityApproval.title')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Tipo de aprovação</label>
+              <label className="text-sm font-medium">{t('modal.opportunityApproval.field.type')}</label>
               <Select value={String(formData.approvalType)} onValueChange={(value) => setFormData((prev) => ({ ...prev, approvalType: Number(value) }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">Desconto</SelectItem>
-                  <SelectItem value="2">Margem</SelectItem>
-                  <SelectItem value="3">Prazo</SelectItem>
-                  <SelectItem value="4">Exceção</SelectItem>
+                  <SelectItem value="1">{t('modal.opportunityApproval.type.discount')}</SelectItem>
+                  <SelectItem value="2">{t('modal.opportunityApproval.type.margin')}</SelectItem>
+                  <SelectItem value="3">{t('modal.opportunityApproval.type.term')}</SelectItem>
+                  <SelectItem value="4">{t('modal.opportunityApproval.type.exception')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Solicitado por</label>
+              <label className="text-sm font-medium">{t('modal.opportunityApproval.field.requestedBy')}</label>
               <Input value={formData.requestedByUserName} onChange={(e) => setFormData((prev) => ({ ...prev, requestedByUserName: e.target.value }))} required />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Motivo</label>
+              <label className="text-sm font-medium">{t('modal.opportunityApproval.field.reason')}</label>
               <Input value={formData.reason} onChange={(e) => setFormData((prev) => ({ ...prev, reason: e.target.value }))} required />
             </div>
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !formData.opportunityNegotiationId}>{loading ? 'Salvando...' : 'Solicitar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !formData.opportunityNegotiationId}>{loading ? t('common.action.saving') : t('common.action.request')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

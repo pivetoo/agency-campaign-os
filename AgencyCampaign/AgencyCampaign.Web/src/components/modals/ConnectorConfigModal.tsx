@@ -9,6 +9,7 @@ import {
   ModalTitle,
   Checkbox,
   useApi,
+  useI18n,
   useToast,
 } from 'archon-ui'
 import { ExternalLink, Eye, EyeOff, Sparkles } from 'lucide-react'
@@ -37,6 +38,7 @@ export default function ConnectorConfigModal({
   connector,
   onSuccess,
 }: ConnectorConfigModalProps) {
+  const { t } = useI18n()
   const isEditing = !!connector
   const [connectorName, setConnectorName] = useState('')
   const [isActive, setIsActive] = useState(true)
@@ -405,7 +407,7 @@ export default function ConnectorConfigModal({
         <ModalHeader>
           <ModalTitle>
             {isEditing
-              ? `Editar ${connector?.name}`
+              ? t('modal.connector.title.edit').replace('{0}', connector?.name ?? '')
               : integration
                 ? `Conectar ${integration.name}`
                 : 'Conectar conta'}
@@ -415,12 +417,12 @@ export default function ConnectorConfigModal({
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <label className="text-sm font-medium">
-              Apelido da conta <span className="text-destructive">*</span>
+              {t('modal.connector.field.accountAlias')} <span className="text-destructive">*</span>
             </label>
             <Input
               value={connectorName}
               onChange={(e) => setConnectorName(e.target.value)}
-              placeholder="Ex.: Conta principal"
+              placeholder={t('modal.connector.placeholder.accountAlias')}
               required
             />
             <p className="text-xs text-muted-foreground">
@@ -477,7 +479,7 @@ export default function ConnectorConfigModal({
                   </p>
                 </div>
                 <Button type="button" size="sm" variant="outline" onClick={copyWebhookUrl}>
-                  Copiar
+                  {t('common.action.copy')}
                 </Button>
               </div>
               <code className="block break-all rounded bg-background p-2 font-mono text-xs">
@@ -559,13 +561,13 @@ export default function ConnectorConfigModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancelar
+              {t('common.action.cancel')}
             </Button>
             <Button
               type="submit"
               disabled={saving || !connectorName.trim() || loadingAttributes || loadingDetail}
             >
-              {saving ? 'Salvando...' : isEditing ? 'Atualizar' : 'Salvar'}
+              {saving ? t('common.action.saving') : isEditing ? 'Atualizar' : t('common.action.save')}
             </Button>
           </ModalFooter>
         </form>

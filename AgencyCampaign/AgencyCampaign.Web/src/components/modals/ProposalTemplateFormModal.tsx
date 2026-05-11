@@ -11,6 +11,7 @@ import {
   ModalTitle,
   Switch,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { Plus, Trash2 } from 'lucide-react'
 import {
@@ -39,6 +40,7 @@ function emptyItem(displayOrder: number): ProposalTemplateItem {
 
 export default function ProposalTemplateFormModal(props: ProposalTemplateFormModalProps) {
   const { open, onOpenChange, template, onSuccess } = props
+  const { t } = useI18n()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [isActive, setIsActive] = useState(true)
@@ -100,16 +102,16 @@ export default function ProposalTemplateFormModal(props: ProposalTemplateFormMod
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="4xl">
         <ModalHeader>
-          <ModalTitle>{template ? 'Editar template' : 'Novo template de proposta'}</ModalTitle>
+          <ModalTitle>{template ? t('modal.proposalTemplate.title.edit') : t('modal.proposalTemplate.title.new')}</ModalTitle>
           <ModalDescription>
-            Defina um modelo reutilizável com os itens padrão da proposta. Ao aplicar a um deal, os itens são copiados para a proposta.
+            {t('modal.proposalTemplate.description')}
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
           <div className="space-y-5">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium">Nome</label>
+                <label className="mb-1 block text-sm font-medium">{t('common.field.name')}</label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Pacote Influência Reels" />
               </div>
               {template ? (
@@ -121,7 +123,7 @@ export default function ProposalTemplateFormModal(props: ProposalTemplateFormMod
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Descrição</label>
+              <label className="mb-1 block text-sm font-medium">{t('common.field.description')}</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -209,10 +211,10 @@ export default function ProposalTemplateFormModal(props: ProposalTemplateFormMod
         </ModalBody>
         <ModalFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancelar
+            {t('common.action.cancel')}
           </Button>
           <Button onClick={() => void submit()} disabled={!isValid || loading}>
-            {template ? 'Salvar' : 'Criar template'}
+            {loading ? t('common.action.saving') : t('common.action.save')}
           </Button>
         </ModalFooter>
       </ModalContent>

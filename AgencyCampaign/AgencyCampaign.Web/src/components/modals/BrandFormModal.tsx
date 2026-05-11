@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, useApi, useI18n } from 'archon-ui'
 import { ImagePlus, Trash2 } from 'lucide-react'
 import { brandService, resolveBrandLogoUrl, type CreateBrandRequest, type UpdateBrandRequest } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
@@ -25,6 +25,7 @@ const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
 const MAX_BYTES = 2 * 1024 * 1024
 
 export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }: BrandFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!brand
   const [formData, setFormData] = useState<CreateBrandRequest>(initialFormData)
   const [isActive, setIsActive] = useState(true)
@@ -127,13 +128,13 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '960px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar marca' : 'Nova marca'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.brand.title.edit') : t('modal.brand.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '1.5rem', alignItems: 'start' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Logo</label>
+              <label className="text-sm font-medium">{t('common.field.logo')}</label>
               <div
                 className="relative flex items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted/30"
                 style={{ width: 160, height: 160 }}
@@ -156,46 +157,46 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
               />
               <div className="flex flex-col gap-1">
                 <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                  {logoPreview ? 'Trocar logo' : 'Enviar logo'}
+                  {logoPreview ? t('modal.brand.action.changeLogo') : t('modal.brand.action.uploadLogo')}
                 </Button>
                 {logoPreview && (
                   <Button type="button" variant="ghost" size="sm" onClick={handleRemoveLogo}>
-                    <Trash2 className="mr-1 h-3 w-3" /> Remover
+                    <Trash2 className="mr-1 h-3 w-3" /> {t('common.action.remove')}
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">PNG, JPG ou WEBP. Maximo 2MB.</p>
+              <p className="text-xs text-muted-foreground">{t('modal.brand.photo.hint')}</p>
               {logoError && <p className="text-xs text-destructive">{logoError}</p>}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nome</label>
+                <label className="text-sm font-medium">{t('common.field.name')}</label>
                 <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nome fantasia</label>
+                <label className="text-sm font-medium">{t('common.field.tradeName')}</label>
                 <Input value={formData.tradeName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, tradeName: e.target.value }))} />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Documento</label>
+                <label className="text-sm font-medium">{t('common.field.document')}</label>
                 <Input value={formData.document || ''} onChange={(e) => setFormData((prev) => ({ ...prev, document: e.target.value }))} />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Contato</label>
+                <label className="text-sm font-medium">{t('common.field.contact')}</label>
                 <Input value={formData.contactName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))} />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">E-mail</label>
+                <label className="text-sm font-medium">{t('common.field.email')}</label>
                 <Input type="email" value={formData.contactEmail || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactEmail: e.target.value }))} />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Observacoes</label>
+                <label className="text-sm font-medium">{t('common.field.notes')}</label>
                 <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
               </div>
             </div>
@@ -206,14 +207,14 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
               {isEditing && (
                 <div className="flex items-center gap-2">
                   <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-                  <span className="text-sm">Ativa</span>
+                  <span className="text-sm">{t('common.status.activeFemale')}</span>
                 </div>
               )}
             </div>
 
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-              <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+              <Button type="submit" disabled={loading}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
             </ModalFooter>
           </div>
         </form>

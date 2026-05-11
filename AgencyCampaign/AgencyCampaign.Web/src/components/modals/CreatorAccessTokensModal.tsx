@@ -10,6 +10,7 @@ import {
   ModalHeader,
   ModalTitle,
   useApi,
+  useI18n,
   useToast,
 } from 'archon-ui'
 import { Ban, Copy, Plus } from 'lucide-react'
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export default function CreatorAccessTokensModal({ open, onOpenChange, creator }: Props) {
+  const { t } = useI18n()
   const [tokens, setTokens] = useState<CreatorAccessToken[]>([])
   const [expiresAt, setExpiresAt] = useState('')
   const [note, setNote] = useState('')
@@ -91,7 +93,7 @@ export default function CreatorAccessTokensModal({ open, onOpenChange, creator }
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '760px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>Links de acesso ao portal — {creator?.name}</ModalTitle>
+          <ModalTitle>{t('modal.creatorTokens.title').replace('{0}', creator?.name ?? '')}</ModalTitle>
         </ModalHeader>
 
         <div className="space-y-4">

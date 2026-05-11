@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, useApi, useI18n } from 'archon-ui'
 import { platformService, type CreatePlatformRequest, type UpdatePlatformRequest } from '../../services/platformService'
 import type { Platform } from '../../types/platform'
 
@@ -16,6 +16,7 @@ const initialFormData: CreatePlatformRequest = {
 }
 
 export default function PlatformFormModal({ open, onOpenChange, platform, onSuccess }: PlatformFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!platform
   const [formData, setFormData] = useState<CreatePlatformRequest>(initialFormData)
   const [isActive, setIsActive] = useState(true)
@@ -57,18 +58,18 @@ export default function PlatformFormModal({ open, onOpenChange, platform, onSucc
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '760px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar plataforma' : 'Nova plataforma'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.platform.title.edit') : t('modal.platform.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nome</label>
+              <label className="text-sm font-medium">{t('common.field.name')}</label>
               <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Ordem</label>
+              <label className="text-sm font-medium">{t('common.field.order')}</label>
               <Input type="number" value={formData.displayOrder} onChange={(e) => setFormData((prev) => ({ ...prev, displayOrder: Number(e.target.value) }))} />
             </div>
           </div>
@@ -78,14 +79,14 @@ export default function PlatformFormModal({ open, onOpenChange, platform, onSucc
               {isEditing && (
                 <div className="flex items-center gap-2">
                   <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-                  <span className="text-sm">Ativa</span>
+                  <span className="text-sm">{t('common.status.active')}</span>
                 </div>
               )}
             </div>
 
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-              <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+              <Button type="submit" disabled={loading}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
             </ModalFooter>
           </div>
         </form>

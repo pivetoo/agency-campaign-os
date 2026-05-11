@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { campaignCreatorService, type CreateCampaignCreatorRequest, type UpdateCampaignCreatorRequest } from '../../services/campaignCreatorService'
 import { campaignCreatorStatusService } from '../../services/campaignCreatorStatusService'
 import { creatorService } from '../../services/creatorService'
@@ -25,6 +25,7 @@ const initialFormData: CreateCampaignCreatorRequest = {
 }
 
 export default function CampaignCreatorFormModal({ open, onOpenChange, campaignId, campaignCreator, onSuccess }: CampaignCreatorFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!campaignCreator
   const [formData, setFormData] = useState<CreateCampaignCreatorRequest>(initialFormData)
   const [creators, setCreators] = useState<Creator[]>([])
@@ -118,36 +119,36 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '860px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar creator da campanha' : 'Adicionar creator à campanha'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.campaignCreator.title.edit') : t('modal.campaignCreator.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Creator</label>
+              <label className="text-sm font-medium">{t('creators.singular')}</label>
               <SearchableSelect
                 value={formData.creatorId ? String(formData.creatorId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: Number(value) }))}
                 options={creators.map((creator) => ({ value: String(creator.id), label: `${creator.stageName || creator.name} · fee ${creator.defaultAgencyFeePercent ?? 0}%` }))}
-                placeholder="Selecione um creator"
-                searchPlaceholder="Buscar creator"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={isEditing}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Status</label>
+              <label className="text-sm font-medium">{t('common.field.status')}</label>
               <SearchableSelect
                 value={String(formData.campaignCreatorStatusId)}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorStatusId: Number(value) }))}
                 options={statuses.map((status) => ({ value: String(status.id), label: status.name }))}
-                placeholder="Selecione um status"
-                searchPlaceholder="Buscar status"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Valor combinado</label>
+              <label className="text-sm font-medium">{t('modal.campaignCreator.field.agreedAmount')}</label>
               <Input
                 type="number"
                 value={formData.agreedAmount === 0 ? '' : formData.agreedAmount}
@@ -159,24 +160,24 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Fee da agência (%)</label>
+              <label className="text-sm font-medium">{t('modal.campaignCreator.field.agencyFeePercent')}</label>
               <Input type="number" value={formData.agencyFeePercent} disabled />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Fee calculado</label>
+              <label className="text-sm font-medium">{t('modal.campaignCreator.field.agencyFeeCalc')}</label>
               <Input type="number" value={calculatedAgencyFeeAmount} disabled />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Observações</label>
+              <label className="text-sm font-medium">{t('common.field.notes')}</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !formData.creatorId}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !formData.creatorId}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

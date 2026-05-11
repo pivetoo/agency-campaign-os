@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useI18n } from 'archon-ui'
 import { campaignDocumentService, type CreateCampaignDocumentRequest, type UpdateCampaignDocumentRequest } from '../../services/campaignDocumentService'
 import { CampaignDocumentType, type CampaignDocument, type CampaignDocumentTypeValue } from '../../types/campaignDocument'
 import type { CampaignCreator } from '../../types/campaignCreator'
@@ -23,6 +23,7 @@ const initialFormData: CreateCampaignDocumentRequest = {
 }
 
 export default function CampaignDocumentFormModal({ open, onOpenChange, campaignId, document, campaignCreators, onSuccess }: CampaignDocumentFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!document
   const [formData, setFormData] = useState<CreateCampaignDocumentRequest>(initialFormData)
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -75,13 +76,13 @@ export default function CampaignDocumentFormModal({ open, onOpenChange, campaign
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '920px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar documento' : 'Novo documento'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.document.title.edit') : t('modal.document.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Tipo</label>
+              <label className="text-sm font-medium">{t('modal.document.field.documentType')}</label>
               <Select value={String(formData.documentType)} onValueChange={(value) => setFormData((prev) => ({ ...prev, documentType: Number(value) as CampaignDocumentTypeValue }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -95,7 +96,7 @@ export default function CampaignDocumentFormModal({ open, onOpenChange, campaign
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Creator da campanha</label>
+              <label className="text-sm font-medium">{t('modal.document.field.campaignCreator')}</label>
               <SearchableSelect
                 value={formData.campaignCreatorId ? String(formData.campaignCreatorId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorId: value ? Number(value) : undefined }))}
@@ -104,29 +105,29 @@ export default function CampaignDocumentFormModal({ open, onOpenChange, campaign
                   ...campaignCreators.map((item) => ({ value: String(item.id), label: item.creator?.stageName || item.creator?.name || `Creator #${item.creatorId}` })),
                 ]}
                 placeholder="Opcional"
-                searchPlaceholder="Buscar creator"
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Título</label>
+              <label className="text-sm font-medium">{t('common.field.title')}</label>
               <Input value={formData.title} onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))} required />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">URL do documento</label>
+              <label className="text-sm font-medium">{t('modal.document.field.documentUrl')}</label>
               <Input value={formData.documentUrl || ''} onChange={(e) => setFormData((prev) => ({ ...prev, documentUrl: e.target.value }))} />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Observações</label>
+              <label className="text-sm font-medium">{t('common.field.notes')}</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

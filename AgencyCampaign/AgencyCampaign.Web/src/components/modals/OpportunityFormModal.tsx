@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { brandService } from '../../services/brandService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import { opportunitySourceService, opportunityTagService } from '../../services/opportunitySourceService'
@@ -30,6 +30,7 @@ const initialFormData: CreateOpportunityRequest = {
 }
 
 export default function OpportunityFormModal({ open, onOpenChange, opportunity, onSuccess }: OpportunityFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!opportunity
   const [formData, setFormData] = useState<CreateOpportunityRequest>(initialFormData)
   const [brands, setBrands] = useState<Brand[]>([])
@@ -99,39 +100,39 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '960px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar oportunidade' : 'Nova oportunidade'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.opportunity.title.edit') : t('modal.opportunity.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label htmlFor="opportunity-name" className="text-sm font-medium">Nome da oportunidade</label>
+              <label htmlFor="opportunity-name" className="text-sm font-medium">{t('modal.opportunity.field.name')}</label>
               <Input id="opportunity-name" value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Marca</label>
+              <label className="text-sm font-medium">{t('common.field.brand')}</label>
               <SearchableSelect
                 value={formData.brandId ? String(formData.brandId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, brandId: Number(value) }))}
                 options={brands.map((brand) => ({ value: String(brand.id), label: brand.name }))}
-                placeholder="Selecione uma marca"
-                searchPlaceholder="Buscar marca"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="opportunity-estimated-value" className="text-sm font-medium">Valor estimado</label>
+              <label htmlFor="opportunity-estimated-value" className="text-sm font-medium">{t('modal.opportunity.field.estimatedValue')}</label>
               <Input id="opportunity-estimated-value" type="number" value={formData.estimatedValue === 0 ? '' : formData.estimatedValue} onChange={(e) => setFormData((prev) => ({ ...prev, estimatedValue: e.target.value === '' ? 0 : Number(e.target.value) }))} />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="opportunity-expected-close-at" className="text-sm font-medium">Previsão de fechamento</label>
+              <label htmlFor="opportunity-expected-close-at" className="text-sm font-medium">{t('modal.opportunity.field.expectedClose')}</label>
               <Input id="opportunity-expected-close-at" type="date" value={formData.expectedCloseAt?.split('T')[0] || ''} onChange={(e) => setFormData((prev) => ({ ...prev, expectedCloseAt: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Responsável comercial</label>
+              <label className="text-sm font-medium">{t('modal.opportunity.field.responsible')}</label>
               <SearchableSelect
                 value={formData.responsibleUserId ? String(formData.responsibleUserId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, responsibleUserId: value ? Number(value) : undefined }))}
@@ -139,46 +140,46 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
                   { value: '', label: 'Nenhum' },
                   ...responsibles.filter((r) => r.isActive).map((responsible) => ({ value: String(responsible.id), label: responsible.name })),
                 ]}
-                placeholder="Selecione um responsável"
-                searchPlaceholder="Buscar responsável"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="opportunity-contact-name" className="text-sm font-medium">Contato</label>
+              <label htmlFor="opportunity-contact-name" className="text-sm font-medium">{t('common.field.contact')}</label>
               <Input id="opportunity-contact-name" value={formData.contactName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="opportunity-contact-email" className="text-sm font-medium">E-mail</label>
+              <label htmlFor="opportunity-contact-email" className="text-sm font-medium">{t('common.field.email')}</label>
               <Input id="opportunity-contact-email" type="email" value={formData.contactEmail || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactEmail: e.target.value }))} />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="opportunity-description" className="text-sm font-medium">Descrição</label>
+              <label htmlFor="opportunity-description" className="text-sm font-medium">{t('common.field.description')}</label>
               <Input id="opportunity-description" value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="opportunity-notes" className="text-sm font-medium">Observações</label>
+              <label htmlFor="opportunity-notes" className="text-sm font-medium">{t('common.field.notes')}</label>
               <Input id="opportunity-notes" value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Origem</label>
+              <label className="text-sm font-medium">{t('common.field.origin')}</label>
               <SearchableSelect
                 value={formData.opportunitySourceId ? String(formData.opportunitySourceId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, opportunitySourceId: value ? Number(value) : undefined }))}
                 options={sources.map((source) => ({ value: String(source.id), label: source.name }))}
                 placeholder="Sem origem"
-                searchPlaceholder="Buscar origem"
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Tags</label>
+              <label className="text-sm font-medium">{t('common.field.tags')}</label>
               {tags.length === 0 ? (
-                <p className="text-xs text-muted-foreground">Nenhuma tag cadastrada. Crie em Configuração → Tags de oportunidade.</p>
+                <p className="text-xs text-muted-foreground">{t('modal.opportunity.placeholder.noTags')}</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => {
@@ -205,8 +206,8 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !formData.brandId}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !formData.brandId}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

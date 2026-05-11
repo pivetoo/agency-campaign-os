@@ -12,6 +12,7 @@ import {
   TabsList,
   TabsTrigger,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { ExternalLink } from 'lucide-react'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
@@ -39,6 +40,7 @@ const STATUS_VARIANTS: Record<PaymentStatusValue, 'default' | 'success' | 'warni
 }
 
 export default function CreatorPaymentDetailsModal({ open, onOpenChange, paymentId }: Props) {
+  const { t } = useI18n()
   const [payment, setPayment] = useState<CreatorPayment | null>(null)
   const { execute, loading } = useApi<CreatorPayment | null>({ showErrorMessage: true })
 
@@ -57,10 +59,10 @@ export default function CreatorPaymentDetailsModal({ open, onOpenChange, payment
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '880px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>Detalhes do pagamento</ModalTitle>
+          <ModalTitle>{t('modal.creatorPayment.title.details')}</ModalTitle>
         </ModalHeader>
 
-        {loading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+        {loading && <p className="text-sm text-muted-foreground">{t('common.loading')}</p>}
 
         {payment && (
           <div className="space-y-4">
@@ -104,10 +106,10 @@ export default function CreatorPaymentDetailsModal({ open, onOpenChange, payment
 
             <Tabs defaultValue="info" className="pt-2">
               <TabsList className="mb-4 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
-                <TabsTrigger value="info" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">Dados</TabsTrigger>
-                <TabsTrigger value="invoice" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">Nota fiscal</TabsTrigger>
+                <TabsTrigger value="info" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">{t('modal.creatorPayment.tab.data')}</TabsTrigger>
+                <TabsTrigger value="invoice" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">{t('modal.creatorPayment.tab.invoice')}</TabsTrigger>
                 <TabsTrigger value="events" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-                  Histórico
+                  {t('modal.creatorPayment.tab.history')}
                   {payment.events.length > 0 && (
                     <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">{payment.events.length}</span>
                   )}
@@ -160,7 +162,7 @@ export default function CreatorPaymentDetailsModal({ open, onOpenChange, payment
 
               <TabsContent value="events" className="mt-0">
                 {payment.events.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Sem eventos registrados.</p>
+                  <p className="text-sm text-muted-foreground">{t('modal.creatorPayment.noEvents')}</p>
                 ) : (
                   <div className="relative space-y-3 border-l-2 border-primary/15 pl-4">
                     {payment.events.map((event) => (
@@ -188,7 +190,7 @@ export default function CreatorPaymentDetailsModal({ open, onOpenChange, payment
 
         <ModalFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Fechar
+            {t('common.action.close')}
           </Button>
         </ModalFooter>
       </ModalContent>

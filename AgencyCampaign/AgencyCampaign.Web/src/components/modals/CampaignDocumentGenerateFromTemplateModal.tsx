@@ -9,6 +9,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { campaignDocumentService } from '../../services/campaignDocumentService'
 import { campaignDocumentTemplateService } from '../../services/campaignDocumentTemplateService'
@@ -35,6 +36,7 @@ export default function CampaignDocumentGenerateFromTemplateModal({
   campaignCreators,
   onSuccess,
 }: Props) {
+  const { t } = useI18n()
   const [documentType, setDocumentType] = useState<CampaignDocumentTypeValue>(CampaignDocumentType.CreatorAgreement)
   const [templates, setTemplates] = useState<CampaignDocumentTemplate[]>([])
   const [templateId, setTemplateId] = useState<number | undefined>()
@@ -115,18 +117,18 @@ export default function CampaignDocumentGenerateFromTemplateModal({
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '720px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>Gerar documento a partir de template</ModalTitle>
+          <ModalTitle>{t('modal.document.title.generate')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Tipo de documento</label>
+              <label className="text-sm font-medium">{t('modal.document.field.documentType')}</label>
               <SearchableSelect
                 value={String(documentType)}
                 onValueChange={(value) => setDocumentType(Number(value) as CampaignDocumentTypeValue)}
                 options={documentTypeOptions}
-                placeholder="Selecione"
-                searchPlaceholder="Buscar tipo"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
             <div className="space-y-2">
@@ -135,23 +137,23 @@ export default function CampaignDocumentGenerateFromTemplateModal({
                 value={templateId ? String(templateId) : ''}
                 onValueChange={(value) => setTemplateId(value ? Number(value) : undefined)}
                 options={templateOptions}
-                placeholder={templatesLoading ? 'Carregando...' : templateOptions.length === 0 ? 'Sem templates ativos para este tipo' : 'Selecione um template'}
-                searchPlaceholder="Buscar template"
+                placeholder={templatesLoading ? t('common.loading') : templateOptions.length === 0 ? t('modal.document.placeholder.noTemplates') : t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={templatesLoading || templateOptions.length === 0}
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Creator vinculado</label>
+              <label className="text-sm font-medium">{t('modal.document.field.linkedCreator')}</label>
               <SearchableSelect
                 value={campaignCreatorId ? String(campaignCreatorId) : ''}
                 onValueChange={(value) => setCampaignCreatorId(value ? Number(value) : undefined)}
                 options={creatorOptions}
                 placeholder="Opcional"
-                searchPlaceholder="Buscar creator"
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Título do documento</label>
+              <label className="text-sm font-medium">{t('modal.document.field.documentTitle')}</label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -162,10 +164,10 @@ export default function CampaignDocumentGenerateFromTemplateModal({
           </div>
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              {t('common.action.cancel')}
             </Button>
             <Button type="submit" disabled={loading || !isValid}>
-              {loading ? 'Gerando...' : 'Gerar documento'}
+              {loading ? t('common.action.generating') : t('modal.document.action.generate')}
             </Button>
           </ModalFooter>
         </form>

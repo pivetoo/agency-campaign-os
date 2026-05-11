@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, SearchableSelect, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { ImagePlus, Trash2 } from 'lucide-react'
 import { creatorService, resolveCreatorPhotoUrl, type CreateCreatorRequest, type UpdateCreatorRequest } from '../../services/creatorService'
 import type { Creator } from '../../types/creator'
@@ -28,20 +28,20 @@ const initialFormData: CreateCreatorRequest = {
   defaultAgencyFeePercent: 0,
 }
 
-const pixKeyTypeOptions = [
-  { value: '', label: 'Não informado' },
-  ...Object.values(PixKeyType).map((value) => ({
-    value: String(value),
-    label: pixKeyTypeLabels[value as PixKeyTypeValue],
-  })),
-]
-
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
 const MAX_BYTES = 2 * 1024 * 1024
 
 export default function CreatorFormModal({ open, onOpenChange, creator, onSuccess }: CreatorFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!creator
   const [formData, setFormData] = useState<CreateCreatorRequest>(initialFormData)
+  const pixKeyTypeOptions = [
+    { value: '', label: t('modal.creator.field.notInformed') },
+    ...Object.values(PixKeyType).map((value) => ({
+      value: String(value),
+      label: pixKeyTypeLabels[value as PixKeyTypeValue],
+    })),
+  ]
   const [isActive, setIsActive] = useState(true)
   const [pendingPhoto, setPendingPhoto] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
@@ -86,12 +86,12 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
     if (!file) return
 
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setPhotoError('Formato invalido. Use PNG, JPG ou WEBP.')
+      setPhotoError(t('modal.creator.photo.error.invalidFormat'))
       return
     }
 
     if (file.size > MAX_BYTES) {
-      setPhotoError('Arquivo excede o limite de 2MB.')
+      setPhotoError(t('modal.creator.photo.error.tooLarge'))
       return
     }
 
@@ -148,13 +148,13 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '1100px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar influenciador' : 'Novo influenciador'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.creator.title.edit') : t('modal.creator.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '1.5rem', alignItems: 'start' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Foto</label>
+              <label className="text-sm font-medium">{t('common.field.photo')}</label>
               <div
                 className="relative flex items-center justify-center overflow-hidden rounded-full border bg-muted/30"
                 style={{ width: 160, height: 160 }}
@@ -180,71 +180,71 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
               />
               <div className="flex flex-col gap-1">
                 <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                  {photoPreview ? 'Trocar foto' : 'Enviar foto'}
+                  {photoPreview ? t('modal.creator.action.changePhoto') : t('modal.creator.action.uploadPhoto')}
                 </Button>
                 {photoPreview && (
                   <Button type="button" variant="ghost" size="sm" onClick={handleRemovePhoto}>
-                    <Trash2 className="mr-1 h-3 w-3" /> Remover
+                    <Trash2 className="mr-1 h-3 w-3" /> {t('common.action.remove')}
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">PNG, JPG ou WEBP. Máximo 2MB.</p>
+              <p className="text-xs text-muted-foreground">{t('modal.creator.photo.hint')}</p>
               {photoError && <p className="text-xs text-destructive">{photoError}</p>}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nome</label>
+                <label className="text-sm font-medium">{t('common.field.name')}</label>
                 <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nome artístico</label>
+                <label className="text-sm font-medium">{t('modal.creator.field.stageName')}</label>
                 <Input value={formData.stageName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, stageName: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">E-mail</label>
+                <label className="text-sm font-medium">{t('common.field.email')}</label>
                 <Input type="email" value={formData.email || ''} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Telefone</label>
+                <label className="text-sm font-medium">{t('common.field.phone')}</label>
                 <Input value={formData.phone || ''} onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Documento</label>
+                <label className="text-sm font-medium">{t('common.field.document')}</label>
                 <Input value={formData.document || ''} onChange={(e) => setFormData((prev) => ({ ...prev, document: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Chave PIX</label>
+                <label className="text-sm font-medium">{t('modal.creator.field.pixKey')}</label>
                 <Input value={formData.pixKey || ''} onChange={(e) => setFormData((prev) => ({ ...prev, pixKey: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Tipo da chave PIX</label>
+                <label className="text-sm font-medium">{t('modal.creator.field.pixKeyType')}</label>
                 <SearchableSelect
                   value={formData.pixKeyType ? String(formData.pixKeyType) : ''}
                   onValueChange={(value) => setFormData((prev) => ({ ...prev, pixKeyType: value ? (Number(value) as PixKeyTypeValue) : undefined }))}
                   options={pixKeyTypeOptions}
-                  placeholder="Não informado"
-                  searchPlaceholder="Buscar"
+                  placeholder={t('modal.creator.field.notInformed')}
+                  searchPlaceholder={t('common.placeholder.search')}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nicho principal</label>
+                <label className="text-sm font-medium">{t('modal.creator.field.primaryNiche')}</label>
                 <Input value={formData.primaryNiche || ''} onChange={(e) => setFormData((prev) => ({ ...prev, primaryNiche: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Fee padrão da agência (%)</label>
+                <label className="text-sm font-medium">{t('modal.creator.field.agencyFeePercent')}</label>
                 <Input type="number" value={formData.defaultAgencyFeePercent} onChange={(e) => setFormData((prev) => ({ ...prev, defaultAgencyFeePercent: Number(e.target.value) }))} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Cidade</label>
+                <label className="text-sm font-medium">{t('common.field.city')}</label>
                 <Input value={formData.city || ''} onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Estado</label>
+                <label className="text-sm font-medium">{t('common.field.state')}</label>
                 <Input value={formData.state || ''} onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Observações</label>
+                <label className="text-sm font-medium">{t('common.field.notes')}</label>
                 <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
               </div>
             </div>
@@ -255,14 +255,14 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
               {isEditing && (
                 <div className="flex items-center gap-2">
                   <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-                  <span className="text-sm">Ativo</span>
+                  <span className="text-sm">{t('common.status.active')}</span>
                 </div>
               )}
             </div>
 
             <ModalFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-              <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+              <Button type="submit" disabled={loading}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
             </ModalFooter>
           </div>
         </form>

@@ -8,6 +8,7 @@ import {
   ModalHeader,
   ModalTitle,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
 import type { CreatorPayment } from '../../types/creatorPayment'
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export default function CreatorPaymentInvoiceModal({ open, onOpenChange, payment, onSuccess }: Props) {
+  const { t } = useI18n()
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [invoiceUrl, setInvoiceUrl] = useState('')
   const [issuedAt, setIssuedAt] = useState('')
@@ -49,20 +51,20 @@ export default function CreatorPaymentInvoiceModal({ open, onOpenChange, payment
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="lg">
         <ModalHeader>
-          <ModalTitle>Anexar nota fiscal</ModalTitle>
+          <ModalTitle>{t('modal.creatorPayment.title.attachInvoice')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Número da NF</label>
+              <label className="text-sm font-medium">{t('modal.creatorPayment.field.invoiceNumber')}</label>
               <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Data de emissão</label>
+              <label className="text-sm font-medium">{t('modal.creatorPayment.field.issuedAt')}</label>
               <Input type="date" value={issuedAt} onChange={(e) => setIssuedAt(e.target.value)} />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">URL do PDF da NF</label>
+              <label className="text-sm font-medium">{t('modal.creatorPayment.field.invoiceUrl')}</label>
               <Input
                 value={invoiceUrl}
                 onChange={(e) => setInvoiceUrl(e.target.value)}
@@ -71,8 +73,8 @@ export default function CreatorPaymentInvoiceModal({ open, onOpenChange, payment
             </div>
           </div>
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Anexar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading}>{loading ? t('common.action.saving') : t('modal.creatorPayment.action.attachInvoice')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

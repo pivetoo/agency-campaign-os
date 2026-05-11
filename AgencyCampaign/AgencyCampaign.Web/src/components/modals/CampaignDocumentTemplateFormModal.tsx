@@ -10,6 +10,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { Braces } from 'lucide-react'
 import { campaignDocumentTemplateService } from '../../services/campaignDocumentTemplateService'
@@ -37,6 +38,7 @@ const documentTypeOptions = Object.values(CampaignDocumentType).map((value) => (
 }))
 
 export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, template, onSuccess }: Props) {
+  const { t } = useI18n()
   const isEditing = !!template
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -162,12 +164,12 @@ export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, 
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '920px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar template de documento' : 'Novo template de documento'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.documentTemplate.title.edit') : t('modal.documentTemplate.title.new')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nome</label>
+              <label className="text-sm font-medium">{t('common.field.name')}</label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -176,7 +178,7 @@ export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, 
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Tipo</label>
+              <label className="text-sm font-medium">{t('common.field.type')}</label>
               <SearchableSelect
                 value={String(documentType)}
                 onValueChange={(value) => setDocumentType(Number(value) as CampaignDocumentTypeValue)}
@@ -186,7 +188,7 @@ export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, 
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Descrição</label>
+              <label className="text-sm font-medium">{t('common.field.description')}</label>
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -195,7 +197,7 @@ export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, 
             </div>
             <div className="space-y-2 md:col-span-2">
               <div className="flex items-center justify-between gap-2">
-                <label className="text-sm font-medium">Corpo do contrato</label>
+                <label className="text-sm font-medium">{t('modal.documentTemplate.field.body')}</label>
                 <div ref={pickerContainerRef} className="relative">
                   <Button
                     type="button"
@@ -203,7 +205,7 @@ export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, 
                     size="sm"
                     onClick={() => setPickerOpen((prev) => !prev)}
                   >
-                    <Braces className="mr-1 h-3 w-3" /> Inserir variável
+                    <Braces className="mr-1 h-3 w-3" /> {t('common.action.insertVariable')}
                   </Button>
                   {pickerOpen && (
                     groupedVariables.length === 0 ? (
@@ -251,15 +253,15 @@ export default function CampaignDocumentTemplateFormModal({ open, onOpenChange, 
           {isEditing && (
             <label className="flex items-center gap-2 text-sm">
               <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-              <span>Ativo</span>
+              <span>{t('common.status.active')}</span>
             </label>
           )}
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              {t('common.action.cancel')}
             </Button>
             <Button type="submit" disabled={loading || !isValid}>
-              {loading ? 'Salvando...' : 'Salvar'}
+              {loading ? t('common.action.saving') : t('common.action.save')}
             </Button>
           </ModalFooter>
         </form>

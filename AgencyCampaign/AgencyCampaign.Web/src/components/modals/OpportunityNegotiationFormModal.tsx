@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, useApi, useI18n } from 'archon-ui'
 import { opportunityService, type OpportunityNegotiation, type CreateOpportunityNegotiationRequest, type UpdateOpportunityNegotiationRequest } from '../../services/opportunityService'
 
 interface OpportunityNegotiationFormModalProps {
@@ -19,6 +19,7 @@ const initialFormData: CreateOpportunityNegotiationRequest = {
 }
 
 export default function OpportunityNegotiationFormModal({ open, onOpenChange, opportunityId, negotiation, onSuccess }: OpportunityNegotiationFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!negotiation
   const [formData, setFormData] = useState<CreateOpportunityNegotiationRequest>(initialFormData)
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -61,32 +62,32 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '720px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar negociação' : 'Nova negociação'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.opportunityNegotiation.title.edit') : t('modal.opportunityNegotiation.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Título</label>
+              <label className="text-sm font-medium">{t('common.field.title')}</label>
               <Input value={formData.title} onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))} required />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Valor</label>
+              <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.amount')}</label>
               <Input type="number" value={formData.amount === 0 ? '' : formData.amount} onChange={(e) => setFormData((prev) => ({ ...prev, amount: e.target.value === '' ? 0 : Number(e.target.value) }))} />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Data da negociação</label>
+              <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.date')}</label>
               <Input type="date" value={formData.negotiatedAt.split('T')[0]} onChange={(e) => setFormData((prev) => ({ ...prev, negotiatedAt: new Date(e.target.value).toISOString() }))} />
             </div>
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Observações</label>
+              <label className="text-sm font-medium">{t('common.field.notes')}</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

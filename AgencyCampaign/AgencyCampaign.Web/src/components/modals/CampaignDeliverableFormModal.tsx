@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useI18n } from 'archon-ui'
 import { campaignDeliverableService, type CreateCampaignDeliverableRequest, type UpdateCampaignDeliverableRequest } from '../../services/campaignDeliverableService'
 import { campaignCreatorService } from '../../services/campaignCreatorService'
 import { platformService } from '../../services/platformService'
@@ -35,6 +35,7 @@ const initialFormData: CreateCampaignDeliverableRequest = {
 }
 
 export default function CampaignDeliverableFormModal({ open, onOpenChange, campaignId, deliverable, onSuccess }: CampaignDeliverableFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!deliverable
   const [formData, setFormData] = useState<CreateCampaignDeliverableRequest>(initialFormData)
   const [campaignCreators, setCampaignCreators] = useState<CampaignCreator[]>([])
@@ -135,24 +136,24 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '980px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar entrega' : 'Nova entrega'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.deliverable.title.edit') : t('modal.deliverable.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Creator da campanha</label>
+              <label className="text-sm font-medium">{t('modal.deliverable.field.campaignCreator')}</label>
               <SearchableSelect
                 value={formData.campaignCreatorId ? String(formData.campaignCreatorId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorId: Number(value) }))}
                 options={campaignCreators.map((item) => ({ value: String(item.id), label: item.creator?.stageName || item.creator?.name || `Creator #${item.creatorId}` }))}
-                placeholder="Selecione um creator"
-                searchPlaceholder="Buscar creator"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Status</label>
+              <label className="text-sm font-medium">{t('common.field.status')}</label>
               <Select value={String(formData.status)} onValueChange={(value) => setFormData((prev) => ({ ...prev, status: Number(value) }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -166,78 +167,78 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Título</label>
+              <label className="text-sm font-medium">{t('common.field.title')}</label>
               <Input value={formData.title} onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))} required />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Descrição</label>
+              <label className="text-sm font-medium">{t('common.field.description')}</label>
               <Input value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Tipo</label>
+              <label className="text-sm font-medium">{t('modal.deliverable.field.kind')}</label>
               <SearchableSelect
                 value={formData.deliverableKindId ? String(formData.deliverableKindId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, deliverableKindId: Number(value) }))}
                 options={deliverableKinds.map((item) => ({ value: String(item.id), label: item.name }))}
-                placeholder="Selecione um tipo"
-                searchPlaceholder="Buscar tipo"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Plataforma</label>
+              <label className="text-sm font-medium">{t('common.field.platform')}</label>
               <SearchableSelect
                 value={formData.platformId ? String(formData.platformId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, platformId: Number(value) }))}
                 options={platforms.map((item) => ({ value: String(item.id), label: item.name }))}
-                placeholder="Selecione uma plataforma"
-                searchPlaceholder="Buscar plataforma"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Prazo</label>
+              <label className="text-sm font-medium">{t('common.field.dueDate')}</label>
               <Input type="date" value={formData.dueAt} onChange={(e) => setFormData((prev) => ({ ...prev, dueAt: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">URL publicada</label>
+              <label className="text-sm font-medium">{t('modal.deliverable.field.publishedUrl')}</label>
               <Input value={formData.publishedUrl || ''} onChange={(e) => setFormData((prev) => ({ ...prev, publishedUrl: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Evidência</label>
+              <label className="text-sm font-medium">{t('modal.deliverable.field.evidence')}</label>
               <Input value={formData.evidenceUrl || ''} onChange={(e) => setFormData((prev) => ({ ...prev, evidenceUrl: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Observações</label>
+              <label className="text-sm font-medium">{t('common.field.notes')}</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Valor bruto</label>
+              <label className="text-sm font-medium">{t('modal.deliverable.field.grossAmount')}</label>
               <Input type="number" value={formData.grossAmount} onChange={(e) => setFormData((prev) => ({ ...prev, grossAmount: Number(e.target.value) }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Repasse creator</label>
+              <label className="text-sm font-medium">{t('modal.deliverable.field.creatorAmount')}</label>
               <Input type="number" value={formData.creatorAmount} onChange={(e) => setFormData((prev) => ({ ...prev, creatorAmount: Number(e.target.value) }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Fee agência</label>
+              <label className="text-sm font-medium">{t('modal.deliverable.field.agencyFee')}</label>
               <Input type="number" value={formData.agencyFeeAmount} onChange={(e) => setFormData((prev) => ({ ...prev, agencyFeeAmount: Number(e.target.value) }))} required />
             </div>
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !formData.campaignCreatorId || !formData.deliverableKindId || !formData.platformId}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !formData.campaignCreatorId || !formData.deliverableKindId || !formData.platformId}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

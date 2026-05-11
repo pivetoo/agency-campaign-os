@@ -10,6 +10,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { Braces } from 'lucide-react'
 import { emailTemplateService } from '../../services/emailTemplateService'
@@ -39,6 +40,7 @@ const defaultEventType: EmailEventTypeValue = EmailEventType.ProposalSent
 type TargetField = 'subject' | 'body'
 
 export default function EmailTemplateFormModal({ open, onOpenChange, template, onSuccess }: Props) {
+  const { t } = useI18n()
   const isEditing = !!template
   const [name, setName] = useState('')
   const [eventType, setEventType] = useState<EmailEventTypeValue>(defaultEventType)
@@ -165,7 +167,7 @@ export default function EmailTemplateFormModal({ open, onOpenChange, template, o
     if (variablesForEvent.length === 0) {
       return (
         <div className="absolute right-0 top-full z-50 mt-1 w-72 rounded-md border bg-popover p-3 text-xs text-muted-foreground shadow-md">
-          Nenhuma variável disponível para este evento.
+          {t('modal.emailTemplate.placeholder.noVariables')}
         </div>
       )
     }
@@ -198,7 +200,7 @@ export default function EmailTemplateFormModal({ open, onOpenChange, template, o
         size="sm"
         onClick={() => setOpenPicker((prev) => (prev === field ? null : field))}
       >
-        <Braces className="mr-1 h-3 w-3" /> Inserir variável
+        <Braces className="mr-1 h-3 w-3" /> {t('common.action.insertVariable')}
       </Button>
       {renderPicker(field)}
     </div>
@@ -208,12 +210,12 @@ export default function EmailTemplateFormModal({ open, onOpenChange, template, o
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '880px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar template de e-mail' : 'Novo template de e-mail'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.emailTemplate.title.edit') : t('modal.emailTemplate.title.new')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nome</label>
+              <label className="text-sm font-medium">{t('common.field.name')}</label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -222,18 +224,18 @@ export default function EmailTemplateFormModal({ open, onOpenChange, template, o
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Evento</label>
+              <label className="text-sm font-medium">{t('modal.emailTemplate.field.event')}</label>
               <SearchableSelect
                 value={String(eventType)}
                 onValueChange={(value) => setEventType(Number(value) as EmailEventTypeValue)}
                 options={eventOptions}
-                placeholder="Selecione um evento"
-                searchPlaceholder="Buscar evento"
+                placeholder={t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
               />
             </div>
             <div className="space-y-2 md:col-span-2">
               <div className="flex items-center justify-between gap-2">
-                <label className="text-sm font-medium">Assunto</label>
+                <label className="text-sm font-medium">{t('common.field.subject')}</label>
                 {renderInsertButton('subject', subjectPickerRef)}
               </div>
               <Input
@@ -246,7 +248,7 @@ export default function EmailTemplateFormModal({ open, onOpenChange, template, o
             </div>
             <div className="space-y-2 md:col-span-2">
               <div className="flex items-center justify-between gap-2">
-                <label className="text-sm font-medium">Corpo (HTML)</label>
+                <label className="text-sm font-medium">{t('modal.emailTemplate.field.body')}</label>
                 {renderInsertButton('body', bodyPickerRef)}
               </div>
               <textarea
@@ -261,15 +263,15 @@ export default function EmailTemplateFormModal({ open, onOpenChange, template, o
           {isEditing && (
             <label className="flex items-center gap-2 text-sm">
               <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
-              <span>Ativo</span>
+              <span>{t('common.status.active')}</span>
             </label>
           )}
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              {t('common.action.cancel')}
             </Button>
             <Button type="submit" disabled={loading || !isValid}>
-              {loading ? 'Salvando...' : 'Salvar'}
+              {loading ? t('common.action.saving') : t('common.action.save')}
             </Button>
           </ModalFooter>
         </form>

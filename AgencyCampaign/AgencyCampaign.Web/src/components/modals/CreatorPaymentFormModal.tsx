@@ -9,6 +9,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { creatorPaymentService, type CreateCreatorPaymentRequest, type UpdateCreatorPaymentRequest } from '../../services/creatorPaymentService'
 import { campaignCreatorService } from '../../services/campaignCreatorService'
@@ -42,6 +43,7 @@ const methodOptions = Object.values(PaymentMethod).map((value) => ({
 }))
 
 export default function CreatorPaymentFormModal({ open, onOpenChange, payment, campaignId, onSuccess }: Props) {
+  const { t } = useI18n()
   const isEditing = !!payment
   const [formData, setFormData] = useState<CreateCreatorPaymentRequest>(initial)
   const [campaignCreators, setCampaignCreators] = useState<CampaignCreator[]>([])
@@ -121,13 +123,13 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '720px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar pagamento' : 'Novo pagamento ao creator'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.creatorPayment.title.edit') : t('modal.creatorPayment.title.new')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {!isEditing && (
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">Creator vinculado à campanha</label>
+                <label className="text-sm font-medium">{t('modal.creatorPayment.field.campaignCreator')}</label>
                 <SearchableSelect
                   value={formData.campaignCreatorId ? String(formData.campaignCreatorId) : ''}
                   onValueChange={(value) => setFormData((p) => ({ ...p, campaignCreatorId: value ? Number(value) : 0 }))}
@@ -139,7 +141,7 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
               </div>
             )}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Valor bruto (R$)</label>
+              <label className="text-sm font-medium">{t('modal.creatorPayment.field.grossAmount')}</label>
               <Input
                 type="number"
                 step="0.01"
@@ -150,7 +152,7 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Descontos (R$)</label>
+              <label className="text-sm font-medium">{t('modal.creatorPayment.field.discounts')}</label>
               <Input
                 type="number"
                 step="0.01"
@@ -160,13 +162,13 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Valor líquido</label>
+              <label className="text-sm font-medium">{t('modal.creatorPayment.field.netAmount')}</label>
               <div className="rounded-md border bg-primary/5 px-3 py-2 text-sm font-semibold">
                 R$ {netAmount.toFixed(2)}
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Método</label>
+              <label className="text-sm font-medium">{t('modal.creatorPayment.field.method')}</label>
               <SearchableSelect
                 value={String(formData.method)}
                 onValueChange={(value) => setFormData((p) => ({ ...p, method: Number(value) as PaymentMethodValue }))}
@@ -176,7 +178,7 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Descrição</label>
+              <label className="text-sm font-medium">{t('common.field.description')}</label>
               <Input
                 value={formData.description ?? ''}
                 onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
@@ -185,8 +187,8 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
             </div>
           </div>
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !isValid}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !isValid}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Checkbox, Input, SearchableSelect, useApi } from 'archon-ui'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Checkbox, Input, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import {
   financialEntryService,
   type CreateFinancialEntryRequest,
@@ -60,6 +60,7 @@ export default function FinancialEntryFormModal({
   defaultType,
   onSuccess,
 }: FinancialEntryFormModalProps) {
+  const { t } = useI18n()
   const isEditing = !!entry
   const [formData, setFormData] = useState<CreateFinancialEntryRequest>(initialFormData)
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
@@ -163,13 +164,13 @@ export default function FinancialEntryFormModal({
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '880px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar lançamento' : 'Novo lançamento'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.financialEntry.title.edit') : t('modal.financialEntry.title.new')}</ModalTitle>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Tipo</label>
+              <label className="text-sm font-medium">{t('common.field.type')}</label>
               <SearchableSelect
                 value={String(formData.type)}
                 onValueChange={(value) => {
@@ -181,14 +182,14 @@ export default function FinancialEntryFormModal({
                   }))
                 }}
                 options={[
-                  { value: '1', label: 'A receber' },
-                  { value: '2', label: 'A pagar' },
+                  { value: '1', label: t('modal.financialEntry.type.receivable') },
+                  { value: '2', label: t('modal.financialEntry.type.payable') },
                 ]}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Conta</label>
+              <label className="text-sm font-medium">{t('modal.financialEntry.field.account')}</label>
               <SearchableSelect
                 value={formData.accountId ? String(formData.accountId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, accountId: Number(value) }))}
@@ -199,7 +200,7 @@ export default function FinancialEntryFormModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Categoria</label>
+              <label className="text-sm font-medium">{t('common.field.category')}</label>
               <SearchableSelect
                 value={String(formData.category)}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, category: Number(value) }))}
@@ -208,40 +209,40 @@ export default function FinancialEntryFormModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Status</label>
+              <label className="text-sm font-medium">{t('common.field.status')}</label>
               <SearchableSelect
                 value={String(formData.status)}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, status: Number(value) }))}
                 options={[
-                  { value: '1', label: 'Pendente' },
-                  { value: '2', label: 'Pago' },
-                  { value: '4', label: 'Cancelado' },
+                  { value: '1', label: t('modal.financialEntry.status.pending') },
+                  { value: '2', label: t('modal.financialEntry.status.paid') },
+                  { value: '4', label: t('modal.financialEntry.status.cancelled') },
                 ]}
               />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Descrição</label>
+              <label className="text-sm font-medium">{t('common.field.description')}</label>
               <Input value={formData.description} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Contraparte</label>
-              <Input value={formData.counterpartyName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, counterpartyName: e.target.value }))} placeholder="Quem paga ou recebe" />
+              <label className="text-sm font-medium">{t('modal.financialEntry.field.counterparty')}</label>
+              <Input value={formData.counterpartyName || ''} onChange={(e) => setFormData((prev) => ({ ...prev, counterpartyName: e.target.value }))} placeholder={t('modal.financialEntry.placeholder.counterparty')} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Valor (R$)</label>
+              <label className="text-sm font-medium">{t('common.field.amountBrl')}</label>
               <Input type="number" step="0.01" value={formData.amount === 0 ? '' : formData.amount} onChange={(e) => setFormData((prev) => ({ ...prev, amount: e.target.value === '' ? 0 : Number(e.target.value) }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Campanha (opcional)</label>
+              <label className="text-sm font-medium">{t('modal.financialEntry.field.campaign')}</label>
               <SearchableSelect
                 value={formData.campaignId ? String(formData.campaignId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignId: value ? Number(value) : undefined, campaignDeliverableId: undefined }))}
                 options={[
-                  { value: '', label: 'Sem vínculo de campanha' },
+                  { value: '', label: t('modal.financialEntry.placeholder.noCampaign') },
                   ...campaigns.map((campaign) => ({ value: String(campaign.id), label: campaign.name })),
                 ]}
                 placeholder="Sem vínculo"
@@ -251,12 +252,12 @@ export default function FinancialEntryFormModal({
 
             {formData.campaignId && deliverables.length > 0 && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Entrega vinculada</label>
+                <label className="text-sm font-medium">{t('modal.financialEntry.field.deliverable')}</label>
                 <SearchableSelect
                   value={formData.campaignDeliverableId ? String(formData.campaignDeliverableId) : ''}
                   onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignDeliverableId: value ? Number(value) : undefined }))}
                   options={[
-                    { value: '', label: 'Sem entrega' },
+                    { value: '', label: t('modal.financialEntry.placeholder.noDeliverable') },
                     ...deliverables.map((deliverable) => ({ value: String(deliverable.id), label: deliverable.title })),
                   ]}
                   placeholder="Opcional"
@@ -266,53 +267,53 @@ export default function FinancialEntryFormModal({
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Ocorrência</label>
+              <label className="text-sm font-medium">{t('modal.financialEntry.field.occurrence')}</label>
               <Input type="date" value={formData.occurredAt} onChange={(e) => setFormData((prev) => ({ ...prev, occurredAt: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Vencimento</label>
+              <label className="text-sm font-medium">{t('modal.financialEntry.field.dueDate')}</label>
               <Input type="date" value={formData.dueAt} onChange={(e) => setFormData((prev) => ({ ...prev, dueAt: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Pago em</label>
+              <label className="text-sm font-medium">{t('common.field.paidAt')}</label>
               <Input type="date" value={formData.paidAt || ''} onChange={(e) => setFormData((prev) => ({ ...prev, paidAt: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Forma de pagamento</label>
-              <Input value={formData.paymentMethod || ''} onChange={(e) => setFormData((prev) => ({ ...prev, paymentMethod: e.target.value }))} placeholder="PIX, boleto, transferência..." />
+              <label className="text-sm font-medium">{t('modal.financialEntry.field.paymentMethod')}</label>
+              <Input value={formData.paymentMethod || ''} onChange={(e) => setFormData((prev) => ({ ...prev, paymentMethod: e.target.value }))} placeholder={t('modal.financialEntry.placeholder.paymentMethod')} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Referência (NF, boleto, etc.)</label>
+              <label className="text-sm font-medium">{t('modal.financialEntry.field.reference')}</label>
               <Input value={formData.referenceCode || ''} onChange={(e) => setFormData((prev) => ({ ...prev, referenceCode: e.target.value }))} />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Observações</label>
+              <label className="text-sm font-medium">{t('common.field.notes')}</label>
               <Input value={formData.notes || ''} onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Subcategoria (opcional)</label>
+              <label className="text-sm font-medium">{t('modal.financialEntry.field.subcategory')}</label>
               <SearchableSelect
                 value={formData.subcategoryId ? String(formData.subcategoryId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, subcategoryId: value ? Number(value) : undefined }))}
                 options={[
-                  { value: '', label: 'Sem subcategoria' },
+                  { value: '', label: t('modal.financialEntry.placeholder.noSubcategory') },
                   ...subcategories
                     .filter((sub) => sub.macroCategory === formData.category && sub.isActive)
                     .map((sub) => ({ value: String(sub.id), label: sub.name })),
                 ]}
-                placeholder="Sem subcategoria"
+                placeholder={t('modal.financialEntry.placeholder.noSubcategory')}
                 searchPlaceholder="Buscar subcategoria"
               />
             </div>
 
             <div className="space-y-2 md:col-span-2 rounded-md border bg-muted/30 p-3">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Nota fiscal</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('modal.financialEntry.section.invoice')}</p>
               <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
                 <Input
                   placeholder="Número da NF"
@@ -339,12 +340,12 @@ export default function FinancialEntryFormModal({
                     checked={installmentEnabled}
                     onCheckedChange={(checked) => setInstallmentEnabled(!!checked)}
                   />
-                  <span>Parcelar este lançamento</span>
+                  <span>{t('modal.financialEntry.field.installments')}</span>
                 </label>
                 {installmentEnabled && (
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                     <div className="space-y-1">
-                      <label className="text-xs text-muted-foreground">Total de parcelas</label>
+                      <label className="text-xs text-muted-foreground">{t('modal.financialEntry.field.installmentTotal')}</label>
                       <Input
                         type="number"
                         min={2}
@@ -363,8 +364,8 @@ export default function FinancialEntryFormModal({
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={loading || !isValid}>{loading ? 'Salvando...' : 'Salvar'}</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+            <Button type="submit" disabled={loading || !isValid}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

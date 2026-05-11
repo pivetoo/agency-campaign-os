@@ -9,6 +9,7 @@ import {
   ModalTitle,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
@@ -30,6 +31,7 @@ interface Props {
 const PAYMENT_CATEGORY_HINTS = ['pagamento', 'payment', 'transfer', 'repasse']
 
 export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, payments, onSuccess }: Props) {
+  const { t } = useI18n()
   const [categories, setCategories] = useState<IntegrationCategory[]>([])
   const [categoryId, setCategoryId] = useState<number | undefined>()
   const [integrations, setIntegrations] = useState<IntegrationPlatformIntegration[]>([])
@@ -126,7 +128,7 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '760px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>Agendar lote de pagamentos</ModalTitle>
+          <ModalTitle>{t('modal.creatorPayment.title.scheduleBatch')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-3 gap-2 rounded-lg border bg-primary/5 p-3 text-sm">
@@ -151,24 +153,24 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Categoria</label>
+              <label className="text-sm font-medium">{t('common.field.category')}</label>
               <SearchableSelect
                 value={categoryId ? String(categoryId) : ''}
                 onValueChange={(value) => setCategoryId(value ? Number(value) : undefined)}
                 options={categories.map((c) => ({ value: String(c.id), label: c.name }))}
-                placeholder={catLoading ? 'Carregando...' : 'Selecione'}
-                searchPlaceholder="Buscar"
+                placeholder={catLoading ? t('common.loading') : t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={catLoading}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Integração</label>
+              <label className="text-sm font-medium">{t('modal.automation.field.integration')}</label>
               <SearchableSelect
                 value={integrationId ? String(integrationId) : ''}
                 onValueChange={(value) => setIntegrationId(value ? Number(value) : undefined)}
                 options={integrations.map((i) => ({ value: String(i.id), label: i.name }))}
-                placeholder={intLoading ? 'Carregando...' : integrations.length === 0 ? 'Sem integrações' : 'Selecione'}
-                searchPlaceholder="Buscar"
+                placeholder={intLoading ? t('common.loading') : integrations.length === 0 ? 'Sem integrações' : t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={intLoading || integrations.length === 0}
               />
             </div>
@@ -178,32 +180,32 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
                 value={connectorId ? String(connectorId) : ''}
                 onValueChange={(value) => setConnectorId(value ? Number(value) : undefined)}
                 options={connectors.map((c) => ({ value: String(c.id), label: c.name }))}
-                placeholder={connLoading ? 'Carregando...' : connectors.length === 0 ? 'Configure um conector primeiro' : 'Selecione'}
-                searchPlaceholder="Buscar"
+                placeholder={connLoading ? t('common.loading') : connectors.length === 0 ? 'Configure um conector primeiro' : t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={connLoading || connectors.length === 0}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Pipeline de envio</label>
+              <label className="text-sm font-medium">{t('modal.document.field.sendPipeline')}</label>
               <SearchableSelect
                 value={pipelineId ? String(pipelineId) : ''}
                 onValueChange={(value) => setPipelineId(value ? Number(value) : undefined)}
                 options={pipelines.map((p) => ({ value: String(p.id), label: p.name }))}
-                placeholder={pipeLoading ? 'Carregando...' : pipelines.length === 0 ? 'Sem pipelines' : 'Selecione'}
-                searchPlaceholder="Buscar"
+                placeholder={pipeLoading ? t('common.loading') : pipelines.length === 0 ? 'Sem pipelines' : t('common.placeholder.select')}
+                searchPlaceholder={t('common.placeholder.search')}
                 disabled={pipeLoading || pipelines.length === 0}
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Data prevista de pagamento (opcional)</label>
+              <label className="text-sm font-medium">{t('modal.creatorPayment.field.scheduledFor')}</label>
               <Input type="datetime-local" value={scheduledFor} onChange={(e) => setScheduledFor(e.target.value)} />
             </div>
           </div>
 
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
             <Button type="submit" disabled={sending || !isValid}>
-              {sending ? 'Enviando...' : `Enviar ${payments.length} pagamento(s)`}
+              {sending ? t('common.action.sending') : t('modal.creatorPayment.action.sendBatch').replace('{0}', String(payments.length))}
             </Button>
           </ModalFooter>
         </form>
