@@ -303,4 +303,21 @@
   <data name="proposal.status.converted" xml:space="preserve"><value>Convertida</value></data>
   <data name="proposal.status.expired" xml:space="preserve"><value>Expirada</value></data>
   <data name="proposal.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="opportunities.title" xml:space="preserve"><value>Oportunidades</value></data>
+  <data name="opportunities.subtitle" xml:space="preserve"><value>Gestione el funnel comercial y siga propuestas, negociaciones y follow-ups</value></data>
+  <data name="opportunities.empty" xml:space="preserve"><value>No hay oportunidades registradas</value></data>
+  <data name="opportunities.empty.filtered" xml:space="preserve"><value>No se encontraron oportunidades con los filtros actuales</value></data>
+  <data name="opportunities.search.placeholder" xml:space="preserve"><value>Buscar por nombre, marca, contacto o email...</value></data>
+  <data name="opportunities.filter.allStages" xml:space="preserve"><value>Todas las etapas</value></data>
+  <data name="opportunities.filter.searchStage" xml:space="preserve"><value>Buscar etapa...</value></data>
+  <data name="opportunities.field.opportunity" xml:space="preserve"><value>Oportunidad</value></data>
+  <data name="opportunities.field.estimatedValue" xml:space="preserve"><value>Valor estimado</value></data>
+  <data name="opportunities.field.expectedCloseAt" xml:space="preserve"><value>Cierre previsto</value></data>
+  <data name="opportunities.field.stage" xml:space="preserve"><value>Etapa</value></data>
+  <data name="opportunities.field.followUps" xml:space="preserve"><value>Follow-ups</value></data>
+  <data name="opportunities.field.proposals" xml:space="preserve"><value>Propuestas</value></data>
+  <data name="opportunities.status.all" xml:space="preserve"><value>Todas</value></data>
+  <data name="opportunities.status.open" xml:space="preserve"><value>Abiertas</value></data>
+  <data name="opportunities.status.won" xml:space="preserve"><value>Ganadas</value></data>
+  <data name="opportunities.status.lost" xml:space="preserve"><value>Perdidas</value></data>
 </root>

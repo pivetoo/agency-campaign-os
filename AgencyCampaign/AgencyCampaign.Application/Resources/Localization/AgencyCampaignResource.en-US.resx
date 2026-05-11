@@ -303,4 +303,21 @@
   <data name="proposal.status.converted" xml:space="preserve"><value>Converted</value></data>
   <data name="proposal.status.expired" xml:space="preserve"><value>Expired</value></data>
   <data name="proposal.status.cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="opportunities.title" xml:space="preserve"><value>Opportunities</value></data>
+  <data name="opportunities.subtitle" xml:space="preserve"><value>Manage the commercial funnel and track proposals, negotiations and follow-ups</value></data>
+  <data name="opportunities.empty" xml:space="preserve"><value>No opportunities registered</value></data>
+  <data name="opportunities.empty.filtered" xml:space="preserve"><value>No opportunities found with current filters</value></data>
+  <data name="opportunities.search.placeholder" xml:space="preserve"><value>Search by name, brand, contact or email...</value></data>
+  <data name="opportunities.filter.allStages" xml:space="preserve"><value>All stages</value></data>
+  <data name="opportunities.filter.searchStage" xml:space="preserve"><value>Search stage...</value></data>
+  <data name="opportunities.field.opportunity" xml:space="preserve"><value>Opportunity</value></data>
+  <data name="opportunities.field.estimatedValue" xml:space="preserve"><value>Estimated value</value></data>
+  <data name="opportunities.field.expectedCloseAt" xml:space="preserve"><value>Expected close</value></data>
+  <data name="opportunities.field.stage" xml:space="preserve"><value>Stage</value></data>
+  <data name="opportunities.field.followUps" xml:space="preserve"><value>Follow-ups</value></data>
+  <data name="opportunities.field.proposals" xml:space="preserve"><value>Proposals</value></data>
+  <data name="opportunities.status.all" xml:space="preserve"><value>All</value></data>
+  <data name="opportunities.status.open" xml:space="preserve"><value>Open</value></data>
+  <data name="opportunities.status.won" xml:space="preserve"><value>Won</value></data>
+  <data name="opportunities.status.lost" xml:space="preserve"><value>Lost</value></data>
 </root>
