@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, useApi, useToast } from 'archon-ui'
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, useApi, useToast, useI18n } from 'archon-ui'
 import { Copy, Eye, Link as LinkIcon, Link2, ShieldOff } from 'lucide-react'
 import {
   proposalService,
@@ -26,6 +26,7 @@ function maskToken(token: string): string {
 }
 
 export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) {
+  const { t } = useI18n()
   const [shareLinks, setShareLinks] = useState<ProposalShareLink[]>([])
   const [versions, setVersions] = useState<ProposalVersion[]>([])
   const [expiresAt, setExpiresAt] = useState('')
@@ -63,7 +64,7 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
   }
 
   const revokeLink = async (linkId: number) => {
-    if (!window.confirm('Revogar este link? Quem já abriu não consegue acessar mais.')) return
+    if (!window.confirm(t('proposalShare.confirm.revoke'))) return
     const result = await runMutation(() => proposalService.revokeShareLink(linkId))
     if (result !== null) {
       await reload()
@@ -74,16 +75,16 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
     const url = buildPublicUrl(token)
     try {
       await navigator.clipboard.writeText(url)
-      toast({ title: 'Link copiado', description: url, variant: 'success' })
+      toast({ title: t('proposalShare.toast.copied.title'), description: url, variant: 'success' })
     } catch {
-      toast({ title: 'Não foi possível copiar', description: 'Copie manualmente o link abaixo.', variant: 'destructive' })
+      toast({ title: t('proposalShare.toast.copyFailed.title'), description: t('proposalShare.toast.copyFailed.description'), variant: 'destructive' })
     }
   }
 
   const statusBadge = (link: ProposalShareLink) => {
-    if (link.revokedAt) return <Badge variant="destructive">Revogado</Badge>
-    if (!link.isActive) return <Badge variant="warning">Expirado</Badge>
-    return <Badge variant="success">Ativo</Badge>
+    if (link.revokedAt) return <Badge variant="destructive">{t('proposalShare.status.revoked')}</Badge>
+    if (!link.isActive) return <Badge variant="warning">{t('proposalShare.status.expired')}</Badge>
+    return <Badge variant="success">{t('proposalShare.status.active')}</Badge>
   }
 
   return (
@@ -92,19 +93,19 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
         <CardHeader className="border-b bg-muted/20 py-3">
           <CardTitle className="flex items-center gap-2 text-sm">
             <LinkIcon className="h-4 w-4 text-primary" />
-            Links públicos
+            {t('proposalShare.publicLinks.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 p-4">
           <div className="rounded-md border border-dashed border-border/70 bg-muted/20 p-4">
-            <div className="text-sm font-medium text-foreground">Gerar novo link</div>
+            <div className="text-sm font-medium text-foreground">{t('proposalShare.generate.title')}</div>
             <p className="mt-1 text-xs text-muted-foreground">
-              O link envia o cliente direto para a versão mais recente da proposta. Sem login, com rastreamento de visualização.
+              {t('proposalShare.generate.description')}
             </p>
             <div className="mt-3 space-y-2">
               <div>
                 <label className="text-xs font-medium text-muted-foreground">
-                  Validade (opcional)
+                  {t('proposalShare.generate.expiresLabel')}
                 </label>
                 <Input
                   type="datetime-local"
@@ -120,15 +121,15 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                 disabled={mutating}
                 fullWidth
               >
-                Gerar link público
+                {t('proposalShare.generate.button')}
               </Button>
             </div>
           </div>
 
           {loading && shareLinks.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Carregando links...</div>
+            <div className="text-sm text-muted-foreground">{t('proposalShare.loading')}</div>
           ) : shareLinks.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Nenhum link gerado ainda.</div>
+            <div className="text-sm text-muted-foreground">{t('proposalShare.empty')}</div>
           ) : (
             <div className="space-y-2">
               {shareLinks.map((link) => (
@@ -144,18 +145,18 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                   </div>
                   <dl className="mt-2 space-y-1 text-xs text-muted-foreground">
                     <div className="flex items-baseline justify-between gap-2">
-                      <dt className="text-[10px] uppercase tracking-wide">Criado</dt>
+                      <dt className="text-[10px] uppercase tracking-wide">{t('proposalShare.field.created')}</dt>
                       <dd className="text-foreground">{formatDateTime(link.createdAt)}</dd>
                     </div>
                     <div className="flex items-baseline justify-between gap-2">
-                      <dt className="text-[10px] uppercase tracking-wide">Expira</dt>
+                      <dt className="text-[10px] uppercase tracking-wide">{t('proposalShare.field.expires')}</dt>
                       <dd className="text-foreground">
-                        {link.expiresAt ? formatDateTime(link.expiresAt) : 'Sem expiração'}
+                        {link.expiresAt ? formatDateTime(link.expiresAt) : t('proposalShare.field.noExpiration')}
                       </dd>
                     </div>
                     {link.lastViewedAt ? (
                       <div className="flex items-baseline justify-between gap-2">
-                        <dt className="text-[10px] uppercase tracking-wide">Última visita</dt>
+                        <dt className="text-[10px] uppercase tracking-wide">{t('proposalShare.field.lastView')}</dt>
                         <dd className="text-foreground">{formatDateTime(link.lastViewedAt)}</dd>
                       </div>
                     ) : null}
@@ -168,7 +169,7 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                       onClick={() => void copyLink(link.token)}
                       disabled={!link.isActive}
                     >
-                      Copiar
+                      {t('proposalShare.action.copy')}
                     </Button>
                     {link.isActive ? (
                       <Button
@@ -178,7 +179,7 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                         onClick={() => void revokeLink(link.id)}
                         disabled={mutating}
                       >
-                        Revogar
+                        {t('proposalShare.action.revoke')}
                       </Button>
                     ) : null}
                   </div>

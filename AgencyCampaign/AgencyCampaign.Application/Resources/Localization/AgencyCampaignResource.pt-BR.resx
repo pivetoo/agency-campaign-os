@@ -345,4 +345,29 @@
   <data name="followups.empty.completed.subtitle" xml:space="preserve"><value>Quando marcar como concluída, ela aparece aqui.</value></data>
   <data name="followups.markComplete.title" xml:space="preserve"><value>Marcar como concluída</value></data>
   <data name="followups.markComplete.alreadyDone" xml:space="preserve"><value>Já concluída</value></data>
+  <data name="proposalShare.confirm.revoke" xml:space="preserve"><value>Revogar este link? Quem já abriu não consegue acessar mais.</value></data>
+  <data name="proposalShare.toast.copied.title" xml:space="preserve"><value>Link copiado</value></data>
+  <data name="proposalShare.toast.copyFailed.title" xml:space="preserve"><value>Não foi possível copiar</value></data>
+  <data name="proposalShare.toast.copyFailed.description" xml:space="preserve"><value>Copie manualmente o link abaixo.</value></data>
+  <data name="proposalShare.status.revoked" xml:space="preserve"><value>Revogado</value></data>
+  <data name="proposalShare.status.expired" xml:space="preserve"><value>Expirado</value></data>
+  <data name="proposalShare.status.active" xml:space="preserve"><value>Ativo</value></data>
+  <data name="proposalShare.publicLinks.title" xml:space="preserve"><value>Links públicos</value></data>
+  <data name="proposalShare.generate.title" xml:space="preserve"><value>Gerar novo link</value></data>
+  <data name="proposalShare.generate.description" xml:space="preserve"><value>O link envia o cliente direto para a versão mais recente da proposta. Sem login, com rastreamento de visualização.</value></data>
+  <data name="proposalShare.generate.expiresLabel" xml:space="preserve"><value>Validade (opcional)</value></data>
+  <data name="proposalShare.generate.button" xml:space="preserve"><value>Gerar link público</value></data>
+  <data name="proposalShare.loading" xml:space="preserve"><value>Carregando links...</value></data>
+  <data name="proposalShare.empty" xml:space="preserve"><value>Nenhum link gerado ainda.</value></data>
+  <data name="proposalShare.field.created" xml:space="preserve"><value>Criado</value></data>
+  <data name="proposalShare.field.expires" xml:space="preserve"><value>Expira</value></data>
+  <data name="proposalShare.field.lastView" xml:space="preserve"><value>Última visita</value></data>
+  <data name="proposalShare.field.noExpiration" xml:space="preserve"><value>Sem expiração</value></data>
+  <data name="proposalShare.action.copy" xml:space="preserve"><value>Copiar</value></data>
+  <data name="proposalShare.action.revoke" xml:space="preserve"><value>Revogar</value></data>
+  <data name="proposalShare.versions.title" xml:space="preserve"><value>Versões enviadas</value></data>
+  <data name="proposalShare.versions.empty" xml:space="preserve"><value>Nenhuma versão registrada. Cada vez que você clicar em Enviar, uma nova versão é gerada automaticamente.</value></data>
+  <data name="proposalShare.versions.totalLabel" xml:space="preserve"><value>Total</value></data>
+  <data name="proposalShare.versions.byUser" xml:space="preserve"><value>por {0}</value></data>
+  <data name="proposalShare.versions.validUntil" xml:space="preserve"><value>válida até {0}</value></data>
 </root>
