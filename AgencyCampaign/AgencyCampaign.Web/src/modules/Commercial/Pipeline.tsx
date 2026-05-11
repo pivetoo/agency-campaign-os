@@ -343,7 +343,7 @@ export default function CommercialPipeline() {
         {!loading && summary.count === 0 && (
           <div className="flex flex-col items-center justify-center gap-3 py-10 text-center text-muted-foreground">
             <p className="text-sm">{t('pipeline.empty.description')}</p>
-            <Button type="button" variant="outline" size="sm" onClick={() => setIsFormOpen(true)}>
+            <Button type="button" variant="secondary" size="sm" onClick={() => setIsFormOpen(true)}>
               {t('pipeline.action.registerLead')}
             </Button>
           </div>
