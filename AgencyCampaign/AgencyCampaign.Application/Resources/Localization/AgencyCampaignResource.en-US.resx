@@ -211,4 +211,44 @@
   <data name="creators.preview.description" xml:space="preserve"><value>Quick summary of the selected creator</value></data>
   <data name="creators.preview.dataSection" xml:space="preserve"><value>Main data</value></data>
   <data name="creators.preview.dataSectionDesc" xml:space="preserve"><value>Creator registration and operational information</value></data>
+  <data name="common.field.type" xml:space="preserve"><value>Type</value></data>
+  <data name="common.field.startDate" xml:space="preserve"><value>Start</value></data>
+  <data name="common.field.endDate" xml:space="preserve"><value>End</value></data>
+  <data name="campaigns.title" xml:space="preserve"><value>Campaigns</value></data>
+  <data name="campaigns.subtitle" xml:space="preserve"><value>Manage campaigns, casting, deliverables and operations</value></data>
+  <data name="campaigns.empty" xml:space="preserve"><value>No campaigns registered</value></data>
+  <data name="campaign.field.campaign" xml:space="preserve"><value>Campaign</value></data>
+  <data name="campaign.field.brand" xml:space="preserve"><value>Brand</value></data>
+  <data name="campaign.field.objective" xml:space="preserve"><value>Objective</value></data>
+  <data name="campaign.field.budget" xml:space="preserve"><value>Budget</value></data>
+  <data name="campaign.status.draft" xml:space="preserve"><value>Draft</value></data>
+  <data name="campaign.status.planned" xml:space="preserve"><value>Planned</value></data>
+  <data name="campaign.status.executing" xml:space="preserve"><value>Executing</value></data>
+  <data name="campaign.status.reviewing" xml:space="preserve"><value>In review</value></data>
+  <data name="campaign.status.completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="campaign.status.cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="approvals.title" xml:space="preserve"><value>Approvals</value></data>
+  <data name="approvals.subtitle" xml:space="preserve"><value>Center to approve or reject commercial exceptions for discount, margin, deadline and special conditions</value></data>
+  <data name="approvals.empty" xml:space="preserve"><value>No approvals registered</value></data>
+  <data name="approvals.kpi.pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="approvals.kpi.approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="approvals.kpi.rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="approvals.action.goToPipeline" xml:space="preserve"><value>Go to pipeline</value></data>
+  <data name="approvals.action.approveSelected" xml:space="preserve"><value>Approve selected</value></data>
+  <data name="approvals.action.rejectSelected" xml:space="preserve"><value>Reject selected</value></data>
+  <data name="approvals.type.discount" xml:space="preserve"><value>Discount</value></data>
+  <data name="approvals.type.margin" xml:space="preserve"><value>Margin</value></data>
+  <data name="approvals.type.deadline" xml:space="preserve"><value>Deadline</value></data>
+  <data name="approvals.type.exception" xml:space="preserve"><value>Exception</value></data>
+  <data name="approvals.status.pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="approvals.status.approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="approvals.status.rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="approvals.status.cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="approvals.field.opportunity" xml:space="preserve"><value>Opportunity</value></data>
+  <data name="approvals.field.negotiation" xml:space="preserve"><value>Negotiation</value></data>
+  <data name="approvals.field.requestedBy" xml:space="preserve"><value>Requested by</value></data>
+  <data name="approvals.field.requestedAt" xml:space="preserve"><value>Requested at</value></data>
+  <data name="approvals.decision.approved" xml:space="preserve"><value>Approval made by the Approvals Center.</value></data>
+  <data name="approvals.decision.rejected" xml:space="preserve"><value>Rejection made by the Approvals Center.</value></data>
+  <data name="approvals.user.fallback" xml:space="preserve"><value>Commercial manager</value></data>
 </root>

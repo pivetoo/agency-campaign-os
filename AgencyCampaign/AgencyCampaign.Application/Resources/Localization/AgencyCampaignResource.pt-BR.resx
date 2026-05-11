@@ -211,4 +211,44 @@
   <data name="creators.preview.description" xml:space="preserve"><value>Resumo rápido do creator selecionado</value></data>
   <data name="creators.preview.dataSection" xml:space="preserve"><value>Dados principais</value></data>
   <data name="creators.preview.dataSectionDesc" xml:space="preserve"><value>Informações cadastrais e operacionais do creator</value></data>
+  <data name="common.field.type" xml:space="preserve"><value>Tipo</value></data>
+  <data name="common.field.startDate" xml:space="preserve"><value>Início</value></data>
+  <data name="common.field.endDate" xml:space="preserve"><value>Término</value></data>
+  <data name="campaigns.title" xml:space="preserve"><value>Campanhas</value></data>
+  <data name="campaigns.subtitle" xml:space="preserve"><value>Gerencie campanhas, casting, entregas e operação</value></data>
+  <data name="campaigns.empty" xml:space="preserve"><value>Nenhuma campanha cadastrada</value></data>
+  <data name="campaign.field.campaign" xml:space="preserve"><value>Campanha</value></data>
+  <data name="campaign.field.brand" xml:space="preserve"><value>Marca</value></data>
+  <data name="campaign.field.objective" xml:space="preserve"><value>Objetivo</value></data>
+  <data name="campaign.field.budget" xml:space="preserve"><value>Budget</value></data>
+  <data name="campaign.status.draft" xml:space="preserve"><value>Rascunho</value></data>
+  <data name="campaign.status.planned" xml:space="preserve"><value>Planejada</value></data>
+  <data name="campaign.status.executing" xml:space="preserve"><value>Em execução</value></data>
+  <data name="campaign.status.reviewing" xml:space="preserve"><value>Em revisão</value></data>
+  <data name="campaign.status.completed" xml:space="preserve"><value>Concluída</value></data>
+  <data name="campaign.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="approvals.title" xml:space="preserve"><value>Aprovações</value></data>
+  <data name="approvals.subtitle" xml:space="preserve"><value>Central para aprovar ou rejeitar exceções comerciais de desconto, margem, prazo e condições especiais</value></data>
+  <data name="approvals.empty" xml:space="preserve"><value>Nenhuma aprovação cadastrada</value></data>
+  <data name="approvals.kpi.pending" xml:space="preserve"><value>Pendentes</value></data>
+  <data name="approvals.kpi.approved" xml:space="preserve"><value>Aprovadas</value></data>
+  <data name="approvals.kpi.rejected" xml:space="preserve"><value>Rejeitadas</value></data>
+  <data name="approvals.action.goToPipeline" xml:space="preserve"><value>Ir para pipeline</value></data>
+  <data name="approvals.action.approveSelected" xml:space="preserve"><value>Aprovar selecionada</value></data>
+  <data name="approvals.action.rejectSelected" xml:space="preserve"><value>Rejeitar selecionada</value></data>
+  <data name="approvals.type.discount" xml:space="preserve"><value>Desconto</value></data>
+  <data name="approvals.type.margin" xml:space="preserve"><value>Margem</value></data>
+  <data name="approvals.type.deadline" xml:space="preserve"><value>Prazo</value></data>
+  <data name="approvals.type.exception" xml:space="preserve"><value>Exceção</value></data>
+  <data name="approvals.status.pending" xml:space="preserve"><value>Pendente</value></data>
+  <data name="approvals.status.approved" xml:space="preserve"><value>Aprovada</value></data>
+  <data name="approvals.status.rejected" xml:space="preserve"><value>Rejeitada</value></data>
+  <data name="approvals.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="approvals.field.opportunity" xml:space="preserve"><value>Oportunidade</value></data>
+  <data name="approvals.field.negotiation" xml:space="preserve"><value>Negociação</value></data>
+  <data name="approvals.field.requestedBy" xml:space="preserve"><value>Solicitado por</value></data>
+  <data name="approvals.field.requestedAt" xml:space="preserve"><value>Solicitado em</value></data>
+  <data name="approvals.decision.approved" xml:space="preserve"><value>Aprovação realizada pela Central de Aprovações.</value></data>
+  <data name="approvals.decision.rejected" xml:space="preserve"><value>Rejeição realizada pela Central de Aprovações.</value></data>
+  <data name="approvals.user.fallback" xml:space="preserve"><value>Gestor comercial</value></data>
 </root>
