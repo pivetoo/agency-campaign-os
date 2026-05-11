@@ -13,6 +13,7 @@ import {
   SelectValue,
   Button,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { CheckCircle, Clock, Eye, FileText, Search, Send, X, XCircle } from 'lucide-react'
@@ -23,15 +24,15 @@ import ProposalFormModal from '../../components/modals/ProposalFormModal'
 
 const STATUS_ALL = '__all__'
 
-const proposalStatusLabels: Record<number, string> = {
-  1: 'Rascunho',
-  2: 'Enviada',
-  3: 'Visualizada',
-  4: 'Aprovada',
-  5: 'Rejeitada',
-  6: 'Convertida',
-  7: 'Expirada',
-  8: 'Cancelada',
+const proposalStatusKeys: Record<number, string> = {
+  1: 'proposal.status.draft',
+  2: 'proposal.status.sent',
+  3: 'proposal.status.viewed',
+  4: 'proposal.status.approved',
+  5: 'proposal.status.rejected',
+  6: 'proposal.status.converted',
+  7: 'proposal.status.expired',
+  8: 'proposal.status.cancelled',
 }
 
 const proposalStatusVariant: Record<number, 'default' | 'warning' | 'success' | 'destructive'> = {
@@ -56,6 +57,7 @@ function isExpired(proposal: Proposal): boolean {
 }
 
 export default function CommercialProposals() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [proposals, setProposals] = useState<Proposal[]>([])
   const [responsibles, setResponsibles] = useState<CommercialResponsible[]>([])
@@ -122,33 +124,33 @@ export default function CommercialProposals() {
   const columns: DataTableColumn<Proposal>[] = [
     {
       key: 'name',
-      title: 'Proposta',
+      title: t('proposals.field.proposal'),
       dataIndex: 'name',
       render: (value: string, record: Proposal) => (
         <div className="flex items-center gap-2">
           <span className="font-medium">{value}</span>
           {isExpired(record) && (
-            <Badge variant="destructive" className="text-[10px]">Expirada</Badge>
+            <Badge variant="destructive" className="text-[10px]">{t('proposals.expiredBadge')}</Badge>
           )}
         </div>
       ),
     },
-    { key: 'brand', title: 'Marca', dataIndex: 'brand', render: (value?: Proposal['brand']) => value?.name || '-' },
+    { key: 'brand', title: t('campaign.field.brand'), dataIndex: 'brand', render: (value?: Proposal['brand']) => value?.name || '-' },
     {
       key: 'opportunity',
-      title: 'Oportunidade',
+      title: t('proposals.field.opportunity'),
       dataIndex: 'opportunity',
       render: (value?: Proposal['opportunity']) => value ? `${value.name} (#${value.id})` : '-',
     },
     {
       key: 'totalValue',
-      title: 'Valor Total',
+      title: t('common.field.totalValue'),
       dataIndex: 'totalValue',
       render: (value?: number) => value != null ? `R$ ${value.toFixed(2)}` : '-',
     },
     {
       key: 'validityUntil',
-      title: 'Validade',
+      title: t('common.field.validity'),
       dataIndex: 'validityUntil',
       render: (value?: string, record?: Proposal) => {
         if (!value) return '-'
@@ -161,27 +163,27 @@ export default function CommercialProposals() {
     },
     {
       key: 'status',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'status',
       render: (value?: number) => (
         <Badge variant={proposalStatusVariant[value ?? 0] || 'default'}>
-          {proposalStatusLabels[value ?? 0] || '-'}
+          {proposalStatusKeys[value ?? 0] ? t(proposalStatusKeys[value ?? 0]) : '-'}
         </Badge>
       ),
     },
     {
       key: 'internalOwnerName',
-      title: 'Responsável',
+      title: t('common.field.responsible'),
       dataIndex: 'internalOwnerName',
       render: (value?: string) => value || '-',
     },
     {
       key: 'campaign',
-      title: 'Campanha',
+      title: t('proposals.field.campaign'),
       dataIndex: 'campaign',
       render: (value?: Proposal['campaign']) => value?.name || '-',
     },
-    { key: 'items', title: 'Itens', dataIndex: 'items', render: (value?: Proposal['items']) => value?.length ?? 0 },
+    { key: 'items', title: t('common.field.items'), dataIndex: 'items', render: (value?: Proposal['items']) => value?.length ?? 0 },
     {
       key: 'actions',
       title: '',
@@ -196,7 +198,7 @@ export default function CommercialProposals() {
             navigate(`/comercial/propostas/${record.id}`)
           }}
         >
-          Abrir <FileText className="ml-1.5 h-3.5 w-3.5" />
+          {t('common.action.open')} <FileText className="ml-1.5 h-3.5 w-3.5" />
         </Button>
       ),
     },
@@ -205,8 +207,8 @@ export default function CommercialProposals() {
   return (
     <>
       <PageLayout
-        title="Propostas"
-        subtitle="Gerencie propostas, vínculos com oportunidades e conversão para campanhas"
+        title={t('proposals.title')}
+        subtitle={t('proposals.subtitle')}
         onAdd={() => { setSelectedProposal(null); setIsFormOpen(true) }}
         onEdit={() => selectedProposal && setIsFormOpen(true)}
         onRefresh={() => void loadProposals()}
@@ -214,7 +216,7 @@ export default function CommercialProposals() {
         actions={[
           {
             key: 'send',
-            label: 'Enviar',
+            label: t('proposals.action.send'),
             icon: <Send className="h-4 w-4" />,
             variant: 'outline-primary',
             disabled: !selectedProposal || actionLoading || selectedProposal.status !== 1,
@@ -222,7 +224,7 @@ export default function CommercialProposals() {
           },
           {
             key: 'viewed',
-            label: 'Visualizada',
+            label: t('proposals.action.markViewed'),
             icon: <Eye className="h-4 w-4" />,
             variant: 'outline',
             disabled: !selectedProposal || actionLoading || selectedProposal.status !== 2,
@@ -230,7 +232,7 @@ export default function CommercialProposals() {
           },
           {
             key: 'approve',
-            label: 'Aprovar',
+            label: t('proposals.action.approve'),
             icon: <CheckCircle className="h-4 w-4" />,
             variant: 'outline-success',
             disabled: !selectedProposal || actionLoading || selectedProposal.status !== 3,
@@ -238,7 +240,7 @@ export default function CommercialProposals() {
           },
           {
             key: 'reject',
-            label: 'Rejeitar',
+            label: t('proposals.action.reject'),
             icon: <XCircle className="h-4 w-4" />,
             variant: 'outline-danger',
             disabled: !selectedProposal || actionLoading || (selectedProposal.status !== 2 && selectedProposal.status !== 3),
@@ -246,7 +248,7 @@ export default function CommercialProposals() {
           },
           {
             key: 'cancel',
-            label: 'Cancelar',
+            label: t('proposals.action.cancel'),
             icon: <Clock className="h-4 w-4" />,
             variant: 'outline-danger',
             disabled: !selectedProposal || actionLoading || selectedProposal.status === 8 || selectedProposal.status === 6,
@@ -258,7 +260,7 @@ export default function CommercialProposals() {
           <div className="relative flex-1 min-w-[240px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Buscar por proposta, marca ou oportunidade..."
+              placeholder={t('proposals.search.placeholder')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="pl-9"
@@ -267,12 +269,12 @@ export default function CommercialProposals() {
           <div className="w-full lg:w-[200px]">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t('common.field.status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={STATUS_ALL}>Todos os status</SelectItem>
-                {Object.entries(proposalStatusLabels).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                <SelectItem value={STATUS_ALL}>{t('common.filter.allStatuses')}</SelectItem>
+                {Object.entries(proposalStatusKeys).map(([key, labelKey]) => (
+                  <SelectItem key={key} value={key}>{t(labelKey)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -282,13 +284,13 @@ export default function CommercialProposals() {
               value={responsibleFilter}
               onValueChange={setResponsibleFilter}
               options={responsibleOptions}
-              placeholder="Todos os responsáveis"
-              searchPlaceholder="Buscar responsável..."
+              placeholder={t('proposals.filter.allResponsibles')}
+              searchPlaceholder={t('proposals.filter.searchResponsible')}
             />
           </div>
           {hasActiveFilters ? (
             <Button variant="outline" size="sm" icon={<X className="h-4 w-4" />} onClick={clearFilters}>
-              Limpar
+              {t('common.action.clear')}
             </Button>
           ) : null}
         </div>
@@ -300,7 +302,7 @@ export default function CommercialProposals() {
           selectedRows={selectedProposal ? [selectedProposal] : []}
           onSelectionChange={(rows) => setSelectedProposal(rows[0] ?? null)}
           onRowDoubleClick={(row) => navigate(`/comercial/propostas/${row.id}`)}
-          emptyText={hasActiveFilters ? 'Nenhuma proposta encontrada com os filtros atuais' : 'Nenhuma proposta cadastrada'}
+          emptyText={hasActiveFilters ? t('proposals.empty.filtered') : t('proposals.empty')}
           loading={loading}
           pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}

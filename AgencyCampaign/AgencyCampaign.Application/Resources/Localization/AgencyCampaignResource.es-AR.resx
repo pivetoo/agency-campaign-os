@@ -272,4 +272,35 @@
   <data name="pipeline.card.proposals" xml:space="preserve"><value>Propuestas</value></data>
   <data name="pipeline.card.pending" xml:space="preserve"><value>Pendientes</value></data>
   <data name="pipeline.card.overdue" xml:space="preserve"><value>Atrasados</value></data>
+  <data name="common.action.clear" xml:space="preserve"><value>Limpiar</value></data>
+  <data name="common.action.open" xml:space="preserve"><value>Abrir</value></data>
+  <data name="common.field.responsible" xml:space="preserve"><value>Responsable</value></data>
+  <data name="common.field.totalValue" xml:space="preserve"><value>Valor total</value></data>
+  <data name="common.field.validity" xml:space="preserve"><value>Validez</value></data>
+  <data name="common.field.items" xml:space="preserve"><value>Items</value></data>
+  <data name="common.filter.allStatuses" xml:space="preserve"><value>Todos los estados</value></data>
+  <data name="proposals.title" xml:space="preserve"><value>Propuestas</value></data>
+  <data name="proposals.subtitle" xml:space="preserve"><value>Gestione propuestas, vínculos con oportunidades y conversión a campañas</value></data>
+  <data name="proposals.empty" xml:space="preserve"><value>No hay propuestas registradas</value></data>
+  <data name="proposals.empty.filtered" xml:space="preserve"><value>No se encontraron propuestas con los filtros actuales</value></data>
+  <data name="proposals.search.placeholder" xml:space="preserve"><value>Buscar por propuesta, marca u oportunidad...</value></data>
+  <data name="proposals.filter.allResponsibles" xml:space="preserve"><value>Todos los responsables</value></data>
+  <data name="proposals.filter.searchResponsible" xml:space="preserve"><value>Buscar responsable...</value></data>
+  <data name="proposals.expiredBadge" xml:space="preserve"><value>Expirada</value></data>
+  <data name="proposals.field.proposal" xml:space="preserve"><value>Propuesta</value></data>
+  <data name="proposals.field.opportunity" xml:space="preserve"><value>Oportunidad</value></data>
+  <data name="proposals.field.campaign" xml:space="preserve"><value>Campaña</value></data>
+  <data name="proposals.action.send" xml:space="preserve"><value>Enviar</value></data>
+  <data name="proposals.action.markViewed" xml:space="preserve"><value>Marcar vista</value></data>
+  <data name="proposals.action.approve" xml:space="preserve"><value>Aprobar</value></data>
+  <data name="proposals.action.reject" xml:space="preserve"><value>Rechazar</value></data>
+  <data name="proposals.action.cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="proposal.status.draft" xml:space="preserve"><value>Borrador</value></data>
+  <data name="proposal.status.sent" xml:space="preserve"><value>Enviada</value></data>
+  <data name="proposal.status.viewed" xml:space="preserve"><value>Vista</value></data>
+  <data name="proposal.status.approved" xml:space="preserve"><value>Aprobada</value></data>
+  <data name="proposal.status.rejected" xml:space="preserve"><value>Rechazada</value></data>
+  <data name="proposal.status.converted" xml:space="preserve"><value>Convertida</value></data>
+  <data name="proposal.status.expired" xml:space="preserve"><value>Expirada</value></data>
+  <data name="proposal.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
 </root>
