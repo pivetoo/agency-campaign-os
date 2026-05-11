@@ -10,6 +10,8 @@ namespace AgencyCampaign.Application.Services
     {
         Task<PagedResult<Creator>> GetCreators(PagedRequest request, CancellationToken cancellationToken = default);
 
+        IAsyncEnumerable<string> ExportAsync(CancellationToken cancellationToken = default);
+
         Task<Creator?> GetCreatorById(long id, CancellationToken cancellationToken = default);
 
         Task<Creator> CreateCreator(CreateCreatorRequest request, CancellationToken cancellationToken = default);

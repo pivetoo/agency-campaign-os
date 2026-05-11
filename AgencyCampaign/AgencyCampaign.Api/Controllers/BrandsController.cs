@@ -118,5 +118,20 @@ namespace AgencyCampaign.Api.Controllers
             Brand brand = await brandService.RemoveBrandLogo(id, cancellationToken);
             return Http200(MapBrand(brand), Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite exportar as marcas cadastradas.")]
+        [GetEndpoint("[action]")]
+        public async Task Export(CancellationToken cancellationToken)
+        {
+            Response.ContentType = "text/csv; charset=utf-8";
+            Response.Headers.Append("Content-Disposition", "attachment; filename=marcas.csv");
+            await using StreamWriter writer = new(Response.Body, new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: true), leaveOpen: true);
+            await writer.WriteLineAsync("nome,nome_fantasia,documento,contato,email,observacoes,ativo");
+            await foreach (string row in brandService.ExportAsync(cancellationToken))
+            {
+                await writer.WriteLineAsync(row);
+                await writer.FlushAsync(cancellationToken);
+            }
+        }
     }
 }

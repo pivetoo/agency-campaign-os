@@ -9,6 +9,8 @@ namespace AgencyCampaign.Application.Services
     {
         Task<PagedResult<Brand>> GetBrands(PagedRequest request, CancellationToken cancellationToken = default);
 
+        IAsyncEnumerable<string> ExportAsync(CancellationToken cancellationToken = default);
+
         Task<Brand?> GetBrandById(long id, CancellationToken cancellationToken = default);
 
         Task<Brand> CreateBrand(CreateBrandRequest request, CancellationToken cancellationToken = default);

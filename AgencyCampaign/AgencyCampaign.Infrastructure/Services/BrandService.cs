@@ -7,6 +7,7 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using System.Runtime.CompilerServices;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -114,6 +115,29 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return brand;
+        }
+
+        public async IAsyncEnumerable<string> ExportAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            await foreach (Brand brand in DbContext.Set<Brand>()
+                .AsNoTracking()
+                .OrderBy(b => b.Name)
+                .AsAsyncEnumerable()
+                .WithCancellation(cancellationToken))
+            {
+                yield return CsvLine(brand.Name, brand.TradeName, brand.Document, brand.ContactName, brand.ContactEmail, brand.Notes, brand.IsActive ? "Sim" : "Não");
+            }
+        }
+
+        private static string CsvLine(params string?[] fields) =>
+            string.Join(",", fields.Select(EscapeField));
+
+        private static string EscapeField(string? value)
+        {
+            if (string.IsNullOrEmpty(value)) return string.Empty;
+            if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
+                return $"\"{value.Replace("\"", "\"\"")}\"";
+            return value;
         }
     }
 }

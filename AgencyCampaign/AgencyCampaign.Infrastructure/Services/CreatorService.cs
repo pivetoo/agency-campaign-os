@@ -9,6 +9,7 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using System.Runtime.CompilerServices;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -192,6 +193,39 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Where(item => item.CreatorId == creatorId)
                 .OrderByDescending(item => item.Id)
                 .ToArrayAsync(cancellationToken);
+        }
+
+        public async IAsyncEnumerable<string> ExportAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            await foreach (Creator creator in DbContext.Set<Creator>()
+                .AsNoTracking()
+                .OrderBy(c => c.Name)
+                .AsAsyncEnumerable()
+                .WithCancellation(cancellationToken))
+            {
+                yield return CsvLine(
+                    creator.Name,
+                    creator.StageName,
+                    creator.PrimaryNiche,
+                    creator.City,
+                    creator.State,
+                    creator.Email,
+                    creator.Phone,
+                    creator.Document,
+                    creator.DefaultAgencyFeePercent.ToString("F2"),
+                    creator.IsActive ? "Sim" : "Não");
+            }
+        }
+
+        private static string CsvLine(params string?[] fields) =>
+            string.Join(",", fields.Select(EscapeField));
+
+        private static string EscapeField(string? value)
+        {
+            if (string.IsNullOrEmpty(value)) return string.Empty;
+            if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
+                return $"\"{value.Replace("\"", "\"\"")}\"";
+            return value;
         }
     }
 }

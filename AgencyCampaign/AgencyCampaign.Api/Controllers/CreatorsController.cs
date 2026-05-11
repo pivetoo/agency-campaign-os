@@ -127,6 +127,21 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapCreator(creator), Localizer["record.updated"]);
         }
 
+        [RequireAccess("Permite exportar os creators cadastrados.")]
+        [GetEndpoint("[action]")]
+        public async Task Export(CancellationToken cancellationToken)
+        {
+            Response.ContentType = "text/csv; charset=utf-8";
+            Response.Headers.Append("Content-Disposition", "attachment; filename=influenciadores.csv");
+            await using StreamWriter writer = new(Response.Body, new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: true), leaveOpen: true);
+            await writer.WriteLineAsync("nome,nome_artistico,nicho,cidade,estado,email,telefone,documento,fee_padrao,ativo");
+            await foreach (string row in creatorService.ExportAsync(cancellationToken))
+            {
+                await writer.WriteLineAsync(row);
+                await writer.FlushAsync(cancellationToken);
+            }
+        }
+
         [RequireAccess("Permite listar as campanhas em que o creator participou.")]
         [GetEndpoint("campaigns/{id:long}")]
         public async Task<IActionResult> GetCampaigns(long id, CancellationToken cancellationToken)

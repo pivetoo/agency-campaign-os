@@ -62,6 +62,16 @@ export default function Brands() {
     },
   ]
 
+  const handleExport = async () => {
+    const blob = await brandService.exportCsv()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'marcas.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const excelButton = (
     <Dropdown>
       <DropdownTrigger asChild>
@@ -76,7 +86,7 @@ export default function Brands() {
           Importar
         </DropdownItem>
         <DropdownSeparator />
-        <DropdownItem className="gap-2 cursor-pointer">
+        <DropdownItem className="gap-2 cursor-pointer" onSelect={() => void handleExport()}>
           <Download size={14} />
           Exportar
         </DropdownItem>

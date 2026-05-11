@@ -45,4 +45,9 @@ export const brandService = {
   removeLogo(id: number) {
     return httpClient.delete<Brand>(`${BASE_URL}/RemoveLogo/${id}`)
   },
+
+  async exportCsv(): Promise<Blob> {
+    const response = await httpClient.get<Blob>(`${BASE_URL}/Export`, { responseType: 'blob' })
+    return response.data as Blob
+  },
 }
