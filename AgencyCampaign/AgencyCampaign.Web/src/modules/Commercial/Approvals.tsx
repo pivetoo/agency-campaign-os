@@ -125,7 +125,7 @@ export default function CommercialApprovals() {
         onRowDoubleClick={(row) => navigate(`/comercial/oportunidades/${row.opportunityId}`)}
         emptyText={t('approvals.empty')}
         loading={loading}
-        pageSize={5}
+        pageSize={10}
         pageSizeOptions={[5, 10, 20, 50]}
       />
     </PageLayout>

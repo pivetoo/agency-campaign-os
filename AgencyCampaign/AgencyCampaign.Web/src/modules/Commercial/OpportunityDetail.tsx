@@ -489,7 +489,7 @@ export default function OpportunityDetail() {
                   rowKey="id"
                   emptyText={t('opportunityDetail.proposals.empty')}
                   loading={loading}
-                  pageSize={5}
+                  pageSize={10}
                   pageSizeOptions={[5, 10, 20, 50]}
                   onRowClick={(record) => navigate(`/comercial/propostas/${record.id}`)}
                 />
@@ -544,7 +544,7 @@ export default function OpportunityDetail() {
                   onSelectionChange={(rows) => setSelectedNegotiation(rows[0] ?? null)}
                   emptyText={t('opportunityDetail.negotiations.empty')}
                   loading={loading}
-                  pageSize={5}
+                  pageSize={10}
                   pageSizeOptions={[5, 10, 20, 50]}
                 />
               </CardContent>
@@ -580,7 +580,7 @@ export default function OpportunityDetail() {
                   onSelectionChange={(rows) => setSelectedApprovalRequest(rows[0] ?? null)}
                   emptyText={t('opportunityDetail.approvals.empty')}
                   loading={loading}
-                  pageSize={5}
+                  pageSize={10}
                   pageSizeOptions={[5, 10, 20, 50]}
                 />
               </CardContent>
@@ -622,7 +622,7 @@ export default function OpportunityDetail() {
                   onSelectionChange={(rows) => setSelectedFollowUp(rows[0] ?? null)}
                   emptyText={t('opportunityDetail.followups.empty')}
                   loading={loading}
-                  pageSize={5}
+                  pageSize={10}
                   pageSizeOptions={[5, 10, 20, 50]}
                 />
               </CardContent>

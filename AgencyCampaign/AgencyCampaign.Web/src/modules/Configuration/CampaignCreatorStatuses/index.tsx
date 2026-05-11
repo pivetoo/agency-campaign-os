@@ -66,7 +66,7 @@ export default function CampaignCreatorStatuses() {
           onSelectionChange={(rows) => setSelectedStatus(rows[0] ?? null)}
           emptyText="Nenhum status configurado"
           loading={loading}
-          pageSize={5}
+          pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>

@@ -51,7 +51,7 @@ export default function Platforms() {
           onSelectionChange={(rows) => setSelectedPlatform(rows[0] ?? null)}
           emptyText="Nenhuma plataforma cadastrada"
           loading={loading}
-          pageSize={5}
+          pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>

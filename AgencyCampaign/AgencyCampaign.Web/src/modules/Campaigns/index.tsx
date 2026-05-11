@@ -85,7 +85,7 @@ export default function Campaigns() {
           onSelectionChange={(rows) => setSelectedCampaign(rows[0] ?? null)}
           emptyText={t('campaigns.empty')}
           loading={loading}
-          pageSize={5}
+          pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>

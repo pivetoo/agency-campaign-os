@@ -56,7 +56,7 @@ export default function CommercialPipelineStages() {
           onSelectionChange={(rows) => setSelectedStage(rows[0] ?? null)}
           emptyText="Nenhum estágio configurado para o pipeline comercial"
           loading={loading}
-          pageSize={5}
+          pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>

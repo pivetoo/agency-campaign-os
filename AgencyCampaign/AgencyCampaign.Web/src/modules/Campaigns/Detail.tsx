@@ -456,7 +456,7 @@ export default function CampaignDetail() {
                   onSelectionChange={(rows) => setSelectedCampaignCreator(rows[0] ?? null)}
                   emptyText={t('campaign.detail.noCreators')}
                   loading={creatorsLoading}
-                  pageSize={5}
+                  pageSize={10}
                   pageSizeOptions={[5, 10, 20, 50]}
                 />
               </CardContent>
@@ -499,7 +499,7 @@ export default function CampaignDetail() {
                   onSelectionChange={(rows) => setSelectedDocument(rows[0] ?? null)}
                   emptyText="Nenhum documento cadastrado"
                   loading={documentsLoading}
-                  pageSize={5}
+                  pageSize={10}
                   pageSizeOptions={[5, 10, 20, 50]}
                 />
               </CardContent>
@@ -524,7 +524,7 @@ export default function CampaignDetail() {
                   onSelectionChange={(rows) => setSelectedDeliverable(rows[0] ?? null)}
                   emptyText="Nenhuma entrega cadastrada"
                   loading={deliverablesLoading}
-                  pageSize={5}
+                  pageSize={10}
                   pageSizeOptions={[5, 10, 20, 50]}
                 />
               </CardContent>
