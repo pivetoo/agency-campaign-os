@@ -68,4 +68,9 @@ export const creatorService = {
   removePhoto(id: number) {
     return httpClient.delete<Creator>(`${BASE_URL}/RemovePhoto/${id}`)
   },
+
+  async exportCsv(): Promise<Blob> {
+    const response = await httpClient.get<Blob>(`${BASE_URL}/Export`, { responseType: 'blob' })
+    return response.data as Blob
+  },
 }

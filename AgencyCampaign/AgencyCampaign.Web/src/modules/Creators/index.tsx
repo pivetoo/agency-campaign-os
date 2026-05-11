@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Link as LinkIcon } from 'lucide-react'
+import { Link as LinkIcon, FileSpreadsheet, Download, Upload } from 'lucide-react'
 
 import { creatorService, resolveCreatorPhotoUrl } from '../../services/creatorService'
 import type { Creator } from '../../types/creator'
 import CreatorFormModal from '../../components/modals/CreatorFormModal'
 import CreatorAccessTokensModal from '../../components/modals/CreatorAccessTokensModal'
+import CreatorImportModal from '../../components/modals/CreatorImportModal'
 
 export default function Creators() {
   const { t } = useI18n()
@@ -17,6 +18,7 @@ export default function Creators() {
   const [previewCreator, setPreviewCreator] = useState<Creator | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isTokensOpen, setIsTokensOpen] = useState(false)
+  const [isImportOpen, setIsImportOpen] = useState(false)
   const { execute: fetchCreators, loading } = useApi<Creator[]>({ showErrorMessage: true })
 
   const loadCreators = async () => {
@@ -76,11 +78,44 @@ export default function Creators() {
     },
   ]
 
+  const handleExport = async () => {
+    const blob = await creatorService.exportCsv()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'influenciadores.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const excelButton = (
+    <Dropdown>
+      <DropdownTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 rounded-lg border border-[#1d6f42]/50 px-3.5 py-1.5 text-sm font-medium text-[#1d6f42] transition-colors hover:bg-[#1d6f42]/8 hover:border-[#1d6f42]">
+          <FileSpreadsheet size={15} className="text-[#1d6f42]" />
+          Excel
+        </button>
+      </DropdownTrigger>
+      <DropdownContent align="end" className="w-40">
+        <DropdownItem className="gap-2 cursor-pointer" onSelect={() => setIsImportOpen(true)}>
+          <Upload size={14} />
+          Importar
+        </DropdownItem>
+        <DropdownSeparator />
+        <DropdownItem className="gap-2 cursor-pointer" onSelect={() => void handleExport()}>
+          <Download size={14} />
+          Exportar
+        </DropdownItem>
+      </DropdownContent>
+    </Dropdown>
+  )
+
   return (
     <>
       <PageLayout
         title={t('creators.title')}
         subtitle={t('creators.subtitle')}
+        actionsSlot={excelButton}
         onAdd={() => { setSelectedCreator(null); setIsFormOpen(true) }}
         onEdit={() => selectedCreator && setIsFormOpen(true)}
         onRefresh={() => void loadCreators()}
@@ -111,6 +146,11 @@ export default function Creators() {
           />
         </div>
       </PageLayout>
+
+      <CreatorImportModal
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+      />
 
       <CreatorFormModal
         open={isFormOpen}
