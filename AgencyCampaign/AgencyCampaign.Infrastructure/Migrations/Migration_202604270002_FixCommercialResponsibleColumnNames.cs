@@ -7,6 +7,9 @@ namespace AgencyCampaign.Infrastructure.Migrations
     {
         public override void Up()
         {
+            if (!Schema.Table("commercial_responsible").Exists())
+                return;
+
             if (Schema.Table("commercial_responsible").Column("created_at").Exists())
             {
                 Delete.Column("created_at").FromTable("commercial_responsible");
