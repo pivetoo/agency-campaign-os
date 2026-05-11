@@ -6,6 +6,7 @@ import { FileSpreadsheet, Download, Upload } from 'lucide-react'
 import { brandService, resolveBrandLogoUrl } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
 import BrandFormModal from '../../components/modals/BrandFormModal'
+import BrandImportModal from '../../components/modals/BrandImportModal'
 
 export default function Brands() {
   const { t } = useI18n()
@@ -13,6 +14,7 @@ export default function Brands() {
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null)
   const [previewBrand, setPreviewBrand] = useState<Brand | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isImportOpen, setIsImportOpen] = useState(false)
   const { execute: fetchBrands, loading } = useApi<Brand[]>({ showErrorMessage: true })
 
   const loadBrands = async () => {
@@ -69,7 +71,7 @@ export default function Brands() {
         </button>
       </DropdownTrigger>
       <DropdownContent align="end" className="w-40">
-        <DropdownItem className="gap-2 cursor-pointer">
+        <DropdownItem className="gap-2 cursor-pointer" onSelect={() => setIsImportOpen(true)}>
           <Upload size={14} />
           Importar
         </DropdownItem>
@@ -106,6 +108,11 @@ export default function Brands() {
           pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>
+
+      <BrandImportModal
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+      />
 
       <BrandFormModal
         open={isFormOpen}
