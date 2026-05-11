@@ -1,22 +1,23 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Eye } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
 import type { Campaign } from '../../types/campaign'
 import CampaignFormModal from '../../components/modals/CampaignFormModal'
 
-const campaignStatusLabels: Record<number, string> = {
-  1: 'Rascunho',
-  2: 'Planejada',
-  3: 'Em execução',
-  4: 'Em revisão',
-  5: 'Concluída',
-  6: 'Cancelada',
+const campaignStatusKeys: Record<number, string> = {
+  1: 'campaign.status.draft',
+  2: 'campaign.status.planned',
+  3: 'campaign.status.executing',
+  4: 'campaign.status.reviewing',
+  5: 'campaign.status.completed',
+  6: 'campaign.status.cancelled',
 }
 
 export default function Campaigns() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
@@ -35,18 +36,18 @@ export default function Campaigns() {
   }, [])
 
   const columns: DataTableColumn<Campaign>[] = [
-    { key: 'name', title: 'Campanha', dataIndex: 'name' },
-    { key: 'brand', title: 'Marca', dataIndex: 'brand', render: (value: Campaign['brand']) => value?.name || '-' },
-    { key: 'objective', title: 'Objetivo', dataIndex: 'objective', render: (value?: string) => value || '-' },
-    { key: 'budget', title: 'Budget', dataIndex: 'budget', render: (value: number) => `R$ ${value.toFixed(2)}` },
-    { key: 'startsAt', title: 'Início', dataIndex: 'startsAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
+    { key: 'name', title: t('campaign.field.campaign'), dataIndex: 'name' },
+    { key: 'brand', title: t('campaign.field.brand'), dataIndex: 'brand', render: (value: Campaign['brand']) => value?.name || '-' },
+    { key: 'objective', title: t('campaign.field.objective'), dataIndex: 'objective', render: (value?: string) => value || '-' },
+    { key: 'budget', title: t('campaign.field.budget'), dataIndex: 'budget', render: (value: number) => `R$ ${value.toFixed(2)}` },
+    { key: 'startsAt', title: t('common.field.startDate'), dataIndex: 'startsAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
     {
       key: 'status',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'status',
       render: (value: number) => (
         <Badge variant={value === 5 ? 'success' : value === 6 ? 'destructive' : 'warning'}>
-          {campaignStatusLabels[value] || '-'}
+          {campaignStatusKeys[value] ? t(campaignStatusKeys[value]) : '-'}
         </Badge>
       ),
     },
@@ -69,8 +70,8 @@ export default function Campaigns() {
   return (
     <>
       <PageLayout
-        title="Campanhas"
-        subtitle="Gerencie campanhas, casting, entregas e operação"
+        title={t('campaigns.title')}
+        subtitle={t('campaigns.subtitle')}
         onAdd={() => { setSelectedCampaign(null); setIsFormOpen(true) }}
         onEdit={() => selectedCampaign && setIsFormOpen(true)}
         onRefresh={() => void loadCampaigns()}
@@ -82,7 +83,7 @@ export default function Campaigns() {
           rowKey="id"
           selectedRows={selectedCampaign ? [selectedCampaign] : []}
           onSelectionChange={(rows) => setSelectedCampaign(rows[0] ?? null)}
-          emptyText="Nenhuma campanha cadastrada"
+          emptyText={t('campaigns.empty')}
           loading={loading}
           pageSize={5}
           pageSizeOptions={[5, 10, 20, 50]}
