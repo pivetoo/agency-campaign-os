@@ -264,7 +264,7 @@ export default function CreatorDetail() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="handles" className="pt-2">
+        <Tabs defaultValue="handles" className="pt-6">
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger value="handles" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Users size={14} />
