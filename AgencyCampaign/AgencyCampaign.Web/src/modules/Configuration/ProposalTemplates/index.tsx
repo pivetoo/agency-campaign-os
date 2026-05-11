@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import {
@@ -9,6 +9,7 @@ import {
 import ProposalTemplateFormModal from '../../../components/modals/ProposalTemplateFormModal'
 
 export default function ProposalTemplates() {
+  const { t } = useI18n()
   const [templates, setTemplates] = useState<ProposalTemplate[]>([])
   const [selected, setSelected] = useState<ProposalTemplate | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -68,8 +69,8 @@ export default function ProposalTemplates() {
   return (
     <>
       <PageLayout
-        title="Templates de proposta"
-        subtitle="Modelos reutilizáveis com itens padrão. Aplique a uma proposta para popular os itens automaticamente."
+        title={t('configuration.proposalTemplates.title')}
+        subtitle={t('configuration.proposalTemplates.subtitle')}
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}

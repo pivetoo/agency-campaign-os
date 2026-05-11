@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
+import { useI18n } from 'archon-ui'
 import { creatorPortalService } from '../../services/creatorPortalService'
 import {
   campaignDocumentStatusLabels,
@@ -20,6 +21,7 @@ const STATUS_COLOR: Record<CampaignDocumentStatusValue, string> = {
 }
 
 export default function CreatorPortalDocuments() {
+  const { t } = useI18n()
   const { token } = usePortalContext()
   const [documents, setDocuments] = useState<CampaignDocument[]>([])
   const [loading, setLoading] = useState(true)
@@ -43,7 +45,7 @@ export default function CreatorPortalDocuments() {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-base font-semibold">Seus contratos</h2>
+      <h2 className="text-base font-semibold">{t('creatorPortal.documents.title')}</h2>
       {documents.map((d) => (
         <div key={d.id} className="rounded-lg border bg-background p-3">
           <div className="flex items-start justify-between gap-2">

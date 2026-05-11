@@ -1,11 +1,13 @@
+import { useI18n } from 'archon-ui'
 import FinancialEntriesPage from './EntriesPage'
 
 export default function FinancialPayables() {
+  const { t } = useI18n()
   return (
     <FinancialEntriesPage
       type={2}
-      title="Contas a pagar"
-      subtitle="Repasses para creators, fornecedores, impostos e despesas operacionais"
+      title={t('financial.payables.title')}
+      subtitle={t('financial.payables.subtitle')}
     />
   )
 }

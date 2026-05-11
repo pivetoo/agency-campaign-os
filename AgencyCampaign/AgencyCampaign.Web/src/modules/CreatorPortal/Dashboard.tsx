@@ -6,9 +6,11 @@ import type { CampaignDocument } from '../../types/campaignDocument'
 import type { CreatorPayment } from '../../types/creatorPayment'
 import { CampaignDocumentStatus } from '../../types/campaignDocument'
 import { PaymentStatus } from '../../types/creatorPayment'
+import { useI18n } from 'archon-ui'
 import { usePortalContext } from './hooks'
 
 export default function CreatorPortalDashboard() {
+  const { t } = useI18n()
   const { token, session } = usePortalContext()
   const [campaigns, setCampaigns] = useState<PortalCampaign[]>([])
   const [documents, setDocuments] = useState<CampaignDocument[]>([])
@@ -60,20 +62,20 @@ export default function CreatorPortalDashboard() {
         >
           <AlertTriangle size={18} className="mt-0.5 shrink-0 text-destructive" />
           <div>
-            <p className="font-medium">Cadastre sua chave PIX</p>
+            <p className="font-medium">{t('creatorPortal.dashboard.pix.title')}</p>
             <p className="text-xs text-muted-foreground">Sem PIX a agência não consegue enviar seus repasses.</p>
           </div>
         </Link>
       )}
 
       <div className="grid grid-cols-3 gap-2">
-        <SummaryCard label="Campanhas" value={campaigns.length} icon={<Calendar size={16} />} />
-        <SummaryCard label="Contratos pendentes" value={pendingDocs.length} icon={<FileText size={16} />} />
-        <SummaryCard label="Repasses pendentes" value={pendingPayments.length} icon={<Receipt size={16} />} />
+        <SummaryCard label={t('creatorPortal.dashboard.campaigns')} value={campaigns.length} icon={<Calendar size={16} />} />
+        <SummaryCard label={t('creatorPortal.dashboard.pendingContracts')} value={pendingDocs.length} icon={<FileText size={16} />} />
+        <SummaryCard label={t('creatorPortal.dashboard.pendingPayments')} value={pendingPayments.length} icon={<Receipt size={16} />} />
       </div>
 
       {pendingDocs.length > 0 && (
-        <Section title="Contratos esperando você">
+        <Section title={t('creatorPortal.dashboard.contracts.title')}>
           {pendingDocs.slice(0, 3).map((doc) => (
             <Link
               key={doc.id}
@@ -81,14 +83,14 @@ export default function CreatorPortalDashboard() {
               className="block rounded-md border bg-background p-3 text-sm hover:border-primary/40"
             >
               <p className="font-medium">{doc.title}</p>
-              <p className="text-xs text-muted-foreground">Aguardando sua assinatura</p>
+              <p className="text-xs text-muted-foreground">{t('creatorPortal.dashboard.contracts.subtitle')}</p>
             </Link>
           ))}
         </Section>
       )}
 
       {paymentsWithoutInvoice.length > 0 && (
-        <Section title="Anexe nota fiscal">
+        <Section title={t('creatorPortal.dashboard.nf.title')}>
           {paymentsWithoutInvoice.slice(0, 3).map((p) => (
             <Link
               key={p.id}

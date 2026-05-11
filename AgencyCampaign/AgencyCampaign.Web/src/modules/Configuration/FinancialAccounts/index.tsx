@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { financialAccountService } from '../../../services/financialAccountService'
@@ -11,6 +11,7 @@ function formatCurrency(value: number): string {
 }
 
 export default function FinancialAccounts() {
+  const { t } = useI18n()
   const [items, setItems] = useState<FinancialAccount[]>([])
   const [selected, setSelected] = useState<FinancialAccount | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -63,8 +64,8 @@ export default function FinancialAccounts() {
   return (
     <>
       <PageLayout
-        title="Contas bancárias"
-        subtitle="Caixa, contas bancárias e cartões usados nos lançamentos."
+        title={t('configuration.bankAccounts.title')}
+        subtitle={t('configuration.bankAccounts.subtitle')}
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}

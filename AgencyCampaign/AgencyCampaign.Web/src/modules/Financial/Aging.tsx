@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, Card, CardContent, useApi, Badge } from 'archon-ui'
+import { PageLayout, Card, CardContent, useApi, Badge, useI18n } from 'archon-ui'
 import { financialReportService, type AgingReport } from '../../services/financialReportService'
 
 function formatCurrency(value: number): string {
@@ -7,6 +7,7 @@ function formatCurrency(value: number): string {
 }
 
 export default function Aging() {
+  const { t } = useI18n()
   const [report, setReport] = useState<AgingReport | null>(null)
   const { execute, loading } = useApi<AgingReport | null>({ showErrorMessage: true })
 
@@ -30,21 +31,21 @@ export default function Aging() {
 
   return (
     <PageLayout
-      title="Aging financeiro"
-      subtitle="Distribuição de lançamentos pendentes por faixa de atraso"
+      title={t('financial.aging.title')}
+      subtitle={t('financial.aging.subtitle')}
       onRefresh={() => void load()}
       showDefaultActions={false}
     >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mb-4">
         <Card>
           <CardContent className="pt-5 pb-5">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Total a receber pendente</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('financial.aging.totalReceivable')}</p>
             <p className="text-2xl font-semibold mt-1 text-emerald-600">{formatCurrency(totals.receivable)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-5 pb-5">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Total a pagar pendente</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('financial.aging.totalPayable')}</p>
             <p className="text-2xl font-semibold mt-1 text-destructive">{formatCurrency(totals.payable)}</p>
           </CardContent>
         </Card>
@@ -68,12 +69,12 @@ export default function Aging() {
                     </div>
                     <div className="space-y-2">
                       <div>
-                        <p className="text-[10px] uppercase text-muted-foreground tracking-wide">A receber</p>
+                        <p className="text-[10px] uppercase text-muted-foreground tracking-wide">{t('financial.kpi.receivable')}</p>
                         <p className="text-sm font-semibold text-emerald-600">{formatCurrency(bucket.totalReceivable)}</p>
                         <p className="text-[10px] text-muted-foreground">{bucket.receivableCount} lançamento(s)</p>
                       </div>
                       <div>
-                        <p className="text-[10px] uppercase text-muted-foreground tracking-wide">A pagar</p>
+                        <p className="text-[10px] uppercase text-muted-foreground tracking-wide">{t('financial.kpi.payable')}</p>
                         <p className="text-sm font-semibold text-destructive">{formatCurrency(bucket.totalPayable)}</p>
                         <p className="text-[10px] text-muted-foreground">{bucket.payableCount} lançamento(s)</p>
                       </div>

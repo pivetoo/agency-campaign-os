@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { deliverableKindService } from '../../../services/deliverableKindService'
 import type { DeliverableKind } from '../../../types/deliverableKind'
 import DeliverableKindFormModal from '../../../components/modals/DeliverableKindFormModal'
 
 export default function DeliverableKinds() {
+  const { t } = useI18n()
   const [deliverableKinds, setDeliverableKinds] = useState<DeliverableKind[]>([])
   const [selectedDeliverableKind, setSelectedDeliverableKind] = useState<DeliverableKind | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -36,8 +37,8 @@ export default function DeliverableKinds() {
   return (
     <>
       <PageLayout
-        title="Tipos de entrega"
-        subtitle="Cadastre e organize os tipos de entrega disponíveis para campanhas"
+        title={t('configuration.deliverableKinds.title')}
+        subtitle={t('configuration.deliverableKinds.subtitle')}
         onAdd={() => { setSelectedDeliverableKind(null); setIsFormOpen(true) }}
         onEdit={() => selectedDeliverableKind && setIsFormOpen(true)}
         onRefresh={() => void loadDeliverableKinds()}

@@ -137,11 +137,11 @@
   <data name="nav.item.approvals" xml:space="preserve"><value>Aprobaciones</value></data>
   <data name="nav.item.activities" xml:space="preserve"><value>Actividades</value></data>
   <data name="nav.item.brands" xml:space="preserve"><value>Marcas</value></data>
-  <data name="nav.item.creators" xml:space="preserve"><value>Creators</value></data>
+  <data name="nav.item.creators" xml:space="preserve"><value>Influencers</value></data>
   <data name="nav.item.campaigns" xml:space="preserve"><value>Campañas</value></data>
   <data name="nav.item.accountsReceivable" xml:space="preserve"><value>Cuentas por cobrar</value></data>
   <data name="nav.item.accountsPayable" xml:space="preserve"><value>Cuentas por pagar</value></data>
-  <data name="nav.item.creatorPayments" xml:space="preserve"><value>Pagos a creators</value></data>
+  <data name="nav.item.creatorPayments" xml:space="preserve"><value>Pagos a influencers</value></data>
   <data name="nav.item.cashFlow" xml:space="preserve"><value>Flujo de caja</value></data>
   <data name="nav.item.aging" xml:space="preserve"><value>Aging</value></data>
   <data name="nav.item.agencyData" xml:space="preserve"><value>Datos de la agencia</value></data>
@@ -153,7 +153,7 @@
   <data name="nav.item.proposalTemplates" xml:space="preserve"><value>Plantillas de propuesta</value></data>
   <data name="nav.item.proposalBlocks" xml:space="preserve"><value>Bloques de propuesta</value></data>
   <data name="nav.item.socialNetworks" xml:space="preserve"><value>Redes sociales</value></data>
-  <data name="nav.item.creatorStatus" xml:space="preserve"><value>Estado del creator</value></data>
+  <data name="nav.item.creatorStatus" xml:space="preserve"><value>Estado del influencer</value></data>
   <data name="nav.item.deliverableKinds" xml:space="preserve"><value>Tipos de entrega</value></data>
   <data name="nav.item.contractTemplates" xml:space="preserve"><value>Modelos de contrato</value></data>
   <data name="nav.item.bankAccounts" xml:space="preserve"><value>Cuentas bancarias</value></data>
@@ -164,7 +164,7 @@
   <data name="dashboard.subtitle" xml:space="preserve"><value>Visión general del rendimiento de la agencia</value></data>
   <data name="dashboard.kpi.activeCampaigns" xml:space="preserve"><value>Campañas activas</value></data>
   <data name="dashboard.kpi.activeBrands" xml:space="preserve"><value>Marcas</value></data>
-  <data name="dashboard.kpi.activeCreators" xml:space="preserve"><value>Creators</value></data>
+  <data name="dashboard.kpi.activeCreators" xml:space="preserve"><value>Influencers</value></data>
   <data name="dashboard.kpi.pendingDeliverables" xml:space="preserve"><value>Entregas pendientes</value></data>
   <data name="dashboard.revenue.title" xml:space="preserve"><value>Ingresos de los últimos 12 meses</value></data>
   <data name="dashboard.revenue.currentMonth" xml:space="preserve"><value>Mes actual</value></data>
@@ -175,8 +175,8 @@
   <data name="dashboard.pipeline.empty" xml:space="preserve"><value>No hay oportunidades en el pipeline.</value></data>
   <data name="dashboard.platforms.title" xml:space="preserve"><value>Plataformas con más entregas</value></data>
   <data name="dashboard.platforms.empty" xml:space="preserve"><value>No hay entregas registradas.</value></data>
-  <data name="dashboard.creatorGrowth.title" xml:space="preserve"><value>Crecimiento de creators</value></data>
-  <data name="dashboard.creatorGrowth.empty" xml:space="preserve"><value>No hay creators registrados.</value></data>
+  <data name="dashboard.creatorGrowth.title" xml:space="preserve"><value>Crecimiento de influencers</value></data>
+  <data name="dashboard.creatorGrowth.empty" xml:space="preserve"><value>No hay influencers registrados.</value></data>
   <data name="dashboard.operationHealth.title" xml:space="preserve"><value>Salud de la operación</value></data>
   <data name="dashboard.operationHealth.empty" xml:space="preserve"><value>Datos insuficientes.</value></data>
   <data name="common.field.name" xml:space="preserve"><value>Nombre</value></data>
@@ -199,18 +199,18 @@
   <data name="brands.preview.description" xml:space="preserve"><value>Resumen rápido de la marca seleccionada</value></data>
   <data name="brands.preview.dataSection" xml:space="preserve"><value>Datos principales</value></data>
   <data name="brands.preview.dataSectionDesc" xml:space="preserve"><value>Información de registro de la marca</value></data>
-  <data name="creators.title" xml:space="preserve"><value>Creators</value></data>
-  <data name="creators.subtitle" xml:space="preserve"><value>Registre y siga la base de creators de la agencia</value></data>
-  <data name="creators.empty" xml:space="preserve"><value>No hay creators registrados</value></data>
+  <data name="creators.title" xml:space="preserve"><value>Influencers</value></data>
+  <data name="creators.subtitle" xml:space="preserve"><value>Registre y siga la base de influencers de la agencia</value></data>
+  <data name="creators.empty" xml:space="preserve"><value>No hay influencers registrados</value></data>
   <data name="creators.action.portalLinks" xml:space="preserve"><value>Enlaces del portal</value></data>
   <data name="creators.action.open360" xml:space="preserve"><value>Abrir 360</value></data>
   <data name="creators.field.stageName" xml:space="preserve"><value>Nombre artístico</value></data>
   <data name="creators.field.niche" xml:space="preserve"><value>Nicho</value></data>
   <data name="creators.field.pixKey" xml:space="preserve"><value>Clave PIX</value></data>
   <data name="creators.field.defaultFee" xml:space="preserve"><value>Fee predeterminado (%)</value></data>
-  <data name="creators.preview.description" xml:space="preserve"><value>Resumen rápido del creator seleccionado</value></data>
+  <data name="creators.preview.description" xml:space="preserve"><value>Resumen rápido del influencer seleccionado</value></data>
   <data name="creators.preview.dataSection" xml:space="preserve"><value>Datos principales</value></data>
-  <data name="creators.preview.dataSectionDesc" xml:space="preserve"><value>Información de registro y operación del creator</value></data>
+  <data name="creators.preview.dataSectionDesc" xml:space="preserve"><value>Información de registro y operación del influencer</value></data>
   <data name="common.field.type" xml:space="preserve"><value>Tipo</value></data>
   <data name="common.field.startDate" xml:space="preserve"><value>Inicio</value></data>
   <data name="common.field.endDate" xml:space="preserve"><value>Fin</value></data>
@@ -466,4 +466,188 @@
   <data name="opportunityDetail.followups.description" xml:space="preserve"><value>Compromisos y tareas de esta oportunidad (llamadas, envío de propuesta, retornos). Marque como completado tras cada contacto para mantener el historial.</value></data>
   <data name="opportunityDetail.followups.complete" xml:space="preserve"><value>Completar</value></data>
   <data name="opportunityDetail.followups.empty" xml:space="preserve"><value>No hay follow-ups registrados</value></data>
+  <data name="common.loading" xml:space="preserve"><value>Cargando...</value></data>
+  <data name="common.action.remove" xml:space="preserve"><value>Eliminar</value></data>
+  <data name="creators.singular" xml:space="preserve"><value>Influencer</value></data>
+  <data name="creators.detail.mainBadge" xml:space="preserve"><value>Principal</value></data>
+  <data name="creators.detail.title" xml:space="preserve"><value>Influencer</value></data>
+  <data name="creators.detail.subtitle" xml:space="preserve"><value>Perfil 360 del influencer</value></data>
+  <data name="creators.detail.campaigns" xml:space="preserve"><value>Campañas</value></data>
+  <data name="creators.detail.publishedDeliverables" xml:space="preserve"><value>Entregas publicadas</value></data>
+  <data name="creators.detail.finance" xml:space="preserve"><value>Influencer: {0}</value></data>
+  <data name="creators.detail.noCampaigns" xml:space="preserve"><value>El influencer aún no participó en campañas</value></data>
+  <data name="campaign.detail.creatorsTab" xml:space="preserve"><value>Influencers</value></data>
+  <data name="campaign.detail.creatorsSection" xml:space="preserve"><value>Influencers de la campaña</value></data>
+  <data name="campaign.detail.addCreator" xml:space="preserve"><value>Agregar influencer</value></data>
+  <data name="campaign.detail.noCreators" xml:space="preserve"><value>Ningún influencer vinculado a la campaña</value></data>
+  <data name="campaign.detail.documentsTab" xml:space="preserve"><value>Documentos</value></data>
+  <data name="campaign.detail.deliverablesTab" xml:space="preserve"><value>Entregas</value></data>
+  <data name="campaignDocument.type.creatorAcceptance" xml:space="preserve"><value>Aceptación del influencer</value></data>
+  <data name="campaignDocument.type.brandContract" xml:space="preserve"><value>Contrato de marca</value></data>
+  <data name="campaignDocument.type.authorizationTerm" xml:space="preserve"><value>Término de autorización</value></data>
+  <data name="campaignDocument.type.briefingAttachment" xml:space="preserve"><value>Anexo de briefing</value></data>
+  <data name="campaignDocument.type.other" xml:space="preserve"><value>Otro</value></data>
+  <data name="campaignDocument.status.draft" xml:space="preserve"><value>Borrador</value></data>
+  <data name="campaignDocument.status.readyToSend" xml:space="preserve"><value>Listo para enviar</value></data>
+  <data name="campaignDocument.status.sent" xml:space="preserve"><value>Enviado</value></data>
+  <data name="campaignDocument.status.viewed" xml:space="preserve"><value>Visto</value></data>
+  <data name="campaignDocument.status.signed" xml:space="preserve"><value>Firmado</value></data>
+  <data name="campaignDocument.status.rejected" xml:space="preserve"><value>Rechazado</value></data>
+  <data name="campaignDocument.status.cancelled" xml:space="preserve"><value>Cancelado</value></data>
+  <data name="deliverable.status.pending" xml:space="preserve"><value>Pendiente</value></data>
+  <data name="deliverable.status.reviewing" xml:space="preserve"><value>En revisión</value></data>
+  <data name="deliverable.status.approved" xml:space="preserve"><value>Aprobada</value></data>
+  <data name="deliverable.status.published" xml:space="preserve"><value>Publicada</value></data>
+  <data name="deliverable.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="configuration.agency.title" xml:space="preserve"><value>Datos de la agencia</value></data>
+  <data name="configuration.agency.brandIdentity" xml:space="preserve"><value>Identidad visual de la agencia</value></data>
+  <data name="configuration.agency.identity" xml:space="preserve"><value>Identidad</value></data>
+  <data name="configuration.agency.legalName" xml:space="preserve"><value>Razón social</value></data>
+  <data name="configuration.agency.document" xml:space="preserve"><value>CUIT/CUIL</value></data>
+  <data name="configuration.agency.primaryColor" xml:space="preserve"><value>Color primario</value></data>
+  <data name="configuration.agency.logo" xml:space="preserve"><value>Logo de la agencia</value></data>
+  <data name="configuration.agency.noLogo" xml:space="preserve"><value>Sin logo</value></data>
+  <data name="configuration.agency.logoError.format" xml:space="preserve"><value>Formato inválido. Use PNG, JPG o WEBP.</value></data>
+  <data name="configuration.agency.logoError.size" xml:space="preserve"><value>El archivo supera el límite de 2MB.</value></data>
+  <data name="configuration.agency.logoHint" xml:space="preserve"><value>PNG, JPG o WEBP. Máximo 2MB.</value></data>
+  <data name="configuration.creatorStatuses.title" xml:space="preserve"><value>Estado del influencer</value></data>
+  <data name="configuration.creatorStatuses.subtitle" xml:space="preserve"><value>Etapas del influencer dentro de la campaña (invitado, aceptado, en producción, publicado).</value></data>
+  <data name="configuration.contractTemplates.title" xml:space="preserve"><value>Modelos de contrato</value></data>
+  <data name="configuration.contractTemplates.subtitle" xml:space="preserve"><value>Contratos y términos con variables completadas automáticamente al generar el documento de campaña.</value></data>
+  <data name="configuration.commercialFunnel.title" xml:space="preserve"><value>Embudo comercial</value></data>
+  <data name="configuration.commercialFunnel.subtitle" xml:space="preserve"><value>Etapas del pipeline (Lead, Calificado, Propuesta, Negociación, Ganado, Perdido).</value></data>
+  <data name="configuration.deliverableKinds.title" xml:space="preserve"><value>Tipos de entrega</value></data>
+  <data name="configuration.deliverableKinds.subtitle" xml:space="preserve"><value>Registre y organice los tipos de entrega disponibles para campañas.</value></data>
+  <data name="configuration.emailTemplates.title" xml:space="preserve"><value>Plantillas de email</value></data>
+  <data name="configuration.emailTemplates.subtitle" xml:space="preserve"><value>Modelos disparados automáticamente en eventos de propuesta y oportunidad.</value></data>
+  <data name="configuration.bankAccounts.title" xml:space="preserve"><value>Cuentas bancarias</value></data>
+  <data name="configuration.bankAccounts.subtitle" xml:space="preserve"><value>Caja, cuentas bancarias y tarjetas usadas en los registros.</value></data>
+  <data name="configuration.financialSubcategories.title" xml:space="preserve"><value>Subcategorías financieras</value></data>
+  <data name="configuration.financialSubcategories.subtitle" xml:space="preserve"><value>Subcategorías personalizadas para detallar registros financieros.</value></data>
+  <data name="configuration.integrations.title" xml:space="preserve"><value>Integraciones</value></data>
+  <data name="configuration.integrations.subtitle" xml:space="preserve"><value>Conecte cuentas externas y configure acciones automáticas para los eventos de Kanvas.</value></data>
+  <data name="configuration.integrations.field.category" xml:space="preserve"><value>Categoría</value></data>
+  <data name="configuration.integrations.field.connectedAccounts" xml:space="preserve"><value>Cuentas configuradas</value></data>
+  <data name="configuration.integrations.field.active" xml:space="preserve"><value>Activas</value></data>
+  <data name="configuration.integrations.connectedAccounts" xml:space="preserve"><value>Cuentas conectadas</value></data>
+  <data name="configuration.integrations.noAccounts" xml:space="preserve"><value>Sin cuentas conectadas</value></data>
+  <data name="configuration.integrations.action.removeDefault" xml:space="preserve"><value>Quitar como email predeterminado</value></data>
+  <data name="configuration.integrations.action.setDefault" xml:space="preserve"><value>Establecer como email predeterminado</value></data>
+  <data name="configuration.integrations.action.test" xml:space="preserve"><value>Probar conexión</value></data>
+  <data name="configuration.integrations.action.linkEvent" xml:space="preserve"><value>Vincular evento (crear automatización)</value></data>
+  <data name="configuration.integrations.action.editSettings" xml:space="preserve"><value>Editar configuración</value></data>
+  <data name="configuration.integrations.action.delete" xml:space="preserve"><value>Eliminar cuenta</value></data>
+  <data name="configuration.opportunitySources.title" xml:space="preserve"><value>Orígenes de oportunidad</value></data>
+  <data name="configuration.opportunitySources.subtitle" xml:space="preserve"><value>De dónde vienen los leads. Úselo para análisis de canal e informes.</value></data>
+  <data name="configuration.opportunityTags.title" xml:space="preserve"><value>Etiquetas de oportunidad</value></data>
+  <data name="configuration.opportunityTags.subtitle" xml:space="preserve"><value>Marcadores personalizados (estratégico, hot, Q4, etc.) para clasificar deals.</value></data>
+  <data name="configuration.proposalBlocks.title" xml:space="preserve"><value>Bloques de propuesta</value></data>
+  <data name="configuration.proposalBlocks.subtitle" xml:space="preserve"><value>Cláusulas, condiciones y descripciones reutilizables para armar propuestas.</value></data>
+  <data name="configuration.proposalTemplates.title" xml:space="preserve"><value>Plantillas de propuesta</value></data>
+  <data name="configuration.proposalTemplates.subtitle" xml:space="preserve"><value>Modelos reutilizables con ítems estándar para agilizar la creación de propuestas.</value></data>
+  <data name="configuration.dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="configuration.dashboard.refresh" xml:space="preserve"><value>Actualizar</value></data>
+  <data name="configuration.dashboard.kpi.activeAutomations" xml:space="preserve"><value>Automatizaciones activas</value></data>
+  <data name="configuration.dashboard.kpi.emailTemplates" xml:space="preserve"><value>Plantillas de email</value></data>
+  <data name="configuration.dashboard.kpi.bankAccounts" xml:space="preserve"><value>Cuentas bancarias</value></data>
+  <data name="configuration.dashboard.kpi.integrationCategories" xml:space="preserve"><value>Categorías de integración</value></data>
+  <data name="configuration.dashboard.health.title" xml:space="preserve"><value>Salud de la configuración</value></data>
+  <data name="configuration.dashboard.automationsByModule.title" xml:space="preserve"><value>Automatizaciones por módulo</value></data>
+  <data name="configuration.dashboard.automationsByModule.subtitle" xml:space="preserve"><value>Distribución de las activas por el evento que las dispara</value></data>
+  <data name="configuration.dashboard.recentAutomations.title" xml:space="preserve"><value>Automatizaciones recientes</value></data>
+  <data name="configuration.dashboard.recentAutomations.empty" xml:space="preserve"><value>No hay automatizaciones registradas aún.</value></data>
+  <data name="configuration.dashboard.shortcuts.title" xml:space="preserve"><value>Accesos rápidos</value></data>
+  <data name="configuration.dashboard.shortcut.agencyData" xml:space="preserve"><value>Datos de la empresa</value></data>
+  <data name="configuration.dashboard.shortcut.emailTemplates" xml:space="preserve"><value>Plantillas de email</value></data>
+  <data name="configuration.dashboard.shortcut.integrations" xml:space="preserve"><value>Integraciones y automatizaciones</value></data>
+  <data name="configuration.dashboard.shortcut.opportunitySources" xml:space="preserve"><value>Orígenes de oportunidad</value></data>
+  <data name="configuration.dashboard.shortcut.opportunityTags" xml:space="preserve"><value>Etiquetas de oportunidad</value></data>
+  <data name="creatorPortal.layout.title" xml:space="preserve"><value>Portal del influencer</value></data>
+  <data name="creatorPortal.layout.nav.home" xml:space="preserve"><value>Inicio</value></data>
+  <data name="creatorPortal.layout.nav.campaigns" xml:space="preserve"><value>Campañas</value></data>
+  <data name="creatorPortal.layout.nav.contracts" xml:space="preserve"><value>Contratos</value></data>
+  <data name="creatorPortal.layout.nav.payments" xml:space="preserve"><value>Pagos</value></data>
+  <data name="creatorPortal.layout.nav.profile" xml:space="preserve"><value>Perfil</value></data>
+  <data name="creatorPortal.dashboard.campaigns" xml:space="preserve"><value>Campañas</value></data>
+  <data name="creatorPortal.dashboard.pendingContracts" xml:space="preserve"><value>Contratos pendientes</value></data>
+  <data name="creatorPortal.dashboard.pendingPayments" xml:space="preserve"><value>Pagos pendientes</value></data>
+  <data name="creatorPortal.dashboard.contracts.title" xml:space="preserve"><value>Contratos esperando tu firma</value></data>
+  <data name="creatorPortal.dashboard.contracts.subtitle" xml:space="preserve"><value>Esperando tu firma</value></data>
+  <data name="creatorPortal.dashboard.nf.title" xml:space="preserve"><value>Adjunta factura</value></data>
+  <data name="creatorPortal.dashboard.pix.title" xml:space="preserve"><value>Registra tu clave PIX</value></data>
+  <data name="creatorPortal.campaigns.title" xml:space="preserve"><value>Tus campañas</value></data>
+  <data name="creatorPortal.campaigns.field.fee" xml:space="preserve"><value>Caché acordado</value></data>
+  <data name="creatorPortal.campaigns.field.agencyFee" xml:space="preserve"><value>Fee de agencia</value></data>
+  <data name="creatorPortal.campaigns.field.endDate" xml:space="preserve"><value>Fin</value></data>
+  <data name="creatorPortal.documents.title" xml:space="preserve"><value>Tus contratos</value></data>
+  <data name="creatorPortal.payments.title" xml:space="preserve"><value>Tus pagos</value></data>
+  <data name="creatorPortal.payments.field.scheduled" xml:space="preserve"><value>Programado</value></data>
+  <data name="creatorPortal.payments.field.paidAt" xml:space="preserve"><value>Pagado el</value></data>
+  <data name="creatorPortal.payments.field.nfNumber" xml:space="preserve"><value>Número de factura</value></data>
+  <data name="creatorPortal.payments.field.nfUrl" xml:space="preserve"><value>URL del PDF de factura</value></data>
+  <data name="creatorPortal.profile.title" xml:space="preserve"><value>Datos de pago</value></data>
+  <data name="creatorPortal.profile.field.pixKeyType" xml:space="preserve"><value>Tipo de clave PIX</value></data>
+  <data name="creatorPortal.profile.field.pixKey" xml:space="preserve"><value>Clave PIX</value></data>
+  <data name="creatorPortal.profile.placeholder.select" xml:space="preserve"><value>Seleccione</value></data>
+  <data name="creatorPortal.profile.placeholder.pixKey" xml:space="preserve"><value>Ingrese su clave</value></data>
+  <data name="creatorPortal.profile.placeholder.numbersOnly" xml:space="preserve"><value>Solo números</value></data>
+  <data name="creatorPortal.profile.registeredEmail" xml:space="preserve"><value>Email registrado</value></data>
+  <data name="financial.title" xml:space="preserve"><value>Finanzas</value></data>
+  <data name="financial.kpi.receivable" xml:space="preserve"><value>Por cobrar</value></data>
+  <data name="financial.kpi.payable" xml:space="preserve"><value>Por pagar</value></data>
+  <data name="financial.kpi.overdue" xml:space="preserve"><value>Vencido</value></data>
+  <data name="financial.kpi.projectedBalance" xml:space="preserve"><value>Saldo proyectado</value></data>
+  <data name="financial.aging.title" xml:space="preserve"><value>Aging financiero</value></data>
+  <data name="financial.aging.subtitle" xml:space="preserve"><value>Distribución de registros pendientes por rango de atraso</value></data>
+  <data name="financial.aging.totalReceivable" xml:space="preserve"><value>Total pendiente por cobrar</value></data>
+  <data name="financial.aging.totalPayable" xml:space="preserve"><value>Total pendiente por pagar</value></data>
+  <data name="financial.cashFlow.title" xml:space="preserve"><value>Flujo de caja</value></data>
+  <data name="financial.cashFlow.subtitle" xml:space="preserve"><value>Entradas y salidas proyectadas y realizadas en el período</value></data>
+  <data name="financial.cashFlow.field.from" xml:space="preserve"><value>Desde</value></data>
+  <data name="financial.cashFlow.field.granularity" xml:space="preserve"><value>Granularidad</value></data>
+  <data name="financial.creatorPayments.title" xml:space="preserve"><value>Pagos a influencers</value></data>
+  <data name="financial.creatorPayments.subtitle" xml:space="preserve"><value>Gestione pagos individuales y por lote, adjunte factura y dispare vía gateway.</value></data>
+  <data name="financial.creatorPayments.field.creator" xml:space="preserve"><value>Influencer</value></data>
+  <data name="financial.creatorPayments.badge.noNF" xml:space="preserve"><value>Sin factura</value></data>
+  <data name="financial.creatorPayments.action.details" xml:space="preserve"><value>Ver detalles</value></data>
+  <data name="financial.creatorPayments.filter.status" xml:space="preserve"><value>Filtrar por estado</value></data>
+  <data name="financial.creatorPayments.filter.campaign" xml:space="preserve"><value>Filtrar por campaña</value></data>
+  <data name="financial.creatorPayments.stat.payments" xml:space="preserve"><value>Pagos</value></data>
+  <data name="financial.creatorPayments.stat.grossTotal" xml:space="preserve"><value>Total bruto</value></data>
+  <data name="financial.creatorPayments.stat.netTotal" xml:space="preserve"><value>Total neto</value></data>
+  <data name="financial.creatorPayments.stat.selected" xml:space="preserve"><value>Seleccionados</value></data>
+  <data name="financial.creatorPayments.placeholder.status" xml:space="preserve"><value>Estado</value></data>
+  <data name="financial.creatorPayments.placeholder.allCampaigns" xml:space="preserve"><value>Todas las campañas</value></data>
+  <data name="financial.entries.badge.overdue" xml:space="preserve"><value>Vencidos</value></data>
+  <data name="financial.entries.placeholder.search" xml:space="preserve"><value>Buscar por descripción, contraparte o referencia</value></data>
+  <data name="financial.entries.placeholder.account" xml:space="preserve"><value>Cuenta</value></data>
+  <data name="financial.payables.title" xml:space="preserve"><value>Cuentas por pagar</value></data>
+  <data name="financial.payables.subtitle" xml:space="preserve"><value>Pagos a influencers, proveedores, impuestos y gastos operativos.</value></data>
+  <data name="financial.receivables.title" xml:space="preserve"><value>Cuentas por cobrar</value></data>
+  <data name="financial.receivables.subtitle" xml:space="preserve"><value>Registros de entrada de la agencia: marca, bonificaciones y ajustes.</value></data>
+  <data name="financial.overview.title" xml:space="preserve"><value>Resumen financiero</value></data>
+  <data name="operations.approvals.title" xml:space="preserve"><value>Aprobaciones de entregas</value></data>
+  <data name="operations.approvals.subtitle" xml:space="preserve"><value>Entregas que esperan aprobación de la marca antes de publicar</value></data>
+  <data name="operations.approvals.field.creator" xml:space="preserve"><value>Influencer</value></data>
+  <data name="operations.approvals.field.none" xml:space="preserve"><value>Ninguna</value></data>
+  <data name="operations.approvals.placeholder.brand" xml:space="preserve"><value>Ej.: Marca Acme</value></data>
+  <data name="public.loading" xml:space="preserve"><value>Cargando...</value></data>
+  <data name="public.deliverable.invalidLink.title" xml:space="preserve"><value>Enlace inválido o expirado</value></data>
+  <data name="public.deliverable.invalidLink.message" xml:space="preserve"><value>Solicite un nuevo enlace de aprobación a la agencia.</value></data>
+  <data name="public.deliverable.creator" xml:space="preserve"><value>Influencer: {0}</value></data>
+  <data name="public.deliverable.field.deadline" xml:space="preserve"><value>Plazo</value></data>
+  <data name="public.deliverable.waitingDecision" xml:space="preserve"><value>Esperando decisión</value></data>
+  <data name="public.deliverable.comment" xml:space="preserve"><value>Comentario: {0}</value></data>
+  <data name="public.deliverable.approveTitle" xml:space="preserve"><value>Aprobar o rechazar entrega</value></data>
+  <data name="public.deliverable.field.name" xml:space="preserve"><value>Su nombre</value></data>
+  <data name="public.deliverable.field.comment" xml:space="preserve"><value>Comentario (opcional)</value></data>
+  <data name="public.deliverable.placeholder.name" xml:space="preserve"><value>Cómo se identifica</value></data>
+  <data name="public.deliverable.placeholder.comment" xml:space="preserve"><value>Comparta ajustes o aprobaciones específicas</value></data>
+  <data name="public.proposal.loading" xml:space="preserve"><value>Cargando propuesta...</value></data>
+  <data name="public.proposal.invalidLink.title" xml:space="preserve"><value>Enlace inválido o expirado</value></data>
+  <data name="public.proposal.title" xml:space="preserve"><value>Propuesta comercial</value></data>
+  <data name="public.proposal.field.creatorItem" xml:space="preserve"><value>Influencer / ítem</value></data>
+  <data name="public.proposal.field.qty" xml:space="preserve"><value>Cant.</value></data>
+  <data name="public.proposal.field.unitPrice" xml:space="preserve"><value>Unitario</value></data>
+  <data name="public.proposal.field.total" xml:space="preserve"><value>Total</value></data>
 </root>

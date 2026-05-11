@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { PageLayout, Card, CardContent, Button, Input, useApi } from 'archon-ui'
+import { PageLayout, Card, CardContent, Button, Input, useApi, useI18n } from 'archon-ui'
 import { ImagePlus, Trash2 } from 'lucide-react'
 import { agencySettingsService, resolveAgencyLogoUrl } from '../../../services/agencySettingsService'
 import type { AgencySettings } from '../../../types/agencySettings'
@@ -8,6 +8,7 @@ const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
 const MAX_BYTES = 2 * 1024 * 1024
 
 export default function AgencyConfiguration() {
+  const { t } = useI18n()
   const [settings, setSettings] = useState<AgencySettings | null>(null)
   const [agencyName, setAgencyName] = useState('')
   const [tradeName, setTradeName] = useState('')
@@ -47,12 +48,12 @@ export default function AgencyConfiguration() {
     if (!file) return
 
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setLogoError('Formato invalido. Use PNG, JPG ou WEBP.')
+      setLogoError(t('configuration.agency.logoError.format'))
       return
     }
 
     if (file.size > MAX_BYTES) {
-      setLogoError('Arquivo excede o limite de 2MB.')
+      setLogoError(t('configuration.agency.logoError.size'))
       return
     }
 
@@ -92,34 +93,34 @@ export default function AgencyConfiguration() {
 
   return (
     <PageLayout
-      title="Dados da agência"
-      subtitle="Identidade visual da agência"
+      title={t('configuration.agency.title')}
+      subtitle={t('configuration.agency.brandIdentity')}
       onRefresh={() => void load()}
       showDefaultActions={false}
     >
       <form onSubmit={submit} className="space-y-4">
         <Card>
           <CardContent className="pt-5 pb-5 space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Identidade</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t('configuration.agency.identity')}</h3>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Razão social *</label>
+                <label className="text-sm font-medium">{t('configuration.agency.legalName')}</label>
                 <Input value={agencyName} onChange={(e) => setAgencyName(e.target.value)} required />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nome fantasia</label>
+                <label className="text-sm font-medium">{t('common.field.tradeName')}</label>
                 <Input value={tradeName} onChange={(e) => setTradeName(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">CNPJ/CPF</label>
+                <label className="text-sm font-medium">{t('configuration.agency.document')}</label>
                 <Input value={document} onChange={(e) => setDocument(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Cor primária</label>
+                <label className="text-sm font-medium">{t('configuration.agency.primaryColor')}</label>
                 <Input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">Logo da agência</label>
+                <label className="text-sm font-medium">{t('configuration.agency.logo')}</label>
                 <div className="flex items-start gap-4">
                   <div
                     className="relative flex items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted/30 shrink-0"
@@ -130,7 +131,7 @@ export default function AgencyConfiguration() {
                     ) : (
                       <div className="flex flex-col items-center gap-1 text-xs text-muted-foreground">
                         <ImagePlus className="h-6 w-6" />
-                        <span>Sem logo</span>
+                        <span>{t('configuration.agency.noLogo')}</span>
                       </div>
                     )}
                   </div>
@@ -159,10 +160,10 @@ export default function AgencyConfiguration() {
                         onClick={() => void handleRemoveLogo()}
                         disabled={uploadingLogo || removingLogo}
                       >
-                        <Trash2 className="mr-1 h-3 w-3" /> Remover
+                        <Trash2 className="mr-1 h-3 w-3" /> {t('common.action.remove')}
                       </Button>
                     )}
-                    <p className="text-xs text-muted-foreground">PNG, JPG ou WEBP. Máximo 2MB.</p>
+                    <p className="text-xs text-muted-foreground">{t('configuration.agency.logoHint')}</p>
                     {logoError && <p className="text-xs text-destructive">{logoError}</p>}
                   </div>
                 </div>

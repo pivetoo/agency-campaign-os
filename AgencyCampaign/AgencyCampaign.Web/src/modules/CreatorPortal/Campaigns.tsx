@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useI18n } from 'archon-ui'
 import { creatorPortalService, type PortalCampaign } from '../../services/creatorPortalService'
 import { usePortalContext } from './hooks'
 
 export default function CreatorPortalCampaigns() {
+  const { t } = useI18n()
   const { token } = usePortalContext()
   const [campaigns, setCampaigns] = useState<PortalCampaign[]>([])
   const [loading, setLoading] = useState(true)
@@ -26,7 +28,7 @@ export default function CreatorPortalCampaigns() {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-base font-semibold">Suas campanhas</h2>
+      <h2 className="text-base font-semibold">{t('creatorPortal.campaigns.title')}</h2>
       {campaigns.map((c) => (
         <div key={c.id} className="rounded-lg border bg-background p-3">
           <div className="flex items-start justify-between gap-2">
@@ -47,10 +49,10 @@ export default function CreatorPortalCampaigns() {
             )}
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-            <Field label="Cachê combinado" value={`R$ ${c.agreedAmount.toFixed(2)}`} />
-            <Field label="Fee da agência" value={`${c.agencyFeePercent.toFixed(2)}%`} />
-            {c.startsAt && <Field label="Início" value={new Date(c.startsAt).toLocaleDateString('pt-BR')} />}
-            {c.endsAt && <Field label="Fim" value={new Date(c.endsAt).toLocaleDateString('pt-BR')} />}
+            <Field label={t('creatorPortal.campaigns.field.fee')} value={`R$ ${c.agreedAmount.toFixed(2)}`} />
+            <Field label={t('creatorPortal.campaigns.field.agencyFee')} value={`${c.agencyFeePercent.toFixed(2)}%`} />
+            {c.startsAt && <Field label={t('common.field.startDate')} value={new Date(c.startsAt).toLocaleDateString('pt-BR')} />}
+            {c.endsAt && <Field label={t('creatorPortal.campaigns.field.endDate')} value={new Date(c.endsAt).toLocaleDateString('pt-BR')} />}
           </div>
           {c.notes && <p className="mt-2 text-xs text-muted-foreground">{c.notes}</p>}
         </div>

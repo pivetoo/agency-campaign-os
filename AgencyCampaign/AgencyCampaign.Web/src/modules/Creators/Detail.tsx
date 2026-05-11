@@ -12,6 +12,7 @@ import {
   TabsContent,
   Button,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { ExternalLink, Plus, Pencil, Trash2, Users, Activity, Megaphone } from 'lucide-react'
@@ -40,6 +41,7 @@ function formatPercent(value?: number | null): string {
 }
 
 export default function CreatorDetail() {
+  const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const creatorId = Number(id || 0)
   const navigate = useNavigate()
@@ -193,8 +195,8 @@ export default function CreatorDetail() {
   return (
     <div className="space-y-4">
       <PageLayout
-        title={creator?.stageName || creator?.name || 'Creator'}
-        subtitle={creator?.primaryNiche ? `${creator.primaryNiche}${creator.city ? ` · ${creator.city}/${creator.state ?? ''}` : ''}` : 'Perfil 360 do creator'}
+        title={creator?.stageName || creator?.name || t('creators.detail.title')}
+        subtitle={creator?.primaryNiche ? `${creator.primaryNiche}${creator.city ? ` · ${creator.city}/${creator.state ?? ''}` : ''}` : t('creators.detail.subtitle')}
         showDefaultActions={false}
         onRefresh={() => {
           void loadCreator()
@@ -252,7 +254,7 @@ export default function CreatorDetail() {
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Faturamento (bruto)</p>
               <p className="text-lg font-semibold mt-1">{formatCurrency(summary?.totalGrossAmount ?? 0)}</p>
-              <p className="text-[10px] text-muted-foreground">Creator: {formatCurrency(summary?.totalCreatorAmount ?? 0)} · Fee: {formatCurrency(summary?.totalAgencyFeeAmount ?? 0)}</p>
+              <p className="text-[10px] text-muted-foreground">{t('creators.detail.finance', formatCurrency(summary?.totalCreatorAmount ?? 0))} · Fee: {formatCurrency(summary?.totalAgencyFeeAmount ?? 0)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">On-time delivery</p>
@@ -312,7 +314,7 @@ export default function CreatorDetail() {
                   columns={campaignColumns}
                   data={campaigns}
                   rowKey="campaignCreatorId"
-                  emptyText="Creator ainda não participou de campanhas"
+                  emptyText={t('creators.detail.noCampaigns')}
                   loading={campaignsLoading}
                   pageSize={10}
                 />

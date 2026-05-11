@@ -6,6 +6,7 @@ import {
   PageLayout,
   SearchableSelect,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Ban, Eye, Pencil, Plus, Receipt, Send, Signature } from 'lucide-react'
@@ -34,6 +35,7 @@ const STATUS_VARIANTS: Record<PaymentStatusValue, 'default' | 'success' | 'warni
 }
 
 export default function CreatorPaymentsPage() {
+  const { t } = useI18n()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [campaignId, setCampaignId] = useState<number | undefined>()
   const [statusFilter, setStatusFilter] = useState<PaymentStatusValue>(PaymentStatus.Pending)
@@ -109,7 +111,7 @@ export default function CreatorPaymentsPage() {
   const columns: DataTableColumn<CreatorPayment>[] = [
     {
       key: 'creatorName',
-      title: 'Creator',
+      title: t('financial.creatorPayments.field.creator'),
       dataIndex: 'creatorName',
       render: (value: string | undefined) => value || '—',
     },
@@ -155,7 +157,7 @@ export default function CreatorPaymentsPage() {
         value ? (
           <Badge variant="success">#{value}</Badge>
         ) : (
-          <Badge variant="outline">Sem NF</Badge>
+          <Badge variant="outline">{t('financial.creatorPayments.badge.noNF')}</Badge>
         ),
     },
     {
@@ -183,7 +185,7 @@ export default function CreatorPaymentsPage() {
             setDetailsPaymentId(record.id)
             setIsDetailsOpen(true)
           }}
-          title="Ver detalhes"
+          title={t('financial.creatorPayments.action.details')}
         >
           <Eye size={14} />
         </button>
@@ -197,13 +199,13 @@ export default function CreatorPaymentsPage() {
   return (
     <>
       <PageLayout
-        title="Repasses para creators"
-        subtitle="Gerencie pagamentos individuais e em lote, anexe NF e dispare via gateway."
+        title={t('financial.creatorPayments.title')}
+        subtitle={t('financial.creatorPayments.subtitle')}
         showDefaultActions={false}
       >
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1 min-w-[220px]">
-            <label className="text-xs text-muted-foreground">Filtrar por status</label>
+            <label className="text-xs text-muted-foreground">{t('financial.creatorPayments.filter.status')}</label>
             <SearchableSelect
               value={String(statusFilter)}
               onValueChange={(value) => setStatusFilter(Number(value) as PaymentStatusValue)}
@@ -211,17 +213,17 @@ export default function CreatorPaymentsPage() {
                 value: String(value),
                 label: paymentStatusLabels[value as PaymentStatusValue],
               }))}
-              placeholder="Status"
+              placeholder={t('financial.creatorPayments.placeholder.status')}
               searchPlaceholder="Buscar"
             />
           </div>
           <div className="space-y-1 min-w-[260px]">
-            <label className="text-xs text-muted-foreground">Filtrar por campanha</label>
+            <label className="text-xs text-muted-foreground">{t('financial.creatorPayments.filter.campaign')}</label>
             <SearchableSelect
               value={campaignId ? String(campaignId) : ''}
               onValueChange={(value) => setCampaignId(value ? Number(value) : undefined)}
-              options={[{ value: '', label: 'Todas as campanhas' }, ...campaigns.map((c) => ({ value: String(c.id), label: c.name }))]}
-              placeholder="Todas as campanhas"
+              options={[{ value: '', label: t('financial.creatorPayments.placeholder.allCampaigns') }, ...campaigns.map((c) => ({ value: String(c.id), label: c.name }))]}
+              placeholder={t('financial.creatorPayments.placeholder.allCampaigns')}
               searchPlaceholder="Buscar"
             />
           </div>
@@ -248,11 +250,11 @@ export default function CreatorPaymentsPage() {
         </div>
 
         <div className="mt-3 grid grid-cols-2 gap-2 text-sm md:grid-cols-4">
-          <Stat label="Pagamentos" value={payments.length.toString()} />
-          <Stat label="Total bruto" value={`R$ ${totals.all.gross.toFixed(2)}`} />
-          <Stat label="Total líquido" value={`R$ ${totals.all.net.toFixed(2)}`} />
+          <Stat label={t('financial.creatorPayments.stat.payments')} value={payments.length.toString()} />
+          <Stat label={t('financial.creatorPayments.stat.grossTotal')} value={`R$ ${totals.all.gross.toFixed(2)}`} />
+          <Stat label={t('financial.creatorPayments.stat.netTotal')} value={`R$ ${totals.all.net.toFixed(2)}`} />
           <Stat
-            label="Selecionados"
+            label={t('financial.creatorPayments.stat.selected')}
             value={selected.length === 0 ? '—' : `${selected.length} · R$ ${totals.sel.net.toFixed(2)}`}
           />
         </div>

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, Card, CardContent, CardHeader, CardTitle, DataTable, useApi } from 'archon-ui'
+import { PageLayout, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { financialEntryService } from '../../services/financialEntryService'
 import type { FinancialEntry } from '../../types/financialEntry'
 
 export default function Financial() {
+  const { t } = useI18n()
   const [entries, setEntries] = useState<FinancialEntry[]>([])
   const { execute: fetchEntries, loading } = useApi<FinancialEntry[]>({ showErrorMessage: true })
 
@@ -29,7 +30,7 @@ export default function Financial() {
   }, [entries])
 
   const columns: DataTableColumn<FinancialEntry>[] = [
-    { key: 'type', title: 'Tipo', dataIndex: 'type', render: (value: number) => value === 1 ? 'A receber' : 'A pagar' },
+    { key: 'type', title: 'Tipo', dataIndex: 'type', render: (value: number) => value === 1 ? t('financial.kpi.receivable') : t('financial.kpi.payable') },
     { key: 'description', title: 'Descrição', dataIndex: 'description' },
     { key: 'counterpartyName', title: 'Contraparte', dataIndex: 'counterpartyName' },
     { key: 'amount', title: 'Valor', dataIndex: 'amount', render: (value: number) => `R$ ${value.toFixed(2)}` },
@@ -39,13 +40,13 @@ export default function Financial() {
 
   return (
     <div className="space-y-4">
-      <PageLayout title="Financeiro" onRefresh={() => void loadEntries()}>
+      <PageLayout title={t('financial.title')} onRefresh={() => void loadEntries()}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-          <Card><CardHeader><CardTitle className="text-sm">A receber</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {totals.receivable.toFixed(2)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">A pagar</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {totals.payable.toFixed(2)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.receivable')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {totals.receivable.toFixed(2)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.payable')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {totals.payable.toFixed(2)}</CardContent></Card>
           <Card><CardHeader><CardTitle className="text-sm">Pago/Recebido</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {totals.paid.toFixed(2)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">Vencido</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {totals.overdue.toFixed(2)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">Saldo previsto</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {totals.balance.toFixed(2)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.overdue')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {totals.overdue.toFixed(2)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.projectedBalance')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {totals.balance.toFixed(2)}</CardContent></Card>
         </div>
 
         <Card>

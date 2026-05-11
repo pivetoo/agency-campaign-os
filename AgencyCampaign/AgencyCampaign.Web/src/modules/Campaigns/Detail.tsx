@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from 'archon-ui'
+import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Eye, Mail, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
@@ -19,22 +19,6 @@ import CampaignDocumentGenerateFromTemplateModal from '../../components/modals/C
 import CampaignDocumentSendForSignatureModal from '../../components/modals/CampaignDocumentSendForSignatureModal'
 import CampaignDocumentDetailsModal from '../../components/modals/CampaignDocumentDetailsModal'
 
-const campaignStatusLabels: Record<number, string> = {
-  1: 'Rascunho',
-  2: 'Planejada',
-  3: 'Em execução',
-  4: 'Em revisão',
-  5: 'Concluída',
-  6: 'Cancelada',
-}
-
-const deliverableStatusLabels: Record<number, string> = {
-  1: 'Pendente',
-  2: 'Em revisão',
-  3: 'Aprovada',
-  4: 'Publicada',
-  5: 'Cancelada',
-}
 
 function getContrastColor(hexColor: string): string {
   const hex = hexColor.replace('#', '')
@@ -45,25 +29,8 @@ function getContrastColor(hexColor: string): string {
   return luminance > 0.5 ? '#111827' : '#ffffff'
 }
 
-const documentTypeLabels: Record<number, string> = {
-  1: 'Aceite do creator',
-  2: 'Contrato da marca',
-  3: 'Termo de autorização',
-  4: 'Anexo de briefing',
-  5: 'Outro',
-}
-
-const documentStatusLabels: Record<number, string> = {
-  1: 'Rascunho',
-  2: 'Pronto para envio',
-  3: 'Enviado',
-  4: 'Visualizado',
-  5: 'Assinado',
-  6: 'Rejeitado',
-  7: 'Cancelado',
-}
-
 export default function CampaignDetail() {
+  const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const campaignId = Number(id || 0)
 
@@ -81,6 +48,41 @@ export default function CampaignDetail() {
   const [isDocumentGenerateOpen, setIsDocumentGenerateOpen] = useState(false)
   const [isDocumentSignatureOpen, setIsDocumentSignatureOpen] = useState(false)
   const [isDocumentDetailsOpen, setIsDocumentDetailsOpen] = useState(false)
+
+  const campaignStatusLabels: Record<number, string> = {
+    1: t('campaign.status.draft'),
+    2: t('campaign.status.planned'),
+    3: t('campaign.status.executing'),
+    4: t('campaign.status.reviewing'),
+    5: t('campaign.status.completed'),
+    6: t('campaign.status.cancelled'),
+  }
+
+  const deliverableStatusLabels: Record<number, string> = {
+    1: t('deliverable.status.pending'),
+    2: t('deliverable.status.reviewing'),
+    3: t('deliverable.status.approved'),
+    4: t('deliverable.status.published'),
+    5: t('deliverable.status.cancelled'),
+  }
+
+  const documentTypeLabels: Record<number, string> = {
+    1: t('campaignDocument.type.creatorAcceptance'),
+    2: t('campaignDocument.type.brandContract'),
+    3: t('campaignDocument.type.authorizationTerm'),
+    4: t('campaignDocument.type.briefingAttachment'),
+    5: t('campaignDocument.type.other'),
+  }
+
+  const documentStatusLabels: Record<number, string> = {
+    1: t('campaignDocument.status.draft'),
+    2: t('campaignDocument.status.readyToSend'),
+    3: t('campaignDocument.status.sent'),
+    4: t('campaignDocument.status.viewed'),
+    5: t('campaignDocument.status.signed'),
+    6: t('campaignDocument.status.rejected'),
+    7: t('campaignDocument.status.cancelled'),
+  }
 
   const { execute: fetchCampaign } = useApi<Campaign | null>({ showErrorMessage: true })
   const { execute: fetchCampaignCreators, loading: creatorsLoading } = useApi<CampaignCreator[]>({ showErrorMessage: true })
@@ -130,7 +132,7 @@ export default function CampaignDetail() {
   const campaignCreatorColumns: DataTableColumn<CampaignCreator>[] = [
     {
       key: 'creator',
-      title: 'Creator',
+      title: t('creators.singular'),
       dataIndex: 'creator',
       render: (value: CampaignCreator['creator']) => value?.stageName || value?.name || '-',
     },
@@ -185,7 +187,7 @@ export default function CampaignDetail() {
     { key: 'title', title: 'Entrega', dataIndex: 'title' },
     {
       key: 'campaignCreator',
-      title: 'Creator',
+      title: t('creators.singular'),
       dataIndex: 'campaignCreator',
       render: (value: CampaignDeliverable['campaignCreator']) => value?.stageName || value?.creatorName || '-',
     },
@@ -281,7 +283,7 @@ export default function CampaignDetail() {
     },
     {
       key: 'campaignCreatorId',
-      title: 'Creator',
+      title: t('creators.singular'),
       dataIndex: 'campaignCreatorId',
       render: (value?: number) => {
         const campaignCreator = campaignCreators.find((item) => item.id === value)
@@ -380,7 +382,7 @@ export default function CampaignDetail() {
             </div>
 
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Creators</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('campaign.detail.creatorsTab')}</p>
               <p className="text-sm font-medium mt-1">{campaignCreators.length}</p>
             </div>
 
@@ -409,7 +411,7 @@ export default function CampaignDetail() {
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger value="creators" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Users size={14} />
-              Creators
+              {t('campaign.detail.creatorsTab')}
               {campaignCreators.length > 0 && (
                 <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">
                   {campaignCreators.length}
@@ -418,7 +420,7 @@ export default function CampaignDetail() {
             </TabsTrigger>
             <TabsTrigger value="documents" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <FileText size={14} />
-              Documentos
+              {t('campaign.detail.documentsTab')}
               {documents.length > 0 && (
                 <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">
                   {documents.length}
@@ -427,7 +429,7 @@ export default function CampaignDetail() {
             </TabsTrigger>
             <TabsTrigger value="deliverables" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Package size={14} />
-              Entregas
+              {t('campaign.detail.deliverablesTab')}
               {deliverables.length > 0 && (
                 <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">
                   {deliverables.length}
@@ -439,10 +441,10 @@ export default function CampaignDetail() {
           <TabsContent value="creators" className="mt-0">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
-                <CardTitle className="text-base">Creators da campanha</CardTitle>
+                <CardTitle className="text-base">{t('campaign.detail.creatorsSection')}</CardTitle>
                 <Button size="sm" onClick={() => { setSelectedCampaignCreator(null); setIsCreatorFormOpen(true) }}>
                   <Plus size={16} className="mr-2" />
-                  Adicionar creator
+                  {t('campaign.detail.addCreator')}
                 </Button>
               </CardHeader>
               <CardContent className="pt-0">
@@ -452,7 +454,7 @@ export default function CampaignDetail() {
                   rowKey="id"
                   selectedRows={selectedCampaignCreator ? [selectedCampaignCreator] : []}
                   onSelectionChange={(rows) => setSelectedCampaignCreator(rows[0] ?? null)}
-                  emptyText="Nenhum creator vinculado à campanha"
+                  emptyText={t('campaign.detail.noCreators')}
                   loading={creatorsLoading}
                   pageSize={5}
                   pageSizeOptions={[5, 10, 20, 50]}

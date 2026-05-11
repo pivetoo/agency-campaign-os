@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import {
@@ -9,6 +9,7 @@ import {
 import ProposalBlockFormModal from '../../../components/modals/ProposalBlockFormModal'
 
 export default function ProposalBlocks() {
+  const { t } = useI18n()
   const [blocks, setBlocks] = useState<ProposalBlock[]>([])
   const [selected, setSelected] = useState<ProposalBlock | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -59,8 +60,8 @@ export default function ProposalBlocks() {
   return (
     <>
       <PageLayout
-        title="Blocos de proposta"
-        subtitle="Cláusulas, condições e descrições reutilizáveis. Insira no editor da proposta com um clique."
+        title={t('configuration.proposalBlocks.title')}
+        subtitle={t('configuration.proposalBlocks.subtitle')}
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}

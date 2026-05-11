@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { campaignDocumentTemplateService } from '../../../services/campaignDocumentTemplateService'
@@ -11,6 +11,7 @@ import type { CampaignDocumentTemplate } from '../../../types/campaignDocumentTe
 import CampaignDocumentTemplateFormModal from '../../../components/modals/CampaignDocumentTemplateFormModal'
 
 export default function CampaignDocumentTemplates() {
+  const { t } = useI18n()
   const [items, setItems] = useState<CampaignDocumentTemplate[]>([])
   const [selected, setSelected] = useState<CampaignDocumentTemplate | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -71,8 +72,8 @@ export default function CampaignDocumentTemplates() {
   return (
     <>
       <PageLayout
-        title="Modelos de contrato"
-        subtitle="Contratos e termos com variáveis preenchidas automaticamente ao gerar o documento da campanha."
+        title={t('configuration.contractTemplates.title')}
+        subtitle={t('configuration.contractTemplates.subtitle')}
         onAdd={() => {
           setSelected(null)
           setIsFormOpen(true)

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button } from 'archon-ui'
+import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Link as LinkIcon, ExternalLink, ShieldCheck } from 'lucide-react'
 import {
@@ -29,6 +29,7 @@ const approvalTypeLabels: Record<number, string> = {
 }
 
 export default function OperationsApprovals() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [items, setItems] = useState<PendingApproval[]>([])
   const [reviewerName, setReviewerName] = useState('')
@@ -78,7 +79,7 @@ export default function OperationsApprovals() {
     },
     {
       key: 'creatorName',
-      title: 'Creator',
+      title: t('operations.approvals.field.creator'),
       dataIndex: 'creatorName',
       render: (value, record) => `${value || '-'}${record.platformName ? ` · ${record.platformName}` : ''}`,
     },
@@ -100,7 +101,7 @@ export default function OperationsApprovals() {
       dataIndex: 'approvals',
       render: (_value, record) =>
         record.approvals.length === 0 ? (
-          <span className="text-xs text-muted-foreground">Nenhuma</span>
+          <span className="text-xs text-muted-foreground">{t('operations.approvals.field.none')}</span>
         ) : (
           <div className="flex flex-wrap gap-1">
             {record.approvals.map((approval) => (
@@ -134,8 +135,8 @@ export default function OperationsApprovals() {
 
   return (
     <PageLayout
-      title="Aprovações de entregas"
-      subtitle="Entregas que aguardam aprovação da marca antes de publicação"
+      title={t('operations.approvals.title')}
+      subtitle={t('operations.approvals.subtitle')}
       onRefresh={() => void load()}
       showDefaultActions={false}
     >
@@ -153,7 +154,7 @@ export default function OperationsApprovals() {
               className="rounded-md border bg-background px-2 py-1 text-sm"
               value={reviewerName}
               onChange={(e) => setReviewerName(e.target.value)}
-              placeholder="Ex.: Marca Acme"
+              placeholder={t('operations.approvals.placeholder.brand')}
             />
           </div>
           <DataTable

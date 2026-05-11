@@ -1,11 +1,13 @@
+import { useI18n } from 'archon-ui'
 import FinancialEntriesPage from './EntriesPage'
 
 export default function FinancialReceivables() {
+  const { t } = useI18n()
   return (
     <FinancialEntriesPage
       type={1}
-      title="Contas a receber"
-      subtitle="Lançamentos de entrada da agência: marca, bônus e ajustes"
+      title={t('financial.receivables.title')}
+      subtitle={t('financial.receivables.subtitle')}
     />
   )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { emailTemplateService } from '../../../services/emailTemplateService'
@@ -11,6 +11,7 @@ import {
 import EmailTemplateFormModal from '../../../components/modals/EmailTemplateFormModal'
 
 export default function EmailTemplates() {
+  const { t } = useI18n()
   const [items, setItems] = useState<EmailTemplate[]>([])
   const [selected, setSelected] = useState<EmailTemplate | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -69,8 +70,8 @@ export default function EmailTemplates() {
   return (
     <>
       <PageLayout
-        title="Templates de email"
-        subtitle="Modelos disparados automaticamente em eventos de proposta e oportunidade."
+        title={t('configuration.emailTemplates.title')}
+        subtitle={t('configuration.emailTemplates.subtitle')}
         onAdd={() => {
           setSelected(null)
           setIsFormOpen(true)

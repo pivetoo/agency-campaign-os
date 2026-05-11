@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Badge, DataTable, PageLayout, useApi } from 'archon-ui'
+import { Badge, DataTable, PageLayout, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import CampaignCreatorStatusFormModal from '../../../components/modals/CampaignCreatorStatusFormModal'
 import { campaignCreatorStatusService } from '../../../services/campaignCreatorStatusService'
@@ -12,6 +12,7 @@ const categoryLabels: Record<number, string> = {
 }
 
 export default function CampaignCreatorStatuses() {
+  const { t } = useI18n()
   const [statuses, setStatuses] = useState<CampaignCreatorStatus[]>([])
   const [selectedStatus, setSelectedStatus] = useState<CampaignCreatorStatus | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -50,8 +51,8 @@ export default function CampaignCreatorStatuses() {
   return (
     <>
       <PageLayout
-        title="Status do creator"
-        subtitle="Etapas do creator dentro da campanha (convidado, aceito, em produção, publicado)."
+        title={t('configuration.creatorStatuses.title')}
+        subtitle={t('configuration.creatorStatuses.subtitle')}
         onAdd={() => { setSelectedStatus(null); setIsFormOpen(true) }}
         onEdit={() => selectedStatus && setIsFormOpen(true)}
         onRefresh={() => void loadStatuses()}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { financialSubcategoryService } from '../../../services/financialSubcategoryService'
@@ -8,6 +8,7 @@ import type { FinancialSubcategory } from '../../../types/financialSubcategory'
 import FinancialSubcategoryFormModal from '../../../components/modals/FinancialSubcategoryFormModal'
 
 export default function FinancialSubcategories() {
+  const { t } = useI18n()
   const [items, setItems] = useState<FinancialSubcategory[]>([])
   const [selected, setSelected] = useState<FinancialSubcategory | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -65,8 +66,8 @@ export default function FinancialSubcategories() {
   return (
     <>
       <PageLayout
-        title="Subcategorias financeiras"
-        subtitle="Subcategorias customizadas para detalhar lançamentos (ex.: Patrocínio anual, Mensalidade SaaS)."
+        title={t('configuration.financialSubcategories.title')}
+        subtitle={t('configuration.financialSubcategories.subtitle')}
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}

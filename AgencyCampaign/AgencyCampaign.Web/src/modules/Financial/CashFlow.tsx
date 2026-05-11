@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, Card, CardContent, useApi, SearchableSelect, Input } from 'archon-ui'
+import { PageLayout, Card, CardContent, useApi, SearchableSelect, Input, useI18n } from 'archon-ui'
 import { ResponsiveLine } from '@nivo/line'
 import {
   CashFlowGranularity,
@@ -32,6 +32,7 @@ function defaultRange(granularity: CashFlowGranularityValue): { from: string; to
 }
 
 export default function CashFlow() {
+  const { t } = useI18n()
   const [granularity, setGranularity] = useState<CashFlowGranularityValue>(CashFlowGranularity.Month)
   const [range, setRange] = useState(defaultRange(CashFlowGranularity.Month))
   const [data, setData] = useState<CashFlowSeries | null>(null)
@@ -109,8 +110,8 @@ export default function CashFlow() {
 
   return (
     <PageLayout
-      title="Fluxo de caixa"
-      subtitle="Entradas e saídas projetadas e realizadas no período"
+      title={t('financial.cashFlow.title')}
+      subtitle={t('financial.cashFlow.subtitle')}
       onRefresh={() => void load()}
       showDefaultActions={false}
     >
@@ -118,7 +119,7 @@ export default function CashFlow() {
         <CardContent className="pt-4 space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">De</label>
+              <label className="text-xs text-muted-foreground">{t('financial.cashFlow.field.from')}</label>
               <Input type="date" value={range.from} onChange={(e) => setRange((prev) => ({ ...prev, from: e.target.value }))} />
             </div>
             <div className="space-y-1">
@@ -126,7 +127,7 @@ export default function CashFlow() {
               <Input type="date" value={range.to} onChange={(e) => setRange((prev) => ({ ...prev, to: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Granularidade</label>
+              <label className="text-xs text-muted-foreground">{t('financial.cashFlow.field.granularity')}</label>
               <SearchableSelect
                 value={String(granularity)}
                 onValueChange={(value) => {

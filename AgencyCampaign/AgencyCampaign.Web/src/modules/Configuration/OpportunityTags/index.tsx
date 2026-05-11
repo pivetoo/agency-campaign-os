@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { opportunityTagService } from '../../../services/opportunitySourceService'
@@ -7,6 +7,7 @@ import type { OpportunityTag } from '../../../types/opportunitySource'
 import { OpportunityTagFormModal } from '../../../components/modals/OpportunitySourceFormModal'
 
 export default function OpportunityTags() {
+  const { t } = useI18n()
   const [items, setItems] = useState<OpportunityTag[]>([])
   const [selected, setSelected] = useState<OpportunityTag | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -60,8 +61,8 @@ export default function OpportunityTags() {
   return (
     <>
       <PageLayout
-        title="Tags de oportunidade"
-        subtitle="Marcadores customizados (estratégico, hot, Q4, etc.) para classificar deals."
+        title={t('configuration.opportunityTags.title')}
+        subtitle={t('configuration.opportunityTags.subtitle')}
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}

@@ -14,6 +14,7 @@ import {
   TabsList,
   TabsTrigger,
   useApi,
+  useI18n,
 } from 'archon-ui'
 import { CheckCircle2, CircleDashed, GitBranch, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Star, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
@@ -63,6 +64,7 @@ const STATUS: Record<IntegrationStatus, StatusConfig> = {
 }
 
 export default function Integrations() {
+  const { t } = useI18n()
   const [activeTab, setActiveTab] = useState('connectors')
 
   const [categories, setCategories] = useState<IntegrationCategory[]>([])
@@ -274,8 +276,8 @@ export default function Integrations() {
   return (
     <>
       <PageLayout
-        title="Integrações"
-        subtitle="Conecte contas externas e configure ações automáticas para os eventos do Kanvas"
+        title={t('configuration.integrations.title')}
+        subtitle={t('configuration.integrations.subtitle')}
       >
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
@@ -283,7 +285,7 @@ export default function Integrations() {
               value="connectors"
               className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
             >
-              <Plug className="h-4 w-4" /> Contas conectadas
+              <Plug className="h-4 w-4" /> {t('configuration.integrations.connectedAccounts')}
             </TabsTrigger>
             <TabsTrigger
               value="automations"
@@ -296,7 +298,7 @@ export default function Integrations() {
           <TabsContent value="connectors" className="space-y-4">
             <div className="grid grid-cols-2 gap-4 rounded-lg border bg-card p-4 md:grid-cols-4">
               <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Categoria</span>
+                <span className="text-xs text-muted-foreground">{t('configuration.integrations.field.category')}</span>
                 <SearchableSelect
                   options={categories.map((category) => ({
                     value: String(category.id),
@@ -314,11 +316,11 @@ export default function Integrations() {
                 </p>
               </div>
               <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Contas configuradas</span>
+                <span className="text-xs text-muted-foreground">{t('configuration.integrations.field.connectedAccounts')}</span>
                 <p className="font-medium">{selectedCategory ? totalConnectors : '—'}</p>
               </div>
               <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Ativas</span>
+                <span className="text-xs text-muted-foreground">{t('configuration.integrations.field.active')}</span>
                 <div className="mt-1">
                   {selectedCategory ? (
                     <Badge variant={activeConnectors > 0 ? 'success' : 'outline'}>
@@ -434,7 +436,7 @@ export default function Integrations() {
 
                 <Card className="lg:col-span-7">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Contas conectadas</CardTitle>
+                    <CardTitle className="text-base">{t('configuration.integrations.connectedAccounts')}</CardTitle>
                     <p className="text-sm text-muted-foreground">
                       Cada conta é uma instância configurada da integração com credenciais próprias.
                     </p>
@@ -492,7 +494,7 @@ export default function Integrations() {
                         {connectorsForSelectedIntegration.length === 0 ? (
                           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-10 text-muted-foreground">
                             <Settings2 size={36} className="mb-3 opacity-50" />
-                            <p className="text-sm font-medium">Nenhuma conta conectada</p>
+                            <p className="text-sm font-medium">{t('configuration.integrations.noAccounts')}</p>
                             <p className="mt-1 text-xs">
                               Use o botão "Conectar conta" acima para configurar a primeira.
                             </p>
@@ -525,7 +527,7 @@ export default function Integrations() {
                                       <Button
                                         size="sm"
                                         variant="ghost"
-                                        title="Remover como e-mail padrão"
+                                        title={t('configuration.integrations.action.removeDefault')}
                                         onClick={() => void handleSetDefaultEmail(null)}
                                       >
                                         <Star size={14} className="mr-1 fill-amber-500 text-amber-500" />
@@ -535,7 +537,7 @@ export default function Integrations() {
                                       <Button
                                         size="sm"
                                         variant="ghost"
-                                        title="Definir como e-mail padrão"
+                                        title={t('configuration.integrations.action.setDefault')}
                                         onClick={() => void handleSetDefaultEmail(connector.id)}
                                       >
                                         <Star size={14} className="mr-1" />
@@ -547,7 +549,7 @@ export default function Integrations() {
                                     <Button
                                       size="sm"
                                       variant="ghost"
-                                      title="Testar conexão"
+                                      title={t('configuration.integrations.action.test')}
                                       onClick={() => openTestConnector(connector)}
                                     >
                                       <Sparkles size={14} className="mr-1" />
@@ -558,7 +560,7 @@ export default function Integrations() {
                                     <Button
                                       size="sm"
                                       variant="ghost"
-                                      title="Vincular evento (criar automação)"
+                                      title={t('configuration.integrations.action.linkEvent')}
                                       onClick={() => openCreateAutomationForConnector(connector)}
                                     >
                                       <Zap size={14} className="mr-1" />
@@ -586,7 +588,7 @@ export default function Integrations() {
                                   <Button
                                     size="sm"
                                     variant="ghost"
-                                    title="Editar configurações"
+                                    title={t('configuration.integrations.action.editSettings')}
                                     onClick={() => openEditConnector(connector)}
                                   >
                                     <Pencil size={14} className="mr-1" />
@@ -595,7 +597,7 @@ export default function Integrations() {
                                   <Button
                                     size="sm"
                                     variant="ghost"
-                                    title="Excluir conta"
+                                    title={t('configuration.integrations.action.delete')}
                                     onClick={() => askDeleteConnector(connector)}
                                   >
                                     <Trash2 size={14} className="text-destructive" />

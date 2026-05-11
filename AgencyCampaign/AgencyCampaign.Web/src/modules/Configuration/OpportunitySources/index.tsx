@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { opportunitySourceService } from '../../../services/opportunitySourceService'
@@ -7,6 +7,7 @@ import type { OpportunitySource } from '../../../types/opportunitySource'
 import { OpportunitySourceFormModal } from '../../../components/modals/OpportunitySourceFormModal'
 
 export default function OpportunitySources() {
+  const { t } = useI18n()
   const [items, setItems] = useState<OpportunitySource[]>([])
   const [selected, setSelected] = useState<OpportunitySource | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -59,8 +60,8 @@ export default function OpportunitySources() {
   return (
     <>
       <PageLayout
-        title="Origens de oportunidade"
-        subtitle="De onde vêm os leads. Use para análise de canal e relatórios."
+        title={t('configuration.opportunitySources.title')}
+        subtitle={t('configuration.opportunitySources.subtitle')}
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}

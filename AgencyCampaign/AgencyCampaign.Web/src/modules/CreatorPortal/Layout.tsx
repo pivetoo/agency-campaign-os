@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
 import { Calendar, FileText, Home, Receipt, User } from 'lucide-react'
+import { useI18n } from 'archon-ui'
 import { creatorPortalService, type PortalSession } from '../../services/creatorPortalService'
 
 export default function CreatorPortalLayout() {
+  const { t } = useI18n()
   const { token } = useParams<{ token: string }>()
   const navigate = useNavigate()
   const [session, setSession] = useState<PortalSession | null>(null)
@@ -61,7 +63,7 @@ export default function CreatorPortalLayout() {
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <div>
             <h1 className="text-base font-semibold leading-tight">Olá, {session.creator.stageName ?? session.creator.name}</h1>
-            <p className="text-xs text-muted-foreground">Portal do creator</p>
+            <p className="text-xs text-muted-foreground">{t('creatorPortal.layout.title')}</p>
           </div>
           {session.creator.primaryNiche && (
             <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">{session.creator.primaryNiche}</span>
@@ -75,11 +77,11 @@ export default function CreatorPortalLayout() {
 
       <nav className="fixed bottom-0 left-0 right-0 border-t bg-background">
         <div className="mx-auto flex max-w-3xl items-stretch justify-around">
-          <PortalNavItem to={`/portal/${token}`} end icon={<Home size={18} />} label="Início" />
-          <PortalNavItem to={`/portal/${token}/campanhas`} icon={<Calendar size={18} />} label="Campanhas" />
-          <PortalNavItem to={`/portal/${token}/contratos`} icon={<FileText size={18} />} label="Contratos" />
-          <PortalNavItem to={`/portal/${token}/pagamentos`} icon={<Receipt size={18} />} label="Pagamentos" />
-          <PortalNavItem to={`/portal/${token}/perfil`} icon={<User size={18} />} label="Perfil" />
+          <PortalNavItem to={`/portal/${token}`} end icon={<Home size={18} />} label={t('creatorPortal.layout.nav.home')} />
+          <PortalNavItem to={`/portal/${token}/campanhas`} icon={<Calendar size={18} />} label={t('creatorPortal.layout.nav.campaigns')} />
+          <PortalNavItem to={`/portal/${token}/contratos`} icon={<FileText size={18} />} label={t('creatorPortal.layout.nav.contracts')} />
+          <PortalNavItem to={`/portal/${token}/pagamentos`} icon={<Receipt size={18} />} label={t('creatorPortal.layout.nav.payments')} />
+          <PortalNavItem to={`/portal/${token}/perfil`} icon={<User size={18} />} label={t('creatorPortal.layout.nav.profile')} />
         </div>
       </nav>
     </div>

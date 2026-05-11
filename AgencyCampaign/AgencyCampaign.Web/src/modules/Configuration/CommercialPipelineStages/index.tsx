@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Badge, DataTable, PageLayout, useApi } from 'archon-ui'
+import { Badge, DataTable, PageLayout, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import CommercialPipelineStageFormModal from '../../../components/modals/CommercialPipelineStageFormModal'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
@@ -12,6 +12,7 @@ const finalBehaviorLabels: Record<number, string> = {
 }
 
 export default function CommercialPipelineStages() {
+  const { t } = useI18n()
   const [stages, setStages] = useState<CommercialPipelineStage[]>([])
   const [selectedStage, setSelectedStage] = useState<CommercialPipelineStage | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -40,8 +41,8 @@ export default function CommercialPipelineStages() {
   return (
     <>
       <PageLayout
-        title="Funil comercial"
-        subtitle="Estágios do pipeline (Lead, Qualificado, Proposta, Negociação, Ganho, Perdido) com cores e probabilidade."
+        title={t('configuration.commercialFunnel.title')}
+        subtitle={t('configuration.commercialFunnel.subtitle')}
         onAdd={() => { setSelectedStage(null); setIsFormOpen(true) }}
         onEdit={() => selectedStage && setIsFormOpen(true)}
         onRefresh={() => void loadStages()}

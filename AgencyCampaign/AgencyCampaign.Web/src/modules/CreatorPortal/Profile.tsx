@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Input, SearchableSelect, useApi } from 'archon-ui'
+import { Button, Input, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { creatorPortalService } from '../../services/creatorPortalService'
 import { PixKeyType, pixKeyTypeLabels, type PixKeyTypeValue } from '../../types/creatorPayment'
 import { usePortalContext } from './hooks'
@@ -10,6 +10,7 @@ const pixKeyTypeOptions = Object.values(PixKeyType).map((value) => ({
 }))
 
 export default function CreatorPortalProfile() {
+  const { t } = useI18n()
   const { token, session, refresh } = usePortalContext()
   const [pixKey, setPixKey] = useState('')
   const [pixKeyType, setPixKeyType] = useState<PixKeyTypeValue | undefined>()
@@ -41,29 +42,29 @@ export default function CreatorPortalProfile() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-base font-semibold">Dados de pagamento</h2>
+      <h2 className="text-base font-semibold">{t('creatorPortal.profile.title')}</h2>
       <p className="text-xs text-muted-foreground">
         Esses dados são usados pela agência para fazer seus repasses via PIX. Mantenha sempre atualizado.
       </p>
 
       <form onSubmit={submit} className="space-y-3">
         <div className="space-y-1">
-          <label className="text-sm font-medium">Tipo da chave PIX</label>
+          <label className="text-sm font-medium">{t('creatorPortal.profile.field.pixKeyType')}</label>
           <SearchableSelect
             value={pixKeyType ? String(pixKeyType) : ''}
             onValueChange={(value) => setPixKeyType(value ? (Number(value) as PixKeyTypeValue) : undefined)}
             options={pixKeyTypeOptions}
-            placeholder="Selecione"
+            placeholder={t('creatorPortal.profile.placeholder.select')}
             searchPlaceholder="Buscar"
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium">Chave PIX</label>
-          <Input value={pixKey} onChange={(e) => setPixKey(e.target.value)} required placeholder="Digite sua chave" />
+          <label className="text-sm font-medium">{t('creatorPortal.profile.field.pixKey')}</label>
+          <Input value={pixKey} onChange={(e) => setPixKey(e.target.value)} required placeholder={t('creatorPortal.profile.placeholder.pixKey')} />
         </div>
         <div className="space-y-1">
           <label className="text-sm font-medium">CPF/CNPJ do titular (opcional)</label>
-          <Input value={document} onChange={(e) => setDocumentValue(e.target.value)} placeholder="Apenas números" />
+          <Input value={document} onChange={(e) => setDocumentValue(e.target.value)} placeholder={t('creatorPortal.profile.placeholder.numbersOnly')} />
         </div>
         <Button type="submit" disabled={loading || !isValid} className="w-full">
           {loading ? 'Salvando...' : 'Salvar'}
@@ -71,7 +72,7 @@ export default function CreatorPortalProfile() {
       </form>
 
       <div className="rounded-lg border bg-primary/5 p-3 text-xs">
-        <p className="text-muted-foreground">Email cadastrado</p>
+        <p className="text-muted-foreground">{t('creatorPortal.profile.registeredEmail')}</p>
         <p className="font-medium">{session.creator.email ?? 'Não informado'}</p>
       </div>
     </div>

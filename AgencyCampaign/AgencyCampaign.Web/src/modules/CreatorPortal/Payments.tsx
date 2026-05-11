@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Receipt, X } from 'lucide-react'
-import { Button, Input, useApi } from 'archon-ui'
+import { Button, Input, useApi, useI18n } from 'archon-ui'
 import { creatorPortalService } from '../../services/creatorPortalService'
 import { paymentMethodLabels, paymentStatusLabels, type CreatorPayment, type PaymentStatusValue } from '../../types/creatorPayment'
 import { usePortalContext } from './hooks'
@@ -14,6 +14,7 @@ const STATUS_COLOR: Record<PaymentStatusValue, string> = {
 }
 
 export default function CreatorPortalPayments() {
+  const { t } = useI18n()
   const { token } = usePortalContext()
   const [payments, setPayments] = useState<CreatorPayment[]>([])
   const [loading, setLoading] = useState(true)
@@ -70,7 +71,7 @@ export default function CreatorPortalPayments() {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-base font-semibold">Seus repasses</h2>
+      <h2 className="text-base font-semibold">{t('creatorPortal.payments.title')}</h2>
       {payments.map((p) => {
         const isEditing = editingId === p.id
         return (
@@ -90,13 +91,13 @@ export default function CreatorPortalPayments() {
             <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
               {p.scheduledFor && (
                 <div>
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Agendado</p>
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{t('creatorPortal.payments.field.scheduled')}</p>
                   <p>{new Date(p.scheduledFor).toLocaleDateString('pt-BR')}</p>
                 </div>
               )}
               {p.paidAt && (
                 <div>
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Pago em</p>
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{t('creatorPortal.payments.field.paidAt')}</p>
                   <p>{new Date(p.paidAt).toLocaleDateString('pt-BR')}</p>
                 </div>
               )}
@@ -120,10 +121,10 @@ export default function CreatorPortalPayments() {
               ) : isEditing ? (
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
-                    <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder="Número da NF" />
+                    <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder={t('creatorPortal.payments.field.nfNumber')} />
                     <Input type="date" value={issuedAt} onChange={(e) => setIssuedAt(e.target.value)} />
                   </div>
-                  <Input value={invoiceUrl} onChange={(e) => setInvoiceUrl(e.target.value)} placeholder="URL do PDF da NF" />
+                  <Input value={invoiceUrl} onChange={(e) => setInvoiceUrl(e.target.value)} placeholder={t('creatorPortal.payments.field.nfUrl')} />
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => void submit()} disabled={saving || !invoiceUrl.trim()}>
                       {saving ? 'Salvando...' : 'Anexar'}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, Input, SearchableSelect } from 'archon-ui'
+import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, Input, SearchableSelect, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { CheckCircle2, Pencil, Trash2 } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../services/financialEntryService'
@@ -26,6 +26,7 @@ function formatCurrency(value: number): string {
 }
 
 export default function FinancialEntriesPage({ type, title, subtitle }: FinancialEntriesPageProps) {
+  const { t } = useI18n()
   const isReceivable = type === 1
   const [entries, setEntries] = useState<FinancialEntry[]>([])
   const [summary, setSummary] = useState<FinancialSummary | null>(null)
@@ -184,7 +185,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
           </Card>
           <Card>
             <CardContent className="pt-5 pb-5">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Vencidos</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('financial.entries.badge.overdue')}</p>
               <p className="text-2xl font-semibold mt-1 text-destructive">{formatCurrency(summary?.totalOverdue ?? 0)}</p>
               <p className="text-[10px] text-muted-foreground">{summary?.overdueCount ?? 0} lançamento(s)</p>
             </CardContent>
@@ -201,7 +202,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
           <CardContent className="pt-4 space-y-3">
             <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
               <Input
-                placeholder="Buscar por descrição, contraparte ou referência"
+                placeholder={t('financial.entries.placeholder.search')}
                 value={filters.search ?? ''}
                 onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value || undefined }))}
               />
@@ -212,7 +213,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
                   { value: '', label: 'Todos os status' },
                   ...Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
                 ]}
-                placeholder="Status"
+                placeholder={t('common.field.status')}
               />
               <SearchableSelect
                 value={filters.accountId ? String(filters.accountId) : ''}
@@ -221,7 +222,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
                   { value: '', label: 'Todas as contas' },
                   ...accounts.map((account) => ({ value: String(account.id), label: account.name })),
                 ]}
-                placeholder="Conta"
+                placeholder={t('financial.entries.placeholder.account')}
               />
               <div className="flex gap-2">
                 <Input type="date" value={filters.dueFrom?.slice(0, 10) ?? ''} onChange={(e) => setFilters((prev) => ({ ...prev, dueFrom: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />

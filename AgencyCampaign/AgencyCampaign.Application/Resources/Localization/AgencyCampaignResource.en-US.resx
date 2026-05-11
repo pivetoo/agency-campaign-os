@@ -466,4 +466,188 @@
   <data name="opportunityDetail.followups.description" xml:space="preserve"><value>Commitments and tasks for this opportunity (calls, proposal sending, returns). Mark as completed after each contact to keep history.</value></data>
   <data name="opportunityDetail.followups.complete" xml:space="preserve"><value>Complete</value></data>
   <data name="opportunityDetail.followups.empty" xml:space="preserve"><value>No follow-up registered</value></data>
+  <data name="common.loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="common.action.remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="creators.singular" xml:space="preserve"><value>Creator</value></data>
+  <data name="creators.detail.mainBadge" xml:space="preserve"><value>Main</value></data>
+  <data name="creators.detail.title" xml:space="preserve"><value>Creator</value></data>
+  <data name="creators.detail.subtitle" xml:space="preserve"><value>Creator 360 profile</value></data>
+  <data name="creators.detail.campaigns" xml:space="preserve"><value>Campaigns</value></data>
+  <data name="creators.detail.publishedDeliverables" xml:space="preserve"><value>Published deliverables</value></data>
+  <data name="creators.detail.finance" xml:space="preserve"><value>Creator: {0}</value></data>
+  <data name="creators.detail.noCampaigns" xml:space="preserve"><value>Creator has not participated in any campaigns yet</value></data>
+  <data name="campaign.detail.creatorsTab" xml:space="preserve"><value>Creators</value></data>
+  <data name="campaign.detail.creatorsSection" xml:space="preserve"><value>Campaign creators</value></data>
+  <data name="campaign.detail.addCreator" xml:space="preserve"><value>Add creator</value></data>
+  <data name="campaign.detail.noCreators" xml:space="preserve"><value>No creator linked to this campaign</value></data>
+  <data name="campaign.detail.documentsTab" xml:space="preserve"><value>Documents</value></data>
+  <data name="campaign.detail.deliverablesTab" xml:space="preserve"><value>Deliverables</value></data>
+  <data name="campaignDocument.type.creatorAcceptance" xml:space="preserve"><value>Creator acceptance</value></data>
+  <data name="campaignDocument.type.brandContract" xml:space="preserve"><value>Brand contract</value></data>
+  <data name="campaignDocument.type.authorizationTerm" xml:space="preserve"><value>Authorization term</value></data>
+  <data name="campaignDocument.type.briefingAttachment" xml:space="preserve"><value>Briefing attachment</value></data>
+  <data name="campaignDocument.type.other" xml:space="preserve"><value>Other</value></data>
+  <data name="campaignDocument.status.draft" xml:space="preserve"><value>Draft</value></data>
+  <data name="campaignDocument.status.readyToSend" xml:space="preserve"><value>Ready to send</value></data>
+  <data name="campaignDocument.status.sent" xml:space="preserve"><value>Sent</value></data>
+  <data name="campaignDocument.status.viewed" xml:space="preserve"><value>Viewed</value></data>
+  <data name="campaignDocument.status.signed" xml:space="preserve"><value>Signed</value></data>
+  <data name="campaignDocument.status.rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="campaignDocument.status.cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="deliverable.status.pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="deliverable.status.reviewing" xml:space="preserve"><value>In review</value></data>
+  <data name="deliverable.status.approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="deliverable.status.published" xml:space="preserve"><value>Published</value></data>
+  <data name="deliverable.status.cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="configuration.agency.title" xml:space="preserve"><value>Agency data</value></data>
+  <data name="configuration.agency.brandIdentity" xml:space="preserve"><value>Agency visual identity</value></data>
+  <data name="configuration.agency.identity" xml:space="preserve"><value>Identity</value></data>
+  <data name="configuration.agency.legalName" xml:space="preserve"><value>Legal name</value></data>
+  <data name="configuration.agency.document" xml:space="preserve"><value>Tax ID</value></data>
+  <data name="configuration.agency.primaryColor" xml:space="preserve"><value>Primary color</value></data>
+  <data name="configuration.agency.logo" xml:space="preserve"><value>Agency logo</value></data>
+  <data name="configuration.agency.noLogo" xml:space="preserve"><value>No logo</value></data>
+  <data name="configuration.agency.logoError.format" xml:space="preserve"><value>Invalid format. Use PNG, JPG or WEBP.</value></data>
+  <data name="configuration.agency.logoError.size" xml:space="preserve"><value>File exceeds the 2MB limit.</value></data>
+  <data name="configuration.agency.logoHint" xml:space="preserve"><value>PNG, JPG or WEBP. Maximum 2MB.</value></data>
+  <data name="configuration.creatorStatuses.title" xml:space="preserve"><value>Creator status</value></data>
+  <data name="configuration.creatorStatuses.subtitle" xml:space="preserve"><value>Creator stages within the campaign (invited, accepted, in production, published).</value></data>
+  <data name="configuration.contractTemplates.title" xml:space="preserve"><value>Contract templates</value></data>
+  <data name="configuration.contractTemplates.subtitle" xml:space="preserve"><value>Contracts and terms with variables filled automatically when generating the campaign document.</value></data>
+  <data name="configuration.commercialFunnel.title" xml:space="preserve"><value>Commercial funnel</value></data>
+  <data name="configuration.commercialFunnel.subtitle" xml:space="preserve"><value>Pipeline stages (Lead, Qualified, Proposal, Negotiation, Won, Lost).</value></data>
+  <data name="configuration.deliverableKinds.title" xml:space="preserve"><value>Deliverable types</value></data>
+  <data name="configuration.deliverableKinds.subtitle" xml:space="preserve"><value>Register and organize the deliverable types available for campaigns.</value></data>
+  <data name="configuration.emailTemplates.title" xml:space="preserve"><value>Email templates</value></data>
+  <data name="configuration.emailTemplates.subtitle" xml:space="preserve"><value>Templates triggered automatically on proposal and opportunity events.</value></data>
+  <data name="configuration.bankAccounts.title" xml:space="preserve"><value>Bank accounts</value></data>
+  <data name="configuration.bankAccounts.subtitle" xml:space="preserve"><value>Cash, bank accounts and cards used in financial entries.</value></data>
+  <data name="configuration.financialSubcategories.title" xml:space="preserve"><value>Financial subcategories</value></data>
+  <data name="configuration.financialSubcategories.subtitle" xml:space="preserve"><value>Custom subcategories to detail financial entries.</value></data>
+  <data name="configuration.integrations.title" xml:space="preserve"><value>Integrations</value></data>
+  <data name="configuration.integrations.subtitle" xml:space="preserve"><value>Connect external accounts and configure automatic actions for Kanvas events.</value></data>
+  <data name="configuration.integrations.field.category" xml:space="preserve"><value>Category</value></data>
+  <data name="configuration.integrations.field.connectedAccounts" xml:space="preserve"><value>Configured accounts</value></data>
+  <data name="configuration.integrations.field.active" xml:space="preserve"><value>Active</value></data>
+  <data name="configuration.integrations.connectedAccounts" xml:space="preserve"><value>Connected accounts</value></data>
+  <data name="configuration.integrations.noAccounts" xml:space="preserve"><value>No connected account</value></data>
+  <data name="configuration.integrations.action.removeDefault" xml:space="preserve"><value>Remove as default email</value></data>
+  <data name="configuration.integrations.action.setDefault" xml:space="preserve"><value>Set as default email</value></data>
+  <data name="configuration.integrations.action.test" xml:space="preserve"><value>Test connection</value></data>
+  <data name="configuration.integrations.action.linkEvent" xml:space="preserve"><value>Link event (create automation)</value></data>
+  <data name="configuration.integrations.action.editSettings" xml:space="preserve"><value>Edit settings</value></data>
+  <data name="configuration.integrations.action.delete" xml:space="preserve"><value>Delete account</value></data>
+  <data name="configuration.opportunitySources.title" xml:space="preserve"><value>Opportunity sources</value></data>
+  <data name="configuration.opportunitySources.subtitle" xml:space="preserve"><value>Where your leads come from. Use for channel analysis and reports.</value></data>
+  <data name="configuration.opportunityTags.title" xml:space="preserve"><value>Opportunity tags</value></data>
+  <data name="configuration.opportunityTags.subtitle" xml:space="preserve"><value>Custom labels (strategic, hot, Q4, etc.) to classify deals.</value></data>
+  <data name="configuration.proposalBlocks.title" xml:space="preserve"><value>Proposal blocks</value></data>
+  <data name="configuration.proposalBlocks.subtitle" xml:space="preserve"><value>Reusable clauses, conditions and descriptions to build proposals.</value></data>
+  <data name="configuration.proposalTemplates.title" xml:space="preserve"><value>Proposal templates</value></data>
+  <data name="configuration.proposalTemplates.subtitle" xml:space="preserve"><value>Reusable templates with standard items to speed up proposal creation.</value></data>
+  <data name="configuration.dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="configuration.dashboard.refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="configuration.dashboard.kpi.activeAutomations" xml:space="preserve"><value>Active automations</value></data>
+  <data name="configuration.dashboard.kpi.emailTemplates" xml:space="preserve"><value>Email templates</value></data>
+  <data name="configuration.dashboard.kpi.bankAccounts" xml:space="preserve"><value>Bank accounts</value></data>
+  <data name="configuration.dashboard.kpi.integrationCategories" xml:space="preserve"><value>Integration categories</value></data>
+  <data name="configuration.dashboard.health.title" xml:space="preserve"><value>Configuration health</value></data>
+  <data name="configuration.dashboard.automationsByModule.title" xml:space="preserve"><value>Automations by module</value></data>
+  <data name="configuration.dashboard.automationsByModule.subtitle" xml:space="preserve"><value>Distribution of active ones by the triggering event</value></data>
+  <data name="configuration.dashboard.recentAutomations.title" xml:space="preserve"><value>Recent automations</value></data>
+  <data name="configuration.dashboard.recentAutomations.empty" xml:space="preserve"><value>No automations registered yet.</value></data>
+  <data name="configuration.dashboard.shortcuts.title" xml:space="preserve"><value>Shortcuts</value></data>
+  <data name="configuration.dashboard.shortcut.agencyData" xml:space="preserve"><value>Company data</value></data>
+  <data name="configuration.dashboard.shortcut.emailTemplates" xml:space="preserve"><value>Email templates</value></data>
+  <data name="configuration.dashboard.shortcut.integrations" xml:space="preserve"><value>Integrations &amp; automations</value></data>
+  <data name="configuration.dashboard.shortcut.opportunitySources" xml:space="preserve"><value>Opportunity sources</value></data>
+  <data name="configuration.dashboard.shortcut.opportunityTags" xml:space="preserve"><value>Opportunity tags</value></data>
+  <data name="creatorPortal.layout.title" xml:space="preserve"><value>Creator portal</value></data>
+  <data name="creatorPortal.layout.nav.home" xml:space="preserve"><value>Home</value></data>
+  <data name="creatorPortal.layout.nav.campaigns" xml:space="preserve"><value>Campaigns</value></data>
+  <data name="creatorPortal.layout.nav.contracts" xml:space="preserve"><value>Contracts</value></data>
+  <data name="creatorPortal.layout.nav.payments" xml:space="preserve"><value>Payments</value></data>
+  <data name="creatorPortal.layout.nav.profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="creatorPortal.dashboard.campaigns" xml:space="preserve"><value>Campaigns</value></data>
+  <data name="creatorPortal.dashboard.pendingContracts" xml:space="preserve"><value>Pending contracts</value></data>
+  <data name="creatorPortal.dashboard.pendingPayments" xml:space="preserve"><value>Pending payments</value></data>
+  <data name="creatorPortal.dashboard.contracts.title" xml:space="preserve"><value>Contracts waiting for you</value></data>
+  <data name="creatorPortal.dashboard.contracts.subtitle" xml:space="preserve"><value>Awaiting your signature</value></data>
+  <data name="creatorPortal.dashboard.nf.title" xml:space="preserve"><value>Attach invoice</value></data>
+  <data name="creatorPortal.dashboard.pix.title" xml:space="preserve"><value>Register your PIX key</value></data>
+  <data name="creatorPortal.campaigns.title" xml:space="preserve"><value>Your campaigns</value></data>
+  <data name="creatorPortal.campaigns.field.fee" xml:space="preserve"><value>Agreed fee</value></data>
+  <data name="creatorPortal.campaigns.field.agencyFee" xml:space="preserve"><value>Agency fee</value></data>
+  <data name="creatorPortal.campaigns.field.endDate" xml:space="preserve"><value>End</value></data>
+  <data name="creatorPortal.documents.title" xml:space="preserve"><value>Your contracts</value></data>
+  <data name="creatorPortal.payments.title" xml:space="preserve"><value>Your payments</value></data>
+  <data name="creatorPortal.payments.field.scheduled" xml:space="preserve"><value>Scheduled</value></data>
+  <data name="creatorPortal.payments.field.paidAt" xml:space="preserve"><value>Paid on</value></data>
+  <data name="creatorPortal.payments.field.nfNumber" xml:space="preserve"><value>Invoice number</value></data>
+  <data name="creatorPortal.payments.field.nfUrl" xml:space="preserve"><value>Invoice PDF URL</value></data>
+  <data name="creatorPortal.profile.title" xml:space="preserve"><value>Payment details</value></data>
+  <data name="creatorPortal.profile.field.pixKeyType" xml:space="preserve"><value>PIX key type</value></data>
+  <data name="creatorPortal.profile.field.pixKey" xml:space="preserve"><value>PIX key</value></data>
+  <data name="creatorPortal.profile.placeholder.select" xml:space="preserve"><value>Select</value></data>
+  <data name="creatorPortal.profile.placeholder.pixKey" xml:space="preserve"><value>Enter your key</value></data>
+  <data name="creatorPortal.profile.placeholder.numbersOnly" xml:space="preserve"><value>Numbers only</value></data>
+  <data name="creatorPortal.profile.registeredEmail" xml:space="preserve"><value>Registered email</value></data>
+  <data name="financial.title" xml:space="preserve"><value>Financial</value></data>
+  <data name="financial.kpi.receivable" xml:space="preserve"><value>Receivable</value></data>
+  <data name="financial.kpi.payable" xml:space="preserve"><value>Payable</value></data>
+  <data name="financial.kpi.overdue" xml:space="preserve"><value>Overdue</value></data>
+  <data name="financial.kpi.projectedBalance" xml:space="preserve"><value>Projected balance</value></data>
+  <data name="financial.aging.title" xml:space="preserve"><value>Financial aging</value></data>
+  <data name="financial.aging.subtitle" xml:space="preserve"><value>Distribution of pending entries by overdue range</value></data>
+  <data name="financial.aging.totalReceivable" xml:space="preserve"><value>Total pending receivable</value></data>
+  <data name="financial.aging.totalPayable" xml:space="preserve"><value>Total pending payable</value></data>
+  <data name="financial.cashFlow.title" xml:space="preserve"><value>Cash flow</value></data>
+  <data name="financial.cashFlow.subtitle" xml:space="preserve"><value>Projected and actual inflows and outflows for the period</value></data>
+  <data name="financial.cashFlow.field.from" xml:space="preserve"><value>From</value></data>
+  <data name="financial.cashFlow.field.granularity" xml:space="preserve"><value>Granularity</value></data>
+  <data name="financial.creatorPayments.title" xml:space="preserve"><value>Creator payments</value></data>
+  <data name="financial.creatorPayments.subtitle" xml:space="preserve"><value>Manage individual and batch payments, attach invoices and trigger via gateway.</value></data>
+  <data name="financial.creatorPayments.field.creator" xml:space="preserve"><value>Creator</value></data>
+  <data name="financial.creatorPayments.badge.noNF" xml:space="preserve"><value>No invoice</value></data>
+  <data name="financial.creatorPayments.action.details" xml:space="preserve"><value>View details</value></data>
+  <data name="financial.creatorPayments.filter.status" xml:space="preserve"><value>Filter by status</value></data>
+  <data name="financial.creatorPayments.filter.campaign" xml:space="preserve"><value>Filter by campaign</value></data>
+  <data name="financial.creatorPayments.stat.payments" xml:space="preserve"><value>Payments</value></data>
+  <data name="financial.creatorPayments.stat.grossTotal" xml:space="preserve"><value>Gross total</value></data>
+  <data name="financial.creatorPayments.stat.netTotal" xml:space="preserve"><value>Net total</value></data>
+  <data name="financial.creatorPayments.stat.selected" xml:space="preserve"><value>Selected</value></data>
+  <data name="financial.creatorPayments.placeholder.status" xml:space="preserve"><value>Status</value></data>
+  <data name="financial.creatorPayments.placeholder.allCampaigns" xml:space="preserve"><value>All campaigns</value></data>
+  <data name="financial.entries.badge.overdue" xml:space="preserve"><value>Overdue</value></data>
+  <data name="financial.entries.placeholder.search" xml:space="preserve"><value>Search by description, counterpart or reference</value></data>
+  <data name="financial.entries.placeholder.account" xml:space="preserve"><value>Account</value></data>
+  <data name="financial.payables.title" xml:space="preserve"><value>Accounts payable</value></data>
+  <data name="financial.payables.subtitle" xml:space="preserve"><value>Creator payments, suppliers, taxes and operating expenses.</value></data>
+  <data name="financial.receivables.title" xml:space="preserve"><value>Accounts receivable</value></data>
+  <data name="financial.receivables.subtitle" xml:space="preserve"><value>Agency inflow entries: brand, bonuses and adjustments.</value></data>
+  <data name="financial.overview.title" xml:space="preserve"><value>Financial overview</value></data>
+  <data name="operations.approvals.title" xml:space="preserve"><value>Deliverable approvals</value></data>
+  <data name="operations.approvals.subtitle" xml:space="preserve"><value>Deliverables awaiting brand approval before publishing</value></data>
+  <data name="operations.approvals.field.creator" xml:space="preserve"><value>Creator</value></data>
+  <data name="operations.approvals.field.none" xml:space="preserve"><value>None</value></data>
+  <data name="operations.approvals.placeholder.brand" xml:space="preserve"><value>E.g.: Acme Brand</value></data>
+  <data name="public.loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="public.deliverable.invalidLink.title" xml:space="preserve"><value>Invalid or expired link</value></data>
+  <data name="public.deliverable.invalidLink.message" xml:space="preserve"><value>Request a new approval link from the agency.</value></data>
+  <data name="public.deliverable.creator" xml:space="preserve"><value>Creator: {0}</value></data>
+  <data name="public.deliverable.field.deadline" xml:space="preserve"><value>Deadline</value></data>
+  <data name="public.deliverable.waitingDecision" xml:space="preserve"><value>Awaiting decision</value></data>
+  <data name="public.deliverable.comment" xml:space="preserve"><value>Comment: {0}</value></data>
+  <data name="public.deliverable.approveTitle" xml:space="preserve"><value>Approve or reject deliverable</value></data>
+  <data name="public.deliverable.field.name" xml:space="preserve"><value>Your name</value></data>
+  <data name="public.deliverable.field.comment" xml:space="preserve"><value>Comment (optional)</value></data>
+  <data name="public.deliverable.placeholder.name" xml:space="preserve"><value>How you identify yourself</value></data>
+  <data name="public.deliverable.placeholder.comment" xml:space="preserve"><value>Share specific adjustments or approvals</value></data>
+  <data name="public.proposal.loading" xml:space="preserve"><value>Loading proposal...</value></data>
+  <data name="public.proposal.invalidLink.title" xml:space="preserve"><value>Invalid or expired link</value></data>
+  <data name="public.proposal.title" xml:space="preserve"><value>Commercial proposal</value></data>
+  <data name="public.proposal.field.creatorItem" xml:space="preserve"><value>Creator / item</value></data>
+  <data name="public.proposal.field.qty" xml:space="preserve"><value>Qty</value></data>
+  <data name="public.proposal.field.unitPrice" xml:space="preserve"><value>Unit price</value></data>
+  <data name="public.proposal.field.total" xml:space="preserve"><value>Total</value></data>
 </root>

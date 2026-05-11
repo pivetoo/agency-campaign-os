@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Card, CardContent, Badge, Button, useApi } from 'archon-ui'
+import { Card, CardContent, Badge, Button, useApi, useI18n } from 'archon-ui'
 import { ResponsivePie } from '@nivo/pie'
 import {
   Building2,
@@ -42,6 +42,7 @@ const moduleColors: Record<string, string> = {
 }
 
 export default function ConfigurationDashboard() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [agency, setAgency] = useState<AgencySettings | null>(null)
   const [automations, setAutomations] = useState<Automation[]>([])
@@ -137,14 +138,14 @@ export default function ConfigurationDashboard() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="border-l-4 border-primary pl-5">
           <h1 className="text-3xl font-bold text-foreground tracking-tight">
-            <strong className="text-primary">Dashboard</strong>
+            <strong className="text-primary">{t('configuration.dashboard.title')}</strong>
           </h1>
           <p className="text-lg text-muted-foreground mt-3 leading-relaxed">
             Visão geral dos cadastros, automações e integrações
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => void load()}>
-          <RefreshCw className="mr-1 h-3.5 w-3.5" /> Atualizar
+          <RefreshCw className="mr-1 h-3.5 w-3.5" /> {t('configuration.dashboard.refresh')}
         </Button>
       </div>
 
@@ -152,7 +153,7 @@ export default function ConfigurationDashboard() {
         <Card>
           <CardContent className="pt-5 pb-5 flex items-start justify-between">
             <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Automações ativas</p>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('configuration.dashboard.kpi.activeAutomations')}</p>
               <p className="text-2xl font-semibold mt-1">{activeAutomations.length}</p>
               <p className="text-[10px] text-muted-foreground">{automations.length - activeAutomations.length} inativas</p>
             </div>
@@ -162,7 +163,7 @@ export default function ConfigurationDashboard() {
         <Card>
           <CardContent className="pt-5 pb-5 flex items-start justify-between">
             <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Templates de e-mail</p>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('configuration.dashboard.kpi.emailTemplates')}</p>
               <p className="text-2xl font-semibold mt-1">{activeTemplates.length}</p>
               <p className="text-[10px] text-muted-foreground">{templates.length} no total</p>
             </div>
@@ -172,7 +173,7 @@ export default function ConfigurationDashboard() {
         <Card>
           <CardContent className="pt-5 pb-5 flex items-start justify-between">
             <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Contas bancárias</p>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('configuration.dashboard.kpi.bankAccounts')}</p>
               <p className="text-2xl font-semibold mt-1">{activeAccounts.length}</p>
               <p className="text-[10px] text-muted-foreground">{accounts.length} no total</p>
             </div>
@@ -182,7 +183,7 @@ export default function ConfigurationDashboard() {
         <Card>
           <CardContent className="pt-5 pb-5 flex items-start justify-between">
             <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Categorias de integração</p>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('configuration.dashboard.kpi.integrationCategories')}</p>
               <p className="text-2xl font-semibold mt-1">{categories.length}</p>
               <p className="text-[10px] text-muted-foreground">disponíveis no IntegrationPlatform</p>
             </div>
@@ -196,7 +197,7 @@ export default function ConfigurationDashboard() {
           <CardContent className="pt-5 pb-5">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <p className="text-sm font-semibold">Saúde da configuração</p>
+                <p className="text-sm font-semibold">{t('configuration.dashboard.health.title')}</p>
                 <p className="text-xs text-muted-foreground">{completedHealth} de {healthChecks.length} itens · {healthPercent}%</p>
               </div>
               <span className="text-2xl font-semibold" style={{ color: healthPercent >= 80 ? '#10b981' : healthPercent >= 50 ? '#f59e0b' : '#ef4444' }}>
@@ -237,8 +238,8 @@ export default function ConfigurationDashboard() {
 
         <Card>
           <CardContent className="pt-5 pb-5">
-            <p className="text-sm font-semibold mb-2">Automações por módulo</p>
-            <p className="text-xs text-muted-foreground mb-3">Distribuição das ativas pelo evento que dispara</p>
+            <p className="text-sm font-semibold mb-2">{t('configuration.dashboard.automationsByModule.title')}</p>
+            <p className="text-xs text-muted-foreground mb-3">{t('configuration.dashboard.automationsByModule.subtitle')}</p>
             <div style={{ height: 220 }}>
               {automationByModule.length === 0 ? (
                 <p className="flex h-full items-center justify-center text-xs text-muted-foreground text-center">
@@ -278,13 +279,13 @@ export default function ConfigurationDashboard() {
         <Card className="lg:col-span-2">
           <CardContent className="pt-5 pb-5">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold">Automações recentes</p>
+              <p className="text-sm font-semibold">{t('configuration.dashboard.recentAutomations.title')}</p>
               <Button size="sm" variant="ghost" onClick={() => navigate('/configuracao/integracoes')}>
                 Ver todas
               </Button>
             </div>
             {recentAutomations.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Nenhuma automação cadastrada ainda.</p>
+              <p className="text-xs text-muted-foreground">{t('configuration.dashboard.recentAutomations.empty')}</p>
             ) : (
               <div className="space-y-2">
                 {recentAutomations.map((auto) => {
@@ -316,7 +317,7 @@ export default function ConfigurationDashboard() {
 
         <Card>
           <CardContent className="pt-5 pb-5">
-            <p className="text-sm font-semibold mb-3">Atalhos</p>
+            <p className="text-sm font-semibold mb-3">{t('configuration.dashboard.shortcuts.title')}</p>
             <div className="space-y-2">
               <button
                 type="button"
@@ -324,7 +325,7 @@ export default function ConfigurationDashboard() {
                 className="flex w-full items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:border-primary/40"
               >
                 <Building2 size={16} className="text-primary" />
-                <span>Dados da empresa</span>
+                <span>{t('configuration.dashboard.shortcut.agencyData')}</span>
               </button>
               <button
                 type="button"
@@ -332,7 +333,7 @@ export default function ConfigurationDashboard() {
                 className="flex w-full items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:border-primary/40"
               >
                 <Mail size={16} className="text-primary" />
-                <span>Templates de e-mail</span>
+                <span>{t('configuration.dashboard.shortcut.emailTemplates')}</span>
               </button>
               <button
                 type="button"
@@ -340,7 +341,7 @@ export default function ConfigurationDashboard() {
                 className="flex w-full items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:border-primary/40"
               >
                 <Plug size={16} className="text-primary" />
-                <span>Integrações e automações</span>
+                <span>{t('configuration.dashboard.shortcut.integrations')}</span>
               </button>
               <button
                 type="button"
@@ -348,7 +349,7 @@ export default function ConfigurationDashboard() {
                 className="flex w-full items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:border-primary/40"
               >
                 <Sparkles size={16} className="text-primary" />
-                <span>Origens de oportunidade</span>
+                <span>{t('configuration.dashboard.shortcut.opportunitySources')}</span>
               </button>
               <button
                 type="button"
@@ -356,7 +357,7 @@ export default function ConfigurationDashboard() {
                 className="flex w-full items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:border-primary/40"
               >
                 <Tag size={16} className="text-primary" />
-                <span>Tags de oportunidade</span>
+                <span>{t('configuration.dashboard.shortcut.opportunityTags')}</span>
               </button>
             </div>
           </CardContent>
@@ -364,7 +365,7 @@ export default function ConfigurationDashboard() {
       </div>
 
       {loading && (
-        <p className="mt-4 text-center text-xs text-muted-foreground">Carregando...</p>
+        <p className="mt-4 text-center text-xs text-muted-foreground">{t('common.loading')}</p>
       )}
     </div>
   )

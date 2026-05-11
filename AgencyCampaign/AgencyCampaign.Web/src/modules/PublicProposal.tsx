@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from 'archon-ui'
+import { Card, CardContent, CardHeader, CardTitle, useI18n } from 'archon-ui'
 import { AlertTriangle, CalendarClock, FileDown, FileText, Sparkles } from 'lucide-react'
 import {
   proposalPublicService,
@@ -18,6 +18,7 @@ function formatDate(value?: string): string {
 }
 
 export default function PublicProposal() {
+  const { t } = useI18n()
   const { token } = useParams<{ token: string }>()
   const [view, setView] = useState<ProposalPublicView | null>(null)
   const [snapshot, setSnapshot] = useState<ProposalPublicSnapshot | null>(null)
@@ -60,7 +61,7 @@ export default function PublicProposal() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-muted/40">
-        <div className="text-sm text-muted-foreground">Carregando proposta...</div>
+        <div className="text-sm text-muted-foreground">{t('public.proposal.loading')}</div>
       </div>
     )
   }
@@ -70,7 +71,7 @@ export default function PublicProposal() {
       <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
         <div className="max-w-md rounded-lg border border-border bg-background p-8 text-center shadow-sm">
           <AlertTriangle className="mx-auto h-10 w-10 text-amber-500" />
-          <h1 className="mt-4 text-lg font-semibold text-foreground">Link inválido ou expirado</h1>
+          <h1 className="mt-4 text-lg font-semibold text-foreground">{t('public.proposal.invalidLink.title')}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Esta proposta pode ter sido revogada ou o link já expirou. Entre em contato com a agência para receber um novo acesso.
           </p>
@@ -87,7 +88,7 @@ export default function PublicProposal() {
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Proposta comercial</p>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('public.proposal.title')}</p>
             <h1 className="text-xl font-bold text-foreground">{view.brandName || 'Proposta'}</h1>
           </div>
           <span className="ml-auto rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
@@ -131,11 +132,11 @@ export default function PublicProposal() {
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <tr>
-                      <th className="px-4 py-3">Creator / item</th>
+                      <th className="px-4 py-3">{t('public.proposal.field.creatorItem')}</th>
                       <th className="px-4 py-3">Descrição</th>
-                      <th className="px-4 py-3 text-right">Qtd</th>
-                      <th className="px-4 py-3 text-right">Unitário</th>
-                      <th className="px-4 py-3 text-right">Total</th>
+                      <th className="px-4 py-3 text-right">{t('public.proposal.field.qty')}</th>
+                      <th className="px-4 py-3 text-right">{t('public.proposal.field.unitPrice')}</th>
+                      <th className="px-4 py-3 text-right">{t('public.proposal.field.total')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60">
