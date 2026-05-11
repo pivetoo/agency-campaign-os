@@ -192,11 +192,11 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
 
       <Card>
         <CardHeader className="border-b bg-muted/20 py-3">
-          <CardTitle className="text-sm">Versões enviadas</CardTitle>
+          <CardTitle className="text-sm">{t('proposalShare.versions.title')}</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
           {versions.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Nenhuma versão registrada. Cada vez que você clicar em Enviar, uma nova versão é gerada automaticamente.</div>
+            <div className="text-sm text-muted-foreground">{t('proposalShare.versions.empty')}</div>
           ) : (
             <ol className="space-y-2">
               {versions.map((version) => (
@@ -207,11 +207,11 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                   </div>
                   <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
                     <span>
-                      Total: <strong className="text-foreground">R$ {version.totalValue.toFixed(2)}</strong>
+                      {t('proposalShare.versions.totalLabel')}: <strong className="text-foreground">R$ {version.totalValue.toFixed(2)}</strong>
                     </span>
-                    {version.sentByUserName ? <span>por {version.sentByUserName}</span> : null}
+                    {version.sentByUserName ? <span>{t('proposalShare.versions.byUser').replace('{0}', version.sentByUserName)}</span> : null}
                     {version.validityUntil ? (
-                      <span>válida até {new Date(version.validityUntil).toLocaleDateString('pt-BR')}</span>
+                      <span>{t('proposalShare.versions.validUntil').replace('{0}', new Date(version.validityUntil).toLocaleDateString('pt-BR'))}</span>
                     ) : null}
                   </div>
                 </li>
