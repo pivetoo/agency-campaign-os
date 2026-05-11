@@ -341,17 +341,12 @@ export default function CommercialPipeline() {
         )}
 
         {!loading && summary.count === 0 && (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-              <div className="text-lg font-semibold">{t('pipeline.empty.title')}</div>
-              <p className="max-w-lg text-sm text-muted-foreground">
-                {t('pipeline.empty.description')}
-              </p>
-              <Button type="button" onClick={() => setIsFormOpen(true)}>
-                {t('pipeline.action.registerLead')}
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center gap-3 py-10 text-center text-muted-foreground">
+            <p className="text-sm">{t('pipeline.empty.description')}</p>
+            <Button type="button" variant="outline" size="sm" onClick={() => setIsFormOpen(true)}>
+              {t('pipeline.action.registerLead')}
+            </Button>
+          </div>
         )}
       </div>
 
