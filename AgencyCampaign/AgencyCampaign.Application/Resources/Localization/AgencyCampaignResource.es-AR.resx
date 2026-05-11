@@ -251,4 +251,25 @@
   <data name="approvals.decision.approved" xml:space="preserve"><value>Aprobación realizada por la Central de Aprobaciones.</value></data>
   <data name="approvals.decision.rejected" xml:space="preserve"><value>Rechazo realizado por la Central de Aprobaciones.</value></data>
   <data name="approvals.user.fallback" xml:space="preserve"><value>Gerente comercial</value></data>
+  <data name="pipeline.title" xml:space="preserve"><value>Pipeline Comercial</value></data>
+  <data name="pipeline.subtitle" xml:space="preserve"><value>Siga leads y oportunidades por etapa, valor en el funnel y follow-ups críticos</value></data>
+  <data name="pipeline.action.viewList" xml:space="preserve"><value>Ver lista</value></data>
+  <data name="pipeline.action.newLead" xml:space="preserve"><value>Nuevo Lead</value></data>
+  <data name="pipeline.action.registerLead" xml:space="preserve"><value>Registrar lead</value></data>
+  <data name="pipeline.summary.opportunities" xml:space="preserve"><value>Oportunidades</value></data>
+  <data name="pipeline.summary.value" xml:space="preserve"><value>Valor en funnel</value></data>
+  <data name="pipeline.summary.pendingFollowUps" xml:space="preserve"><value>Follow-ups pendientes</value></data>
+  <data name="pipeline.summary.overdue" xml:space="preserve"><value>Atrasados</value></data>
+  <data name="pipeline.alert.overdue" xml:space="preserve"><value>Hay follow-ups atrasados en el pipeline. Priorice estas tarjetas.</value></data>
+  <data name="pipeline.stage.defaultDescription" xml:space="preserve"><value>Etapa configurable del funnel comercial.</value></data>
+  <data name="pipeline.stage.empty" xml:space="preserve"><value>No hay oportunidades en esta etapa.</value></data>
+  <data name="pipeline.loading" xml:space="preserve"><value>Cargando pipeline comercial...</value></data>
+  <data name="pipeline.empty.title" xml:space="preserve"><value>No hay oportunidades en el pipeline</value></data>
+  <data name="pipeline.empty.description" xml:space="preserve"><value>Registre leads para visualizar el funnel comercial por etapa, valor estimado y follow-ups.</value></data>
+  <data name="pipeline.card.noForecast" xml:space="preserve"><value>Sin previsión</value></data>
+  <data name="pipeline.card.noOwner" xml:space="preserve"><value>Sin responsable</value></data>
+  <data name="pipeline.card.overdueBadge" xml:space="preserve"><value>Atrasado</value></data>
+  <data name="pipeline.card.proposals" xml:space="preserve"><value>Propuestas</value></data>
+  <data name="pipeline.card.pending" xml:space="preserve"><value>Pendientes</value></data>
+  <data name="pipeline.card.overdue" xml:space="preserve"><value>Atrasados</value></data>
 </root>

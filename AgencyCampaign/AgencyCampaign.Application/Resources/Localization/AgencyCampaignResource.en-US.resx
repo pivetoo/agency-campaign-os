@@ -251,4 +251,25 @@
   <data name="approvals.decision.approved" xml:space="preserve"><value>Approval made by the Approvals Center.</value></data>
   <data name="approvals.decision.rejected" xml:space="preserve"><value>Rejection made by the Approvals Center.</value></data>
   <data name="approvals.user.fallback" xml:space="preserve"><value>Commercial manager</value></data>
+  <data name="pipeline.title" xml:space="preserve"><value>Commercial Pipeline</value></data>
+  <data name="pipeline.subtitle" xml:space="preserve"><value>Track leads and opportunities by stage, value in the funnel and critical follow-ups</value></data>
+  <data name="pipeline.action.viewList" xml:space="preserve"><value>View list</value></data>
+  <data name="pipeline.action.newLead" xml:space="preserve"><value>New Lead</value></data>
+  <data name="pipeline.action.registerLead" xml:space="preserve"><value>Register lead</value></data>
+  <data name="pipeline.summary.opportunities" xml:space="preserve"><value>Opportunities</value></data>
+  <data name="pipeline.summary.value" xml:space="preserve"><value>Value in funnel</value></data>
+  <data name="pipeline.summary.pendingFollowUps" xml:space="preserve"><value>Pending follow-ups</value></data>
+  <data name="pipeline.summary.overdue" xml:space="preserve"><value>Overdue</value></data>
+  <data name="pipeline.alert.overdue" xml:space="preserve"><value>There are overdue follow-ups in the pipeline. Prioritize these cards.</value></data>
+  <data name="pipeline.stage.defaultDescription" xml:space="preserve"><value>Configurable stage of the commercial funnel.</value></data>
+  <data name="pipeline.stage.empty" xml:space="preserve"><value>No opportunities in this stage.</value></data>
+  <data name="pipeline.loading" xml:space="preserve"><value>Loading commercial pipeline...</value></data>
+  <data name="pipeline.empty.title" xml:space="preserve"><value>No opportunities in the pipeline</value></data>
+  <data name="pipeline.empty.description" xml:space="preserve"><value>Register leads to see the commercial funnel by stage, estimated value and follow-ups.</value></data>
+  <data name="pipeline.card.noForecast" xml:space="preserve"><value>No forecast</value></data>
+  <data name="pipeline.card.noOwner" xml:space="preserve"><value>No owner</value></data>
+  <data name="pipeline.card.overdueBadge" xml:space="preserve"><value>Overdue</value></data>
+  <data name="pipeline.card.proposals" xml:space="preserve"><value>Proposals</value></data>
+  <data name="pipeline.card.pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="pipeline.card.overdue" xml:space="preserve"><value>Overdue</value></data>
 </root>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Card, CardContent, PageLayout, useApi } from 'archon-ui'
+import { Button, Card, CardContent, PageLayout, useApi, useI18n } from 'archon-ui'
 import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
@@ -13,8 +13,8 @@ function formatCurrency(value: number) {
   }).format(value)
 }
 
-function formatDate(value?: string) {
-  return value ? new Date(value).toLocaleDateString('pt-BR') : 'Sem previsão'
+function formatDate(value: string | undefined, fallback: string) {
+  return value ? new Date(value).toLocaleDateString('pt-BR') : fallback
 }
 
 function getContrastColor(hexColor: string) {

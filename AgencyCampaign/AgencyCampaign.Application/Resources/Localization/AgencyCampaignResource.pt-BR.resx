@@ -251,4 +251,25 @@
   <data name="approvals.decision.approved" xml:space="preserve"><value>Aprovação realizada pela Central de Aprovações.</value></data>
   <data name="approvals.decision.rejected" xml:space="preserve"><value>Rejeição realizada pela Central de Aprovações.</value></data>
   <data name="approvals.user.fallback" xml:space="preserve"><value>Gestor comercial</value></data>
+  <data name="pipeline.title" xml:space="preserve"><value>Pipeline Comercial</value></data>
+  <data name="pipeline.subtitle" xml:space="preserve"><value>Acompanhe leads e oportunidades por estágio, valor em funil e follow-ups críticos</value></data>
+  <data name="pipeline.action.viewList" xml:space="preserve"><value>Ver lista</value></data>
+  <data name="pipeline.action.newLead" xml:space="preserve"><value>Novo Lead</value></data>
+  <data name="pipeline.action.registerLead" xml:space="preserve"><value>Cadastrar lead</value></data>
+  <data name="pipeline.summary.opportunities" xml:space="preserve"><value>Oportunidades</value></data>
+  <data name="pipeline.summary.value" xml:space="preserve"><value>Valor em funil</value></data>
+  <data name="pipeline.summary.pendingFollowUps" xml:space="preserve"><value>Follow-ups pendentes</value></data>
+  <data name="pipeline.summary.overdue" xml:space="preserve"><value>Atrasados</value></data>
+  <data name="pipeline.alert.overdue" xml:space="preserve"><value>Existem follow-ups atrasados no pipeline. Priorize estes cards.</value></data>
+  <data name="pipeline.stage.defaultDescription" xml:space="preserve"><value>Estágio configurável do funil comercial.</value></data>
+  <data name="pipeline.stage.empty" xml:space="preserve"><value>Nenhuma oportunidade neste estágio.</value></data>
+  <data name="pipeline.loading" xml:space="preserve"><value>Carregando pipeline comercial...</value></data>
+  <data name="pipeline.empty.title" xml:space="preserve"><value>Nenhuma oportunidade no pipeline</value></data>
+  <data name="pipeline.empty.description" xml:space="preserve"><value>Cadastre leads para visualizar o funil comercial por estágio, valor estimado e follow-ups.</value></data>
+  <data name="pipeline.card.noForecast" xml:space="preserve"><value>Sem previsão</value></data>
+  <data name="pipeline.card.noOwner" xml:space="preserve"><value>Sem responsável</value></data>
+  <data name="pipeline.card.overdueBadge" xml:space="preserve"><value>Atraso</value></data>
+  <data name="pipeline.card.proposals" xml:space="preserve"><value>Propostas</value></data>
+  <data name="pipeline.card.pending" xml:space="preserve"><value>Pendentes</value></data>
+  <data name="pipeline.card.overdue" xml:space="preserve"><value>Atrasados</value></data>
 </root>
