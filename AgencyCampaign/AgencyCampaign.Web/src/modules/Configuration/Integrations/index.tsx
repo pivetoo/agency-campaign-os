@@ -499,12 +499,10 @@ export default function Integrations() {
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            {connectorsForSelectedIntegration.map((connector) => {
-                              const isDefaultEmail = isEmailCategory && defaultEmailConnectorId === connector.id
-                              return (
+                            {connectorsForSelectedIntegration.map((connector) => (
                               <div
                                 key={connector.id}
-                                className={`flex items-center justify-between gap-3 rounded-lg border bg-card p-3 ${isDefaultEmail ? 'border-l-4 border-l-primary' : ''}`}
+                                className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"
                               >
                                 <div className="min-w-0 flex-1">
                                   <div className="flex items-center gap-2">
@@ -515,13 +513,7 @@ export default function Integrations() {
                                       {connector.isActive ? 'Ativa' : 'Inativa'}
                                     </Badge>
                                   </div>
-                                  {isDefaultEmail && (
-                                    <p className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary">
-                                      <Star size={11} className="fill-primary text-primary" />
-                                      E-mail padrão da agência
-                                    </p>
-                                  )}
-                                  {!isDefaultEmail && connector.systemApplicationId && (
+                                  {connector.systemApplicationId && (
                                     <p className="mt-1 text-xs text-muted-foreground">
                                       App: {connector.systemApplicationId}
                                     </p>
@@ -536,8 +528,8 @@ export default function Integrations() {
                                         title="Remover como e-mail padrão"
                                         onClick={() => void handleSetDefaultEmail(null)}
                                       >
-                                        <Star size={14} className="mr-1 fill-primary text-primary" />
-                                        Remover padrão
+                                        <Star size={14} className="mr-1 fill-amber-500 text-amber-500" />
+                                        E-mail padrão
                                       </Button>
                                     ) : (
                                       <Button
@@ -610,8 +602,7 @@ export default function Integrations() {
                                   </Button>
                                 </div>
                               </div>
-                              )
-                            })}
+                            ))}
                           </div>
                         )}
 
