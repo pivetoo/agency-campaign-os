@@ -119,7 +119,7 @@ namespace AgencyCampaign.Infrastructure.Services
             var today = DateTimeOffset.UtcNow.Date;
             var tomorrow = today.AddDays(1);
 
-            var query = DbContext.Set<OpportunityFollowUp>()
+            IQueryable<OpportunityFollowUp> query = DbContext.Set<OpportunityFollowUp>()
                 .AsNoTracking()
                 .Include(item => item.Opportunity)
                     .ThenInclude(o => o!.Brand);
