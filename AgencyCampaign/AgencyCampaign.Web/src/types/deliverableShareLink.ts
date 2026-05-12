@@ -1,3 +1,10 @@
+export const DeliverableApprovalStatus = {
+  Pending: 1,
+  Approved: 2,
+  Rejected: 3,
+} as const
+export type DeliverableApprovalStatusValue = (typeof DeliverableApprovalStatus)[keyof typeof DeliverableApprovalStatus]
+
 export interface DeliverableShareLink {
   id: number
   campaignDeliverableId: number
@@ -15,7 +22,7 @@ export interface DeliverableApproval {
   id: number
   campaignDeliverableId: number
   approvalType: number
-  status: number
+  status: DeliverableApprovalStatusValue
   reviewerName: string
   comment?: string | null
   approvedAt?: string | null

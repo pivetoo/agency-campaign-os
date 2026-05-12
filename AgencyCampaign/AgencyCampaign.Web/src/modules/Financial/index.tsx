@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { PageLayout, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { financialEntryService } from '../../services/financialEntryService'
-import type { FinancialEntry, FinancialSummary } from '../../types/financialEntry'
+import { FinancialEntryStatus, FinancialEntryType } from '../../types/financialEntry'
+import type { FinancialEntry, FinancialEntryStatusValue, FinancialSummary } from '../../types/financialEntry'
 
 export default function Financial() {
   const { t } = useI18n()
@@ -43,20 +44,20 @@ export default function Financial() {
   const overdue = (summaryReceivable?.totalOverdue ?? 0) + (summaryPayable?.totalOverdue ?? 0)
   const balance = receivable - payable
 
-  const statusMap: Record<number, string> = {
-    1: t('financial.entries.status.pending'),
-    2: t('financial.entries.status.paid'),
-    3: t('financial.entries.status.overdue'),
-    4: t('financial.entries.status.cancelled'),
+  const statusMap: Record<FinancialEntryStatusValue, string> = {
+    [FinancialEntryStatus.Pending]: t('financial.entries.status.pending'),
+    [FinancialEntryStatus.Paid]: t('financial.entries.status.paid'),
+    [FinancialEntryStatus.Overdue]: t('financial.entries.status.overdue'),
+    [FinancialEntryStatus.Cancelled]: t('financial.entries.status.cancelled'),
   }
 
   const columns: DataTableColumn<FinancialEntry>[] = [
-    { key: 'type', title: t('common.field.type'), dataIndex: 'type', render: (value: number) => value === 1 ? t('financial.kpi.receivable') : t('financial.kpi.payable') },
+    { key: 'type', title: t('common.field.type'), dataIndex: 'type', render: (value: number) => value === FinancialEntryType.Receivable ? t('financial.kpi.receivable') : t('financial.kpi.payable') },
     { key: 'description', title: t('common.field.description'), dataIndex: 'description' },
     { key: 'counterpartyName', title: t('financial.entries.field.counterparty'), dataIndex: 'counterpartyName' },
     { key: 'amount', title: t('common.field.value'), dataIndex: 'amount', render: (value: number) => `R$ ${value.toFixed(2)}` },
     { key: 'dueAt', title: t('financial.entries.field.dueDate'), dataIndex: 'dueAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
-    { key: 'status', title: t('common.field.status'), dataIndex: 'status', render: (value: number) => statusMap[value] || '-' },
+    { key: 'status', title: t('common.field.status'), dataIndex: 'status', render: (value: FinancialEntryStatusValue) => statusMap[value] || '-' },
   ]
 
   return (

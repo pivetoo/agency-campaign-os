@@ -4,6 +4,25 @@ import type { CommercialPipelineStage } from '../types/commercialPipelineStage'
 
 const BASE_URL = '/Opportunities'
 
+export const OpportunityNegotiationStatus = {
+  Draft: 1,
+  PendingApproval: 2,
+  Approved: 3,
+  Rejected: 4,
+  SentToClient: 5,
+  AcceptedByClient: 6,
+  Cancelled: 7,
+} as const
+export type OpportunityNegotiationStatusValue = (typeof OpportunityNegotiationStatus)[keyof typeof OpportunityNegotiationStatus]
+
+export const OpportunityApprovalStatus = {
+  Pending: 1,
+  Approved: 2,
+  Rejected: 3,
+  Cancelled: 4,
+} as const
+export type OpportunityApprovalStatusValue = (typeof OpportunityApprovalStatus)[keyof typeof OpportunityApprovalStatus]
+
 export interface OpportunityProposalReference {
   id: number
   name: string
@@ -18,7 +37,7 @@ export interface OpportunityNegotiation {
   opportunityId: number
   title: string
   amount: number
-  status: number
+  status: OpportunityNegotiationStatusValue
   negotiatedAt: string
   notes?: string
   approvalRequests: OpportunityApprovalRequest[]
@@ -30,7 +49,7 @@ export interface OpportunityApprovalRequest {
   id: number
   opportunityNegotiationId: number
   approvalType: number
-  status: number
+  status: OpportunityApprovalStatusValue
   reason: string
   requestedByUserId?: number
   requestedByUserName: string

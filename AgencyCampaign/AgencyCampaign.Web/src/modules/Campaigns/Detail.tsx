@@ -7,7 +7,8 @@ import { campaignService } from '../../services/campaignService'
 import { campaignCreatorService } from '../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../services/campaignDeliverableService'
 import { campaignDocumentService } from '../../services/campaignDocumentService'
-import type { Campaign } from '../../types/campaign'
+import { CampaignStatus } from '../../types/campaign'
+import type { Campaign, CampaignStatusValue } from '../../types/campaign'
 import type { CampaignCreator } from '../../types/campaignCreator'
 import type { CampaignDeliverable } from '../../types/campaignDeliverable'
 import type { CampaignDocument } from '../../types/campaignDocument'
@@ -49,13 +50,13 @@ export default function CampaignDetail() {
   const [isDocumentSignatureOpen, setIsDocumentSignatureOpen] = useState(false)
   const [isDocumentDetailsOpen, setIsDocumentDetailsOpen] = useState(false)
 
-  const campaignStatusLabels: Record<number, string> = {
-    1: t('campaign.status.draft'),
-    2: t('campaign.status.planned'),
-    3: t('campaign.status.executing'),
-    4: t('campaign.status.reviewing'),
-    5: t('campaign.status.completed'),
-    6: t('campaign.status.cancelled'),
+  const campaignStatusLabels: Record<CampaignStatusValue, string> = {
+    [CampaignStatus.Draft]: t('campaign.status.draft'),
+    [CampaignStatus.Planned]: t('campaign.status.planned'),
+    [CampaignStatus.InProgress]: t('campaign.status.executing'),
+    [CampaignStatus.InReview]: t('campaign.status.reviewing'),
+    [CampaignStatus.Completed]: t('campaign.status.completed'),
+    [CampaignStatus.Cancelled]: t('campaign.status.cancelled'),
   }
 
   const deliverableStatusLabels: Record<number, string> = {
@@ -370,7 +371,7 @@ export default function CampaignDetail() {
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Status</p>
               <div className="mt-1">
-                <Badge className="px-2 py-0.5 text-xs" variant={campaign?.status === 5 ? 'success' : campaign?.status === 6 ? 'destructive' : 'warning'}>
+                <Badge className="px-2 py-0.5 text-xs" variant={campaign?.status === CampaignStatus.Completed ? 'success' : campaign?.status === CampaignStatus.Cancelled ? 'destructive' : 'warning'}>
                   {campaign ? campaignStatusLabels[campaign.status] : '-'}
                 </Badge>
               </div>

@@ -20,29 +20,29 @@ import ProposalItemFormModal from '../../components/modals/ProposalItemFormModal
 import ApplyProposalTemplateModal from '../../components/modals/ApplyProposalTemplateModal'
 import ProposalShareTab from './ProposalShareTab'
 import { campaignService } from '../../services/campaignService'
-import { proposalService, type Proposal, type ProposalItem } from '../../services/proposalService'
+import { proposalService, ProposalStatus, type Proposal, type ProposalItem, type ProposalStatusValue } from '../../services/proposalService'
 import type { Campaign } from '../../types/campaign'
 
-const proposalStatusKeys: Record<number, string> = {
-  1: 'proposal.status.draft',
-  2: 'proposal.status.sent',
-  3: 'proposal.status.viewed',
-  4: 'proposal.status.approved',
-  5: 'proposal.status.rejected',
-  6: 'proposal.status.converted',
-  7: 'proposal.status.expired',
-  8: 'proposal.status.cancelled',
+const proposalStatusKeys: Record<ProposalStatusValue, string> = {
+  [ProposalStatus.Draft]: 'proposal.status.draft',
+  [ProposalStatus.Sent]: 'proposal.status.sent',
+  [ProposalStatus.Viewed]: 'proposal.status.viewed',
+  [ProposalStatus.Approved]: 'proposal.status.approved',
+  [ProposalStatus.Rejected]: 'proposal.status.rejected',
+  [ProposalStatus.Converted]: 'proposal.status.converted',
+  [ProposalStatus.Expired]: 'proposal.status.expired',
+  [ProposalStatus.Cancelled]: 'proposal.status.cancelled',
 }
 
-const proposalStatusVariant: Record<number, 'default' | 'warning' | 'success' | 'destructive'> = {
-  1: 'default',
-  2: 'warning',
-  3: 'warning',
-  4: 'success',
-  5: 'destructive',
-  6: 'success',
-  7: 'destructive',
-  8: 'destructive',
+const proposalStatusVariant: Record<ProposalStatusValue, 'default' | 'warning' | 'success' | 'destructive'> = {
+  [ProposalStatus.Draft]: 'default',
+  [ProposalStatus.Sent]: 'warning',
+  [ProposalStatus.Viewed]: 'warning',
+  [ProposalStatus.Approved]: 'success',
+  [ProposalStatus.Rejected]: 'destructive',
+  [ProposalStatus.Converted]: 'success',
+  [ProposalStatus.Expired]: 'destructive',
+  [ProposalStatus.Cancelled]: 'destructive',
 }
 
 function formatCurrency(value: number) {
@@ -103,7 +103,7 @@ export default function CommercialProposalDetail() {
 
     const actions: PageAction[] = []
 
-    if (status === 1) {
+    if (status === ProposalStatus.Draft) {
       actions.push({
         key: 'send',
         label: t('proposals.action.send'),
@@ -113,7 +113,7 @@ export default function CommercialProposalDetail() {
         onClick: () => void runProposalAction(() => proposalService.send(proposalId)),
       })
     }
-    if (status === 2) {
+    if (status === ProposalStatus.Sent) {
       actions.push({
         key: 'viewed',
         label: t('proposals.action.markViewedLong'),
@@ -123,7 +123,7 @@ export default function CommercialProposalDetail() {
         onClick: () => void runProposalAction(() => proposalService.markAsViewed(proposalId)),
       })
     }
-    if (status === 2 || status === 3) {
+    if (status === ProposalStatus.Sent || status === ProposalStatus.Viewed) {
       actions.push({
         key: 'approve',
         label: t('proposals.action.approve'),
@@ -141,7 +141,7 @@ export default function CommercialProposalDetail() {
         onClick: () => void runProposalAction(() => proposalService.reject(proposalId)),
       })
     }
-    if (status !== 6 && status !== 8) {
+    if (status !== ProposalStatus.Converted && status !== ProposalStatus.Cancelled) {
       actions.push({
         key: 'cancel',
         label: t('proposals.action.cancel'),
@@ -180,7 +180,7 @@ export default function CommercialProposalDetail() {
     )
   }
 
-  const isApproved = proposal?.status === 4
+  const isApproved = proposal?.status === ProposalStatus.Approved
   const subtitleParts: string[] = []
   if (proposal?.brand?.name) subtitleParts.push(proposal.brand.name)
   if (proposal?.opportunity?.name) subtitleParts.push(t('proposalDetail.linkedTo').replace('{0}', proposal.opportunity.name))

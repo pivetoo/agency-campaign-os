@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageLayout, DataTable, Badge, Button, useApi, useAuth, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { opportunityService, type OpportunityApprovalRequest, type ApprovalSummary } from '../../services/opportunityService'
+import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalStatusValue, type OpportunityApprovalRequest, type ApprovalSummary } from '../../services/opportunityService'
 
 const approvalTypeKeys: Record<number, string> = {
   1: 'approvals.type.discount',
@@ -11,11 +11,11 @@ const approvalTypeKeys: Record<number, string> = {
   4: 'approvals.type.exception',
 }
 
-const approvalStatusKeys: Record<number, string> = {
-  1: 'approvals.status.pending',
-  2: 'approvals.status.approved',
-  3: 'approvals.status.rejected',
-  4: 'approvals.status.cancelled',
+const approvalStatusKeys: Record<OpportunityApprovalStatusValue, string> = {
+  [OpportunityApprovalStatus.Pending]: 'approvals.status.pending',
+  [OpportunityApprovalStatus.Approved]: 'approvals.status.approved',
+  [OpportunityApprovalStatus.Rejected]: 'approvals.status.rejected',
+  [OpportunityApprovalStatus.Cancelled]: 'approvals.status.cancelled',
 }
 
 export default function CommercialApprovals() {
@@ -93,8 +93,8 @@ export default function CommercialApprovals() {
 
       <div className="mb-3 flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => navigate('/comercial/pipeline')}>{t('approvals.action.goToPipeline')}</Button>
-        <Button variant="outline-success" disabled={!selectedApproval || selectedApproval.status !== 1 || actionLoading} onClick={() => void decideApproval('approve')}>{t('approvals.action.approveSelected')}</Button>
-        <Button variant="outline-danger" disabled={!selectedApproval || selectedApproval.status !== 1 || actionLoading} onClick={() => void decideApproval('reject')}>{t('approvals.action.rejectSelected')}</Button>
+        <Button variant="outline-success" disabled={!selectedApproval || selectedApproval.status !== OpportunityApprovalStatus.Pending || actionLoading} onClick={() => void decideApproval('approve')}>{t('approvals.action.approveSelected')}</Button>
+        <Button variant="outline-danger" disabled={!selectedApproval || selectedApproval.status !== OpportunityApprovalStatus.Pending || actionLoading} onClick={() => void decideApproval('reject')}>{t('approvals.action.rejectSelected')}</Button>
       </div>
       <DataTable
         columns={columns}

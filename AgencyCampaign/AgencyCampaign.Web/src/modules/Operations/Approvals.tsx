@@ -7,6 +7,7 @@ import {
   deliverableApprovalsService,
   deliverableShareLinkService,
 } from '../../services/deliverableShareLinkService'
+import { DeliverableApprovalStatus } from '../../types/deliverableShareLink'
 import type { PendingApproval } from '../../types/deliverableShareLink'
 
 const deliverableStatusLabels: Record<number, string> = {
@@ -107,7 +108,7 @@ export default function OperationsApprovals() {
             {record.approvals.map((approval) => (
               <Badge
                 key={approval.id}
-                variant={approval.status === 2 ? 'success' : approval.status === 3 ? 'destructive' : 'warning'}
+                variant={approval.status === DeliverableApprovalStatus.Approved ? 'success' : approval.status === DeliverableApprovalStatus.Rejected ? 'destructive' : 'warning'}
               >
                 {approvalTypeLabels[approval.approvalType]}: {approvalStatusLabels[approval.status]}
               </Badge>

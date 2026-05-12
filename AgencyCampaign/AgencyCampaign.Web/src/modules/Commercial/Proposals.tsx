@@ -17,37 +17,37 @@ import {
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { CheckCircle, Clock, Eye, Search, Send, X, XCircle } from 'lucide-react'
-import { proposalService, type Proposal, type ProposalListFilters } from '../../services/proposalService'
+import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValue, type ProposalListFilters } from '../../services/proposalService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import type { CommercialResponsible } from '../../types/commercialResponsible'
 import ProposalFormModal from '../../components/modals/ProposalFormModal'
 
 const STATUS_ALL = '__all__'
 
-const proposalStatusKeys: Record<number, string> = {
-  1: 'proposal.status.draft',
-  2: 'proposal.status.sent',
-  3: 'proposal.status.viewed',
-  4: 'proposal.status.approved',
-  5: 'proposal.status.rejected',
-  6: 'proposal.status.converted',
-  7: 'proposal.status.expired',
-  8: 'proposal.status.cancelled',
+const proposalStatusKeys: Record<ProposalStatusValue, string> = {
+  [ProposalStatus.Draft]: 'proposal.status.draft',
+  [ProposalStatus.Sent]: 'proposal.status.sent',
+  [ProposalStatus.Viewed]: 'proposal.status.viewed',
+  [ProposalStatus.Approved]: 'proposal.status.approved',
+  [ProposalStatus.Rejected]: 'proposal.status.rejected',
+  [ProposalStatus.Converted]: 'proposal.status.converted',
+  [ProposalStatus.Expired]: 'proposal.status.expired',
+  [ProposalStatus.Cancelled]: 'proposal.status.cancelled',
 }
 
-const proposalStatusVariant: Record<number, 'default' | 'warning' | 'success' | 'destructive'> = {
-  1: 'default',
-  2: 'warning',
-  3: 'warning',
-  4: 'success',
-  5: 'destructive',
-  6: 'success',
-  7: 'destructive',
-  8: 'destructive',
+const proposalStatusVariant: Record<ProposalStatusValue, 'default' | 'warning' | 'success' | 'destructive'> = {
+  [ProposalStatus.Draft]: 'default',
+  [ProposalStatus.Sent]: 'warning',
+  [ProposalStatus.Viewed]: 'warning',
+  [ProposalStatus.Approved]: 'success',
+  [ProposalStatus.Rejected]: 'destructive',
+  [ProposalStatus.Converted]: 'success',
+  [ProposalStatus.Expired]: 'destructive',
+  [ProposalStatus.Cancelled]: 'destructive',
 }
 
 function isExpired(proposal: Proposal): boolean {
-  if (proposal.status === 6 || proposal.status === 8) {
+  if (proposal.status === ProposalStatus.Converted || proposal.status === ProposalStatus.Cancelled) {
     return false
   }
   if (!proposal.validityUntil) {
@@ -226,7 +226,7 @@ export default function CommercialProposals() {
             label: t('proposals.action.send'),
             icon: <Send className="h-4 w-4" />,
             variant: 'outline-primary',
-            disabled: !selectedProposal || actionLoading || selectedProposal.status !== 1,
+            disabled: !selectedProposal || actionLoading || selectedProposal.status !== ProposalStatus.Draft,
             onClick: () => selectedProposal && void runProposalAction(() => proposalService.send(selectedProposal.id)),
           },
           {
@@ -234,7 +234,7 @@ export default function CommercialProposals() {
             label: t('proposals.action.markViewed'),
             icon: <Eye className="h-4 w-4" />,
             variant: 'outline',
-            disabled: !selectedProposal || actionLoading || selectedProposal.status !== 2,
+            disabled: !selectedProposal || actionLoading || selectedProposal.status !== ProposalStatus.Sent,
             onClick: () => selectedProposal && void runProposalAction(() => proposalService.markAsViewed(selectedProposal.id)),
           },
           {
@@ -242,7 +242,7 @@ export default function CommercialProposals() {
             label: t('proposals.action.approve'),
             icon: <CheckCircle className="h-4 w-4" />,
             variant: 'outline-success',
-            disabled: !selectedProposal || actionLoading || selectedProposal.status !== 3,
+            disabled: !selectedProposal || actionLoading || selectedProposal.status !== ProposalStatus.Viewed,
             onClick: () => selectedProposal && void runProposalAction(() => proposalService.approve(selectedProposal.id)),
           },
           {
@@ -250,7 +250,7 @@ export default function CommercialProposals() {
             label: t('proposals.action.reject'),
             icon: <XCircle className="h-4 w-4" />,
             variant: 'outline-danger',
-            disabled: !selectedProposal || actionLoading || (selectedProposal.status !== 2 && selectedProposal.status !== 3),
+            disabled: !selectedProposal || actionLoading || (selectedProposal.status !== ProposalStatus.Sent && selectedProposal.status !== ProposalStatus.Viewed),
             onClick: () => selectedProposal && void runProposalAction(() => proposalService.reject(selectedProposal.id)),
           },
           {
@@ -258,7 +258,7 @@ export default function CommercialProposals() {
             label: t('proposals.action.cancel'),
             icon: <Clock className="h-4 w-4" />,
             variant: 'outline-danger',
-            disabled: !selectedProposal || actionLoading || selectedProposal.status === 8 || selectedProposal.status === 6,
+            disabled: !selectedProposal || actionLoading || selectedProposal.status === ProposalStatus.Cancelled || selectedProposal.status === ProposalStatus.Converted,
             onClick: () => selectedProposal && void runProposalAction(() => proposalService.cancel(selectedProposal.id)),
           },
         ]}

@@ -5,6 +5,7 @@ import { CheckCircle2, Pencil, Trash2 } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../services/financialEntryService'
 import { financialAccountService } from '../../services/financialAccountService'
 import {
+  FinancialEntryStatus,
   financialEntryCategoryLabels,
   financialEntryReceivableStatusLabels,
   financialEntryStatusLabels,
@@ -139,7 +140,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
       width: 130,
       render: (_value, record) => (
         <div className="flex gap-1">
-          {record.status !== 2 && record.status !== 4 && (
+          {record.status !== FinancialEntryStatus.Paid && record.status !== FinancialEntryStatus.Cancelled && (
             <button
               type="button"
               className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50"

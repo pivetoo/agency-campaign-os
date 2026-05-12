@@ -3,6 +3,18 @@ import type { ApiResponse } from 'archon-ui'
 
 const BASE_URL = '/Proposals'
 
+export const ProposalStatus = {
+  Draft: 1,
+  Sent: 2,
+  Viewed: 3,
+  Approved: 4,
+  Rejected: 5,
+  Converted: 6,
+  Expired: 7,
+  Cancelled: 8,
+} as const
+export type ProposalStatusValue = (typeof ProposalStatus)[keyof typeof ProposalStatus]
+
 export interface ProposalItem {
   id: number
   proposalId: number
@@ -25,7 +37,7 @@ export interface Proposal {
   id: number
   name: string
   description?: string
-  status: number
+  status: ProposalStatusValue
   validityUntil?: string
   opportunityId: number
   opportunity?: {
@@ -83,7 +95,7 @@ export interface UpdateProposalItemRequest {
 
 export interface ProposalListFilters {
   search?: string
-  status?: number
+  status?: ProposalStatusValue
   opportunityId?: number
   internalOwnerId?: number
   validityFrom?: string

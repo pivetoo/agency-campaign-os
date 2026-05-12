@@ -4,7 +4,7 @@ import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable
 import type { DataTableColumn } from 'archon-ui'
 import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, FileText, MapPin, MessageSquare, Pencil, Plus, Tag, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../services/commercialPipelineStageService'
-import { opportunityService, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../services/opportunityService'
+import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type OpportunityApprovalStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../services/opportunityService'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
 import OpportunityNegotiationFormModal from '../../components/modals/OpportunityNegotiationFormModal'
 import OpportunityFollowUpFormModal from '../../components/modals/OpportunityFollowUpFormModal'
@@ -35,14 +35,14 @@ const proposalStatusVariant: Record<number, 'default' | 'warning' | 'success' | 
   8: 'destructive',
 }
 
-const negotiationStatusKeys: Record<number, string> = {
-  1: 'negotiation.status.draft',
-  2: 'negotiation.status.pendingApproval',
-  3: 'negotiation.status.approved',
-  4: 'negotiation.status.rejected',
-  5: 'negotiation.status.sentToClient',
-  6: 'negotiation.status.acceptedByClient',
-  7: 'negotiation.status.cancelled',
+const negotiationStatusKeys: Record<OpportunityNegotiationStatusValue, string> = {
+  [OpportunityNegotiationStatus.Draft]: 'negotiation.status.draft',
+  [OpportunityNegotiationStatus.PendingApproval]: 'negotiation.status.pendingApproval',
+  [OpportunityNegotiationStatus.Approved]: 'negotiation.status.approved',
+  [OpportunityNegotiationStatus.Rejected]: 'negotiation.status.rejected',
+  [OpportunityNegotiationStatus.SentToClient]: 'negotiation.status.sentToClient',
+  [OpportunityNegotiationStatus.AcceptedByClient]: 'negotiation.status.acceptedByClient',
+  [OpportunityNegotiationStatus.Cancelled]: 'negotiation.status.cancelled',
 }
 
 const approvalTypeKeys: Record<number, string> = {
@@ -52,11 +52,11 @@ const approvalTypeKeys: Record<number, string> = {
   4: 'approvals.type.exception',
 }
 
-const approvalStatusKeys: Record<number, string> = {
-  1: 'approvals.status.pending',
-  2: 'approvals.status.approved',
-  3: 'approvals.status.rejected',
-  4: 'approvals.status.cancelled',
+const approvalStatusKeys: Record<OpportunityApprovalStatusValue, string> = {
+  [OpportunityApprovalStatus.Pending]: 'approvals.status.pending',
+  [OpportunityApprovalStatus.Approved]: 'approvals.status.approved',
+  [OpportunityApprovalStatus.Rejected]: 'approvals.status.rejected',
+  [OpportunityApprovalStatus.Cancelled]: 'approvals.status.cancelled',
 }
 
 function formatCurrency(value: number) {
@@ -521,11 +521,11 @@ export default function OpportunityDetail() {
                     size="sm"
                     variant="outline"
                     onClick={() => setIsApprovalRequestFormOpen(true)}
-                    disabled={!selectedNegotiation || selectedNegotiation.status !== 1}
+                    disabled={!selectedNegotiation || selectedNegotiation.status !== OpportunityNegotiationStatus.Draft}
                     title={
                       !selectedNegotiation
                         ? t('opportunityDetail.negotiations.title.selectFirst')
-                        : selectedNegotiation.status !== 1
+                        : selectedNegotiation.status !== OpportunityNegotiationStatus.Draft
                           ? t('opportunityDetail.negotiations.title.onlyDraft').replace('{0}', negotiationStatusKeys[selectedNegotiation.status] ? t(negotiationStatusKeys[selectedNegotiation.status]) : '-')
                           : t('opportunityDetail.negotiations.title.request')
                     }
@@ -559,10 +559,10 @@ export default function OpportunityDetail() {
                     <CheckCircle className="h-5 w-5 text-muted-foreground" /> {t('opportunityDetail.tab.approvals')}
                   </CardTitle>
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline-success" onClick={() => void handleApproveRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>
+                    <Button size="sm" variant="outline-success" onClick={() => void handleApproveRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== OpportunityApprovalStatus.Pending || actionLoading}>
                       <ThumbsUp className="mr-1.5 h-4 w-4" /> {t('proposals.action.approve')}
                     </Button>
-                    <Button size="sm" variant="outline-danger" onClick={() => void handleRejectRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== 1 || actionLoading}>
+                    <Button size="sm" variant="outline-danger" onClick={() => void handleRejectRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== OpportunityApprovalStatus.Pending || actionLoading}>
                       <ThumbsDown className="mr-1.5 h-4 w-4" /> {t('proposals.action.reject')}
                     </Button>
                   </div>
