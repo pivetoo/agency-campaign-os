@@ -16,7 +16,7 @@ import {
   useApi,
   useI18n,
 } from 'archon-ui'
-import { CheckCircle2, CircleDashed, GitBranch, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Star, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
+import { CheckCircle2, CircleDashed, ExternalLink, GitBranch, Megaphone, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Star, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
 import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
 import AutomationFormModal from '../../../components/modals/AutomationFormModal'
@@ -279,6 +279,24 @@ export default function Integrations() {
         title={t('configuration.integrations.title')}
         subtitle={t('configuration.integrations.subtitle')}
       >
+        <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-700 dark:bg-amber-950/40">
+          <Megaphone className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="flex-1 text-sm text-amber-800 dark:text-amber-300">
+            <span className="font-semibold">Não encontrou a integração que precisa?</span>
+            {' '}Abra um ticket no nosso portal do cliente — desenvolvemos a nova integração{' '}
+            <span className="font-semibold">sem custo adicional</span> e com prazo de{' '}
+            <span className="font-semibold">48 horas</span> para estar disponível.
+          </div>
+          <a
+            href="https://portal.mainstay.com.br"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-2 mt-0.5 flex shrink-0 items-center gap-1 text-sm font-semibold text-amber-700 underline underline-offset-2 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200"
+          >
+            Abrir ticket <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger
