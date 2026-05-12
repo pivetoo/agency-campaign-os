@@ -186,6 +186,7 @@
   <data name="common.field.contact" xml:space="preserve"><value>Contacto</value></data>
   <data name="common.field.email" xml:space="preserve"><value>Correo electrónico</value></data>
   <data name="common.field.phone" xml:space="preserve"><value>Teléfono</value></data>
+  <data name="common.field.address" xml:space="preserve"><value>Dirección</value></data>
   <data name="common.field.notes" xml:space="preserve"><value>Observaciones</value></data>
   <data name="common.field.status" xml:space="preserve"><value>Estado</value></data>
   <data name="common.field.city" xml:space="preserve"><value>Ciudad</value></data>

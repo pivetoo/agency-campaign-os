@@ -15,6 +15,9 @@ export default function AgencyConfiguration() {
   const [document, setDocument] = useState('')
   const [logoUrl, setLogoUrl] = useState('')
   const [primaryColor, setPrimaryColor] = useState('#6366f1')
+  const [primaryEmail, setPrimaryEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [address, setAddress] = useState('')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [logoError, setLogoError] = useState<string | null>(null)
@@ -32,6 +35,9 @@ export default function AgencyConfiguration() {
       setDocument(result.document ?? '')
       setLogoUrl(result.logoUrl ?? '')
       setPrimaryColor(result.primaryColor ?? '#6366f1')
+      setPrimaryEmail(result.primaryEmail ?? '')
+      setPhone(result.phone ?? '')
+      setAddress(result.address ?? '')
     }
   }
 
@@ -84,6 +90,9 @@ export default function AgencyConfiguration() {
         document: document.trim() || null,
         logoUrl: logoUrl.trim() || null,
         primaryColor: primaryColor.trim() || null,
+        primaryEmail: primaryEmail.trim() || null,
+        phone: phone.trim() || null,
+        address: address.trim() || null,
         defaultEmailConnectorId: settings?.defaultEmailConnectorId ?? null,
         defaultEmailPipelineId: settings?.defaultEmailPipelineId ?? null,
       }),
@@ -167,6 +176,26 @@ export default function AgencyConfiguration() {
                     {logoError && <p className="text-xs text-destructive">{logoError}</p>}
                   </div>
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-5 pb-5 space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t('common.field.contact')}</h3>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('common.field.email')}</label>
+                <Input type="email" value={primaryEmail} onChange={(e) => setPrimaryEmail(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('common.field.phone')}</label>
+                <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-sm font-medium">{t('common.field.address')}</label>
+                <Input value={address} onChange={(e) => setAddress(e.target.value)} />
               </div>
             </div>
           </CardContent>
