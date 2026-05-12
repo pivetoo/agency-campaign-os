@@ -16,7 +16,6 @@ export interface UpdateAgencySettingsRequest {
   logoUrl?: string | null
   primaryColor?: string | null
   defaultEmailConnectorId?: number | null
-  defaultEmailPipelineId?: number | null
 }
 
 export const agencySettingsService = {

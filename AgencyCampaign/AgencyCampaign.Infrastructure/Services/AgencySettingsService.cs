@@ -38,8 +38,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Address,
                 request.LogoUrl,
                 request.PrimaryColor,
-                request.DefaultEmailConnectorId,
-                request.DefaultEmailPipelineId);
+                request.DefaultEmailConnectorId);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return Map(settings);
@@ -73,8 +72,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 settings.Address,
                 settings.LogoUrl,
                 settings.PrimaryColor,
-                connectorId,
-                null);
+                connectorId);
             await dbContext.SaveChangesAsync(cancellationToken);
             return Map(settings);
         }
@@ -214,7 +212,6 @@ namespace AgencyCampaign.Infrastructure.Services
             LogoUrl = settings.LogoUrl,
             PrimaryColor = settings.PrimaryColor,
             DefaultEmailConnectorId = settings.DefaultEmailConnectorId,
-            DefaultEmailPipelineId = settings.DefaultEmailPipelineId,
             ProposalHtmlTemplate = settings.ProposalHtmlTemplate
         };
     }

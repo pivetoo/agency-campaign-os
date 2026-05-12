@@ -9,6 +9,5 @@ export interface AgencySettings {
   logoUrl?: string | null
   primaryColor?: string | null
   defaultEmailConnectorId?: number | null
-  defaultEmailPipelineId?: number | null
   proposalHtmlTemplate?: string | null
 }

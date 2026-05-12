@@ -94,7 +94,6 @@ export default function AgencyConfiguration() {
         phone: phone.trim() || null,
         address: address.trim() || null,
         defaultEmailConnectorId: settings?.defaultEmailConnectorId ?? null,
-        defaultEmailPipelineId: settings?.defaultEmailPipelineId ?? null,
       }),
     )
     if (result !== null) void load()

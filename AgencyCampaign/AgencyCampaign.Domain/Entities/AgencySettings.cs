@@ -22,8 +22,6 @@ namespace AgencyCampaign.Domain.Entities
 
         public long? DefaultEmailConnectorId { get; private set; }
 
-        public long? DefaultEmailPipelineId { get; private set; }
-
         public string? ProposalHtmlTemplate { get; private set; }
 
         private AgencySettings()
@@ -36,7 +34,7 @@ namespace AgencyCampaign.Domain.Entities
             AgencyName = agencyName.Trim();
         }
 
-        public void Update(string agencyName, string? tradeName, string? document, string? primaryEmail, string? phone, string? address, string? logoUrl, string? primaryColor, long? defaultEmailConnectorId, long? defaultEmailPipelineId)
+        public void Update(string agencyName, string? tradeName, string? document, string? primaryEmail, string? phone, string? address, string? logoUrl, string? primaryColor, long? defaultEmailConnectorId)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(agencyName);
 
@@ -49,7 +47,6 @@ namespace AgencyCampaign.Domain.Entities
             LogoUrl = Normalize(logoUrl);
             PrimaryColor = Normalize(primaryColor);
             DefaultEmailConnectorId = defaultEmailConnectorId;
-            DefaultEmailPipelineId = defaultEmailPipelineId;
         }
 
         public void SetLogo(string? logoUrl)

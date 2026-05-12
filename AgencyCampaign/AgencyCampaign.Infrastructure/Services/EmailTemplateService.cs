@@ -148,9 +148,20 @@ namespace AgencyCampaign.Infrastructure.Services
                 .OrderBy(item => item.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (settings?.DefaultEmailConnectorId is null || settings.DefaultEmailPipelineId is null)
+            if (settings?.DefaultEmailConnectorId is null)
             {
-                Console.WriteLine($"[EmailService] email connector/pipeline not configured, skipping event {eventType}.");
+                Console.WriteLine($"[EmailService] default email connector not configured, skipping event {eventType}.");
+                return;
+            }
+
+            ConnectorDto connector = await integrationPlatformClient.GetConnectorByIdAsync(settings.DefaultEmailConnectorId.Value, cancellationToken);
+
+            List<PipelineDto> pipelines = await integrationPlatformClient.GetPipelinesByIntegrationAsync(connector.IntegrationId, cancellationToken);
+            PipelineDto? defaultPipeline = pipelines.FirstOrDefault(p => p.IsDefault);
+
+            if (defaultPipeline is null)
+            {
+                Console.WriteLine($"[EmailService] no default pipeline for integration {connector.IntegrationId}, skipping event {eventType}.");
                 return;
             }
 
@@ -167,7 +178,7 @@ namespace AgencyCampaign.Infrastructure.Services
             EnqueuePipelineRequest request = new()
             {
                 ConnectorId = settings.DefaultEmailConnectorId.Value,
-                PipelineId = settings.DefaultEmailPipelineId.Value,
+                PipelineId = defaultPipeline.Id,
                 Payload = enqueuePayload,
                 Priority = 0
             };

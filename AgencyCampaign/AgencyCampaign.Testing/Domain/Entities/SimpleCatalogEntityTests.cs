@@ -25,7 +25,7 @@ namespace AgencyCampaign.Testing.Domain.Entities
         {
             AgencySettings subject = new("Old");
 
-            subject.Update("New", " trade ", " doc ", " a@x ", " 999 ", " addr ", " logo ", " #fff ", defaultEmailConnectorId: 5, defaultEmailPipelineId: 10);
+            subject.Update("New", " trade ", " doc ", " a@x ", " 999 ", " addr ", " logo ", " #fff ", defaultEmailConnectorId: 5);
 
             subject.AgencyName.Should().Be("New");
             subject.TradeName.Should().Be("trade");
@@ -33,7 +33,6 @@ namespace AgencyCampaign.Testing.Domain.Entities
             subject.LogoUrl.Should().Be("logo");
             subject.PrimaryColor.Should().Be("#fff");
             subject.DefaultEmailConnectorId.Should().Be(5);
-            subject.DefaultEmailPipelineId.Should().Be(10);
         }
     }
 
