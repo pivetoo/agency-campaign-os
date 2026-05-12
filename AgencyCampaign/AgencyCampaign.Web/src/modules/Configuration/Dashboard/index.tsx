@@ -111,7 +111,7 @@ export default function ConfigurationDashboard() {
         cta: () => navigate('/configuracao/integracoes'),
       },
     ]
-  }, [agency, activeTemplates, activeAccounts, activeAutomations, navigate])
+  }, [agency, activeAccounts, activeAutomations, navigate])
 
   const completedHealth = healthChecks.filter((c) => c.ok).length
   const healthPercent = Math.round((completedHealth / healthChecks.length) * 100)
