@@ -151,9 +151,9 @@
   <data name="nav.item.commercialFunnel" xml:space="preserve"><value>Commercial funnel</value></data>
   <data name="nav.item.opportunitySources" xml:space="preserve"><value>Opportunity sources</value></data>
   <data name="nav.item.opportunityTags" xml:space="preserve"><value>Opportunity tags</value></data>
-  <data name="nav.item.proposalTemplates" xml:space="preserve"><value>Proposal templates</value></data>
+  <data name="nav.item.proposalTemplates" xml:space="preserve"><value>Proposal items</value></data>
   <data name="nav.item.proposalBlocks" xml:space="preserve"><value>Proposal blocks</value></data>
-  <data name="nav.item.proposalTemplate" xml:space="preserve"><value>Proposal template</value></data>
+  <data name="nav.item.proposalTemplate" xml:space="preserve"><value>Proposal layout</value></data>
   <data name="nav.item.socialNetworks" xml:space="preserve"><value>Social networks</value></data>
   <data name="nav.item.creatorStatus" xml:space="preserve"><value>Creator status</value></data>
   <data name="nav.item.deliverableKinds" xml:space="preserve"><value>Deliverable types</value></data>
@@ -546,9 +546,9 @@
   <data name="configuration.opportunityTags.subtitle" xml:space="preserve"><value>Custom labels (strategic, hot, Q4, etc.) to classify deals.</value></data>
   <data name="configuration.proposalBlocks.title" xml:space="preserve"><value>Proposal blocks</value></data>
   <data name="configuration.proposalBlocks.subtitle" xml:space="preserve"><value>Reusable clauses, conditions and descriptions to build proposals.</value></data>
-  <data name="configuration.proposalTemplates.title" xml:space="preserve"><value>Proposal templates</value></data>
+  <data name="configuration.proposalTemplates.title" xml:space="preserve"><value>Proposal items</value></data>
   <data name="configuration.proposalTemplates.subtitle" xml:space="preserve"><value>Reusable templates with standard items to speed up proposal creation.</value></data>
-  <data name="configuration.proposalTemplate.title" xml:space="preserve"><value>Proposal template</value></data>
+  <data name="configuration.proposalTemplate.title" xml:space="preserve"><value>Proposal layout</value></data>
   <data name="configuration.proposalTemplate.subtitle" xml:space="preserve"><value>Customize the proposal PDF layout with HTML and CSS.</value></data>
   <data name="configuration.dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="configuration.dashboard.refresh" xml:space="preserve"><value>Refresh</value></data>

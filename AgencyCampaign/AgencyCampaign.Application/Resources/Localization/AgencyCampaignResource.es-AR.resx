@@ -151,9 +151,9 @@
   <data name="nav.item.commercialFunnel" xml:space="preserve"><value>Embudo comercial</value></data>
   <data name="nav.item.opportunitySources" xml:space="preserve"><value>Orígenes de oportunidad</value></data>
   <data name="nav.item.opportunityTags" xml:space="preserve"><value>Etiquetas de oportunidad</value></data>
-  <data name="nav.item.proposalTemplates" xml:space="preserve"><value>Plantillas de propuesta</value></data>
+  <data name="nav.item.proposalTemplates" xml:space="preserve"><value>Ítems de propuesta</value></data>
   <data name="nav.item.proposalBlocks" xml:space="preserve"><value>Bloques de propuesta</value></data>
-  <data name="nav.item.proposalTemplate" xml:space="preserve"><value>Plantilla de propuesta</value></data>
+  <data name="nav.item.proposalTemplate" xml:space="preserve"><value>Diseño de propuesta</value></data>
   <data name="nav.item.socialNetworks" xml:space="preserve"><value>Redes sociales</value></data>
   <data name="nav.item.creatorStatus" xml:space="preserve"><value>Estado del influencer</value></data>
   <data name="nav.item.deliverableKinds" xml:space="preserve"><value>Tipos de entrega</value></data>
@@ -546,9 +546,9 @@
   <data name="configuration.opportunityTags.subtitle" xml:space="preserve"><value>Marcadores personalizados (estratégico, hot, Q4, etc.) para clasificar deals.</value></data>
   <data name="configuration.proposalBlocks.title" xml:space="preserve"><value>Bloques de propuesta</value></data>
   <data name="configuration.proposalBlocks.subtitle" xml:space="preserve"><value>Cláusulas, condiciones y descripciones reutilizables para armar propuestas.</value></data>
-  <data name="configuration.proposalTemplates.title" xml:space="preserve"><value>Plantillas de propuesta</value></data>
+  <data name="configuration.proposalTemplates.title" xml:space="preserve"><value>Ítems de propuesta</value></data>
   <data name="configuration.proposalTemplates.subtitle" xml:space="preserve"><value>Modelos reutilizables con ítems estándar para agilizar la creación de propuestas.</value></data>
-  <data name="configuration.proposalTemplate.title" xml:space="preserve"><value>Plantilla de propuesta</value></data>
+  <data name="configuration.proposalTemplate.title" xml:space="preserve"><value>Diseño de propuesta</value></data>
   <data name="configuration.proposalTemplate.subtitle" xml:space="preserve"><value>Personaliza el diseño del PDF de propuesta con HTML y CSS.</value></data>
   <data name="configuration.dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="configuration.dashboard.refresh" xml:space="preserve"><value>Actualizar</value></data>
