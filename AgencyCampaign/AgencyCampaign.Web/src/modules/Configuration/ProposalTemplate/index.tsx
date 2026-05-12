@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Editor, { type OnMount } from '@monaco-editor/react'
 import { Button, useApi, useI18n } from 'archon-ui'
-import { Braces, ChevronDown, RefreshCw, Trash2 } from 'lucide-react'
+import { Braces, ChevronDown, List, RefreshCw, Trash2 } from 'lucide-react'
 import { agencySettingsService } from '../../../services/agencySettingsService'
 import type { ProposalLayout, ProposalTemplateVersion } from '../../../services/agencySettingsService'
 import type { AgencySettings } from '../../../types/agencySettings'
@@ -57,6 +58,7 @@ function formatDate(iso: string) {
 
 export default function ProposalTemplate() {
   const { t } = useI18n()
+  const navigate = useNavigate()
   const [template, setTemplate] = useState<string>('')
   const [previewHtml, setPreviewHtml] = useState<string>('')
   const [layouts, setLayouts] = useState<ProposalLayout[]>([])
@@ -258,6 +260,16 @@ export default function ProposalTemplate() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/configuracao/templates-proposta')}
+          >
+            <List className="mr-1.5 h-3.5 w-3.5" />
+            Lista
+          </Button>
+
           <div ref={varPickerRef} className="relative">
             <Button
               type="button"

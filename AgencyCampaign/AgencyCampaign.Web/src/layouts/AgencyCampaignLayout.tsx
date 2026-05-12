@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Blocks, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Blocks, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
@@ -139,7 +139,6 @@ export default function AgencyCampaignLayout() {
       { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
       { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
       { key: 'configuracao-templates-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/templates-proposta', icon: <FileSignature size={20} /> },
-      { key: 'configuracao-template-proposta', label: t('nav.item.proposalTemplate'), path: '/configuracao/template-proposta', icon: <Paintbrush size={20} /> },
       { key: 'configuracao-blocos-proposta', label: t('nav.item.proposalBlocks'), path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
     ]),
     createMenuGroup(t('nav.group.operations'), [
