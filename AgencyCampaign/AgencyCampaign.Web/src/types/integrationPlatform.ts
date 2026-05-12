@@ -14,6 +14,7 @@ export interface IntegrationPlatformIntegration {
   description?: string
   iconUrl?: string
   isActive: boolean
+  supportsWebhook: boolean
   createdAt?: string
   updatedAt?: string
 }

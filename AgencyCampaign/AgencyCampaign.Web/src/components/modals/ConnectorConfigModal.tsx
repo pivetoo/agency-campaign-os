@@ -240,11 +240,12 @@ export default function ConnectorConfigModal({
           return (
             <div className="relative">
               <Input
-                type={isVisible ? 'text' : 'password'}
+                type="text"
                 placeholder={attr.placeholder || ''}
                 value={value}
                 onChange={(e) => setValues((prev) => ({ ...prev, [attr.id]: e.target.value }))}
                 className={`pr-10 ${commonClasses}`}
+                style={!isVisible ? { WebkitTextSecurity: 'disc' } as React.CSSProperties : undefined}
               />
               <button
                 type="button"
@@ -469,7 +470,7 @@ export default function ConnectorConfigModal({
             </div>
           )}
 
-          {isEditing && webhookUrl && (
+          {isEditing && webhookUrl && integration?.supportsWebhook && (
             <div className="rounded-lg border bg-primary/5 p-3 space-y-2">
               <div className="flex items-center justify-between gap-3">
                 <div>
