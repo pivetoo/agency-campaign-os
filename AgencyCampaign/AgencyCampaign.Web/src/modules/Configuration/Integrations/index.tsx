@@ -549,7 +549,7 @@ export default function Integrations() {
                                       onClick={() => openCreateAutomationForConnector(connector)}
                                     >
                                       <Zap size={14} className="mr-1" />
-                                      Vincular
+                                      Automação
                                     </Button>
                                   )}
                                   <Button
