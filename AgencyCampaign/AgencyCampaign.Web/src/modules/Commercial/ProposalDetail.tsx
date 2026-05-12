@@ -82,7 +82,7 @@ export default function CommercialProposalDetail() {
   useEffect(() => {
     if (!proposalId) return
     void loadProposal()
-    void campaignService.getAll().then(setCampaigns)
+    void campaignService.getAll({ pageSize: 200 }).then((r) => setCampaigns(r.data ?? []))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [proposalId])
 

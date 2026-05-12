@@ -11,14 +11,16 @@ import BrandImportModal from '../../components/modals/BrandImportModal'
 export default function Brands() {
   const { t } = useI18n()
   const [brands, setBrands] = useState<Brand[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null)
   const [previewBrand, setPreviewBrand] = useState<Brand | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
-  const { execute: fetchBrands, loading } = useApi<Brand[]>({ showErrorMessage: true })
+  const { execute: fetchBrands, loading, pagination } = useApi<Brand[]>({ showErrorMessage: true })
 
   const loadBrands = async () => {
-    const result = await fetchBrands(() => brandService.getAll())
+    const result = await fetchBrands(() => brandService.getAll({ page, pageSize }))
     if (result) {
       setBrands(result)
     }
@@ -26,7 +28,7 @@ export default function Brands() {
 
   useEffect(() => {
     void loadBrands()
-  }, [])
+  }, [page, pageSize])
 
   const renderLogoCell = (_: unknown, record: Brand) => {
     const url = resolveBrandLogoUrl(record.logoUrl)
@@ -114,8 +116,12 @@ export default function Brands() {
           onRowDoubleClick={setPreviewBrand}
           emptyText={t('brands.empty')}
           loading={loading}
-          pageSize={10}
-          pageSizeOptions={[5, 10, 20, 50]}
+          pageSize={pageSize}
+          pageSizeOptions={[10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 
@@ -131,7 +137,11 @@ export default function Brands() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelectedBrand(null)
-          void loadBrands()
+          if (page === 1) {
+            void loadBrands()
+          } else {
+            setPage(1)
+          }
         }}
       />
 

@@ -35,13 +35,15 @@ export default function CommercialOpportunities() {
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [stageFilter, setStageFilter] = useState('')
   const [responsibleFilter, setResponsibleFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>(STATUS_ALL)
 
-  const { execute: fetchOpportunities, loading } = useApi<Opportunity[]>({ showErrorMessage: true })
+  const { execute: fetchOpportunities, loading, pagination } = useApi<Opportunity[]>({ showErrorMessage: true })
 
   useEffect(() => {
     void commercialPipelineStageService.getAll().then(setStages)
@@ -54,17 +56,21 @@ export default function CommercialOpportunities() {
   }, [searchInput])
 
   useEffect(() => {
+    setPage(1)
+  }, [search, stageFilter, responsibleFilter, statusFilter])
+
+  useEffect(() => {
     const filters: OpportunityListFilters = {}
     if (search) filters.search = search
     if (stageFilter) filters.commercialPipelineStageId = Number(stageFilter)
     if (responsibleFilter) filters.responsibleUserId = Number(responsibleFilter)
     if (statusFilter !== STATUS_ALL) filters.status = statusFilter as OpportunityListFilters['status']
 
-    void fetchOpportunities(() => opportunityService.getAll({ pageSize: 200, ...filters })).then((result) => {
+    void fetchOpportunities(() => opportunityService.getAll({ page, pageSize, ...filters })).then((result) => {
       if (result) setOpportunities(result)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, stageFilter, responsibleFilter, statusFilter])
+  }, [page, pageSize, search, stageFilter, responsibleFilter, statusFilter])
 
   const stageOptions = useMemo(
     () => stages.map((stage) => ({ value: stage.id.toString(), label: stage.name })),
@@ -93,7 +99,7 @@ export default function CommercialOpportunities() {
     if (responsibleFilter) filters.responsibleUserId = Number(responsibleFilter)
     if (statusFilter !== STATUS_ALL) filters.status = statusFilter as OpportunityListFilters['status']
 
-    void fetchOpportunities(() => opportunityService.getAll({ pageSize: 200, ...filters })).then((result) => {
+    void fetchOpportunities(() => opportunityService.getAll({ page, pageSize, ...filters })).then((result) => {
       if (result) setOpportunities(result)
     })
   }
@@ -205,8 +211,12 @@ export default function CommercialOpportunities() {
           onRowDoubleClick={(row) => navigate(`/comercial/oportunidades/${row.id}`)}
           emptyText={hasActiveFilters ? t('opportunities.empty.filtered') : t('opportunities.empty')}
           loading={loading}
-          pageSize={10}
-          pageSizeOptions={[5, 10, 20, 50]}
+          pageSize={pageSize}
+          pageSizeOptions={[10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 

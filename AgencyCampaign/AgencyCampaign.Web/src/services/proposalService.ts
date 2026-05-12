@@ -1,4 +1,5 @@
 import { httpClient } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 
 const BASE_URL = '/Proposals'
 
@@ -80,26 +81,6 @@ export interface UpdateProposalItemRequest {
   observations?: string
 }
 
-function normalizeProposalList(payload: unknown): Proposal[] {
-  if (Array.isArray(payload)) {
-    return payload
-  }
-
-  if (payload && typeof payload === 'object') {
-    const candidate = payload as { items?: unknown; Items?: unknown }
-
-    if (Array.isArray(candidate.items)) {
-      return candidate.items as Proposal[]
-    }
-
-    if (Array.isArray(candidate.Items)) {
-      return candidate.Items as Proposal[]
-    }
-  }
-
-  return []
-}
-
 export interface ProposalListFilters {
   search?: string
   status?: number
@@ -145,7 +126,7 @@ export interface CreateProposalShareLinkRequest {
 }
 
 export const proposalService = {
-  async getAll(params?: { page?: number; pageSize?: number } & ProposalListFilters): Promise<Proposal[]> {
+  getAll(params?: { page?: number; pageSize?: number } & ProposalListFilters): Promise<ApiResponse<Proposal[]>> {
     const searchParams = new URLSearchParams()
     if (params?.page) searchParams.set('page', params.page.toString())
     if (params?.pageSize) searchParams.set('pageSize', params.pageSize.toString())
@@ -158,8 +139,7 @@ export const proposalService = {
 
     const query = searchParams.toString()
     const url = query ? `${BASE_URL}/Get?${query}` : `${BASE_URL}/Get`
-    const response = await httpClient.get<unknown>(url)
-    return normalizeProposalList(response.data)
+    return httpClient.get<Proposal[]>(url)
   },
 
   async getById(id: number): Promise<Proposal | undefined> {

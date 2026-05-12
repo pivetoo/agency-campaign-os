@@ -20,12 +20,14 @@ export default function Campaigns() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
-  const { execute: fetchCampaigns, loading } = useApi<Campaign[]>({ showErrorMessage: true })
+  const { execute: fetchCampaigns, loading, pagination } = useApi<Campaign[]>({ showErrorMessage: true })
   const loadCampaigns = async () => {
-    const result = await fetchCampaigns(() => campaignService.getAll())
+    const result = await fetchCampaigns(() => campaignService.getAll({ page, pageSize }))
     if (result) {
       setCampaigns(result)
     }
@@ -33,7 +35,7 @@ export default function Campaigns() {
 
   useEffect(() => {
     void loadCampaigns()
-  }, [])
+  }, [page, pageSize])
 
   const columns: DataTableColumn<Campaign>[] = [
     { key: 'name', title: t('campaign.field.campaign'), dataIndex: 'name' },
@@ -85,8 +87,12 @@ export default function Campaigns() {
           onSelectionChange={(rows) => setSelectedCampaign(rows[0] ?? null)}
           emptyText={t('campaigns.empty')}
           loading={loading}
-          pageSize={10}
-          pageSizeOptions={[5, 10, 20, 50]}
+          pageSize={pageSize}
+          pageSizeOptions={[10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 
@@ -97,7 +103,11 @@ export default function Campaigns() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelectedCampaign(null)
-          void loadCampaigns()
+          if (page === 1) {
+            void loadCampaigns()
+          } else {
+            setPage(1)
+          }
         }}
       />
     </>

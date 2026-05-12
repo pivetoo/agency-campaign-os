@@ -29,17 +29,19 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   const { t } = useI18n()
   const isReceivable = type === 1
   const [entries, setEntries] = useState<FinancialEntry[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
   const [summary, setSummary] = useState<FinancialSummary | null>(null)
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
   const [filters, setFilters] = useState<FinancialEntryFilters>({})
   const [selected, setSelected] = useState<FinancialEntry | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isMarkPaidOpen, setIsMarkPaidOpen] = useState(false)
-  const { execute: fetchEntries, loading } = useApi<FinancialEntry[]>({ showErrorMessage: true })
+  const { execute: fetchEntries, loading, pagination } = useApi<FinancialEntry[]>({ showErrorMessage: true })
   const { execute: fetchSummary } = useApi<FinancialSummary | null>({ showErrorMessage: true })
 
   const loadEntries = async () => {
-    const result = await fetchEntries(() => financialEntryService.getAll({ ...filters, type }))
+    const result = await fetchEntries(() => financialEntryService.getAll({ ...filters, type, page, pageSize }))
     if (result) setEntries(result)
   }
 
@@ -49,16 +51,20 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   }
 
   useEffect(() => {
-    void loadEntries()
     void loadSummary()
     void financialAccountService.getAll(false).then(setAccounts)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type])
 
   useEffect(() => {
+    setPage(1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, type])
+
+  useEffect(() => {
     void loadEntries()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters])
+  }, [page, pageSize, filters, type])
 
   const statusLabels = isReceivable ? financialEntryReceivableStatusLabels : financialEntryStatusLabels
   const settledLabel = isReceivable ? 'Recebido no mês' : 'Pago no mês'
@@ -239,8 +245,12 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
               rowKey="id"
               emptyText={`Nenhum lançamento ${isReceivable ? 'a receber' : 'a pagar'} no período.`}
               loading={loading}
-              pageSize={15}
-              pageSizeOptions={[10, 20, 50, 100]}
+              pageSize={pageSize}
+              pageSizeOptions={[10, 20, 50]}
+              totalCount={pagination?.totalCount}
+              page={page}
+              onPageChange={setPage}
+              onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
             />
 
             <div className="flex justify-end">

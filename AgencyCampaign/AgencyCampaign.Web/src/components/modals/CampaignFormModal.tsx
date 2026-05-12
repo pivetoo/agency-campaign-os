@@ -48,7 +48,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
 
   useEffect(() => {
     if (open) {
-      void fetchBrands(() => brandService.getAll()).then((result) => {
+      void fetchBrands(() => brandService.getAll({ pageSize: 200 })).then((result) => {
         if (result) {
           setBrands(result)
         }

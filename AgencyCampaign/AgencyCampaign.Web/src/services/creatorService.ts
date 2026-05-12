@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { Creator } from '../types/creator'
 import type { PixKeyTypeValue } from '../types/creatorPayment'
 import type { CreatorCampaignEntry, CreatorSummary } from '../types/creatorSocialHandle'
@@ -29,9 +30,8 @@ export interface UpdateCreatorRequest extends CreateCreatorRequest {
 }
 
 export const creatorService = {
-  async getAll(): Promise<Creator[]> {
-    const response = await httpClient.get<Creator[]>(`${BASE_URL}/Get`)
-    return response.data ?? []
+  getAll(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<Creator[]>> {
+    return httpClient.get<Creator[]>(`${BASE_URL}/Get${buildPaginationQuery(params)}`)
   },
 
   create(data: CreateCreatorRequest) {

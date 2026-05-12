@@ -30,7 +30,7 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
-    void creatorService.getAll().then(setCreators)
+    void creatorService.getAll({ pageSize: 200 }).then((r) => setCreators(r.data ?? []))
   }, [])
 
   useEffect(() => {

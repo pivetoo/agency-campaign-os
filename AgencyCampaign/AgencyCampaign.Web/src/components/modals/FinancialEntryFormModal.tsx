@@ -75,7 +75,7 @@ export default function FinancialEntryFormModal({
     if (!open) return
     void financialAccountService.getAll(false).then(setAccounts)
     void financialSubcategoryService.getAll(false).then(setSubcategories)
-    void campaignService.getAll().then(setCampaigns)
+    void campaignService.getAll({ pageSize: 200 }).then((r) => setCampaigns(r.data ?? []))
   }, [open])
 
   useEffect(() => {

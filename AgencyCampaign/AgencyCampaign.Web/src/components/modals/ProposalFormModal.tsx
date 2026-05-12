@@ -26,7 +26,7 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
-    void opportunityService.getAll().then(setOpportunities)
+    void opportunityService.getAll({ pageSize: 200 }).then((r) => setOpportunities(r.data ?? []))
   }, [])
 
   useEffect(() => {

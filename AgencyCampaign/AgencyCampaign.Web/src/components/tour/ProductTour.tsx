@@ -97,7 +97,7 @@ const steps: KanvasStep[] = [
       'Ao abrir uma oportunidade, você vê tabs com Resumo, Propostas vinculadas, Negociações, Aprovações, Follow-ups e Timeline (audit trail completo). Comentários e anexos centralizam a colaboração interna.',
     resolveRoute: () =>
       firstAvailable(
-        () => opportunityService.getAll().then((items) => items.map((item) => ({ id: item.id }))),
+        () => opportunityService.getAll({ pageSize: 1 }).then((r) => (r.data ?? []).map((item) => ({ id: item.id }))),
         (id) => `/comercial/oportunidades/${id}`,
       ),
   },
@@ -117,7 +117,7 @@ const steps: KanvasStep[] = [
       'Na tela da proposta você gera link público para a marca aprovar (com tracking de visualização), baixa em PDF, versiona, converte em campanha quando aprovada e dispara e-mail automático nos eventos.',
     resolveRoute: () =>
       firstAvailable(
-        () => proposalService.getAll({ pageSize: 1 }).then((items) => items.map((item) => ({ id: item.id }))),
+        () => proposalService.getAll({ pageSize: 1 }).then((r) => (r.data ?? []).map((item) => ({ id: item.id }))),
         (id) => `/comercial/propostas/${id}`,
       ),
   },
@@ -170,7 +170,7 @@ const steps: KanvasStep[] = [
       'Perfil completo do creator: handles sociais (Instagram, TikTok, YouTube) com seguidores e engajamento, métricas de performance por plataforma, histórico de todas as campanhas em que participou, faturamento gerado e taxa de on-time delivery.',
     resolveRoute: () =>
       firstAvailable(
-        () => creatorService.getAll().then((items) => items.map((item) => ({ id: item.id }))),
+        () => creatorService.getAll({ pageSize: 1 }).then((r) => (r.data ?? []).map((item) => ({ id: item.id }))),
         (id) => `/creators/${id}`,
       ),
   },
@@ -190,7 +190,7 @@ const steps: KanvasStep[] = [
       'Tabs internas: Creators (status de participação), Documentos (contratos, briefings) e Entregas (deliverables com prazo, valor combinado, share link de aprovação para a marca, regra obrigatória de aprovação antes de publicar).',
     resolveRoute: () =>
       firstAvailable(
-        () => campaignService.getAll().then((items) => items.map((item) => ({ id: item.id }))),
+        () => campaignService.getAll({ pageSize: 1 }).then((r) => (r.data ?? []).map((item) => ({ id: item.id }))),
         (id) => `/campanhas/${id}`,
       ),
   },

@@ -1,4 +1,5 @@
 import { httpClient } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { FinancialEntry, FinancialSummary } from '../types/financialEntry'
 
 const BASE_URL = '/FinancialEntries'
@@ -52,17 +53,15 @@ export interface MarkAsPaidRequest {
 }
 
 export const financialEntryService = {
-  async getAll(filters: FinancialEntryFilters = {}): Promise<FinancialEntry[]> {
+  getAll(filters: FinancialEntryFilters = {}): Promise<ApiResponse<FinancialEntry[]>> {
     const params = new URLSearchParams()
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         params.append(key, String(value))
       }
     })
-    if (!params.has('pageSize')) params.append('pageSize', '500')
-    const response = await httpClient.get<FinancialEntry[]>(`${BASE_URL}/Get?${params.toString()}`)
-    // backend retorna paginado pelo Archon: data e o array, pagination vem fora
-    return Array.isArray(response.data) ? response.data : []
+    const query = params.toString()
+    return httpClient.get<FinancialEntry[]>(query ? `${BASE_URL}/Get?${query}` : `${BASE_URL}/Get`)
   },
 
   async getByCampaign(campaignId: number): Promise<FinancialEntry[]> {

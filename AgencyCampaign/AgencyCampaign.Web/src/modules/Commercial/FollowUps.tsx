@@ -92,7 +92,7 @@ export default function CommercialFollowUps() {
   const { execute: executeAction } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   const loadData = async () => {
-    const result = await fetchOpportunities(() => opportunityService.getAll())
+    const result = await fetchOpportunities(() => opportunityService.getAll({ pageSize: 200 }))
     if (result) setOpportunities(result)
   }
 

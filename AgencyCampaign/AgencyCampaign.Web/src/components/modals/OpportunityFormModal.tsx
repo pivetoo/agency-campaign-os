@@ -40,7 +40,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
-    void brandService.getAll().then(setBrands)
+    void brandService.getAll({ pageSize: 200 }).then((r) => setBrands(r.data ?? []))
     void commercialResponsibleService.getAll().then(setResponsibles)
     void opportunitySourceService.getAll(false).then(setSources)
     void opportunityTagService.getAll(false).then(setTags)

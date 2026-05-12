@@ -1,4 +1,5 @@
 import { httpClient } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { CommercialPipelineStage } from '../types/commercialPipelineStage'
 
 const BASE_URL = '/Opportunities'
@@ -275,26 +276,6 @@ export interface UpdateOpportunityFollowUpRequest {
   notes?: string
 }
 
-function normalizePagedItems<T>(payload: unknown): T[] {
-  if (Array.isArray(payload)) {
-    return payload
-  }
-
-  if (payload && typeof payload === 'object') {
-    const candidate = payload as { items?: unknown; Items?: unknown }
-
-    if (Array.isArray(candidate.items)) {
-      return candidate.items as T[]
-    }
-
-    if (Array.isArray(candidate.Items)) {
-      return candidate.Items as T[]
-    }
-  }
-
-  return []
-}
-
 export interface OpportunityListFilters {
   search?: string
   brandId?: number
@@ -308,7 +289,7 @@ export interface OpportunityListFilters {
 }
 
 export const opportunityService = {
-  async getAll(params?: { page?: number; pageSize?: number } & OpportunityListFilters): Promise<Opportunity[]> {
+  getAll(params?: { page?: number; pageSize?: number } & OpportunityListFilters): Promise<ApiResponse<Opportunity[]>> {
     const searchParams = new URLSearchParams()
     if (params?.page) searchParams.set('page', params.page.toString())
     if (params?.pageSize) searchParams.set('pageSize', params.pageSize.toString())
@@ -324,8 +305,7 @@ export const opportunityService = {
 
     const query = searchParams.toString()
     const url = query ? `${BASE_URL}/Get?${query}` : `${BASE_URL}/Get`
-    const response = await httpClient.get<unknown>(url)
-    return normalizePagedItems<Opportunity>(response.data)
+    return httpClient.get<Opportunity[]>(url)
   },
 
   async getById(id: number): Promise<Opportunity | null> {

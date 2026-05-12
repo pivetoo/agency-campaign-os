@@ -14,15 +14,17 @@ export default function Creators() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const [creators, setCreators] = useState<Creator[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
   const [previewCreator, setPreviewCreator] = useState<Creator | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isTokensOpen, setIsTokensOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
-  const { execute: fetchCreators, loading } = useApi<Creator[]>({ showErrorMessage: true })
+  const { execute: fetchCreators, loading, pagination } = useApi<Creator[]>({ showErrorMessage: true })
 
   const loadCreators = async () => {
-    const result = await fetchCreators(() => creatorService.getAll())
+    const result = await fetchCreators(() => creatorService.getAll({ page, pageSize }))
     if (result) {
       setCreators(result)
     }
@@ -30,7 +32,7 @@ export default function Creators() {
 
   useEffect(() => {
     void loadCreators()
-  }, [])
+  }, [page, pageSize])
 
   const renderPhotoCell = (_: unknown, record: Creator) => {
     const url = resolveCreatorPhotoUrl(record.photoUrl)
@@ -141,8 +143,12 @@ export default function Creators() {
             onRowDoubleClick={setPreviewCreator}
             emptyText={t('creators.empty')}
             loading={loading}
-            pageSize={10}
-            pageSizeOptions={[5, 10, 20, 50]}
+            pageSize={pageSize}
+            pageSizeOptions={[10, 20, 50]}
+            totalCount={pagination?.totalCount}
+            page={page}
+            onPageChange={setPage}
+            onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
           />
         </div>
       </PageLayout>
@@ -159,7 +165,11 @@ export default function Creators() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelectedCreator(null)
-          void loadCreators()
+          if (page === 1) {
+            void loadCreators()
+          } else {
+            setPage(1)
+          }
         }}
       />
 

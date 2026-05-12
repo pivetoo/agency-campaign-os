@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { Campaign, CampaignSummary } from '../types/campaign'
 
 const BASE_URL = '/Campaigns'
@@ -23,9 +24,8 @@ export interface UpdateCampaignRequest extends CreateCampaignRequest {
 }
 
 export const campaignService = {
-  async getAll(): Promise<Campaign[]> {
-    const response = await httpClient.get<Campaign[]>(`${BASE_URL}/Get`)
-    return response.data ?? []
+  getAll(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<Campaign[]>> {
+    return httpClient.get<Campaign[]>(`${BASE_URL}/Get${buildPaginationQuery(params)}`)
   },
 
   async getById(id: number): Promise<Campaign | null> {

@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { Brand } from '../types/brand'
 import { resolveUploadUrl } from '../lib/uploadUrl'
 
@@ -21,9 +22,8 @@ export interface UpdateBrandRequest extends CreateBrandRequest {
 }
 
 export const brandService = {
-  async getAll(): Promise<Brand[]> {
-    const response = await httpClient.get<Brand[]>(`${BASE_URL}/Get`)
-    return response.data ?? []
+  getAll(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<Brand[]>> {
+    return httpClient.get<Brand[]>(`${BASE_URL}/Get${buildPaginationQuery(params)}`)
   },
 
   create(data: CreateBrandRequest) {

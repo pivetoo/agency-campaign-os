@@ -65,7 +65,7 @@ export default function CreatorPaymentsPage() {
   }, [statusFilter, campaignId])
 
   const loadCampaigns = async () => {
-    const result = await fetchCampaigns(() => campaignService.getAll())
+    const result = await fetchCampaigns(() => campaignService.getAll({ pageSize: 200 }))
     if (result) setCampaigns(result)
   }
 

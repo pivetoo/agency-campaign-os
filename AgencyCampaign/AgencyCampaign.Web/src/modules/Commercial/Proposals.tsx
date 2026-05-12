@@ -60,6 +60,8 @@ export default function CommercialProposals() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const [proposals, setProposals] = useState<Proposal[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
   const [responsibles, setResponsibles] = useState<CommercialResponsible[]>([])
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -68,7 +70,7 @@ export default function CommercialProposals() {
   const [statusFilter, setStatusFilter] = useState<string>(STATUS_ALL)
   const [responsibleFilter, setResponsibleFilter] = useState('')
 
-  const { execute: fetchProposals, loading } = useApi<Proposal[]>({ showErrorMessage: true })
+  const { execute: fetchProposals, loading, pagination } = useApi<Proposal[]>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
@@ -89,15 +91,19 @@ export default function CommercialProposals() {
   }
 
   const loadProposals = async () => {
-    const result = await fetchProposals(() => proposalService.getAll({ pageSize: 200, ...buildFilters() }))
+    const result = await fetchProposals(() => proposalService.getAll({ page, pageSize, ...buildFilters() }))
     if (result) {
       setProposals(result)
     }
   }
 
   useEffect(() => {
-    void loadProposals()
+    setPage(1)
   }, [search, statusFilter, responsibleFilter])
+
+  useEffect(() => {
+    void loadProposals()
+  }, [page, pageSize, search, statusFilter, responsibleFilter])
 
   const responsibleOptions = useMemo(
     () => responsibles.map((item) => ({ value: item.id.toString(), label: item.name })),
@@ -305,8 +311,12 @@ export default function CommercialProposals() {
           onRowDoubleClick={(row) => navigate(`/comercial/propostas/${row.id}`)}
           emptyText={hasActiveFilters ? t('proposals.empty.filtered') : t('proposals.empty')}
           loading={loading}
-          pageSize={10}
-          pageSizeOptions={[5, 10, 20, 50]}
+          pageSize={pageSize}
+          pageSizeOptions={[10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 

@@ -36,7 +36,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
 
   useEffect(() => {
     if (open) {
-      void fetchCreators(() => creatorService.getAll()).then((result) => {
+      void fetchCreators(() => creatorService.getAll({ pageSize: 200 })).then((result) => {
         if (result) {
           setCreators(result.filter((creator) => creator.isActive))
         }

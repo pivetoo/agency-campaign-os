@@ -10,7 +10,7 @@ export default function Financial() {
   const { execute: fetchEntries, loading } = useApi<FinancialEntry[]>({ showErrorMessage: true })
 
   const loadEntries = async () => {
-    const result = await fetchEntries(() => financialEntryService.getAll())
+    const result = await fetchEntries(() => financialEntryService.getAll({ pageSize: 200 }))
     if (result) {
       setEntries(result)
     }
