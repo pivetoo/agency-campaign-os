@@ -15,21 +15,23 @@ export default function CampaignDocumentTemplates() {
   const [items, setItems] = useState<CampaignDocumentTemplate[]>([])
   const [selected, setSelected] = useState<CampaignDocumentTemplate | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const { execute: fetchAll, loading } = useApi<CampaignDocumentTemplate[]>({ showErrorMessage: true })
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const { execute: fetchAll, loading, pagination } = useApi<CampaignDocumentTemplate[]>({ showErrorMessage: true })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({
     showSuccessMessage: true,
     showErrorMessage: true,
   })
 
   const load = async () => {
-    const result = await fetchAll(() => campaignDocumentTemplateService.getAll())
+    const result = await fetchAll(() => campaignDocumentTemplateService.getAll({ page, pageSize }))
     if (result) setItems(result)
   }
 
   useEffect(() => {
     void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [page, pageSize])
 
   const handleDelete = async () => {
     if (!selected) return
@@ -100,8 +102,12 @@ export default function CampaignDocumentTemplates() {
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
           emptyText="Nenhum template cadastrado"
           loading={loading}
-          pageSize={10}
+          pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 

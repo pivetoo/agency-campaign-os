@@ -1,17 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Badge, Button, PageLayout, useApi, useI18n } from 'archon-ui'
+import { Badge, Button, PageLayout, useI18n } from 'archon-ui'
 import { ArrowRight, Building2, Check, CheckCircle2, ClipboardCheck, Clock, ExternalLink, Loader2, Sparkles } from 'lucide-react'
-import { opportunityService, type Opportunity, type OpportunityFollowUp } from '../../services/opportunityService'
+import { opportunityService, type OpportunityFollowUp, type FollowUpSummary } from '../../services/opportunityService'
 
 type StatusKey = 'overdue' | 'today' | 'upcoming' | 'completed'
-
-interface FollowUpRow extends OpportunityFollowUp {
-  opportunityId: number
-  opportunityName: string
-  brandName: string
-  estimatedValue: number
-}
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -52,97 +45,66 @@ const TONE_BADGE: Record<'overdue' | 'today' | 'upcoming' | 'completed', { varia
   completed: { variant: 'success', className: '' },
 }
 
-const STATUS_TABS: Array<{ key: StatusKey; labelKey: string; tone: 'destructive' | 'primary' | 'primary' | 'success' }> = [
-  { key: 'overdue', labelKey: 'followups.tab.overdue', tone: 'destructive' },
-  { key: 'today', labelKey: 'followups.tab.today', tone: 'primary' },
-  { key: 'upcoming', labelKey: 'followups.tab.upcoming', tone: 'primary' },
-  { key: 'completed', labelKey: 'followups.tab.completed', tone: 'success' },
+const STATUS_TABS: Array<{ key: StatusKey; labelKey: string }> = [
+  { key: 'overdue', labelKey: 'followups.tab.overdue' },
+  { key: 'today', labelKey: 'followups.tab.today' },
+  { key: 'upcoming', labelKey: 'followups.tab.upcoming' },
+  { key: 'completed', labelKey: 'followups.tab.completed' },
 ]
 
 const EMPTY_STATES: Record<StatusKey, { icon: typeof Clock; titleKey: string; subtitleKey: string }> = {
-  overdue: {
-    icon: CheckCircle2,
-    titleKey: 'followups.empty.overdue.title',
-    subtitleKey: 'followups.empty.overdue.subtitle',
-  },
-  today: {
-    icon: Sparkles,
-    titleKey: 'followups.empty.today.title',
-    subtitleKey: 'followups.empty.today.subtitle',
-  },
-  upcoming: {
-    icon: Clock,
-    titleKey: 'followups.empty.upcoming.title',
-    subtitleKey: 'followups.empty.upcoming.subtitle',
-  },
-  completed: {
-    icon: ClipboardCheck,
-    titleKey: 'followups.empty.completed.title',
-    subtitleKey: 'followups.empty.completed.subtitle',
-  },
+  overdue: { icon: CheckCircle2, titleKey: 'followups.empty.overdue.title', subtitleKey: 'followups.empty.overdue.subtitle' },
+  today: { icon: Sparkles, titleKey: 'followups.empty.today.title', subtitleKey: 'followups.empty.today.subtitle' },
+  upcoming: { icon: Clock, titleKey: 'followups.empty.upcoming.title', subtitleKey: 'followups.empty.upcoming.subtitle' },
+  completed: { icon: ClipboardCheck, titleKey: 'followups.empty.completed.title', subtitleKey: 'followups.empty.completed.subtitle' },
 }
 
 export default function CommercialFollowUps() {
   const { t } = useI18n()
   const navigate = useNavigate()
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+  const [followUps, setFollowUps] = useState<OpportunityFollowUp[]>([])
+  const [summary, setSummary] = useState<FollowUpSummary | null>(null)
   const [selectedStatus, setSelectedStatus] = useState<StatusKey>('overdue')
+  const [loading, setLoading] = useState(false)
   const [completingId, setCompletingId] = useState<number | null>(null)
-  const { execute: fetchOpportunities, loading } = useApi<Opportunity[]>({ showErrorMessage: true })
-  const { execute: executeAction } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
-  const loadData = async () => {
-    const result = await fetchOpportunities(() => opportunityService.getAll({ pageSize: 200 }))
-    if (result) setOpportunities(result)
+  const loadData = async (status: StatusKey) => {
+    setLoading(true)
+    try {
+      const [items, s] = await Promise.all([
+        opportunityService.getAllFollowUps(status),
+        opportunityService.getFollowUpsSummary(),
+      ])
+      setFollowUps(items)
+      setSummary(s)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
-    void loadData()
-  }, [])
+    void loadData(selectedStatus)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStatus])
 
-  const followUps = useMemo<FollowUpRow[]>(() => (
-    opportunities.flatMap((opportunity) =>
-      opportunity.followUps.map((followUp) => ({
-        ...followUp,
-        opportunityId: opportunity.id,
-        opportunityName: opportunity.name,
-        brandName: opportunity.brand?.name || '—',
-        estimatedValue: opportunity.estimatedValue ?? 0,
-      })),
-    ).sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime())
-  ), [opportunities])
-
-  const buckets = useMemo(() => {
-    const today = new Date(); today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1)
-
-    return {
-      overdue: followUps.filter((item) => !item.isCompleted && new Date(item.dueAt) < today),
-      today: followUps.filter((item) => !item.isCompleted && new Date(item.dueAt) >= today && new Date(item.dueAt) < tomorrow),
-      upcoming: followUps.filter((item) => !item.isCompleted && new Date(item.dueAt) >= tomorrow),
-      completed: followUps.filter((item) => item.isCompleted),
-    }
-  }, [followUps])
-
-  const visibleActivities = buckets[selectedStatus]
-  const emptyState = EMPTY_STATES[selectedStatus]
-  const EmptyIcon = emptyState.icon
-
-  const completeActivity = async (activity: FollowUpRow) => {
+  const completeActivity = async (activity: OpportunityFollowUp) => {
     setCompletingId(activity.id)
     try {
-      const result = await executeAction(() => opportunityService.completeFollowUp(activity.id))
-      if (result !== null) await loadData()
+      const result = await opportunityService.completeFollowUp(activity.id)
+      if (result !== null) await loadData(selectedStatus)
     } finally {
       setCompletingId(null)
     }
   }
 
+  const emptyState = EMPTY_STATES[selectedStatus]
+  const EmptyIcon = emptyState.icon
+
   return (
     <PageLayout
       title={t('followups.title')}
       subtitle={t('followups.subtitle')}
-      onRefresh={() => void loadData()}
+      onRefresh={() => void loadData(selectedStatus)}
       showDefaultActions={false}
       actions={[
         {
@@ -157,7 +119,7 @@ export default function CommercialFollowUps() {
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {STATUS_TABS.map((tab) => {
-            const count = buckets[tab.key].length
+            const count = summary?.[tab.key] ?? 0
             const isActive = selectedStatus === tab.key
             const colorClass = (() => {
               if (!isActive) return 'border-border bg-card hover:border-primary/40'
@@ -188,7 +150,7 @@ export default function CommercialFollowUps() {
           <div className="flex items-center justify-center rounded-xl border border-dashed py-16 text-sm text-muted-foreground">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('followups.loading')}
           </div>
-        ) : visibleActivities.length === 0 ? (
+        ) : followUps.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center text-muted-foreground">
             <EmptyIcon className="mb-3 h-10 w-10 opacity-50" />
             <p className="text-sm font-medium text-foreground">{t(emptyState.titleKey)}</p>
@@ -196,7 +158,7 @@ export default function CommercialFollowUps() {
           </div>
         ) : (
           <ul className="space-y-2">
-            {visibleActivities.map((activity) => {
+            {followUps.map((activity) => {
               const rel = relativeLabel(activity.dueAt, activity.isCompleted, t)
               const badge = TONE_BADGE[rel.tone]
               const isCompleting = completingId === activity.id
@@ -229,7 +191,7 @@ export default function CommercialFollowUps() {
 
                   <button
                     type="button"
-                    onClick={() => navigate(`/comercial/oportunidades/${activity.opportunityId}`)}
+                    onClick={() => activity.opportunityId && navigate(`/comercial/oportunidades/${activity.opportunityId}`)}
                     className="min-w-0 flex-1 cursor-pointer text-left"
                   >
                     <div className="flex flex-wrap items-center gap-2">
@@ -241,16 +203,22 @@ export default function CommercialFollowUps() {
                       </Badge>
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Building2 className="h-3 w-3" />
-                        {activity.brandName}
-                      </span>
-                      <span>·</span>
-                      <span className="truncate">{activity.opportunityName}</span>
-                      {activity.estimatedValue > 0 && (
+                      {activity.brandName && (
+                        <span className="flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          {activity.brandName}
+                        </span>
+                      )}
+                      {activity.opportunityName && (
                         <>
                           <span>·</span>
-                          <span className="font-medium text-foreground">{formatCurrency(activity.estimatedValue)}</span>
+                          <span className="truncate">{activity.opportunityName}</span>
+                        </>
+                      )}
+                      {(activity.estimatedValue ?? 0) > 0 && (
+                        <>
+                          <span>·</span>
+                          <span className="font-medium text-foreground">{formatCurrency(activity.estimatedValue ?? 0)}</span>
                         </>
                       )}
                     </div>
@@ -264,7 +232,7 @@ export default function CommercialFollowUps() {
                     variant="ghost"
                     onClick={(event) => {
                       event.stopPropagation()
-                      navigate(`/comercial/oportunidades/${activity.opportunityId}`)
+                      if (activity.opportunityId) navigate(`/comercial/oportunidades/${activity.opportunityId}`)
                     }}
                     className="opacity-0 transition-opacity group-hover:opacity-100"
                     title={t('followups.action.openOpportunity')}

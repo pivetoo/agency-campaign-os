@@ -1,4 +1,5 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
@@ -111,6 +112,51 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ThenBy(item => item.DueAt)
                 .ThenByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<IReadOnlyCollection<OpportunityFollowUp>> GetAllFollowUps(string? status, CancellationToken cancellationToken = default)
+        {
+            var today = DateTimeOffset.UtcNow.Date;
+            var tomorrow = today.AddDays(1);
+
+            var query = DbContext.Set<OpportunityFollowUp>()
+                .AsNoTracking()
+                .Include(item => item.Opportunity)
+                    .ThenInclude(o => o!.Brand);
+
+            query = status switch
+            {
+                "overdue" => query.Where(item => !item.IsCompleted && item.DueAt < today),
+                "today" => query.Where(item => !item.IsCompleted && item.DueAt >= today && item.DueAt < tomorrow),
+                "upcoming" => query.Where(item => !item.IsCompleted && item.DueAt >= tomorrow),
+                "completed" => query.Where(item => item.IsCompleted),
+                _ => query,
+            };
+
+            return await query
+                .OrderBy(item => item.IsCompleted)
+                .ThenBy(item => item.DueAt)
+                .ThenByDescending(item => item.Id)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<FollowUpSummaryModel> GetFollowUpsSummary(CancellationToken cancellationToken = default)
+        {
+            var today = DateTimeOffset.UtcNow.Date;
+            var tomorrow = today.AddDays(1);
+
+            var all = await DbContext.Set<OpportunityFollowUp>()
+                .AsNoTracking()
+                .Select(item => new { item.IsCompleted, item.DueAt })
+                .ToListAsync(cancellationToken);
+
+            return new FollowUpSummaryModel
+            {
+                Overdue = all.Count(item => !item.IsCompleted && item.DueAt < today),
+                Today = all.Count(item => !item.IsCompleted && item.DueAt >= today && item.DueAt < tomorrow),
+                Upcoming = all.Count(item => !item.IsCompleted && item.DueAt >= tomorrow),
+                Completed = all.Count(item => item.IsCompleted),
+            };
         }
 
         private async Task EnsureOpportunityExists(long opportunityId, CancellationToken cancellationToken)

@@ -1,10 +1,12 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Services;
+using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -119,6 +121,33 @@ namespace AgencyCampaign.Infrastructure.Services
                 .OrderByDescending(item => item.RequestedAt)
                 .ThenByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<PagedResult<OpportunityApprovalRequest>> GetAllApprovals(PagedRequest request, CancellationToken cancellationToken = default)
+        {
+            return await DbContext.Set<OpportunityApprovalRequest>()
+                .AsNoTracking()
+                .Include(item => item.OpportunityNegotiation)
+                    .ThenInclude(n => n!.Opportunity)
+                .OrderByDescending(item => item.RequestedAt)
+                .ThenByDescending(item => item.Id)
+                .ToPagedResultAsync(request, cancellationToken);
+        }
+
+        public async Task<ApprovalSummaryModel> GetApprovalsSummary(CancellationToken cancellationToken = default)
+        {
+            var counts = await DbContext.Set<OpportunityApprovalRequest>()
+                .AsNoTracking()
+                .GroupBy(item => item.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync(cancellationToken);
+
+            return new ApprovalSummaryModel
+            {
+                Pending = counts.FirstOrDefault(c => c.Status == OpportunityApprovalStatus.Pending)?.Count ?? 0,
+                Approved = counts.FirstOrDefault(c => c.Status == OpportunityApprovalStatus.Approved)?.Count ?? 0,
+                Rejected = counts.FirstOrDefault(c => c.Status == OpportunityApprovalStatus.Rejected)?.Count ?? 0,
+            };
         }
 
         private async Task<OpportunityApprovalRequest> GetTrackedApproval(long id, CancellationToken cancellationToken)

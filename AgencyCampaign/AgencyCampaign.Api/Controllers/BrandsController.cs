@@ -29,9 +29,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar as marcas cadastradas.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, CancellationToken cancellationToken)
         {
-            PagedResult<Brand> result = await brandService.GetBrands(request, cancellationToken);
+            PagedResult<Brand> result = await brandService.GetBrands(request, search, cancellationToken);
             return Http200(new PagedResult<BrandContract>
             {
                 Items = result.Items.Select(MapBrand).ToArray(),

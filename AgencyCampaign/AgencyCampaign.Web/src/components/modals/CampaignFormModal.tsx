@@ -44,17 +44,11 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
   const [brands, setBrands] = useState<Brand[]>([])
   const [responsibles, setResponsibles] = useState<CommercialResponsible[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
-  const { execute: fetchBrands } = useApi<Brand[]>({ showErrorMessage: true })
 
   useEffect(() => {
-    if (open) {
-      void fetchBrands(() => brandService.getAll({ pageSize: 200 })).then((result) => {
-        if (result) {
-          setBrands(result)
-        }
-      })
-      void commercialResponsibleService.getAll().then(setResponsibles)
-    }
+    if (!open) return
+    void brandService.getAll({ pageSize: 30 }).then((r) => setBrands(r.data ?? []))
+    void commercialResponsibleService.getAll().then(setResponsibles)
   }, [open])
 
   useEffect(() => {
@@ -129,6 +123,10 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
                 options={brands.map((brand) => ({ value: String(brand.id), label: brand.tradeName || brand.name }))}
                 placeholder={t('common.placeholder.select')}
                 searchPlaceholder={t('common.placeholder.search')}
+                onSearch={async (term) => {
+                  const r = await brandService.getAll({ search: term, pageSize: 20 })
+                  return (r.data ?? []).map((brand) => ({ value: String(brand.id), label: brand.tradeName || brand.name }))
+                }}
               />
             </div>
 

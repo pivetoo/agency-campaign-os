@@ -82,7 +82,7 @@ export default function CommercialProposalDetail() {
   useEffect(() => {
     if (!proposalId) return
     void loadProposal()
-    void campaignService.getAll({ pageSize: 200 }).then((r) => setCampaigns(r.data ?? []))
+    void campaignService.getAll({ pageSize: 30 }).then((r) => setCampaigns(r.data ?? []))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [proposalId])
 
@@ -299,6 +299,10 @@ export default function CommercialProposalDetail() {
                           options={campaignOptions}
                           placeholder={t('proposalDetail.convert.campaignPlaceholder')}
                           searchPlaceholder={t('proposalDetail.convert.campaignSearch')}
+                          onSearch={async (term) => {
+                            const r = await campaignService.getAll({ search: term, pageSize: 20 })
+                            return (r.data ?? []).map((campaign) => ({ value: String(campaign.id), label: campaign.name }))
+                          }}
                         />
                       </div>
                       <Button

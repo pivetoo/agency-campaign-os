@@ -274,6 +274,12 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
         public DateTimeOffset CreatedAt { get; init; }
 
         public DateTimeOffset? UpdatedAt { get; init; }
+
+        public long? OpportunityId { get; init; }
+
+        public string? OpportunityName { get; init; }
+
+        public string? NegotiationTitle { get; init; }
     }
 
     public sealed class OpportunityFollowUpContract
@@ -295,6 +301,12 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
         public DateTimeOffset CreatedAt { get; init; }
 
         public DateTimeOffset? UpdatedAt { get; init; }
+
+        public string? OpportunityName { get; init; }
+
+        public string? BrandName { get; init; }
+
+        public decimal? EstimatedValue { get; init; }
 
         public static Expression<Func<OpportunityFollowUp, OpportunityFollowUpContract>> Projection => item => new OpportunityFollowUpContract
         {

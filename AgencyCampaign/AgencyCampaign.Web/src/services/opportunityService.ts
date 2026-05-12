@@ -1,4 +1,4 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
 import type { ApiResponse } from 'archon-ui'
 import type { CommercialPipelineStage } from '../types/commercialPipelineStage'
 
@@ -41,6 +41,15 @@ export interface OpportunityApprovalRequest {
   decisionNotes?: string
   createdAt: string
   updatedAt?: string
+  opportunityId?: number
+  opportunityName?: string
+  negotiationTitle?: string
+}
+
+export interface ApprovalSummary {
+  pending: number
+  approved: number
+  rejected: number
 }
 
 export interface OpportunityFollowUp {
@@ -53,6 +62,16 @@ export interface OpportunityFollowUp {
   completedAt?: string
   createdAt: string
   updatedAt?: string
+  opportunityName?: string
+  brandName?: string
+  estimatedValue?: number
+}
+
+export interface FollowUpSummary {
+  overdue: number
+  today: number
+  upcoming: number
+  completed: number
 }
 
 export interface Opportunity {
@@ -410,6 +429,27 @@ export const opportunityService = {
 
   rejectRequest(id: number, data: DecideOpportunityApprovalRequest) {
     return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/Reject`, data)
+  },
+
+  getAllApprovals(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<OpportunityApprovalRequest[]>> {
+    const query = buildPaginationQuery(params)
+    return httpClient.get<OpportunityApprovalRequest[]>(`/OpportunityApprovals/Get${query}`)
+  },
+
+  async getApprovalsSummary(): Promise<ApprovalSummary | null> {
+    const response = await httpClient.get<ApprovalSummary>('/OpportunityApprovals/Summary')
+    return response.data ?? null
+  },
+
+  async getAllFollowUps(status?: string): Promise<OpportunityFollowUp[]> {
+    const url = status ? `${BASE_URL}/followups/Get?status=${encodeURIComponent(status)}` : `${BASE_URL}/followups/Get`
+    const response = await httpClient.get<OpportunityFollowUp[]>(url)
+    return response.data ?? []
+  },
+
+  async getFollowUpsSummary(): Promise<FollowUpSummary | null> {
+    const response = await httpClient.get<FollowUpSummary>(`${BASE_URL}/followups/Summary`)
+    return response.data ?? null
   },
 
   async getFollowUps(opportunityId: number): Promise<OpportunityFollowUp[]> {

@@ -75,7 +75,7 @@ export default function FinancialEntryFormModal({
     if (!open) return
     void financialAccountService.getAll(false).then(setAccounts)
     void financialSubcategoryService.getAll(false).then(setSubcategories)
-    void campaignService.getAll({ pageSize: 200 }).then((r) => setCampaigns(r.data ?? []))
+    void campaignService.getAll({ pageSize: 30 }).then((r) => setCampaigns(r.data ?? []))
   }, [open])
 
   useEffect(() => {
@@ -247,6 +247,10 @@ export default function FinancialEntryFormModal({
                 ]}
                 placeholder="Sem vínculo"
                 searchPlaceholder="Buscar campanha"
+                onSearch={async (term) => {
+                  const r = await campaignService.getAll({ search: term, pageSize: 20 })
+                  return (r.data ?? []).map((campaign) => ({ value: String(campaign.id), label: campaign.name }))
+                }}
               />
             </div>
 

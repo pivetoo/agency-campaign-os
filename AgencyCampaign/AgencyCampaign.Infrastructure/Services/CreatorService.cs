@@ -22,10 +22,15 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<PagedResult<Creator>> GetCreators(PagedRequest request, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<Creator>> GetCreators(PagedRequest request, string? search, CancellationToken cancellationToken = default)
         {
-            return await DbContext.Set<Creator>()
-                .AsNoTracking()
+            var query = DbContext.Set<Creator>().AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower) || (item.StageName != null && item.StageName.ToLower().Contains(lower)));
+            }
+            return await query
                 .OrderByDescending(item => item.IsActive)
                 .ThenByDescending(item => item.Id)
                 .ToPagedResultAsync(request, cancellationToken);

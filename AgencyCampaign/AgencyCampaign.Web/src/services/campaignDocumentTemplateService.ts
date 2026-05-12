@@ -17,12 +17,12 @@ export interface UpdateCampaignDocumentTemplateRequest extends CreateCampaignDoc
 }
 
 export const campaignDocumentTemplateService = {
-  async getAll(): Promise<CampaignDocumentTemplate[]> {
-    const response = await httpClient.get<{ items: CampaignDocumentTemplate[] }>(`${BASE_URL}/Get?pageSize=200`)
-    const data = response.data as unknown as { items: CampaignDocumentTemplate[] } | CampaignDocumentTemplate[] | null
-    if (!data) return []
-    if (Array.isArray(data)) return data
-    return data.items ?? []
+  getAll(params?: { page?: number; pageSize?: number }) {
+    const searchParams = new URLSearchParams()
+    if (params?.page) searchParams.set('page', params.page.toString())
+    if (params?.pageSize) searchParams.set('pageSize', params.pageSize.toString())
+    const query = searchParams.toString()
+    return httpClient.get<CampaignDocumentTemplate[]>(`${BASE_URL}/Get${query ? `?${query}` : ''}`)
   },
 
   async getById(id: number): Promise<CampaignDocumentTemplate | null> {

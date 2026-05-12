@@ -65,7 +65,7 @@ export default function CreatorPaymentsPage() {
   }, [statusFilter, campaignId])
 
   const loadCampaigns = async () => {
-    const result = await fetchCampaigns(() => campaignService.getAll({ pageSize: 200 }))
+    const result = await fetchCampaigns(() => campaignService.getAll({ pageSize: 30 }))
     if (result) setCampaigns(result)
   }
 
@@ -228,6 +228,10 @@ export default function CreatorPaymentsPage() {
               options={[{ value: '', label: t('financial.creatorPayments.placeholder.allCampaigns') }, ...campaigns.map((c) => ({ value: String(c.id), label: c.name }))]}
               placeholder={t('financial.creatorPayments.placeholder.allCampaigns')}
               searchPlaceholder="Buscar"
+              onSearch={async (term) => {
+                const r = await campaignService.getAll({ search: term, pageSize: 20 })
+                return (r.data ?? []).map((c) => ({ value: String(c.id), label: c.name }))
+              }}
             />
           </div>
           <div className="flex flex-wrap gap-2 ml-auto">

@@ -8,7 +8,7 @@ namespace AgencyCampaign.Application.Services
 {
     public interface ICreatorService : ICrudService<Creator>
     {
-        Task<PagedResult<Creator>> GetCreators(PagedRequest request, CancellationToken cancellationToken = default);
+        Task<PagedResult<Creator>> GetCreators(PagedRequest request, string? search, CancellationToken cancellationToken = default);
 
         IAsyncEnumerable<string> ExportAsync(CancellationToken cancellationToken = default);
 

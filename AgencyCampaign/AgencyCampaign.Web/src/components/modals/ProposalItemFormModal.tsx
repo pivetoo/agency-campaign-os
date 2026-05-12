@@ -30,8 +30,9 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
-    void creatorService.getAll({ pageSize: 200 }).then((r) => setCreators(r.data ?? []))
-  }, [])
+    if (!open) return
+    void creatorService.getAll({ pageSize: 30 }).then((r) => setCreators(r.data ?? []))
+  }, [open])
 
   useEffect(() => {
     if (item) {
@@ -110,6 +111,10 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
                 ]}
                 placeholder="Opcional"
                 searchPlaceholder={t('common.placeholder.search')}
+                onSearch={async (term) => {
+                  const r = await creatorService.getAll({ search: term, pageSize: 20 })
+                  return (r.data ?? []).map((creator) => ({ value: String(creator.id), label: creator.name }))
+                }}
               />
             </div>
 

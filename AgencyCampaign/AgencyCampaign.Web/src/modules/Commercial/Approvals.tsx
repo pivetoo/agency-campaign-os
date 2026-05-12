@@ -1,14 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageLayout, DataTable, Badge, Button, useApi, useAuth, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { opportunityService, type Opportunity, type OpportunityApprovalRequest } from '../../services/opportunityService'
-
-interface ApprovalRow extends OpportunityApprovalRequest {
-  opportunityId: number
-  opportunityName: string
-  negotiationTitle: string
-}
+import { opportunityService, type OpportunityApprovalRequest, type ApprovalSummary } from '../../services/opportunityService'
 
 const approvalTypeKeys: Record<number, string> = {
   1: 'approvals.type.discount',
@@ -28,39 +22,25 @@ export default function CommercialApprovals() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
-  const [selectedApproval, setSelectedApproval] = useState<ApprovalRow | null>(null)
-  const { execute: fetchOpportunities, loading } = useApi<Opportunity[]>({ showErrorMessage: true })
+  const [approvals, setApprovals] = useState<OpportunityApprovalRequest[]>([])
+  const [summary, setSummary] = useState<ApprovalSummary | null>(null)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
+  const [selectedApproval, setSelectedApproval] = useState<OpportunityApprovalRequest | null>(null)
+  const { execute: fetchApprovals, loading, pagination } = useApi<OpportunityApprovalRequest[]>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   const loadData = async () => {
-    const result = await fetchOpportunities(() => opportunityService.getAll({ pageSize: 200 }))
-    if (result) {
-      setOpportunities(result)
-    }
+    const result = await fetchApprovals(() => opportunityService.getAllApprovals({ page, pageSize }))
+    if (result) setApprovals(result)
+    const summaryResult = await opportunityService.getApprovalsSummary()
+    setSummary(summaryResult)
   }
 
   useEffect(() => {
     void loadData()
-  }, [])
-
-  const approvals = useMemo<ApprovalRow[]>(() => (
-    opportunities.flatMap((opportunity) =>
-      opportunity.negotiations.flatMap((negotiation) =>
-        (negotiation.approvalRequests ?? []).map((approval) => ({
-          ...approval,
-          opportunityId: opportunity.id,
-          opportunityName: opportunity.name,
-          negotiationTitle: negotiation.title,
-        })),
-      ),
-    )
-      .sort((a, b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime())
-  ), [opportunities])
-
-  const pendingApprovals = approvals.filter((approval) => approval.status === 1)
-  const approvedApprovals = approvals.filter((approval) => approval.status === 2)
-  const rejectedApprovals = approvals.filter((approval) => approval.status === 3)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize])
 
   const decideApproval = async (status: 'approve' | 'reject') => {
     if (!selectedApproval) {
@@ -84,10 +64,10 @@ export default function CommercialApprovals() {
     }
   }
 
-  const columns: DataTableColumn<ApprovalRow>[] = [
+  const columns: DataTableColumn<OpportunityApprovalRequest>[] = [
     { key: 'approvalType', title: t('common.field.type'), dataIndex: 'approvalType', render: (value: number) => approvalTypeKeys[value] ? t(approvalTypeKeys[value]) : '-' },
-    { key: 'opportunityName', title: t('approvals.field.opportunity'), dataIndex: 'opportunityName' },
-    { key: 'negotiationTitle', title: t('approvals.field.negotiation'), dataIndex: 'negotiationTitle' },
+    { key: 'opportunityName', title: t('approvals.field.opportunity'), dataIndex: 'opportunityName', render: (value?: string) => value || '-' },
+    { key: 'negotiationTitle', title: t('approvals.field.negotiation'), dataIndex: 'negotiationTitle', render: (value?: string) => value || '-' },
     { key: 'requestedByUserName', title: t('approvals.field.requestedBy'), dataIndex: 'requestedByUserName' },
     {
       key: 'status',
@@ -106,9 +86,9 @@ export default function CommercialApprovals() {
       showDefaultActions={false}
     >
       <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-4"><div className="text-sm text-muted-foreground">{t('approvals.kpi.pending')}</div><div className="text-2xl font-bold">{pendingApprovals.length}</div></div>
-        <div className="rounded-xl border border-border bg-card p-4"><div className="text-sm text-muted-foreground">{t('approvals.kpi.approved')}</div><div className="text-2xl font-bold text-emerald-600">{approvedApprovals.length}</div></div>
-        <div className="rounded-xl border border-border bg-card p-4"><div className="text-sm text-muted-foreground">{t('approvals.kpi.rejected')}</div><div className="text-2xl font-bold text-destructive">{rejectedApprovals.length}</div></div>
+        <div className="rounded-xl border border-border bg-card p-4"><div className="text-sm text-muted-foreground">{t('approvals.kpi.pending')}</div><div className="text-2xl font-bold">{summary?.pending ?? 0}</div></div>
+        <div className="rounded-xl border border-border bg-card p-4"><div className="text-sm text-muted-foreground">{t('approvals.kpi.approved')}</div><div className="text-2xl font-bold text-emerald-600">{summary?.approved ?? 0}</div></div>
+        <div className="rounded-xl border border-border bg-card p-4"><div className="text-sm text-muted-foreground">{t('approvals.kpi.rejected')}</div><div className="text-2xl font-bold text-destructive">{summary?.rejected ?? 0}</div></div>
       </div>
 
       <div className="mb-3 flex flex-wrap gap-2">
@@ -122,11 +102,15 @@ export default function CommercialApprovals() {
         rowKey="id"
         selectedRows={selectedApproval ? [selectedApproval] : []}
         onSelectionChange={(rows) => setSelectedApproval(rows[0] ?? null)}
-        onRowDoubleClick={(row) => navigate(`/comercial/oportunidades/${row.opportunityId}`)}
+        onRowDoubleClick={(row) => row.opportunityId && navigate(`/comercial/oportunidades/${row.opportunityId}`)}
         emptyText={t('approvals.empty')}
         loading={loading}
-        pageSize={10}
-        pageSizeOptions={[5, 10, 20, 50]}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 20, 50]}
+        totalCount={pagination?.totalCount}
+        page={page}
+        onPageChange={setPage}
+        onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
       />
     </PageLayout>
   )

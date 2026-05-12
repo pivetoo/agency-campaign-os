@@ -257,6 +257,35 @@ namespace AgencyCampaign.Api.Controllers
             return Http204();
         }
 
+        [RequireAccess("Permite listar todos os follow-ups.")]
+        [HttpGet("followups/Get")]
+        public async Task<IActionResult> GetAllFollowUps([FromQuery] string? status, CancellationToken cancellationToken)
+        {
+            IReadOnlyCollection<OpportunityFollowUp> followUps = await followUpService.GetAllFollowUps(status, cancellationToken);
+            return Http200(followUps.Select(followUp => new OpportunityFollowUpContract
+            {
+                Id = followUp.Id,
+                OpportunityId = followUp.OpportunityId,
+                Subject = followUp.Subject,
+                DueAt = followUp.DueAt,
+                Notes = followUp.Notes,
+                IsCompleted = followUp.IsCompleted,
+                CompletedAt = followUp.CompletedAt,
+                CreatedAt = followUp.CreatedAt,
+                UpdatedAt = followUp.UpdatedAt,
+                OpportunityName = followUp.Opportunity?.Name,
+                BrandName = followUp.Opportunity?.Brand?.Name,
+                EstimatedValue = followUp.Opportunity?.EstimatedValue,
+            }).ToList());
+        }
+
+        [RequireAccess("Permite consultar o resumo de follow-ups.")]
+        [HttpGet("followups/Summary")]
+        public async Task<IActionResult> GetFollowUpsSummary(CancellationToken cancellationToken)
+        {
+            return Http200(await followUpService.GetFollowUpsSummary(cancellationToken));
+        }
+
         [RequireAccess("Permite listar os follow-ups de uma oportunidade.")]
         [HttpGet("{opportunityId:long}/followups/GetFollowUps")]
         public async Task<IActionResult> GetFollowUps(long opportunityId, CancellationToken cancellationToken)

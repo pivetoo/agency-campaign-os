@@ -24,8 +24,10 @@ export interface UpdateCampaignRequest extends CreateCampaignRequest {
 }
 
 export const campaignService = {
-  getAll(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<Campaign[]>> {
-    return httpClient.get<Campaign[]>(`${BASE_URL}/Get${buildPaginationQuery(params)}`)
+  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<Campaign[]>> {
+    const query = buildPaginationQuery(params)
+    const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+    return httpClient.get<Campaign[]>(`${BASE_URL}/Get${query}${searchParam}`)
   },
 
   async getById(id: number): Promise<Campaign | null> {

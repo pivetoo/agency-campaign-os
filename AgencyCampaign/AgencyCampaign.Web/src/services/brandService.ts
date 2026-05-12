@@ -22,8 +22,10 @@ export interface UpdateBrandRequest extends CreateBrandRequest {
 }
 
 export const brandService = {
-  getAll(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<Brand[]>> {
-    return httpClient.get<Brand[]>(`${BASE_URL}/Get${buildPaginationQuery(params)}`)
+  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<Brand[]>> {
+    const query = buildPaginationQuery(params)
+    const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+    return httpClient.get<Brand[]>(`${BASE_URL}/Get${query}${searchParam}`)
   },
 
   create(data: CreateBrandRequest) {

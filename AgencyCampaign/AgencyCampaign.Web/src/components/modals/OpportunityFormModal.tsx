@@ -40,11 +40,12 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
-    void brandService.getAll({ pageSize: 200 }).then((r) => setBrands(r.data ?? []))
+    if (!open) return
+    void brandService.getAll({ pageSize: 30 }).then((r) => setBrands(r.data ?? []))
     void commercialResponsibleService.getAll().then(setResponsibles)
     void opportunitySourceService.getAll(false).then(setSources)
     void opportunityTagService.getAll(false).then(setTags)
-  }, [])
+  }, [open])
 
   useEffect(() => {
     if (opportunity) {
@@ -118,6 +119,10 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
                 options={brands.map((brand) => ({ value: String(brand.id), label: brand.name }))}
                 placeholder={t('common.placeholder.select')}
                 searchPlaceholder={t('common.placeholder.search')}
+                onSearch={async (term) => {
+                  const r = await brandService.getAll({ search: term, pageSize: 20 })
+                  return (r.data ?? []).map((brand) => ({ value: String(brand.id), label: brand.name }))
+                }}
               />
             </div>
 

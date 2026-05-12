@@ -27,9 +27,15 @@ namespace AgencyCampaign.Infrastructure.Services
             this.identityUsersClient = identityUsersClient;
         }
 
-        public async Task<PagedResult<Campaign>> GetCampaigns(PagedRequest request, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<Campaign>> GetCampaigns(PagedRequest request, string? search, CancellationToken cancellationToken = default)
         {
-            return await QueryWithDetails()
+            var query = QueryWithDetails();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower));
+            }
+            return await query
                 .OrderByDescending(item => item.IsActive)
                 .ThenByDescending(item => item.Id)
                 .ToPagedResultAsync(request, cancellationToken);

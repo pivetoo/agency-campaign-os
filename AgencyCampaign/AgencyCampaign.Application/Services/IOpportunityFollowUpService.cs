@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Services;
@@ -17,5 +18,9 @@ namespace AgencyCampaign.Application.Services
         Task DeleteOpportunityFollowUp(long id, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<OpportunityFollowUp>> GetFollowUpsByOpportunityId(long opportunityId, CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<OpportunityFollowUp>> GetAllFollowUps(string? status, CancellationToken cancellationToken = default);
+
+        Task<FollowUpSummaryModel> GetFollowUpsSummary(CancellationToken cancellationToken = default);
     }
 }

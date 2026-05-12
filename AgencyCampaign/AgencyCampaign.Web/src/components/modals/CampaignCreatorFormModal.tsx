@@ -31,26 +31,22 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
   const [creators, setCreators] = useState<Creator[]>([])
   const [statuses, setStatuses] = useState<CampaignCreatorStatus[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
-  const { execute: fetchCreators } = useApi<Creator[]>({ showErrorMessage: true })
   const { execute: fetchStatuses } = useApi<CampaignCreatorStatus[]>({ showErrorMessage: true })
 
   useEffect(() => {
-    if (open) {
-      void fetchCreators(() => creatorService.getAll({ pageSize: 200 })).then((result) => {
-        if (result) {
-          setCreators(result.filter((creator) => creator.isActive))
-        }
-      })
-      void fetchStatuses(() => campaignCreatorStatusService.getActive()).then((result) => {
-        if (result) {
-          setStatuses(result)
-          setFormData((prev) => ({
-            ...prev,
-            campaignCreatorStatusId: prev.campaignCreatorStatusId || result.find((s) => s.isInitial)?.id || result[0]?.id || 0,
-          }))
-        }
-      })
-    }
+    if (!open) return
+    void creatorService.getAll({ pageSize: 30 }).then((r) => {
+      setCreators((r.data ?? []).filter((c) => c.isActive))
+    })
+    void fetchStatuses(() => campaignCreatorStatusService.getActive()).then((result) => {
+      if (result) {
+        setStatuses(result)
+        setFormData((prev) => ({
+          ...prev,
+          campaignCreatorStatusId: prev.campaignCreatorStatusId || result.find((s) => s.isInitial)?.id || result[0]?.id || 0,
+        }))
+      }
+    })
   }, [open])
 
   useEffect(() => {
@@ -133,6 +129,16 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
                 placeholder={t('common.placeholder.select')}
                 searchPlaceholder={t('common.placeholder.search')}
                 disabled={isEditing}
+                onSearch={async (term) => {
+                  const r = await creatorService.getAll({ search: term, pageSize: 20 })
+                  const found = (r.data ?? []).filter((c) => c.isActive)
+                  setCreators((prev) => {
+                    const map = new Map(prev.map((c) => [c.id, c]))
+                    found.forEach((c) => map.set(c.id, c))
+                    return Array.from(map.values())
+                  })
+                  return found.map((c) => ({ value: String(c.id), label: `${c.stageName || c.name} · fee ${c.defaultAgencyFeePercent ?? 0}%` }))
+                }}
               />
             </div>
 

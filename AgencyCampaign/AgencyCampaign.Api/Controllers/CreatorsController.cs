@@ -29,9 +29,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar os creators cadastrados.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, CancellationToken cancellationToken)
         {
-            PagedResult<Creator> result = await creatorService.GetCreators(request, cancellationToken);
+            PagedResult<Creator> result = await creatorService.GetCreators(request, search, cancellationToken);
             return Http200(new PagedResult<CreatorContract>
             {
                 Items = result.Items.Select(MapCreator).ToArray(),

@@ -30,8 +30,10 @@ export interface UpdateCreatorRequest extends CreateCreatorRequest {
 }
 
 export const creatorService = {
-  getAll(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<Creator[]>> {
-    return httpClient.get<Creator[]>(`${BASE_URL}/Get${buildPaginationQuery(params)}`)
+  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<Creator[]>> {
+    const query = buildPaginationQuery(params)
+    const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+    return httpClient.get<Creator[]>(`${BASE_URL}/Get${query}${searchParam}`)
   },
 
   create(data: CreateCreatorRequest) {
