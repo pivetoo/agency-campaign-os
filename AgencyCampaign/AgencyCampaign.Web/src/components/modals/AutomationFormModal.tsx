@@ -12,6 +12,7 @@ import {
   useApi,
   useI18n,
 } from 'archon-ui'
+import { Plus, X } from 'lucide-react'
 import { automationService } from '../../services/automationService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import {
@@ -168,6 +169,18 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
     void integrationPlatformService.getPipelinesByIntegration(integrationId).then(setPipelines)
   }, [integrationId])
 
+  const addMappingRow = () => {
+    setMappingRows((prev) => [...prev, { id: `${Date.now()}`, key: '', value: '' }])
+  }
+
+  const updateMappingRow = (id: string, field: 'key' | 'value', val: string) => {
+    setMappingRows((prev) => prev.map((row) => row.id === id ? { ...row, [field]: val } : row))
+  }
+
+  const removeMappingRow = (id: string) => {
+    setMappingRows((prev) => prev.filter((row) => row.id !== id))
+  }
+
   const isValid = useMemo(
     () => name.trim().length >= 2 && connectorId !== null && pipelineId !== null,
     [name, connectorId, pipelineId],
@@ -273,6 +286,66 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
                 searchPlaceholder={t('modal.automation.placeholder.searchAction')}
               />
             </div>
+
+            {pipelineId && (
+              <div className="space-y-2 md:col-span-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-medium">Parâmetros do pipeline</p>
+                    <p className="text-xs text-muted-foreground">
+                      Valores fixos ou dinâmicos enviados ao pipeline quando a automação disparar.
+                    </p>
+                  </div>
+                  <Button type="button" size="sm" variant="outline" onClick={addMappingRow}>
+                    <Plus size={13} className="mr-1" />
+                    Adicionar
+                  </Button>
+                </div>
+
+                {mappingRows.length === 0 ? (
+                  <div className="rounded-lg border border-dashed px-4 py-3 text-xs text-muted-foreground">
+                    Nenhum parâmetro configurado. Exemplos: <code className="rounded bg-muted px-1">number</code>, <code className="rounded bg-muted px-1">text</code>, <code className="rounded bg-muted px-1">template_name</code>.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-[1fr_1fr_32px] gap-2 px-1">
+                      <span className="text-xs font-medium text-muted-foreground">Parâmetro</span>
+                      <span className="text-xs font-medium text-muted-foreground">Valor</span>
+                    </div>
+                    {mappingRows.map((row) => (
+                      <div key={row.id} className="grid grid-cols-[1fr_1fr_32px] items-center gap-2">
+                        <Input
+                          value={row.key}
+                          onChange={(e) => updateMappingRow(row.id, 'key', e.target.value)}
+                          placeholder="ex.: number"
+                          className="h-8 font-mono text-xs"
+                        />
+                        <Input
+                          value={row.value}
+                          onChange={(e) => updateMappingRow(row.id, 'value', e.target.value)}
+                          placeholder="valor ou {{ contact.phone }}"
+                          className="h-8 font-mono text-xs"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeMappingRow(row.id)}
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <p className="text-xs text-muted-foreground">
+                  Use <code className="rounded bg-muted px-1">{`{{ variavel }}`}</code> para injetar dados do evento, ex.:{' '}
+                  <code className="rounded bg-muted px-1">{`{{ contact.phone }}`}</code>,{' '}
+                  <code className="rounded bg-muted px-1">{`{{ proposal.name }}`}</code>,{' '}
+                  <code className="rounded bg-muted px-1">{`{{ entry.value }}`}</code>.
+                </p>
+              </div>
+            )}
 
             <label className="flex items-center gap-2 text-sm md:col-span-2">
               <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
