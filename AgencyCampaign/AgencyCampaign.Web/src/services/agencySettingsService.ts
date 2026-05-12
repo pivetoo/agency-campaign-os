@@ -40,11 +40,6 @@ export const agencySettingsService = {
     return httpClient.delete<AgencySettings>(`${BASE_URL}/RemoveLogo`)
   },
 
-  setDefaultEmailConnector(connectorId: number | null) {
-    const query = connectorId == null ? '' : `?connectorId=${connectorId}`
-    return httpClient.put<AgencySettings>(`${BASE_URL}/SetDefaultEmailConnector${query}`)
-  },
-
   getProposalLayouts() {
     return httpClient.get<ProposalLayout[]>(`${BASE_URL}/GetProposalLayouts`)
   },

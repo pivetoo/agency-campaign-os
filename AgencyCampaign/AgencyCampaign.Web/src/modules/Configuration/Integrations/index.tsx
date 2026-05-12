@@ -16,15 +16,13 @@ import {
   useApi,
   useI18n,
 } from 'archon-ui'
-import { CheckCircle2, CircleDashed, ExternalLink, GitBranch, Megaphone, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Star, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
+import { CheckCircle2, CircleDashed, ExternalLink, GitBranch, Megaphone, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
 import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
 import AutomationFormModal from '../../../components/modals/AutomationFormModal'
 import AutomationList from '../Automations/AutomationList'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import { automationService } from '../../../services/automationService'
-import { agencySettingsService } from '../../../services/agencySettingsService'
-import type { AgencySettings } from '../../../types/agencySettings'
 import type {
   Connector,
   IntegrationCategory,
@@ -87,27 +85,14 @@ export default function Integrations() {
   const [selectedAutomation, setSelectedAutomation] = useState<Automation | null>(null)
   const [automationPresetConnectorId, setAutomationPresetConnectorId] = useState<number | null>(null)
   const [automationsRefreshKey, setAutomationsRefreshKey] = useState(0)
-  const [agencySettings, setAgencySettings] = useState<AgencySettings | null>(null)
 
   const { execute: fetchCategories, loading: loadingCategories } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
   const { execute: fetchIntegrations, loading: loadingIntegrations } = useApi<IntegrationPlatformIntegration[]>({ showErrorMessage: true })
-  const { execute: runSetDefaultEmail } = useApi<AgencySettings | null>({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
     void loadCategories()
     void loadAutomations()
-    void agencySettingsService.get().then((s) => setAgencySettings(s))
   }, [])
-
-  const defaultEmailConnectorId = agencySettings?.defaultEmailConnectorId ?? null
-
-  const handleSetDefaultEmail = async (connectorId: number | null) => {
-    const result = await runSetDefaultEmail(async () => {
-      const response = await agencySettingsService.setDefaultEmailConnector(connectorId)
-      return response.data ?? null
-    })
-    if (result) setAgencySettings(result)
-  }
 
   useEffect(() => {
     if (selectedCategoryId) {
@@ -162,11 +147,6 @@ export default function Integrations() {
     () => integrations.find((integration) => integration.id === selectedIntegrationId) ?? null,
     [integrations, selectedIntegrationId],
   )
-
-  const isEmailCategory = useMemo(() => {
-    const name = selectedCategory?.name?.toLowerCase() ?? ''
-    return name.includes('email') || name.includes('e-mail')
-  }, [selectedCategory])
 
   const connectorsForSelectedIntegration = useMemo(
     () => connectors.filter((connector) => connector.integrationId === selectedIntegrationId),
@@ -541,29 +521,6 @@ export default function Integrations() {
                                   )}
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  {isEmailCategory && connector.isActive && (
-                                    defaultEmailConnectorId === connector.id ? (
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        title={t('configuration.integrations.action.removeDefault')}
-                                        onClick={() => void handleSetDefaultEmail(null)}
-                                      >
-                                        <Star size={14} className="mr-1 fill-amber-500 text-amber-500" />
-                                        E-mail padrão
-                                      </Button>
-                                    ) : (
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        title={t('configuration.integrations.action.setDefault')}
-                                        onClick={() => void handleSetDefaultEmail(connector.id)}
-                                      >
-                                        <Star size={14} className="mr-1" />
-                                        E-mail padrão
-                                      </Button>
-                                    )
-                                  )}
                                   {connector.isActive && (
                                     <Button
                                       size="sm"

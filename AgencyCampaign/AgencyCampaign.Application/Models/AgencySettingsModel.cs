@@ -11,7 +11,6 @@ namespace AgencyCampaign.Application.Models
         public string? Address { get; set; }
         public string? LogoUrl { get; set; }
         public string? PrimaryColor { get; set; }
-        public long? DefaultEmailConnectorId { get; set; }
         public string? ProposalHtmlTemplate { get; set; }
     }
 }

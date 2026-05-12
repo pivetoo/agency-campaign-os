@@ -30,6 +30,5 @@ namespace AgencyCampaign.Application.Requests.AgencySettings
         [StringLength(32)]
         public string? PrimaryColor { get; set; }
 
-        public long? DefaultEmailConnectorId { get; set; }
     }
 }

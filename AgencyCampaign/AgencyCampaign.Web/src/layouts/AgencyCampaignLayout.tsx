@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Blocks, Sparkles, Tag, Mail, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Blocks, Sparkles, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
@@ -137,7 +137,6 @@ export default function AgencyCampaignLayout() {
       { key: 'configuracao-pipeline-comercial', label: t('nav.item.commercialFunnel'), path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
       { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
       { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
-      { key: 'configuracao-templates-email', label: t('nav.item.emailTemplates'), path: '/configuracao/templates-email', icon: <Mail size={20} /> },
       { key: 'configuracao-templates-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/templates-proposta', icon: <FileSignature size={20} /> },
       { key: 'configuracao-template-proposta', label: t('nav.item.proposalTemplate'), path: '/configuracao/template-proposta', icon: <Paintbrush size={20} /> },
       { key: 'configuracao-blocos-proposta', label: t('nav.item.proposalBlocks'), path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
@@ -206,7 +205,6 @@ export default function AgencyCampaignLayout() {
       '/configuracao/blocos-proposta': t('nav.item.proposalBlocks'),
       '/configuracao/origens-oportunidade': t('nav.item.opportunitySources'),
       '/configuracao/tags-oportunidade': t('nav.item.opportunityTags'),
-      '/configuracao/templates-email': t('nav.item.emailTemplates'),
       '/configuracao/templates-documento': t('nav.item.contractTemplates'),
       '/configuracao/contas-financeiras': t('nav.item.bankAccounts'),
       '/configuracao/subcategorias-financeiras': t('nav.item.financialSubcategories'),

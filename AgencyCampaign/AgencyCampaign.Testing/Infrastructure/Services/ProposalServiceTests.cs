@@ -16,7 +16,6 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     public sealed class ProposalServiceTests
     {
         private TestDbContext db = null!;
-        private Mock<IEmailService> emailService = null!;
         private Mock<IFinancialAutoGeneration> financial = null!;
         private Mock<IAutomationDispatcher> automation = null!;
         private Mock<INotificationService> notifications = null!;
@@ -26,12 +25,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            emailService = new Mock<IEmailService>();
             financial = new Mock<IFinancialAutoGeneration>();
             automation = new Mock<IAutomationDispatcher>();
             notifications = new Mock<INotificationService>();
             service = new ProposalService(db, LocalizerMock.Create<AgencyCampaignResource>(), CurrentUserMock.Create(),
-                emailService.Object, financial.Object, automation.Object, notifications.Object);
+                financial.Object, automation.Object, notifications.Object);
         }
 
         [TearDown]
@@ -88,7 +86,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task MarkAsSent_should_create_proposal_version_and_notify_email()
+        public async Task MarkAsSent_should_create_proposal_version_and_dispatch_automation()
         {
             Opportunity opportunity = await SeedOpportunityAsync();
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
@@ -96,8 +94,8 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await service.MarkAsSent(proposal.Id);
 
             (await db.Set<ProposalVersion>().CountAsync()).Should().Be(1);
-            emailService.Verify(item => item.SendForEvent(EmailEventType.ProposalSent, It.IsAny<IReadOnlyCollection<string>>(),
-                It.IsAny<IReadOnlyDictionary<string, object?>>(), It.IsAny<CancellationToken>()), Times.Once);
+            automation.Verify(item => item.DispatchAsync(AutomationTriggers.ProposalSent,
+                It.IsAny<IDictionary<string, object?>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]

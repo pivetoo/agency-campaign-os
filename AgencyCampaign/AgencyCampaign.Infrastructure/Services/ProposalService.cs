@@ -20,16 +20,14 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
-        private readonly IEmailService emailService;
         private readonly IFinancialAutoGeneration financialAutoGeneration;
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
 
-        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IEmailService emailService, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService) : base(dbContext)
+        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService) : base(dbContext)
         {
             this.localizer = localizer;
             this.currentUser = currentUser;
-            this.emailService = emailService;
             this.financialAutoGeneration = financialAutoGeneration;
             this.automationDispatcher = automationDispatcher;
             this.notificationService = notificationService;
@@ -191,7 +189,7 @@ namespace AgencyCampaign.Infrastructure.Services
             proposal.MarkAsSent(currentUser.UserId, currentUser.UserName);
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
-            await NotifyEmail(EmailEventType.ProposalSent, saved, cancellationToken);
+            await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
             return saved;
         }
 
@@ -240,7 +238,7 @@ namespace AgencyCampaign.Infrastructure.Services
             proposal.Approve(currentUser.UserId, currentUser.UserName);
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
-            await NotifyEmail(EmailEventType.ProposalApproved, saved, cancellationToken);
+            await NotifyAutomations(AutomationTriggers.ProposalApproved, saved, cancellationToken);
             await TryNotify(KanvasNotifications.ProposalApproved(saved), cancellationToken);
             return saved;
         }
@@ -251,7 +249,7 @@ namespace AgencyCampaign.Infrastructure.Services
             proposal.Reject(currentUser.UserId, currentUser.UserName);
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
-            await NotifyEmail(EmailEventType.ProposalRejected, saved, cancellationToken);
+            await NotifyAutomations(AutomationTriggers.ProposalRejected, saved, cancellationToken);
             await TryNotify(KanvasNotifications.ProposalRejected(saved), cancellationToken);
             return saved;
         }
@@ -282,7 +280,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 Console.WriteLine($"[ProposalService] failed to generate financial entry for proposal {saved.Id}: {exception.Message}");
             }
 
-            await NotifyEmail(EmailEventType.ProposalConverted, saved, cancellationToken);
+            await NotifyAutomations(AutomationTriggers.ProposalConverted, saved, cancellationToken);
             await TryNotify(KanvasNotifications.ProposalConverted(saved, campaignId), cancellationToken);
             return saved;
         }
@@ -299,7 +297,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
         }
 
-        private async Task NotifyEmail(EmailEventType eventType, Proposal proposal, CancellationToken cancellationToken)
+        private async Task NotifyAutomations(string trigger, Proposal proposal, CancellationToken cancellationToken)
         {
             Dictionary<string, object?> payload = new(StringComparer.OrdinalIgnoreCase)
             {
@@ -314,31 +312,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 ["responsibleName"] = proposal.InternalOwnerName
             };
 
-            string? recipient = proposal.Opportunity?.ContactEmail;
-            if (!string.IsNullOrWhiteSpace(recipient))
-            {
-                try
-                {
-                    await emailService.SendForEvent(eventType, new[] { recipient }, payload, cancellationToken);
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine($"[ProposalService] failed to dispatch email for {eventType}: {exception.Message}");
-                }
-            }
-
-            string trigger = eventType switch
-            {
-                EmailEventType.ProposalSent => AutomationTriggers.ProposalSent,
-                EmailEventType.ProposalApproved => AutomationTriggers.ProposalApproved,
-                EmailEventType.ProposalRejected => AutomationTriggers.ProposalRejected,
-                EmailEventType.ProposalConverted => AutomationTriggers.ProposalConverted,
-                _ => string.Empty
-            };
-
-            if (!string.IsNullOrEmpty(trigger))
+            try
             {
                 await automationDispatcher.DispatchAsync(trigger, payload, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[ProposalService] failed to dispatch automation for {trigger}: {exception.Message}");
             }
         }
 

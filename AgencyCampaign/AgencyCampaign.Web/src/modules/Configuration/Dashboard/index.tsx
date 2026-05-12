@@ -4,7 +4,6 @@ import { Card, CardContent, Badge, Button, useApi, useI18n } from 'archon-ui'
 import { ResponsivePie } from '@nivo/pie'
 import {
   Building2,
-  Mail,
   Plug,
   Wallet,
   Zap,
@@ -17,13 +16,11 @@ import {
 } from 'lucide-react'
 import { agencySettingsService } from '../../../services/agencySettingsService'
 import { automationService } from '../../../services/automationService'
-import { emailTemplateService } from '../../../services/emailTemplateService'
 import { financialAccountService } from '../../../services/financialAccountService'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import { automationTriggerLabels } from '../../../types/automationTrigger'
 import type { AgencySettings } from '../../../types/agencySettings'
 import type { Automation } from '../../../types/automation'
-import type { EmailTemplate } from '../../../types/emailTemplate'
 import type { FinancialAccount } from '../../../types/financialAccount'
 import type { IntegrationCategory } from '../../../types/integrationPlatform'
 
@@ -46,23 +43,20 @@ export default function ConfigurationDashboard() {
   const navigate = useNavigate()
   const [agency, setAgency] = useState<AgencySettings | null>(null)
   const [automations, setAutomations] = useState<Automation[]>([])
-  const [templates, setTemplates] = useState<EmailTemplate[]>([])
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
   const [categories, setCategories] = useState<IntegrationCategory[]>([])
   const { execute: runLoad, loading } = useApi<unknown>({ showErrorMessage: true })
 
   const load = async () => {
     await runLoad(async () => {
-      const [agencyResult, automationsResult, templatesResult, accountsResult, categoriesResult] = await Promise.all([
+      const [agencyResult, automationsResult, accountsResult, categoriesResult] = await Promise.all([
         agencySettingsService.get(),
         automationService.getAutomations(1, 100),
-        emailTemplateService.getAll(true),
         financialAccountService.getAll(true),
         integrationPlatformService.getActiveIntegrationCategories().catch(() => [] as IntegrationCategory[]),
       ])
       setAgency(agencyResult)
       setAutomations(automationsResult.items)
-      setTemplates(templatesResult)
       setAccounts(accountsResult)
       setCategories(categoriesResult)
       return null
@@ -75,7 +69,6 @@ export default function ConfigurationDashboard() {
   }, [])
 
   const activeAutomations = useMemo(() => automations.filter((a) => a.isActive), [automations])
-  const activeTemplates = useMemo(() => templates.filter((t) => t.isActive), [templates])
   const activeAccounts = useMemo(() => accounts.filter((a) => a.isActive), [accounts])
 
   const automationByModule = useMemo(() => {
@@ -106,16 +99,6 @@ export default function ConfigurationDashboard() {
         label: 'Logo da agência',
         ok: !!agency?.logoUrl,
         cta: () => navigate('/configuracao/empresa'),
-      },
-      {
-        label: 'Conta padrão de e-mail',
-        ok: !!agency?.defaultEmailConnectorId,
-        cta: () => navigate('/configuracao/integracoes'),
-      },
-      {
-        label: 'Templates de e-mail ativos',
-        ok: activeTemplates.length > 0,
-        cta: () => navigate('/configuracao/templates-email'),
       },
       {
         label: 'Conta financeira cadastrada',
@@ -158,16 +141,6 @@ export default function ConfigurationDashboard() {
               <p className="text-[10px] text-muted-foreground">{automations.length - activeAutomations.length} inativas</p>
             </div>
             <span className="rounded-md bg-primary/15 p-2 text-primary"><Zap size={18} /></span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-5 pb-5 flex items-start justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('configuration.dashboard.kpi.emailTemplates')}</p>
-              <p className="text-2xl font-semibold mt-1">{activeTemplates.length}</p>
-              <p className="text-[10px] text-muted-foreground">{templates.length} no total</p>
-            </div>
-            <span className="rounded-md bg-primary/15 p-2 text-primary"><Mail size={18} /></span>
           </CardContent>
         </Card>
         <Card>
@@ -326,14 +299,6 @@ export default function ConfigurationDashboard() {
               >
                 <Building2 size={16} className="text-primary" />
                 <span>{t('configuration.dashboard.shortcut.agencyData')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/configuracao/templates-email')}
-                className="flex w-full items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm hover:border-primary/40"
-              >
-                <Mail size={16} className="text-primary" />
-                <span>{t('configuration.dashboard.shortcut.emailTemplates')}</span>
               </button>
               <button
                 type="button"

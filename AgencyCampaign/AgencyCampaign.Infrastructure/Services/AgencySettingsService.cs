@@ -37,8 +37,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Phone,
                 request.Address,
                 request.LogoUrl,
-                request.PrimaryColor,
-                request.DefaultEmailConnectorId);
+                request.PrimaryColor);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return Map(settings);
@@ -56,23 +55,6 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             AgencySettings settings = await ResolveOrCreate(cancellationToken);
             settings.SetLogo(null);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            return Map(settings);
-        }
-
-        public async Task<AgencySettingsModel> SetDefaultEmailConnector(long? connectorId, CancellationToken cancellationToken = default)
-        {
-            AgencySettings settings = await ResolveOrCreate(cancellationToken);
-            settings.Update(
-                settings.AgencyName,
-                settings.TradeName,
-                settings.Document,
-                settings.PrimaryEmail,
-                settings.Phone,
-                settings.Address,
-                settings.LogoUrl,
-                settings.PrimaryColor,
-                connectorId);
             await dbContext.SaveChangesAsync(cancellationToken);
             return Map(settings);
         }
@@ -211,7 +193,6 @@ namespace AgencyCampaign.Infrastructure.Services
             Address = settings.Address,
             LogoUrl = settings.LogoUrl,
             PrimaryColor = settings.PrimaryColor,
-            DefaultEmailConnectorId = settings.DefaultEmailConnectorId,
             ProposalHtmlTemplate = settings.ProposalHtmlTemplate
         };
     }
