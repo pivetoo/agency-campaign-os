@@ -125,10 +125,6 @@ export default function Integrations() {
     if (!result) return
 
     setIntegrations(result)
-    setSelectedIntegrationId((prev) => {
-      if (prev && result.some((item) => item.id === prev)) return prev
-      return result[0]?.id ?? null
-    })
 
     const allConnectors: Connector[] = []
     for (const integration of result) {
@@ -136,6 +132,19 @@ export default function Integrations() {
       allConnectors.push(...connectorsForIntegration)
     }
     setConnectors(allConnectors)
+
+    const connectedIds = new Set(
+      allConnectors.filter((c) => c.isActive).map((c) => c.integrationId),
+    )
+    const sorted = [...result].sort((a, b) => {
+      const aConnected = connectedIds.has(a.id) ? 0 : 1
+      const bConnected = connectedIds.has(b.id) ? 0 : 1
+      return aConnected - bConnected
+    })
+    setSelectedIntegrationId((prev) => {
+      if (prev && result.some((item) => item.id === prev)) return prev
+      return sorted[0]?.id ?? null
+    })
   }
 
   const selectedCategory = useMemo(
