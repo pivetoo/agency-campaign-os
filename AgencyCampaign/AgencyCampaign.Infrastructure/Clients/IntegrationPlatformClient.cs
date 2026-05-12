@@ -406,7 +406,7 @@ namespace AgencyCampaign.Infrastructure.Clients
     {
         public long ConnectorId { get; set; }
         public long PipelineId { get; set; }
-        public Dictionary<string, object>? InputData { get; set; }
+        public string? InputData { get; set; }
     }
 
     public sealed class EnqueuePipelineRequest

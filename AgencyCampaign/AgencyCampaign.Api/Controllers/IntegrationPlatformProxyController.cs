@@ -3,6 +3,7 @@ using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace AgencyCampaign.Api.Controllers
 {
@@ -157,7 +158,7 @@ namespace AgencyCampaign.Api.Controllers
                 {
                     ConnectorId = payload.ConnectorId,
                     PipelineId = payload.PipelineId,
-                    InputData = payload.InputData
+                    InputData = payload.InputData is not null ? JsonSerializer.Serialize(payload.InputData) : null
                 },
                 cancellationToken);
 
@@ -228,7 +229,7 @@ namespace AgencyCampaign.Api.Controllers
                     {
                         ConnectorId = connectorId,
                         PipelineId = testPipeline.Id,
-                        InputData = payload?.InputData ?? new Dictionary<string, object> { ["test"] = true }
+                        InputData = JsonSerializer.Serialize(payload?.InputData ?? new Dictionary<string, object> { ["test"] = true })
                     },
                     cancellationToken);
                 stopwatch.Stop();
