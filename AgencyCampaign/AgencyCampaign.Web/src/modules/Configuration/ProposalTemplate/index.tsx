@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Editor, { type OnMount } from '@monaco-editor/react'
-import { Button, useApi, useI18n } from 'archon-ui'
+import { Button, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import { Braces, ChevronDown, List, RefreshCw, Trash2 } from 'lucide-react'
 import { agencySettingsService } from '../../../services/agencySettingsService'
 import type { ProposalLayout, ProposalTemplateVersion } from '../../../services/agencySettingsService'
@@ -67,6 +67,7 @@ export default function ProposalTemplate() {
   const [savePickerOpen, setSavePickerOpen] = useState(false)
   const [newVersionName, setNewVersionName] = useState('')
   const [newVersionActivate, setNewVersionActivate] = useState(true)
+  const [versionToDelete, setVersionToDelete] = useState<ProposalTemplateVersion | null>(null)
 
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null)
   const varPickerRef = useRef<HTMLDivElement | null>(null)
@@ -81,7 +82,7 @@ export default function ProposalTemplate() {
     showErrorMessage: true,
   })
   const { execute: runActivate } = useApi<ProposalTemplateVersion>({ showSuccessMessage: true, showErrorMessage: true })
-  const { execute: runDelete } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: runPreview } = useApi<{ html: string }>({ showErrorMessage: false })
 
   const loadVersions = useCallback(async () => {
@@ -230,12 +231,11 @@ export default function ProposalTemplate() {
     }
   }
 
-  const handleDelete = async (version: ProposalTemplateVersion) => {
-    if (!window.confirm(t('configuration.proposalTemplate.confirm.deleteVersion').replace('{0}', version.name))) {
-      return
-    }
-    const result = await runDelete(() => agencySettingsService.deleteProposalTemplateVersion(version.id))
+  const handleDelete = async () => {
+    if (!versionToDelete) return
+    const result = await runDelete(() => agencySettingsService.deleteProposalTemplateVersion(versionToDelete.id))
     if (result !== null) {
+      setVersionToDelete(null)
       const updated = await loadVersions()
       if (updated) {
         setVersions(updated)
@@ -244,6 +244,15 @@ export default function ProposalTemplate() {
   }
 
   return (
+    <>
+    <ConfirmModal
+      open={versionToDelete !== null}
+      onOpenChange={(open) => { if (!open) setVersionToDelete(null) }}
+      description={t('configuration.proposalTemplate.confirm.deleteVersion').replace('{0}', versionToDelete?.name ?? '')}
+      variant="danger"
+      onConfirm={() => void handleDelete()}
+      loading={deleting}
+    />
     <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 100px)' }}>
       <div className="flex shrink-0 items-center justify-between gap-3 border-b bg-background px-4 py-2.5">
         <div className="flex items-center gap-1.5">
@@ -384,7 +393,7 @@ export default function ProposalTemplate() {
                           )}
                           <button
                             type="button"
-                            onClick={() => void handleDelete(version)}
+                            onClick={() => setVersionToDelete(version)}
                             className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                           >
                             <Trash2 className="h-3 w-3" />
@@ -446,5 +455,6 @@ export default function ProposalTemplate() {
         </div>
       </div>
     </div>
+    </>
   )
 }

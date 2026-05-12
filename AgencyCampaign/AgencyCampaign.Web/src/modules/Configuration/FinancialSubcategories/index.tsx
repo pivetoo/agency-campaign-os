@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { financialSubcategoryService } from '../../../services/financialSubcategoryService'
@@ -12,6 +12,7 @@ export default function FinancialSubcategories() {
   const [items, setItems] = useState<FinancialSubcategory[]>([])
   const [selected, setSelected] = useState<FinancialSubcategory | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const { execute: fetchAll, loading } = useApi<FinancialSubcategory[]>({ showErrorMessage: true })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
@@ -27,10 +28,10 @@ export default function FinancialSubcategories() {
 
   const handleDelete = async () => {
     if (!selected) return
-    if (!window.confirm(t('configuration.financialSubcategories.confirm.delete').replace('{0}', selected.name))) return
     const result = await runDelete(() => financialSubcategoryService.delete(selected.id))
     if (result !== null) {
       setSelected(null)
+      setIsConfirmOpen(false)
       void load()
     }
   }
@@ -79,7 +80,7 @@ export default function FinancialSubcategories() {
             icon: <Trash2 className="h-4 w-4" />,
             variant: 'outline-danger',
             disabled: !selected || deleting,
-            onClick: () => void handleDelete(),
+            onClick: () => setIsConfirmOpen(true),
           },
         ]}
       >
@@ -95,6 +96,15 @@ export default function FinancialSubcategories() {
           pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>
+
+      <ConfirmModal
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        description={t('configuration.financialSubcategories.confirm.delete').replace('{0}', selected?.name ?? '')}
+        variant="danger"
+        onConfirm={() => void handleDelete()}
+        loading={deleting}
+      />
 
       <FinancialSubcategoryFormModal
         open={isFormOpen}

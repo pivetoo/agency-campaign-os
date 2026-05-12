@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   Badge,
   Button,
+  ConfirmModal,
   DataTable,
   PageLayout,
   SearchableSelect,
@@ -49,6 +50,7 @@ export default function CreatorPaymentsPage() {
   const [isBatchOpen, setIsBatchOpen] = useState(false)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [detailsPaymentId, setDetailsPaymentId] = useState<number | null>(null)
+  const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false)
 
   const { execute: fetchPayments, loading } = useApi<CreatorPayment[]>({ showErrorMessage: true })
   const { execute: fetchCampaigns } = useApi<Campaign[]>({ showErrorMessage: true })
@@ -85,9 +87,11 @@ export default function CreatorPaymentsPage() {
 
   const handleCancel = async () => {
     if (selected.length !== 1) return
-    if (!window.confirm(t('financial.creatorPayments.confirm.cancel').replace('{0}', selected[0].creatorName ?? ''))) return
     const result = await runCancel(() => creatorPaymentService.cancel(selected[0].id))
-    if (result !== null) void loadPayments()
+    if (result !== null) {
+      setIsConfirmCancelOpen(false)
+      void loadPayments()
+    }
   }
 
   const totals = useMemo(() => {
@@ -244,7 +248,7 @@ export default function CreatorPaymentsPage() {
             <Button size="sm" variant="outline" onClick={() => setIsMarkPaidOpen(true)} disabled={!selectedPayment}>
               <Signature size={14} className="mr-1" /> {t('financial.creatorPayments.action.markPaid')}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => void handleCancel()} disabled={!selectedPayment || cancelling}>
+            <Button size="sm" variant="outline" onClick={() => setIsConfirmCancelOpen(true)} disabled={!selectedPayment || cancelling}>
               <Ban size={14} className="mr-1" /> {t('common.action.cancel')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setIsBatchOpen(true)} disabled={!canSchedule}>
@@ -327,6 +331,15 @@ export default function CreatorPaymentsPage() {
         open={isDetailsOpen}
         onOpenChange={setIsDetailsOpen}
         paymentId={detailsPaymentId}
+      />
+
+      <ConfirmModal
+        open={isConfirmCancelOpen}
+        onOpenChange={setIsConfirmCancelOpen}
+        description={t('financial.creatorPayments.confirm.cancel').replace('{0}', selectedPayment?.creatorName ?? '')}
+        variant="warning"
+        onConfirm={() => void handleCancel()}
+        loading={cancelling}
       />
     </>
   )

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Card, CardContent, useApi, useI18n } from 'archon-ui'
+import { Button, Card, CardContent, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import { ArrowRight, MessageSquare, Pencil, Send, Trash2 } from 'lucide-react'
 import {
   opportunityService,
@@ -44,6 +44,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
   const [body, setBody] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editingBody, setEditingBody] = useState('')
+  const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(null)
 
   const { execute: load, loading } = useApi<unknown>({ showErrorMessage: true })
   const { execute: runMutation, loading: mutating } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
@@ -121,10 +122,11 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
     }
   }
 
-  const removeComment = async (id: number) => {
-    if (!window.confirm(t('opportunityActivity.confirm.delete'))) return
-    const result = await runMutation(() => opportunityService.deleteComment(id))
+  const removeComment = async () => {
+    if (!commentToDeleteId) return
+    const result = await runMutation(() => opportunityService.deleteComment(commentToDeleteId))
     if (result !== null) {
+      setCommentToDeleteId(null)
       await reload()
     }
   }
@@ -133,6 +135,15 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
     !comment.authorUserId || (currentUserId != null && comment.authorUserId === currentUserId)
 
   return (
+    <>
+    <ConfirmModal
+      open={commentToDeleteId !== null}
+      onOpenChange={(open) => { if (!open) setCommentToDeleteId(null) }}
+      description={t('opportunityActivity.confirm.delete')}
+      variant="danger"
+      onConfirm={() => void removeComment()}
+      loading={mutating}
+    />
     <Card>
       <CardContent className="space-y-6 p-6">
         <div className="space-y-3">
@@ -196,7 +207,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
                       onCancelEdit={cancelEditing}
                       onSaveEdit={saveEditing}
                       onChangeEdit={setEditingBody}
-                      onDelete={removeComment}
+                      onDelete={(id) => setCommentToDeleteId(id)}
                       t={t}
                     />
                   )}
@@ -207,6 +218,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
         </div>
       </CardContent>
     </Card>
+    </>
   )
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, useApi, useToast, useI18n } from 'archon-ui'
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, ConfirmModal, Input, useApi, useToast, useI18n } from 'archon-ui'
 import { Copy, Eye, Link as LinkIcon, Link2, ShieldOff } from 'lucide-react'
 import {
   proposalService,
@@ -30,6 +30,7 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
   const [shareLinks, setShareLinks] = useState<ProposalShareLink[]>([])
   const [versions, setVersions] = useState<ProposalVersion[]>([])
   const [expiresAt, setExpiresAt] = useState('')
+  const [linkToRevokeId, setLinkToRevokeId] = useState<number | null>(null)
 
   const { execute: load, loading } = useApi<unknown>({ showErrorMessage: true })
   const { execute: runMutation, loading: mutating } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
@@ -63,10 +64,11 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
     }
   }
 
-  const revokeLink = async (linkId: number) => {
-    if (!window.confirm(t('proposalShare.confirm.revoke'))) return
-    const result = await runMutation(() => proposalService.revokeShareLink(linkId))
+  const revokeLink = async () => {
+    if (!linkToRevokeId) return
+    const result = await runMutation(() => proposalService.revokeShareLink(linkToRevokeId))
     if (result !== null) {
+      setLinkToRevokeId(null)
       await reload()
     }
   }
@@ -88,6 +90,15 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
   }
 
   return (
+    <>
+    <ConfirmModal
+      open={linkToRevokeId !== null}
+      onOpenChange={(open) => { if (!open) setLinkToRevokeId(null) }}
+      description={t('proposalShare.confirm.revoke')}
+      variant="warning"
+      onConfirm={() => void revokeLink()}
+      loading={mutating}
+    />
     <div className="space-y-4">
       <Card>
         <CardHeader className="border-b bg-muted/20 py-3">
@@ -176,7 +187,7 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                         size="sm"
                         variant="outline-danger"
                         icon={<ShieldOff className="h-3.5 w-3.5" />}
-                        onClick={() => void revokeLink(link.id)}
+                        onClick={() => setLinkToRevokeId(link.id)}
                         disabled={mutating}
                       >
                         {t('proposalShare.action.revoke')}
@@ -221,5 +232,6 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
         </CardContent>
       </Card>
     </div>
+    </>
   )
 }

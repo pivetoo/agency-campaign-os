@@ -11,6 +11,7 @@ import {
   TabsTrigger,
   TabsContent,
   Button,
+  ConfirmModal,
   useApi,
   useI18n,
 } from 'archon-ui'
@@ -52,12 +53,13 @@ export default function CreatorDetail() {
   const [campaigns, setCampaigns] = useState<CreatorCampaignEntry[]>([])
   const [selectedHandle, setSelectedHandle] = useState<CreatorSocialHandle | null>(null)
   const [isHandleFormOpen, setIsHandleFormOpen] = useState(false)
+  const [handleToDelete, setHandleToDelete] = useState<CreatorSocialHandle | null>(null)
 
   const { execute: fetchCreator } = useApi<Creator | null>({ showErrorMessage: true })
   const { execute: fetchSummary } = useApi<CreatorSummary | null>({ showErrorMessage: true })
   const { execute: fetchHandles, loading: handlesLoading } = useApi<CreatorSocialHandle[]>({ showErrorMessage: true })
   const { execute: fetchCampaigns, loading: campaignsLoading } = useApi<CreatorCampaignEntry[]>({ showErrorMessage: true })
-  const { execute: runDelete } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
   const loadCreator = async () => {
     const result = await fetchCreator(() => creatorService.getById(creatorId))
@@ -88,12 +90,13 @@ export default function CreatorDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [creatorId])
 
-  const handleDeleteHandle = async (handle: CreatorSocialHandle) => {
-    if (!window.confirm(t('creators.detail.confirm.deleteHandle').replace('{0}', handle.handle))) return
-    const result = await runDelete(() => creatorSocialHandleService.delete(handle.id))
+  const handleDeleteHandle = async () => {
+    if (!handleToDelete) return
+    const result = await runDelete(() => creatorSocialHandleService.delete(handleToDelete.id))
     if (result !== null) {
+      setHandleToDelete(null)
       void loadHandles()
-      if (selectedHandle?.id === handle.id) setSelectedHandle(null)
+      if (selectedHandle?.id === handleToDelete.id) setSelectedHandle(null)
     }
   }
 
@@ -138,7 +141,7 @@ export default function CreatorDetail() {
           <button className="p-1 text-muted-foreground hover:text-foreground" onClick={() => { setSelectedHandle(record); setIsHandleFormOpen(true) }}>
             <Pencil size={14} />
           </button>
-          <button className="p-1 text-muted-foreground hover:text-destructive" onClick={() => void handleDeleteHandle(record)}>
+          <button className="p-1 text-muted-foreground hover:text-destructive" onClick={() => setHandleToDelete(record)}>
             <Trash2 size={14} />
           </button>
         </div>
@@ -337,6 +340,15 @@ export default function CreatorDetail() {
           </TabsContent>
         </Tabs>
       </PageLayout>
+
+      <ConfirmModal
+        open={handleToDelete !== null}
+        onOpenChange={(open) => { if (!open) setHandleToDelete(null) }}
+        description={t('creators.detail.confirm.deleteHandle').replace('{0}', handleToDelete?.handle ?? '')}
+        variant="danger"
+        onConfirm={() => void handleDeleteHandle()}
+        loading={deleting}
+      />
 
       <CreatorSocialHandleFormModal
         open={isHandleFormOpen}

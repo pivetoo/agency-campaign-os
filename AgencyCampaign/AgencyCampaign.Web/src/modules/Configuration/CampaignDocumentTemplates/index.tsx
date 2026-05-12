@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { campaignDocumentTemplateService } from '../../../services/campaignDocumentTemplateService'
@@ -15,6 +15,7 @@ export default function CampaignDocumentTemplates() {
   const [items, setItems] = useState<CampaignDocumentTemplate[]>([])
   const [selected, setSelected] = useState<CampaignDocumentTemplate | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const { execute: fetchAll, loading, pagination } = useApi<CampaignDocumentTemplate[]>({ showErrorMessage: true })
@@ -35,10 +36,10 @@ export default function CampaignDocumentTemplates() {
 
   const handleDelete = async () => {
     if (!selected) return
-    if (!window.confirm(t('configuration.contractTemplates.confirm.delete').replace('{0}', selected.name))) return
     const result = await runDelete(() => campaignDocumentTemplateService.delete(selected.id))
     if (result !== null) {
       setSelected(null)
+      setIsConfirmOpen(false)
       void load()
     }
   }
@@ -90,7 +91,7 @@ export default function CampaignDocumentTemplates() {
             icon: <Trash2 className="h-4 w-4" />,
             variant: 'outline-danger',
             disabled: !selected || deleting,
-            onClick: () => void handleDelete(),
+            onClick: () => setIsConfirmOpen(true),
           },
         ]}
       >
@@ -110,6 +111,15 @@ export default function CampaignDocumentTemplates() {
           onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
+
+      <ConfirmModal
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        description={t('configuration.contractTemplates.confirm.delete').replace('{0}', selected?.name ?? '')}
+        variant="danger"
+        onConfirm={() => void handleDelete()}
+        loading={deleting}
+      />
 
       <CampaignDocumentTemplateFormModal
         open={isFormOpen}

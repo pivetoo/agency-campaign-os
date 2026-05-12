@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { financialAccountService } from '../../../services/financialAccountService'
@@ -15,6 +15,7 @@ export default function FinancialAccounts() {
   const [items, setItems] = useState<FinancialAccount[]>([])
   const [selected, setSelected] = useState<FinancialAccount | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const { execute: fetchAll, loading } = useApi<FinancialAccount[]>({ showErrorMessage: true })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
@@ -30,10 +31,10 @@ export default function FinancialAccounts() {
 
   const handleDelete = async () => {
     if (!selected) return
-    if (!window.confirm(t('configuration.bankAccounts.confirm.delete').replace('{0}', selected.name))) return
     const result = await runDelete(() => financialAccountService.delete(selected.id))
     if (result !== null) {
       setSelected(null)
+      setIsConfirmOpen(false)
       void load()
     }
   }
@@ -77,7 +78,7 @@ export default function FinancialAccounts() {
             icon: <Trash2 className="h-4 w-4" />,
             variant: 'outline-danger',
             disabled: !selected || deleting,
-            onClick: () => void handleDelete(),
+            onClick: () => setIsConfirmOpen(true),
           },
         ]}
       >
@@ -93,6 +94,15 @@ export default function FinancialAccounts() {
           pageSizeOptions={[5, 10, 20, 50]}
         />
       </PageLayout>
+
+      <ConfirmModal
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        description={t('configuration.bankAccounts.confirm.delete').replace('{0}', selected?.name ?? '')}
+        variant="danger"
+        onConfirm={() => void handleDelete()}
+        loading={deleting}
+      />
 
       <FinancialAccountFormModal
         open={isFormOpen}
