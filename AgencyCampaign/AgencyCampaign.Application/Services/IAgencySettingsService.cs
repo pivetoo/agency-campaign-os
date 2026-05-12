@@ -20,5 +20,13 @@ namespace AgencyCampaign.Application.Services
         Task<string> PreviewProposalTemplate(string template, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<ProposalLayoutModel>> GetProposalLayouts(CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyList<ProposalTemplateVersionModel>> GetProposalTemplateVersions(CancellationToken cancellationToken = default);
+
+        Task<ProposalTemplateVersionModel> SaveProposalTemplateVersion(string name, string template, bool activate, CancellationToken cancellationToken = default);
+
+        Task<ProposalTemplateVersionModel> ActivateProposalTemplateVersion(long id, CancellationToken cancellationToken = default);
+
+        Task DeleteProposalTemplateVersion(long id, CancellationToken cancellationToken = default);
     }
 }

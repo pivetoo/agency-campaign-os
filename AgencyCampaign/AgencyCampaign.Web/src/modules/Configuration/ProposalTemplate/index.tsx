@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Editor from '@monaco-editor/react'
-import type { editor } from 'monaco-editor'
+import Editor, { type OnMount } from '@monaco-editor/react'
 import { Button, useApi, useI18n } from 'archon-ui'
-import { Braces, RefreshCw, Save } from 'lucide-react'
+import { Braces, ChevronDown, RefreshCw, Trash2 } from 'lucide-react'
 import { agencySettingsService } from '../../../services/agencySettingsService'
-import type { ProposalLayout } from '../../../services/agencySettingsService'
+import type { ProposalLayout, ProposalTemplateVersion } from '../../../services/agencySettingsService'
 import type { AgencySettings } from '../../../types/agencySettings'
 
 const DEBOUNCE_MS = 900
@@ -52,32 +51,56 @@ const VARIABLES = [
   },
 ]
 
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
 export default function ProposalTemplate() {
   const { t } = useI18n()
   const [template, setTemplate] = useState<string>('')
   const [previewHtml, setPreviewHtml] = useState<string>('')
   const [layouts, setLayouts] = useState<ProposalLayout[]>([])
+  const [versions, setVersions] = useState<ProposalTemplateVersion[]>([])
   const [varPickerOpen, setVarPickerOpen] = useState(false)
+  const [savePickerOpen, setSavePickerOpen] = useState(false)
+  const [newVersionName, setNewVersionName] = useState('')
+  const [newVersionActivate, setNewVersionActivate] = useState(true)
 
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null)
   const varPickerRef = useRef<HTMLDivElement | null>(null)
+  const savePickerRef = useRef<HTMLDivElement | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { execute: fetchLayouts } = useApi<ProposalLayout[]>({ showErrorMessage: true })
   const { execute: fetchSettings } = useApi<AgencySettings | null>({ showErrorMessage: true })
-  const { execute: runSave, loading: saving } = useApi<AgencySettings | null>({
+  const { execute: fetchVersions } = useApi<ProposalTemplateVersion[]>({ showErrorMessage: true })
+  const { execute: runSaveVersion, loading: savingVersion } = useApi<ProposalTemplateVersion>({
     showSuccessMessage: true,
     showErrorMessage: true,
   })
+  const { execute: runActivate } = useApi<ProposalTemplateVersion>({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: runDelete } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: runPreview } = useApi<{ html: string }>({ showErrorMessage: false })
 
+  const loadVersions = useCallback(async () => {
+    const result = await fetchVersions(() => agencySettingsService.getProposalTemplateVersions())
+    if (result) {
+      setVersions(result)
+    }
+    return result
+  }, [fetchVersions])
+
   const load = useCallback(async () => {
-    const [layoutsResult, settingsResult] = await Promise.all([
+    const [layoutsResult, settingsResult, versionsResult] = await Promise.all([
       fetchLayouts(() => agencySettingsService.getProposalLayouts()),
       fetchSettings(() => agencySettingsService.get()),
+      fetchVersions(() => agencySettingsService.getProposalTemplateVersions()),
     ])
     if (layoutsResult) {
       setLayouts(layoutsResult)
+    }
+    if (versionsResult) {
+      setVersions(versionsResult)
     }
     if (settingsResult) {
       const saved = settingsResult.proposalHtmlTemplate
@@ -87,7 +110,7 @@ export default function ProposalTemplate() {
         setTemplate(layoutsResult[0].template)
       }
     }
-  }, [fetchLayouts, fetchSettings])
+  }, [fetchLayouts, fetchSettings, fetchVersions])
 
   useEffect(() => {
     void load()
@@ -107,7 +130,6 @@ export default function ProposalTemplate() {
         setPreviewHtml(result.html)
       }
     }, DEBOUNCE_MS)
-
     return () => {
       if (debounceRef.current) {
         clearTimeout(debounceRef.current)
@@ -117,17 +139,24 @@ export default function ProposalTemplate() {
   }, [template])
 
   useEffect(() => {
-    if (!varPickerOpen) {
+    const pickers = [
+      { open: varPickerOpen, ref: varPickerRef, close: () => setVarPickerOpen(false) },
+      { open: savePickerOpen, ref: savePickerRef, close: () => setSavePickerOpen(false) },
+    ]
+    const active = pickers.filter((p) => p.open)
+    if (active.length === 0) {
       return
     }
     const handleClickOutside = (event: MouseEvent) => {
-      if (varPickerRef.current && !varPickerRef.current.contains(event.target as Node)) {
-        setVarPickerOpen(false)
-      }
+      active.forEach(({ ref, close }) => {
+        if (ref.current && !ref.current.contains(event.target as Node)) {
+          close()
+        }
+      })
     }
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setVarPickerOpen(false)
+        active.forEach(({ close }) => close())
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -136,9 +165,9 @@ export default function ProposalTemplate() {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('keydown', handleEscape)
     }
-  }, [varPickerOpen])
+  }, [varPickerOpen, savePickerOpen])
 
-  const handleEditorMount = (editorInstance: editor.IStandaloneCodeEditor) => {
+  const handleEditorMount: OnMount = (editorInstance) => {
     editorRef.current = editorInstance
   }
 
@@ -165,8 +194,51 @@ export default function ProposalTemplate() {
     ed.focus()
   }
 
-  const handleSave = async () => {
-    await runSave(() => agencySettingsService.saveProposalTemplate(template))
+  const handleOpenSavePicker = () => {
+    const nextName = `Versão ${versions.length + 1}`
+    setNewVersionName(nextName)
+    setNewVersionActivate(true)
+    setSavePickerOpen(true)
+  }
+
+  const handleSaveVersion = async () => {
+    if (!newVersionName.trim()) {
+      return
+    }
+    const result = await runSaveVersion(() =>
+      agencySettingsService.saveProposalTemplateVersion(newVersionName.trim(), template, newVersionActivate),
+    )
+    if (result) {
+      setSavePickerOpen(false)
+      const updated = await loadVersions()
+      if (updated) {
+        setVersions(updated)
+      }
+    }
+  }
+
+  const handleActivate = async (version: ProposalTemplateVersion) => {
+    const result = await runActivate(() => agencySettingsService.activateProposalTemplateVersion(version.id))
+    if (result) {
+      setTemplate(version.template)
+      const updated = await loadVersions()
+      if (updated) {
+        setVersions(updated)
+      }
+    }
+  }
+
+  const handleDelete = async (version: ProposalTemplateVersion) => {
+    if (!window.confirm(`Excluir a versão "${version.name}"?`)) {
+      return
+    }
+    const result = await runDelete(() => agencySettingsService.deleteProposalTemplateVersion(version.id))
+    if (result !== null) {
+      const updated = await loadVersions()
+      if (updated) {
+        setVersions(updated)
+      }
+    }
   }
 
   return (
@@ -221,14 +293,98 @@ export default function ProposalTemplate() {
             )}
           </div>
 
-          <Button size="sm" onClick={handleSave} disabled={saving}>
-            {saving ? (
-              <RefreshCw className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Save className="mr-1.5 h-3.5 w-3.5" />
+          <div ref={savePickerRef} className="relative">
+            <Button size="sm" onClick={handleOpenSavePicker} disabled={savingVersion}>
+              {savingVersion ? (
+                <RefreshCw className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <ChevronDown className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              Salvar
+            </Button>
+
+            {savePickerOpen && (
+              <div className="absolute right-0 top-full z-50 mt-1 w-80 rounded-md border bg-popover shadow-lg">
+                <div className="border-b p-3">
+                  <p className="mb-2 text-xs font-semibold text-foreground">Nova versão</p>
+                  <input
+                    type="text"
+                    value={newVersionName}
+                    onChange={(e) => setNewVersionName(e.target.value)}
+                    placeholder="Nome da versão"
+                    className="mb-2 w-full rounded-md border bg-background px-2.5 py-1.5 text-sm outline-none focus:ring-1 focus:ring-ring"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        void handleSaveVersion()
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <label className="mb-3 flex cursor-pointer items-center gap-2 text-xs text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={newVersionActivate}
+                      onChange={(e) => setNewVersionActivate(e.target.checked)}
+                      className="h-3.5 w-3.5 rounded border-border"
+                    />
+                    Ativar esta versão
+                  </label>
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    onClick={handleSaveVersion}
+                    disabled={savingVersion || !newVersionName.trim()}
+                  >
+                    {savingVersion ? 'Salvando...' : 'Salvar versão'}
+                  </Button>
+                </div>
+
+                {versions.length > 0 && (
+                  <div className="max-h-56 overflow-y-auto">
+                    <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Versões salvas
+                    </p>
+                    {versions.map((version) => (
+                      <div
+                        key={version.id}
+                        className="flex items-start justify-between gap-2 px-3 py-2 hover:bg-muted/40"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="truncate text-xs font-medium text-foreground">{version.name}</span>
+                            {version.isActive && (
+                              <span className="shrink-0 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold text-primary">
+                                Ativa
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-muted-foreground">{formatDate(version.createdAt)}</span>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1">
+                          {!version.isActive && (
+                            <button
+                              type="button"
+                              onClick={() => void handleActivate(version)}
+                              className="rounded px-2 py-1 text-[10px] font-medium text-primary hover:bg-primary/10"
+                            >
+                              Ativar
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => void handleDelete(version)}
+                            className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-            Salvar
-          </Button>
+          </div>
         </div>
       </div>
 

@@ -116,5 +116,43 @@ namespace AgencyCampaign.Api.Controllers
             string html = await service.PreviewProposalTemplate(request.Template, cancellationToken);
             return Http200(new { html });
         }
+
+        [RequireAccess("Permite listar as versões salvas do template de proposta.")]
+        [GetEndpoint("[action]")]
+        public async Task<IActionResult> GetProposalTemplateVersions(CancellationToken cancellationToken)
+        {
+            var versions = await service.GetProposalTemplateVersions(cancellationToken);
+            return Http200(versions);
+        }
+
+        [RequireAccess("Permite salvar uma nova versão do template de proposta.")]
+        [PostEndpoint("[action]")]
+        public async Task<IActionResult> SaveProposalTemplateVersion([FromBody] SaveProposalTemplateVersionRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await service.SaveProposalTemplateVersion(request.Name, request.Template, request.Activate, cancellationToken);
+            return Http200(result, Localizer["record.created"]);
+        }
+
+        [RequireAccess("Permite ativar uma versão do template de proposta.")]
+        [PutEndpoint("[action]")]
+        public async Task<IActionResult> ActivateProposalTemplateVersion([FromQuery] long id, CancellationToken cancellationToken)
+        {
+            var result = await service.ActivateProposalTemplateVersion(id, cancellationToken);
+            return Http200(result, Localizer["record.updated"]);
+        }
+
+        [RequireAccess("Permite excluir uma versão do template de proposta.")]
+        [DeleteEndpoint("[action]")]
+        public async Task<IActionResult> DeleteProposalTemplateVersion([FromQuery] long id, CancellationToken cancellationToken)
+        {
+            await service.DeleteProposalTemplateVersion(id, cancellationToken);
+            return Http200(Localizer["record.deleted"]);
+        }
     }
 }

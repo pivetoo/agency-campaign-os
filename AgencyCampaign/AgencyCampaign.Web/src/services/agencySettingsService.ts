@@ -57,10 +57,34 @@ export const agencySettingsService = {
   previewProposalTemplate(template: string) {
     return httpClient.post<{ html: string }>(`${BASE_URL}/PreviewProposalTemplate`, { template })
   },
+
+  getProposalTemplateVersions() {
+    return httpClient.get<ProposalTemplateVersion[]>(`${BASE_URL}/GetProposalTemplateVersions`)
+  },
+
+  saveProposalTemplateVersion(name: string, template: string, activate: boolean) {
+    return httpClient.post<ProposalTemplateVersion>(`${BASE_URL}/SaveProposalTemplateVersion`, { name, template, activate })
+  },
+
+  activateProposalTemplateVersion(id: number) {
+    return httpClient.put<ProposalTemplateVersion>(`${BASE_URL}/ActivateProposalTemplateVersion?id=${id}`)
+  },
+
+  deleteProposalTemplateVersion(id: number) {
+    return httpClient.delete<unknown>(`${BASE_URL}/DeleteProposalTemplateVersion?id=${id}`)
+  },
 }
 
 export interface ProposalLayout {
   key: string
   name: string
   template: string
+}
+
+export interface ProposalTemplateVersion {
+  id: number
+  name: string
+  template: string
+  isActive: boolean
+  createdAt: string
 }

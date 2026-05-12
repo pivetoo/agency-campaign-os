@@ -99,6 +99,82 @@ namespace AgencyCampaign.Infrastructure.Services
             return Task.FromResult(layouts);
         }
 
+        public async Task<IReadOnlyList<ProposalTemplateVersionModel>> GetProposalTemplateVersions(CancellationToken cancellationToken = default)
+        {
+            List<ProposalTemplateVersion> versions = await dbContext.Set<ProposalTemplateVersion>()
+                .AsNoTracking()
+                .OrderByDescending(v => v.CreatedAt)
+                .ToListAsync(cancellationToken);
+
+            return versions.Select(MapVersion).ToList();
+        }
+
+        public async Task<ProposalTemplateVersionModel> SaveProposalTemplateVersion(string name, string template, bool activate, CancellationToken cancellationToken = default)
+        {
+            ProposalTemplateVersion version = new(name, template);
+            dbContext.Set<ProposalTemplateVersion>().Add(version);
+
+            if (activate)
+            {
+                await DeactivateAllVersions(cancellationToken);
+                version.Activate();
+                AgencySettings settings = await ResolveOrCreate(cancellationToken);
+                settings.SetProposalHtmlTemplate(template);
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return MapVersion(version);
+        }
+
+        public async Task<ProposalTemplateVersionModel> ActivateProposalTemplateVersion(long id, CancellationToken cancellationToken = default)
+        {
+            ProposalTemplateVersion? version = await dbContext.Set<ProposalTemplateVersion>()
+                .AsTracking()
+                .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+            if (version is null)
+            {
+                throw new InvalidOperationException(localizer["record.notFound"]);
+            }
+
+            await DeactivateAllVersions(cancellationToken);
+            version.Activate();
+
+            AgencySettings settings = await ResolveOrCreate(cancellationToken);
+            settings.SetProposalHtmlTemplate(version.Template);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return MapVersion(version);
+        }
+
+        public async Task DeleteProposalTemplateVersion(long id, CancellationToken cancellationToken = default)
+        {
+            ProposalTemplateVersion? version = await dbContext.Set<ProposalTemplateVersion>()
+                .AsTracking()
+                .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+            if (version is null)
+            {
+                return;
+            }
+
+            dbContext.Set<ProposalTemplateVersion>().Remove(version);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task DeactivateAllVersions(CancellationToken cancellationToken)
+        {
+            List<ProposalTemplateVersion> all = await dbContext.Set<ProposalTemplateVersion>()
+                .AsTracking()
+                .Where(v => v.IsActive)
+                .ToListAsync(cancellationToken);
+
+            foreach (ProposalTemplateVersion v in all)
+            {
+                v.Deactivate();
+            }
+        }
+
         private async Task<AgencySettings> ResolveOrCreate(CancellationToken cancellationToken)
         {
             AgencySettings? existing = await dbContext.Set<AgencySettings>()
@@ -116,6 +192,15 @@ namespace AgencyCampaign.Infrastructure.Services
             await dbContext.SaveChangesAsync(cancellationToken);
             return created;
         }
+
+        private static ProposalTemplateVersionModel MapVersion(ProposalTemplateVersion version) => new()
+        {
+            Id = version.Id,
+            Name = version.Name,
+            Template = version.Template,
+            IsActive = version.IsActive,
+            CreatedAt = version.CreatedAt,
+        };
 
         private static AgencySettingsModel Map(AgencySettings settings) => new()
         {
