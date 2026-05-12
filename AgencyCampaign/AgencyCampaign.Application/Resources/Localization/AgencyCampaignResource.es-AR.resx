@@ -144,6 +144,7 @@
   <data name="nav.item.creatorPayments" xml:space="preserve"><value>Pagos a influencers</value></data>
   <data name="nav.item.cashFlow" xml:space="preserve"><value>Flujo de caja</value></data>
   <data name="nav.item.aging" xml:space="preserve"><value>Aging</value></data>
+  <data name="nav.item.agency" xml:space="preserve"><value>Agencia</value></data>
   <data name="nav.item.agencyData" xml:space="preserve"><value>Datos de la agencia</value></data>
   <data name="nav.item.integrations" xml:space="preserve"><value>Integraciones</value></data>
   <data name="nav.item.emailTemplates" xml:space="preserve"><value>Plantillas de email</value></data>

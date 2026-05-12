@@ -144,6 +144,7 @@
   <data name="nav.item.creatorPayments" xml:space="preserve"><value>Creator payments</value></data>
   <data name="nav.item.cashFlow" xml:space="preserve"><value>Cash flow</value></data>
   <data name="nav.item.aging" xml:space="preserve"><value>Aging</value></data>
+  <data name="nav.item.agency" xml:space="preserve"><value>Agency</value></data>
   <data name="nav.item.agencyData" xml:space="preserve"><value>Agency data</value></data>
   <data name="nav.item.integrations" xml:space="preserve"><value>Integrations</value></data>
   <data name="nav.item.emailTemplates" xml:space="preserve"><value>Email templates</value></data>

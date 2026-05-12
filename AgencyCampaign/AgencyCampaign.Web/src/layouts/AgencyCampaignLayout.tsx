@@ -130,8 +130,7 @@ export default function AgencyCampaignLayout() {
 
   const configurationGroups = [
     createMenuGroup(t('nav.group.general'), [
-      { key: 'configuracao-minha-agencia', label: t('nav.item.dashboard'), path: '/configuracao', icon: <LayoutDashboard size={20} /> },
-      { key: 'configuracao-empresa', label: t('nav.item.agencyData'), path: '/configuracao/empresa', icon: <Briefcase size={20} /> },
+      { key: 'configuracao-agencia', label: t('nav.item.agency'), path: '/configuracao', icon: <Briefcase size={20} /> },
       { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} /> },
       { key: 'configuracao-templates-email', label: t('nav.item.emailTemplates'), path: '/configuracao/templates-email', icon: <Mail size={20} /> },
     ]),
@@ -181,7 +180,7 @@ export default function AgencyCampaignLayout() {
 
     const routeMap: Record<string, string> = {
       '/': t('nav.item.dashboard'),
-      '/configuracao': t('nav.item.dashboard'),
+      '/configuracao': t('nav.item.agency'),
       '/comercial': t('nav.item.pipeline'),
       '/comercial/pipeline': t('nav.item.pipeline'),
       '/comercial/oportunidades': t('nav.item.opportunities'),
@@ -209,12 +208,12 @@ export default function AgencyCampaignLayout() {
       '/configuracao/templates-documento': t('nav.item.contractTemplates'),
       '/configuracao/contas-financeiras': t('nav.item.bankAccounts'),
       '/configuracao/subcategorias-financeiras': t('nav.item.financialSubcategories'),
-      '/configuracao/empresa': t('nav.item.agencyData'),
+      '/configuracao/empresa': t('nav.item.agency'),
       '/operacao/aprovacoes': t('nav.item.approvals'),
     }
 
     const currentLabel = routeMap[path]
-    if (currentLabel && currentLabel !== t('nav.item.dashboard')) {
+    if (currentLabel && path !== '/configuracao' && path !== '/') {
       crumbs.push({ label: currentLabel })
     }
 
