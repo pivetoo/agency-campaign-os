@@ -132,12 +132,12 @@ export default function AgencyCampaignLayout() {
     createMenuGroup(t('nav.group.general'), [
       { key: 'configuracao-agencia', label: t('nav.item.agency'), path: '/configuracao', icon: <Briefcase size={20} /> },
       { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} /> },
-      { key: 'configuracao-templates-email', label: t('nav.item.emailTemplates'), path: '/configuracao/templates-email', icon: <Mail size={20} /> },
     ]),
     createMenuGroup(t('nav.group.commercial'), [
       { key: 'configuracao-pipeline-comercial', label: t('nav.item.commercialFunnel'), path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
       { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
       { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
+      { key: 'configuracao-templates-email', label: t('nav.item.emailTemplates'), path: '/configuracao/templates-email', icon: <Mail size={20} /> },
       { key: 'configuracao-templates-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/templates-proposta', icon: <FileSignature size={20} /> },
       { key: 'configuracao-template-proposta', label: t('nav.item.proposalTemplate'), path: '/configuracao/template-proposta', icon: <Paintbrush size={20} /> },
       { key: 'configuracao-blocos-proposta', label: t('nav.item.proposalBlocks'), path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
