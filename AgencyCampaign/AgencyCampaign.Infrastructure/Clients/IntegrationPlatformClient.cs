@@ -332,6 +332,7 @@ namespace AgencyCampaign.Infrastructure.Clients
         public string? Description { get; set; }
         public bool IsActive { get; set; }
         public bool IsDefault { get; set; }
+        public bool IsTestPipeline { get; set; }
     }
 
     public sealed class ConnectorDto

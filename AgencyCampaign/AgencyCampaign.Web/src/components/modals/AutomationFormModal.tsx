@@ -268,7 +268,7 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
               <SearchableSelect
                 value={pipelineId ? String(pipelineId) : ''}
                 onValueChange={(value) => setPipelineId(Number(value))}
-                options={pipelines.map((p) => ({ value: String(p.id), label: p.name }))}
+                options={pipelines.filter((p) => !p.isTestPipeline).map((p) => ({ value: String(p.id), label: p.name }))}
                 placeholder="Selecione"
                 searchPlaceholder={t('modal.automation.placeholder.searchAction')}
               />

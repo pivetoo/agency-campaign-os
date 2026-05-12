@@ -68,6 +68,7 @@ export interface Pipeline {
   name: string
   description?: string
   isActive: boolean
+  isTestPipeline: boolean
 }
 
 export interface Execution {
