@@ -28,7 +28,7 @@ export default function ProposalBlocks() {
 
   const handleDelete = async () => {
     if (!selected) return
-    if (!window.confirm(`Excluir o bloco "${selected.name}"?`)) return
+    if (!window.confirm(t('configuration.proposalBlocks.confirm.delete').replace('{0}', selected.name))) return
     const result = await runDelete(() => proposalBlockService.delete(selected.id))
     if (result !== null) {
       setSelected(null)
@@ -37,11 +37,11 @@ export default function ProposalBlocks() {
   }
 
   const columns: DataTableColumn<ProposalBlock>[] = [
-    { key: 'name', title: 'Bloco', dataIndex: 'name' },
-    { key: 'category', title: 'Categoria', dataIndex: 'category' },
+    { key: 'name', title: t('configuration.proposalBlocks.field.block'), dataIndex: 'name' },
+    { key: 'category', title: t('common.field.category'), dataIndex: 'category' },
     {
       key: 'body',
-      title: 'Prévia do conteúdo',
+      title: t('configuration.proposalBlocks.field.contentPreview'),
       dataIndex: 'body',
       render: (value: string) => (
         <span className="line-clamp-2 text-xs text-muted-foreground">{value}</span>
@@ -49,10 +49,10 @@ export default function ProposalBlocks() {
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => (
-        <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativo' : 'Inativo'}</Badge>
+        <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.active') : t('common.status.inactive')}</Badge>
       ),
     },
   ]
@@ -69,7 +69,7 @@ export default function ProposalBlocks() {
         actions={[
           {
             key: 'delete',
-            label: 'Excluir',
+            label: t('common.action.delete'),
             icon: <Trash2 className="h-4 w-4" />,
             variant: 'outline-danger',
             disabled: !selected || deleting,
@@ -83,7 +83,7 @@ export default function ProposalBlocks() {
           rowKey="id"
           selectedRows={selected ? [selected] : []}
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
-          emptyText="Nenhum bloco cadastrado"
+          emptyText={t('configuration.proposalBlocks.empty')}
           loading={loading}
           pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}

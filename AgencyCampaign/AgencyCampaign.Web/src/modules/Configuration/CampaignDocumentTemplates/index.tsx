@@ -35,7 +35,7 @@ export default function CampaignDocumentTemplates() {
 
   const handleDelete = async () => {
     if (!selected) return
-    if (!window.confirm(`Excluir o template "${selected.name}"?`)) return
+    if (!window.confirm(t('configuration.contractTemplates.confirm.delete').replace('{0}', selected.name))) return
     const result = await runDelete(() => campaignDocumentTemplateService.delete(selected.id))
     if (result !== null) {
       setSelected(null)
@@ -44,10 +44,10 @@ export default function CampaignDocumentTemplates() {
   }
 
   const columns: DataTableColumn<CampaignDocumentTemplate>[] = [
-    { key: 'name', title: 'Nome', dataIndex: 'name' },
+    { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
     {
       key: 'documentType',
-      title: 'Tipo',
+      title: t('common.field.type'),
       dataIndex: 'documentType',
       render: (value: CampaignDocumentTypeValue) => (
         <Badge variant="outline">{campaignDocumentTypeLabels[value]}</Badge>
@@ -55,7 +55,7 @@ export default function CampaignDocumentTemplates() {
     },
     {
       key: 'description',
-      title: 'Descrição',
+      title: t('common.field.description'),
       dataIndex: 'description',
       render: (value: string | undefined) => (
         <span className="text-sm text-muted-foreground">{value ?? '—'}</span>
@@ -63,10 +63,10 @@ export default function CampaignDocumentTemplates() {
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => (
-        <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativo' : 'Inativo'}</Badge>
+        <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.active') : t('common.status.inactive')}</Badge>
       ),
     },
   ]
@@ -86,7 +86,7 @@ export default function CampaignDocumentTemplates() {
         actions={[
           {
             key: 'delete',
-            label: 'Excluir',
+            label: t('common.action.delete'),
             icon: <Trash2 className="h-4 w-4" />,
             variant: 'outline-danger',
             disabled: !selected || deleting,
@@ -100,7 +100,7 @@ export default function CampaignDocumentTemplates() {
           rowKey="id"
           selectedRows={selected ? [selected] : []}
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
-          emptyText="Nenhum template cadastrado"
+          emptyText={t('configuration.contractTemplates.empty')}
           loading={loading}
           pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}

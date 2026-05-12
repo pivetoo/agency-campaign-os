@@ -928,4 +928,85 @@
   <data name="common.state.noRecordsFound" xml:space="preserve"><value>No se encontraron registros</value></data>
   <data name="common.state.noResults" xml:space="preserve"><value>Sin resultados</value></data>
   <data name="common.state.adjustFilters" xml:space="preserve"><value>Ajuste los filtros o agregue un nuevo registro.</value></data>
+  <data name="common.status.yes" xml:space="preserve"><value>Sí</value></data>
+  <data name="common.status.no" xml:space="preserve"><value>No</value></data>
+  <data name="common.field.campaign" xml:space="preserve"><value>Campaña</value></data>
+  <data name="common.field.account" xml:space="preserve"><value>Cuenta</value></data>
+  <data name="common.confirm.deleteItem" xml:space="preserve"><value>¿Eliminar "{0}"?</value></data>
+  <data name="financial.kpi.settledThisMonth" xml:space="preserve"><value>Recibido en el mes</value></data>
+  <data name="financial.entries.title" xml:space="preserve"><value>Movimientos financieros</value></data>
+  <data name="financial.entries.empty" xml:space="preserve"><value>No hay movimientos financieros registrados</value></data>
+  <data name="financial.entries.emptyReceivable" xml:space="preserve"><value>No hay cuentas por cobrar en el período.</value></data>
+  <data name="financial.entries.emptyPayable" xml:space="preserve"><value>No hay cuentas por pagar en el período.</value></data>
+  <data name="financial.entries.field.counterparty" xml:space="preserve"><value>Contraparte</value></data>
+  <data name="financial.entries.field.dueDate" xml:space="preserve"><value>Vencimiento</value></data>
+  <data name="financial.entries.action.new" xml:space="preserve"><value>Nuevo movimiento</value></data>
+  <data name="financial.entries.kpi.settledReceivable" xml:space="preserve"><value>Recibido en el mes</value></data>
+  <data name="financial.entries.kpi.settledPayable" xml:space="preserve"><value>Pagado en el mes</value></data>
+  <data name="financial.entries.kpi.dueSoonReceivable" xml:space="preserve"><value>Por cobrar en 7d</value></data>
+  <data name="financial.entries.kpi.dueSoonPayable" xml:space="preserve"><value>Por pagar en 7d</value></data>
+  <data name="financial.entries.kpi.count" xml:space="preserve"><value>movimiento(s)</value></data>
+  <data name="financial.entries.filter.allAccounts" xml:space="preserve"><value>Todas las cuentas</value></data>
+  <data name="financial.entries.status.pending" xml:space="preserve"><value>Pendiente</value></data>
+  <data name="financial.entries.status.paid" xml:space="preserve"><value>Pagado</value></data>
+  <data name="financial.entries.status.overdue" xml:space="preserve"><value>Vencido</value></data>
+  <data name="financial.entries.status.cancelled" xml:space="preserve"><value>Cancelado</value></data>
+  <data name="financial.creatorPayments.confirm.cancel" xml:space="preserve"><value>¿Cancelar el pago de "{0}"?</value></data>
+  <data name="financial.creatorPayments.empty" xml:space="preserve"><value>No hay pagos para este filtro</value></data>
+  <data name="financial.creatorPayments.field.netAmount" xml:space="preserve"><value>Monto neto</value></data>
+  <data name="financial.creatorPayments.field.method" xml:space="preserve"><value>Método</value></data>
+  <data name="financial.creatorPayments.field.invoiceNumber" xml:space="preserve"><value>Factura</value></data>
+  <data name="financial.creatorPayments.field.scheduledFor" xml:space="preserve"><value>Programado</value></data>
+  <data name="financial.creatorPayments.action.attachInvoice" xml:space="preserve"><value>Adjuntar Factura</value></data>
+  <data name="financial.creatorPayments.action.markPaid" xml:space="preserve"><value>Marcar como pagado</value></data>
+  <data name="financial.creatorPayments.action.scheduleBatch" xml:space="preserve"><value>Programar lote ({0})</value></data>
+  <data name="financial.creatorPayments.action.new" xml:space="preserve"><value>Nuevo</value></data>
+  <data name="configuration.contractTemplates.empty" xml:space="preserve"><value>No hay plantillas registradas</value></data>
+  <data name="configuration.contractTemplates.confirm.delete" xml:space="preserve"><value>¿Eliminar la plantilla "{0}"?</value></data>
+  <data name="configuration.bankAccounts.empty" xml:space="preserve"><value>No hay cuentas registradas</value></data>
+  <data name="configuration.bankAccounts.confirm.delete" xml:space="preserve"><value>¿Eliminar la cuenta "{0}"? Si hay movimientos, prefiera desactivar.</value></data>
+  <data name="configuration.bankAccounts.field.bank" xml:space="preserve"><value>Banco</value></data>
+  <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Saldo actual</value></data>
+  <data name="configuration.financialSubcategories.empty" xml:space="preserve"><value>No hay subcategorías registradas</value></data>
+  <data name="configuration.financialSubcategories.confirm.delete" xml:space="preserve"><value>¿Eliminar la subcategoría "{0}"?</value></data>
+  <data name="configuration.financialSubcategories.field.subcategory" xml:space="preserve"><value>Subcategoría</value></data>
+  <data name="configuration.financialSubcategories.field.macroCategory" xml:space="preserve"><value>Categoría macro</value></data>
+  <data name="configuration.creatorStatuses.empty" xml:space="preserve"><value>No hay estados configurados</value></data>
+  <data name="configuration.creatorStatuses.field.initial" xml:space="preserve"><value>Inicial</value></data>
+  <data name="configuration.commercialFunnel.empty" xml:space="preserve"><value>No hay etapas configuradas para el pipeline comercial</value></data>
+  <data name="configuration.commercialFunnel.field.stage" xml:space="preserve"><value>Etapa</value></data>
+  <data name="configuration.commercialFunnel.field.closing" xml:space="preserve"><value>Cierre</value></data>
+  <data name="configuration.commercialFunnel.field.initial" xml:space="preserve"><value>Inicial</value></data>
+  <data name="configuration.deliverableKinds.empty" xml:space="preserve"><value>No hay tipos de entrega registrados</value></data>
+  <data name="configuration.deliverableKinds.field.type" xml:space="preserve"><value>Tipo de entrega</value></data>
+  <data name="configuration.opportunitySources.empty" xml:space="preserve"><value>No hay orígenes registrados</value></data>
+  <data name="configuration.opportunitySources.confirm.delete" xml:space="preserve"><value>¿Eliminar el origen "{0}"?</value></data>
+  <data name="configuration.opportunitySources.field.source" xml:space="preserve"><value>Origen</value></data>
+  <data name="configuration.opportunityTags.empty" xml:space="preserve"><value>No hay etiquetas registradas</value></data>
+  <data name="configuration.opportunityTags.confirm.delete" xml:space="preserve"><value>¿Eliminar la etiqueta "{0}"?</value></data>
+  <data name="configuration.opportunityTags.field.tag" xml:space="preserve"><value>Etiqueta</value></data>
+  <data name="configuration.proposalBlocks.empty" xml:space="preserve"><value>No hay bloques registrados</value></data>
+  <data name="configuration.proposalBlocks.confirm.delete" xml:space="preserve"><value>¿Eliminar el bloque "{0}"?</value></data>
+  <data name="configuration.proposalBlocks.field.block" xml:space="preserve"><value>Bloque</value></data>
+  <data name="configuration.proposalBlocks.field.contentPreview" xml:space="preserve"><value>Vista previa del contenido</value></data>
+  <data name="configuration.proposalTemplates.empty" xml:space="preserve"><value>No hay plantillas de ítems registradas</value></data>
+  <data name="configuration.proposalTemplates.confirm.delete" xml:space="preserve"><value>¿Eliminar la plantilla "{0}"? Los ítems ya copiados en propuestas permanecerán allí.</value></data>
+  <data name="configuration.proposalTemplates.field.template" xml:space="preserve"><value>Plantilla</value></data>
+  <data name="configuration.proposalTemplates.field.createdBy" xml:space="preserve"><value>Creado por</value></data>
+  <data name="configuration.platforms.empty" xml:space="preserve"><value>No hay plataformas registradas</value></data>
+  <data name="configuration.proposalTemplate.confirm.deleteVersion" xml:space="preserve"><value>¿Eliminar la versión "{0}"?</value></data>
+  <data name="automations.column.when" xml:space="preserve"><value>Cuándo</value></data>
+  <data name="automations.column.action" xml:space="preserve"><value>Acción</value></data>
+  <data name="automations.column.actions" xml:space="preserve"><value>Acciones</value></data>
+  <data name="automations.count.active" xml:space="preserve"><value>{0} activas</value></data>
+  <data name="automations.count.inactive" xml:space="preserve"><value>{0} inactivas</value></data>
+  <data name="automations.action.new" xml:space="preserve"><value>Nueva automatización</value></data>
+  <data name="automations.action.createFirst" xml:space="preserve"><value>Crear primera automatización</value></data>
+  <data name="automations.empty" xml:space="preserve"><value>No hay automatizaciones registradas</value></data>
+  <data name="automations.empty.title" xml:space="preserve"><value>No hay automatizaciones configuradas</value></data>
+  <data name="automations.empty.description" xml:space="preserve"><value>Crea automatizaciones para ejecutar pipelines cuando ocurran eventos en Kanvas.</value></data>
+  <data name="creators.detail.confirm.deleteHandle" xml:space="preserve"><value>¿Eliminar el handle {0}?</value></data>
+  <data name="creators.detail.empty.handles" xml:space="preserve"><value>No hay handles sociales registrados</value></data>
+  <data name="creators.detail.empty.deliverables" xml:space="preserve"><value>Sin entregas registradas para el creator</value></data>
+  <data name="operations.approvals.empty" xml:space="preserve"><value>No hay entregas esperando aprobación</value></data>
 </root>

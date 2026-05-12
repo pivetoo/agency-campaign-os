@@ -161,7 +161,7 @@ export default function OperationsApprovals() {
             columns={columns}
             data={items}
             rowKey="deliverableId"
-            emptyText="Nenhuma entrega aguardando aprovação"
+            emptyText={t('operations.approvals.empty')}
             loading={loading}
             pageSize={10}
             pageSizeOptions={[10, 20, 50]}

@@ -85,7 +85,7 @@ export default function CreatorPaymentsPage() {
 
   const handleCancel = async () => {
     if (selected.length !== 1) return
-    if (!window.confirm(`Cancelar o pagamento de ${selected[0].creatorName}?`)) return
+    if (!window.confirm(t('financial.creatorPayments.confirm.cancel').replace('{0}', selected[0].creatorName ?? ''))) return
     const result = await runCancel(() => creatorPaymentService.cancel(selected[0].id))
     if (result !== null) void loadPayments()
   }
@@ -117,7 +117,7 @@ export default function CreatorPaymentsPage() {
     },
     {
       key: 'campaignName',
-      title: 'Campanha',
+      title: t('common.field.campaign'),
       dataIndex: 'campaignName',
       render: (value: string | undefined) => (
         <span className="text-sm text-muted-foreground">{value ?? '—'}</span>
@@ -125,14 +125,14 @@ export default function CreatorPaymentsPage() {
     },
     {
       key: 'netAmount',
-      title: 'Líquido',
+      title: t('financial.creatorPayments.field.netAmount'),
       dataIndex: 'netAmount',
       width: 120,
       render: (value: number) => `R$ ${value.toFixed(2)}`,
     },
     {
       key: 'method',
-      title: 'Método',
+      title: t('financial.creatorPayments.field.method'),
       dataIndex: 'method',
       width: 90,
       render: (value: number) => (
@@ -141,7 +141,7 @@ export default function CreatorPaymentsPage() {
     },
     {
       key: 'status',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'status',
       width: 110,
       render: (value: PaymentStatusValue) => (
@@ -150,7 +150,7 @@ export default function CreatorPaymentsPage() {
     },
     {
       key: 'invoiceNumber',
-      title: 'NF',
+      title: t('financial.creatorPayments.field.invoiceNumber'),
       dataIndex: 'invoiceNumber',
       width: 90,
       hiddenBelow: 'md',
@@ -163,7 +163,7 @@ export default function CreatorPaymentsPage() {
     },
     {
       key: 'scheduledFor',
-      title: 'Agendado',
+      title: t('financial.creatorPayments.field.scheduledFor'),
       dataIndex: 'scheduledFor',
       width: 130,
       hiddenBelow: 'md',
@@ -171,7 +171,7 @@ export default function CreatorPaymentsPage() {
     },
     {
       key: 'paidAt',
-      title: 'Pago em',
+      title: t('common.field.paidAt'),
       dataIndex: 'paidAt',
       width: 130,
       hiddenBelow: 'lg',
@@ -217,7 +217,7 @@ export default function CreatorPaymentsPage() {
                 label: paymentStatusLabels[value as PaymentStatusValue],
               }))}
               placeholder={t('financial.creatorPayments.placeholder.status')}
-              searchPlaceholder="Buscar"
+              searchPlaceholder={t('common.placeholder.search')}
             />
           </div>
           <div className="space-y-1 min-w-[260px]">
@@ -227,7 +227,7 @@ export default function CreatorPaymentsPage() {
               onValueChange={(value) => setCampaignId(value ? Number(value) : undefined)}
               options={[{ value: '', label: t('financial.creatorPayments.placeholder.allCampaigns') }, ...campaigns.map((c) => ({ value: String(c.id), label: c.name }))]}
               placeholder={t('financial.creatorPayments.placeholder.allCampaigns')}
-              searchPlaceholder="Buscar"
+              searchPlaceholder={t('common.placeholder.search')}
               onSearch={async (term) => {
                 const r = await campaignService.getAll({ search: term, pageSize: 20 })
                 return (r.data ?? []).map((c) => ({ value: String(c.id), label: c.name }))
@@ -236,22 +236,22 @@ export default function CreatorPaymentsPage() {
           </div>
           <div className="flex flex-wrap gap-2 ml-auto">
             <Button size="sm" variant="outline" onClick={() => { setEditingPayment(selectedPayment); setIsFormOpen(true) }} disabled={!selectedPayment}>
-              <Pencil size={14} className="mr-1" /> Editar
+              <Pencil size={14} className="mr-1" /> {t('common.action.edit')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setIsInvoiceOpen(true)} disabled={!selectedPayment}>
-              <Receipt size={14} className="mr-1" /> Anexar NF
+              <Receipt size={14} className="mr-1" /> {t('financial.creatorPayments.action.attachInvoice')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setIsMarkPaidOpen(true)} disabled={!selectedPayment}>
-              <Signature size={14} className="mr-1" /> Marcar pago
+              <Signature size={14} className="mr-1" /> {t('financial.creatorPayments.action.markPaid')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => void handleCancel()} disabled={!selectedPayment || cancelling}>
-              <Ban size={14} className="mr-1" /> Cancelar
+              <Ban size={14} className="mr-1" /> {t('common.action.cancel')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setIsBatchOpen(true)} disabled={!canSchedule}>
-              <Send size={14} className="mr-1" /> Agendar lote ({selected.length})
+              <Send size={14} className="mr-1" /> {t('financial.creatorPayments.action.scheduleBatch').replace('{0}', String(selected.length))}
             </Button>
             <Button size="sm" onClick={() => { setEditingPayment(null); setIsFormOpen(true) }}>
-              <Plus size={14} className="mr-1" /> Novo
+              <Plus size={14} className="mr-1" /> {t('financial.creatorPayments.action.new')}
             </Button>
           </div>
         </div>
@@ -273,7 +273,7 @@ export default function CreatorPaymentsPage() {
             rowKey="id"
             selectedRows={selected}
             onSelectionChange={(rows) => setSelected(rows)}
-            emptyText={loading ? 'Carregando...' : 'Nenhum pagamento neste filtro'}
+            emptyText={loading ? t('common.loading') : t('financial.creatorPayments.empty')}
             loading={loading}
             pageSize={20}
             pageSizeOptions={[10, 20, 50, 100]}

@@ -43,13 +43,20 @@ export default function Financial() {
   const overdue = (summaryReceivable?.totalOverdue ?? 0) + (summaryPayable?.totalOverdue ?? 0)
   const balance = receivable - payable
 
+  const statusMap: Record<number, string> = {
+    1: t('financial.entries.status.pending'),
+    2: t('financial.entries.status.paid'),
+    3: t('financial.entries.status.overdue'),
+    4: t('financial.entries.status.cancelled'),
+  }
+
   const columns: DataTableColumn<FinancialEntry>[] = [
-    { key: 'type', title: 'Tipo', dataIndex: 'type', render: (value: number) => value === 1 ? t('financial.kpi.receivable') : t('financial.kpi.payable') },
-    { key: 'description', title: 'Descrição', dataIndex: 'description' },
-    { key: 'counterpartyName', title: 'Contraparte', dataIndex: 'counterpartyName' },
-    { key: 'amount', title: 'Valor', dataIndex: 'amount', render: (value: number) => `R$ ${value.toFixed(2)}` },
-    { key: 'dueAt', title: 'Vencimento', dataIndex: 'dueAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
-    { key: 'status', title: 'Status', dataIndex: 'status', render: (value: number) => ({ 1: 'Pendente', 2: 'Pago', 3: 'Vencido', 4: 'Cancelado' }[value] || '-') },
+    { key: 'type', title: t('common.field.type'), dataIndex: 'type', render: (value: number) => value === 1 ? t('financial.kpi.receivable') : t('financial.kpi.payable') },
+    { key: 'description', title: t('common.field.description'), dataIndex: 'description' },
+    { key: 'counterpartyName', title: t('financial.entries.field.counterparty'), dataIndex: 'counterpartyName' },
+    { key: 'amount', title: t('common.field.value'), dataIndex: 'amount', render: (value: number) => `R$ ${value.toFixed(2)}` },
+    { key: 'dueAt', title: t('financial.entries.field.dueDate'), dataIndex: 'dueAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
+    { key: 'status', title: t('common.field.status'), dataIndex: 'status', render: (value: number) => statusMap[value] || '-' },
   ]
 
   return (
@@ -58,14 +65,14 @@ export default function Financial() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
           <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.receivable')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {receivable.toFixed(2)}</CardContent></Card>
           <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.payable')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {payable.toFixed(2)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">Recebido no mês</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {settled.toFixed(2)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.settledThisMonth')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {settled.toFixed(2)}</CardContent></Card>
           <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.overdue')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {overdue.toFixed(2)}</CardContent></Card>
           <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.projectedBalance')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {balance.toFixed(2)}</CardContent></Card>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Lançamentos financeiros</CardTitle>
+            <CardTitle>{t('financial.entries.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <DataTable
@@ -74,7 +81,7 @@ export default function Financial() {
               rowKey="id"
               selectedRows={[]}
               onSelectionChange={() => {}}
-              emptyText="Nenhum lançamento financeiro cadastrado"
+              emptyText={t('financial.entries.empty')}
               loading={loading}
               pageSize={pageSize}
               pageSizeOptions={[10, 20, 50]}

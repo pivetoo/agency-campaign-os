@@ -231,7 +231,7 @@ export default function ProposalTemplate() {
   }
 
   const handleDelete = async (version: ProposalTemplateVersion) => {
-    if (!window.confirm(`Excluir a versão "${version.name}"?`)) {
+    if (!window.confirm(t('configuration.proposalTemplate.confirm.deleteVersion').replace('{0}', version.name))) {
       return
     }
     const result = await runDelete(() => agencySettingsService.deleteProposalTemplateVersion(version.id))

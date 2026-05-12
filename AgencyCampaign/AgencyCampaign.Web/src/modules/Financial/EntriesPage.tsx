@@ -67,13 +67,13 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   }, [page, pageSize, filters, type])
 
   const statusLabels = isReceivable ? financialEntryReceivableStatusLabels : financialEntryStatusLabels
-  const settledLabel = isReceivable ? 'Recebido no mês' : 'Pago no mês'
-  const dueSoonLabel = isReceivable ? 'A receber em 7d' : 'A pagar em 7d'
+  const settledLabel = isReceivable ? t('financial.entries.kpi.settledReceivable') : t('financial.entries.kpi.settledPayable')
+  const dueSoonLabel = isReceivable ? t('financial.entries.kpi.dueSoonReceivable') : t('financial.entries.kpi.dueSoonPayable')
 
   const columns: DataTableColumn<FinancialEntry>[] = [
     {
       key: 'description',
-      title: 'Descrição',
+      title: t('common.field.description'),
       dataIndex: 'description',
       render: (value: string, record: FinancialEntry) => (
         <span className="inline-flex flex-col">
@@ -94,24 +94,24 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
         </span>
       ),
     },
-    { key: 'counterpartyName', title: 'Contraparte', dataIndex: 'counterpartyName', hiddenBelow: 'md', render: (value?: string) => value || '-' },
+    { key: 'counterpartyName', title: t('financial.entries.field.counterparty'), dataIndex: 'counterpartyName', hiddenBelow: 'md', render: (value?: string) => value || '-' },
     {
       key: 'category',
-      title: 'Categoria',
+      title: t('common.field.category'),
       dataIndex: 'category',
       hiddenBelow: 'md',
       render: (value: number) => <Badge variant="outline">{financialEntryCategoryLabels[value] || '-'}</Badge>,
     },
     {
       key: 'campaignName',
-      title: 'Campanha',
+      title: t('common.field.campaign'),
       dataIndex: 'campaignName',
       hiddenBelow: 'lg',
       render: (value?: string | null) => value || <span className="text-xs text-muted-foreground">—</span>,
     },
     {
       key: 'accountName',
-      title: 'Conta',
+      title: t('common.field.account'),
       dataIndex: 'accountName',
       hiddenBelow: 'lg',
       render: (value: string | null | undefined, record: FinancialEntry) => (
@@ -121,11 +121,11 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
         </span>
       ),
     },
-    { key: 'amount', title: 'Valor', dataIndex: 'amount', render: (value: number) => formatCurrency(value) },
-    { key: 'dueAt', title: 'Vencimento', dataIndex: 'dueAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
+    { key: 'amount', title: t('common.field.value'), dataIndex: 'amount', render: (value: number) => formatCurrency(value) },
+    { key: 'dueAt', title: t('financial.entries.field.dueDate'), dataIndex: 'dueAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
     {
       key: 'status',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'status',
       render: (value: number) => (
         <Badge variant={value === 2 ? 'success' : value === 3 ? 'destructive' : value === 4 ? 'outline' : 'warning'}>
@@ -146,7 +146,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
               onClick={(event) => { event.stopPropagation(); setSelected(record); setIsMarkPaidOpen(true) }}
             >
               <CheckCircle2 size={12} />
-              Confirmar
+              {t('common.action.confirm')}
             </button>
           )}
           <button
@@ -172,7 +172,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
         actions={[
           {
             key: 'new',
-            label: 'Novo lançamento',
+            label: t('financial.entries.action.new'),
             icon: <Trash2 className="h-4 w-4 hidden" />,
             onClick: () => { setSelected(null); setIsFormOpen(true) },
           },
@@ -181,9 +181,9 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 mb-4" data-tour="financial-entries-kpis">
           <Card>
             <CardContent className="pt-5 pb-5">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">{isReceivable ? 'A receber' : 'A pagar'}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{isReceivable ? t('financial.kpi.receivable') : t('financial.kpi.payable')}</p>
               <p className="text-2xl font-semibold mt-1">{formatCurrency(summary?.totalPending ?? 0)}</p>
-              <p className="text-[10px] text-muted-foreground">{summary?.pendingCount ?? 0} lançamento(s)</p>
+              <p className="text-[10px] text-muted-foreground">{summary?.pendingCount ?? 0} {t('financial.entries.kpi.count')}</p>
             </CardContent>
           </Card>
           <Card>
@@ -196,7 +196,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
             <CardContent className="pt-5 pb-5">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('financial.entries.badge.overdue')}</p>
               <p className="text-2xl font-semibold mt-1 text-destructive">{formatCurrency(summary?.totalOverdue ?? 0)}</p>
-              <p className="text-[10px] text-muted-foreground">{summary?.overdueCount ?? 0} lançamento(s)</p>
+              <p className="text-[10px] text-muted-foreground">{summary?.overdueCount ?? 0} {t('financial.entries.kpi.count')}</p>
             </CardContent>
           </Card>
           <Card>
@@ -219,7 +219,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
                 value={filters.status ? String(filters.status) : ''}
                 onValueChange={(value) => setFilters((prev) => ({ ...prev, status: value ? Number(value) : undefined }))}
                 options={[
-                  { value: '', label: 'Todos os status' },
+                  { value: '', label: t('common.filter.allStatuses') },
                   ...Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
                 ]}
                 placeholder={t('common.field.status')}
@@ -228,7 +228,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
                 value={filters.accountId ? String(filters.accountId) : ''}
                 onValueChange={(value) => setFilters((prev) => ({ ...prev, accountId: value ? Number(value) : undefined }))}
                 options={[
-                  { value: '', label: 'Todas as contas' },
+                  { value: '', label: t('financial.entries.filter.allAccounts') },
                   ...accounts.map((account) => ({ value: String(account.id), label: account.name })),
                 ]}
                 placeholder={t('financial.entries.placeholder.account')}
@@ -243,7 +243,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
               columns={columns}
               data={entries}
               rowKey="id"
-              emptyText={`Nenhum lançamento ${isReceivable ? 'a receber' : 'a pagar'} no período.`}
+              emptyText={isReceivable ? t('financial.entries.emptyReceivable') : t('financial.entries.emptyPayable')}
               loading={loading}
               pageSize={pageSize}
               pageSizeOptions={[10, 20, 50]}
@@ -254,7 +254,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
             />
 
             <div className="flex justify-end">
-              <Button onClick={() => { setSelected(null); setIsFormOpen(true) }}>Novo lançamento</Button>
+              <Button onClick={() => { setSelected(null); setIsFormOpen(true) }}>{t('financial.entries.action.new')}</Button>
             </div>
           </CardContent>
         </Card>

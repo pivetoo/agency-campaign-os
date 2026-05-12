@@ -30,12 +30,12 @@ export default function CommercialPipelineStages() {
   }, [])
 
   const columns: DataTableColumn<CommercialPipelineStage>[] = [
-    { key: 'name', title: 'Estágio', dataIndex: 'name' },
-    { key: 'displayOrder', title: 'Ordem', dataIndex: 'displayOrder' },
-    { key: 'color', title: 'Cor', dataIndex: 'color', render: (value: string) => <div className="flex items-center gap-2"><span className="h-4 w-4 rounded-full border" style={{ backgroundColor: value }} /><span>{value}</span></div> },
-    { key: 'finalBehavior', title: 'Fechamento', dataIndex: 'finalBehavior', render: (value: number) => finalBehaviorLabels[value] || 'Aberto' },
-    { key: 'isInitial', title: 'Inicial', dataIndex: 'isInitial', render: (value: boolean) => <Badge variant={value ? 'success' : 'outline'}>{value ? 'Sim' : 'Não'}</Badge> },
-    { key: 'isActive', title: 'Status', dataIndex: 'isActive', render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativo' : 'Inativo'}</Badge> },
+    { key: 'name', title: t('configuration.commercialFunnel.field.stage'), dataIndex: 'name' },
+    { key: 'displayOrder', title: t('common.field.order'), dataIndex: 'displayOrder' },
+    { key: 'color', title: t('common.field.color'), dataIndex: 'color', render: (value: string) => <div className="flex items-center gap-2"><span className="h-4 w-4 rounded-full border" style={{ backgroundColor: value }} /><span>{value}</span></div> },
+    { key: 'finalBehavior', title: t('configuration.commercialFunnel.field.closing'), dataIndex: 'finalBehavior', render: (value: number) => finalBehaviorLabels[value] || 'Aberto' },
+    { key: 'isInitial', title: t('configuration.commercialFunnel.field.initial'), dataIndex: 'isInitial', render: (value: boolean) => <Badge variant={value ? 'success' : 'outline'}>{value ? t('common.status.yes') : t('common.status.no')}</Badge> },
+    { key: 'isActive', title: t('common.field.status'), dataIndex: 'isActive', render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.active') : t('common.status.inactive')}</Badge> },
   ]
 
   return (
@@ -54,7 +54,7 @@ export default function CommercialPipelineStages() {
           rowKey="id"
           selectedRows={selectedStage ? [selectedStage] : []}
           onSelectionChange={(rows) => setSelectedStage(rows[0] ?? null)}
-          emptyText="Nenhum estágio configurado para o pipeline comercial"
+          emptyText={t('configuration.commercialFunnel.empty')}
           loading={loading}
           pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}

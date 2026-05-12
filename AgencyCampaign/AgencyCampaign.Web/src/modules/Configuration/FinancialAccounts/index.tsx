@@ -30,7 +30,7 @@ export default function FinancialAccounts() {
 
   const handleDelete = async () => {
     if (!selected) return
-    if (!window.confirm(`Excluir a conta "${selected.name}"? Se houver lançamentos, prefira inativar.`)) return
+    if (!window.confirm(t('configuration.bankAccounts.confirm.delete').replace('{0}', selected.name))) return
     const result = await runDelete(() => financialAccountService.delete(selected.id))
     if (result !== null) {
       setSelected(null)
@@ -41,7 +41,7 @@ export default function FinancialAccounts() {
   const columns: DataTableColumn<FinancialAccount>[] = [
     {
       key: 'name',
-      title: 'Conta',
+      title: t('common.field.account'),
       dataIndex: 'name',
       render: (value: string, record) => (
         <span className="inline-flex items-center gap-2">
@@ -50,14 +50,14 @@ export default function FinancialAccounts() {
         </span>
       ),
     },
-    { key: 'type', title: 'Tipo', dataIndex: 'type', render: (value: number) => financialAccountTypeLabels[value] || '-' },
-    { key: 'bank', title: 'Banco', dataIndex: 'bank', render: (value?: string | null) => value || '-' },
-    { key: 'currentBalance', title: 'Saldo atual', dataIndex: 'currentBalance', render: (value: number) => <span className={value < 0 ? 'text-destructive font-medium' : 'font-medium'}>{formatCurrency(value)}</span> },
+    { key: 'type', title: t('common.field.type'), dataIndex: 'type', render: (value: number) => financialAccountTypeLabels[value] || '-' },
+    { key: 'bank', title: t('configuration.bankAccounts.field.bank'), dataIndex: 'bank', render: (value?: string | null) => value || '-' },
+    { key: 'currentBalance', title: t('configuration.bankAccounts.field.currentBalance'), dataIndex: 'currentBalance', render: (value: number) => <span className={value < 0 ? 'text-destructive font-medium' : 'font-medium'}>{formatCurrency(value)}</span> },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
-      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativa' : 'Inativa'}</Badge>,
+      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}</Badge>,
     },
   ]
 
@@ -73,7 +73,7 @@ export default function FinancialAccounts() {
         actions={[
           {
             key: 'delete',
-            label: 'Excluir',
+            label: t('common.action.delete'),
             icon: <Trash2 className="h-4 w-4" />,
             variant: 'outline-danger',
             disabled: !selected || deleting,
@@ -87,7 +87,7 @@ export default function FinancialAccounts() {
           rowKey="id"
           selectedRows={selected ? [selected] : []}
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
-          emptyText="Nenhuma conta cadastrada"
+          emptyText={t('configuration.bankAccounts.empty')}
           loading={loading}
           pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}

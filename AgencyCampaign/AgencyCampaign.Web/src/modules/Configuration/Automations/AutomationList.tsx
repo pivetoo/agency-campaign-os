@@ -5,6 +5,7 @@ import {
   CardContent,
   Badge,
   useApi,
+  useI18n,
   DataTable,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
@@ -25,6 +26,7 @@ interface ResolvedNames {
 }
 
 export default function AutomationList({ onCreate, onEdit }: AutomationListProps) {
+  const { t } = useI18n()
   const [automations, setAutomations] = useState<Automation[]>([])
   const [resolved, setResolved] = useState<Record<number, ResolvedNames>>({})
 
@@ -74,7 +76,7 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
   const columns: DataTableColumn<Automation>[] = [
     {
       key: 'name',
-      title: 'Nome',
+      title: t('common.field.name'),
       render: (value: string, row: Automation) => (
         <div className="flex items-center gap-2">
           <Zap size={16} className={row.isActive ? 'text-green-500' : 'text-muted-foreground'} />
@@ -84,14 +86,14 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
     },
     {
       key: 'trigger',
-      title: 'Quando',
+      title: t('automations.column.when'),
       render: (value: string) => (
         <Badge variant="secondary">{automationTriggerLabels[value] ?? value}</Badge>
       ),
     },
     {
       key: 'connectorId',
-      title: 'Conta',
+      title: t('common.field.account'),
       render: (_value: number, row: Automation) => {
         const lookup = resolved[row.id]
         return lookup?.connectorName ? (
@@ -103,7 +105,7 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
     },
     {
       key: 'pipelineId',
-      title: 'Ação',
+      title: t('automations.column.action'),
       render: (_value: number, row: Automation) => {
         const lookup = resolved[row.id]
         return lookup?.pipelineName ? (
@@ -115,19 +117,19 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'outline'}>
-          {value ? 'Ativa' : 'Inativa'}
+          {value ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}
         </Badge>
       ),
     },
     {
       key: 'actions',
-      title: 'Ações',
+      title: t('automations.column.actions'),
       render: (_: unknown, row: Automation) => (
         <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
-          Editar
+          {t('common.action.edit')}
         </Button>
       ),
     },
@@ -140,12 +142,12 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Badge variant="success">{activeCount} ativas</Badge>
-          {inactiveCount > 0 && <Badge variant="outline">{inactiveCount} inativas</Badge>}
+          <Badge variant="success">{t('automations.count.active').replace('{0}', String(activeCount))}</Badge>
+          {inactiveCount > 0 && <Badge variant="outline">{t('automations.count.inactive').replace('{0}', String(inactiveCount))}</Badge>}
         </div>
         <Button onClick={onCreate}>
           <Plus size={16} className="mr-1" />
-          Nova automação
+          {t('automations.action.new')}
         </Button>
       </div>
 
@@ -154,7 +156,7 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
           columns={columns}
           data={automations}
           rowKey="id"
-          emptyText="Nenhuma automação cadastrada"
+          emptyText={t('automations.empty')}
           loading={loading}
           pageSize={10}
         />
@@ -162,13 +164,13 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Zap size={48} className="text-muted-foreground mb-4" />
-            <p className="text-lg font-medium">Nenhuma automação configurada</p>
+            <p className="text-lg font-medium">{t('automations.empty.title')}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Crie automações para executar pipelines quando eventos acontecerem no Kanvas.
+              {t('automations.empty.description')}
             </p>
             <Button className="mt-4" onClick={onCreate}>
               <Plus size={16} className="mr-1" />
-              Criar primeira automação
+              {t('automations.action.createFirst')}
             </Button>
           </CardContent>
         </Card>

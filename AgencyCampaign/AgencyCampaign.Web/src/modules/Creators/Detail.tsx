@@ -89,7 +89,7 @@ export default function CreatorDetail() {
   }, [creatorId])
 
   const handleDeleteHandle = async (handle: CreatorSocialHandle) => {
-    if (!window.confirm(`Excluir o handle ${handle.handle}?`)) return
+    if (!window.confirm(t('creators.detail.confirm.deleteHandle').replace('{0}', handle.handle))) return
     const result = await runDelete(() => creatorSocialHandleService.delete(handle.id))
     if (result !== null) {
       void loadHandles()
@@ -127,7 +127,7 @@ export default function CreatorDetail() {
       key: 'isActive',
       title: 'Status',
       dataIndex: 'isActive',
-      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativo' : 'Inativo'}</Badge>,
+      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.active') : t('common.status.inactive')}</Badge>,
     },
     {
       key: 'actions',
@@ -231,7 +231,7 @@ export default function CreatorDetail() {
                   {creator.city && <span>· {creator.city}{creator.state ? `/${creator.state}` : ''}</span>}
                   {creator.email && <span>· {creator.email}</span>}
                   <Badge variant={creator.isActive ? 'success' : 'destructive'} className="ml-1">
-                    {creator.isActive ? 'Ativo' : 'Inativo'}
+                    {creator.isActive ? t('common.status.active') : t('common.status.inactive')}
                   </Badge>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export default function CreatorDetail() {
                   columns={handleColumns}
                   data={handles}
                   rowKey="id"
-                  emptyText="Nenhum handle social cadastrado"
+                  emptyText={t('creators.detail.empty.handles')}
                   loading={handlesLoading}
                   pageSize={10}
                 />
@@ -329,7 +329,7 @@ export default function CreatorDetail() {
                   columns={platformColumns}
                   data={summary?.performanceByPlatform ?? []}
                   rowKey="platformId"
-                  emptyText="Sem entregas registradas para o creator"
+                  emptyText={t('creators.detail.empty.deliverables')}
                   pageSize={10}
                 />
               </CardContent>

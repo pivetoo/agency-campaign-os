@@ -27,7 +27,7 @@ export default function FinancialSubcategories() {
 
   const handleDelete = async () => {
     if (!selected) return
-    if (!window.confirm(`Excluir a subcategoria "${selected.name}"?`)) return
+    if (!window.confirm(t('configuration.financialSubcategories.confirm.delete').replace('{0}', selected.name))) return
     const result = await runDelete(() => financialSubcategoryService.delete(selected.id))
     if (result !== null) {
       setSelected(null)
@@ -38,7 +38,7 @@ export default function FinancialSubcategories() {
   const columns: DataTableColumn<FinancialSubcategory>[] = [
     {
       key: 'name',
-      title: 'Subcategoria',
+      title: t('configuration.financialSubcategories.field.subcategory'),
       dataIndex: 'name',
       render: (value: string, record) => (
         <span
@@ -51,15 +51,15 @@ export default function FinancialSubcategories() {
     },
     {
       key: 'macroCategory',
-      title: 'Categoria macro',
+      title: t('configuration.financialSubcategories.field.macroCategory'),
       dataIndex: 'macroCategory',
       render: (value: number) => financialEntryCategoryLabels[value] || '-',
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
-      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativa' : 'Inativa'}</Badge>,
+      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}</Badge>,
     },
   ]
 
@@ -75,7 +75,7 @@ export default function FinancialSubcategories() {
         actions={[
           {
             key: 'delete',
-            label: 'Excluir',
+            label: t('common.action.delete'),
             icon: <Trash2 className="h-4 w-4" />,
             variant: 'outline-danger',
             disabled: !selected || deleting,
@@ -89,7 +89,7 @@ export default function FinancialSubcategories() {
           rowKey="id"
           selectedRows={selected ? [selected] : []}
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
-          emptyText="Nenhuma subcategoria cadastrada"
+          emptyText={t('configuration.financialSubcategories.empty')}
           loading={loading}
           pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}

@@ -24,13 +24,13 @@ export default function DeliverableKinds() {
   }, [])
 
   const columns: DataTableColumn<DeliverableKind>[] = [
-    { key: 'name', title: 'Tipo de entrega', dataIndex: 'name' },
-    { key: 'displayOrder', title: 'Ordem', dataIndex: 'displayOrder' },
+    { key: 'name', title: t('configuration.deliverableKinds.field.type'), dataIndex: 'name' },
+    { key: 'displayOrder', title: t('common.field.order'), dataIndex: 'displayOrder' },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
-      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativo' : 'Inativo'}</Badge>,
+      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.active') : t('common.status.inactive')}</Badge>,
     },
   ]
 
@@ -50,7 +50,7 @@ export default function DeliverableKinds() {
           rowKey="id"
           selectedRows={selectedDeliverableKind ? [selectedDeliverableKind] : []}
           onSelectionChange={(rows) => setSelectedDeliverableKind(rows[0] ?? null)}
-          emptyText="Nenhum tipo de entrega cadastrado"
+          emptyText={t('configuration.deliverableKinds.empty')}
           loading={loading}
           pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}

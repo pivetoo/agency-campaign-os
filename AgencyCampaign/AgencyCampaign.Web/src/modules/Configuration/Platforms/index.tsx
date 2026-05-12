@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi } from 'archon-ui'
+import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { platformService } from '../../../services/platformService'
 import type { Platform } from '../../../types/platform'
 import PlatformFormModal from '../../../components/modals/PlatformFormModal'
 
 export default function Platforms() {
+  const { t } = useI18n()
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -23,13 +24,13 @@ export default function Platforms() {
   }, [])
 
   const columns: DataTableColumn<Platform>[] = [
-    { key: 'name', title: 'Plataforma', dataIndex: 'name' },
-    { key: 'displayOrder', title: 'Ordem', dataIndex: 'displayOrder' },
+    { key: 'name', title: t('common.field.platform'), dataIndex: 'name' },
+    { key: 'displayOrder', title: t('common.field.order'), dataIndex: 'displayOrder' },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
-      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Ativa' : 'Inativa'}</Badge>,
+      render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}</Badge>,
     },
   ]
 
@@ -49,7 +50,7 @@ export default function Platforms() {
           rowKey="id"
           selectedRows={selectedPlatform ? [selectedPlatform] : []}
           onSelectionChange={(rows) => setSelectedPlatform(rows[0] ?? null)}
-          emptyText="Nenhuma plataforma cadastrada"
+          emptyText={t('configuration.platforms.empty')}
           loading={loading}
           pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}

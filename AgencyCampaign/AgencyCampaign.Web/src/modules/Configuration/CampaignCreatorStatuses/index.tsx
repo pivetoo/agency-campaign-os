@@ -30,11 +30,11 @@ export default function CampaignCreatorStatuses() {
   }, [])
 
   const columns: DataTableColumn<CampaignCreatorStatus>[] = [
-    { key: 'name', title: 'Status', dataIndex: 'name' },
-    { key: 'displayOrder', title: 'Ordem', dataIndex: 'displayOrder' },
+    { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
+    { key: 'displayOrder', title: t('common.field.order'), dataIndex: 'displayOrder' },
     {
       key: 'color',
-      title: 'Cor',
+      title: t('common.field.color'),
       dataIndex: 'color',
       render: (value: string) => (
         <div className="flex items-center gap-2">
@@ -43,9 +43,9 @@ export default function CampaignCreatorStatuses() {
         </div>
       ),
     },
-    { key: 'category', title: 'Categoria', dataIndex: 'category', render: (value: number) => categoryLabels[value] || 'Em andamento' },
-    { key: 'isInitial', title: 'Inicial', dataIndex: 'isInitial', render: (value: boolean) => <Badge variant={value ? 'success' : 'outline'}>{value ? 'Sim' : 'Não'}</Badge> },
-    { key: 'isActive', title: 'Ativo', dataIndex: 'isActive', render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? 'Sim' : 'Não'}</Badge> },
+    { key: 'category', title: t('common.field.category'), dataIndex: 'category', render: (value: number) => categoryLabels[value] || 'Em andamento' },
+    { key: 'isInitial', title: t('configuration.creatorStatuses.field.initial'), dataIndex: 'isInitial', render: (value: boolean) => <Badge variant={value ? 'success' : 'outline'}>{value ? t('common.status.yes') : t('common.status.no')}</Badge> },
+    { key: 'isActive', title: t('common.field.status'), dataIndex: 'isActive', render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.yes') : t('common.status.no')}</Badge> },
   ]
 
   return (
@@ -64,7 +64,7 @@ export default function CampaignCreatorStatuses() {
           rowKey="id"
           selectedRows={selectedStatus ? [selectedStatus] : []}
           onSelectionChange={(rows) => setSelectedStatus(rows[0] ?? null)}
-          emptyText="Nenhum status configurado"
+          emptyText={t('configuration.creatorStatuses.empty')}
           loading={loading}
           pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}
