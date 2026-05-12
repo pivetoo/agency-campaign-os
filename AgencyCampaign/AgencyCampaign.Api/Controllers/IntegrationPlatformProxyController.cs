@@ -213,7 +213,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             List<PipelineDto> pipelines = await integrationPlatformClient.GetPipelinesByIntegrationAsync(connector.IntegrationId, cancellationToken);
-            PipelineDto? testPipeline = pipelines.FirstOrDefault(item => item.Identifier.EndsWith("-test-connection") && item.IsActive);
+            PipelineDto? testPipeline = pipelines.FirstOrDefault(item => item.IsTestPipeline && item.IsActive);
 
             if (testPipeline is null)
             {

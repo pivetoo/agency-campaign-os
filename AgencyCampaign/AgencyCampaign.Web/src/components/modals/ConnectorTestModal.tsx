@@ -111,9 +111,11 @@ export default function ConnectorTestModal({ open, onOpenChange, connector, inte
 
         <div className="space-y-4">
           <div className="rounded-lg border bg-muted/30 p-3 text-sm">
-            <p className="font-medium">{integration?.name ?? '—'}</p>
-            <p className="text-xs text-muted-foreground">
-              Vamos executar o pipeline <code className="rounded bg-background px-1 py-0.5 text-[10px]">{integration?.identifier}-test-connection</code> com os dados abaixo.
+            <p className="font-medium">{integration?.name ?? '—'} · {connector?.name ?? '—'}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {fields.length > 0
+                ? 'Preencha os dados abaixo para validar se a integração está configurada e funcionando corretamente.'
+                : 'Vamos verificar se as credenciais estão corretas e a integração está acessível.'}
             </p>
           </div>
 
