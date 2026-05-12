@@ -84,6 +84,8 @@ export default function Integrations() {
   const [isAutomationModalOpen, setIsAutomationModalOpen] = useState(false)
   const [selectedAutomation, setSelectedAutomation] = useState<Automation | null>(null)
   const [automationPresetConnectorId, setAutomationPresetConnectorId] = useState<number | null>(null)
+  const [automationPresetCategoryId, setAutomationPresetCategoryId] = useState<number | null>(null)
+  const [automationPresetIntegrationId, setAutomationPresetIntegrationId] = useState<number | null>(null)
   const [automationsRefreshKey, setAutomationsRefreshKey] = useState(0)
 
   const { execute: fetchCategories, loading: loadingCategories } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
@@ -246,19 +248,25 @@ export default function Integrations() {
   const openCreateAutomationForConnector = (connector: Connector) => {
     setSelectedAutomation(null)
     setAutomationPresetConnectorId(connector.id)
+    setAutomationPresetCategoryId(selectedCategoryId)
+    setAutomationPresetIntegrationId(selectedIntegrationId)
     setIsAutomationModalOpen(true)
   }
 
   const openCreateAutomationForIntegration = () => {
     setSelectedAutomation(null)
-    const firstActive = connectorsForSelectedIntegration.find((c) => c.isActive)
-    setAutomationPresetConnectorId(firstActive?.id ?? null)
+    const activeForIntegration = connectorsForSelectedIntegration.filter((c) => c.isActive)
+    setAutomationPresetConnectorId(activeForIntegration.length === 1 ? activeForIntegration[0].id : null)
+    setAutomationPresetCategoryId(selectedCategoryId)
+    setAutomationPresetIntegrationId(selectedIntegrationId)
     setIsAutomationModalOpen(true)
   }
 
   const editAutomation = (automation: Automation) => {
     setSelectedAutomation(automation)
     setAutomationPresetConnectorId(null)
+    setAutomationPresetCategoryId(null)
+    setAutomationPresetIntegrationId(null)
     setIsAutomationModalOpen(true)
   }
 
@@ -666,11 +674,15 @@ export default function Integrations() {
               onCreate={() => {
                 setSelectedAutomation(null)
                 setAutomationPresetConnectorId(null)
+                setAutomationPresetCategoryId(null)
+                setAutomationPresetIntegrationId(null)
                 setIsAutomationModalOpen(true)
               }}
               onEdit={(automation: Automation) => {
                 setSelectedAutomation(automation)
                 setAutomationPresetConnectorId(null)
+                setAutomationPresetCategoryId(null)
+                setAutomationPresetIntegrationId(null)
                 setIsAutomationModalOpen(true)
               }}
             />
@@ -697,10 +709,14 @@ export default function Integrations() {
         onOpenChange={setIsAutomationModalOpen}
         automation={selectedAutomation}
         presetConnectorId={automationPresetConnectorId}
+        presetCategoryId={automationPresetCategoryId}
+        presetIntegrationId={automationPresetIntegrationId}
         onSuccess={() => {
           setIsAutomationModalOpen(false)
           setSelectedAutomation(null)
           setAutomationPresetConnectorId(null)
+          setAutomationPresetCategoryId(null)
+          setAutomationPresetIntegrationId(null)
           setAutomationsRefreshKey((prev) => prev + 1)
           void loadAutomations()
         }}

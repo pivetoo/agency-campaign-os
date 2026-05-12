@@ -31,6 +31,8 @@ interface Props {
   onOpenChange: (open: boolean) => void
   automation: Automation | null
   presetConnectorId?: number | null
+  presetCategoryId?: number | null
+  presetIntegrationId?: number | null
   onSuccess: () => void
 }
 
@@ -70,7 +72,7 @@ function mappingToObject(rows: MappingRow[]): Record<string, string> {
   }, {})
 }
 
-export default function AutomationFormModal({ open, onOpenChange, automation, presetConnectorId, onSuccess }: Props) {
+export default function AutomationFormModal({ open, onOpenChange, automation, presetConnectorId, presetCategoryId, presetIntegrationId, onSuccess }: Props) {
   const { t } = useI18n()
   const isEditing = !!automation
   const [name, setName] = useState('')
@@ -113,18 +115,18 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
       setName('')
       setTrigger('proposal_sent')
       setTriggerCondition('')
-      setCategoryId(null)
-      setIntegrationId(null)
+      setCategoryId(presetCategoryId ?? null)
+      setIntegrationId(presetIntegrationId ?? null)
       setConnectorId(presetConnectorId ?? null)
       setPipelineId(null)
       setMappingRows([])
       setIsActive(true)
 
-      if (presetConnectorId) {
+      if (presetConnectorId && !presetIntegrationId) {
         void resolveSelectionFromConnector(presetConnectorId)
       }
     }
-  }, [open, automation, presetConnectorId])
+  }, [open, automation, presetConnectorId, presetCategoryId, presetIntegrationId])
 
   const resolveSelectionFromConnector = async (connectorIdValue: number) => {
     try {
@@ -154,7 +156,15 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
       setPipelines([])
       return
     }
-    void integrationPlatformService.getConnectorsByIntegration(integrationId).then(setConnectors)
+    void integrationPlatformService.getConnectorsByIntegration(integrationId).then((result) => {
+      setConnectors(result)
+      if (!presetConnectorId) {
+        const active = result.filter((c) => c.isActive)
+        if (active.length === 1) {
+          setConnectorId(active[0].id)
+        }
+      }
+    })
     void integrationPlatformService.getPipelinesByIntegration(integrationId).then(setPipelines)
   }, [integrationId])
 
