@@ -279,20 +279,22 @@ export default function Integrations() {
         title={t('configuration.integrations.title')}
         subtitle={t('configuration.integrations.subtitle')}
       >
-        <div className="mb-5 flex items-center gap-2.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-950/30">
-          <Megaphone className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <p className="text-xs text-amber-800 dark:text-amber-300">
+        <div className="mb-5 flex items-center gap-2.5 rounded-md border border-orange-200 bg-orange-50 px-3 py-2 dark:border-orange-800 dark:bg-orange-950/30">
+          <Megaphone className="h-4 w-4 shrink-0 text-orange-500 dark:text-orange-400" />
+          <p className="text-xs text-orange-800 dark:text-orange-300">
             Não encontrou a integração que precisa?{' '}
             <a
               href="https://portal.mainstay.com.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-0.5 font-semibold underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200"
+              className="inline-flex items-center gap-0.5 font-semibold underline underline-offset-2 hover:text-orange-900 dark:hover:text-orange-200"
             >
-              Abra um ticket no portal do cliente
+              Abra um ticket no nosso portal do cliente
               <ExternalLink className="h-3 w-3" />
             </a>
-            {' '}— desenvolvemos sem custo e em até 48 horas.
+            {' '}— desenvolvemos a nova integração{' '}
+            <span className="font-semibold">sem custo adicional</span> e com prazo de{' '}
+            <span className="font-semibold">48 horas</span> para estar disponível.
           </p>
         </div>
 
