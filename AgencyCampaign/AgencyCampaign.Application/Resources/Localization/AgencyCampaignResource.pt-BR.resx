@@ -500,7 +500,7 @@
   <data name="deliverable.status.approved" xml:space="preserve"><value>Aprovada</value></data>
   <data name="deliverable.status.published" xml:space="preserve"><value>Publicada</value></data>
   <data name="deliverable.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
-  <data name="configuration.agency.title" xml:space="preserve"><value>Dados da agência</value></data>
+  <data name="configuration.agency.title" xml:space="preserve"><value>Agência</value></data>
   <data name="configuration.agency.brandIdentity" xml:space="preserve"><value>Identidade visual da agência</value></data>
   <data name="configuration.agency.identity" xml:space="preserve"><value>Identidade</value></data>
   <data name="configuration.agency.legalName" xml:space="preserve"><value>Razão social</value></data>
