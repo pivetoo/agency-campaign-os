@@ -279,7 +279,7 @@ export default function Integrations() {
         title={t('configuration.integrations.title')}
         subtitle={t('configuration.integrations.subtitle')}
       >
-        <div className="mb-5 flex items-center gap-2.5 rounded-md border border-primary/30 px-3 py-2">
+        <div className="mb-5 flex w-fit items-center gap-2.5 rounded-md border border-primary/30 px-3 py-2">
           <Megaphone className="h-4 w-4 shrink-0 text-amber-500" />
           <p className="text-xs text-primary/80">
             Não encontrou a integração que precisa?{' '}
