@@ -279,15 +279,15 @@ export default function Integrations() {
         title={t('configuration.integrations.title')}
         subtitle={t('configuration.integrations.subtitle')}
       >
-        <div className="mb-5 flex items-center gap-2.5 rounded-md border border-orange-200 px-3 py-2 dark:border-orange-800">
-          <Megaphone className="h-4 w-4 shrink-0 text-orange-500 dark:text-orange-400" />
-          <p className="text-xs text-orange-800 dark:text-orange-300">
+        <div className="mb-5 flex items-center gap-2.5 rounded-md border border-primary/30 px-3 py-2">
+          <Megaphone className="h-4 w-4 shrink-0 text-primary" />
+          <p className="text-xs text-primary/80">
             Não encontrou a integração que precisa?{' '}
             <a
               href="https://portal.mainstay.com.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-0.5 font-semibold underline underline-offset-2 hover:text-orange-900 dark:hover:text-orange-200"
+              className="inline-flex items-center gap-0.5 font-semibold underline underline-offset-2 hover:text-primary"
             >
               Abra um ticket no nosso portal do cliente
               <ExternalLink className="h-3 w-3" />
