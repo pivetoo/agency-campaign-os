@@ -4,9 +4,11 @@ using AgencyCampaign.Application.Requests.EmailTemplates;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using AgencyCampaign.Infrastructure.Clients;
 using Archon.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace AgencyCampaign.Infrastructure.Services
@@ -111,10 +113,12 @@ namespace AgencyCampaign.Infrastructure.Services
         private static readonly Regex PlaceholderRegex = new(@"\{\{\s*(\w+)\s*\}\}", RegexOptions.Compiled);
 
         private readonly DbContext dbContext;
+        private readonly IntegrationPlatformClient integrationPlatformClient;
 
-        public EmailService(DbContext dbContext)
+        public EmailService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient)
         {
             this.dbContext = dbContext;
+            this.integrationPlatformClient = integrationPlatformClient;
         }
 
         public async Task SendForEvent(EmailEventType eventType, IReadOnlyCollection<string> recipients, IReadOnlyDictionary<string, object?> payload, CancellationToken cancellationToken = default)
@@ -135,17 +139,40 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (template is null)
             {
-                Console.WriteLine($"[EmailService] No active template for event {eventType}, skipping.");
+                Console.WriteLine($"[EmailService] no active template for event {eventType}, skipping.");
+                return;
+            }
+
+            AgencySettings? settings = await dbContext.Set<AgencySettings>()
+                .AsNoTracking()
+                .OrderBy(item => item.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (settings?.DefaultEmailConnectorId is null || settings.DefaultEmailPipelineId is null)
+            {
+                Console.WriteLine($"[EmailService] email connector/pipeline not configured, skipping event {eventType}.");
                 return;
             }
 
             string subject = Render(template.Subject, payload);
             string htmlBody = Render(template.HtmlBody, payload);
 
-            // TODO Fase B: enfileirar via IntegrationPlatformClient.EnqueuePipelineAsync
-            // com pipelineId resolvido a partir da configuração de automação.
-            Console.WriteLine($"[EmailService] event={eventType} recipients={string.Join(",", recipients)} subject=\"{subject}\"");
-            Console.WriteLine($"[EmailService] body preview: {htmlBody.Substring(0, Math.Min(htmlBody.Length, 200))}...");
+            string enqueuePayload = JsonSerializer.Serialize(new
+            {
+                to = string.Join(",", recipients),
+                subject,
+                body = htmlBody
+            });
+
+            EnqueuePipelineRequest request = new()
+            {
+                ConnectorId = settings.DefaultEmailConnectorId.Value,
+                PipelineId = settings.DefaultEmailPipelineId.Value,
+                Payload = enqueuePayload,
+                Priority = 0
+            };
+
+            await integrationPlatformClient.EnqueuePipelineAsync(request, cancellationToken);
         }
 
         private static string Render(string template, IReadOnlyDictionary<string, object?> values)

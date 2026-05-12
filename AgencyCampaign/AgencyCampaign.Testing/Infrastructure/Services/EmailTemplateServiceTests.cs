@@ -137,7 +137,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new EmailService(db);
+            service = new EmailService(db, IntegrationPlatformClientFactory.CreateInert());
         }
 
         [TearDown]
