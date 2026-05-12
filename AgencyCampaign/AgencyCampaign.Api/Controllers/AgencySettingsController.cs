@@ -86,5 +86,35 @@ namespace AgencyCampaign.Api.Controllers
             var result = await service.SetDefaultEmailConnector(connectorId, cancellationToken);
             return Http200(result, Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite consultar os layouts de proposta disponíveis.")]
+        [GetEndpoint("[action]")]
+        public async Task<IActionResult> GetProposalLayouts(CancellationToken cancellationToken)
+        {
+            var layouts = await service.GetProposalLayouts(cancellationToken);
+            return Http200(layouts);
+        }
+
+        [RequireAccess("Permite salvar o template HTML da proposta.")]
+        [PutEndpoint("[action]")]
+        public async Task<IActionResult> SaveProposalTemplate([FromBody] SetProposalTemplateRequest request, CancellationToken cancellationToken)
+        {
+            var result = await service.SaveProposalTemplate(request.Template, cancellationToken);
+            return Http200(result, Localizer["record.updated"]);
+        }
+
+        [RequireAccess("Permite visualizar um preview do template HTML da proposta.")]
+        [PostEndpoint("[action]")]
+        public async Task<IActionResult> PreviewProposalTemplate([FromBody] PreviewProposalTemplateRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            string html = await service.PreviewProposalTemplate(request.Template, cancellationToken);
+            return Http200(new { html });
+        }
     }
 }

@@ -16,6 +16,7 @@
     "test:e2e:cleanup": "E2E_CLEANUP=1 playwright test --config=e2e/playwright.config.ts e2e/tests/99-cleanup.spec.ts"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@nivo/core": "^0.99.0",
     "@nivo/line": "^0.99.0",
     "@nivo/pie": "^0.99.0",

@@ -45,4 +45,22 @@ export const agencySettingsService = {
     const query = connectorId == null ? '' : `?connectorId=${connectorId}`
     return httpClient.put<AgencySettings>(`${BASE_URL}/SetDefaultEmailConnector${query}`)
   },
+
+  getProposalLayouts() {
+    return httpClient.get<ProposalLayout[]>(`${BASE_URL}/GetProposalLayouts`)
+  },
+
+  saveProposalTemplate(template: string | null) {
+    return httpClient.put<AgencySettings>(`${BASE_URL}/SaveProposalTemplate`, { template })
+  },
+
+  previewProposalTemplate(template: string) {
+    return httpClient.post<{ html: string }>(`${BASE_URL}/PreviewProposalTemplate`, { template })
+  },
+}
+
+export interface ProposalLayout {
+  key: string
+  name: string
+  template: string
 }

@@ -10,4 +10,5 @@ export interface AgencySettings {
   primaryColor?: string | null
   defaultEmailConnectorId?: number | null
   defaultEmailPipelineId?: number | null
+  proposalHtmlTemplate?: string | null
 }

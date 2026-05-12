@@ -24,6 +24,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public long? DefaultEmailPipelineId { get; private set; }
 
+        public string? ProposalHtmlTemplate { get; private set; }
+
         private AgencySettings()
         {
         }
@@ -53,6 +55,11 @@ namespace AgencyCampaign.Domain.Entities
         public void SetLogo(string? logoUrl)
         {
             LogoUrl = Normalize(logoUrl);
+        }
+
+        public void SetProposalHtmlTemplate(string? template)
+        {
+            ProposalHtmlTemplate = string.IsNullOrWhiteSpace(template) ? null : template.Trim();
         }
 
         private static string? Normalize(string? value)

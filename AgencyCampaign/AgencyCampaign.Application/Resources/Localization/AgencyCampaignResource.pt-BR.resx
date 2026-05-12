@@ -153,6 +153,7 @@
   <data name="nav.item.opportunityTags" xml:space="preserve"><value>Tags de oportunidade</value></data>
   <data name="nav.item.proposalTemplates" xml:space="preserve"><value>Templates de proposta</value></data>
   <data name="nav.item.proposalBlocks" xml:space="preserve"><value>Blocos de proposta</value></data>
+  <data name="nav.item.proposalTemplate" xml:space="preserve"><value>Template PDF</value></data>
   <data name="nav.item.socialNetworks" xml:space="preserve"><value>Redes sociais</value></data>
   <data name="nav.item.creatorStatus" xml:space="preserve"><value>Status do influenciador</value></data>
   <data name="nav.item.deliverableKinds" xml:space="preserve"><value>Tipos de entrega</value></data>
@@ -547,6 +548,8 @@
   <data name="configuration.proposalBlocks.subtitle" xml:space="preserve"><value>Cláusulas, condições e descrições reutilizáveis para montar propostas.</value></data>
   <data name="configuration.proposalTemplates.title" xml:space="preserve"><value>Templates de proposta</value></data>
   <data name="configuration.proposalTemplates.subtitle" xml:space="preserve"><value>Modelos reutilizáveis com itens padrão para agilizar a criação de propostas.</value></data>
+  <data name="configuration.proposalTemplate.title" xml:space="preserve"><value>Template PDF</value></data>
+  <data name="configuration.proposalTemplate.subtitle" xml:space="preserve"><value>Personalize o layout do PDF de proposta com HTML e CSS.</value></data>
   <data name="configuration.dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="configuration.dashboard.refresh" xml:space="preserve"><value>Atualizar</value></data>
   <data name="configuration.dashboard.kpi.activeAutomations" xml:space="preserve"><value>Automações ativas</value></data>

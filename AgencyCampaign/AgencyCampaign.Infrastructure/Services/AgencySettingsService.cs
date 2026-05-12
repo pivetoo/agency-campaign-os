@@ -79,6 +79,26 @@ namespace AgencyCampaign.Infrastructure.Services
             return Map(settings);
         }
 
+        public async Task<AgencySettingsModel> SaveProposalTemplate(string? template, CancellationToken cancellationToken = default)
+        {
+            AgencySettings settings = await ResolveOrCreate(cancellationToken);
+            settings.SetProposalHtmlTemplate(template);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return Map(settings);
+        }
+
+        public async Task<string> PreviewProposalTemplate(string template, CancellationToken cancellationToken = default)
+        {
+            AgencySettings settings = await ResolveOrCreate(cancellationToken);
+            return ProposalHtmlBuilder.BuildPreview(template, settings);
+        }
+
+        public Task<IReadOnlyList<ProposalLayoutModel>> GetProposalLayouts(CancellationToken cancellationToken = default)
+        {
+            IReadOnlyList<ProposalLayoutModel> layouts = ProposalHtmlBuilder.GetLayouts();
+            return Task.FromResult(layouts);
+        }
+
         private async Task<AgencySettings> ResolveOrCreate(CancellationToken cancellationToken)
         {
             AgencySettings? existing = await dbContext.Set<AgencySettings>()
@@ -109,7 +129,8 @@ namespace AgencyCampaign.Infrastructure.Services
             LogoUrl = settings.LogoUrl,
             PrimaryColor = settings.PrimaryColor,
             DefaultEmailConnectorId = settings.DefaultEmailConnectorId,
-            DefaultEmailPipelineId = settings.DefaultEmailPipelineId
+            DefaultEmailPipelineId = settings.DefaultEmailPipelineId,
+            ProposalHtmlTemplate = settings.ProposalHtmlTemplate
         };
     }
 }
