@@ -279,22 +279,21 @@ export default function Integrations() {
         title={t('configuration.integrations.title')}
         subtitle={t('configuration.integrations.subtitle')}
       >
-        <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-700 dark:bg-amber-950/40">
-          <Megaphone className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
-          <div className="flex-1 text-sm text-amber-800 dark:text-amber-300">
-            <span className="font-semibold">Não encontrou a integração que precisa?</span>
-            {' '}Abra um ticket no nosso portal do cliente — desenvolvemos a nova integração{' '}
-            <span className="font-semibold">sem custo adicional</span> e com prazo de{' '}
-            <span className="font-semibold">48 horas</span> para estar disponível.
-          </div>
-          <a
-            href="https://portal.mainstay.com.br"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-2 mt-0.5 flex shrink-0 items-center gap-1 text-sm font-semibold text-amber-700 underline underline-offset-2 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200"
-          >
-            Abrir ticket <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+        <div className="mb-5 flex items-center gap-2.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-950/30">
+          <Megaphone className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <p className="text-xs text-amber-800 dark:text-amber-300">
+            Não encontrou a integração que precisa?{' '}
+            <a
+              href="https://portal.mainstay.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-0.5 font-semibold underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200"
+            >
+              Abra um ticket no portal do cliente
+              <ExternalLink className="h-3 w-3" />
+            </a>
+            {' '}— desenvolvemos sem custo e em até 48 horas.
+          </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
