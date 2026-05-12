@@ -245,7 +245,7 @@ export default function ConnectorConfigModal({
                 value={value}
                 onChange={(e) => setValues((prev) => ({ ...prev, [attr.id]: e.target.value }))}
                 className={`pr-10 ${commonClasses}`}
-                style={!isVisible ? { WebkitTextSecurity: 'disc' } as React.CSSProperties : undefined}
+                style={!isVisible ? ({ WebkitTextSecurity: 'disc' } as never) : undefined}
               />
               <button
                 type="button"
