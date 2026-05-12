@@ -85,7 +85,7 @@ export default function CommercialProposals() {
   const buildFilters = (): ProposalListFilters => {
     const filters: ProposalListFilters = {}
     if (search) filters.search = search
-    if (statusFilter !== STATUS_ALL) filters.status = Number(statusFilter)
+    if (statusFilter !== STATUS_ALL) filters.status = Number(statusFilter) as ProposalStatusValue
     if (responsibleFilter) filters.internalOwnerId = Number(responsibleFilter)
     return filters
   }
