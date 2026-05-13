@@ -29,7 +29,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite consultar mensagens de uma conversa WhatsApp.")]
-        [GetEndpoint("{id:long}/[action]")]
+        [GetEndpoint("messages/{id:long}")]
         public async Task<IActionResult> Messages(long id, CancellationToken cancellationToken)
         {
             var messages = await service.GetMessages(id, cancellationToken);
@@ -37,7 +37,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite enviar mensagem WhatsApp em uma conversa.")]
-        [PostEndpoint("{id:long}/[action]")]
+        [PostEndpoint("send/{id:long}")]
         public async Task<IActionResult> Send(long id, [FromBody] SendWhatsAppMessageRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -51,7 +51,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite marcar conversa WhatsApp como lida.")]
-        [PutEndpoint("{id:long}/[action]")]
+        [PutEndpoint("read/{id:long}")]
         public async Task<IActionResult> Read(long id, CancellationToken cancellationToken)
         {
             await service.MarkAsRead(id, cancellationToken);

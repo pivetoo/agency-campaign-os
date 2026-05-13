@@ -1,47 +1,26 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft, Send, X } from 'lucide-react'
+import { whatsAppService } from '../services/whatsAppService'
+import { useWhatsAppHub } from '../hooks/useWhatsAppHub'
+import type { WhatsAppConversation, WhatsAppMessage } from '../types/whatsApp'
 
-interface Conversation {
-  id: number
-  name: string
-  phone: string
-  lastMessage: string
-  time: string
-  unread: number
+function formatTime(iso: string): string {
+  const date = new Date(iso)
+  const now = new Date()
+  const isToday = date.toDateString() === now.toDateString()
+  if (isToday) {
+    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  }
+  const yesterday = new Date(now)
+  yesterday.setDate(now.getDate() - 1)
+  if (date.toDateString() === yesterday.toDateString()) {
+    return 'Ontem'
+  }
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
 }
 
-interface Message {
-  id: number
-  text: string
-  from: 'me' | 'contact'
-  time: string
-}
-
-const mockConversations: Conversation[] = [
-  { id: 1, name: 'João Silva', phone: '+55 11 98765-0001', lastMessage: 'Oi! Tudo bem?', time: '10:32', unread: 2 },
-  { id: 2, name: 'Maria Santos', phone: '+55 11 91234-0002', lastMessage: 'Obrigada pelo contato!', time: '09:15', unread: 0 },
-  { id: 3, name: 'Pedro Costa', phone: '+55 21 99876-0003', lastMessage: 'Pode me enviar o contrato?', time: 'Ontem', unread: 1 },
-  { id: 4, name: 'Ana Ferreira', phone: '+55 31 98888-0004', lastMessage: 'Combinado, até sexta!', time: 'Ontem', unread: 0 },
-]
-
-const mockMessages: Record<number, Message[]> = {
-  1: [
-    { id: 1, text: 'Oi! Tudo bem?', from: 'contact', time: '10:28' },
-    { id: 2, text: 'Olá, João! Tudo ótimo. Temos uma proposta para você.', from: 'me', time: '10:30' },
-    { id: 3, text: 'Que ótimo, me conta mais!', from: 'contact', time: '10:32' },
-  ],
-  2: [
-    { id: 1, text: 'Olá, Maria! Entramos em contato sobre a campanha de verão.', from: 'me', time: '09:10' },
-    { id: 2, text: 'Obrigada pelo contato!', from: 'contact', time: '09:15' },
-  ],
-  3: [
-    { id: 1, text: 'Pedro, seguem os detalhes da parceria.', from: 'me', time: 'Ontem' },
-    { id: 2, text: 'Pode me enviar o contrato?', from: 'contact', time: 'Ontem' },
-  ],
-  4: [
-    { id: 1, text: 'Ana, confirmado o briefing para sexta?', from: 'me', time: 'Ontem' },
-    { id: 2, text: 'Combinado, até sexta!', from: 'contact', time: 'Ontem' },
-  ],
+function displayName(conv: WhatsAppConversation): string {
+  return conv.contactName || conv.contactPhone
 }
 
 function Avatar({ name, size = 40 }: { name: string; size?: number }) {
@@ -69,44 +48,119 @@ function WhatsAppIcon({ size = 24, color = 'white' }: { size?: number; color?: s
 export default function WhatsAppChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [activeId, setActiveId] = useState<number | null>(null)
-  const [conversations, setConversations] = useState<Conversation[]>(mockConversations)
-  const [messages, setMessages] = useState<Record<number, Message[]>>(mockMessages)
+  const [conversations, setConversations] = useState<WhatsAppConversation[]>([])
+  const [messages, setMessages] = useState<Record<number, WhatsAppMessage[]>>({})
   const [input, setInput] = useState('')
+  const [loadingConvs, setLoadingConvs] = useState(false)
+  const [loadingMsgs, setLoadingMsgs] = useState(false)
+  const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const totalUnread = conversations.reduce((sum, c) => sum + c.unread, 0)
+  const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0)
   const activeConversation = conversations.find((c) => c.id === activeId) ?? null
   const activeMessages = activeId ? (messages[activeId] ?? []) : []
 
-  useEffect(() => {
-    if (activeId) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  const loadConversations = useCallback(async () => {
+    setLoadingConvs(true)
+    try {
+      const items = await whatsAppService.getConversations()
+      setConversations(items)
+    } catch {
+      // silent
+    } finally {
+      setLoadingConvs(false)
     }
-  }, [activeMessages, activeId])
+  }, [])
 
-  const openConversation = (id: number) => {
+  useEffect(() => {
+    if (isOpen) {
+      loadConversations()
+    }
+  }, [isOpen, loadConversations])
+
+  useEffect(() => {
+    if (activeId && !messages[activeId]) {
+      setLoadingMsgs(true)
+      whatsAppService.getMessages(activeId).then((msgs) => {
+        setMessages((prev) => ({ ...prev, [activeId]: msgs }))
+      }).catch(() => {}).finally(() => setLoadingMsgs(false))
+    }
+  }, [activeId, messages])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [activeMessages.length])
+
+  const openConversation = useCallback(async (id: number) => {
     setActiveId(id)
-    setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, unread: 0 } : c)))
-  }
+    setConversations((prev) => prev.map((c) => c.id === id ? { ...c, unreadCount: 0 } : c))
+    try {
+      await whatsAppService.markAsRead(id)
+    } catch {
+      // silent
+    }
+  }, [])
 
-  const sendMessage = () => {
-    if (!input.trim() || !activeId) return
-    const now = new Date()
-    const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-    const newMessage: Message = { id: Date.now(), text: input.trim(), from: 'me', time }
-    setMessages((prev) => ({ ...prev, [activeId]: [...(prev[activeId] ?? []), newMessage] }))
-    setConversations((prev) =>
-      prev.map((c) => (c.id === activeId ? { ...c, lastMessage: input.trim(), time } : c)),
-    )
+  const sendMessage = useCallback(async () => {
+    if (!input.trim() || !activeId || sending) {
+      return
+    }
+    const text = input.trim()
     setInput('')
-  }
+    setSending(true)
+    try {
+      const msg = await whatsAppService.sendMessage(activeId, text)
+      setMessages((prev) => ({ ...prev, [activeId]: [...(prev[activeId] ?? []), msg] }))
+      setConversations((prev) => prev.map((c) =>
+        c.id === activeId ? { ...c, lastMessagePreview: text, lastMessageAt: msg.sentAt } : c
+      ))
+    } catch {
+      setInput(text)
+    } finally {
+      setSending(false)
+    }
+  }, [input, activeId, sending])
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
     }
-  }
+  }, [sendMessage])
+
+  useWhatsAppHub({
+    enabled: isOpen,
+    onNewMessage: useCallback((conversationId, message) => {
+      setMessages((prev) => {
+        const existing = prev[conversationId] ?? []
+        if (existing.some((m) => m.id === message.id)) {
+          return prev
+        }
+        return { ...prev, [conversationId]: [...existing, message] }
+      })
+    }, []),
+    onConversationUpdated: useCallback((conversationId, preview, unreadCount) => {
+      setConversations((prev) => prev.map((c) =>
+        c.id === conversationId
+          ? { ...c, lastMessagePreview: preview ?? c.lastMessagePreview, unreadCount }
+          : c
+      ))
+    }, []),
+  })
+
+  const close = useCallback(() => {
+    setIsOpen(false)
+    setActiveId(null)
+  }, [])
+
+  const toggle = useCallback(() => {
+    setIsOpen((v) => {
+      if (v) {
+        setActiveId(null)
+      }
+      return !v
+    })
+  }, [])
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
@@ -123,10 +177,10 @@ export default function WhatsAppChatWidget() {
                 >
                   <ChevronLeft size={20} />
                 </button>
-                <Avatar name={activeConversation.name} size={36} />
+                <Avatar name={displayName(activeConversation)} size={36} />
                 <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm font-semibold leading-tight">{activeConversation.name}</p>
-                  <p className="truncate text-xs text-white/70">{activeConversation.phone}</p>
+                  <p className="truncate text-sm font-semibold leading-tight">{displayName(activeConversation)}</p>
+                  <p className="truncate text-xs text-white/70">{activeConversation.contactPhone}</p>
                 </div>
               </>
             ) : (
@@ -140,11 +194,7 @@ export default function WhatsAppChatWidget() {
                 </div>
               </>
             )}
-            <button
-              type="button"
-              onClick={() => { setIsOpen(false); setActiveId(null) }}
-              className="rounded p-0.5 hover:bg-white/10 transition-colors"
-            >
+            <button type="button" onClick={close} className="rounded p-0.5 hover:bg-white/10 transition-colors">
               <X size={18} />
             </button>
           </div>
@@ -152,6 +202,12 @@ export default function WhatsAppChatWidget() {
           {/* Conversation list */}
           {!activeConversation && (
             <div className="flex-1 overflow-y-auto bg-white divide-y divide-gray-100">
+              {loadingConvs && (
+                <div className="flex items-center justify-center py-10 text-sm text-gray-400">Carregando...</div>
+              )}
+              {!loadingConvs && conversations.length === 0 && (
+                <div className="flex items-center justify-center py-10 text-sm text-gray-400">Nenhuma conversa ainda.</div>
+              )}
               {conversations.map((conv) => (
                 <button
                   key={conv.id}
@@ -159,17 +215,19 @@ export default function WhatsAppChatWidget() {
                   onClick={() => openConversation(conv.id)}
                   className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                 >
-                  <Avatar name={conv.name} />
+                  <Avatar name={displayName(conv)} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-sm font-medium text-gray-900">{conv.name}</span>
-                      <span className="shrink-0 text-xs text-gray-400">{conv.time}</span>
+                      <span className="truncate text-sm font-medium text-gray-900">{displayName(conv)}</span>
+                      <span className="shrink-0 text-xs text-gray-400">
+                        {conv.lastMessageAt ? formatTime(conv.lastMessageAt) : ''}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between gap-2 mt-0.5">
-                      <span className="truncate text-xs text-gray-500">{conv.lastMessage}</span>
-                      {conv.unread > 0 && (
+                      <span className="truncate text-xs text-gray-500">{conv.lastMessagePreview ?? ''}</span>
+                      {conv.unreadCount > 0 && (
                         <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#25D366] px-1 text-[10px] font-bold text-white">
-                          {conv.unread}
+                          {conv.unreadCount}
                         </span>
                       )}
                     </div>
@@ -183,20 +241,23 @@ export default function WhatsAppChatWidget() {
           {activeConversation && (
             <>
               <div className="flex-1 overflow-y-auto bg-[#ECE5DD] px-4 py-3 space-y-1.5">
+                {loadingMsgs && (
+                  <div className="flex items-center justify-center py-6 text-sm text-gray-500">Carregando...</div>
+                )}
                 {activeMessages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${msg.direction === 2 ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
                       className={`max-w-[78%] rounded-lg px-3 py-2 shadow-sm ${
-                        msg.from === 'me'
+                        msg.direction === 2
                           ? 'rounded-tr-sm bg-[#DCF8C6] text-gray-800'
                           : 'rounded-tl-sm bg-white text-gray-800'
                       }`}
                     >
-                      <p className="text-sm leading-snug">{msg.text}</p>
-                      <p className="mt-1 text-right text-[10px] text-gray-400">{msg.time}</p>
+                      <p className="text-sm leading-snug">{msg.content}</p>
+                      <p className="mt-1 text-right text-[10px] text-gray-400">{formatTime(msg.sentAt)}</p>
                     </div>
                   </div>
                 ))}
@@ -217,7 +278,7 @@ export default function WhatsAppChatWidget() {
                 <button
                   type="button"
                   onClick={sendMessage}
-                  disabled={!input.trim()}
+                  disabled={!input.trim() || sending}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white transition-colors hover:bg-[#22C35E] disabled:opacity-40"
                 >
                   <Send size={16} />
@@ -231,7 +292,7 @@ export default function WhatsAppChatWidget() {
       {/* Floating button */}
       <button
         type="button"
-        onClick={() => { setIsOpen((v) => !v); if (!isOpen) setActiveId(null) }}
+        onClick={toggle}
         className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform hover:scale-105 active:scale-95"
         aria-label="Abrir WhatsApp"
       >
