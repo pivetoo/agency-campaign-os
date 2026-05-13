@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ChevronLeft, Send, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ChevronLeft, Send, Settings, X } from 'lucide-react'
 import { whatsAppService } from '../services/whatsAppService'
+import { agencySettingsService } from '../services/agencySettingsService'
 import { useWhatsAppHub } from '../hooks/useWhatsAppHub'
 import type { WhatsAppConversation, WhatsAppMessage } from '../types/whatsApp'
 
@@ -51,6 +53,7 @@ export default function WhatsAppChatWidget() {
   const [conversations, setConversations] = useState<WhatsAppConversation[]>([])
   const [messages, setMessages] = useState<Record<number, WhatsAppMessage[]>>({})
   const [input, setInput] = useState('')
+  const [isConfigured, setIsConfigured] = useState<boolean | null>(null)
   const [loadingConvs, setLoadingConvs] = useState(false)
   const [loadingMsgs, setLoadingMsgs] = useState(false)
   const [sending, setSending] = useState(false)
@@ -75,6 +78,11 @@ export default function WhatsAppChatWidget() {
   useEffect(() => {
     if (isOpen) {
       loadConversations()
+      agencySettingsService.get().then((settings) => {
+        setIsConfigured(!!settings?.whatsAppConnectorId)
+      }).catch(() => {
+        setIsConfigured(false)
+      })
     }
   }, [isOpen, loadConversations])
 
@@ -151,12 +159,14 @@ export default function WhatsAppChatWidget() {
   const close = useCallback(() => {
     setIsOpen(false)
     setActiveId(null)
+    setIsConfigured(null)
   }, [])
 
   const toggle = useCallback(() => {
     setIsOpen((v) => {
       if (v) {
         setActiveId(null)
+        setIsConfigured(null)
       }
       return !v
     })
@@ -202,13 +212,34 @@ export default function WhatsAppChatWidget() {
           {/* Conversation list */}
           {!activeConversation && (
             <div className="flex-1 overflow-y-auto bg-white divide-y divide-gray-100">
-              {loadingConvs && (
+              {isConfigured === null && (
                 <div className="flex items-center justify-center py-10 text-sm text-gray-400">Carregando...</div>
               )}
-              {!loadingConvs && conversations.length === 0 && (
+              {isConfigured === false && (
+                <div className="flex flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                    <Settings size={24} className="text-gray-400" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-700">WhatsApp não configurado</p>
+                  <p className="text-xs text-gray-400">
+                    Conecte um número WhatsApp nas configurações da agência para começar a receber mensagens.
+                  </p>
+                  <Link
+                    to="/configuracao"
+                    onClick={close}
+                    className="mt-1 rounded-lg bg-[#25D366] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#22C35E]"
+                  >
+                    Ir para Configurações
+                  </Link>
+                </div>
+              )}
+              {isConfigured === true && loadingConvs && (
+                <div className="flex items-center justify-center py-10 text-sm text-gray-400">Carregando...</div>
+              )}
+              {isConfigured === true && !loadingConvs && conversations.length === 0 && (
                 <div className="flex items-center justify-center py-10 text-sm text-gray-400">Nenhuma conversa ainda.</div>
               )}
-              {conversations.map((conv) => (
+              {isConfigured === true && conversations.map((conv) => (
                 <button
                   key={conv.id}
                   type="button"
