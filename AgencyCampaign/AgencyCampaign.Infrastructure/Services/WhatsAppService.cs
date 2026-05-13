@@ -17,12 +17,14 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly IntegrationPlatformClient integrationClient;
+        private readonly IWhatsAppNotifier notifier;
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public WhatsAppService(DbContext dbContext, IntegrationPlatformClient integrationClient, IStringLocalizer<AgencyCampaignResource> localizer)
+        public WhatsAppService(DbContext dbContext, IntegrationPlatformClient integrationClient, IWhatsAppNotifier notifier, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.dbContext = dbContext;
             this.integrationClient = integrationClient;
+            this.notifier = notifier;
             this.localizer = localizer;
         }
 
@@ -69,7 +71,13 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return MapConversation(conversation);
+            WhatsAppMessageModel messageModel = MapMessage(message);
+            WhatsAppConversationModel conversationModel = MapConversation(conversation);
+
+            await notifier.NotifyNewMessage(conversation.Id, messageModel, cancellationToken);
+            await notifier.NotifyConversationUpdated(conversation.Id, conversation.LastMessagePreview, conversation.UnreadCount, cancellationToken);
+
+            return conversationModel;
         }
 
         public async Task<WhatsAppMessageModel> SendMessage(long conversationId, SendWhatsAppMessageRequest request, CancellationToken cancellationToken = default)
