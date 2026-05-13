@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronLeft, Send, Settings, X } from 'lucide-react'
+import { AlertCircle, ChevronLeft, Send, Settings, X } from 'lucide-react'
 import { whatsAppService } from '../services/whatsAppService'
 import { agencySettingsService } from '../services/agencySettingsService'
 import { useWhatsAppHub } from '../hooks/useWhatsAppHub'
@@ -57,6 +57,7 @@ export default function WhatsAppChatWidget() {
   const [loadingConvs, setLoadingConvs] = useState(false)
   const [loadingMsgs, setLoadingMsgs] = useState(false)
   const [sending, setSending] = useState(false)
+  const [failedIds, setFailedIds] = useState<Set<number>>(new Set())
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0)
@@ -153,6 +154,9 @@ export default function WhatsAppChatWidget() {
           ? { ...c, lastMessagePreview: preview ?? c.lastMessagePreview, unreadCount }
           : c
       ))
+    }, []),
+    onMessageSendFailed: useCallback((_conversationId, messageId) => {
+      setFailedIds((prev) => new Set(prev).add(messageId))
     }, []),
   })
 
@@ -275,23 +279,32 @@ export default function WhatsAppChatWidget() {
                 {loadingMsgs && (
                   <div className="flex items-center justify-center py-6 text-sm text-gray-500">Carregando...</div>
                 )}
-                {activeMessages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${msg.direction === 2 ? 'justify-end' : 'justify-start'}`}
-                  >
+                {activeMessages.map((msg) => {
+                  const failed = failedIds.has(msg.id)
+                  return (
                     <div
-                      className={`max-w-[78%] rounded-lg px-3 py-2 shadow-sm ${
-                        msg.direction === 2
-                          ? 'rounded-tr-sm bg-[#DCF8C6] text-gray-800'
-                          : 'rounded-tl-sm bg-white text-gray-800'
-                      }`}
+                      key={msg.id}
+                      className={`flex flex-col ${msg.direction === 2 ? 'items-end' : 'items-start'}`}
                     >
-                      <p className="text-sm leading-snug">{msg.content}</p>
-                      <p className="mt-1 text-right text-[10px] text-gray-400">{formatTime(msg.sentAt)}</p>
+                      <div
+                        className={`max-w-[78%] rounded-lg px-3 py-2 shadow-sm ${
+                          msg.direction === 2
+                            ? 'rounded-tr-sm bg-[#DCF8C6] text-gray-800'
+                            : 'rounded-tl-sm bg-white text-gray-800'
+                        }`}
+                      >
+                        <p className="text-sm leading-snug">{msg.content}</p>
+                        <p className="mt-1 text-right text-[10px] text-gray-400">{formatTime(msg.sentAt)}</p>
+                      </div>
+                      {failed && (
+                        <div className="flex items-center gap-1 mt-0.5 text-red-500">
+                          <AlertCircle size={11} />
+                          <span className="text-[10px]">Falha ao enviar</span>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
                 <div ref={messagesEndRef} />
               </div>
 

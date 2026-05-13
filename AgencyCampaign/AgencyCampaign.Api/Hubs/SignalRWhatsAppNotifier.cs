@@ -22,5 +22,10 @@ namespace AgencyCampaign.Api.Hubs
         {
             return hubContext.Clients.All.ConversationUpdated(conversationId, preview, unreadCount);
         }
+
+        public Task NotifyMessageSendFailed(long conversationId, long messageId, string error, CancellationToken cancellationToken = default)
+        {
+            return hubContext.Clients.All.MessageSendFailed(conversationId, messageId, error);
+        }
     }
 }

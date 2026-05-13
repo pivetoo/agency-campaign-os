@@ -9,6 +9,7 @@ using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace AgencyCampaign.Infrastructure.Services
@@ -19,13 +20,15 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IntegrationPlatformClient integrationClient;
         private readonly IWhatsAppNotifier notifier;
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
+        private readonly ILogger<WhatsAppService> logger;
 
-        public WhatsAppService(DbContext dbContext, IntegrationPlatformClient integrationClient, IWhatsAppNotifier notifier, IStringLocalizer<AgencyCampaignResource> localizer)
+        public WhatsAppService(DbContext dbContext, IntegrationPlatformClient integrationClient, IWhatsAppNotifier notifier, IStringLocalizer<AgencyCampaignResource> localizer, ILogger<WhatsAppService> logger)
         {
             this.dbContext = dbContext;
             this.integrationClient = integrationClient;
             this.notifier = notifier;
             this.localizer = localizer;
+            this.logger = logger;
         }
 
         public async Task<PagedResult<WhatsAppConversationModel>> GetConversations(PagedRequest request, CancellationToken cancellationToken = default)
@@ -99,7 +102,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            _ = TrySendViaIntegrationPlatformAsync(conversation, request.Message, cancellationToken);
+            _ = TrySendViaIntegrationPlatformAsync(conversation, message.Id, request.Message, cancellationToken);
 
             return MapMessage(message);
         }
@@ -130,11 +133,13 @@ namespace AgencyCampaign.Infrastructure.Services
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        private async Task TrySendViaIntegrationPlatformAsync(WhatsAppConversation conversation, string message, CancellationToken cancellationToken)
+        private async Task TrySendViaIntegrationPlatformAsync(WhatsAppConversation conversation, long messageId, string message, CancellationToken cancellationToken)
         {
             if (conversation.ConnectorId is null)
             {
-                Console.WriteLine("[WhatsAppService] No connectorId on conversation — cannot send via IntegrationPlatform.");
+                const string noConnectorError = "Nenhum conector WhatsApp configurado para esta conversa.";
+                logger.LogWarning("Outbound message {MessageId} cannot be sent: conversation {ConversationId} has no connectorId.", messageId, conversation.Id);
+                await notifier.NotifyMessageSendFailed(conversation.Id, messageId, noConnectorError, cancellationToken);
                 return;
             }
 
@@ -146,7 +151,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 PipelineDto? sendPipeline = pipelines.FirstOrDefault(p => p.Identifier.EndsWith("-send", StringComparison.OrdinalIgnoreCase));
                 if (sendPipeline is null)
                 {
-                    Console.WriteLine($"[WhatsAppService] No send pipeline found for integration {connector.IntegrationId}.");
+                    const string noPipelineError = "Pipeline de envio não encontrado para esta integração.";
+                    logger.LogWarning("Outbound message {MessageId}: no '-send' pipeline found for integration {IntegrationId}.", messageId, connector.IntegrationId);
+                    await notifier.NotifyMessageSendFailed(conversation.Id, messageId, noPipelineError, cancellationToken);
                     return;
                 }
 
@@ -161,9 +168,10 @@ namespace AgencyCampaign.Infrastructure.Services
 
                 await integrationClient.ExecutePipelineAsync(executeRequest, cancellationToken);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Console.WriteLine($"[WhatsAppService] Failed to send message via IntegrationPlatform: {ex.Message}");
+                logger.LogError(exception, "Failed to send outbound message {MessageId} via IntegrationPlatform.", messageId);
+                await notifier.NotifyMessageSendFailed(conversation.Id, messageId, "Falha ao enviar a mensagem. Tente novamente.", cancellationToken);
             }
         }
 

@@ -6,16 +6,19 @@ import type { WhatsAppConversation, WhatsAppMessage } from '../types/whatsApp'
 interface UseWhatsAppHubOptions {
   onNewMessage?: (conversationId: number, message: WhatsAppMessage) => void
   onConversationUpdated?: (conversationId: number, preview: string | null, unreadCount: number) => void
+  onMessageSendFailed?: (conversationId: number, messageId: number, error: string) => void
   enabled?: boolean
 }
 
-export function useWhatsAppHub({ onNewMessage, onConversationUpdated, enabled = true }: UseWhatsAppHubOptions) {
+export function useWhatsAppHub({ onNewMessage, onConversationUpdated, onMessageSendFailed, enabled = true }: UseWhatsAppHubOptions) {
   const connectionRef = useRef<signalR.HubConnection | null>(null)
   const onNewMessageRef = useRef(onNewMessage)
   const onConversationUpdatedRef = useRef(onConversationUpdated)
+  const onMessageSendFailedRef = useRef(onMessageSendFailed)
 
   useEffect(() => { onNewMessageRef.current = onNewMessage }, [onNewMessage])
   useEffect(() => { onConversationUpdatedRef.current = onConversationUpdated }, [onConversationUpdated])
+  useEffect(() => { onMessageSendFailedRef.current = onMessageSendFailed }, [onMessageSendFailed])
 
   useEffect(() => {
     if (!enabled) {
@@ -42,6 +45,10 @@ export function useWhatsAppHub({ onNewMessage, onConversationUpdated, enabled = 
 
     connection.on('ConversationUpdated', (conversationId: number, preview: string | null, unreadCount: number) => {
       onConversationUpdatedRef.current?.(conversationId, preview, unreadCount)
+    })
+
+    connection.on('MessageSendFailed', (conversationId: number, messageId: number, error: string) => {
+      onMessageSendFailedRef.current?.(conversationId, messageId, error)
     })
 
     connection.start().catch((err) => {

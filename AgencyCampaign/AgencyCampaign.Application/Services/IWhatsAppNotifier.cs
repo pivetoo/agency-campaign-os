@@ -7,5 +7,7 @@ namespace AgencyCampaign.Application.Services
         Task NotifyNewMessage(long conversationId, WhatsAppMessageModel message, CancellationToken cancellationToken = default);
 
         Task NotifyConversationUpdated(long conversationId, string? preview, int unreadCount, CancellationToken cancellationToken = default);
+
+        Task NotifyMessageSendFailed(long conversationId, long messageId, string error, CancellationToken cancellationToken = default);
     }
 }
