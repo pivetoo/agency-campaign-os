@@ -255,8 +255,11 @@ export default function AgencyConfiguration() {
             <div className="flex-1 space-y-1.5">
               <label className="text-sm font-medium">Conector WhatsApp</label>
               <SearchableSelect
-                options={connectors.map((c) => ({ value: String(c.id), label: c.name }))}
-                value={whatsAppConnectorId ? String(whatsAppConnectorId) : undefined}
+                options={[
+                  { value: '', label: 'Nenhum (desativado)' },
+                  ...connectors.map((c) => ({ value: String(c.id), label: c.name })),
+                ]}
+                value={whatsAppConnectorId ? String(whatsAppConnectorId) : ''}
                 onValueChange={(value) => setWhatsAppConnectorId(value ? Number(value) : null)}
                 placeholder={loadingConnectors ? 'Carregando conectores...' : 'Nenhum (desativado)'}
               />
