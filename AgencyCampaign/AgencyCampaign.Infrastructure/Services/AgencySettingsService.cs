@@ -19,6 +19,14 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
+        public async Task<AgencySettingsModel> SetWhatsAppConnector(long? connectorId, CancellationToken cancellationToken = default)
+        {
+            AgencySettings settings = await ResolveOrCreate(cancellationToken);
+            settings.SetWhatsAppConnector(connectorId);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return Map(settings);
+        }
+
         public async Task<AgencySettingsModel> Get(CancellationToken cancellationToken = default)
         {
             AgencySettings settings = await ResolveOrCreate(cancellationToken);
@@ -193,7 +201,8 @@ namespace AgencyCampaign.Infrastructure.Services
             Address = settings.Address,
             LogoUrl = settings.LogoUrl,
             PrimaryColor = settings.PrimaryColor,
-            ProposalHtmlTemplate = settings.ProposalHtmlTemplate
+            ProposalHtmlTemplate = settings.ProposalHtmlTemplate,
+            WhatsAppConnectorId = settings.WhatsAppConnectorId
         };
     }
 }

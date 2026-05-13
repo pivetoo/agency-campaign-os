@@ -19,6 +19,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.LogoUrl).HasMaxLength(500);
             builder.Property(entity => entity.PrimaryColor).HasMaxLength(32);
             builder.Property(entity => entity.ProposalHtmlTemplate).HasColumnType("text");
+            builder.Property(entity => entity.WhatsAppConnectorId);
         }
     }
 }

@@ -12,5 +12,6 @@ namespace AgencyCampaign.Application.Models
         public string? LogoUrl { get; set; }
         public string? PrimaryColor { get; set; }
         public string? ProposalHtmlTemplate { get; set; }
+        public long? WhatsAppConnectorId { get; set; }
     }
 }

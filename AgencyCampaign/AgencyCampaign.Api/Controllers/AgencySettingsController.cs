@@ -146,5 +146,13 @@ namespace AgencyCampaign.Api.Controllers
             await service.DeleteProposalTemplateVersion(id, cancellationToken);
             return Http200(Localizer["record.deleted"]);
         }
+
+        [RequireAccess("Permite configurar o conector WhatsApp ativo da agência.")]
+        [PutEndpoint("[action]")]
+        public async Task<IActionResult> SetWhatsAppConnector([FromBody] SetWhatsAppConnectorRequest request, CancellationToken cancellationToken)
+        {
+            var result = await service.SetWhatsAppConnector(request.ConnectorId, cancellationToken);
+            return Http200(result, Localizer["record.updated"]);
+        }
     }
 }

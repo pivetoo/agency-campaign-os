@@ -5,6 +5,8 @@ namespace AgencyCampaign.Application.Services
 {
     public interface IAgencySettingsService
     {
+        Task<AgencySettingsModel> SetWhatsAppConnector(long? connectorId, CancellationToken cancellationToken = default);
+
         Task<AgencySettingsModel> Get(CancellationToken cancellationToken = default);
 
         Task<AgencySettingsModel> Update(UpdateAgencySettingsRequest request, CancellationToken cancellationToken = default);
