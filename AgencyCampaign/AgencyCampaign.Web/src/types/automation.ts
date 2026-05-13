@@ -31,3 +31,14 @@ export interface UpdateAutomationPayload {
   variableMapping: Record<string, string>
   isActive: boolean
 }
+
+export interface AutomationExecutionLog {
+  id: number
+  automationId: number
+  automationName: string
+  trigger: string
+  succeeded: boolean
+  renderedPayload?: string
+  errorMessage?: string
+  createdAt: string
+}

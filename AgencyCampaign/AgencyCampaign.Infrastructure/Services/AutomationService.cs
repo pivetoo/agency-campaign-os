@@ -88,5 +88,14 @@ namespace AgencyCampaign.Infrastructure.Services
 
             return result;
         }
+
+        public async Task<PagedResult<AutomationExecutionLog>> GetExecutionLogs(long automationId, PagedRequest request, CancellationToken cancellationToken = default)
+        {
+            return await DbContext.Set<AutomationExecutionLog>()
+                .AsNoTracking()
+                .Where(item => item.AutomationId == automationId)
+                .OrderByDescending(item => item.CreatedAt)
+                .ToPagedResultAsync(request, cancellationToken);
+        }
     }
 }

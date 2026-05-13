@@ -9,11 +9,12 @@ import {
   DataTable,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Plus, Zap } from 'lucide-react'
+import { Plus, Zap, ClipboardList } from 'lucide-react'
 import { automationService } from '../../../services/automationService'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import { automationTriggerLabels } from '../../../types/automationTrigger'
 import type { Automation } from '../../../types/automation'
+import AutomationExecutionLogsSheet from '../../../components/sheets/AutomationExecutionLogsSheet'
 
 interface AutomationListProps {
   onCreate: () => void
@@ -29,6 +30,7 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
   const { t } = useI18n()
   const [automations, setAutomations] = useState<Automation[]>([])
   const [resolved, setResolved] = useState<Record<number, ResolvedNames>>({})
+  const [logsAutomation, setLogsAutomation] = useState<Automation | null>(null)
 
   const { execute: fetchAutomations, loading } = useApi<{
     items: Automation[]
@@ -128,9 +130,20 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
       key: 'actions',
       title: t('automations.column.actions'),
       render: (_: unknown, row: Automation) => (
-        <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
-          {t('common.action.edit')}
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
+            {t('common.action.edit')}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={() => setLogsAutomation(row)}
+            title={t('automations.logs.title')}
+          >
+            <ClipboardList size={15} />
+          </Button>
+        </div>
       ),
     },
   ]
@@ -139,6 +152,7 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
   const inactiveCount = automations.filter((a) => !a.isActive).length
 
   return (
+    <>
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -176,5 +190,12 @@ export default function AutomationList({ onCreate, onEdit }: AutomationListProps
         </Card>
       )}
     </div>
+
+    <AutomationExecutionLogsSheet
+      automation={logsAutomation}
+      open={logsAutomation !== null}
+      onClose={() => setLogsAutomation(null)}
+    />
+    </>
   )
 }

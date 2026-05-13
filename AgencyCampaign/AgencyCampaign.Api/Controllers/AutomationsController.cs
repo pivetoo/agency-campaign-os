@@ -64,5 +64,13 @@ namespace AgencyCampaign.Api.Controllers
             Automation automation = await automationService.UpdateAutomation(id, request, cancellationToken);
             return Http200(automation, Localizer["record.updated"]);
         }
+
+        [RequireAccess("Permite consultar os logs de execucao de uma automacao.")]
+        [GetEndpoint("{automationId:long}/[action]")]
+        public async Task<IActionResult> Logs(long automationId, [FromQuery] PagedRequest request, CancellationToken cancellationToken)
+        {
+            PagedResult<AutomationExecutionLog> result = await automationService.GetExecutionLogs(automationId, request, cancellationToken);
+            return Http200(result);
+        }
     }
 }

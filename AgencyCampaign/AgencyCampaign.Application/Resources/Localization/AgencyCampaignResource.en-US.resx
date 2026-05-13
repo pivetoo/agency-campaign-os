@@ -1005,6 +1005,13 @@
   <data name="automations.empty" xml:space="preserve"><value>No automations registered</value></data>
   <data name="automations.empty.title" xml:space="preserve"><value>No automations configured</value></data>
   <data name="automations.empty.description" xml:space="preserve"><value>Create automations to run pipelines when events occur in Kanvas.</value></data>
+  <data name="automations.logs.title" xml:space="preserve"><value>Execution logs</value></data>
+  <data name="automations.logs.empty" xml:space="preserve"><value>No execution logs found</value></data>
+  <data name="automations.logs.status.success" xml:space="preserve"><value>Success</value></data>
+  <data name="automations.logs.status.failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="automations.logs.detail.error" xml:space="preserve"><value>Error</value></data>
+  <data name="automations.logs.detail.payload" xml:space="preserve"><value>Sent payload</value></data>
+  <data name="automations.logs.detail.noPayload" xml:space="preserve"><value>No payload recorded</value></data>
   <data name="creators.detail.confirm.deleteHandle" xml:space="preserve"><value>Delete handle {0}?</value></data>
   <data name="creators.detail.empty.handles" xml:space="preserve"><value>No social handles registered</value></data>
   <data name="creators.detail.empty.deliverables" xml:space="preserve"><value>No deliverables registered for this creator</value></data>
