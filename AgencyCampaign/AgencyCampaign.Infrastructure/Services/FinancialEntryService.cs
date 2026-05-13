@@ -12,6 +12,7 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -20,12 +21,14 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
+        private readonly ILogger<FinancialEntryService> logger;
 
-        public FinancialEntryService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IAutomationDispatcher automationDispatcher, INotificationService notificationService) : base(dbContext)
+        public FinancialEntryService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IAutomationDispatcher automationDispatcher, INotificationService notificationService, ILogger<FinancialEntryService> logger) : base(dbContext)
         {
             this.localizer = localizer;
             this.automationDispatcher = automationDispatcher;
             this.notificationService = notificationService;
+            this.logger = logger;
         }
 
         public async Task<PagedResult<FinancialEntry>> GetEntries(PagedRequest request, FinancialEntryFilters filters, CancellationToken cancellationToken = default)
@@ -301,7 +304,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[FinancialEntryService] failed to create notification: {exception.Message}");
+                logger.LogError(exception, "Failed to create notification for settled financial entry {Id}.", entry.Id);
             }
 
             return await GetEntryById(result.Id, cancellationToken) ?? result;
@@ -472,7 +475,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[FinancialEntryService] failed to dispatch automation '{trigger}' for entry {entry.Id}: {exception.Message}");
+                logger.LogError(exception, "Failed to dispatch automation '{Trigger}' for financial entry {Id}.", trigger, entry.Id);
             }
         }
     }

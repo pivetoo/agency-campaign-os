@@ -161,6 +161,21 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
+        public static CreateNotificationRequest PayoutGenerationFailed(CampaignDeliverable deliverable)
+        {
+            return new CreateNotificationRequest
+            {
+                UserId = null,
+                Type = NotificationType.Error,
+                Title = "Falha ao gerar pagamento",
+                Message = $"Não foi possível gerar o pagamento da entrega \"{deliverable.Title}\" automaticamente. Verifique manualmente.",
+                Link = $"/campanhas/{deliverable.CampaignId}",
+                Source = "deliverable",
+                ReferenceEntityName = nameof(CampaignDeliverable),
+                ReferenceEntityId = deliverable.Id.ToString()
+            };
+        }
+
         public static CreateNotificationRequest FinancialEntrySettled(FinancialEntry entry)
         {
             bool isReceivable = entry.Type == FinancialEntryType.Receivable;

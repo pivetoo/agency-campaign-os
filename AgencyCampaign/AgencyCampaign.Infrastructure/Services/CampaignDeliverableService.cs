@@ -1,13 +1,16 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.CampaignDeliverables;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -15,11 +18,15 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly IFinancialAutoGeneration financialAutoGeneration;
+        private readonly INotificationService notificationService;
+        private readonly ILogger<CampaignDeliverableService> logger;
 
-        public CampaignDeliverableService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IFinancialAutoGeneration financialAutoGeneration) : base(dbContext)
+        public CampaignDeliverableService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IFinancialAutoGeneration financialAutoGeneration, INotificationService notificationService, ILogger<CampaignDeliverableService> logger) : base(dbContext)
         {
             this.localizer = localizer;
             this.financialAutoGeneration = financialAutoGeneration;
+            this.notificationService = notificationService;
+            this.logger = logger;
         }
 
         public async Task<PagedResult<CampaignDeliverable>> GetDeliverables(PagedRequest request, CancellationToken cancellationToken = default)
@@ -132,7 +139,15 @@ namespace AgencyCampaign.Infrastructure.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[CampaignDeliverableService] failed to generate creator payout for deliverable {deliverable.Id}: {exception.Message}");
+                logger.LogError(exception, "Failed to generate creator payout for deliverable {Id}.", deliverable.Id);
+                try
+                {
+                    await notificationService.Create(KanvasNotifications.PayoutGenerationFailed(deliverable), cancellationToken);
+                }
+                catch (Exception notificationException)
+                {
+                    logger.LogError(notificationException, "Failed to notify about payout generation failure for deliverable {Id}.", deliverable.Id);
+                }
             }
         }
 
