@@ -42,7 +42,7 @@ test.describe('Financeiro - Repasses para creators', () => {
 
     // 6) abre modal "Novo"
     await page.getByRole('button', { name: /^Novo$/ }).click()
-    const modal = page.getByRole('dialog').filter({ hasText: /Novo pagamento ao creator/i })
+    const modal = page.getByRole('dialog').filter({ hasText: /Novo pagamento ao (creator|influenciador)/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })
 
     // labels obrigatorios

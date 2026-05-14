@@ -61,7 +61,10 @@ test.describe('Portal do Creator - upload de NF', () => {
     await addCreatorModal.getByTestId('form-field-creator').locator('button, [role="combobox"]').first().click()
     // busca pelo creator recem criado
     await page.locator('input[placeholder="Buscar"]').first().fill(creatorName).catch(() => {})
-    await page.getByRole('option', { name: new RegExp(creatorName, 'i') }).first().click()
+    await page.getByText('Buscando...').waitFor({ state: 'detached', timeout: 20_000 }).catch(() => {})
+    const creatorOpt34 = page.getByRole('option', { name: new RegExp(creatorName, 'i') }).first()
+    await creatorOpt34.waitFor({ state: 'visible', timeout: 15_000 })
+    await creatorOpt34.click()
     await fc('Valor combinado').locator('input').first().fill('5000')
     await addCreatorModal.getByRole('button', { name: /^Salvar$|Adicionar/i }).first().click()
     await expect(addCreatorModal).toBeHidden({ timeout: 15_000 })
@@ -74,12 +77,15 @@ test.describe('Portal do Creator - upload de NF', () => {
     const filtroCampanhaCombo = page.getByRole('combobox').nth(1)
     await filtroCampanhaCombo.click()
     await page.locator('input[placeholder="Buscar"]').first().fill(campaignName).catch(() => {})
-    await page.getByRole('option', { name: new RegExp(campaignName, 'i') }).first().click()
+    await page.getByText('Buscando...').waitFor({ state: 'detached', timeout: 20_000 }).catch(() => {})
+    const campOpt34 = page.getByRole('option', { name: new RegExp(campaignName, 'i') }).first()
+    await campOpt34.waitFor({ state: 'visible', timeout: 15_000 })
+    await campOpt34.click()
     await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {})
 
     // abre Novo
     await page.getByRole('button', { name: /^Novo$/ }).click()
-    const payModal = page.getByRole('dialog').filter({ hasText: /Novo pagamento ao creator/i })
+    const payModal = page.getByRole('dialog').filter({ hasText: /Novo pagamento ao (creator|influenciador)/i })
     await expect(payModal).toBeVisible({ timeout: 10_000 })
 
     // escolhe o creator vinculado

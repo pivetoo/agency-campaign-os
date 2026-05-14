@@ -60,7 +60,10 @@ test.describe('Deliverable publico - aprovacao pela marca', () => {
     await expect(delivModal).toBeVisible({ timeout: 10_000 })
     const fc = (label: string) =>
       delivModal.locator(`div.space-y-2:has(> label:text-is("${label}"))`).first()
-    await fc('Creator da campanha').locator('button, [role="combobox"]').first().click()
+    const creatorFieldDeliv = delivModal
+      .locator(`div.space-y-2:has(> label:text-matches("(Creator|Influenciador) da campanha", "i"))`)
+      .first()
+    await creatorFieldDeliv.locator('button, [role="combobox"]').first().click()
     await page.locator('[role="option"]').first().click()
     await fc('Título').locator('input').first().fill(deliverableTitle)
     await fc('Tipo').locator('button, [role="combobox"]').first().click()

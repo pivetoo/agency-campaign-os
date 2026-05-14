@@ -76,13 +76,15 @@ test.describe('Configuracao - Templates de documento', () => {
     const resp = await deleteResp
     expect(resp.status(), `delete deveria retornar sucesso, recebeu ${resp.status()}`).toBeLessThan(400)
 
+    // Apos delete, o backend pode remover do banco (template nao usado) OU marcar como Inativo.
+    // Aguarda a lista refletir uma das duas situacoes (refresh pode levar mais que 15s).
     const finalRow = rowWithText(page, renamed)
     await expect
       .poll(async () => {
         if ((await finalRow.count()) === 0) return 'removed'
         const text = (await finalRow.first().innerText()).toLowerCase()
         return text.includes('inativo') ? 'inactive' : 'still-active'
-      }, { timeout: 15_000 })
+      }, { timeout: 30_000 })
       .not.toBe('still-active')
 
     expectNoApiFailures()

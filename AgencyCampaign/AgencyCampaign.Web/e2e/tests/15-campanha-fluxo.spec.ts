@@ -69,8 +69,11 @@ test.describe('Campanha - fluxo operacional (caminho critico)', () => {
     const fc = (label: string) =>
       delivModal.locator(`div.space-y-2:has(> label:text-is("${label}"))`).first()
 
-    // creator (primeiro)
-    await fc('Creator da campanha').locator('button, [role="combobox"]').first().click()
+    // creator/influenciador (primeiro)
+    const creatorFieldDeliv = delivModal
+      .locator(`div.space-y-2:has(> label:text-matches("(Creator|Influenciador) da campanha", "i"))`)
+      .first()
+    await creatorFieldDeliv.locator('button, [role="combobox"]').first().click()
     await page.locator('[role="option"]').first().click()
 
     // titulo
