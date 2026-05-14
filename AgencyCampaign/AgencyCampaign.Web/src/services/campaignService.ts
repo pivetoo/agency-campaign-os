@@ -24,10 +24,11 @@ export interface UpdateCampaignRequest extends CreateCampaignRequest {
 }
 
 export const campaignService = {
-  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<Campaign[]>> {
+  getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<Campaign[]>> {
     const query = buildPaginationQuery(params)
     const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
-    return httpClient.get<Campaign[]>(`${BASE_URL}/Get${query}${searchParam}`)
+    const inactiveParam = params?.includeInactive ? `${query || searchParam ? '&' : '?'}includeInactive=true` : ''
+    return httpClient.get<Campaign[]>(`${BASE_URL}/Get${query}${searchParam}${inactiveParam}`)
   },
 
   async getById(id: number): Promise<Campaign | null> {

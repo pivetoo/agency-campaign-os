@@ -7,7 +7,7 @@ namespace AgencyCampaign.Application.Services
 {
     public interface IBrandService : ICrudService<Brand>
     {
-        Task<PagedResult<Brand>> GetBrands(PagedRequest request, string? search, CancellationToken cancellationToken = default);
+        Task<PagedResult<Brand>> GetBrands(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         IAsyncEnumerable<string> ExportAsync(CancellationToken cancellationToken = default);
 

@@ -7,7 +7,7 @@ namespace AgencyCampaign.Application.Services
 {
     public interface IDeliverableKindService : ICrudService<DeliverableKind>
     {
-        Task<PagedResult<DeliverableKind>> GetDeliverableKinds(PagedRequest request, CancellationToken cancellationToken = default);
+        Task<PagedResult<DeliverableKind>> GetDeliverableKinds(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<DeliverableKind?> GetDeliverableKindById(long id, CancellationToken cancellationToken = default);
 

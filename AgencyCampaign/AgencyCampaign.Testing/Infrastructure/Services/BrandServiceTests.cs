@@ -87,7 +87,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(new Brand("B").WithId(3));
             await db.SaveChangesAsync();
 
-            PagedResult<Brand> result = await service.GetBrands(new PagedRequest { Page = 1, PageSize = 10 });
+            PagedResult<Brand> result = await service.GetBrands(new PagedRequest { Page = 1, PageSize = 10 }, null, true);
 
             result.Items.Select(item => item.Name).Should().Equal("B", "A", "Inactive");
         }

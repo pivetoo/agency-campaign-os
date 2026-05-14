@@ -19,10 +19,21 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<PagedResult<Platform>> GetPlatforms(PagedRequest request, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<Platform>> GetPlatforms(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
         {
-            return await DbContext.Set<Platform>()
-                .AsNoTracking()
+            IQueryable<Platform> query = DbContext.Set<Platform>().AsNoTracking();
+            if (!includeInactive)
+            {
+                query = query.Where(item => item.IsActive);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower));
+            }
+
+            return await query
                 .OrderBy(item => item.DisplayOrder)
                 .ThenBy(item => item.Name)
                 .ToPagedResultAsync(request, cancellationToken);

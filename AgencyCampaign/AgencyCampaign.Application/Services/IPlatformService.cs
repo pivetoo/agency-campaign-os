@@ -7,7 +7,7 @@ namespace AgencyCampaign.Application.Services
 {
     public interface IPlatformService : ICrudService<Platform>
     {
-        Task<PagedResult<Platform>> GetPlatforms(PagedRequest request, CancellationToken cancellationToken = default);
+        Task<PagedResult<Platform>> GetPlatforms(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<Platform?> GetPlatformById(long id, CancellationToken cancellationToken = default);
 

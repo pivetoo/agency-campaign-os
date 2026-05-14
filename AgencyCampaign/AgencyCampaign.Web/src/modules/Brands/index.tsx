@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, TableToolbar, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
+import { useEffect, useMemo, useState } from 'react'
+import { PageLayout, DataTable, Badge, FilterPanel, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, TableToolbar, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { FileSpreadsheet, Download, Upload } from 'lucide-react'
 
 import { brandService, resolveBrandLogoUrl } from '../../services/brandService'
@@ -15,6 +15,7 @@ export default function Brands() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [includeInactiveFilter, setIncludeInactiveFilter] = useState('')
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null)
   const [previewBrand, setPreviewBrand] = useState<Brand | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -22,7 +23,7 @@ export default function Brands() {
   const { execute: fetchBrands, loading, pagination } = useApi<Brand[]>({ showErrorMessage: true })
 
   const loadBrands = async () => {
-    const result = await fetchBrands(() => brandService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
+    const result = await fetchBrands(() => brandService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive: includeInactiveFilter === 'all' }))
     if (result) {
       setBrands(result)
     }
@@ -35,12 +36,29 @@ export default function Brands() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch])
+  }, [debouncedSearch, includeInactiveFilter])
 
   useEffect(() => {
     void loadBrands()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, debouncedSearch])
+  }, [page, pageSize, debouncedSearch, includeInactiveFilter])
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'inactiveFilter',
+      label: t('common.field.status'),
+      value: includeInactiveFilter,
+      onChange: setIncludeInactiveFilter,
+      options: [
+        { value: 'all', label: 'Incluir inativos' },
+      ],
+      allLabel: 'Somente ativas',
+    },
+  ], [includeInactiveFilter, t])
+
+  const clearFilters = () => {
+    setIncludeInactiveFilter('')
+  }
 
   const renderLogoCell = (_: unknown, record: Brand) => {
     const url = resolveBrandLogoUrl(record.logoUrl)
@@ -123,6 +141,7 @@ export default function Brands() {
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={t('common.action.search')}
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
           className="mb-3"
         />
         <DataTable

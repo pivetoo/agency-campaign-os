@@ -15,10 +15,11 @@ export interface UpdatePlatformRequest extends CreatePlatformRequest {
 }
 
 export const platformService = {
-  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<Platform[]>> {
+  getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<Platform[]>> {
     const query = buildPaginationQuery(params)
     const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
-    return httpClient.get<Platform[]>(`${BASE_URL}/Get${query}${searchParam}`)
+    const inactiveParam = params?.includeInactive ? `${query || searchParam ? '&' : '?'}includeInactive=true` : ''
+    return httpClient.get<Platform[]>(`${BASE_URL}/Get${query}${searchParam}${inactiveParam}`)
   },
 
   async getActive(): Promise<Platform[]> {

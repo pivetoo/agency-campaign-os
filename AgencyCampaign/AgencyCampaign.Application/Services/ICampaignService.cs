@@ -8,7 +8,7 @@ namespace AgencyCampaign.Application.Services
 {
     public interface ICampaignService : ICrudService<Campaign>
     {
-        Task<PagedResult<Campaign>> GetCampaigns(PagedRequest request, string? search, CancellationToken cancellationToken = default);
+        Task<PagedResult<Campaign>> GetCampaigns(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<Campaign?> GetCampaignById(long id, CancellationToken cancellationToken = default);
 

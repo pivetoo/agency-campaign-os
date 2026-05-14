@@ -178,7 +178,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(active2);
             await db.SaveChangesAsync();
 
-            var result = await service.GetCampaigns(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 });
+            var result = await service.GetCampaigns(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 }, null, true);
 
             result.Items.Last().IsActive.Should().BeFalse();
         }

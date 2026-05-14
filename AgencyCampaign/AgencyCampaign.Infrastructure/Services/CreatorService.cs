@@ -22,9 +22,13 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<PagedResult<Creator>> GetCreators(PagedRequest request, string? search, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<Creator>> GetCreators(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
         {
             var query = DbContext.Set<Creator>().AsNoTracking();
+            if (!includeInactive)
+            {
+                query = query.Where(item => item.IsActive);
+            }
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var lower = search.ToLower();

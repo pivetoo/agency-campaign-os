@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge, TableToolbar, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
+import { PageLayout, DataTable, FilterPanel, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge, TableToolbar, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Link as LinkIcon, FileSpreadsheet, Download, Upload } from 'lucide-react'
 
 import { creatorService, resolveCreatorPhotoUrl } from '../../services/creatorService'
@@ -18,6 +18,7 @@ export default function Creators() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [includeInactiveFilter, setIncludeInactiveFilter] = useState('')
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
   const [previewCreator, setPreviewCreator] = useState<Creator | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -26,7 +27,7 @@ export default function Creators() {
   const { execute: fetchCreators, loading, pagination } = useApi<Creator[]>({ showErrorMessage: true })
 
   const loadCreators = async () => {
-    const result = await fetchCreators(() => creatorService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
+    const result = await fetchCreators(() => creatorService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive: includeInactiveFilter === 'all' }))
     if (result) {
       setCreators(result)
     }
@@ -39,12 +40,29 @@ export default function Creators() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch])
+  }, [debouncedSearch, includeInactiveFilter])
 
   useEffect(() => {
     void loadCreators()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, debouncedSearch])
+  }, [page, pageSize, debouncedSearch, includeInactiveFilter])
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'inactiveFilter',
+      label: t('common.field.status'),
+      value: includeInactiveFilter,
+      onChange: setIncludeInactiveFilter,
+      options: [
+        { value: 'all', label: 'Incluir inativos' },
+      ],
+      allLabel: 'Somente ativos',
+    },
+  ], [includeInactiveFilter, t])
+
+  const clearFilters = () => {
+    setIncludeInactiveFilter('')
+  }
 
   const renderPhotoCell = (_: unknown, record: Creator) => {
     const url = resolveCreatorPhotoUrl(record.photoUrl)
@@ -150,6 +168,7 @@ export default function Creators() {
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={t('common.action.search')}
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
           className="mb-3"
         />
           <DataTable

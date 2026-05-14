@@ -15,10 +15,11 @@ export interface UpdateDeliverableKindRequest extends CreateDeliverableKindReque
 }
 
 export const deliverableKindService = {
-  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<DeliverableKind[]>> {
+  getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<DeliverableKind[]>> {
     const query = buildPaginationQuery(params)
     const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
-    return httpClient.get<DeliverableKind[]>(`${BASE_URL}/Get${query}${searchParam}`)
+    const inactiveParam = params?.includeInactive ? `${query || searchParam ? '&' : '?'}includeInactive=true` : ''
+    return httpClient.get<DeliverableKind[]>(`${BASE_URL}/Get${query}${searchParam}${inactiveParam}`)
   },
 
   async getActive(): Promise<DeliverableKind[]> {

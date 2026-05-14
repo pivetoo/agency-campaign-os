@@ -25,9 +25,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar os tipos de entrega cadastrados.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
-            PagedResult<DeliverableKind> result = await deliverableKindService.GetDeliverableKinds(request, cancellationToken);
+            PagedResult<DeliverableKind> result = await deliverableKindService.GetDeliverableKinds(request, search, includeInactive, cancellationToken);
             return Http200(new PagedResult<DeliverableKindContract>
             {
                 Items = result.Items.Select(MapDeliverableKind).ToArray(),

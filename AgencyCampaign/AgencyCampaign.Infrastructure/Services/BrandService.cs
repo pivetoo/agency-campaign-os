@@ -20,9 +20,13 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<PagedResult<Brand>> GetBrands(PagedRequest request, string? search, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<Brand>> GetBrands(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
         {
             var query = DbContext.Set<Brand>().AsNoTracking();
+            if (!includeInactive)
+            {
+                query = query.Where(item => item.IsActive);
+            }
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var lower = search.ToLower();

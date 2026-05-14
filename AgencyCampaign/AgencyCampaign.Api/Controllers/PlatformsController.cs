@@ -25,9 +25,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar as plataformas cadastradas.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
-            PagedResult<Platform> result = await platformService.GetPlatforms(request, cancellationToken);
+            PagedResult<Platform> result = await platformService.GetPlatforms(request, search, includeInactive, cancellationToken);
             return Http200(new PagedResult<PlatformContract>
             {
                 Items = result.Items.Select(MapPlatform).ToArray(),

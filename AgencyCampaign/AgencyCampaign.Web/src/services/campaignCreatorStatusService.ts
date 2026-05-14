@@ -21,10 +21,11 @@ export interface UpdateCampaignCreatorStatusRequest extends CreateCampaignCreato
 }
 
 export const campaignCreatorStatusService = {
-  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<CampaignCreatorStatus[]>> {
+  getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<CampaignCreatorStatus[]>> {
     const query = buildPaginationQuery(params)
     const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
-    return httpClient.get<CampaignCreatorStatus[]>(`${BASE_URL}/Get${query}${searchParam}`)
+    const inactiveParam = params?.includeInactive ? `${query || searchParam ? '&' : '?'}includeInactive=true` : ''
+    return httpClient.get<CampaignCreatorStatus[]>(`${BASE_URL}/Get${query}${searchParam}${inactiveParam}`)
   },
 
   async getActive(): Promise<CampaignCreatorStatus[]> {

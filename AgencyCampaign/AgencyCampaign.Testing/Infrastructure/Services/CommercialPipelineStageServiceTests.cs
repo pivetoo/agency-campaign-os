@@ -61,7 +61,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             }
             await db.SaveChangesAsync();
 
-            PagedResult<CommercialPipelineStage> result = await service.GetStages(new PagedRequest { Page = 1, PageSize = 3 });
+            PagedResult<CommercialPipelineStage> result = await service.GetStages(new PagedRequest { Page = 1, PageSize = 3 }, null, true);
 
             result.Pagination.TotalCount.Should().Be(5);
             result.Items.Should().HaveCount(3);

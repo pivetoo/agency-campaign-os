@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, TableToolbar, useApi, useI18n } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
+import { useEffect, useMemo, useState } from 'react'
+import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { deliverableKindService } from '../../../services/deliverableKindService'
 import type { DeliverableKind } from '../../../types/deliverableKind'
 import DeliverableKindFormModal from '../../../components/modals/DeliverableKindFormModal'
@@ -12,12 +12,13 @@ export default function DeliverableKinds() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [includeInactiveFilter, setIncludeInactiveFilter] = useState('')
   const [selectedDeliverableKind, setSelectedDeliverableKind] = useState<DeliverableKind | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const { execute: fetchDeliverableKinds, loading, pagination } = useApi<DeliverableKind[]>({ showErrorMessage: true })
 
   const loadDeliverableKinds = async () => {
-    const result = await fetchDeliverableKinds(() => deliverableKindService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
+    const result = await fetchDeliverableKinds(() => deliverableKindService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive: includeInactiveFilter === 'all' }))
     if (result) {
       setDeliverableKinds(result)
     }
@@ -30,12 +31,29 @@ export default function DeliverableKinds() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch])
+  }, [debouncedSearch, includeInactiveFilter])
 
   useEffect(() => {
     void loadDeliverableKinds()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, debouncedSearch])
+  }, [page, pageSize, debouncedSearch, includeInactiveFilter])
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'inactiveFilter',
+      label: t('common.field.status'),
+      value: includeInactiveFilter,
+      onChange: setIncludeInactiveFilter,
+      options: [
+        { value: 'all', label: 'Incluir inativos' },
+      ],
+      allLabel: 'Somente ativos',
+    },
+  ], [includeInactiveFilter, t])
+
+  const clearFilters = () => {
+    setIncludeInactiveFilter('')
+  }
 
   const columns: DataTableColumn<DeliverableKind>[] = [
     { key: 'name', title: t('configuration.deliverableKinds.field.type'), dataIndex: 'name' },
@@ -62,6 +80,7 @@ export default function DeliverableKinds() {
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={t('common.action.search')}
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
           className="mb-3"
         />
         <DataTable

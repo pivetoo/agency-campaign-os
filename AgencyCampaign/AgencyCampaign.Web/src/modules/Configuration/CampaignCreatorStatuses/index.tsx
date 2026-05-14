@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Badge, DataTable, PageLayout, TableToolbar, useApi, useI18n } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
+import { useEffect, useMemo, useState } from 'react'
+import { Badge, DataTable, FilterPanel, PageLayout, TableToolbar, useApi, useI18n } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
 import CampaignCreatorStatusFormModal from '../../../components/modals/CampaignCreatorStatusFormModal'
 import { campaignCreatorStatusService } from '../../../services/campaignCreatorStatusService'
 import type { CampaignCreatorStatus } from '../../../types/campaignCreatorStatus'
@@ -18,12 +18,13 @@ export default function CampaignCreatorStatuses() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [includeInactiveFilter, setIncludeInactiveFilter] = useState('')
   const [selectedStatus, setSelectedStatus] = useState<CampaignCreatorStatus | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const { execute: fetchStatuses, loading, pagination } = useApi<CampaignCreatorStatus[]>({ showErrorMessage: true })
 
   const loadStatuses = async () => {
-    const result = await fetchStatuses(() => campaignCreatorStatusService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
+    const result = await fetchStatuses(() => campaignCreatorStatusService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive: includeInactiveFilter === 'all' }))
     if (result) {
       setStatuses(result)
     }
@@ -36,12 +37,29 @@ export default function CampaignCreatorStatuses() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch])
+  }, [debouncedSearch, includeInactiveFilter])
 
   useEffect(() => {
     void loadStatuses()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, debouncedSearch])
+  }, [page, pageSize, debouncedSearch, includeInactiveFilter])
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'inactiveFilter',
+      label: t('common.field.status'),
+      value: includeInactiveFilter,
+      onChange: setIncludeInactiveFilter,
+      options: [
+        { value: 'all', label: 'Incluir inativos' },
+      ],
+      allLabel: 'Somente ativos',
+    },
+  ], [includeInactiveFilter, t])
+
+  const clearFilters = () => {
+    setIncludeInactiveFilter('')
+  }
 
   const columns: DataTableColumn<CampaignCreatorStatus>[] = [
     { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
@@ -76,6 +94,7 @@ export default function CampaignCreatorStatuses() {
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={t('common.action.search')}
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
           className="mb-3"
         />
         <DataTable

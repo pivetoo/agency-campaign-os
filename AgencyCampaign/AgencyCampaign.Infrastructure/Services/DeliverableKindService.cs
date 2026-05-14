@@ -19,10 +19,21 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<PagedResult<DeliverableKind>> GetDeliverableKinds(PagedRequest request, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<DeliverableKind>> GetDeliverableKinds(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
         {
-            return await DbContext.Set<DeliverableKind>()
-                .AsNoTracking()
+            IQueryable<DeliverableKind> query = DbContext.Set<DeliverableKind>().AsNoTracking();
+            if (!includeInactive)
+            {
+                query = query.Where(item => item.IsActive);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower));
+            }
+
+            return await query
                 .OrderBy(item => item.DisplayOrder)
                 .ThenBy(item => item.Name)
                 .ToPagedResultAsync(request, cancellationToken);

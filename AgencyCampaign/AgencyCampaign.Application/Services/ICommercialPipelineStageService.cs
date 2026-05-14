@@ -7,7 +7,7 @@ namespace AgencyCampaign.Application.Services
 {
     public interface ICommercialPipelineStageService : ICrudService<CommercialPipelineStage>
     {
-        Task<PagedResult<CommercialPipelineStage>> GetStages(PagedRequest request, CancellationToken cancellationToken = default);
+        Task<PagedResult<CommercialPipelineStage>> GetStages(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<List<CommercialPipelineStage>> GetActiveStages(CancellationToken cancellationToken = default);
 

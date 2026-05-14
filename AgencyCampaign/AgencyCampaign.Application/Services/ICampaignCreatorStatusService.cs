@@ -7,7 +7,7 @@ namespace AgencyCampaign.Application.Services
 {
     public interface ICampaignCreatorStatusService : ICrudService<CampaignCreatorStatus>
     {
-        Task<PagedResult<CampaignCreatorStatus>> GetStatuses(PagedRequest request, CancellationToken cancellationToken = default);
+        Task<PagedResult<CampaignCreatorStatus>> GetStatuses(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<List<CampaignCreatorStatus>> GetActiveStatuses(CancellationToken cancellationToken = default);
 

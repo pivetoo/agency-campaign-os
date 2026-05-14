@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, TableToolbar, useApi, useI18n } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
+import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Eye } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
 import type { Campaign } from '../../types/campaign'
@@ -24,12 +24,13 @@ export default function Campaigns() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [includeInactiveFilter, setIncludeInactiveFilter] = useState('')
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
   const { execute: fetchCampaigns, loading, pagination } = useApi<Campaign[]>({ showErrorMessage: true })
   const loadCampaigns = async () => {
-    const result = await fetchCampaigns(() => campaignService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
+    const result = await fetchCampaigns(() => campaignService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive: includeInactiveFilter === 'all' }))
     if (result) {
       setCampaigns(result)
     }
@@ -42,12 +43,29 @@ export default function Campaigns() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch])
+  }, [debouncedSearch, includeInactiveFilter])
 
   useEffect(() => {
     void loadCampaigns()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, debouncedSearch])
+  }, [page, pageSize, debouncedSearch, includeInactiveFilter])
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'inactiveFilter',
+      label: t('common.field.status'),
+      value: includeInactiveFilter,
+      onChange: setIncludeInactiveFilter,
+      options: [
+        { value: 'all', label: 'Incluir inativas' },
+      ],
+      allLabel: 'Somente ativas',
+    },
+  ], [includeInactiveFilter, t])
+
+  const clearFilters = () => {
+    setIncludeInactiveFilter('')
+  }
 
   const columns: DataTableColumn<Campaign>[] = [
     { key: 'name', title: t('campaign.field.campaign'), dataIndex: 'name' },
@@ -95,6 +113,7 @@ export default function Campaigns() {
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={t('common.action.search')}
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
           className="mb-3"
         />
         <DataTable

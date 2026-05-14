@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, TableToolbar, useApi, useI18n } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
+import { useEffect, useMemo, useState } from 'react'
+import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { platformService } from '../../../services/platformService'
 import type { Platform } from '../../../types/platform'
 import PlatformFormModal from '../../../components/modals/PlatformFormModal'
@@ -12,12 +12,13 @@ export default function Platforms() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [includeInactiveFilter, setIncludeInactiveFilter] = useState('')
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const { execute: fetchPlatforms, loading, pagination } = useApi<Platform[]>({ showErrorMessage: true })
 
   const loadPlatforms = async () => {
-    const result = await fetchPlatforms(() => platformService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
+    const result = await fetchPlatforms(() => platformService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive: includeInactiveFilter === 'all' }))
     if (result) {
       setPlatforms(result)
     }
@@ -30,12 +31,29 @@ export default function Platforms() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch])
+  }, [debouncedSearch, includeInactiveFilter])
 
   useEffect(() => {
     void loadPlatforms()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, debouncedSearch])
+  }, [page, pageSize, debouncedSearch, includeInactiveFilter])
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'inactiveFilter',
+      label: t('common.field.status'),
+      value: includeInactiveFilter,
+      onChange: setIncludeInactiveFilter,
+      options: [
+        { value: 'all', label: 'Incluir inativos' },
+      ],
+      allLabel: 'Somente ativos',
+    },
+  ], [includeInactiveFilter, t])
+
+  const clearFilters = () => {
+    setIncludeInactiveFilter('')
+  }
 
   const columns: DataTableColumn<Platform>[] = [
     { key: 'name', title: t('common.field.platform'), dataIndex: 'name' },
@@ -62,6 +80,7 @@ export default function Platforms() {
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={t('common.action.search')}
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
           className="mb-3"
         />
         <DataTable

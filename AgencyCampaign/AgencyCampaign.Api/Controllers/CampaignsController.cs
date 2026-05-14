@@ -25,9 +25,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar as campanhas cadastradas.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
-            PagedResult<Campaign> result = await campaignService.GetCampaigns(request, search, cancellationToken);
+            PagedResult<Campaign> result = await campaignService.GetCampaigns(request, search, includeInactive, cancellationToken);
             return Http200(new PagedResult<CampaignContract>
             {
                 Items = result.Items.Select(MapCampaign).ToArray(),
