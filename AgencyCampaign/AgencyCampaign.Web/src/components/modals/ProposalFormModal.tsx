@@ -27,7 +27,7 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
 
   useEffect(() => {
     if (!open) return
-    void opportunityService.getAll({ pageSize: 30 }).then((r) => setOpportunities(r.data ?? []))
+    void opportunityService.getAll({ pageSize: 10 }).then((r) => setOpportunities(r.data ?? []))
   }, [open])
 
   useEffect(() => {
@@ -92,7 +92,7 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
                   placeholder={t('common.placeholder.select')}
                   searchPlaceholder={t('common.placeholder.search')}
                   onSearch={async (term) => {
-                    const r = await opportunityService.getAll({ search: term, pageSize: 20 })
+                    const r = await opportunityService.getAll({ search: term, pageSize: 10 })
                     return (r.data ?? []).map((opportunity) => ({
                       value: String(opportunity.id),
                       label: `${opportunity.name} · ${opportunity.brand?.name || 'Marca'}`,

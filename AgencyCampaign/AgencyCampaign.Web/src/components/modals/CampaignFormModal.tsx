@@ -47,7 +47,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
 
   useEffect(() => {
     if (!open) return
-    void brandService.getAll({ pageSize: 30 }).then((r) => setBrands(r.data ?? []))
+    void brandService.getAll({ pageSize: 10 }).then((r) => setBrands(r.data ?? []))
     void commercialResponsibleService.getAll().then(setResponsibles)
   }, [open])
 
@@ -124,7 +124,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
                 placeholder={t('common.placeholder.select')}
                 searchPlaceholder={t('common.placeholder.search')}
                 onSearch={async (term) => {
-                  const r = await brandService.getAll({ search: term, pageSize: 20 })
+                  const r = await brandService.getAll({ search: term, pageSize: 10 })
                   return (r.data ?? []).map((brand) => ({ value: String(brand.id), label: brand.tradeName || brand.name }))
                 }}
               />

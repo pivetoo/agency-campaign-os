@@ -35,7 +35,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
 
   useEffect(() => {
     if (!open) return
-    void creatorService.getAll({ pageSize: 30 }).then((r) => {
+    void creatorService.getAll({ pageSize: 10 }).then((r) => {
       setCreators((r.data ?? []).filter((c) => c.isActive))
     })
     void fetchStatuses(() => campaignCreatorStatusService.getActive()).then((result) => {
@@ -130,7 +130,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
                 searchPlaceholder={t('common.placeholder.search')}
                 disabled={isEditing}
                 onSearch={async (term) => {
-                  const r = await creatorService.getAll({ search: term, pageSize: 20 })
+                  const r = await creatorService.getAll({ search: term, pageSize: 10 })
                   const found = (r.data ?? []).filter((c) => c.isActive)
                   setCreators((prev) => {
                     const map = new Map(prev.map((c) => [c.id, c]))

@@ -25,7 +25,7 @@ export default function CommercialApprovals() {
   const [approvals, setApprovals] = useState<OpportunityApprovalRequest[]>([])
   const [summary, setSummary] = useState<ApprovalSummary | null>(null)
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(10)
   const [selectedApproval, setSelectedApproval] = useState<OpportunityApprovalRequest | null>(null)
   const { execute: fetchApprovals, loading, pagination } = useApi<OpportunityApprovalRequest[]>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })

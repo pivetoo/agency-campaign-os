@@ -61,7 +61,7 @@ export default function CommercialProposals() {
   const navigate = useNavigate()
   const [proposals, setProposals] = useState<Proposal[]>([])
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(10)
   const [responsibles, setResponsibles] = useState<CommercialResponsible[]>([])
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)

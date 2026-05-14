@@ -9,7 +9,7 @@ export default function Financial() {
   const { t } = useI18n()
   const [entries, setEntries] = useState<FinancialEntry[]>([])
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(10)
   const [summaryReceivable, setSummaryReceivable] = useState<FinancialSummary | null>(null)
   const [summaryPayable, setSummaryPayable] = useState<FinancialSummary | null>(null)
   const { execute: fetchEntries, loading, pagination } = useApi<FinancialEntry[]>({ showErrorMessage: true })

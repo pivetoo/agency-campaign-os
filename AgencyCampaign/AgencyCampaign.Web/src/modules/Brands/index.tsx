@@ -12,7 +12,7 @@ export default function Brands() {
   const { t } = useI18n()
   const [brands, setBrands] = useState<Brand[]>([])
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(10)
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null)
   const [previewBrand, setPreviewBrand] = useState<Brand | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)

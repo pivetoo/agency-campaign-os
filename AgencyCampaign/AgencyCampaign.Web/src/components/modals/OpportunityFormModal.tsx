@@ -41,7 +41,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
 
   useEffect(() => {
     if (!open) return
-    void brandService.getAll({ pageSize: 30 }).then((r) => setBrands(r.data ?? []))
+    void brandService.getAll({ pageSize: 10 }).then((r) => setBrands(r.data ?? []))
     void commercialResponsibleService.getAll().then(setResponsibles)
     void opportunitySourceService.getAll(false).then(setSources)
     void opportunityTagService.getAll(false).then(setTags)
@@ -120,7 +120,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
                 placeholder={t('common.placeholder.select')}
                 searchPlaceholder={t('common.placeholder.search')}
                 onSearch={async (term) => {
-                  const r = await brandService.getAll({ search: term, pageSize: 20 })
+                  const r = await brandService.getAll({ search: term, pageSize: 10 })
                   return (r.data ?? []).map((brand) => ({ value: String(brand.id), label: brand.name }))
                 }}
               />

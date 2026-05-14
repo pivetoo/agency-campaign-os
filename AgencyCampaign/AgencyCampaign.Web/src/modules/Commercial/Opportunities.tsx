@@ -36,7 +36,7 @@ export default function CommercialOpportunities() {
   const [isFormOpen, setIsFormOpen] = useState(false)
 
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(10)
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [stageFilter, setStageFilter] = useState('')

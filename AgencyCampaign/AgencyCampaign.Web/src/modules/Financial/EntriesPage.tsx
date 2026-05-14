@@ -31,7 +31,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   const isReceivable = type === 1
   const [entries, setEntries] = useState<FinancialEntry[]>([])
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(10)
   const [summary, setSummary] = useState<FinancialSummary | null>(null)
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
   const [filters, setFilters] = useState<FinancialEntryFilters>({})

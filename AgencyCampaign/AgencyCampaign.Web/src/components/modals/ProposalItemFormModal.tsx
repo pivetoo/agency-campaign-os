@@ -31,7 +31,7 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
 
   useEffect(() => {
     if (!open) return
-    void creatorService.getAll({ pageSize: 30 }).then((r) => setCreators(r.data ?? []))
+    void creatorService.getAll({ pageSize: 10 }).then((r) => setCreators(r.data ?? []))
   }, [open])
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
                 placeholder="Opcional"
                 searchPlaceholder={t('common.placeholder.search')}
                 onSearch={async (term) => {
-                  const r = await creatorService.getAll({ search: term, pageSize: 20 })
+                  const r = await creatorService.getAll({ search: term, pageSize: 10 })
                   return (r.data ?? []).map((creator) => ({ value: String(creator.id), label: creator.name }))
                 }}
               />

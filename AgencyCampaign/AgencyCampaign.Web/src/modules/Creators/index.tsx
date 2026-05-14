@@ -15,7 +15,7 @@ export default function Creators() {
   const navigate = useNavigate()
   const [creators, setCreators] = useState<Creator[]>([])
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(10)
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
   const [previewCreator, setPreviewCreator] = useState<Creator | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)

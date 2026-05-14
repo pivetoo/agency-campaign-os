@@ -67,7 +67,7 @@ export default function CreatorPaymentsPage() {
   }, [statusFilter, campaignId])
 
   const loadCampaigns = async () => {
-    const result = await fetchCampaigns(() => campaignService.getAll({ pageSize: 30 }))
+    const result = await fetchCampaigns(() => campaignService.getAll({ pageSize: 10 }))
     if (result) setCampaigns(result)
   }
 
@@ -233,7 +233,7 @@ export default function CreatorPaymentsPage() {
               placeholder={t('financial.creatorPayments.placeholder.allCampaigns')}
               searchPlaceholder={t('common.placeholder.search')}
               onSearch={async (term) => {
-                const r = await campaignService.getAll({ search: term, pageSize: 20 })
+                const r = await campaignService.getAll({ search: term, pageSize: 10 })
                 return (r.data ?? []).map((c) => ({ value: String(c.id), label: c.name }))
               }}
             />
@@ -279,7 +279,7 @@ export default function CreatorPaymentsPage() {
             onSelectionChange={(rows) => setSelected(rows)}
             emptyText={loading ? t('common.loading') : t('financial.creatorPayments.empty')}
             loading={loading}
-            pageSize={20}
+            pageSize={10}
             pageSizeOptions={[10, 20, 50, 100]}
           />
         </div>

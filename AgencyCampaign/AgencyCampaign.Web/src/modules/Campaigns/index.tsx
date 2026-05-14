@@ -21,7 +21,7 @@ export default function Campaigns() {
   const navigate = useNavigate()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(10)
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
