@@ -164,6 +164,9 @@
   <data name="breadcrumb.details" xml:space="preserve"><value>Detalles</value></data>
   <data name="dashboard.title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="dashboard.subtitle" xml:space="preserve"><value>Visión general del rendimiento de la agencia</value></data>
+  <data name="dashboard.greeting.morning" xml:space="preserve"><value>Buenos días</value></data>
+  <data name="dashboard.greeting.afternoon" xml:space="preserve"><value>Buenas tardes</value></data>
+  <data name="dashboard.greeting.evening" xml:space="preserve"><value>Buenas noches</value></data>
   <data name="dashboard.kpi.activeCampaigns" xml:space="preserve"><value>Campañas activas</value></data>
   <data name="dashboard.kpi.activeBrands" xml:space="preserve"><value>Marcas</value></data>
   <data name="dashboard.kpi.activeCreators" xml:space="preserve"><value>Influencers</value></data>

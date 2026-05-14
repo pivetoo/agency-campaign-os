@@ -10,6 +10,7 @@ import {
   GlobalLoader,
   LineChart,
   PieChart,
+  useAuth,
   useI18n,
 } from 'archon-ui'
 import {
@@ -41,10 +42,21 @@ function formatCurrencyShort(value: number) {
   return `R$ ${value.toFixed(0)}`
 }
 
+function buildGreeting(t: (key: string) => string, firstName: string | undefined): string {
+  const hour = new Date().getHours()
+  const period = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
+  const base = t(`dashboard.greeting.${period}`)
+  return firstName ? `${base}, ${firstName}` : base
+}
+
 export default function Dashboard() {
   const { t } = useI18n()
+  const { user } = useAuth()
   const [overview, setOverview] = useState<DashboardOverview | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
+  const firstName = useMemo(() => user?.name?.trim().split(/\s+/)[0], [user?.name])
+  const greeting = useMemo(() => buildGreeting(t, firstName), [t, firstName])
 
   useEffect(() => {
     let isMounted = true
@@ -97,7 +109,7 @@ export default function Dashboard() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="border-l-4 border-primary pl-5">
           <h1 className="text-3xl font-bold text-foreground tracking-tight">
-            <strong className="text-primary">{t('dashboard.title')}</strong>
+            <strong className="text-primary">{greeting}</strong>
           </h1>
           <p className="text-lg text-muted-foreground mt-3 leading-relaxed">
             {t('dashboard.subtitle')}
