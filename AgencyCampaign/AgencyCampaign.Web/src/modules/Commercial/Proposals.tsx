@@ -4,25 +4,19 @@ import {
   PageLayout,
   DataTable,
   Badge,
-  SearchableSelect,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Button,
+  FilterPanel,
   TableToolbar,
   useApi,
   useI18n,
 } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
-import { CheckCircle, Clock, Eye, Send, X, XCircle } from 'lucide-react'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
+import { CheckCircle, Clock, Eye, Send, XCircle } from 'lucide-react'
 import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValue, type ProposalListFilters } from '../../services/proposalService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import type { CommercialResponsible } from '../../types/commercialResponsible'
 import ProposalFormModal from '../../components/modals/ProposalFormModal'
 
-const STATUS_ALL = '__all__'
+const STATUS_ALL = ''
 
 const proposalStatusKeys: Record<ProposalStatusValue, string> = {
   [ProposalStatus.Draft]: 'proposal.status.draft',
@@ -103,12 +97,33 @@ export default function CommercialProposals() {
 
   useEffect(() => {
     void loadProposals()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, search, statusFilter, responsibleFilter])
 
   const responsibleOptions = useMemo(
     () => responsibles.map((item) => ({ value: item.id.toString(), label: item.name })),
     [responsibles]
   )
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'status',
+      label: t('common.field.status'),
+      value: statusFilter,
+      onChange: setStatusFilter,
+      options: Object.entries(proposalStatusKeys).map(([key, labelKey]) => ({
+        value: key,
+        label: t(labelKey),
+      })),
+    },
+    {
+      key: 'responsible',
+      label: t('common.field.responsible'),
+      value: responsibleFilter,
+      onChange: setResponsibleFilter,
+      options: responsibleOptions,
+    },
+  ], [statusFilter, responsibleFilter, responsibleOptions, t])
 
   const hasActiveFilters = !!search || statusFilter !== STATUS_ALL || !!responsibleFilter
 
@@ -262,45 +277,14 @@ export default function CommercialProposals() {
             onClick: () => selectedProposal && void runProposalAction(() => proposalService.cancel(selectedProposal.id)),
           },
         ]}
-        filtersSlot={
-          <TableToolbar
-            searchValue={searchInput}
-            onSearchChange={setSearchInput}
-            searchPlaceholder={t('proposals.search.placeholder')}
-            leftSlot={
-              <>
-                <div className="w-full lg:w-[200px]">
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('common.field.status')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={STATUS_ALL}>{t('common.filter.allStatuses')}</SelectItem>
-                      {Object.entries(proposalStatusKeys).map(([key, labelKey]) => (
-                        <SelectItem key={key} value={key}>{t(labelKey)}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="w-full lg:w-[200px]">
-                  <SearchableSelect
-                    value={responsibleFilter}
-                    onValueChange={setResponsibleFilter}
-                    options={responsibleOptions}
-                    placeholder={t('proposals.filter.allResponsibles')}
-                    searchPlaceholder={t('proposals.filter.searchResponsible')}
-                  />
-                </div>
-                {hasActiveFilters ? (
-                  <Button variant="outline" size="sm" icon={<X className="h-4 w-4" />} onClick={clearFilters}>
-                    {t('common.action.clear')}
-                  </Button>
-                ) : null}
-              </>
-            }
-          />
-        }
       >
+        <TableToolbar
+          searchValue={searchInput}
+          onSearchChange={setSearchInput}
+          searchPlaceholder={t('proposals.search.placeholder')}
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
+          className="mb-3"
+        />
         <DataTable
           columns={columns}
           data={proposals}

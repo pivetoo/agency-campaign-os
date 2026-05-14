@@ -4,19 +4,13 @@ import {
   PageLayout,
   DataTable,
   Badge,
-  SearchableSelect,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Button,
+  FilterPanel,
   TableToolbar,
   useApi,
   useI18n,
 } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
-import { Eye, X } from 'lucide-react'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
+import { Eye } from 'lucide-react'
 import { opportunityService, type Opportunity, type OpportunityListFilters } from '../../services/opportunityService'
 import { commercialPipelineStageService } from '../../services/commercialPipelineStageService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
@@ -24,7 +18,7 @@ import type { CommercialPipelineStage } from '../../types/commercialPipelineStag
 import type { CommercialResponsible } from '../../types/commercialResponsible'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
 
-const STATUS_ALL = '__all__'
+const STATUS_ALL = ''
 
 export default function CommercialOpportunities() {
   const { t } = useI18n()
@@ -81,6 +75,34 @@ export default function CommercialOpportunities() {
     () => responsibles.map((item) => ({ value: item.id.toString(), label: item.name })),
     [responsibles]
   )
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'status',
+      label: t('common.field.status'),
+      value: statusFilter,
+      onChange: setStatusFilter,
+      options: [
+        { value: 'open', label: t('opportunities.status.open') },
+        { value: 'won', label: t('opportunities.status.won') },
+        { value: 'lost', label: t('opportunities.status.lost') },
+      ],
+    },
+    {
+      key: 'stage',
+      label: t('opportunities.filter.stage'),
+      value: stageFilter,
+      onChange: setStageFilter,
+      options: stageOptions,
+    },
+    {
+      key: 'responsible',
+      label: t('common.field.responsible'),
+      value: responsibleFilter,
+      onChange: setResponsibleFilter,
+      options: responsibleOptions,
+    },
+  ], [statusFilter, stageFilter, responsibleFilter, stageOptions, responsibleOptions, t])
 
   const hasActiveFilters = !!search || !!stageFilter || !!responsibleFilter || statusFilter !== STATUS_ALL
 
@@ -153,54 +175,13 @@ export default function CommercialOpportunities() {
         onEdit={() => selectedOpportunity && setIsFormOpen(true)}
         onRefresh={reload}
         selectedRowsCount={selectedOpportunity ? 1 : 0}
-        filtersSlot={
-          <TableToolbar
-            searchValue={searchInput}
-            onSearchChange={setSearchInput}
-            searchPlaceholder={t('opportunities.search.placeholder')}
-            leftSlot={
-              <>
-                <div className="w-full lg:w-[200px]">
-                  <SearchableSelect
-                    value={stageFilter}
-                    onValueChange={setStageFilter}
-                    options={stageOptions}
-                    placeholder={t('opportunities.filter.allStages')}
-                    searchPlaceholder={t('opportunities.filter.searchStage')}
-                  />
-                </div>
-                <div className="w-full lg:w-[200px]">
-                  <SearchableSelect
-                    value={responsibleFilter}
-                    onValueChange={setResponsibleFilter}
-                    options={responsibleOptions}
-                    placeholder={t('proposals.filter.allResponsibles')}
-                    searchPlaceholder={t('proposals.filter.searchResponsible')}
-                  />
-                </div>
-                <div className="w-full lg:w-[160px]">
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('common.field.status')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={STATUS_ALL}>{t('opportunities.status.all')}</SelectItem>
-                      <SelectItem value="open">{t('opportunities.status.open')}</SelectItem>
-                      <SelectItem value="won">{t('opportunities.status.won')}</SelectItem>
-                      <SelectItem value="lost">{t('opportunities.status.lost')}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {hasActiveFilters ? (
-                  <Button variant="outline" size="sm" icon={<X className="h-4 w-4" />} onClick={clearFilters}>
-                    {t('common.action.clear')}
-                  </Button>
-                ) : null}
-              </>
-            }
-          />
-        }
-      >
+      ><TableToolbar
+          searchValue={searchInput}
+          onSearchChange={setSearchInput}
+          searchPlaceholder={t('opportunities.search.placeholder')}
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
+          className="mb-3"
+        />
         <DataTable
           columns={columns}
           data={opportunities}

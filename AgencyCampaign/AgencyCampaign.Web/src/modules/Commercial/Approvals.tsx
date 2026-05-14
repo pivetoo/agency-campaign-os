@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, Button, useApi, useAuth, useI18n } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
+import { PageLayout, DataTable, Badge, Button, FilterPanel, useApi, useAuth, useI18n } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalStatusValue, type OpportunityApprovalRequest, type ApprovalSummary } from '../../services/opportunityService'
 
 const approvalTypeKeys: Record<number, string> = {
@@ -26,6 +26,8 @@ export default function CommercialApprovals() {
   const [summary, setSummary] = useState<ApprovalSummary | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [statusFilter, setStatusFilter] = useState('')
+  const [typeFilter, setTypeFilter] = useState('')
   const [selectedApproval, setSelectedApproval] = useState<OpportunityApprovalRequest | null>(null)
   const { execute: fetchApprovals, loading, pagination } = useApi<OpportunityApprovalRequest[]>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -41,6 +43,50 @@ export default function CommercialApprovals() {
     void loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize])
+
+  useEffect(() => {
+    setPage(1)
+  }, [statusFilter, typeFilter])
+
+  const filteredApprovals = useMemo(() => {
+    return approvals.filter((approval) => {
+      if (statusFilter && String(approval.status) !== statusFilter) {
+        return false
+      }
+      if (typeFilter && String(approval.approvalType) !== typeFilter) {
+        return false
+      }
+      return true
+    })
+  }, [approvals, statusFilter, typeFilter])
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'status',
+      label: t('common.field.status'),
+      value: statusFilter,
+      onChange: setStatusFilter,
+      options: Object.entries(approvalStatusKeys).map(([key, labelKey]) => ({
+        value: key,
+        label: t(labelKey),
+      })),
+    },
+    {
+      key: 'type',
+      label: t('common.field.type'),
+      value: typeFilter,
+      onChange: setTypeFilter,
+      options: Object.entries(approvalTypeKeys).map(([key, labelKey]) => ({
+        value: key,
+        label: t(labelKey),
+      })),
+    },
+  ], [statusFilter, typeFilter, t])
+
+  const clearFilters = () => {
+    setStatusFilter('')
+    setTypeFilter('')
+  }
 
   const decideApproval = async (status: 'approve' | 'reject') => {
     if (!selectedApproval) {
@@ -91,14 +137,17 @@ export default function CommercialApprovals() {
         <div className="rounded-xl border border-border bg-card p-4"><div className="text-sm text-muted-foreground">{t('approvals.kpi.rejected')}</div><div className="text-2xl font-bold text-destructive">{summary?.rejected ?? 0}</div></div>
       </div>
 
-      <div className="mb-3 flex flex-wrap gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <Button variant="outline" onClick={() => navigate('/comercial/pipeline')}>{t('approvals.action.goToPipeline')}</Button>
         <Button variant="outline-success" disabled={!selectedApproval || selectedApproval.status !== OpportunityApprovalStatus.Pending || actionLoading} onClick={() => void decideApproval('approve')}>{t('approvals.action.approveSelected')}</Button>
         <Button variant="outline-danger" disabled={!selectedApproval || selectedApproval.status !== OpportunityApprovalStatus.Pending || actionLoading} onClick={() => void decideApproval('reject')}>{t('approvals.action.rejectSelected')}</Button>
+        <div className="ml-auto">
+          <FilterPanel sections={filterSections} onClearAll={clearFilters} />
+        </div>
       </div>
       <DataTable
         columns={columns}
-        data={approvals}
+        data={filteredApprovals}
         rowKey="id"
         selectedRows={selectedApproval ? [selectedApproval] : []}
         onSelectionChange={(rows) => setSelectedApproval(rows[0] ?? null)}

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, Input, SearchableSelect, TableToolbar, useI18n } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
+import { useEffect, useMemo, useState } from 'react'
+import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, Input, FilterPanel, TableToolbar, useI18n } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { CheckCircle2, Pencil, Trash2 } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../services/financialEntryService'
 import { financialAccountService } from '../../services/financialAccountService'
@@ -70,6 +70,34 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   const statusLabels = isReceivable ? financialEntryReceivableStatusLabels : financialEntryStatusLabels
   const settledLabel = isReceivable ? t('financial.entries.kpi.settledReceivable') : t('financial.entries.kpi.settledPayable')
   const dueSoonLabel = isReceivable ? t('financial.entries.kpi.dueSoonReceivable') : t('financial.entries.kpi.dueSoonPayable')
+
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'status',
+      label: t('common.field.status'),
+      value: filters.status ? String(filters.status) : '',
+      onChange: (value) => setFilters((prev) => ({ ...prev, status: value ? Number(value) : undefined })),
+      options: Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
+    },
+    {
+      key: 'account',
+      label: t('common.field.account'),
+      value: filters.accountId ? String(filters.accountId) : '',
+      onChange: (value) => setFilters((prev) => ({ ...prev, accountId: value ? Number(value) : undefined })),
+      options: accounts.map((account) => ({ value: String(account.id), label: account.name })),
+    },
+  ], [filters.status, filters.accountId, accounts, statusLabels, t])
+
+  const clearFilters = () => {
+    setFilters((prev) => ({
+      ...prev,
+      status: undefined,
+      accountId: undefined,
+      search: prev.search,
+      dueFrom: prev.dueFrom,
+      dueTo: prev.dueTo,
+    }))
+  }
 
   const columns: DataTableColumn<FinancialEntry>[] = [
     {
@@ -215,30 +243,11 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
               searchValue={filters.search ?? ''}
               onSearchChange={(value) => setFilters((prev) => ({ ...prev, search: value || undefined }))}
               searchPlaceholder={t('financial.entries.placeholder.search')}
+              rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
             />
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <SearchableSelect
-                value={filters.status ? String(filters.status) : ''}
-                onValueChange={(value) => setFilters((prev) => ({ ...prev, status: value ? Number(value) : undefined }))}
-                options={[
-                  { value: '', label: t('common.filter.allStatuses') },
-                  ...Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
-                ]}
-                placeholder={t('common.field.status')}
-              />
-              <SearchableSelect
-                value={filters.accountId ? String(filters.accountId) : ''}
-                onValueChange={(value) => setFilters((prev) => ({ ...prev, accountId: value ? Number(value) : undefined }))}
-                options={[
-                  { value: '', label: t('financial.entries.filter.allAccounts') },
-                  ...accounts.map((account) => ({ value: String(account.id), label: account.name })),
-                ]}
-                placeholder={t('financial.entries.placeholder.account')}
-              />
-              <div className="flex gap-2">
-                <Input type="date" value={filters.dueFrom?.slice(0, 10) ?? ''} onChange={(e) => setFilters((prev) => ({ ...prev, dueFrom: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
-                <Input type="date" value={filters.dueTo?.slice(0, 10) ?? ''} onChange={(e) => setFilters((prev) => ({ ...prev, dueTo: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
-              </div>
+            <div className="flex gap-2 md:max-w-md">
+              <Input type="date" value={filters.dueFrom?.slice(0, 10) ?? ''} onChange={(e) => setFilters((prev) => ({ ...prev, dueFrom: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
+              <Input type="date" value={filters.dueTo?.slice(0, 10) ?? ''} onChange={(e) => setFilters((prev) => ({ ...prev, dueTo: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
             </div>
 
             <DataTable
