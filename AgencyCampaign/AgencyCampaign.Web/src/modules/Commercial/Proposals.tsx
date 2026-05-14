@@ -4,7 +4,6 @@ import {
   PageLayout,
   DataTable,
   Badge,
-  Input,
   SearchableSelect,
   Select,
   SelectContent,
@@ -12,11 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
   Button,
+  TableToolbar,
   useApi,
   useI18n,
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { CheckCircle, Clock, Eye, Search, Send, X, XCircle } from 'lucide-react'
+import { CheckCircle, Clock, Eye, Send, X, XCircle } from 'lucide-react'
 import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValue, type ProposalListFilters } from '../../services/proposalService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import type { CommercialResponsible } from '../../types/commercialResponsible'
@@ -262,46 +262,45 @@ export default function CommercialProposals() {
             onClick: () => selectedProposal && void runProposalAction(() => proposalService.cancel(selectedProposal.id)),
           },
         ]}
+        filtersSlot={
+          <TableToolbar
+            searchValue={searchInput}
+            onSearchChange={setSearchInput}
+            searchPlaceholder={t('proposals.search.placeholder')}
+            leftSlot={
+              <>
+                <div className="w-full lg:w-[200px]">
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('common.field.status')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={STATUS_ALL}>{t('common.filter.allStatuses')}</SelectItem>
+                      {Object.entries(proposalStatusKeys).map(([key, labelKey]) => (
+                        <SelectItem key={key} value={key}>{t(labelKey)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-full lg:w-[200px]">
+                  <SearchableSelect
+                    value={responsibleFilter}
+                    onValueChange={setResponsibleFilter}
+                    options={responsibleOptions}
+                    placeholder={t('proposals.filter.allResponsibles')}
+                    searchPlaceholder={t('proposals.filter.searchResponsible')}
+                  />
+                </div>
+                {hasActiveFilters ? (
+                  <Button variant="outline" size="sm" icon={<X className="h-4 w-4" />} onClick={clearFilters}>
+                    {t('common.action.clear')}
+                  </Button>
+                ) : null}
+              </>
+            }
+          />
+        }
       >
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">
-          <div className="relative flex-1 min-w-[240px]">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder={t('proposals.search.placeholder')}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <div className="w-full lg:w-[200px]">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder={t('common.field.status')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={STATUS_ALL}>{t('common.filter.allStatuses')}</SelectItem>
-                {Object.entries(proposalStatusKeys).map(([key, labelKey]) => (
-                  <SelectItem key={key} value={key}>{t(labelKey)}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="w-full lg:w-[200px]">
-            <SearchableSelect
-              value={responsibleFilter}
-              onValueChange={setResponsibleFilter}
-              options={responsibleOptions}
-              placeholder={t('proposals.filter.allResponsibles')}
-              searchPlaceholder={t('proposals.filter.searchResponsible')}
-            />
-          </div>
-          {hasActiveFilters ? (
-            <Button variant="outline" size="sm" icon={<X className="h-4 w-4" />} onClick={clearFilters}>
-              {t('common.action.clear')}
-            </Button>
-          ) : null}
-        </div>
-
         <DataTable
           columns={columns}
           data={proposals}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { platformService } from '../../../services/platformService'
 import type { Platform } from '../../../types/platform'
@@ -10,21 +10,32 @@ export default function Platforms() {
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const { execute: fetchPlatforms, loading, pagination } = useApi<Platform[]>({ showErrorMessage: true })
 
   const loadPlatforms = async () => {
-    const result = await fetchPlatforms(() => platformService.getAll({ page, pageSize }))
+    const result = await fetchPlatforms(() => platformService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
     if (result) {
       setPlatforms(result)
     }
   }
 
   useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timeout)
+  }, [search])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
+
+  useEffect(() => {
     void loadPlatforms()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize])
+  }, [page, pageSize, debouncedSearch])
 
   const columns: DataTableColumn<Platform>[] = [
     { key: 'name', title: t('common.field.platform'), dataIndex: 'name' },
@@ -46,6 +57,13 @@ export default function Platforms() {
         onEdit={() => selectedPlatform && setIsFormOpen(true)}
         onRefresh={() => void loadPlatforms()}
         selectedRowsCount={selectedPlatform ? 1 : 0}
+        filtersSlot={
+          <TableToolbar
+            searchValue={search}
+            onSearchChange={setSearch}
+            searchPlaceholder={t('common.action.search')}
+          />
+        }
       >
         <DataTable
           columns={columns}

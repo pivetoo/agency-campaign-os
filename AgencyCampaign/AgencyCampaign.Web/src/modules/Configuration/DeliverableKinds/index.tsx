@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { deliverableKindService } from '../../../services/deliverableKindService'
 import type { DeliverableKind } from '../../../types/deliverableKind'
@@ -10,21 +10,32 @@ export default function DeliverableKinds() {
   const [deliverableKinds, setDeliverableKinds] = useState<DeliverableKind[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedDeliverableKind, setSelectedDeliverableKind] = useState<DeliverableKind | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const { execute: fetchDeliverableKinds, loading, pagination } = useApi<DeliverableKind[]>({ showErrorMessage: true })
 
   const loadDeliverableKinds = async () => {
-    const result = await fetchDeliverableKinds(() => deliverableKindService.getAll({ page, pageSize }))
+    const result = await fetchDeliverableKinds(() => deliverableKindService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
     if (result) {
       setDeliverableKinds(result)
     }
   }
 
   useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timeout)
+  }, [search])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
+
+  useEffect(() => {
     void loadDeliverableKinds()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize])
+  }, [page, pageSize, debouncedSearch])
 
   const columns: DataTableColumn<DeliverableKind>[] = [
     { key: 'name', title: t('configuration.deliverableKinds.field.type'), dataIndex: 'name' },
@@ -46,6 +57,13 @@ export default function DeliverableKinds() {
         onEdit={() => selectedDeliverableKind && setIsFormOpen(true)}
         onRefresh={() => void loadDeliverableKinds()}
         selectedRowsCount={selectedDeliverableKind ? 1 : 0}
+        filtersSlot={
+          <TableToolbar
+            searchValue={search}
+            onSearchChange={setSearch}
+            searchPlaceholder={t('common.action.search')}
+          />
+        }
       >
         <DataTable
           columns={columns}

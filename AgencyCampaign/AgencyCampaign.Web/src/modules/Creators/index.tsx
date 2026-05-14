@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
+import { PageLayout, DataTable, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, Badge, TableToolbar, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Link as LinkIcon, FileSpreadsheet, Download, Upload } from 'lucide-react'
 
@@ -16,6 +16,8 @@ export default function Creators() {
   const [creators, setCreators] = useState<Creator[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
   const [previewCreator, setPreviewCreator] = useState<Creator | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -24,15 +26,25 @@ export default function Creators() {
   const { execute: fetchCreators, loading, pagination } = useApi<Creator[]>({ showErrorMessage: true })
 
   const loadCreators = async () => {
-    const result = await fetchCreators(() => creatorService.getAll({ page, pageSize }))
+    const result = await fetchCreators(() => creatorService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
     if (result) {
       setCreators(result)
     }
   }
 
   useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timeout)
+  }, [search])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
+
+  useEffect(() => {
     void loadCreators()
-  }, [page, pageSize])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, debouncedSearch])
 
   const renderPhotoCell = (_: unknown, record: Creator) => {
     const url = resolveCreatorPhotoUrl(record.photoUrl)
@@ -132,6 +144,13 @@ export default function Creators() {
             onClick: () => selectedCreator && setIsTokensOpen(true),
           },
         ]}
+        filtersSlot={
+          <TableToolbar
+            searchValue={search}
+            onSearchChange={setSearch}
+            searchPlaceholder={t('common.action.search')}
+          />
+        }
       >
         <div data-tour="creators-table">
           <DataTable

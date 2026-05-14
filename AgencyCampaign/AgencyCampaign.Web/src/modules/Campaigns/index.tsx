@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Eye } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
@@ -22,20 +22,32 @@ export default function Campaigns() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
   const { execute: fetchCampaigns, loading, pagination } = useApi<Campaign[]>({ showErrorMessage: true })
   const loadCampaigns = async () => {
-    const result = await fetchCampaigns(() => campaignService.getAll({ page, pageSize }))
+    const result = await fetchCampaigns(() => campaignService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
     if (result) {
       setCampaigns(result)
     }
   }
 
   useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timeout)
+  }, [search])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
+
+  useEffect(() => {
     void loadCampaigns()
-  }, [page, pageSize])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, debouncedSearch])
 
   const columns: DataTableColumn<Campaign>[] = [
     { key: 'name', title: t('campaign.field.campaign'), dataIndex: 'name' },
@@ -78,6 +90,13 @@ export default function Campaigns() {
         onEdit={() => selectedCampaign && setIsFormOpen(true)}
         onRefresh={() => void loadCampaigns()}
         selectedRowsCount={selectedCampaign ? 1 : 0}
+        filtersSlot={
+          <TableToolbar
+            searchValue={search}
+            onSearchChange={setSearch}
+            searchPlaceholder={t('common.action.search')}
+          />
+        }
       >
         <DataTable
           columns={columns}

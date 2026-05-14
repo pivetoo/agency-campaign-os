@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, Input, SearchableSelect, useI18n } from 'archon-ui'
+import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, Input, SearchableSelect, TableToolbar, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { CheckCircle2, Pencil, Trash2 } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../services/financialEntryService'
@@ -211,12 +211,12 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
 
         <Card>
           <CardContent className="pt-4 space-y-3">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-              <Input
-                placeholder={t('financial.entries.placeholder.search')}
-                value={filters.search ?? ''}
-                onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value || undefined }))}
-              />
+            <TableToolbar
+              searchValue={filters.search ?? ''}
+              onSearchChange={(value) => setFilters((prev) => ({ ...prev, search: value || undefined }))}
+              searchPlaceholder={t('financial.entries.placeholder.search')}
+            />
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               <SearchableSelect
                 value={filters.status ? String(filters.status) : ''}
                 onValueChange={(value) => setFilters((prev) => ({ ...prev, status: value ? Number(value) : undefined }))}

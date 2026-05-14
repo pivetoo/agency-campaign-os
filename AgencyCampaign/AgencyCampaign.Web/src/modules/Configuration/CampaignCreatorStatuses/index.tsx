@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Badge, DataTable, PageLayout, useApi, useI18n } from 'archon-ui'
+import { Badge, DataTable, PageLayout, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import CampaignCreatorStatusFormModal from '../../../components/modals/CampaignCreatorStatusFormModal'
 import { campaignCreatorStatusService } from '../../../services/campaignCreatorStatusService'
@@ -16,21 +16,32 @@ export default function CampaignCreatorStatuses() {
   const [statuses, setStatuses] = useState<CampaignCreatorStatus[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedStatus, setSelectedStatus] = useState<CampaignCreatorStatus | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const { execute: fetchStatuses, loading, pagination } = useApi<CampaignCreatorStatus[]>({ showErrorMessage: true })
 
   const loadStatuses = async () => {
-    const result = await fetchStatuses(() => campaignCreatorStatusService.getAll({ page, pageSize }))
+    const result = await fetchStatuses(() => campaignCreatorStatusService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
     if (result) {
       setStatuses(result)
     }
   }
 
   useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timeout)
+  }, [search])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
+
+  useEffect(() => {
     void loadStatuses()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize])
+  }, [page, pageSize, debouncedSearch])
 
   const columns: DataTableColumn<CampaignCreatorStatus>[] = [
     { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
@@ -60,6 +71,13 @@ export default function CampaignCreatorStatuses() {
         onEdit={() => selectedStatus && setIsFormOpen(true)}
         onRefresh={() => void loadStatuses()}
         selectedRowsCount={selectedStatus ? 1 : 0}
+        filtersSlot={
+          <TableToolbar
+            searchValue={search}
+            onSearchChange={setSearch}
+            searchPlaceholder={t('common.action.search')}
+          />
+        }
       >
         <DataTable
           columns={columns}

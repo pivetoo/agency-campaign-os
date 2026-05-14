@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, ConfirmModal, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, ConfirmModal, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { opportunityTagService } from '../../../services/opportunitySourceService'
@@ -11,6 +11,8 @@ export default function OpportunityTags() {
   const [items, setItems] = useState<OpportunityTag[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selected, setSelected] = useState<OpportunityTag | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -18,14 +20,23 @@ export default function OpportunityTags() {
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
   const load = async () => {
-    const result = await fetchAll(() => opportunityTagService.getAll({ page, pageSize, includeInactive: true }))
+    const result = await fetchAll(() => opportunityTagService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive: true }))
     if (result) setItems(result)
   }
 
   useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timeout)
+  }, [search])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
+
+  useEffect(() => {
     void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize])
+  }, [page, pageSize, debouncedSearch])
 
   const handleDelete = async () => {
     if (!selected) return
@@ -81,6 +92,13 @@ export default function OpportunityTags() {
             onClick: () => setIsConfirmOpen(true),
           },
         ]}
+        filtersSlot={
+          <TableToolbar
+            searchValue={search}
+            onSearchChange={setSearch}
+            searchPlaceholder={t('common.action.search')}
+          />
+        }
       >
         <DataTable
           columns={columns}

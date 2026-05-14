@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Badge, DataTable, PageLayout, useApi, useI18n } from 'archon-ui'
+import { Badge, DataTable, PageLayout, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import CommercialPipelineStageFormModal from '../../../components/modals/CommercialPipelineStageFormModal'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
@@ -16,21 +16,32 @@ export default function CommercialPipelineStages() {
   const [stages, setStages] = useState<CommercialPipelineStage[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedStage, setSelectedStage] = useState<CommercialPipelineStage | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const { execute: fetchStages, loading, pagination } = useApi<CommercialPipelineStage[]>({ showErrorMessage: true })
 
   const loadStages = async () => {
-    const result = await fetchStages(() => commercialPipelineStageService.getAll({ page, pageSize }))
+    const result = await fetchStages(() => commercialPipelineStageService.getAll({ page, pageSize, search: debouncedSearch || undefined }))
     if (result) {
       setStages(result)
     }
   }
 
   useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timeout)
+  }, [search])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
+
+  useEffect(() => {
     void loadStages()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize])
+  }, [page, pageSize, debouncedSearch])
 
   const columns: DataTableColumn<CommercialPipelineStage>[] = [
     { key: 'name', title: t('configuration.commercialFunnel.field.stage'), dataIndex: 'name' },
@@ -50,6 +61,13 @@ export default function CommercialPipelineStages() {
         onEdit={() => selectedStage && setIsFormOpen(true)}
         onRefresh={() => void loadStages()}
         selectedRowsCount={selectedStage ? 1 : 0}
+        filtersSlot={
+          <TableToolbar
+            searchValue={search}
+            onSearchChange={setSearch}
+            searchPlaceholder={t('common.action.search')}
+          />
+        }
       >
         <DataTable
           columns={columns}
