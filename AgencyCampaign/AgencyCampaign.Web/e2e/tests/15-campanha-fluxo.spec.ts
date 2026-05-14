@@ -80,7 +80,10 @@ test.describe('Campanha - fluxo operacional (caminho critico)', () => {
     await fc('Título').locator('input').first().fill(deliverableTitle)
 
     // tipo (primeira opcao)
-    const tipoTrigger = fc('Tipo').locator('button, [role="combobox"]').first()
+    const tipoField = delivModal
+      .locator(`div.space-y-2:has(> label:text-matches("^Tipo( de entrega)?$", "i"))`)
+      .first()
+    const tipoTrigger = tipoField.locator('button, [role="combobox"]').first()
     await tipoTrigger.click()
     await page.locator('[role="option"]').first().click()
 

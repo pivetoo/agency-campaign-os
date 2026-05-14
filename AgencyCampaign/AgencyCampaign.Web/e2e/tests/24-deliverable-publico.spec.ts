@@ -66,7 +66,10 @@ test.describe('Deliverable publico - aprovacao pela marca', () => {
     await creatorFieldDeliv.locator('button, [role="combobox"]').first().click()
     await page.locator('[role="option"]').first().click()
     await fc('Título').locator('input').first().fill(deliverableTitle)
-    await fc('Tipo').locator('button, [role="combobox"]').first().click()
+    const tipoField24 = delivModal
+      .locator(`div.space-y-2:has(> label:text-matches("^Tipo( de entrega)?$", "i"))`)
+      .first()
+    await tipoField24.locator('button, [role="combobox"]').first().click()
     await page.locator('[role="option"]').first().click()
     await fc('Plataforma').locator('button, [role="combobox"]').first().click()
     await page.locator('[role="option"]').first().click()

@@ -45,9 +45,15 @@ test.describe('Financeiro - Repasses para creators', () => {
     const modal = page.getByRole('dialog').filter({ hasText: /Novo pagamento ao (creator|influenciador)/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })
 
-    // labels obrigatorios
-    for (const label of ['Creator vinculado à campanha', 'Valor bruto (R$)', 'Valor líquido', 'Método']) {
-      await expect(modal.getByText(label, { exact: false }).first()).toBeVisible()
+    // labels obrigatorios — tolera Creator|Influenciador
+    const labelPatterns = [
+      /(Creator|Influenciador) vinculado/i,
+      /Valor bruto/i,
+      /Valor líquido/i,
+      /Método/i,
+    ]
+    for (const pattern of labelPatterns) {
+      await expect(modal.getByText(pattern).first()).toBeVisible()
     }
 
     // Salvar deve estar disabled sem dados

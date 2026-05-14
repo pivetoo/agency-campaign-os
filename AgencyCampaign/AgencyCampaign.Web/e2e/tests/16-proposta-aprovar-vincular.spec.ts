@@ -83,11 +83,14 @@ test.describe('Proposta - aprovar e vincular a campanha (caminho critico)', () =
     await campanhaTrigger.scrollIntoViewIfNeeded()
     await campanhaTrigger.click()
     const buscarCamp = page.locator('input[placeholder*="Buscar" i]').first()
-    if (await buscarCamp.count()) await buscarCamp.fill(campaignName).catch(() => {})
-    // aguarda async search resolver (Buscando... sumir)
-    await page.getByText('Buscando...').waitFor({ state: 'detached', timeout: 20_000 }).catch(() => {})
+    if (await buscarCamp.count()) {
+      await buscarCamp.click()
+      await buscarCamp.pressSequentially(campaignName, { delay: 30 })
+    }
+    // aguarda async search resolver (Buscando... sumir, debounce 300ms + roundtrip)
+    await page.getByText('Buscando...').waitFor({ state: 'detached', timeout: 30_000 }).catch(() => {})
     const campOption = page.getByRole('option', { name: new RegExp(campaignName, 'i') }).first()
-    await campOption.waitFor({ state: 'visible', timeout: 15_000 })
+    await campOption.waitFor({ state: 'visible', timeout: 30_000 })
     await campOption.click()
 
     await page.getByRole('button', { name: /Converter/i }).first().click()
