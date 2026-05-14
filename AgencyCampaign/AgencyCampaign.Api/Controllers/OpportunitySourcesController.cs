@@ -3,6 +3,7 @@ using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using Archon.Core.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -21,9 +22,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar as origens de oportunidades cadastradas.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] bool includeInactive, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
-            return Http200(await service.GetAll(includeInactive, cancellationToken));
+            return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
         [RequireAccess("Permite cadastrar uma origem de oportunidade.")]
@@ -76,9 +77,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar as tags de oportunidades cadastradas.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] bool includeInactive, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
-            return Http200(await service.GetAll(includeInactive, cancellationToken));
+            return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
         [RequireAccess("Permite cadastrar uma tag de oportunidade.")]

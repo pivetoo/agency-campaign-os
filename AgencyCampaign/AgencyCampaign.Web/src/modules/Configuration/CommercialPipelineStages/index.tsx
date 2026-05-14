@@ -14,12 +14,14 @@ const finalBehaviorLabels: Record<number, string> = {
 export default function CommercialPipelineStages() {
   const { t } = useI18n()
   const [stages, setStages] = useState<CommercialPipelineStage[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [selectedStage, setSelectedStage] = useState<CommercialPipelineStage | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const { execute: fetchStages, loading } = useApi<CommercialPipelineStage[]>({ showErrorMessage: true })
+  const { execute: fetchStages, loading, pagination } = useApi<CommercialPipelineStage[]>({ showErrorMessage: true })
 
   const loadStages = async () => {
-    const result = await fetchStages(() => commercialPipelineStageService.getAll())
+    const result = await fetchStages(() => commercialPipelineStageService.getAll({ page, pageSize }))
     if (result) {
       setStages(result)
     }
@@ -27,7 +29,8 @@ export default function CommercialPipelineStages() {
 
   useEffect(() => {
     void loadStages()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize])
 
   const columns: DataTableColumn<CommercialPipelineStage>[] = [
     { key: 'name', title: t('configuration.commercialFunnel.field.stage'), dataIndex: 'name' },
@@ -56,8 +59,12 @@ export default function CommercialPipelineStages() {
           onSelectionChange={(rows) => setSelectedStage(rows[0] ?? null)}
           emptyText={t('configuration.commercialFunnel.empty')}
           loading={loading}
-          pageSize={10}
+          pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 
@@ -68,7 +75,11 @@ export default function CommercialPipelineStages() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelectedStage(null)
-          void loadStages()
+          if (page === 1) {
+            void loadStages()
+          } else {
+            setPage(1)
+          }
         }}
       />
     </>

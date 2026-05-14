@@ -14,12 +14,14 @@ const categoryLabels: Record<number, string> = {
 export default function CampaignCreatorStatuses() {
   const { t } = useI18n()
   const [statuses, setStatuses] = useState<CampaignCreatorStatus[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [selectedStatus, setSelectedStatus] = useState<CampaignCreatorStatus | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const { execute: fetchStatuses, loading } = useApi<CampaignCreatorStatus[]>({ showErrorMessage: true })
+  const { execute: fetchStatuses, loading, pagination } = useApi<CampaignCreatorStatus[]>({ showErrorMessage: true })
 
   const loadStatuses = async () => {
-    const result = await fetchStatuses(() => campaignCreatorStatusService.getAll())
+    const result = await fetchStatuses(() => campaignCreatorStatusService.getAll({ page, pageSize }))
     if (result) {
       setStatuses(result)
     }
@@ -27,7 +29,8 @@ export default function CampaignCreatorStatuses() {
 
   useEffect(() => {
     void loadStatuses()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize])
 
   const columns: DataTableColumn<CampaignCreatorStatus>[] = [
     { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
@@ -66,8 +69,12 @@ export default function CampaignCreatorStatuses() {
           onSelectionChange={(rows) => setSelectedStatus(rows[0] ?? null)}
           emptyText={t('configuration.creatorStatuses.empty')}
           loading={loading}
-          pageSize={10}
+          pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 
@@ -78,7 +85,11 @@ export default function CampaignCreatorStatuses() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelectedStatus(null)
-          void loadStatuses()
+          if (page === 1) {
+            void loadStatuses()
+          } else {
+            setPage(1)
+          }
         }}
       />
     </>

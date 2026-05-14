@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { Platform } from '../types/platform'
 
 const BASE_URL = '/Platforms'
@@ -13,14 +14,11 @@ export interface UpdatePlatformRequest extends CreatePlatformRequest {
   isActive: boolean
 }
 
-function extractItems<T>(data: T[] | { items?: T[] } | undefined): T[] {
-  return Array.isArray(data) ? data : data?.items ?? []
-}
-
 export const platformService = {
-  async getAll(): Promise<Platform[]> {
-    const response = await httpClient.get<Platform[] | { items?: Platform[] }>(`${BASE_URL}/Get`)
-    return extractItems(response.data)
+  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<Platform[]>> {
+    const query = buildPaginationQuery(params)
+    const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+    return httpClient.get<Platform[]>(`${BASE_URL}/Get${query}${searchParam}`)
   },
 
   async getActive(): Promise<Platform[]> {

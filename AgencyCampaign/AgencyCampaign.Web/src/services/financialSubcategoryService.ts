@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { FinancialSubcategory } from '../types/financialSubcategory'
 
 export interface CreateFinancialSubcategoryRequest {
@@ -15,10 +16,11 @@ export interface UpdateFinancialSubcategoryRequest extends CreateFinancialSubcat
 const BASE_URL = '/FinancialSubcategories'
 
 export const financialSubcategoryService = {
-  async getAll(includeInactive = false): Promise<FinancialSubcategory[]> {
-    const url = includeInactive ? `${BASE_URL}/Get?includeInactive=true` : `${BASE_URL}/Get`
-    const response = await httpClient.get<FinancialSubcategory[]>(url)
-    return response.data ?? []
+  getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<FinancialSubcategory[]>> {
+    const query = buildPaginationQuery(params)
+    const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+    const inactiveParam = params?.includeInactive ? `${query || searchParam ? '&' : '?'}includeInactive=true` : ''
+    return httpClient.get<FinancialSubcategory[]>(`${BASE_URL}/Get${query}${searchParam}${inactiveParam}`)
   },
 
   create(data: CreateFinancialSubcategoryRequest) {

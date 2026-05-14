@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 
 const BASE_URL = '/ProposalTemplates'
 
@@ -36,10 +37,11 @@ export interface UpdateProposalTemplateRequest extends CreateProposalTemplateReq
 }
 
 export const proposalTemplateService = {
-  async getAll(includeInactive = false): Promise<ProposalTemplate[]> {
-    const url = includeInactive ? `${BASE_URL}/Get?includeInactive=true` : `${BASE_URL}/Get`
-    const response = await httpClient.get<ProposalTemplate[]>(url)
-    return response.data ?? []
+  getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<ProposalTemplate[]>> {
+    const query = buildPaginationQuery(params)
+    const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+    const inactiveParam = params?.includeInactive ? `${query || searchParam ? '&' : '?'}includeInactive=true` : ''
+    return httpClient.get<ProposalTemplate[]>(`${BASE_URL}/Get${query}${searchParam}${inactiveParam}`)
   },
 
   async getById(id: number): Promise<ProposalTemplate | null> {

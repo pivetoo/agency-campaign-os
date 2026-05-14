@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { OpportunitySource, OpportunityTag } from '../types/opportunitySource'
 
 export interface CreateOpportunitySourceRequest {
@@ -25,11 +26,16 @@ export interface UpdateOpportunityTagRequest extends CreateOpportunityTagRequest
 const SOURCE_BASE = '/OpportunitySources'
 const TAG_BASE = '/OpportunityTags'
 
+function buildQuery(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): string {
+  const query = buildPaginationQuery(params)
+  const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+  const inactiveParam = params?.includeInactive ? `${query || searchParam ? '&' : '?'}includeInactive=true` : ''
+  return `${query}${searchParam}${inactiveParam}`
+}
+
 export const opportunitySourceService = {
-  async getAll(includeInactive = false): Promise<OpportunitySource[]> {
-    const url = includeInactive ? `${SOURCE_BASE}/Get?includeInactive=true` : `${SOURCE_BASE}/Get`
-    const response = await httpClient.get<OpportunitySource[]>(url)
-    return response.data ?? []
+  getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<OpportunitySource[]>> {
+    return httpClient.get<OpportunitySource[]>(`${SOURCE_BASE}/Get${buildQuery(params)}`)
   },
 
   create(data: CreateOpportunitySourceRequest) {
@@ -46,10 +52,8 @@ export const opportunitySourceService = {
 }
 
 export const opportunityTagService = {
-  async getAll(includeInactive = false): Promise<OpportunityTag[]> {
-    const url = includeInactive ? `${TAG_BASE}/Get?includeInactive=true` : `${TAG_BASE}/Get`
-    const response = await httpClient.get<OpportunityTag[]>(url)
-    return response.data ?? []
+  getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<OpportunityTag[]>> {
+    return httpClient.get<OpportunityTag[]>(`${TAG_BASE}/Get${buildQuery(params)}`)
   },
 
   create(data: CreateOpportunityTagRequest) {

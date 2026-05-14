@@ -1,11 +1,12 @@
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Opportunities;
+using Archon.Core.Pagination;
 
 namespace AgencyCampaign.Application.Services
 {
     public interface IOpportunitySourceService
     {
-        Task<IReadOnlyCollection<OpportunitySourceModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default);
+        Task<PagedResult<OpportunitySourceModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<OpportunitySourceModel> Create(CreateOpportunitySourceRequest request, CancellationToken cancellationToken = default);
 
@@ -16,7 +17,7 @@ namespace AgencyCampaign.Application.Services
 
     public interface IOpportunityTagService
     {
-        Task<IReadOnlyCollection<OpportunityTagModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default);
+        Task<PagedResult<OpportunityTagModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<OpportunityTagModel> Create(CreateOpportunityTagRequest request, CancellationToken cancellationToken = default);
 

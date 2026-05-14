@@ -491,7 +491,7 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<IReadOnlyCollection<FinancialAccountModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<FinancialAccountModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
         {
             IQueryable<FinancialAccount> query = dbContext.Set<FinancialAccount>().AsNoTracking();
             if (!includeInactive)
@@ -499,12 +499,19 @@ namespace AgencyCampaign.Infrastructure.Services
                 query = query.Where(item => item.IsActive);
             }
 
-            List<FinancialAccount> accounts = await query
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower)
+                    || (item.Bank != null && item.Bank.ToLower().Contains(lower)));
+            }
+
+            PagedResult<FinancialAccount> paged = await query
                 .OrderByDescending(item => item.IsActive)
                 .ThenBy(item => item.Name)
-                .ToListAsync(cancellationToken);
+                .ToPagedResultAsync(request, cancellationToken);
 
-            List<long> accountIds = accounts.Select(item => item.Id).ToList();
+            List<long> accountIds = paged.Items.Select(item => item.Id).ToList();
 
             var balances = await dbContext.Set<FinancialEntry>()
                 .AsNoTracking()
@@ -513,7 +520,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Select(group => new { group.Key.AccountId, group.Key.Type, Total = group.Sum(item => item.Amount) })
                 .ToListAsync(cancellationToken);
 
-            return accounts.Select(account =>
+            FinancialAccountModel[] items = paged.Items.Select(account =>
             {
                 decimal received = balances.Where(b => b.AccountId == account.Id && b.Type == FinancialEntryType.Receivable).Sum(b => b.Total);
                 decimal paid = balances.Where(b => b.AccountId == account.Id && b.Type == FinancialEntryType.Payable).Sum(b => b.Total);
@@ -532,12 +539,48 @@ namespace AgencyCampaign.Infrastructure.Services
                     IsActive = account.IsActive
                 };
             }).ToArray();
+
+            return new PagedResult<FinancialAccountModel>
+            {
+                Items = items,
+                Pagination = paged.Pagination
+            };
         }
 
         public async Task<FinancialAccountModel?> GetById(long id, CancellationToken cancellationToken = default)
         {
-            var all = await GetAll(true, cancellationToken);
-            return all.FirstOrDefault(item => item.Id == id);
+            FinancialAccount? account = await dbContext.Set<FinancialAccount>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (account is null)
+            {
+                return null;
+            }
+
+            var balances = await dbContext.Set<FinancialEntry>()
+                .AsNoTracking()
+                .Where(item => item.AccountId == id && item.Status == FinancialEntryStatus.Paid)
+                .GroupBy(item => item.Type)
+                .Select(group => new { Type = group.Key, Total = group.Sum(item => item.Amount) })
+                .ToListAsync(cancellationToken);
+
+            decimal received = balances.Where(b => b.Type == FinancialEntryType.Receivable).Sum(b => b.Total);
+            decimal paid = balances.Where(b => b.Type == FinancialEntryType.Payable).Sum(b => b.Total);
+
+            return new FinancialAccountModel
+            {
+                Id = account.Id,
+                Name = account.Name,
+                Type = account.Type,
+                Bank = account.Bank,
+                Agency = account.Agency,
+                Number = account.Number,
+                InitialBalance = account.InitialBalance,
+                CurrentBalance = account.InitialBalance + received - paid,
+                Color = account.Color,
+                IsActive = account.IsActive
+            };
         }
 
         public async Task<FinancialAccountModel> Create(CreateFinancialAccountRequest request, CancellationToken cancellationToken = default)

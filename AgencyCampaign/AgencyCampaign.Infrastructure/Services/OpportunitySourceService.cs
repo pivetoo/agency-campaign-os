@@ -3,6 +3,8 @@ using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using Archon.Core.Pagination;
+using Archon.Infrastructure.Persistence.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -19,12 +21,18 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<IReadOnlyCollection<OpportunitySourceModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<OpportunitySourceModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
         {
             IQueryable<OpportunitySource> query = dbContext.Set<OpportunitySource>().AsNoTracking();
             if (!includeInactive)
             {
                 query = query.Where(item => item.IsActive);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower));
             }
 
             return await query
@@ -38,7 +46,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     DisplayOrder = item.DisplayOrder,
                     IsActive = item.IsActive
                 })
-                .ToArrayAsync(cancellationToken);
+                .ToPagedResultAsync(request, cancellationToken);
         }
 
         public async Task<OpportunitySourceModel> Create(CreateOpportunitySourceRequest request, CancellationToken cancellationToken = default)
@@ -106,12 +114,18 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<IReadOnlyCollection<OpportunityTagModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<OpportunityTagModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
         {
             IQueryable<OpportunityTag> query = dbContext.Set<OpportunityTag>().AsNoTracking();
             if (!includeInactive)
             {
                 query = query.Where(item => item.IsActive);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower));
             }
 
             return await query
@@ -123,7 +137,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     Color = item.Color,
                     IsActive = item.IsActive
                 })
-                .ToArrayAsync(cancellationToken);
+                .ToPagedResultAsync(request, cancellationToken);
         }
 
         public async Task<OpportunityTagModel> Create(CreateOpportunityTagRequest request, CancellationToken cancellationToken = default)

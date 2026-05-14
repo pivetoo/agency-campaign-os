@@ -5,6 +5,7 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
+using Archon.Core.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
@@ -62,9 +63,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(receivablePending);
             await db.SaveChangesAsync();
 
-            IReadOnlyCollection<FinancialAccountModel> result = await service.GetAll(includeInactive: true);
+            PagedResult<FinancialAccountModel> result = await service.GetAll(new PagedRequest(), search: null, includeInactive: true);
 
-            FinancialAccountModel persisted = result.Single();
+            FinancialAccountModel persisted = result.Items.Single();
             persisted.CurrentBalance.Should().Be(1000m + 500m - 200m);
         }
 
@@ -77,11 +78,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(inactive);
             await db.SaveChangesAsync();
 
-            IReadOnlyCollection<FinancialAccountModel> activeOnly = await service.GetAll(includeInactive: false);
-            IReadOnlyCollection<FinancialAccountModel> all = await service.GetAll(includeInactive: true);
+            PagedResult<FinancialAccountModel> activeOnly = await service.GetAll(new PagedRequest(), search: null, includeInactive: false);
+            PagedResult<FinancialAccountModel> all = await service.GetAll(new PagedRequest(), search: null, includeInactive: true);
 
-            activeOnly.Should().ContainSingle();
-            all.Should().HaveCount(2);
+            activeOnly.Items.Should().ContainSingle();
+            all.Items.Should().HaveCount(2);
         }
 
         [Test]

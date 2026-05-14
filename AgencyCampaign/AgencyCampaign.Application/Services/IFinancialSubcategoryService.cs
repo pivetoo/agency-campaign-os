@@ -1,11 +1,12 @@
 using AgencyCampaign.Application.Models.Financial;
 using AgencyCampaign.Application.Requests.FinancialSubcategories;
+using Archon.Core.Pagination;
 
 namespace AgencyCampaign.Application.Services
 {
     public interface IFinancialSubcategoryService
     {
-        Task<IReadOnlyCollection<FinancialSubcategoryModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default);
+        Task<PagedResult<FinancialSubcategoryModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<FinancialSubcategoryModel> Create(CreateFinancialSubcategoryRequest request, CancellationToken cancellationToken = default);
 

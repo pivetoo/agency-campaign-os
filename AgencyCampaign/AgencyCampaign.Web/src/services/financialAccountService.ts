@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { FinancialAccount } from '../types/financialAccount'
 
 const BASE_URL = '/FinancialAccounts'
@@ -19,10 +20,11 @@ export interface UpdateFinancialAccountRequest extends CreateFinancialAccountReq
 }
 
 export const financialAccountService = {
-  async getAll(includeInactive = false): Promise<FinancialAccount[]> {
-    const url = includeInactive ? `${BASE_URL}/Get?includeInactive=true` : `${BASE_URL}/Get`
-    const response = await httpClient.get<FinancialAccount[]>(url)
-    return response.data ?? []
+  getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<FinancialAccount[]>> {
+    const query = buildPaginationQuery(params)
+    const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+    const inactiveParam = params?.includeInactive ? `${query || searchParam ? '&' : '?'}includeInactive=true` : ''
+    return httpClient.get<FinancialAccount[]>(`${BASE_URL}/Get${query}${searchParam}${inactiveParam}`)
   },
 
   async getById(id: number): Promise<FinancialAccount | null> {

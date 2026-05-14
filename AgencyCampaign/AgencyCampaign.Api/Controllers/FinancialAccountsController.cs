@@ -3,6 +3,7 @@ using AgencyCampaign.Application.Requests.FinancialAccounts;
 using AgencyCampaign.Application.Services;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using Archon.Core.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -21,9 +22,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar as contas financeiras cadastradas.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] bool includeInactive, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
-            return Http200(await service.GetAll(includeInactive, cancellationToken));
+            return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
         [RequireAccess("Permite consultar uma conta financeira por id.")]

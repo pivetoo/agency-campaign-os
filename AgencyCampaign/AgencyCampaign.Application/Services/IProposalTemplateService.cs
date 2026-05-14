@@ -1,11 +1,12 @@
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Proposals;
+using Archon.Core.Pagination;
 
 namespace AgencyCampaign.Application.Services
 {
     public interface IProposalTemplateService
     {
-        Task<IReadOnlyCollection<ProposalTemplateModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default);
+        Task<PagedResult<ProposalTemplateModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<ProposalTemplateModel?> GetById(long id, CancellationToken cancellationToken = default);
 
@@ -20,7 +21,7 @@ namespace AgencyCampaign.Application.Services
 
     public interface IProposalBlockService
     {
-        Task<IReadOnlyCollection<ProposalBlockModel>> GetAll(string? category, bool includeInactive, CancellationToken cancellationToken = default);
+        Task<PagedResult<ProposalBlockModel>> GetAll(PagedRequest request, string? search, string? category, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<ProposalBlockModel?> GetById(long id, CancellationToken cancellationToken = default);
 

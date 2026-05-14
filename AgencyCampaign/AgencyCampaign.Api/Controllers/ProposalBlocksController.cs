@@ -3,6 +3,7 @@ using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using Archon.Core.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -21,9 +22,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("Permite listar os blocos reutilizáveis de proposta.")]
         [GetEndpoint("[action]")]
-        public async Task<IActionResult> Get([FromQuery] string? category, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] string? category, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
-            return Http200(await blockService.GetAll(category, includeInactive, cancellationToken));
+            return Http200(await blockService.GetAll(request, search, category, includeInactive, cancellationToken));
         }
 
         [RequireAccess("Permite consultar um bloco de proposta.")]

@@ -3,6 +3,8 @@ using AgencyCampaign.Application.Models.Financial;
 using AgencyCampaign.Application.Requests.FinancialSubcategories;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using Archon.Core.Pagination;
+using Archon.Infrastructure.Persistence.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -19,7 +21,7 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<IReadOnlyCollection<FinancialSubcategoryModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<FinancialSubcategoryModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
         {
             IQueryable<FinancialSubcategory> query = dbContext.Set<FinancialSubcategory>().AsNoTracking();
             if (!includeInactive)
@@ -27,11 +29,24 @@ namespace AgencyCampaign.Infrastructure.Services
                 query = query.Where(item => item.IsActive);
             }
 
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower));
+            }
+
             return await query
                 .OrderBy(item => item.MacroCategory)
                 .ThenBy(item => item.Name)
-                .Select(item => Map(item))
-                .ToArrayAsync(cancellationToken);
+                .Select(item => new FinancialSubcategoryModel
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    MacroCategory = item.MacroCategory,
+                    Color = item.Color,
+                    IsActive = item.IsActive
+                })
+                .ToPagedResultAsync(request, cancellationToken);
         }
 
         public async Task<FinancialSubcategoryModel> Create(CreateFinancialSubcategoryRequest request, CancellationToken cancellationToken = default)

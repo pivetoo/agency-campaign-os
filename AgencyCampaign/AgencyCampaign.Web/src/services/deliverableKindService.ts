@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { DeliverableKind } from '../types/deliverableKind'
 
 const BASE_URL = '/DeliverableKinds'
@@ -13,14 +14,11 @@ export interface UpdateDeliverableKindRequest extends CreateDeliverableKindReque
   isActive: boolean
 }
 
-function extractItems<T>(data: T[] | { items?: T[] } | undefined): T[] {
-  return Array.isArray(data) ? data : data?.items ?? []
-}
-
 export const deliverableKindService = {
-  async getAll(): Promise<DeliverableKind[]> {
-    const response = await httpClient.get<DeliverableKind[] | { items?: DeliverableKind[] }>(`${BASE_URL}/Get`)
-    return extractItems(response.data)
+  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<DeliverableKind[]>> {
+    const query = buildPaginationQuery(params)
+    const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+    return httpClient.get<DeliverableKind[]>(`${BASE_URL}/Get${query}${searchParam}`)
   },
 
   async getActive(): Promise<DeliverableKind[]> {

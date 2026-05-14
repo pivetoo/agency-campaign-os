@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 
 const BASE_URL = '/ProposalBlocks'
 
@@ -25,14 +26,17 @@ export interface UpdateProposalBlockRequest extends CreateProposalBlockRequest {
 }
 
 export const proposalBlockService = {
-  async getAll(category?: string, includeInactive = false): Promise<ProposalBlock[]> {
-    const params = new URLSearchParams()
-    if (category) params.set('category', category)
-    if (includeInactive) params.set('includeInactive', 'true')
-    const query = params.toString()
-    const url = query ? `${BASE_URL}/Get?${query}` : `${BASE_URL}/Get`
-    const response = await httpClient.get<ProposalBlock[]>(url)
-    return response.data ?? []
+  getAll(params?: { page?: number; pageSize?: number; search?: string; category?: string; includeInactive?: boolean }): Promise<ApiResponse<ProposalBlock[]>> {
+    const query = buildPaginationQuery(params)
+    const extras = new URLSearchParams()
+    if (params?.search) extras.set('search', params.search)
+    if (params?.category) extras.set('category', params.category)
+    if (params?.includeInactive) extras.set('includeInactive', 'true')
+    const extrasString = extras.toString()
+    const url = extrasString
+      ? `${BASE_URL}/Get${query}${query ? '&' : '?'}${extrasString}`
+      : `${BASE_URL}/Get${query}`
+    return httpClient.get<ProposalBlock[]>(url)
   },
 
   async getById(id: number): Promise<ProposalBlock | null> {

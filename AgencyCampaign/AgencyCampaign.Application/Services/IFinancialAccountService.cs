@@ -1,11 +1,12 @@
 using AgencyCampaign.Application.Models.Financial;
 using AgencyCampaign.Application.Requests.FinancialAccounts;
+using Archon.Core.Pagination;
 
 namespace AgencyCampaign.Application.Services
 {
     public interface IFinancialAccountService
     {
-        Task<IReadOnlyCollection<FinancialAccountModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default);
+        Task<PagedResult<FinancialAccountModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
         Task<FinancialAccountModel?> GetById(long id, CancellationToken cancellationToken = default);
 

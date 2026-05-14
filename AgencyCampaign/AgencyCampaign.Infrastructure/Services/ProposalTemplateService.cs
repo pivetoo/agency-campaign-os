@@ -4,6 +4,8 @@ using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Abstractions;
+using Archon.Core.Pagination;
+using Archon.Infrastructure.Persistence.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -22,7 +24,7 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<IReadOnlyCollection<ProposalTemplateModel>> GetAll(bool includeInactive, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<ProposalTemplateModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
         {
             IQueryable<ProposalTemplate> query = dbContext.Set<ProposalTemplate>()
                 .AsNoTracking()
@@ -33,11 +35,22 @@ namespace AgencyCampaign.Infrastructure.Services
                 query = query.Where(item => item.IsActive);
             }
 
-            List<ProposalTemplate> templates = await query
-                .OrderBy(item => item.Name)
-                .ToListAsync(cancellationToken);
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower)
+                    || (item.Description != null && item.Description.ToLower().Contains(lower)));
+            }
 
-            return templates.Select(Map).ToArray();
+            PagedResult<ProposalTemplate> paged = await query
+                .OrderBy(item => item.Name)
+                .ToPagedResultAsync(request, cancellationToken);
+
+            return new PagedResult<ProposalTemplateModel>
+            {
+                Items = paged.Items.Select(Map).ToArray(),
+                Pagination = paged.Pagination
+            };
         }
 
         public async Task<ProposalTemplateModel?> GetById(long id, CancellationToken cancellationToken = default)

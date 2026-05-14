@@ -4,6 +4,7 @@ using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
+using Archon.Core.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
@@ -71,9 +72,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(inactive);
             await db.SaveChangesAsync();
 
-            (await service.GetAll(category: "termos", includeInactive: false)).Should().HaveCount(2);
-            (await service.GetAll(category: "termos", includeInactive: true)).Should().HaveCount(3);
-            (await service.GetAll(category: null, includeInactive: false)).Should().HaveCount(3);
+            (await service.GetAll(new PagedRequest(), search: null, category: "termos", includeInactive: false)).Items.Should().HaveCount(2);
+            (await service.GetAll(new PagedRequest(), search: null, category: "termos", includeInactive: true)).Items.Should().HaveCount(3);
+            (await service.GetAll(new PagedRequest(), search: null, category: null, includeInactive: false)).Items.Should().HaveCount(3);
         }
     }
 }

@@ -1,4 +1,5 @@
-import { httpClient } from 'archon-ui'
+import { httpClient, buildPaginationQuery } from 'archon-ui'
+import type { ApiResponse } from 'archon-ui'
 import type { CampaignCreatorStatus } from '../types/campaignCreatorStatus'
 
 const BASE_URL = '/CampaignCreatorStatuses'
@@ -19,14 +20,11 @@ export interface UpdateCampaignCreatorStatusRequest extends CreateCampaignCreato
   isActive: boolean
 }
 
-function extractItems<T>(data: T[] | { items?: T[] } | undefined): T[] {
-  return Array.isArray(data) ? data : data?.items ?? []
-}
-
 export const campaignCreatorStatusService = {
-  async getAll(): Promise<CampaignCreatorStatus[]> {
-    const response = await httpClient.get<CampaignCreatorStatus[] | { items?: CampaignCreatorStatus[] }>(`${BASE_URL}/Get`)
-    return extractItems(response.data)
+  getAll(params?: { page?: number; pageSize?: number; search?: string }): Promise<ApiResponse<CampaignCreatorStatus[]>> {
+    const query = buildPaginationQuery(params)
+    const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
+    return httpClient.get<CampaignCreatorStatus[]>(`${BASE_URL}/Get${query}${searchParam}`)
   },
 
   async getActive(): Promise<CampaignCreatorStatus[]> {

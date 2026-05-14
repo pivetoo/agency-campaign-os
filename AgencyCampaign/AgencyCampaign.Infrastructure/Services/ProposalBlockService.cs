@@ -4,6 +4,8 @@ using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Abstractions;
+using Archon.Core.Pagination;
+using Archon.Infrastructure.Persistence.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -22,7 +24,7 @@ namespace AgencyCampaign.Infrastructure.Services
             this.localizer = localizer;
         }
 
-        public async Task<IReadOnlyCollection<ProposalBlockModel>> GetAll(string? category, bool includeInactive, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<ProposalBlockModel>> GetAll(PagedRequest request, string? search, string? category, bool includeInactive, CancellationToken cancellationToken = default)
         {
             IQueryable<ProposalBlock> query = dbContext.Set<ProposalBlock>().AsNoTracking();
 
@@ -37,11 +39,27 @@ namespace AgencyCampaign.Infrastructure.Services
                 query = query.Where(item => item.Category == normalized);
             }
 
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string lower = search.ToLower();
+                query = query.Where(item => item.Name.ToLower().Contains(lower) || item.Body.ToLower().Contains(lower));
+            }
+
             return await query
                 .OrderBy(item => item.Category)
                 .ThenBy(item => item.Name)
-                .Select(item => Map(item))
-                .ToArrayAsync(cancellationToken);
+                .Select(item => new ProposalBlockModel
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Body = item.Body,
+                    Category = item.Category,
+                    IsActive = item.IsActive,
+                    CreatedByUserName = item.CreatedByUserName,
+                    CreatedAt = item.CreatedAt,
+                    UpdatedAt = item.UpdatedAt
+                })
+                .ToPagedResultAsync(request, cancellationToken);
         }
 
         public async Task<ProposalBlockModel?> GetById(long id, CancellationToken cancellationToken = default)
