@@ -57,14 +57,13 @@ export default function DeliverableKinds() {
         onEdit={() => selectedDeliverableKind && setIsFormOpen(true)}
         onRefresh={() => void loadDeliverableKinds()}
         selectedRowsCount={selectedDeliverableKind ? 1 : 0}
-        filtersSlot={
-          <TableToolbar
-            searchValue={search}
-            onSearchChange={setSearch}
-            searchPlaceholder={t('common.action.search')}
-          />
-        }
       >
+        <TableToolbar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={t('common.action.search')}
+          className="mb-3"
+        />
         <DataTable
           columns={columns}
           data={deliverableKinds}

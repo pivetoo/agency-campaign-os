@@ -118,14 +118,13 @@ export default function Brands() {
         onEdit={() => selectedBrand && setIsFormOpen(true)}
         onRefresh={() => void loadBrands()}
         selectedRowsCount={selectedBrand ? 1 : 0}
-        filtersSlot={
-          <TableToolbar
-            searchValue={search}
-            onSearchChange={setSearch}
-            searchPlaceholder={t('common.action.search')}
-          />
-        }
       >
+        <TableToolbar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={t('common.action.search')}
+          className="mb-3"
+        />
         <DataTable
           columns={columns}
           data={brands}

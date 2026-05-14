@@ -90,14 +90,13 @@ export default function Campaigns() {
         onEdit={() => selectedCampaign && setIsFormOpen(true)}
         onRefresh={() => void loadCampaigns()}
         selectedRowsCount={selectedCampaign ? 1 : 0}
-        filtersSlot={
-          <TableToolbar
-            searchValue={search}
-            onSearchChange={setSearch}
-            searchPlaceholder={t('common.action.search')}
-          />
-        }
       >
+        <TableToolbar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={t('common.action.search')}
+          className="mb-3"
+        />
         <DataTable
           columns={columns}
           data={campaigns}

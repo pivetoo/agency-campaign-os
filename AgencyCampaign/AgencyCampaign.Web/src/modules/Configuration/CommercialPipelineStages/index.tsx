@@ -61,14 +61,13 @@ export default function CommercialPipelineStages() {
         onEdit={() => selectedStage && setIsFormOpen(true)}
         onRefresh={() => void loadStages()}
         selectedRowsCount={selectedStage ? 1 : 0}
-        filtersSlot={
-          <TableToolbar
-            searchValue={search}
-            onSearchChange={setSearch}
-            searchPlaceholder={t('common.action.search')}
-          />
-        }
       >
+        <TableToolbar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={t('common.action.search')}
+          className="mb-3"
+        />
         <DataTable
           columns={columns}
           data={stages}

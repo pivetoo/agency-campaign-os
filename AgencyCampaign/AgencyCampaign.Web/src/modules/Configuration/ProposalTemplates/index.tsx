@@ -101,14 +101,13 @@ export default function ProposalTemplates() {
             onClick: () => setIsConfirmOpen(true),
           },
         ]}
-        filtersSlot={
-          <TableToolbar
-            searchValue={search}
-            onSearchChange={setSearch}
-            searchPlaceholder={t('common.action.search')}
-          />
-        }
       >
+        <TableToolbar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={t('common.action.search')}
+          className="mb-3"
+        />
         <DataTable
           columns={columns}
           data={templates}

@@ -71,14 +71,13 @@ export default function CampaignCreatorStatuses() {
         onEdit={() => selectedStatus && setIsFormOpen(true)}
         onRefresh={() => void loadStatuses()}
         selectedRowsCount={selectedStatus ? 1 : 0}
-        filtersSlot={
-          <TableToolbar
-            searchValue={search}
-            onSearchChange={setSearch}
-            searchPlaceholder={t('common.action.search')}
-          />
-        }
       >
+        <TableToolbar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={t('common.action.search')}
+          className="mb-3"
+        />
         <DataTable
           columns={columns}
           data={statuses}
