@@ -19,10 +19,11 @@ setup('autenticar via OIDC e salvar storageState', async ({ page }) => {
   await page.waitForURL(/auth\.mainstay\.com\.br/, { timeout: 20_000 })
 
   const emailField = page
-    .locator('input[type="email"], input[name="email"], input[name="username"], input[placeholder="E-mail" i]')
+    .getByRole('textbox', { name: /E-mail|usuário|username/i })
     .first()
   const passwordField = page
-    .locator('input[type="password"], input[name="password"], input[placeholder="Senha" i]')
+    .getByRole('textbox', { name: /Senha|password/i })
+    .or(page.locator('input[type="password"]'))
     .first()
 
   await emailField.waitFor({ state: 'visible', timeout: 15_000 })
