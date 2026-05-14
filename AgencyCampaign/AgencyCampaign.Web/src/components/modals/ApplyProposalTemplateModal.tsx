@@ -36,7 +36,7 @@ export default function ApplyProposalTemplateModal(props: ApplyProposalTemplateM
   useEffect(() => {
     if (!open) return
     setSelectedId('')
-    void load(() => proposalTemplateService.getAll(false)).then((result) => {
+    void load(() => proposalTemplateService.getAll({ pageSize: 200 })).then((result) => {
       if (result) setTemplates(result)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps

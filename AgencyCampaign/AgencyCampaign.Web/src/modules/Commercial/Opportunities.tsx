@@ -46,7 +46,7 @@ export default function CommercialOpportunities() {
   const { execute: fetchOpportunities, loading, pagination } = useApi<Opportunity[]>({ showErrorMessage: true })
 
   useEffect(() => {
-    void commercialPipelineStageService.getAll().then(setStages)
+    void commercialPipelineStageService.getAll({ pageSize: 200 }).then((r) => setStages(r.data ?? []))
     void commercialResponsibleService.getAll().then(setResponsibles)
   }, [])
 

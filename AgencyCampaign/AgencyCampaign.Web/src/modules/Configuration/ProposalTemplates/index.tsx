@@ -11,21 +11,24 @@ import ProposalTemplateFormModal from '../../../components/modals/ProposalTempla
 export default function ProposalTemplates() {
   const { t } = useI18n()
   const [templates, setTemplates] = useState<ProposalTemplate[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [selected, setSelected] = useState<ProposalTemplate | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
-  const { execute: fetchTemplates, loading } = useApi<ProposalTemplate[]>({ showErrorMessage: true })
+  const { execute: fetchTemplates, loading, pagination } = useApi<ProposalTemplate[]>({ showErrorMessage: true })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
   const load = async () => {
-    const result = await fetchTemplates(() => proposalTemplateService.getAll(true))
+    const result = await fetchTemplates(() => proposalTemplateService.getAll({ page, pageSize, includeInactive: true }))
     if (result) setTemplates(result)
   }
 
   useEffect(() => {
     void load()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize])
 
   const handleDelete = async () => {
     if (!selected) return
@@ -96,8 +99,12 @@ export default function ProposalTemplates() {
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
           emptyText={t('configuration.proposalTemplates.empty')}
           loading={loading}
-          pageSize={10}
+          pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 
@@ -117,7 +124,11 @@ export default function ProposalTemplates() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelected(null)
-          void load()
+          if (page === 1) {
+            void load()
+          } else {
+            setPage(1)
+          }
         }}
       />
     </>

@@ -13,21 +13,23 @@ function formatCurrency(value: number): string {
 export default function FinancialAccounts() {
   const { t } = useI18n()
   const [items, setItems] = useState<FinancialAccount[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [selected, setSelected] = useState<FinancialAccount | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const { execute: fetchAll, loading } = useApi<FinancialAccount[]>({ showErrorMessage: true })
+  const { execute: fetchAll, loading, pagination } = useApi<FinancialAccount[]>({ showErrorMessage: true })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
   const load = async () => {
-    const result = await fetchAll(() => financialAccountService.getAll(true))
+    const result = await fetchAll(() => financialAccountService.getAll({ page, pageSize, includeInactive: true }))
     if (result) setItems(result)
   }
 
   useEffect(() => {
     void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [page, pageSize])
 
   const handleDelete = async () => {
     if (!selected) return
@@ -91,8 +93,12 @@ export default function FinancialAccounts() {
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
           emptyText={t('configuration.bankAccounts.empty')}
           loading={loading}
-          pageSize={10}
+          pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 
@@ -112,7 +118,11 @@ export default function FinancialAccounts() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelected(null)
-          void load()
+          if (page === 1) {
+            void load()
+          } else {
+            setPage(1)
+          }
         }}
       />
     </>

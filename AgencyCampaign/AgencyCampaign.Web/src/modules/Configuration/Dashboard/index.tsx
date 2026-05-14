@@ -52,12 +52,12 @@ export default function ConfigurationDashboard() {
       const [agencyResult, automationsResult, accountsResult, categoriesResult] = await Promise.all([
         agencySettingsService.get(),
         automationService.getAutomations(1, 100),
-        financialAccountService.getAll(true),
+        financialAccountService.getAll({ pageSize: 200, includeInactive: true }),
         integrationPlatformService.getActiveIntegrationCategories().catch(() => [] as IntegrationCategory[]),
       ])
       setAgency(agencyResult)
       setAutomations(automationsResult.items)
-      setAccounts(accountsResult)
+      setAccounts(accountsResult.data ?? [])
       setCategories(categoriesResult)
       return null
     })

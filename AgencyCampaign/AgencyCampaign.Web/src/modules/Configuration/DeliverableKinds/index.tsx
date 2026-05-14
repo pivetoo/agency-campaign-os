@@ -8,12 +8,14 @@ import DeliverableKindFormModal from '../../../components/modals/DeliverableKind
 export default function DeliverableKinds() {
   const { t } = useI18n()
   const [deliverableKinds, setDeliverableKinds] = useState<DeliverableKind[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [selectedDeliverableKind, setSelectedDeliverableKind] = useState<DeliverableKind | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const { execute: fetchDeliverableKinds, loading } = useApi<DeliverableKind[]>({ showErrorMessage: true })
+  const { execute: fetchDeliverableKinds, loading, pagination } = useApi<DeliverableKind[]>({ showErrorMessage: true })
 
   const loadDeliverableKinds = async () => {
-    const result = await fetchDeliverableKinds(() => deliverableKindService.getAll())
+    const result = await fetchDeliverableKinds(() => deliverableKindService.getAll({ page, pageSize }))
     if (result) {
       setDeliverableKinds(result)
     }
@@ -21,7 +23,8 @@ export default function DeliverableKinds() {
 
   useEffect(() => {
     void loadDeliverableKinds()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize])
 
   const columns: DataTableColumn<DeliverableKind>[] = [
     { key: 'name', title: t('configuration.deliverableKinds.field.type'), dataIndex: 'name' },
@@ -52,8 +55,12 @@ export default function DeliverableKinds() {
           onSelectionChange={(rows) => setSelectedDeliverableKind(rows[0] ?? null)}
           emptyText={t('configuration.deliverableKinds.empty')}
           loading={loading}
-          pageSize={10}
+          pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 
@@ -64,7 +71,11 @@ export default function DeliverableKinds() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelectedDeliverableKind(null)
-          void loadDeliverableKinds()
+          if (page === 1) {
+            void loadDeliverableKinds()
+          } else {
+            setPage(1)
+          }
         }}
       />
     </>

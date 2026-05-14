@@ -40,7 +40,7 @@ export default function CreatorSocialHandleFormModal({ open, onOpenChange, creat
 
   useEffect(() => {
     if (!open) return
-    void platformService.getAll().then(setPlatforms)
+    void platformService.getAll({ pageSize: 200 }).then((r) => setPlatforms(r.data ?? []))
     if (handle) {
       setPlatformId(handle.platformId)
       setHandleText(handle.handle)

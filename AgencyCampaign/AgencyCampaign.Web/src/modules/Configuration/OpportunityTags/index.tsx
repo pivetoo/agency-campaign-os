@@ -9,21 +9,23 @@ import { OpportunityTagFormModal } from '../../../components/modals/OpportunityS
 export default function OpportunityTags() {
   const { t } = useI18n()
   const [items, setItems] = useState<OpportunityTag[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [selected, setSelected] = useState<OpportunityTag | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const { execute: fetchAll, loading } = useApi<OpportunityTag[]>({ showErrorMessage: true })
+  const { execute: fetchAll, loading, pagination } = useApi<OpportunityTag[]>({ showErrorMessage: true })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
   const load = async () => {
-    const result = await fetchAll(() => opportunityTagService.getAll(true))
+    const result = await fetchAll(() => opportunityTagService.getAll({ page, pageSize, includeInactive: true }))
     if (result) setItems(result)
   }
 
   useEffect(() => {
     void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [page, pageSize])
 
   const handleDelete = async () => {
     if (!selected) return
@@ -88,8 +90,12 @@ export default function OpportunityTags() {
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
           emptyText={t('configuration.opportunityTags.empty')}
           loading={loading}
-          pageSize={10}
+          pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 
@@ -109,7 +115,11 @@ export default function OpportunityTags() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelected(null)
-          void load()
+          if (page === 1) {
+            void load()
+          } else {
+            setPage(1)
+          }
         }}
       />
     </>

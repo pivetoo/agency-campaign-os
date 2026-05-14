@@ -43,8 +43,8 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
     if (!open) return
     void brandService.getAll({ pageSize: 10 }).then((r) => setBrands(r.data ?? []))
     void commercialResponsibleService.getAll().then(setResponsibles)
-    void opportunitySourceService.getAll(false).then(setSources)
-    void opportunityTagService.getAll(false).then(setTags)
+    void opportunitySourceService.getAll({ pageSize: 200 }).then((r) => setSources(r.data ?? []))
+    void opportunityTagService.getAll({ pageSize: 200 }).then((r) => setTags(r.data ?? []))
   }, [open])
 
   useEffect(() => {

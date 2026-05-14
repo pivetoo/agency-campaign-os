@@ -53,7 +53,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
 
   useEffect(() => {
     void loadSummary()
-    void financialAccountService.getAll(false).then(setAccounts)
+    void financialAccountService.getAll({ pageSize: 200 }).then((r) => setAccounts(r.data ?? []))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type])
 

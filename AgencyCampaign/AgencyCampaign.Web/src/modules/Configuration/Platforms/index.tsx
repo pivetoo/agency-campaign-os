@@ -8,12 +8,14 @@ import PlatformFormModal from '../../../components/modals/PlatformFormModal'
 export default function Platforms() {
   const { t } = useI18n()
   const [platforms, setPlatforms] = useState<Platform[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const { execute: fetchPlatforms, loading } = useApi<Platform[]>({ showErrorMessage: true })
+  const { execute: fetchPlatforms, loading, pagination } = useApi<Platform[]>({ showErrorMessage: true })
 
   const loadPlatforms = async () => {
-    const result = await fetchPlatforms(() => platformService.getAll())
+    const result = await fetchPlatforms(() => platformService.getAll({ page, pageSize }))
     if (result) {
       setPlatforms(result)
     }
@@ -21,7 +23,8 @@ export default function Platforms() {
 
   useEffect(() => {
     void loadPlatforms()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize])
 
   const columns: DataTableColumn<Platform>[] = [
     { key: 'name', title: t('common.field.platform'), dataIndex: 'name' },
@@ -52,8 +55,12 @@ export default function Platforms() {
           onSelectionChange={(rows) => setSelectedPlatform(rows[0] ?? null)}
           emptyText={t('configuration.platforms.empty')}
           loading={loading}
-          pageSize={10}
+          pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}
+          totalCount={pagination?.totalCount}
+          page={page}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
 
@@ -64,7 +71,11 @@ export default function Platforms() {
         onSuccess={() => {
           setIsFormOpen(false)
           setSelectedPlatform(null)
-          void loadPlatforms()
+          if (page === 1) {
+            void loadPlatforms()
+          } else {
+            setPage(1)
+          }
         }}
       />
     </>

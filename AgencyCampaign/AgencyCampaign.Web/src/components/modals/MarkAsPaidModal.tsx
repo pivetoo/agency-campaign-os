@@ -33,7 +33,7 @@ export default function MarkAsPaidModal({ open, onOpenChange, entry, onSuccess }
 
   useEffect(() => {
     if (!open || !entry) return
-    void financialAccountService.getAll(false).then(setAccounts)
+    void financialAccountService.getAll({ pageSize: 200 }).then((r) => setAccounts(r.data ?? []))
     setAccountId(entry.accountId)
     setPaymentMethod(entry.paymentMethod || '')
     setPaidAt(new Date().toISOString().slice(0, 10))
