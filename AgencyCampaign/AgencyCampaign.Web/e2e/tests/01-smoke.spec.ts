@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { dashboardKpi, pageTitle } from '../fixtures/helpers'
 
 test.describe('Smoke - login + dashboard', () => {
   test('usuario autenticado abre o dashboard com KPIs', async ({ page }) => {
@@ -6,10 +7,11 @@ test.describe('Smoke - login + dashboard', () => {
 
     await expect(page).toHaveURL(/kanvas\.mainstay\.com\.br\//)
 
-    for (const label of ['Campanhas ativas', 'Marcas', 'Creators', 'Entregas pendentes']) {
-      await expect(page.getByText(label, { exact: false }).first()).toBeVisible({ timeout: 20_000 })
-    }
+    await expect(dashboardKpi.campanhasAtivas(page)).toBeVisible({ timeout: 20_000 })
+    await expect(dashboardKpi.marcas(page)).toBeVisible({ timeout: 20_000 })
+    await expect(dashboardKpi.influenciadores(page)).toBeVisible({ timeout: 20_000 })
+    await expect(dashboardKpi.entregasPendentes(page)).toBeVisible({ timeout: 20_000 })
 
-    await expect(page.getByRole('heading', { name: /Dashboard/i }).first()).toBeVisible()
+    await expect(pageTitle(page).first()).toBeVisible({ timeout: 15_000 })
   })
 })

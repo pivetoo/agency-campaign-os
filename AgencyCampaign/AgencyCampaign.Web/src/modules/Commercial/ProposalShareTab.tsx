@@ -127,6 +127,7 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
                 />
               </div>
               <Button
+                data-testid="proposal-generate-public-link-button"
                 icon={<Link2 className="h-4 w-4" />}
                 onClick={() => void generateLink()}
                 disabled={mutating}
@@ -144,14 +145,14 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
           ) : (
             <div className="space-y-2">
               {shareLinks.map((link) => (
-                <div key={link.id} className="rounded-md border border-border/60 p-3">
+                <div key={link.id} data-testid="proposal-share-link-result" className="rounded-md border border-border/60 p-3">
                   <div className="flex flex-wrap items-center gap-2">
                     {statusBadge(link)}
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Eye className="h-3 w-3" /> {link.viewCount}
                     </span>
                   </div>
-                  <div className="mt-2 truncate font-mono text-[11px] text-muted-foreground">
+                  <div data-testid="proposal-share-link-input" className="mt-2 truncate font-mono text-[11px] text-muted-foreground">
                     {maskToken(link.token)}
                   </div>
                   <dl className="mt-2 space-y-1 text-xs text-muted-foreground">

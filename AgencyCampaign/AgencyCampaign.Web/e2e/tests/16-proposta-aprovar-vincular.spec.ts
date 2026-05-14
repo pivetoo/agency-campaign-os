@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, clickSaveInDialog } from '../fixtures/helpers'
 
 // Fluxo: oportunidade -> proposta -> item -> enviar -> aprovar -> vincular a campanha existente
 
@@ -12,7 +13,7 @@ test.describe('Proposta - aprovar e vincular a campanha (caminho critico)', () =
     // 1) cria campanha (precisa existir antes pra vincular)
     await page.goto('/campanhas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|^Nova$/i }).first().click()
+    await crud.add(page).click()
     const campModal = page.getByRole('dialog').filter({ hasText: /Nova campanha/i })
     await expect(campModal).toBeVisible({ timeout: 10_000 })
     await campModal.locator(':text("Marca")').locator('..').locator('button, [role="combobox"]').first().click()
@@ -26,7 +27,7 @@ test.describe('Proposta - aprovar e vincular a campanha (caminho critico)', () =
     // 2) cria oportunidade com responsavel
     await page.goto('/comercial/oportunidades')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|Novo Lead/i }).first().click()
+    await crud.add(page).click()
     const oppModal = page.getByRole('dialog').filter({ hasText: /Nova oportunidade/i })
     await expect(oppModal).toBeVisible({ timeout: 10_000 })
     await oppModal.getByLabel(/Nome da oportunidade/i).fill(oppName)
@@ -45,7 +46,7 @@ test.describe('Proposta - aprovar e vincular a campanha (caminho critico)', () =
     // 3) cria proposta
     await page.goto('/comercial/propostas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$/i }).first().click()
+    await crud.add(page).click()
     const propModal = page.getByRole('dialog').filter({ hasText: /Criar proposta comercial/i })
     await expect(propModal).toBeVisible({ timeout: 10_000 })
     const oppTrigger = propModal.locator(':text("Oportunidade")').locator('..').locator('button, [role="combobox"]').first()
@@ -53,7 +54,7 @@ test.describe('Proposta - aprovar e vincular a campanha (caminho critico)', () =
     const search = page.locator('input[placeholder*="Buscar oportunidade" i]').first()
     if (await search.count()) await search.fill(oppName)
     await page.locator('[role="option"]', { hasText: oppName }).first().click()
-    await propModal.getByRole('button', { name: /Criar e continuar|^Salvar$/i }).first().click()
+    await clickSaveInDialog(propModal)
     await expect(propModal).toBeHidden({ timeout: 15_000 })
     await page.waitForURL(/\/comercial\/propostas\/\d+/, { timeout: 15_000 })
 
@@ -70,7 +71,6 @@ test.describe('Proposta - aprovar e vincular a campanha (caminho critico)', () =
     await expect(itemModal).toBeHidden({ timeout: 15_000 })
 
     // 5) enviar proposta (status 1 -> 2)
-    page.on('dialog', (dialog) => { void dialog.accept() })
     await page.getByRole('button', { name: /^Enviar$/i }).first().click()
     await expect(page.getByText(/Enviada|Sent/i).first()).toBeVisible({ timeout: 10_000 })
 

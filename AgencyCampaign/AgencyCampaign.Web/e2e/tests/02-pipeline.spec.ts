@@ -1,15 +1,16 @@
 import { test, expect } from '@playwright/test'
+import { expectPageTitle, opportunity, clickSaveInDialog } from '../fixtures/helpers'
 
 test.describe('Pipeline comercial - criar oportunidade e arrastar entre estagios', () => {
   test('cria oportunidade e move para o proximo estagio', async ({ page }) => {
     const opportunityName = `E2E QA Lead ${Date.now()}`
 
     await page.goto('/comercial/pipeline')
-    await expect(page.getByRole('heading', { name: /Pipeline Comercial/i })).toBeVisible({ timeout: 20_000 })
+    await expectPageTitle(page, /Pipeline Comercial/i)
 
     // garantir que o board carregou (pelo menos 2 estagios para testar drag)
-    const stageBadges = page.locator('section >> css=span.inline-flex')
-    await expect.poll(async () => stageBadges.count(), { timeout: 15_000 }).toBeGreaterThanOrEqual(2)
+    const stageColumns = opportunity.stageColumn(page)
+    await expect.poll(async () => stageColumns.count(), { timeout: 15_000 }).toBeGreaterThanOrEqual(2)
 
     // abrir modal de novo lead
     await page.getByRole('button', { name: /Novo Lead|Cadastrar lead/i }).first().click()
@@ -33,61 +34,64 @@ test.describe('Pipeline comercial - criar oportunidade e arrastar entre estagios
     }
 
     // submit
-    await modal.getByRole('button', { name: /Salvar|Criar|Confirmar/i }).first().click()
+    await clickSaveInDialog(modal)
 
     // modal fecha
     await expect(modal).toBeHidden({ timeout: 15_000 })
 
     // card aparece no board
-    const card = page.getByRole('button').filter({ hasText: opportunityName })
-    await expect(card).toBeVisible({ timeout: 20_000 })
+    const card = opportunity.cardByText(page, opportunityName)
+    await expect(card.first()).toBeVisible({ timeout: 20_000 })
 
-    // identificar a coluna de origem e a coluna alvo
-    const sourceColumn = page.locator('section', { has: card })
-    const allColumns = page.locator('main section[style*="border-top"]')
-    const sourceIndex = await allColumns.evaluateAll(
-      (cols, sourceEl) => cols.indexOf(sourceEl as HTMLElement),
-      await sourceColumn.elementHandle()
+    // identificar a coluna de origem (a que contem o card) e a coluna alvo
+    const sourceColumn = opportunity.stageColumn(page).filter({ has: card })
+    const sourceStage = await sourceColumn.first().getAttribute('data-stage')
+    const allStages = await opportunity.stageColumn(page).evaluateAll((cols) =>
+      cols.map((el) => (el as HTMLElement).getAttribute('data-stage') ?? '')
     )
-    expect(sourceIndex).toBeGreaterThanOrEqual(0)
-
+    expect(sourceStage).toBeTruthy()
+    const sourceIndex = allStages.indexOf(sourceStage!)
     const targetIndex = sourceIndex === 0 ? 1 : 0
-    const targetColumn = allColumns.nth(targetIndex)
+    const targetStage = allStages[targetIndex]
+    const targetColumn = opportunity.stageColumn(page, targetStage)
     await expect(targetColumn).toBeVisible()
 
     // drag-and-drop HTML5 nativo — Playwright dragTo() nao dispara dataTransfer corretamente.
     // Disparamos os eventos manualmente com pausa entre eles para dar tempo ao React de processar
     // o setDraggedItem (state) antes do drop.
-    const dispatchDragEvent = async (selector: string, eventName: 'dragstart' | 'dragend') => {
+    const dispatchDragEvent = async (name: string, eventName: 'dragstart' | 'dragend') => {
       await page.evaluate(
         ({ name, evt }) => {
-          const cards = Array.from(document.querySelectorAll('main section[style*="border-top"] [draggable="true"]')) as HTMLElement[]
+          const cards = Array.from(
+            document.querySelectorAll('[data-testid="opportunity-card"]')
+          ) as HTMLElement[]
           const el = cards.find((card) => card.textContent?.includes(name))
           if (!el) throw new Error('card nao encontrado: ' + name)
           el.dispatchEvent(new DragEvent(evt, { bubbles: true, cancelable: true, dataTransfer: new DataTransfer() }))
         },
-        { name: selector, evt: eventName }
+        { name, evt: eventName }
       )
     }
 
-    const dispatchDropEvent = async (idx: number, eventName: 'dragenter' | 'dragover' | 'drop') => {
+    const dispatchDropEvent = async (stage: string, eventName: 'dragenter' | 'dragover' | 'drop') => {
       await page.evaluate(
-        ({ index, evt }) => {
-          const cols = Array.from(document.querySelectorAll('main section[style*="border-top"]')) as HTMLElement[]
-          const el = cols[index]
-          if (!el) throw new Error('coluna nao encontrada: ' + index)
+        ({ stage, evt }) => {
+          const el = document.querySelector(
+            `[data-testid="opportunity-stage-column"][data-stage="${stage}"]`
+          ) as HTMLElement | null
+          if (!el) throw new Error('coluna nao encontrada: ' + stage)
           el.dispatchEvent(new DragEvent(evt, { bubbles: true, cancelable: true, dataTransfer: new DataTransfer() }))
         },
-        { index: idx, evt: eventName }
+        { stage, evt: eventName }
       )
     }
 
     await dispatchDragEvent(opportunityName, 'dragstart')
     await page.waitForTimeout(80)
-    await dispatchDropEvent(targetIndex, 'dragenter')
-    await dispatchDropEvent(targetIndex, 'dragover')
+    await dispatchDropEvent(targetStage, 'dragenter')
+    await dispatchDropEvent(targetStage, 'dragover')
     await page.waitForTimeout(80)
-    await dispatchDropEvent(targetIndex, 'drop')
+    await dispatchDropEvent(targetStage, 'drop')
     await dispatchDragEvent(opportunityName, 'dragend')
 
     // o card deve estar agora dentro da coluna alvo
@@ -98,7 +102,7 @@ test.describe('Pipeline comercial - criar oportunidade e arrastar entre estagios
 
     // recarregar e validar persistencia
     await page.reload()
-    await expect(page.getByRole('heading', { name: /Pipeline Comercial/i })).toBeVisible({ timeout: 20_000 })
-    await expect(allColumns.nth(targetIndex).getByText(opportunityName)).toBeVisible({ timeout: 20_000 })
+    await expectPageTitle(page, /Pipeline Comercial/i)
+    await expect(opportunity.stageColumn(page, targetStage).getByText(opportunityName)).toBeVisible({ timeout: 20_000 })
   })
 })

@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText, campaign, portal } from '../fixtures/helpers'
 
 // Spec 34: Portal do Creator - upload de NF (caminho fim a fim)
 // 1) cria creator + campanha + vincula creator
@@ -17,7 +18,7 @@ test.describe('Portal do Creator - upload de NF', () => {
     // 1) cria creator
     await page.goto('/creators')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|^Novo$|^Nova$/i }).first().click()
+    await crud.add(page).click()
     const createCreatorModal = page.getByRole('dialog').filter({ hasText: /Novo influenciador|Novo creator/i })
     await expect(createCreatorModal).toBeVisible({ timeout: 10_000 })
     await createCreatorModal.locator('input[type="text"], input:not([type])').first().fill(creatorName)
@@ -27,7 +28,7 @@ test.describe('Portal do Creator - upload de NF', () => {
     // 2) cria campanha
     await page.goto('/campanhas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|^Nova$/i }).first().click()
+    await crud.add(page).click()
     const campModal = page.getByRole('dialog').filter({ hasText: /Nova campanha/i })
     await expect(campModal).toBeVisible({ timeout: 10_000 })
     // marca
@@ -45,14 +46,14 @@ test.describe('Portal do Creator - upload de NF', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const campRow = page.locator('[data-row="true"]', { hasText: campaignName }).first()
+    const campRow = rowWithText(page, campaignName).first()
     await expect(campRow).toBeVisible({ timeout: 15_000 })
     await campRow.scrollIntoViewIfNeeded()
     await campRow.locator('button').last().click()
     await page.waitForURL(/\/campanhas\/\d+$/, { timeout: 10_000 })
 
-    await page.getByRole('button', { name: /Adicionar creator/i }).first().click()
-    const addCreatorModal = page.getByRole('dialog').filter({ hasText: /Adicionar creator/i })
+    await campaign.addCreatorButton(page).click()
+    const addCreatorModal = page.getByRole('dialog').filter({ hasText: /Adicionar creator|Adicionar influenciador/i })
     await expect(addCreatorModal).toBeVisible({ timeout: 10_000 })
 
     const fc = (label: string) =>
@@ -98,7 +99,7 @@ test.describe('Portal do Creator - upload de NF', () => {
     await page.goto('/creators')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
-    const creatorRow = page.locator('[data-row="true"]', { hasText: creatorName }).first()
+    const creatorRow = rowWithText(page, creatorName).first()
     await expect(creatorRow).toBeVisible({ timeout: 15_000 })
     await creatorRow.click()
     await page.getByRole('button', { name: /Links do portal/i }).first().click()
@@ -121,6 +122,9 @@ test.describe('Portal do Creator - upload de NF', () => {
     const portalPage = await portalCtx.newPage()
     await portalPage.goto(`${origin}/portal/${token}/pagamentos`)
     await portalPage.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+
+    // valida que o portal publico carregou
+    await expect(portal.page(portalPage)).toBeVisible({ timeout: 20_000 })
 
     // valida que o pagamento aparece
     await expect(portalPage.getByText(/Seus repasses/i)).toBeVisible({ timeout: 15_000 })

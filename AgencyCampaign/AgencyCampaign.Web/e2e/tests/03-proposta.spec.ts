@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test'
 import { env } from '../fixtures/env'
+import { expectPageTitle, proposal, publicProposal } from '../fixtures/helpers'
 
 test.describe('Proposta - share link publico', () => {
   test('gera share link em proposta existente e abre em contexto sem auth', async ({ page, browser }) => {
     await page.goto('/comercial/propostas')
-    await expect(page.getByRole('heading', { name: /Propostas/i })).toBeVisible({ timeout: 20_000 })
+    await expectPageTitle(page, /Propostas/i)
 
     const firstRow = page.locator('table tbody tr').first()
     const hasRow = await firstRow.isVisible().catch(() => false)
@@ -13,7 +14,7 @@ test.describe('Proposta - share link publico', () => {
     await firstRow.dblclick()
     await expect(page).toHaveURL(/\/comercial\/propostas\/\d+/, { timeout: 20_000 })
 
-    const generateBtn = page.getByRole('button', { name: /Gerar link p[uú]blico/i }).first()
+    const generateBtn = proposal.generateLinkButton(page)
     await expect(generateBtn).toBeVisible({ timeout: 15_000 })
 
     // intercepta a resposta da API que cria o share link e extrai o token
@@ -34,9 +35,7 @@ test.describe('Proposta - share link publico', () => {
     const anonymousContext = await browser.newContext()
     const anonymousPage = await anonymousContext.newPage()
     await anonymousPage.goto(`${env.baseURL}/p/${token}`)
-    await expect(anonymousPage.locator('body')).toContainText(/Proposta|Aprovar|Aceitar|Total|Itens/i, {
-      timeout: 20_000,
-    })
+    await expect(publicProposal.page(anonymousPage)).toBeVisible({ timeout: 20_000 })
     expect(anonymousPage.url()).toContain('/p/')
     await anonymousContext.close()
   })

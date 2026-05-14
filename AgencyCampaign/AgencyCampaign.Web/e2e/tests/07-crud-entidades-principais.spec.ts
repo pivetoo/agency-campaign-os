@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud } from '../fixtures/helpers'
 
 test.describe('CRUD - entidades principais (criar)', () => {
   test('cria marca em /marcas', async ({ page, expectNoApiFailures }) => {
@@ -8,7 +9,7 @@ test.describe('CRUD - entidades principais (criar)', () => {
     await page.goto('/marcas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await page.getByRole('button', { name: /^Incluir$|^Novo$|^Nova$/i }).first().click()
+    await crud.add(page).click()
 
     const modal = page.getByRole('dialog').filter({ hasText: /Nova marca/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })
@@ -31,7 +32,7 @@ test.describe('CRUD - entidades principais (criar)', () => {
     await page.goto('/creators')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await page.getByRole('button', { name: /^Incluir$|^Novo$|^Nova$/i }).first().click()
+    await crud.add(page).click()
 
     const modal = page.getByRole('dialog').filter({ hasText: /Novo influenciador|Novo creator/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })
@@ -53,7 +54,7 @@ test.describe('CRUD - entidades principais (criar)', () => {
     await page.goto('/configuracao/templates-email')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await page.getByRole('button', { name: /^Incluir$|^Novo$/i }).first().click()
+    await crud.add(page).click()
 
     const modal = page.getByRole('dialog').filter({ hasText: /Novo template|template/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })
@@ -89,7 +90,7 @@ test.describe('CRUD - entidades principais (criar)', () => {
     await page.goto('/campanhas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await page.getByRole('button', { name: /^Incluir$|^Novo$|^Nova$/i }).first().click()
+    await crud.add(page).click()
 
     const modal = page.getByRole('dialog').filter({ hasText: /Nova campanha/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })

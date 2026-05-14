@@ -1,4 +1,5 @@
-import { test, expect } from '../fixtures/test'
+import { test } from '../fixtures/test'
+import { expectPageTitle } from '../fixtures/helpers'
 
 interface ScreenSpec {
   path: string
@@ -30,7 +31,7 @@ test.describe('Smoke - modulo Configuracao + Auditoria', () => {
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
       if (screen.expectHeading) {
-        await expect(page.getByRole('heading', { name: screen.expectHeading }).first()).toBeVisible({ timeout: 15_000 })
+        await expectPageTitle(page, screen.expectHeading, 15_000)
       }
 
       await page.waitForTimeout(500)

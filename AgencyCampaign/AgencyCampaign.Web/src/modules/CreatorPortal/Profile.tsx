@@ -60,13 +60,13 @@ export default function CreatorPortalProfile() {
         </div>
         <div className="space-y-1">
           <label className="text-sm font-medium">{t('creatorPortal.profile.field.pixKey')}</label>
-          <Input value={pixKey} onChange={(e) => setPixKey(e.target.value)} required placeholder={t('creatorPortal.profile.placeholder.pixKey')} />
+          <Input data-testid="portal-pix-input" value={pixKey} onChange={(e) => setPixKey(e.target.value)} required placeholder={t('creatorPortal.profile.placeholder.pixKey')} />
         </div>
         <div className="space-y-1">
           <label className="text-sm font-medium">CPF/CNPJ do titular (opcional)</label>
           <Input value={document} onChange={(e) => setDocumentValue(e.target.value)} placeholder={t('creatorPortal.profile.placeholder.numbersOnly')} />
         </div>
-        <Button type="submit" disabled={loading || !isValid} className="w-full">
+        <Button data-testid="portal-save-bank-button" type="submit" disabled={loading || !isValid} className="w-full">
           {loading ? 'Salvando...' : 'Salvar'}
         </Button>
       </form>

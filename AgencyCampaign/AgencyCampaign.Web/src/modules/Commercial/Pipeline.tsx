@@ -45,6 +45,8 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
   return (
     <button
       type="button"
+      data-testid="opportunity-card"
+      data-opportunity-id={item.id}
       draggable
       onDragStart={(event) => {
         event.dataTransfer.effectAllowed = 'move'
@@ -272,6 +274,9 @@ export default function CommercialPipeline() {
             {stages.map((stage) => (
               <section
                 key={stage.commercialPipelineStageId}
+                data-testid="opportunity-stage-column"
+                data-stage-id={stage.commercialPipelineStageId}
+                data-stage={stage.name}
                 onDragOver={(event) => {
                   event.preventDefault()
                   event.dataTransfer.dropEffect = 'move'

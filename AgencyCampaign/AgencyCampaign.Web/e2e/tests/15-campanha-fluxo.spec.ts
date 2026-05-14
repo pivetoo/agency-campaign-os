@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText, campaign } from '../fixtures/helpers'
 
 test.describe('Campanha - fluxo operacional (caminho critico)', () => {
   test('cria campanha + adiciona creator + cria deliverable', async ({ page, expectNoApiFailures }) => {
@@ -9,7 +10,7 @@ test.describe('Campanha - fluxo operacional (caminho critico)', () => {
     // 1) cria campanha
     await page.goto('/campanhas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|^Nova$/i }).first().click()
+    await crud.add(page).click()
     const campModal = page.getByRole('dialog').filter({ hasText: /Nova campanha/i })
     await expect(campModal).toBeVisible({ timeout: 10_000 })
 
@@ -31,7 +32,7 @@ test.describe('Campanha - fluxo operacional (caminho critico)', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const row = page.locator('[data-row="true"]', { hasText: campaignName }).first()
+    const row = rowWithText(page, campaignName).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     // botao de "abrir detalhe" (ExternalLink icon — primeiro button na coluna actions)
     const openBtn = row.locator('button').filter({ hasNotText: /.+/ }).first()
@@ -39,8 +40,8 @@ test.describe('Campanha - fluxo operacional (caminho critico)', () => {
     await page.waitForURL(/\/campanhas\/\d+/, { timeout: 10_000 })
 
     // 3) adicionar creator
-    await page.getByRole('button', { name: /Adicionar creator/i }).first().click()
-    const creatorModal = page.getByRole('dialog').filter({ hasText: /Adicionar creator à campanha/i })
+    await campaign.addCreatorButton(page).click()
+    const creatorModal = page.getByRole('dialog').filter({ hasText: /Adicionar creator|Adicionar influenciador/i })
     await expect(creatorModal).toBeVisible({ timeout: 10_000 })
 
     const fieldContainerCreator = (label: string) =>

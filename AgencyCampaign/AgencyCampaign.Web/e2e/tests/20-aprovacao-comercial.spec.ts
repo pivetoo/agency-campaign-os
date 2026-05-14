@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText } from '../fixtures/helpers'
 
 // Fluxo: opp -> negociacao -> solicitar aprovacao -> aprovar na fila
 
@@ -12,7 +13,7 @@ test.describe('Aprovacao comercial - fluxo completo', () => {
     // 1) cria oportunidade com responsavel
     await page.goto('/comercial/oportunidades')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|Novo Lead/i }).first().click()
+    await crud.add(page).click()
     const oppModal = page.getByRole('dialog').filter({ hasText: /Nova oportunidade/i })
     await expect(oppModal).toBeVisible({ timeout: 10_000 })
     await oppModal.getByLabel(/Nome da oportunidade/i).fill(oppName)
@@ -30,7 +31,7 @@ test.describe('Aprovacao comercial - fluxo completo', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const row = page.locator('[data-row="true"]', { hasText: oppName }).first()
+    const row = rowWithText(page, oppName).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     const openBtn = row.locator('button').filter({ hasText: /Abrir/i }).first()
     if (await openBtn.count()) await openBtn.click()
@@ -55,7 +56,7 @@ test.describe('Aprovacao comercial - fluxo completo', () => {
     await expect(negModal).toBeHidden({ timeout: 15_000 })
 
     // 5) selecionar negociacao na tabela e solicitar aprovacao
-    const negRow = page.locator('[data-row="true"]', { hasText: negName }).first()
+    const negRow = rowWithText(page, negName).first()
     await expect(negRow).toBeVisible({ timeout: 15_000 })
     await negRow.click()
     await expect(negRow).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
@@ -83,7 +84,7 @@ test.describe('Aprovacao comercial - fluxo completo', () => {
     await expect(page.getByText(negName).first()).toBeVisible({ timeout: 15_000 })
 
     // 8) selecionar e aprovar
-    const aprovacaoRow = page.locator('[data-row="true"]', { hasText: negName }).first()
+    const aprovacaoRow = rowWithText(page, negName).first()
     await aprovacaoRow.click()
     await expect(aprovacaoRow).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
 

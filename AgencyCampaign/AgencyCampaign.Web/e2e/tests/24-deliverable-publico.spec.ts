@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText, campaign } from '../fixtures/helpers'
 
 // Onda G: fluxo completo de aprovacao publica de deliverable
 // 1) cria campanha + creator + deliverable
@@ -16,7 +17,7 @@ test.describe('Deliverable publico - aprovacao pela marca', () => {
     // 1) cria campanha
     await page.goto('/campanhas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|^Nova$/i }).first().click()
+    await crud.add(page).click()
     const campModal = page.getByRole('dialog').filter({ hasText: /Nova campanha/i })
     await expect(campModal).toBeVisible({ timeout: 10_000 })
     await campModal.locator(':text("Marca")').locator('..').locator('button, [role="combobox"]').first().click()
@@ -31,14 +32,14 @@ test.describe('Deliverable publico - aprovacao pela marca', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const row = page.locator('[data-row="true"]', { hasText: campaignName }).first()
+    const row = rowWithText(page, campaignName).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     const openBtn = row.locator('button').filter({ hasNotText: /.+/ }).first()
     await openBtn.click()
     await page.waitForURL(/\/campanhas\/\d+/, { timeout: 10_000 })
 
     // 3) adicionar creator
-    await page.getByRole('button', { name: /Adicionar creator/i }).first().click()
+    await campaign.addCreatorButton(page).click()
     const creatorModal = page.getByRole('dialog').filter({ hasText: /Adicionar creator/i })
     await expect(creatorModal).toBeVisible({ timeout: 10_000 })
     const fcCreator = (label: string) =>
@@ -80,14 +81,13 @@ test.describe('Deliverable publico - aprovacao pela marca', () => {
     if (await opsPageSize.count()) await opsPageSize.selectOption('50').catch(() => {})
 
     // 6) localizar a entrega na fila
-    const delivRow = page.locator('[data-row="true"]', { hasText: deliverableTitle }).first()
+    const delivRow = rowWithText(page, deliverableTitle).first()
     await expect(delivRow).toBeVisible({ timeout: 15_000 })
     await delivRow.scrollIntoViewIfNeeded()
     const genBtn = delivRow.getByRole('button', { name: /^(Gerar link|Novo link)$/i }).first()
     await expect(genBtn).toBeVisible({ timeout: 10_000 })
 
-    // 7) intercepta dialog (silenciar) e response da API pra capturar o token
-    page.on('dialog', (d) => { void d.accept() })
+    // 7) intercepta response da API pra capturar o token
     const responsePromise = page.waitForResponse(
       (resp) => /\/api\/DeliverableShareLinks\/Create/i.test(resp.url()) && resp.status() === 201,
       { timeout: 15_000 },

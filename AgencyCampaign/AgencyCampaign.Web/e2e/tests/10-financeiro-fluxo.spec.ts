@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud } from '../fixtures/helpers'
 
 test.describe('Financeiro - criar lancamento', () => {
   test('cria entry a receber e valida na listagem', async ({ page, expectNoApiFailures }) => {
@@ -9,7 +10,7 @@ test.describe('Financeiro - criar lancamento', () => {
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
     // botao incluir
-    await page.getByRole('button', { name: /^Incluir$|Novo lançamento/i }).first().click()
+    await crud.add(page).click()
 
     const modal = page.getByRole('dialog').filter({ hasText: /Novo lançamento/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })

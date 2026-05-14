@@ -443,7 +443,7 @@ export default function CampaignDetail() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
                 <CardTitle className="text-base">{t('campaign.detail.creatorsSection')}</CardTitle>
-                <Button size="sm" onClick={() => { setSelectedCampaignCreator(null); setIsCreatorFormOpen(true) }}>
+                <Button size="sm" data-testid="campaign-add-creator-button" onClick={() => { setSelectedCampaignCreator(null); setIsCreatorFormOpen(true) }}>
                   <Plus size={16} className="mr-2" />
                   {t('campaign.detail.addCreator')}
                 </Button>

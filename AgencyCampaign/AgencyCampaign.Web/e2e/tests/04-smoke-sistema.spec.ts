@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { expectPageTitle, pageTitle } from '../fixtures/helpers'
 
 interface ScreenSpec {
   path: string
@@ -14,7 +15,7 @@ const screens: ScreenSpec[] = [
   { path: '/comercial/aprovacoes', expectHeading: /Aprovações|Aprovacoes/i },
   { path: '/comercial/followups', expectHeading: /Atividades|Follow|Acompanhamento/i },
   { path: '/marcas', expectHeading: /Marcas/i },
-  { path: '/creators', expectHeading: /Creators/i },
+  { path: '/creators', expectHeading: /Creators|Influenciadores/i },
   { path: '/campanhas', expectHeading: /Campanhas/i },
   { path: '/operacao/aprovacoes', expectHeading: /Aprovações|Aprovacoes/i },
   { path: '/financeiro/receber', expectHeading: /receber|recebimento/i },
@@ -30,7 +31,12 @@ test.describe('Smoke - modulo Sistema', () => {
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
       if (screen.expectHeading) {
-        await expect(page.getByRole('heading', { name: screen.expectHeading }).first()).toBeVisible({ timeout: 15_000 })
+        // Dashboard usa greeting customizado ("Olá, ...") em vez de literal "Dashboard"
+        if (screen.path === '/') {
+          await expect(pageTitle(page).first()).toBeVisible({ timeout: 15_000 })
+        } else {
+          await expectPageTitle(page, screen.expectHeading, 15_000)
+        }
       }
 
       // dar tempo para chamadas paralelas concluirem

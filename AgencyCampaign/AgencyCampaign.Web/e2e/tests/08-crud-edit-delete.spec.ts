@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, confirmDelete, rowWithText } from '../fixtures/helpers'
 
 interface CrudSpec {
   path: string
@@ -30,7 +31,7 @@ test.describe('CRUD - edit + delete (cadastros simples)', () => {
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
       // ============ CREATE ============
-      await page.getByRole('button', { name: /^Incluir$|^Novo$|^Nova$/i }).first().click()
+      await crud.add(page).click()
 
       const newModal = page.getByRole('dialog').filter({ hasText: spec.modalTitleNew })
       await expect(newModal).toBeVisible({ timeout: 10_000 })
@@ -53,14 +54,14 @@ test.describe('CRUD - edit + delete (cadastros simples)', () => {
         await page.waitForTimeout(300)
       }
 
-      const row = page.locator('[data-row="true"]', { hasText: original }).first()
+      const row = rowWithText(page, original).first()
       await expect(row).toBeVisible({ timeout: 15_000 })
 
       // ============ EDIT ============
       await row.click()
       await expect(row).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
 
-      await page.getByRole('button', { name: /^Editar$/i }).first().click()
+      await crud.edit(page).click()
 
       const editModal = page.getByRole('dialog').filter({ hasText: spec.modalTitleEdit })
       await expect(editModal).toBeVisible({ timeout: 10_000 })
@@ -70,21 +71,18 @@ test.describe('CRUD - edit + delete (cadastros simples)', () => {
       await editModal.getByRole('button', { name: /^Salvar$/i }).first().click()
       await expect(editModal).toBeHidden({ timeout: 15_000 })
 
-      const renamedRow = page.locator('[data-row="true"]', { hasText: renamed }).first()
+      const renamedRow = rowWithText(page, renamed).first()
       await expect(renamedRow).toBeVisible({ timeout: 15_000 })
 
       // ============ DELETE (somente para entidades que suportam) ============
       if (spec.supportsDelete) {
-        page.on('dialog', (dialog) => {
-          void dialog.accept()
-        })
-
         await renamedRow.click()
         await expect(renamedRow).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
 
-        await page.getByRole('button', { name: /^Excluir$/i }).first().click()
+        await crud.delete(page).click()
+        await confirmDelete(page)
 
-        await expect(page.locator('[data-row="true"]', { hasText: renamed })).toHaveCount(0, { timeout: 15_000 })
+        await expect(rowWithText(page, renamed)).toHaveCount(0, { timeout: 15_000 })
       }
 
       expectNoApiFailures()

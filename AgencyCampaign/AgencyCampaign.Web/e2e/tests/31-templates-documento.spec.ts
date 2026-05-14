@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText, confirmDelete, expectPageTitle } from '../fixtures/helpers'
 
 // Spec 31: Templates de documento (Configuracao)
 // CRUD: criar template novo com tipo, corpo e descricao -> editar nome
@@ -14,10 +15,10 @@ test.describe('Configuracao - Templates de documento', () => {
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
     // 1) header
-    await expect(page.getByRole('heading', { name: /Templates de documento/i })).toBeVisible({ timeout: 15_000 })
+    await expectPageTitle(page, /Templates de documento/i, 15_000)
 
     // 2) cria template
-    await page.getByRole('button', { name: /^Incluir$|^Novo$|^Nova$/i }).first().click()
+    await crud.add(page).click()
     const modal = page.getByRole('dialog').filter({ hasText: /Novo template de documento/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })
 
@@ -41,13 +42,13 @@ test.describe('Configuracao - Templates de documento', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const row = page.locator('[data-row="true"]', { hasText: name }).first()
+    const row = rowWithText(page, name).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
 
     // 4) seleciona, abre Editar
     await row.click()
     await expect(row).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
-    await page.getByRole('button', { name: /^Editar$/ }).first().click()
+    await crud.edit(page).click()
     const editModal = page.getByRole('dialog').filter({ hasText: /Editar template de documento/i })
     await expect(editModal).toBeVisible({ timeout: 10_000 })
 
@@ -56,15 +57,14 @@ test.describe('Configuracao - Templates de documento', () => {
     await editModal.getByRole('button', { name: /^Salvar$/ }).first().click()
     await expect(editModal).toBeHidden({ timeout: 15_000 })
 
-    const renamedRow = page.locator('[data-row="true"]', { hasText: renamed }).first()
+    const renamedRow = rowWithText(page, renamed).first()
     await expect(renamedRow).toBeVisible({ timeout: 10_000 })
 
-    // 5) exclui (com confirm). Para template novo nunca usado, o backend remove
+    // 5) exclui (com ConfirmModal). Para template novo nunca usado, o backend remove
     //    do banco; quando ja vinculado a documentos, marca como Inativo.
     //    Aceita as duas situacoes.
-    page.on('dialog', (d) => { void d.accept() })
     await renamedRow.click()
-    const excluirBtn = page.getByRole('button', { name: /^Excluir$/ })
+    const excluirBtn = crud.delete(page)
     await expect(excluirBtn).toBeEnabled({ timeout: 5_000 })
 
     const deleteResp = page.waitForResponse(
@@ -72,10 +72,11 @@ test.describe('Configuracao - Templates de documento', () => {
       { timeout: 15_000 },
     )
     await excluirBtn.click()
+    await confirmDelete(page)
     const resp = await deleteResp
     expect(resp.status(), `delete deveria retornar sucesso, recebeu ${resp.status()}`).toBeLessThan(400)
 
-    const finalRow = page.locator('[data-row="true"]', { hasText: renamed })
+    const finalRow = rowWithText(page, renamed)
     await expect
       .poll(async () => {
         if ((await finalRow.count()) === 0) return 'removed'

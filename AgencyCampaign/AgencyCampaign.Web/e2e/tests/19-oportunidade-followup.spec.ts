@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText } from '../fixtures/helpers'
 
 // Cobre: detalhe da oportunidade + tabs internas + criar follow-up
 
@@ -11,7 +12,7 @@ test.describe('Oportunidade - detalhe e follow-up', () => {
     // 1) cria oportunidade
     await page.goto('/comercial/oportunidades')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|Novo Lead/i }).first().click()
+    await crud.add(page).click()
     const oppModal = page.getByRole('dialog').filter({ hasText: /Nova oportunidade/i })
     await expect(oppModal).toBeVisible({ timeout: 10_000 })
     await oppModal.getByLabel(/Nome da oportunidade/i).fill(oppName)
@@ -25,7 +26,7 @@ test.describe('Oportunidade - detalhe e follow-up', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const row = page.locator('[data-row="true"]', { hasText: oppName }).first()
+    const row = rowWithText(page, oppName).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     const openBtn = row.locator('button').filter({ hasText: /Abrir/i }).first()
     if (await openBtn.count()) {

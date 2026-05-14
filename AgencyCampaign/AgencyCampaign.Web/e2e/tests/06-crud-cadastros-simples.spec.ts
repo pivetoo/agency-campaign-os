@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, clickSaveInDialog } from '../fixtures/helpers'
 
 interface CrudSpec {
   path: string
@@ -27,7 +28,7 @@ test.describe('CRUD - cadastros simples (cria registro novo)', () => {
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
       // botao do PageLayout no padrao Archon: "Incluir"
-      const newButton = page.getByRole('button', { name: /^Incluir$|^Novo$|^Nova$|^Adicionar$|^Cadastrar$/i }).first()
+      const newButton = crud.add(page)
       await expect(newButton).toBeVisible({ timeout: 10_000 })
       await newButton.click()
 
@@ -39,7 +40,7 @@ test.describe('CRUD - cadastros simples (cria registro novo)', () => {
       await nameInput.fill(recordName)
 
       // Salvar
-      await modal.getByRole('button', { name: /Salvar|Criar|Confirmar/i }).first().click()
+      await clickSaveInDialog(modal)
 
       // modal fecha
       await expect(modal).toBeHidden({ timeout: 15_000 })

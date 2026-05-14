@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, clickSaveInDialog } from '../fixtures/helpers'
 
 // Fluxo completo de receita: oportunidade -> proposta com items -> envia -> aprova -> converte em campanha -> verifica financeiro auto-gerado
 
@@ -13,7 +14,7 @@ test.describe('Conversao proposta->campanha + geracao financeira automatica', ()
     // 1) cria campanha
     await page.goto('/campanhas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|^Nova$/i }).first().click()
+    await crud.add(page).click()
     const campModal = page.getByRole('dialog').filter({ hasText: /Nova campanha/i })
     await expect(campModal).toBeVisible({ timeout: 10_000 })
     await campModal.locator(':text("Marca")').locator('..').locator('button, [role="combobox"]').first().click()
@@ -27,7 +28,7 @@ test.describe('Conversao proposta->campanha + geracao financeira automatica', ()
     // 2) cria opp com responsavel
     await page.goto('/comercial/oportunidades')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|Novo Lead/i }).first().click()
+    await crud.add(page).click()
     const oppModal = page.getByRole('dialog').filter({ hasText: /Nova oportunidade/i })
     await expect(oppModal).toBeVisible({ timeout: 10_000 })
     await oppModal.getByLabel(/Nome da oportunidade/i).fill(oppName)
@@ -44,14 +45,14 @@ test.describe('Conversao proposta->campanha + geracao financeira automatica', ()
     // 3) cria proposta
     await page.goto('/comercial/propostas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$/i }).first().click()
+    await crud.add(page).click()
     const propModal = page.getByRole('dialog').filter({ hasText: /Criar proposta comercial/i })
     await expect(propModal).toBeVisible({ timeout: 10_000 })
     await propModal.locator(':text("Oportunidade")').locator('..').locator('button, [role="combobox"]').first().click()
     const search = page.locator('input[placeholder*="Buscar oportunidade" i]').first()
     if (await search.count()) await search.fill(oppName)
     await page.locator('[role="option"]', { hasText: oppName }).first().click()
-    await propModal.getByRole('button', { name: /Criar e continuar|^Salvar$/i }).first().click()
+    await clickSaveInDialog(propModal)
     await expect(propModal).toBeHidden({ timeout: 15_000 })
     await page.waitForURL(/\/comercial\/propostas\/\d+/, { timeout: 15_000 })
 

@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText, portal, confirmDelete } from '../fixtures/helpers'
 
 // Spec 25: Portal do Creator
 // 1) cria creator novo via /creators
@@ -18,7 +19,7 @@ test.describe('Portal do Creator - link de acesso publico', () => {
     await page.goto('/creators')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await page.getByRole('button', { name: /^Incluir$|^Novo$|^Nova$/i }).first().click()
+    await crud.add(page).click()
 
     const formModal = page.getByRole('dialog').filter({ hasText: /Novo influenciador|Novo creator/i })
     await expect(formModal).toBeVisible({ timeout: 10_000 })
@@ -30,7 +31,7 @@ test.describe('Portal do Creator - link de acesso publico', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const row = page.locator('[data-row="true"]', { hasText: creatorName }).first()
+    const row = rowWithText(page, creatorName).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.click()
 
@@ -70,6 +71,9 @@ test.describe('Portal do Creator - link de acesso publico', () => {
 
     await publicPage.goto(portalUrl)
     await publicPage.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+
+    // valida que o portal publico carregou
+    await expect(portal.page(publicPage)).toBeVisible({ timeout: 20_000 })
 
     // 7) layout: saudacao + 5 nav items
     await expect(publicPage.getByRole('heading', { name: new RegExp(`Olá, ${creatorName}`, 'i') })).toBeVisible({
@@ -111,7 +115,7 @@ test.describe('Portal do Creator - link de acesso publico', () => {
     await publicPage.getByRole('option', { name: /^CPF$/ }).first().click()
 
     // chave PIX
-    await publicPage.getByPlaceholder(/Digite sua chave/i).fill('12345678900')
+    await portal.pixInput(publicPage).fill('12345678900')
 
     // CPF/CNPJ titular
     await publicPage.getByPlaceholder(/Apenas n[uú]meros/i).fill('12345678900')
@@ -120,7 +124,7 @@ test.describe('Portal do Creator - link de acesso publico', () => {
       (resp) => /\/api\/CreatorPortal\/.+\/bank-info/i.test(resp.url()) && resp.status() < 400,
       { timeout: 15_000 },
     )
-    await publicPage.getByRole('button', { name: /^Salvar$/ }).click()
+    await portal.saveBankButton(publicPage).click()
     const updateBankResp = await updateBankPromise
     expect(updateBankResp.status()).toBeLessThan(400)
 

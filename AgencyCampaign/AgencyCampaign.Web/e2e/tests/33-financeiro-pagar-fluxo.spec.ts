@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText, expectPageTitle } from '../fixtures/helpers'
 
 // Spec 33: Contas a Pagar (paridade do spec 14 que cobria "a receber")
 // Cria entry tipo "A pagar" e marca como Pago.
@@ -13,9 +14,9 @@ test.describe('Financeiro - contas a pagar (caminho critico)', () => {
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
     // header esperado: "Contas a pagar"
-    await expect(page.getByRole('heading', { name: /Contas a pagar/i })).toBeVisible({ timeout: 15_000 })
+    await expectPageTitle(page, /Contas a pagar/i, 15_000)
 
-    await page.getByRole('button', { name: /^Incluir$|Novo lançamento/i }).first().click()
+    await crud.add(page).click()
     const modal = page.getByRole('dialog').filter({ hasText: /Novo lançamento/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })
 
@@ -53,7 +54,7 @@ test.describe('Financeiro - contas a pagar (caminho critico)', () => {
     }
 
     // 3) entry aparece
-    const row = page.locator('[data-row="true"]', { hasText: description }).first()
+    const row = rowWithText(page, description).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
 
     // 4) clicar Confirmar pra marcar como pago

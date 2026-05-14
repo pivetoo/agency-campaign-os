@@ -81,7 +81,7 @@ export default function PublicProposal() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/40 py-12">
+    <div data-testid="public-proposal-page" className="min-h-screen bg-muted/40 py-12">
       <div className="mx-auto w-full max-w-4xl px-4">
         <div className="mb-6 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary">

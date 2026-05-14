@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, clickSaveInDialog } from '../fixtures/helpers'
 
 test.describe('Proposta - fluxo de criacao', () => {
   test('cria proposta nova vinculada a oportunidade existente', async ({ page, expectNoApiFailures }) => {
@@ -9,7 +10,7 @@ test.describe('Proposta - fluxo de criacao', () => {
     await page.goto('/comercial/oportunidades')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await page.getByRole('button', { name: /^Incluir$|Novo Lead/i }).first().click()
+    await crud.add(page).click()
     const oppModal = page.getByRole('dialog').filter({ hasText: /Nova oportunidade/i })
     await expect(oppModal).toBeVisible({ timeout: 10_000 })
     await oppModal.getByLabel(/Nome da oportunidade/i).fill(oppName)
@@ -34,7 +35,7 @@ test.describe('Proposta - fluxo de criacao', () => {
     await page.goto('/comercial/propostas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await page.getByRole('button', { name: /^Incluir$/i }).first().click()
+    await crud.add(page).click()
     const proposalModal = page.getByRole('dialog').filter({ hasText: /Criar proposta comercial/i })
     await expect(proposalModal).toBeVisible({ timeout: 10_000 })
 
@@ -51,7 +52,7 @@ test.describe('Proposta - fluxo de criacao', () => {
     await oppOption.click()
 
     // submeter
-    await proposalModal.getByRole('button', { name: /Criar e continuar|^Salvar$/i }).first().click()
+    await clickSaveInDialog(proposalModal)
 
     // modal fecha
     await expect(proposalModal).toBeHidden({ timeout: 15_000 })

@@ -58,7 +58,7 @@ export default function CreatorPortalLayout() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div data-testid="public-creator-portal-page" className="flex min-h-screen flex-col bg-background">
       <header className="border-b bg-primary/5 px-4 py-3">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <div>
@@ -78,21 +78,22 @@ export default function CreatorPortalLayout() {
       <nav className="fixed bottom-0 left-0 right-0 border-t bg-background">
         <div className="mx-auto flex max-w-3xl items-stretch justify-around">
           <PortalNavItem to={`/portal/${token}`} end icon={<Home size={18} />} label={t('creatorPortal.layout.nav.home')} />
-          <PortalNavItem to={`/portal/${token}/campanhas`} icon={<Calendar size={18} />} label={t('creatorPortal.layout.nav.campaigns')} />
-          <PortalNavItem to={`/portal/${token}/contratos`} icon={<FileText size={18} />} label={t('creatorPortal.layout.nav.contracts')} />
-          <PortalNavItem to={`/portal/${token}/pagamentos`} icon={<Receipt size={18} />} label={t('creatorPortal.layout.nav.payments')} />
-          <PortalNavItem to={`/portal/${token}/perfil`} icon={<User size={18} />} label={t('creatorPortal.layout.nav.profile')} />
+          <PortalNavItem to={`/portal/${token}/campanhas`} testId="portal-tab-campanhas" icon={<Calendar size={18} />} label={t('creatorPortal.layout.nav.campaigns')} />
+          <PortalNavItem to={`/portal/${token}/contratos`} testId="portal-tab-contratos" icon={<FileText size={18} />} label={t('creatorPortal.layout.nav.contracts')} />
+          <PortalNavItem to={`/portal/${token}/pagamentos`} testId="portal-tab-pagamentos" icon={<Receipt size={18} />} label={t('creatorPortal.layout.nav.payments')} />
+          <PortalNavItem to={`/portal/${token}/perfil`} testId="portal-tab-perfil" icon={<User size={18} />} label={t('creatorPortal.layout.nav.profile')} />
         </div>
       </nav>
     </div>
   )
 }
 
-function PortalNavItem({ to, icon, label, end }: { to: string; icon: React.ReactNode; label: string; end?: boolean }) {
+function PortalNavItem({ to, icon, label, end, testId }: { to: string; icon: React.ReactNode; label: string; end?: boolean; testId?: string }) {
   return (
     <NavLink
       to={to}
       end={end}
+      data-testid={testId}
       className={({ isActive }) =>
         `flex flex-1 flex-col items-center gap-0.5 px-1 py-2 text-[10px] transition-colors ${
           isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'

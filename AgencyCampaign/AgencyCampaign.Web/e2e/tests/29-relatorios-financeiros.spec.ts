@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { expectPageTitle } from '../fixtures/helpers'
 
 // Spec 29: Relatorios financeiros (Fluxo de caixa + Aging)
 // Cobre as duas paginas de relatorio: filtros, KPIs e mudanca de granularidade
@@ -9,7 +10,7 @@ test.describe('Financeiro - Relatorios', () => {
     await page.goto('/financeiro/fluxo-caixa')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await expect(page.getByRole('heading', { name: /Fluxo de caixa/i })).toBeVisible({ timeout: 15_000 })
+    await expectPageTitle(page, /Fluxo de caixa/i, 15_000)
 
     // 4 KPIs do fluxo
     for (const label of [
@@ -52,7 +53,7 @@ test.describe('Financeiro - Relatorios', () => {
     await page.goto('/financeiro/aging')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await expect(page.getByRole('heading', { name: /Aging financeiro/i })).toBeVisible({ timeout: 15_000 })
+    await expectPageTitle(page, /Aging financeiro/i, 15_000)
 
     // 2 cards de totais no topo
     await expect(page.getByText(/Total a receber pendente/i)).toBeVisible()

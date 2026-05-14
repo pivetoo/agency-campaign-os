@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { expectPageTitle } from '../fixtures/helpers'
 
 // Spec 26: Tela de Integracoes (categoria -> integracao -> conector)
 // Cobre o fluxo navegacional sem criar conector real (credenciais sao especificas
@@ -15,7 +16,7 @@ test.describe('Configuracao - Integracoes', () => {
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
     // 1) header e abas
-    await expect(page.getByRole('heading', { name: /^Integrações$/ })).toBeVisible({ timeout: 15_000 })
+    await expectPageTitle(page, /^Integrações$/, 15_000)
     await expect(page.getByRole('tab', { name: /Contas conectadas/i })).toBeVisible()
     await expect(page.getByRole('tab', { name: /Automa[çc][õo]es/i })).toBeVisible()
 

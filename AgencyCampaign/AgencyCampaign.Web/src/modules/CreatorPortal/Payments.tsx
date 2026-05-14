@@ -124,7 +124,7 @@ export default function CreatorPortalPayments() {
                     <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder={t('creatorPortal.payments.field.nfNumber')} />
                     <Input type="date" value={issuedAt} onChange={(e) => setIssuedAt(e.target.value)} />
                   </div>
-                  <Input value={invoiceUrl} onChange={(e) => setInvoiceUrl(e.target.value)} placeholder={t('creatorPortal.payments.field.nfUrl')} />
+                  <Input data-testid="portal-upload-nf-input" value={invoiceUrl} onChange={(e) => setInvoiceUrl(e.target.value)} placeholder={t('creatorPortal.payments.field.nfUrl')} />
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => void submit()} disabled={saving || !invoiceUrl.trim()}>
                       {saving ? 'Salvando...' : 'Anexar'}

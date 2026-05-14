@@ -293,7 +293,7 @@ export default function CreatorDetail() {
             <Card>
               <CardContent className="pt-4">
                 <div className="mb-3 flex justify-end">
-                  <Button size="sm" onClick={() => { setSelectedHandle(null); setIsHandleFormOpen(true) }}>
+                  <Button size="sm" data-testid="creator-add-handle-button" onClick={() => { setSelectedHandle(null); setIsHandleFormOpen(true) }}>
                     <Plus size={14} className="mr-1.5" />
                     Novo handle
                   </Button>

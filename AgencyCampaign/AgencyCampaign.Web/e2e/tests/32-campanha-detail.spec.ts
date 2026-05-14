@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText, campaign } from '../fixtures/helpers'
 
 // Spec 32: Campanha detail - abas internas (Creators, Documentos, Entregas)
 // Cobre os fluxos basicos das 3 tabs sem criar dado em massa.
@@ -16,7 +17,7 @@ test.describe('Campanha Detail - abas internas', () => {
     await page.goto('/campanhas')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await page.getByRole('button', { name: /^Incluir$|^Nova$/i }).first().click()
+    await crud.add(page).click()
     const createModal = page.getByRole('dialog').filter({ hasText: /Nova campanha/i })
     await expect(createModal).toBeVisible({ timeout: 10_000 })
 
@@ -37,7 +38,7 @@ test.describe('Campanha Detail - abas internas', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const row = page.locator('[data-row="true"]', { hasText: campaignName }).first()
+    const row = rowWithText(page, campaignName).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.scrollIntoViewIfNeeded()
     // botao Eye eh o ultimo button da linha
@@ -59,7 +60,7 @@ test.describe('Campanha Detail - abas internas', () => {
 
     // 6) Tab Creators (default)
     await expect(page.getByText(/Nenhum creator vinculado à campanha/i)).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByRole('button', { name: /Adicionar creator/i })).toBeVisible()
+    await expect(campaign.addCreatorButton(page)).toBeVisible()
 
     // 7) Tab Documentos
     await page.getByRole('tab', { name: /Documentos/i }).click()

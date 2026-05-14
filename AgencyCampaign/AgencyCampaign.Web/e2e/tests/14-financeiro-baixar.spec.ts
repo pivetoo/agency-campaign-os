@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText } from '../fixtures/helpers'
 
 test.describe('Financeiro - marcar como pago (caminho critico)', () => {
   test('cria entry pendente e marca como pago', async ({ page, expectNoApiFailures }) => {
@@ -8,7 +9,7 @@ test.describe('Financeiro - marcar como pago (caminho critico)', () => {
     // 1) cria entry a receber
     await page.goto('/financeiro/receber')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
-    await page.getByRole('button', { name: /^Incluir$|Novo lançamento/i }).first().click()
+    await crud.add(page).click()
     const modal = page.getByRole('dialog').filter({ hasText: /Novo lançamento/i })
     await expect(modal).toBeVisible({ timeout: 10_000 })
 
@@ -40,7 +41,7 @@ test.describe('Financeiro - marcar como pago (caminho critico)', () => {
     }
 
     // 3) localizar a linha da entry e clicar em "Confirmar" (marcar como pago)
-    const row = page.locator('[data-row="true"]', { hasText: description }).first()
+    const row = rowWithText(page, description).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.getByRole('button', { name: /Confirmar/i }).click()
 

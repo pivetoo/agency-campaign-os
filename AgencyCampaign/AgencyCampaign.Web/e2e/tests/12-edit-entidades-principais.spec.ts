@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test'
+import { crud, rowWithText } from '../fixtures/helpers'
 
 // EDIT nas 4 entidades principais (Marca, Creator, Email Template, Campanha)
 // CREATE ja esta coberto em 07-crud-entidades-principais.spec.ts
@@ -13,7 +14,7 @@ test.describe('EDIT - entidades principais', () => {
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
     // CREATE
-    await page.getByRole('button', { name: /^Incluir$|^Novo$/i }).first().click()
+    await crud.add(page).click()
     const newModal = page.getByRole('dialog').filter({ hasText: /Nova marca/i })
     await expect(newModal).toBeVisible({ timeout: 10_000 })
     await newModal.locator('input[type="text"], input:not([type])').first().fill(original)
@@ -24,19 +25,19 @@ test.describe('EDIT - entidades principais', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const row = page.locator('[data-row="true"]', { hasText: original }).first()
+    const row = rowWithText(page, original).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.click()
     await expect(row).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
 
-    await page.getByRole('button', { name: /^Editar$/i }).first().click()
+    await crud.edit(page).click()
     const editModal = page.getByRole('dialog').filter({ hasText: /Editar marca/i })
     await expect(editModal).toBeVisible({ timeout: 10_000 })
     await editModal.locator('input[type="text"], input:not([type])').first().fill(renamed)
     await editModal.getByRole('button', { name: /^Salvar$/i }).first().click()
     await expect(editModal).toBeHidden({ timeout: 15_000 })
 
-    await expect(page.locator('[data-row="true"]', { hasText: renamed }).first()).toBeVisible({ timeout: 15_000 })
+    await expect(rowWithText(page, renamed).first()).toBeVisible({ timeout: 15_000 })
 
     expectNoApiFailures()
   })
@@ -49,7 +50,7 @@ test.describe('EDIT - entidades principais', () => {
     await page.goto('/creators')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
-    await page.getByRole('button', { name: /^Incluir$|^Novo$/i }).first().click()
+    await crud.add(page).click()
     const newModal = page.getByRole('dialog').filter({ hasText: /Novo influenciador|Novo creator/i })
     await expect(newModal).toBeVisible({ timeout: 10_000 })
     await newModal.locator('input[type="text"], input:not([type])').first().fill(original)
@@ -59,19 +60,19 @@ test.describe('EDIT - entidades principais', () => {
     const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
-    const row = page.locator('[data-row="true"]', { hasText: original }).first()
+    const row = rowWithText(page, original).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.click()
     await expect(row).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
 
-    await page.getByRole('button', { name: /^Editar$/i }).first().click()
+    await crud.edit(page).click()
     const editModal = page.getByRole('dialog').filter({ hasText: /Editar influenciador|Editar creator/i })
     await expect(editModal).toBeVisible({ timeout: 10_000 })
     await editModal.locator('input[type="text"], input:not([type])').first().fill(renamed)
     await editModal.getByRole('button', { name: /^Salvar$/i }).first().click()
     await expect(editModal).toBeHidden({ timeout: 15_000 })
 
-    await expect(page.locator('[data-row="true"]', { hasText: renamed }).first()).toBeVisible({ timeout: 15_000 })
+    await expect(rowWithText(page, renamed).first()).toBeVisible({ timeout: 15_000 })
 
     expectNoApiFailures()
   })
@@ -85,7 +86,7 @@ test.describe('EDIT - entidades principais', () => {
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
     // CREATE
-    await page.getByRole('button', { name: /^Incluir$|^Novo$/i }).first().click()
+    await crud.add(page).click()
     const newModal = page.getByRole('dialog').filter({ hasText: /Novo template|template/i })
     await expect(newModal).toBeVisible({ timeout: 10_000 })
 
@@ -104,12 +105,12 @@ test.describe('EDIT - entidades principais', () => {
     if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
 
     // EDIT
-    const row = page.locator('[data-row="true"]', { hasText: original }).first()
+    const row = rowWithText(page, original).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.click()
     await expect(row).toHaveAttribute('data-state', 'selected', { timeout: 5_000 })
 
-    await page.getByRole('button', { name: /^Editar$/i }).first().click()
+    await crud.edit(page).click()
     const editModal = page.getByRole('dialog').filter({ hasText: /Editar template|template/i })
     await expect(editModal).toBeVisible({ timeout: 10_000 })
 
@@ -118,7 +119,7 @@ test.describe('EDIT - entidades principais', () => {
     await editModal.getByRole('button', { name: /^Salvar$/i }).first().click()
     await expect(editModal).toBeHidden({ timeout: 15_000 })
 
-    await expect(page.locator('[data-row="true"]', { hasText: renamed }).first()).toBeVisible({ timeout: 15_000 })
+    await expect(rowWithText(page, renamed).first()).toBeVisible({ timeout: 15_000 })
 
     expectNoApiFailures()
   })

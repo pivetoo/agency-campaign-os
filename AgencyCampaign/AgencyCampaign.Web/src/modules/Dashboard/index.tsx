@@ -87,10 +87,10 @@ export default function Dashboard() {
   const headlineChips = useMemo(() => {
     const headline = overview?.headline
     return [
-      { label: t('dashboard.kpi.activeCampaigns'), value: headline?.activeCampaigns ?? 0, icon: Megaphone, tone: 'text-indigo-600' },
-      { label: t('dashboard.kpi.activeBrands'), value: headline?.activeBrands ?? 0, icon: Building2, tone: 'text-violet-600' },
-      { label: t('dashboard.kpi.activeCreators'), value: headline?.activeCreators ?? 0, icon: Users, tone: 'text-cyan-600' },
-      { label: t('dashboard.kpi.pendingDeliverables'), value: headline?.pendingDeliverables ?? 0, icon: Clock, tone: 'text-amber-600' },
+      { testId: 'dashboard-kpi-campanhas-ativas', label: t('dashboard.kpi.activeCampaigns'), value: headline?.activeCampaigns ?? 0, icon: Megaphone, tone: 'text-indigo-600' },
+      { testId: 'dashboard-kpi-marcas', label: t('dashboard.kpi.activeBrands'), value: headline?.activeBrands ?? 0, icon: Building2, tone: 'text-violet-600' },
+      { testId: 'dashboard-kpi-influenciadores', label: t('dashboard.kpi.activeCreators'), value: headline?.activeCreators ?? 0, icon: Users, tone: 'text-cyan-600' },
+      { testId: 'dashboard-kpi-entregas-pendentes', label: t('dashboard.kpi.pendingDeliverables'), value: headline?.pendingDeliverables ?? 0, icon: Clock, tone: 'text-amber-600' },
     ]
   }, [overview, t])
 
@@ -108,7 +108,7 @@ export default function Dashboard() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="border-l-4 border-primary pl-5">
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">
+          <h1 data-testid="page-title" className="text-3xl font-bold text-foreground tracking-tight">
             <strong className="text-primary">{greeting}</strong>
           </h1>
           <p className="text-lg text-muted-foreground mt-3 leading-relaxed">
@@ -118,9 +118,10 @@ export default function Dashboard() {
         <div className="flex flex-wrap items-center gap-2">
           {/* <TourButton /> */}
           <div className="flex flex-wrap items-center gap-2" data-tour="dashboard-kpis">
-            {headlineChips.map(({ label, value, icon: Icon, tone }) => (
+            {headlineChips.map(({ testId, label, value, icon: Icon, tone }) => (
               <div
                 key={label}
+                data-testid={testId}
                 className="flex items-center gap-2 rounded-full border border-border/70 bg-muted/30 px-3 py-1.5 text-xs"
               >
                 <Icon className={`h-3.5 w-3.5 ${tone}`} />
