@@ -78,6 +78,7 @@ test.describe('EDIT - entidades principais', () => {
   })
 
   test('cria e edita template de e-mail', async ({ page, expectNoApiFailures }) => {
+    test.skip(true, 'Templates de e-mail foi removido')
     const stamp = Date.now()
     const original = `E2E Template ${stamp}`
     const renamed = `${original} (renomeado)`

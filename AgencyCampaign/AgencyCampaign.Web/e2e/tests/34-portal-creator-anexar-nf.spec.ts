@@ -58,7 +58,7 @@ test.describe('Portal do Creator - upload de NF', () => {
 
     const fc = (label: string) =>
       addCreatorModal.locator(`div.space-y-2:has(> label:text-is("${label}"))`).first()
-    await fc('Creator').locator('button, [role="combobox"]').first().click()
+    await addCreatorModal.getByTestId('form-field-creator').locator('button, [role="combobox"]').first().click()
     // busca pelo creator recem criado
     await page.locator('input[placeholder="Buscar"]').first().fill(creatorName).catch(() => {})
     await page.getByRole('option', { name: new RegExp(creatorName, 'i') }).first().click()

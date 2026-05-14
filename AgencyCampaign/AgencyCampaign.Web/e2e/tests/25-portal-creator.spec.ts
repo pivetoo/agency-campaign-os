@@ -79,7 +79,7 @@ test.describe('Portal do Creator - link de acesso publico', () => {
     await expect(publicPage.getByRole('heading', { name: new RegExp(`Olá, ${creatorName}`, 'i') })).toBeVisible({
       timeout: 15_000,
     })
-    await expect(publicPage.getByText('Portal do creator', { exact: false }).first()).toBeVisible()
+    await expect(publicPage.getByTestId('public-creator-portal-heading').first()).toBeVisible()
     for (const label of ['Início', 'Campanhas', 'Contratos', 'Pagamentos', 'Perfil']) {
       await expect(publicPage.getByRole('link', { name: label }).first()).toBeVisible()
     }

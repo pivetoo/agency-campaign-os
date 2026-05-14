@@ -12,7 +12,7 @@ test.describe('Financeiro - Repasses para creators', () => {
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
     // 1) header
-    await expectPageTitle(page, /Repasses para creators/i, 15_000)
+    await expectPageTitle(page, /Repasses para (creators|influenciadores|influencers)/i, 15_000)
 
     // 2) 4 stats: Pagamentos, Total bruto, Total liquido, Selecionados
     for (const label of ['Pagamentos', 'Total bruto', 'Total líquido', 'Selecionados']) {

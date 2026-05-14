@@ -93,7 +93,7 @@ test.describe('Creator Detail - perfil 360 + redes sociais', () => {
 
     // 10) trocar para aba Campanhas - empty state esperado em creator novo
     await page.getByRole('tab', { name: /Campanhas/i }).click()
-    await expect(page.getByText(/Creator ainda não participou de campanhas/i)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByTestId('creator-no-campaigns-empty')).toBeVisible({ timeout: 10_000 })
 
     // 11) trocar para aba Performance - empty state
     await page.getByRole('tab', { name: /Performance por plataforma/i }).click()

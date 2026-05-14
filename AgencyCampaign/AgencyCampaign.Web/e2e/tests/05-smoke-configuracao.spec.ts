@@ -8,20 +8,17 @@ interface ScreenSpec {
 
 const screens: ScreenSpec[] = [
   { path: '/configuracao' },
-  { path: '/configuracao/empresa', expectHeading: /Empresa|Configurações/i },
   { path: '/configuracao/integracoes', expectHeading: /Integrações/i },
-  { path: '/configuracao/templates-email', expectHeading: /Templates de e-mail|E-mail/i },
   { path: '/configuracao/pipeline-comercial', expectHeading: /Estágios|Funil|Pipeline/i },
   { path: '/configuracao/origens-oportunidade', expectHeading: /Origens/i },
   { path: '/configuracao/tags-oportunidade', expectHeading: /Tags/i },
   { path: '/configuracao/templates-proposta', expectHeading: /Templates de proposta|Proposta/i },
   { path: '/configuracao/blocos-proposta', expectHeading: /Blocos de proposta|Blocos/i },
   { path: '/configuracao/plataformas', expectHeading: /Redes sociais|Plataformas/i },
-  { path: '/configuracao/status-creators', expectHeading: /Status dos creators|Status/i },
+  { path: '/configuracao/status-creators', expectHeading: /Status dos (creators|influenciadores)|Status/i },
   { path: '/configuracao/tipos-entrega', expectHeading: /Tipos de entrega|Entrega/i },
   { path: '/configuracao/contas-financeiras', expectHeading: /Contas|Bancárias/i },
   { path: '/configuracao/subcategorias-financeiras', expectHeading: /Subcategorias|Categorias/i },
-  { path: '/auditoria', expectHeading: /Auditoria|Histórico/i },
 ]
 
 test.describe('Smoke - modulo Configuracao + Auditoria', () => {

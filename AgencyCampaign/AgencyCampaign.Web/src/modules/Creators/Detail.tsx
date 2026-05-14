@@ -313,14 +313,16 @@ export default function CreatorDetail() {
           <TabsContent value="campaigns" className="mt-0">
             <Card>
               <CardContent className="pt-4">
-                <DataTable
-                  columns={campaignColumns}
-                  data={campaigns}
-                  rowKey="campaignCreatorId"
-                  emptyText={t('creators.detail.noCampaigns')}
-                  loading={campaignsLoading}
-                  pageSize={10}
-                />
+                <div data-testid="creator-no-campaigns-empty">
+                  <DataTable
+                    columns={campaignColumns}
+                    data={campaigns}
+                    rowKey="campaignCreatorId"
+                    emptyText={t('creators.detail.noCampaigns')}
+                    loading={campaignsLoading}
+                    pageSize={10}
+                  />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

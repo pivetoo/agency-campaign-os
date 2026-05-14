@@ -15,7 +15,7 @@ test.describe('Configuracao - Templates de documento', () => {
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
     // 1) header
-    await expectPageTitle(page, /Templates de documento/i, 15_000)
+    await expectPageTitle(page, /Templates? de documentos?|Modelos de contrato/i, 15_000)
 
     // 2) cria template
     await crud.add(page).click()

@@ -174,6 +174,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
           {
             key: 'new',
             label: t('financial.entries.action.new'),
+            testId: 'crud-add-button',
             icon: <Trash2 className="h-4 w-4 hidden" />,
             onClick: () => { setSelected(null); setIsFormOpen(true) },
           },

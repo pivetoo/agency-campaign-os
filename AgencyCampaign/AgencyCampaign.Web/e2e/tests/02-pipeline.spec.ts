@@ -55,6 +55,7 @@ test.describe('Pipeline comercial - criar oportunidade e arrastar entre estagios
     const targetStage = allStages[targetIndex]
     const targetColumn = opportunity.stageColumn(page, targetStage)
     await expect(targetColumn).toBeVisible()
+    const targetIndexFinal = targetIndex
 
     // drag-and-drop HTML5 nativo — Playwright dragTo() nao dispara dataTransfer corretamente.
     // Disparamos os eventos manualmente com pausa entre eles para dar tempo ao React de processar
@@ -103,6 +104,9 @@ test.describe('Pipeline comercial - criar oportunidade e arrastar entre estagios
     // recarregar e validar persistencia
     await page.reload()
     await expectPageTitle(page, /Pipeline Comercial/i)
-    await expect(opportunity.stageColumn(page, targetStage).getByText(opportunityName)).toBeVisible({ timeout: 20_000 })
+    // Pos-reload indexamos pela posicao da coluna, pois o data-stage pode
+    // ter sido normalizado/renomeado entre testes (residuo de E2Es anteriores).
+    const reloadedTargetColumn = opportunity.stageColumn(page).nth(targetIndexFinal)
+    await expect(reloadedTargetColumn.getByText(opportunityName)).toBeVisible({ timeout: 20_000 })
   })
 })

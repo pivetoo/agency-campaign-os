@@ -48,6 +48,7 @@ test.describe('CRUD - entidades principais (criar)', () => {
   })
 
   test('cria template de e-mail em /configuracao/templates-email', async ({ page, expectNoApiFailures }) => {
+    test.skip(true, 'Templates de e-mail foi removido')
     const stamp = Date.now()
     const name = `E2E Template ${stamp}`
 

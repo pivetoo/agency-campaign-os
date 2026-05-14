@@ -49,17 +49,18 @@ test.describe('Campanha Detail - abas internas', () => {
     await expect(page.getByRole('heading', { name: new RegExp(campaignName, 'i') })).toBeVisible({ timeout: 15_000 })
 
     // 4) 6 KPIs no card de resumo
-    for (const label of ['Status', 'Budget', 'Creators', 'Entregas', 'Período', 'Objetivo']) {
-      await expect(page.getByText(label, { exact: false }).first()).toBeVisible()
+    for (const label of ['Status', 'Budget', /Creators|Influenciadores/, 'Entregas', 'Período', 'Objetivo']) {
+      const matcher = typeof label === 'string' ? label : label
+      await expect(page.getByText(matcher, { exact: false }).first()).toBeVisible()
     }
 
     // 5) 3 abas
-    for (const label of [/Creators/, /Documentos/, /Entregas/]) {
+    for (const label of [/Creators|Influenciadores/, /Documentos/, /Entregas/]) {
       await expect(page.getByRole('tab', { name: label }).first()).toBeVisible()
     }
 
     // 6) Tab Creators (default)
-    await expect(page.getByText(/Nenhum creator vinculado à campanha/i)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/Nenhum (creator|influenciador) vinculado à campanha/i)).toBeVisible({ timeout: 10_000 })
     await expect(campaign.addCreatorButton(page)).toBeVisible()
 
     // 7) Tab Documentos

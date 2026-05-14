@@ -40,11 +40,11 @@ test.describe('Deliverable publico - aprovacao pela marca', () => {
 
     // 3) adicionar creator
     await campaign.addCreatorButton(page).click()
-    const creatorModal = page.getByRole('dialog').filter({ hasText: /Adicionar creator/i })
+    const creatorModal = page.getByRole('dialog').filter({ hasText: /Adicionar creator|Adicionar influenciador/i })
     await expect(creatorModal).toBeVisible({ timeout: 10_000 })
     const fcCreator = (label: string) =>
       creatorModal.locator(`div.space-y-2:has(> label:text-is("${label}"))`).first()
-    await fcCreator('Creator').locator('button, [role="combobox"]').first().click()
+    await creatorModal.getByTestId('form-field-creator').locator('button, [role="combobox"]').first().click()
     await page.locator('[role="option"]').first().click()
     await fcCreator('Valor combinado').locator('input').first().fill('5000')
     await creatorModal.getByRole('button', { name: /^Salvar$|Adicionar/i }).first().click()

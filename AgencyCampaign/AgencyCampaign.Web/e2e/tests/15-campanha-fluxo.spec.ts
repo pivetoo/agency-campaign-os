@@ -48,7 +48,7 @@ test.describe('Campanha - fluxo operacional (caminho critico)', () => {
       creatorModal.locator(`div.space-y-2:has(> label:text-is("${label}"))`).first()
 
     // creator (primeiro disponivel)
-    await fieldContainerCreator('Creator').locator('button, [role="combobox"]').first().click()
+    await creatorModal.getByTestId('form-field-creator').locator('button, [role="combobox"]').first().click()
     await page.locator('[role="option"]').first().click()
     // valor combinado
     await fieldContainerCreator('Valor combinado').locator('input').first().fill('5000')

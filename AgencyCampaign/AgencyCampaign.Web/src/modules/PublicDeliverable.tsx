@@ -173,7 +173,7 @@ export default function PublicDeliverable() {
               </div>
               {feedback && <p className="text-xs text-muted-foreground">{feedback}</p>}
               <div className="flex gap-2">
-                <Button onClick={() => void submit('approve')} disabled={submitting !== null}>
+                <Button data-testid="public-deliverable-approve-button" onClick={() => void submit('approve')} disabled={submitting !== null}>
                   <CheckCircle2 size={16} className="mr-1.5" />
                   {submitting === 'approve' ? 'Aprovando...' : 'Aprovar'}
                 </Button>

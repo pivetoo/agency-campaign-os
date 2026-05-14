@@ -120,7 +120,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div className="space-y-2" data-testid="form-field-creator">
               <label className="text-sm font-medium">{t('creators.singular')}</label>
               <SearchableSelect
                 value={formData.creatorId ? String(formData.creatorId) : ''}

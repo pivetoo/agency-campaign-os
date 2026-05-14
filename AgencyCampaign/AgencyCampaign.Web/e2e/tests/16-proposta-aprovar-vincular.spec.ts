@@ -82,9 +82,11 @@ test.describe('Proposta - aprovar e vincular a campanha (caminho critico)', () =
     const campanhaTrigger = page.locator(':text("Selecione uma campanha")').first()
     await campanhaTrigger.scrollIntoViewIfNeeded()
     await campanhaTrigger.click()
-    const buscarCamp = page.locator('input[placeholder*="Buscar campanha" i]').first()
-    if (await buscarCamp.count()) await buscarCamp.fill(campaignName)
-    await page.locator('[role="option"]', { hasText: campaignName }).first().click()
+    const buscarCamp = page.locator('input[placeholder*="Buscar" i]').first()
+    if (await buscarCamp.count()) await buscarCamp.fill(campaignName).catch(() => {})
+    const campOption = page.getByRole('option', { name: new RegExp(campaignName, 'i') }).first()
+    await campOption.waitFor({ state: 'visible', timeout: 15_000 })
+    await campOption.click()
 
     await page.getByRole('button', { name: /Converter/i }).first().click()
 

@@ -63,7 +63,7 @@ export default function CreatorPortalLayout() {
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <div>
             <h1 className="text-base font-semibold leading-tight">Olá, {session.creator.stageName ?? session.creator.name}</h1>
-            <p className="text-xs text-muted-foreground">{t('creatorPortal.layout.title')}</p>
+            <p data-testid="public-creator-portal-heading" className="text-xs text-muted-foreground">{t('creatorPortal.layout.title')}</p>
           </div>
           {session.creator.primaryNiche && (
             <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">{session.creator.primaryNiche}</span>
