@@ -44,9 +44,9 @@ function formatCurrencyShort(value: number) {
 
 function buildGreeting(t: (key: string) => string, firstName: string | undefined): string {
   const hour = new Date().getHours()
-  const period = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
+  const period = hour < 5 ? 'dawn' : hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
   const base = t(`dashboard.greeting.${period}`)
-  return firstName ? `${base}, ${firstName}` : base
+  return firstName ? `${base}, ${firstName}!` : `${base}!`
 }
 
 export default function Dashboard() {
