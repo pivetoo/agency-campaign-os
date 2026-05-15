@@ -3,21 +3,16 @@ import type { Notification } from '../types/notification'
 
 const BASE_URL = '/Notifications'
 
-interface PagedResponse<T> {
-  items: T[]
-  pagination: { page: number; pageSize: number; totalItems: number; totalPages: number }
-}
-
 export const notificationService = {
   async getRecent(unreadOnly = false, pageSize = 20, options: { silent?: boolean } = {}): Promise<Notification[]> {
     const params = new URLSearchParams()
     if (unreadOnly) params.append('unreadOnly', 'true')
     params.append('pageSize', String(pageSize))
-    const response = await httpClient.get<PagedResponse<Notification>>(
+    const response = await httpClient.get<Notification[]>(
       `${BASE_URL}/Get?${params.toString()}`,
       { silent: options.silent },
     )
-    return response.data?.items ?? []
+    return response.data ?? []
   },
 
   async getUnreadCount(options: { silent?: boolean } = {}): Promise<number> {
