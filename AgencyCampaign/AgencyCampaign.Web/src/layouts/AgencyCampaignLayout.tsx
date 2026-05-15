@@ -7,7 +7,6 @@ import { profileApiService } from '../services/profileApiService'
 import type { Notification } from '../types/notification'
 import { TourProvider, useTour } from '../components/tour/TourContext'
 import ProductTour from '../components/tour/ProductTour'
-import WhatsAppChatWidget from '../components/WhatsAppChatWidget'
 
 function TourMount() {
   const { isOpen, closeTour } = useTour()
@@ -271,7 +270,6 @@ export default function AgencyCampaignLayout() {
         <Outlet />
       </AppLayout>
       <TourMount />
-      <WhatsAppChatWidget />
     </TourProvider>
   )
 }

@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { PageLayout, Card, CardContent, Button, Input, SearchableSelect, useApi, useI18n } from 'archon-ui'
-import { ImagePlus, MessageCircle, Trash2 } from 'lucide-react'
+import { PageLayout, Card, CardContent, Button, Input, useApi, useI18n } from 'archon-ui'
+import { ImagePlus, Trash2 } from 'lucide-react'
 import { agencySettingsService, resolveAgencyLogoUrl } from '../../../services/agencySettingsService'
-import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import type { AgencySettings } from '../../../types/agencySettings'
-import type { Connector } from '../../../types/integrationPlatform'
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
 const MAX_BYTES = 2 * 1024 * 1024
@@ -20,11 +18,6 @@ export default function AgencyConfiguration() {
   const [primaryEmail, setPrimaryEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
-
-  const [whatsAppConnectorId, setWhatsAppConnectorId] = useState<number | null>(null)
-  const [connectors, setConnectors] = useState<Connector[]>([])
-  const [loadingConnectors, setLoadingConnectors] = useState(false)
-  const [savingWhatsApp, setSavingWhatsApp] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [logoError, setLogoError] = useState<string | null>(null)
@@ -45,25 +38,11 @@ export default function AgencyConfiguration() {
       setPrimaryEmail(result.primaryEmail ?? '')
       setPhone(result.phone ?? '')
       setAddress(result.address ?? '')
-      setWhatsAppConnectorId(result.whatsAppConnectorId ?? null)
-    }
-  }
-
-  const loadConnectors = async () => {
-    setLoadingConnectors(true)
-    try {
-      const result = await integrationPlatformService.getActiveConnectors()
-      setConnectors(result)
-    } catch {
-      // silent
-    } finally {
-      setLoadingConnectors(false)
     }
   }
 
   useEffect(() => {
     void load()
-    void loadConnectors()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -100,20 +79,6 @@ export default function AgencyConfiguration() {
     })
 
     if (result) setLogoUrl(result.logoUrl ?? '')
-  }
-
-  const saveWhatsApp = async () => {
-    setSavingWhatsApp(true)
-    try {
-      const result = await agencySettingsService.setWhatsAppConnector(whatsAppConnectorId)
-      if (result.data) {
-        setWhatsAppConnectorId(result.data.whatsAppConnectorId ?? null)
-      }
-    } catch {
-      // erro exibido pelo httpClient
-    } finally {
-      setSavingWhatsApp(false)
-    }
   }
 
   const submit = async (event: React.FormEvent) => {
@@ -241,48 +206,6 @@ export default function AgencyConfiguration() {
           </Button>
         </div>
       </form>
-
-      <Card>
-        <CardContent className="pt-5 pb-5 space-y-4">
-          <div className="flex items-center gap-2">
-            <MessageCircle size={16} className="text-[#25D366]" />
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">WhatsApp Inbox</h3>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Selecione o conector ativo que representa o número de WhatsApp da agência. Mensagens recebidas por esse número aparecerão no widget de inbox.
-          </p>
-          <div className="flex items-end gap-3">
-            <div className="flex-1 space-y-1.5">
-              <label className="text-sm font-medium">Conector WhatsApp</label>
-              <SearchableSelect
-                options={[
-                  { value: '', label: 'Nenhum (desativado)' },
-                  ...connectors.map((c) => ({ value: String(c.id), label: c.name })),
-                ]}
-                value={whatsAppConnectorId ? String(whatsAppConnectorId) : ''}
-                onValueChange={(value) => setWhatsAppConnectorId(value ? Number(value) : null)}
-                placeholder={loadingConnectors ? 'Carregando conectores...' : 'Nenhum (desativado)'}
-              />
-            </div>
-            <Button
-              type="button"
-              onClick={() => void saveWhatsApp()}
-              disabled={savingWhatsApp || loadingConnectors}
-            >
-              {savingWhatsApp ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </div>
-          {!loadingConnectors && connectors.length === 0 && (
-            <p className="text-xs text-muted-foreground">
-              Nenhum conector ativo encontrado. Cadastre e ative um conector WhatsApp em{' '}
-              <a href="/configuracao/integracoes" className="underline underline-offset-2 hover:text-foreground">
-                Integrações
-              </a>
-              .
-            </p>
-          )}
-        </CardContent>
-      </Card>
     </PageLayout>
   )
 }

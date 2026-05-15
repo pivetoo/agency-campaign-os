@@ -67,10 +67,6 @@ export const agencySettingsService = {
   deleteProposalTemplateVersion(id: number) {
     return httpClient.delete<unknown>(`${BASE_URL}/DeleteProposalTemplateVersion?id=${id}`)
   },
-
-  setWhatsAppConnector(connectorId: number | null) {
-    return httpClient.put<AgencySettings>(`${BASE_URL}/SetWhatsAppConnector`, { connectorId })
-  },
 }
 
 export interface ProposalLayout {

@@ -22,8 +22,6 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? ProposalHtmlTemplate { get; private set; }
 
-        public long? WhatsAppConnectorId { get; private set; }
-
         private AgencySettings()
         {
         }
@@ -56,11 +54,6 @@ namespace AgencyCampaign.Domain.Entities
         public void SetProposalHtmlTemplate(string? template)
         {
             ProposalHtmlTemplate = string.IsNullOrWhiteSpace(template) ? null : template.Trim();
-        }
-
-        public void SetWhatsAppConnector(long? connectorId)
-        {
-            WhatsAppConnectorId = connectorId > 0 ? connectorId : null;
         }
 
         private static string? Normalize(string? value)
