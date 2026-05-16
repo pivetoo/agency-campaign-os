@@ -271,7 +271,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             string? tenantId = integration.GetParameter("TenantId");
-            string? apiKey = integration.GetParameter("ApiKey") ?? integration.GetParameter("IntegrationSecret");
+            string? apiKey = integration.GetParameter("ApiKey");
             if (string.IsNullOrWhiteSpace(apiKey))
             {
                 Console.WriteLine("IntegrationPlatformClient: integration 'integration-platform' is configured without ApiKey.");
