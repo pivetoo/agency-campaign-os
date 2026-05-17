@@ -29,6 +29,6 @@ export const auditService = {
   },
 
   getById(auditEntryId: number): Promise<ApiResponse<AuditEntry>> {
-    return httpClient.get<AuditEntry>(`${BASE_URL}/${auditEntryId}`)
+    return httpClient.get<AuditEntry>(`${BASE_URL}/GetById/${auditEntryId}`)
   },
 }
