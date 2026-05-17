@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Blocks, Sparkles, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush, History } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Blocks, Sparkles, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
@@ -104,10 +104,7 @@ export default function AgencyCampaignLayout() {
     createMenuGroup(t('nav.group.general'), [
       { key: 'dashboard', label: t('nav.item.dashboard'), path: '/', icon: <LayoutDashboard size={20} /> },
       ...(isRoot
-        ? [
-            { key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> },
-            { key: 'auditoria', label: t('nav.item.audit'), path: '/auditoria', icon: <History size={20} /> },
-          ]
+        ? [{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> }]
         : []),
     ]),
     createMenuGroup(t('nav.group.commercial'), [
@@ -213,7 +210,6 @@ export default function AgencyCampaignLayout() {
       '/configuracao/subcategorias-financeiras': t('nav.item.financialSubcategories'),
       '/configuracao/empresa': t('nav.item.agency'),
       '/operacao/aprovacoes': t('nav.item.approvals'),
-      '/auditoria': t('nav.item.audit'),
     }
 
     const currentLabel = routeMap[path]

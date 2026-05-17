@@ -42,7 +42,6 @@ import FinancialAccounts from '../modules/Configuration/FinancialAccounts'
 import FinancialSubcategories from '../modules/Configuration/FinancialSubcategories'
 import AgencyConfiguration from '../modules/Configuration/Agency'
 import ProposalTemplateEditor from '../modules/Configuration/ProposalTemplate'
-import Audit from '../modules/Audit'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -124,7 +123,6 @@ function AppRoutes() {
           <Route path="configuracao" element={<AgencyConfiguration />} />
           <Route path="configuracao/template-proposta" element={<ProposalTemplateEditor />} />
           <Route path="usuarios" element={<UsersManagementPage />} />
-          <Route path="auditoria" element={<Audit />} />
         </Route>
 
         <Route path="*" element={<div>Página não encontrada</div>} />

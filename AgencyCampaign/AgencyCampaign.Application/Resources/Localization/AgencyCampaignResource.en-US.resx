@@ -131,7 +131,6 @@
   <data name="nav.group.finance" xml:space="preserve"><value>Finance</value></data>
   <data name="nav.item.dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="nav.item.users" xml:space="preserve"><value>Access Control</value></data>
-  <data name="nav.item.audit" xml:space="preserve"><value>Audit</value></data>
   <data name="nav.item.pipeline" xml:space="preserve"><value>Pipeline</value></data>
   <data name="nav.item.opportunities" xml:space="preserve"><value>Opportunities</value></data>
   <data name="nav.item.proposals" xml:space="preserve"><value>Proposals</value></data>
