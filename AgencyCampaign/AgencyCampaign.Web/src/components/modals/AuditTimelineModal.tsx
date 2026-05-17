@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
   Badge,
   useApi,
 } from 'archon-ui'
@@ -12,7 +12,7 @@ import { ChevronDown, ChevronRight, FilePlus, FileX, Pencil, History, Loader2 } 
 import { auditService } from '../../services/auditService'
 import { AuditActionValue, type AuditAction, type AuditEntry, type AuditPropertyChange } from '../../types/audit'
 
-interface AuditTimelineSheetProps {
+interface AuditTimelineModalProps {
   entityName: string
   entityId: string | number | null
   entityLabel?: string
@@ -20,10 +20,10 @@ interface AuditTimelineSheetProps {
   onClose: () => void
 }
 
-const actionMeta: Record<AuditAction, { label: string; variant: 'success' | 'secondary' | 'destructive'; icon: typeof FilePlus }> = {
-  [AuditActionValue.Insert]: { label: 'Criado', variant: 'success', icon: FilePlus },
-  [AuditActionValue.Update]: { label: 'Atualizado', variant: 'secondary', icon: Pencil },
-  [AuditActionValue.Delete]: { label: 'Excluído', variant: 'destructive', icon: FileX },
+const actionMeta: Record<AuditAction, { label: string; variant: 'success' | 'secondary' | 'destructive'; icon: typeof FilePlus; iconClass: string }> = {
+  [AuditActionValue.Insert]: { label: 'Criado', variant: 'success', icon: FilePlus, iconClass: 'bg-success/15 text-success' },
+  [AuditActionValue.Update]: { label: 'Atualizado', variant: 'secondary', icon: Pencil, iconClass: 'bg-primary/15 text-primary' },
+  [AuditActionValue.Delete]: { label: 'Excluído', variant: 'destructive', icon: FileX, iconClass: 'bg-destructive/15 text-destructive' },
 }
 
 function formatDate(value: string): string {
@@ -68,7 +68,7 @@ function EntryRow({ entry, expanded, loadingDetail, detail, onToggle }: EntryRow
         onClick={onToggle}
         className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30"
       >
-        <div className={`mt-0.5 rounded-md p-1.5 ${meta.variant === 'success' ? 'bg-success/15 text-success' : meta.variant === 'destructive' ? 'bg-destructive/15 text-destructive' : 'bg-primary/15 text-primary'}`}>
+        <div className={`mt-0.5 rounded-md p-1.5 ${meta.iconClass}`}>
           <Icon className="h-3.5 w-3.5" />
         </div>
         <div className="min-w-0 flex-1">
@@ -126,7 +126,7 @@ function EntryRow({ entry, expanded, loadingDetail, detail, onToggle }: EntryRow
   )
 }
 
-export default function AuditTimelineSheet({ entityName, entityId, entityLabel, open, onClose }: AuditTimelineSheetProps) {
+export default function AuditTimelineModal({ entityName, entityId, entityLabel, open, onClose }: AuditTimelineModalProps) {
   const [entries, setEntries] = useState<AuditEntry[]>([])
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [detailsCache, setDetailsCache] = useState<Record<number, AuditEntry>>({})
@@ -166,19 +166,19 @@ export default function AuditTimelineSheet({ entityName, entityId, entityLabel, 
   }
 
   return (
-    <Sheet open={open} onOpenChange={(v) => { if (!v) onClose() }}>
-      <SheetContent side="right" className="w-full sm:max-w-xl">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
+    <Modal open={open} onOpenChange={(v) => { if (!v) onClose() }}>
+      <ModalContent size="3xl" className="max-h-[85vh]">
+        <ModalHeader>
+          <ModalTitle className="flex items-center gap-2">
             <History className="h-4 w-4 text-primary" />
             Auditoria{entityLabel ? ` · ${entityLabel}` : ''}{entityId !== null ? ` #${entityId}` : ''}
-          </SheetTitle>
-          <SheetDescription>
+          </ModalTitle>
+          <ModalDescription>
             Histórico completo de alterações deste registro. Clique numa entrada para ver o diff campo a campo.
-          </SheetDescription>
-        </SheetHeader>
+          </ModalDescription>
+        </ModalHeader>
 
-        <div className="mt-4 space-y-2 overflow-y-auto pb-4">
+        <div className="-mx-1 mt-2 max-h-[60vh] space-y-2 overflow-y-auto px-1 pb-2">
           {loading ? (
             <div className="flex items-center justify-center gap-2 rounded-md border border-dashed p-8 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" /> Carregando histórico…
@@ -200,7 +200,7 @@ export default function AuditTimelineSheet({ entityName, entityId, entityLabel, 
             ))
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </ModalContent>
+    </Modal>
   )
 }

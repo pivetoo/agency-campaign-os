@@ -7,7 +7,8 @@ import { brandService, resolveBrandLogoUrl } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
 import BrandFormModal from '../../components/modals/BrandFormModal'
 import BrandImportModal from '../../components/modals/BrandImportModal'
-import AuditTimelineSheet from '../../components/sheets/AuditTimelineSheet'
+import AuditTimelineModal from '../../components/modals/AuditTimelineModal'
+import type { PageAction } from 'archon-ui'
 
 export default function Brands() {
   const { t } = useI18n()
@@ -129,12 +130,24 @@ export default function Brands() {
     </Dropdown>
   )
 
+  const extraActions: PageAction[] = isRoot
+    ? [{
+        key: 'audit',
+        label: 'Auditoria',
+        icon: <History className="h-4 w-4" />,
+        variant: 'outline',
+        onClick: () => selectedBrand && setAuditBrandId(selectedBrand.id),
+        disabled: !selectedBrand,
+      }]
+    : []
+
   return (
     <>
       <PageLayout
         title={t('brands.title')}
         subtitle={t('brands.subtitle')}
         actionsSlot={excelButton}
+        actions={extraActions}
         onAdd={() => { setSelectedBrand(null); setIsFormOpen(true) }}
         onEdit={() => selectedBrand && setIsFormOpen(true)}
         onRefresh={() => void loadBrands()}
@@ -210,16 +223,6 @@ export default function Brands() {
                     <Badge variant={previewBrand.isActive ? 'success' : 'destructive'}>
                       {previewBrand.isActive ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}
                     </Badge>
-                    {isRoot ? (
-                      <button
-                        type="button"
-                        onClick={() => setAuditBrandId(previewBrand.id)}
-                        className="inline-flex items-center gap-1 rounded-md border border-primary/30 px-2 py-0.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
-                      >
-                        <History size={12} />
-                        Auditoria
-                      </button>
-                    ) : null}
                   </>
                 }
                 description={t('brands.preview.description')}
@@ -242,7 +245,7 @@ export default function Brands() {
         </SheetContent>
       </Sheet>
 
-      <AuditTimelineSheet
+      <AuditTimelineModal
         entityName="Brand"
         entityLabel="Marca"
         entityId={auditBrandId}
