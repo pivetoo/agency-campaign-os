@@ -130,7 +130,7 @@
   <data name="nav.group.operations" xml:space="preserve"><value>Operación</value></data>
   <data name="nav.group.finance" xml:space="preserve"><value>Finanzas</value></data>
   <data name="nav.item.dashboard" xml:space="preserve"><value>Dashboard</value></data>
-  <data name="nav.item.users" xml:space="preserve"><value>Usuarios</value></data>
+  <data name="nav.item.users" xml:space="preserve"><value>Control de Acceso</value></data>
   <data name="nav.item.pipeline" xml:space="preserve"><value>Pipeline</value></data>
   <data name="nav.item.opportunities" xml:space="preserve"><value>Oportunidades</value></data>
   <data name="nav.item.proposals" xml:space="preserve"><value>Propuestas</value></data>
