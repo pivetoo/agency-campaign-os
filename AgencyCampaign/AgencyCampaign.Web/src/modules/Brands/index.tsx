@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, DataTable, Badge, FilterPanel, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, TableToolbar, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
+import { PageLayout, DataTable, Badge, FilterPanel, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, TableToolbar, useI18n, usePermissions, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { FileSpreadsheet, Download, Upload } from 'lucide-react'
+import { FileSpreadsheet, Download, Upload, History } from 'lucide-react'
 
 import { brandService, resolveBrandLogoUrl } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
 import BrandFormModal from '../../components/modals/BrandFormModal'
 import BrandImportModal from '../../components/modals/BrandImportModal'
+import AuditTimelineSheet from '../../components/sheets/AuditTimelineSheet'
 
 export default function Brands() {
   const { t } = useI18n()
+  const { isRoot } = usePermissions()
   const [brands, setBrands] = useState<Brand[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -20,6 +22,7 @@ export default function Brands() {
   const [previewBrand, setPreviewBrand] = useState<Brand | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
+  const [auditBrandId, setAuditBrandId] = useState<number | null>(null)
   const { execute: fetchBrands, loading, pagination } = useApi<Brand[]>({ showErrorMessage: true })
 
   const loadBrands = async () => {
@@ -203,9 +206,21 @@ export default function Brands() {
               <SheetPreviewHeader
                 title={previewBrand.name}
                 meta={
-                  <Badge variant={previewBrand.isActive ? 'success' : 'destructive'}>
-                    {previewBrand.isActive ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}
-                  </Badge>
+                  <>
+                    <Badge variant={previewBrand.isActive ? 'success' : 'destructive'}>
+                      {previewBrand.isActive ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}
+                    </Badge>
+                    {isRoot ? (
+                      <button
+                        type="button"
+                        onClick={() => setAuditBrandId(previewBrand.id)}
+                        className="inline-flex items-center gap-1 rounded-md border border-primary/30 px-2 py-0.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+                      >
+                        <History size={12} />
+                        Auditoria
+                      </button>
+                    ) : null}
+                  </>
                 }
                 description={t('brands.preview.description')}
               />
@@ -226,6 +241,14 @@ export default function Brands() {
           ) : null}
         </SheetContent>
       </Sheet>
+
+      <AuditTimelineSheet
+        entityName="Brand"
+        entityLabel="Marca"
+        entityId={auditBrandId}
+        open={auditBrandId !== null}
+        onClose={() => setAuditBrandId(null)}
+      />
     </>
   )
 }
