@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, ConfirmModal, Switch, TableToolbar, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, Card, CardContent, ConfirmModal, Switch, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Power, PowerOff, Trash2 } from 'lucide-react'
 import { financialAccountService } from '../../../services/financialAccountService'
-import { financialAccountTypeLabels, type FinancialAccount } from '../../../types/financialAccount'
+import {
+  FinancialAccountSyncStatus,
+  financialAccountTypeLabels,
+  type FinancialAccount,
+  type FinancialAccountSummary,
+  type FinancialAccountSyncStatusValue,
+} from '../../../types/financialAccount'
 import FinancialAccountFormModal from '../../../components/modals/FinancialAccountFormModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 
@@ -11,9 +17,19 @@ function formatCurrency(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
+type BadgeVariant = 'outline' | 'warning' | 'success' | 'destructive'
+
+const SYNC_STATUS_META: Record<FinancialAccountSyncStatusValue, { variant: BadgeVariant; labelKey: string }> = {
+  [FinancialAccountSyncStatus.NotConfigured]: { variant: 'outline', labelKey: 'configuration.bankAccounts.syncStatus.notConfigured' },
+  [FinancialAccountSyncStatus.Pending]: { variant: 'warning', labelKey: 'configuration.bankAccounts.syncStatus.pending' },
+  [FinancialAccountSyncStatus.Synced]: { variant: 'success', labelKey: 'configuration.bankAccounts.syncStatus.synced' },
+  [FinancialAccountSyncStatus.Error]: { variant: 'destructive', labelKey: 'configuration.bankAccounts.syncStatus.error' },
+}
+
 export default function FinancialAccounts() {
   const { t } = useI18n()
   const [items, setItems] = useState<FinancialAccount[]>([])
+  const [summary, setSummary] = useState<FinancialAccountSummary | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState('')
@@ -24,12 +40,18 @@ export default function FinancialAccounts() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isToggleConfirmOpen, setIsToggleConfirmOpen] = useState(false)
   const { execute: fetchAll, loading, pagination } = useApi<FinancialAccount[]>({ showErrorMessage: true })
+  const { execute: fetchSummary } = useApi<FinancialAccountSummary>({ showErrorMessage: false })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: runToggle, loading: toggling } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
   const load = async () => {
     const result = await fetchAll(() => financialAccountService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive }))
     if (result) setItems(result)
+  }
+
+  const loadSummary = async () => {
+    const result = await fetchSummary(() => financialAccountService.getSummary())
+    if (result) setSummary(result)
   }
 
   useEffect(() => {
@@ -46,13 +68,23 @@ export default function FinancialAccounts() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, debouncedSearch, includeInactive])
 
+  useEffect(() => {
+    void loadSummary()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const refreshList = () => {
+    void load()
+    void loadSummary()
+  }
+
   const handleDelete = async () => {
     if (!selected) return
     const result = await runDelete(() => financialAccountService.delete(selected.id))
     if (result !== null) {
       setSelected(null)
       setIsConfirmOpen(false)
-      void load()
+      refreshList()
     }
   }
 
@@ -72,7 +104,7 @@ export default function FinancialAccounts() {
     if (result !== null) {
       setSelected(null)
       setIsToggleConfirmOpen(false)
-      void load()
+      refreshList()
     }
   }
 
@@ -90,7 +122,21 @@ export default function FinancialAccounts() {
     },
     { key: 'type', title: t('common.field.type'), dataIndex: 'type', render: (value: number) => financialAccountTypeLabels[value] || '-' },
     { key: 'bank', title: t('configuration.bankAccounts.field.bank'), dataIndex: 'bank', render: (value?: string | null) => value || '-' },
-    { key: 'currentBalance', title: t('configuration.bankAccounts.field.currentBalance'), dataIndex: 'currentBalance', render: (value: number) => <span className={value < 0 ? 'text-destructive font-medium' : 'font-medium'}>{formatCurrency(value)}</span> },
+    {
+      key: 'currentBalance',
+      title: t('configuration.bankAccounts.field.currentBalance'),
+      dataIndex: 'currentBalance',
+      render: (value: number) => <span className={value < 0 ? 'text-destructive font-medium' : 'font-medium'}>{formatCurrency(value)}</span>,
+    },
+    {
+      key: 'syncStatus',
+      title: t('configuration.bankAccounts.field.sync'),
+      dataIndex: 'syncStatus',
+      render: (value: FinancialAccountSyncStatusValue) => {
+        const meta = SYNC_STATUS_META[value] ?? SYNC_STATUS_META[FinancialAccountSyncStatus.NotConfigured]
+        return <Badge variant={meta.variant}>{t(meta.labelKey)}</Badge>
+      },
+    },
     {
       key: 'isActive',
       title: t('common.field.status'),
@@ -107,6 +153,10 @@ export default function FinancialAccounts() {
     ? t('configuration.bankAccounts.confirm.deactivate')
     : t('configuration.bankAccounts.confirm.activate')
 
+  const totalAccounts = summary ? summary.activeCount + summary.inactiveCount : 0
+  const accountsWithConnector = summary ? summary.syncedAccountsCount + summary.pendingSyncAccountsCount + summary.erroredSyncAccountsCount : 0
+  const suffixTemplate = t('configuration.bankAccounts.kpi.totalAccountsSuffix')
+
   return (
     <>
       <PageLayout
@@ -114,7 +164,7 @@ export default function FinancialAccounts() {
         subtitle={t('configuration.bankAccounts.subtitle')}
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
-        onRefresh={() => void load()}
+        onRefresh={refreshList}
         actionsSlot={<AuditUtilityBar entityName="FinancialAccount" entityLabel={t('configuration.bankAccounts.audit.entityLabel')} entityId={selected?.id ?? null} />}
         addLabel={t('configuration.bankAccounts.addLabel')}
         selectedRowsCount={selected ? 1 : 0}
@@ -139,6 +189,35 @@ export default function FinancialAccounts() {
           },
         ]}
       >
+        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-sm text-muted-foreground">{t('configuration.bankAccounts.kpi.activeAccounts')}</div>
+              <div className="mt-1 text-2xl font-semibold">{summary?.activeCount ?? '—'}</div>
+              {summary && (
+                <div className="text-xs text-muted-foreground">{suffixTemplate.replace('{0}', String(totalAccounts))}</div>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-sm text-muted-foreground">{t('configuration.bankAccounts.kpi.totalKanvasBalance')}</div>
+              <div className={`mt-1 text-2xl font-semibold ${summary && summary.totalKanvasBalance < 0 ? 'text-destructive' : 'text-primary'}`}>
+                {summary ? formatCurrency(summary.totalKanvasBalance) : '—'}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-sm text-muted-foreground">{t('configuration.bankAccounts.kpi.syncedAccounts')}</div>
+              <div className="mt-1 text-2xl font-semibold">{summary?.syncedAccountsCount ?? '—'}</div>
+              {summary && accountsWithConnector > 0 && (
+                <div className="text-xs text-muted-foreground">{suffixTemplate.replace('{0}', String(accountsWithConnector))}</div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
         <TableToolbar
           searchValue={search}
           onSearchChange={setSearch}
@@ -194,9 +273,10 @@ export default function FinancialAccounts() {
           setIsFormOpen(false)
           setSelected(null)
           if (page === 1) {
-            void load()
+            refreshList()
           } else {
             setPage(1)
+            void loadSummary()
           }
         }}
       />

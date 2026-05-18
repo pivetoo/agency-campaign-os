@@ -27,6 +27,13 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
+        [RequireAccess("Permite consultar o resumo agregado das contas financeiras.")]
+        [GetEndpoint("[action]")]
+        public async Task<IActionResult> GetSummary(CancellationToken cancellationToken)
+        {
+            return Http200(await service.GetSummary(cancellationToken));
+        }
+
         [RequireAccess("Permite consultar uma conta financeira por id.")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)

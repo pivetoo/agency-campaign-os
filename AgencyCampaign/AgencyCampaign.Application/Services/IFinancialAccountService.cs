@@ -8,6 +8,8 @@ namespace AgencyCampaign.Application.Services
     {
         Task<PagedResult<FinancialAccountModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default);
 
+        Task<FinancialAccountSummaryModel> GetSummary(CancellationToken cancellationToken = default);
+
         Task<FinancialAccountModel?> GetById(long id, CancellationToken cancellationToken = default);
 
         Task<FinancialAccountModel> Create(CreateFinancialAccountRequest request, CancellationToken cancellationToken = default);

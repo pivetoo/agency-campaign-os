@@ -14,6 +14,21 @@ namespace AgencyCampaign.Application.Models.Financial
         public decimal CurrentBalance { get; set; }
         public string Color { get; set; } = "#6366f1";
         public bool IsActive { get; set; }
+        public long? IntegrationConnectorId { get; set; }
+        public decimal? LastSyncedBalance { get; set; }
+        public DateTimeOffset? LastSyncedAt { get; set; }
+        public FinancialAccountSyncStatus SyncStatus { get; set; }
+    }
+
+    public sealed class FinancialAccountSummaryModel
+    {
+        public int ActiveCount { get; set; }
+        public int InactiveCount { get; set; }
+        public decimal TotalKanvasBalance { get; set; }
+        public decimal TotalLastSyncedBalance { get; set; }
+        public int SyncedAccountsCount { get; set; }
+        public int PendingSyncAccountsCount { get; set; }
+        public int ErroredSyncAccountsCount { get; set; }
     }
 
     public sealed class FinancialSummaryModel

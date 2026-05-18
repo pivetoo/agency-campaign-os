@@ -1,6 +1,6 @@
 import { httpClient, buildPaginationQuery } from 'archon-ui'
 import type { ApiResponse } from 'archon-ui'
-import type { FinancialAccount, FinancialAccountTypeValue } from '../types/financialAccount'
+import type { FinancialAccount, FinancialAccountSummary, FinancialAccountTypeValue } from '../types/financialAccount'
 
 const BASE_URL = '/FinancialAccounts'
 
@@ -25,6 +25,10 @@ export const financialAccountService = {
     const searchParam = params?.search ? `${query ? '&' : '?'}search=${encodeURIComponent(params.search)}` : ''
     const inactiveParam = params?.includeInactive ? `${query || searchParam ? '&' : '?'}includeInactive=true` : ''
     return httpClient.get<FinancialAccount[]>(`${BASE_URL}/Get${query}${searchParam}${inactiveParam}`)
+  },
+
+  getSummary(): Promise<ApiResponse<FinancialAccountSummary>> {
+    return httpClient.get<FinancialAccountSummary>(`${BASE_URL}/GetSummary`)
   },
 
   async getById(id: number): Promise<FinancialAccount | null> {

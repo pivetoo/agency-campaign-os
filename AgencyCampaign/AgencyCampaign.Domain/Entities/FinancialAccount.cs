@@ -21,6 +21,14 @@ namespace AgencyCampaign.Domain.Entities
 
         public bool IsActive { get; private set; } = true;
 
+        public long? IntegrationConnectorId { get; private set; }
+
+        public decimal? LastSyncedBalance { get; private set; }
+
+        public DateTimeOffset? LastSyncedAt { get; private set; }
+
+        public FinancialAccountSyncStatus SyncStatus { get; private set; } = FinancialAccountSyncStatus.NotConfigured;
+
         private FinancialAccount()
         {
         }
@@ -52,6 +60,48 @@ namespace AgencyCampaign.Domain.Entities
             Agency = Normalize(agency);
             Number = Normalize(number);
             IsActive = isActive;
+        }
+
+        public void AttachConnector(long connectorId)
+        {
+            if (connectorId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(connectorId));
+            }
+
+            IntegrationConnectorId = connectorId;
+            SyncStatus = FinancialAccountSyncStatus.Pending;
+        }
+
+        public void DetachConnector()
+        {
+            IntegrationConnectorId = null;
+            LastSyncedBalance = null;
+            LastSyncedAt = null;
+            SyncStatus = FinancialAccountSyncStatus.NotConfigured;
+        }
+
+        public void MarkSynced(decimal balance, DateTimeOffset syncedAt)
+        {
+            LastSyncedBalance = balance;
+            LastSyncedAt = syncedAt;
+            SyncStatus = FinancialAccountSyncStatus.Synced;
+        }
+
+        public void MarkSyncError(DateTimeOffset failedAt)
+        {
+            LastSyncedAt = failedAt;
+            SyncStatus = FinancialAccountSyncStatus.Error;
+        }
+
+        public void MarkSyncPending()
+        {
+            if (IntegrationConnectorId is null)
+            {
+                throw new InvalidOperationException("financialAccount.sync.cannotPendWithoutConnector");
+            }
+
+            SyncStatus = FinancialAccountSyncStatus.Pending;
         }
 
         private static string? Normalize(string? value)

@@ -973,7 +973,18 @@
   <data name="configuration.bankAccounts.empty" xml:space="preserve"><value>No hay cuentas registradas</value></data>
   <data name="configuration.bankAccounts.confirm.delete" xml:space="preserve"><value>¿Eliminar la cuenta "{0}"? Si hay movimientos, prefiera desactivar.</value></data>
   <data name="configuration.bankAccounts.field.bank" xml:space="preserve"><value>Banco</value></data>
-  <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Saldo actual</value></data>
+  <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Saldo Kanvas</value></data>
+  <data name="configuration.bankAccounts.field.sync" xml:space="preserve"><value>Sincronización</value></data>
+  <data name="configuration.bankAccounts.field.lastSyncedBalance" xml:space="preserve"><value>Saldo bancario</value></data>
+  <data name="configuration.bankAccounts.field.lastSyncedAt" xml:space="preserve"><value>Última sincronización</value></data>
+  <data name="configuration.bankAccounts.syncStatus.notConfigured" xml:space="preserve"><value>No configurado</value></data>
+  <data name="configuration.bankAccounts.syncStatus.pending" xml:space="preserve"><value>Pendiente</value></data>
+  <data name="configuration.bankAccounts.syncStatus.synced" xml:space="preserve"><value>Sincronizado</value></data>
+  <data name="configuration.bankAccounts.syncStatus.error" xml:space="preserve"><value>Error</value></data>
+  <data name="configuration.bankAccounts.kpi.activeAccounts" xml:space="preserve"><value>Cuentas activas</value></data>
+  <data name="configuration.bankAccounts.kpi.totalKanvasBalance" xml:space="preserve"><value>Saldo Kanvas total</value></data>
+  <data name="configuration.bankAccounts.kpi.syncedAccounts" xml:space="preserve"><value>Sincronizadas</value></data>
+  <data name="configuration.bankAccounts.kpi.totalAccountsSuffix" xml:space="preserve"><value>de {0} total</value></data>
   <data name="configuration.bankAccounts.addLabel" xml:space="preserve"><value>Nueva cuenta</value></data>
   <data name="configuration.bankAccounts.filter.includeInactive" xml:space="preserve"><value>Incluir inactivas</value></data>
   <data name="configuration.bankAccounts.audit.entityLabel" xml:space="preserve"><value>Cuenta financiera</value></data>

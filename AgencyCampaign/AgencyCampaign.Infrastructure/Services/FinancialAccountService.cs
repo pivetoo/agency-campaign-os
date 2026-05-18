@@ -63,7 +63,11 @@ namespace AgencyCampaign.Infrastructure.Services
                     InitialBalance = account.InitialBalance,
                     CurrentBalance = account.InitialBalance + received - paid,
                     Color = account.Color,
-                    IsActive = account.IsActive
+                    IsActive = account.IsActive,
+                    IntegrationConnectorId = account.IntegrationConnectorId,
+                    LastSyncedBalance = account.LastSyncedBalance,
+                    LastSyncedAt = account.LastSyncedAt,
+                    SyncStatus = account.SyncStatus
                 };
             }).ToArray();
 
@@ -71,6 +75,40 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 Items = items,
                 Pagination = paged.Pagination
+            };
+        }
+
+        public async Task<FinancialAccountSummaryModel> GetSummary(CancellationToken cancellationToken = default)
+        {
+            List<FinancialAccount> accounts = await dbContext.Set<FinancialAccount>()
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            List<long> activeAccountIds = accounts.Where(item => item.IsActive).Select(item => item.Id).ToList();
+
+            var balances = await dbContext.Set<FinancialEntry>()
+                .AsNoTracking()
+                .Where(item => activeAccountIds.Contains(item.AccountId) && item.Status == FinancialEntryStatus.Paid)
+                .GroupBy(item => new { item.AccountId, item.Type })
+                .Select(group => new { group.Key.AccountId, group.Key.Type, Total = group.Sum(item => item.Amount) })
+                .ToListAsync(cancellationToken);
+
+            decimal totalKanvas = accounts.Where(item => item.IsActive).Sum(account =>
+            {
+                decimal received = balances.Where(b => b.AccountId == account.Id && b.Type == FinancialEntryType.Receivable).Sum(b => b.Total);
+                decimal paid = balances.Where(b => b.AccountId == account.Id && b.Type == FinancialEntryType.Payable).Sum(b => b.Total);
+                return account.InitialBalance + received - paid;
+            });
+
+            return new FinancialAccountSummaryModel
+            {
+                ActiveCount = accounts.Count(item => item.IsActive),
+                InactiveCount = accounts.Count(item => !item.IsActive),
+                TotalKanvasBalance = totalKanvas,
+                TotalLastSyncedBalance = accounts.Where(item => item.IsActive && item.LastSyncedBalance.HasValue).Sum(item => item.LastSyncedBalance!.Value),
+                SyncedAccountsCount = accounts.Count(item => item.IsActive && item.SyncStatus == FinancialAccountSyncStatus.Synced),
+                PendingSyncAccountsCount = accounts.Count(item => item.IsActive && item.SyncStatus == FinancialAccountSyncStatus.Pending),
+                ErroredSyncAccountsCount = accounts.Count(item => item.IsActive && item.SyncStatus == FinancialAccountSyncStatus.Error)
             };
         }
 
@@ -106,7 +144,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 InitialBalance = account.InitialBalance,
                 CurrentBalance = account.InitialBalance + received - paid,
                 Color = account.Color,
-                IsActive = account.IsActive
+                IsActive = account.IsActive,
+                IntegrationConnectorId = account.IntegrationConnectorId,
+                LastSyncedBalance = account.LastSyncedBalance,
+                LastSyncedAt = account.LastSyncedAt,
+                SyncStatus = account.SyncStatus
             };
         }
 

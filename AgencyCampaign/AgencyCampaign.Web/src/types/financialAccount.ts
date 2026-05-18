@@ -14,6 +14,15 @@ export const financialAccountTypeLabels: Record<number, string> = {
   4: 'Cartão de crédito',
 }
 
+export const FinancialAccountSyncStatus = {
+  NotConfigured: 0,
+  Pending: 1,
+  Synced: 2,
+  Error: 3,
+} as const
+
+export type FinancialAccountSyncStatusValue = (typeof FinancialAccountSyncStatus)[keyof typeof FinancialAccountSyncStatus]
+
 export interface FinancialAccount {
   id: number
   name: string
@@ -25,4 +34,18 @@ export interface FinancialAccount {
   currentBalance: number
   color: string
   isActive: boolean
+  integrationConnectorId?: number | null
+  lastSyncedBalance?: number | null
+  lastSyncedAt?: string | null
+  syncStatus: FinancialAccountSyncStatusValue
+}
+
+export interface FinancialAccountSummary {
+  activeCount: number
+  inactiveCount: number
+  totalKanvasBalance: number
+  totalLastSyncedBalance: number
+  syncedAccountsCount: number
+  pendingSyncAccountsCount: number
+  erroredSyncAccountsCount: number
 }

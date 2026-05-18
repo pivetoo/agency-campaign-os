@@ -973,7 +973,18 @@
   <data name="configuration.bankAccounts.empty" xml:space="preserve"><value>No accounts registered</value></data>
   <data name="configuration.bankAccounts.confirm.delete" xml:space="preserve"><value>Delete account "{0}"? If there are entries, prefer to deactivate.</value></data>
   <data name="configuration.bankAccounts.field.bank" xml:space="preserve"><value>Bank</value></data>
-  <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Current balance</value></data>
+  <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Kanvas balance</value></data>
+  <data name="configuration.bankAccounts.field.sync" xml:space="preserve"><value>Sync</value></data>
+  <data name="configuration.bankAccounts.field.lastSyncedBalance" xml:space="preserve"><value>Bank balance</value></data>
+  <data name="configuration.bankAccounts.field.lastSyncedAt" xml:space="preserve"><value>Last sync</value></data>
+  <data name="configuration.bankAccounts.syncStatus.notConfigured" xml:space="preserve"><value>Not configured</value></data>
+  <data name="configuration.bankAccounts.syncStatus.pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="configuration.bankAccounts.syncStatus.synced" xml:space="preserve"><value>Synced</value></data>
+  <data name="configuration.bankAccounts.syncStatus.error" xml:space="preserve"><value>Error</value></data>
+  <data name="configuration.bankAccounts.kpi.activeAccounts" xml:space="preserve"><value>Active accounts</value></data>
+  <data name="configuration.bankAccounts.kpi.totalKanvasBalance" xml:space="preserve"><value>Total Kanvas balance</value></data>
+  <data name="configuration.bankAccounts.kpi.syncedAccounts" xml:space="preserve"><value>Synced</value></data>
+  <data name="configuration.bankAccounts.kpi.totalAccountsSuffix" xml:space="preserve"><value>of {0} total</value></data>
   <data name="configuration.bankAccounts.addLabel" xml:space="preserve"><value>New account</value></data>
   <data name="configuration.bankAccounts.filter.includeInactive" xml:space="preserve"><value>Include inactive</value></data>
   <data name="configuration.bankAccounts.audit.entityLabel" xml:space="preserve"><value>Financial account</value></data>
