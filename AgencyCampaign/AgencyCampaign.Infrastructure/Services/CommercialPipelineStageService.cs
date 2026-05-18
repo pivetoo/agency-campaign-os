@@ -12,11 +12,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CommercialPipelineStageService : CrudService<CommercialPipelineStage>, ICommercialPipelineStageService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public CommercialPipelineStageService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public CommercialPipelineStageService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<CommercialPipelineStage>> GetStages(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -74,7 +72,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             CommercialPipelineStage? stage = await DbContext.Set<CommercialPipelineStage>()
@@ -83,7 +81,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (stage is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             await EnsureInitialStageRules(request.IsInitial, stage.Id, cancellationToken);
@@ -111,7 +109,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (anotherInitialExists)
             {
-                throw new InvalidOperationException(localizer["commercialPipelineStage.initial.duplicate"]);
+                throw new InvalidOperationException("commercialPipelineStage.initial.duplicate");
             }
         }
     }

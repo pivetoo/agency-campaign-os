@@ -13,13 +13,11 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICurrentUser currentUser;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public ProposalShareLinkService(DbContext dbContext, ICurrentUser currentUser, IStringLocalizer<AgencyCampaignResource> localizer)
+        public ProposalShareLinkService(DbContext dbContext, ICurrentUser currentUser)
         {
             this.dbContext = dbContext;
             this.currentUser = currentUser;
-            this.localizer = localizer;
         }
 
         public async Task<IReadOnlyCollection<ProposalShareLinkModel>> GetByProposalId(long proposalId, CancellationToken cancellationToken = default)
@@ -70,7 +68,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (shareLink is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             shareLink.Revoke();
@@ -87,7 +85,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 

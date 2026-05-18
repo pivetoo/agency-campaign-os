@@ -15,12 +15,10 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CreatorPaymentService : CrudService<CreatorPayment>, ICreatorPaymentService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly IntegrationPlatformClient integrationPlatformClient;
 
-        public CreatorPaymentService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IntegrationPlatformClient integrationPlatformClient) : base(dbContext)
+        public CreatorPaymentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient) : base(dbContext)
         {
-            this.localizer = localizer;
             this.integrationPlatformClient = integrationPlatformClient;
         }
 
@@ -63,7 +61,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (campaignCreator is null || campaignCreator.Creator is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             CreatorPayment payment = new(
@@ -112,7 +110,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             CreatorPayment? payment = await DbContext.Set<CreatorPayment>()
@@ -122,7 +120,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (payment is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             payment.Update(request.GrossAmount, request.Discounts, request.Method, request.Description);
@@ -146,7 +144,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (payment is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             payment.AttachInvoice(request.InvoiceNumber, request.InvoiceUrl, request.IssuedAt);
@@ -170,7 +168,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (payment is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             if (!string.IsNullOrWhiteSpace(request.Provider) && !string.IsNullOrWhiteSpace(request.ProviderTransactionId))
@@ -199,7 +197,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (payment is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             payment.Cancel();
@@ -228,7 +226,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (payments.Count == 0)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             List<CreatorPayment> processed = [];
@@ -299,7 +297,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (payment is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             DateTimeOffset occurredAt = request.OccurredAt ?? DateTimeOffset.UtcNow;

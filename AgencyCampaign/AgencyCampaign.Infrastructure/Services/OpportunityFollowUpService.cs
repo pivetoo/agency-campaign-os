@@ -12,11 +12,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class OpportunityFollowUpService : CrudService<OpportunityFollowUp>, IOpportunityFollowUpService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public OpportunityFollowUpService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public OpportunityFollowUpService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<OpportunityFollowUp?> GetOpportunityFollowUpById(long id, CancellationToken cancellationToken = default)
@@ -53,7 +51,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (followUp is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             followUp.Update(request.Subject, request.DueAt, request.Notes);
@@ -75,7 +73,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (followUp is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             followUp.Complete();
@@ -97,7 +95,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (followUp is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             await Delete([followUp], cancellationToken);
@@ -167,7 +165,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
     }

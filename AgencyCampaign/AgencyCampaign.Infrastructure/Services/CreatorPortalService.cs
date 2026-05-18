@@ -12,13 +12,11 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICreatorAccessTokenService accessTokenService;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public CreatorPortalService(DbContext dbContext, ICreatorAccessTokenService accessTokenService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public CreatorPortalService(DbContext dbContext, ICreatorAccessTokenService accessTokenService)
         {
             this.dbContext = dbContext;
             this.accessTokenService = accessTokenService;
-            this.localizer = localizer;
         }
 
         public async Task<CreatorPortalContext> ResolveContext(string token, CancellationToken cancellationToken = default)
@@ -26,7 +24,7 @@ namespace AgencyCampaign.Infrastructure.Services
             CreatorAccessToken? accessToken = await accessTokenService.ValidateToken(token, cancellationToken);
             if (accessToken is null || accessToken.Creator is null)
             {
-                throw new InvalidOperationException(localizer["creatorPortal.token.invalid"]);
+                throw new InvalidOperationException("creatorPortal.token.invalid");
             }
             return new CreatorPortalContext(accessToken.Creator, accessToken);
         }
@@ -74,7 +72,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (creator is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             creator.Update(
@@ -105,7 +103,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (payment is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             payment.AttachInvoice(request.InvoiceNumber, request.InvoiceUrl, request.IssuedAt);

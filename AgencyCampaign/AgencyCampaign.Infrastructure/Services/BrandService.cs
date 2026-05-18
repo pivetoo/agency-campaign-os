@@ -13,11 +13,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class BrandService : CrudService<Brand>, IBrandService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public BrandService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public BrandService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<Brand>> GetBrands(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -61,7 +59,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             Brand? brand = await DbContext.Set<Brand>()
@@ -70,7 +68,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (brand is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             brand.Update(request.Name, request.TradeName, request.Document, request.ContactName, request.ContactEmail, request.Notes, request.IsActive);
@@ -120,7 +118,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (brand is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return brand;

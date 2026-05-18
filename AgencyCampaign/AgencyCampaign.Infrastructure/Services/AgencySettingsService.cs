@@ -11,12 +11,10 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class AgencySettingsService : IAgencySettingsService
     {
         private readonly DbContext dbContext;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public AgencySettingsService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer)
+        public AgencySettingsService(DbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.localizer = localizer;
         }
 
         public async Task<AgencySettingsModel> Get(CancellationToken cancellationToken = default)
@@ -114,7 +112,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (version is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             await DeactivateAllVersions(cancellationToken);

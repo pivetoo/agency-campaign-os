@@ -13,11 +13,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class DeliverableApprovalService : CrudService<DeliverableApproval>, IDeliverableApprovalService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public DeliverableApprovalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public DeliverableApprovalService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<DeliverableApproval>> GetApprovals(PagedRequest request, CancellationToken cancellationToken = default)
@@ -65,7 +63,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             DeliverableApproval? approval = await DbContext.Set<DeliverableApproval>()
@@ -74,7 +72,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (approval is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             approval.UpdateReviewer(request.ReviewerName);
@@ -91,7 +89,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     approval.Reject(request.Comment);
                     break;
                 default:
-                    throw new InvalidOperationException(localizer["record.notFound"]);
+                    throw new InvalidOperationException("record.notFound");
             }
 
             DeliverableApproval? result = await Update(approval, cancellationToken);
@@ -111,7 +109,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 
@@ -123,7 +121,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (exists)
             {
-                throw new InvalidOperationException(localizer["deliverableApproval.duplicateType"]);
+                throw new InvalidOperationException("deliverableApproval.duplicateType");
             }
         }
 

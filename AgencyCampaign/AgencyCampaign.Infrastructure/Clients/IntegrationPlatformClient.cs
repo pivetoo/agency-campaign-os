@@ -13,13 +13,11 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         private readonly Rest restApi;
         private readonly IIntegrationService integrationService;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public IntegrationPlatformClient(Rest restApi, IIntegrationService integrationService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public IntegrationPlatformClient(Rest restApi, IIntegrationService integrationService)
         {
             this.restApi = restApi;
             this.integrationService = integrationService;
-            this.localizer = localizer;
         }
 
         public async Task<List<IntegrationCategoryDto>> GetActiveIntegrationCategoriesAsync(CancellationToken ct = default)
@@ -111,15 +109,15 @@ namespace AgencyCampaign.Infrastructure.Clients
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
-                throw new InvalidOperationException(localizer["integrationPlatform.notConfigured"]);
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
             }
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
                 RestRequest.Get($"{baseUrl}/api/connectors/GetById/{connectorId}").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
-                ? response.Data?.Data ?? throw new InvalidOperationException(localizer["integrationPlatform.connector.getFailed"])
-                : throw new InvalidOperationException(localizer["integrationPlatform.connector.getFailed"]);
+                ? response.Data?.Data ?? throw new InvalidOperationException("integrationPlatform.connector.getFailed")
+                : throw new InvalidOperationException("integrationPlatform.connector.getFailed");
         }
 
         public async Task<List<ConnectorAttributeValueDto>> GetConnectorAttributeValuesAsync(long connectorId, CancellationToken ct = default)
@@ -141,7 +139,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
-                throw new InvalidOperationException(localizer["integrationPlatform.notConfigured"]);
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
             }
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
@@ -149,8 +147,8 @@ namespace AgencyCampaign.Infrastructure.Clients
                            .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
-                ? response.Data?.Data ?? throw new InvalidOperationException(localizer["integrationPlatform.connector.createFailed"])
-                : throw new InvalidOperationException(localizer["integrationPlatform.connector.createFailed"]);
+                ? response.Data?.Data ?? throw new InvalidOperationException("integrationPlatform.connector.createFailed")
+                : throw new InvalidOperationException("integrationPlatform.connector.createFailed");
         }
 
         public async Task<ConnectorDto> UpdateConnectorAsync(long connectorId, UpdateConnectorRequest request, CancellationToken ct = default)
@@ -158,7 +156,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
-                throw new InvalidOperationException(localizer["integrationPlatform.notConfigured"]);
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
             }
 
             RestResponse<ApiResponse<ConnectorDto>> response = await restApi.Fetch<ApiResponse<ConnectorDto>>(
@@ -166,8 +164,8 @@ namespace AgencyCampaign.Infrastructure.Clients
                            .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
-                ? response.Data?.Data ?? throw new InvalidOperationException(localizer["integrationPlatform.connector.updateFailed"])
-                : throw new InvalidOperationException(localizer["integrationPlatform.connector.updateFailed"]);
+                ? response.Data?.Data ?? throw new InvalidOperationException("integrationPlatform.connector.updateFailed")
+                : throw new InvalidOperationException("integrationPlatform.connector.updateFailed");
         }
 
         public async Task DeleteConnectorAsync(long connectorId, CancellationToken ct = default)
@@ -175,7 +173,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
-                throw new InvalidOperationException(localizer["integrationPlatform.notConfigured"]);
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
             }
 
             RestResponse<ApiResponse<object>> response = await restApi.Fetch<ApiResponse<object>>(
@@ -183,7 +181,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
             if (!response.Ok)
             {
-                throw new InvalidOperationException(localizer["integrationPlatform.connector.deleteFailed"]);
+                throw new InvalidOperationException("integrationPlatform.connector.deleteFailed");
             }
         }
 
@@ -192,7 +190,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
-                throw new InvalidOperationException(localizer["integrationPlatform.notConfigured"]);
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
             }
 
             RestResponse<ApiResponse<ConnectorAttributeValueDto>> response = await restApi.Fetch<ApiResponse<ConnectorAttributeValueDto>>(
@@ -200,8 +198,8 @@ namespace AgencyCampaign.Infrastructure.Clients
                            .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
-                ? response.Data?.Data ?? throw new InvalidOperationException(localizer["integrationPlatform.connectorAttribute.createFailed"])
-                : throw new InvalidOperationException(localizer["integrationPlatform.connectorAttribute.createFailed"]);
+                ? response.Data?.Data ?? throw new InvalidOperationException("integrationPlatform.connectorAttribute.createFailed")
+                : throw new InvalidOperationException("integrationPlatform.connectorAttribute.createFailed");
         }
 
         public async Task<ConnectorAttributeValueDto> UpdateConnectorAttributeValueAsync(long id, UpdateConnectorAttributeValueRequest request, CancellationToken ct = default)
@@ -209,7 +207,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
-                throw new InvalidOperationException(localizer["integrationPlatform.notConfigured"]);
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
             }
 
             RestResponse<ApiResponse<ConnectorAttributeValueDto>> response = await restApi.Fetch<ApiResponse<ConnectorAttributeValueDto>>(
@@ -217,8 +215,8 @@ namespace AgencyCampaign.Infrastructure.Clients
                            .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
-                ? response.Data?.Data ?? throw new InvalidOperationException(localizer["integrationPlatform.connectorAttribute.updateFailed"])
-                : throw new InvalidOperationException(localizer["integrationPlatform.connectorAttribute.updateFailed"]);
+                ? response.Data?.Data ?? throw new InvalidOperationException("integrationPlatform.connectorAttribute.updateFailed")
+                : throw new InvalidOperationException("integrationPlatform.connectorAttribute.updateFailed");
         }
 
         public async Task<ExecutionDto> ExecutePipelineAsync(ExecutePipelineRequest request, CancellationToken ct = default)
@@ -226,7 +224,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
-                throw new InvalidOperationException(localizer["integrationPlatform.notConfigured"]);
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
             }
 
             RestResponse<ApiResponse<ExecutionDto>> response = await restApi.Fetch<ApiResponse<ExecutionDto>>(
@@ -234,8 +232,8 @@ namespace AgencyCampaign.Infrastructure.Clients
                            .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
-                ? response.Data?.Data ?? throw new InvalidOperationException(localizer["integrationPlatform.pipeline.executeFailed"])
-                : throw new InvalidOperationException(localizer["integrationPlatform.pipeline.executeFailed"]);
+                ? response.Data?.Data ?? throw new InvalidOperationException("integrationPlatform.pipeline.executeFailed")
+                : throw new InvalidOperationException("integrationPlatform.pipeline.executeFailed");
         }
 
         public async Task<ProcessingQueueDto> EnqueuePipelineAsync(EnqueuePipelineRequest request, CancellationToken ct = default)
@@ -243,7 +241,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
             if (baseUrl is null)
             {
-                throw new InvalidOperationException(localizer["integrationPlatform.notConfigured"]);
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
             }
 
             RestResponse<ApiResponse<ProcessingQueueDto>> response = await restApi.Fetch<ApiResponse<ProcessingQueueDto>>(
@@ -251,8 +249,8 @@ namespace AgencyCampaign.Infrastructure.Clients
                            .WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok
-                ? response.Data?.Data ?? throw new InvalidOperationException(localizer["integrationPlatform.pipeline.enqueueFailed"])
-                : throw new InvalidOperationException(localizer["integrationPlatform.pipeline.enqueueFailed"]);
+                ? response.Data?.Data ?? throw new InvalidOperationException("integrationPlatform.pipeline.enqueueFailed")
+                : throw new InvalidOperationException("integrationPlatform.pipeline.enqueueFailed");
         }
 
         private async Task<(string? baseUrl, string? tenantId, string? apiKey)> ResolveIntegrationAsync(CancellationToken ct)

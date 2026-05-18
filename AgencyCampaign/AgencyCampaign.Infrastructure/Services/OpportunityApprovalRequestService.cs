@@ -16,12 +16,10 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class OpportunityApprovalRequestService : CrudService<OpportunityApprovalRequest>, IOpportunityApprovalRequestService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly INotificationService notificationService;
 
-        public OpportunityApprovalRequestService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, INotificationService notificationService) : base(dbContext)
+        public OpportunityApprovalRequestService(DbContext dbContext, INotificationService notificationService) : base(dbContext)
         {
-            this.localizer = localizer;
             this.notificationService = notificationService;
         }
 
@@ -158,12 +156,12 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (approvalRequest is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             if (approvalRequest.Status != OpportunityApprovalStatus.Pending)
             {
-                throw new InvalidOperationException(localizer["opportunityApproval.notPending"]);
+                throw new InvalidOperationException("opportunityApproval.notPending");
             }
 
             return approvalRequest;
@@ -177,7 +175,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (negotiation is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return negotiation;

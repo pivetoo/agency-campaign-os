@@ -18,14 +18,12 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class FinancialEntryService : CrudService<FinancialEntry>, IFinancialEntryService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
         private readonly ILogger<FinancialEntryService> logger;
 
-        public FinancialEntryService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IAutomationDispatcher automationDispatcher, INotificationService notificationService, ILogger<FinancialEntryService> logger) : base(dbContext)
+        public FinancialEntryService(DbContext dbContext, IAutomationDispatcher automationDispatcher, INotificationService notificationService, ILogger<FinancialEntryService> logger) : base(dbContext)
         {
-            this.localizer = localizer;
             this.automationDispatcher = automationDispatcher;
             this.notificationService = notificationService;
             this.logger = logger;
@@ -93,7 +91,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (request.InstallmentTotal < 2)
             {
-                throw new InvalidOperationException(localizer["financialEntry.installments.totalRequired"]);
+                throw new InvalidOperationException("financialEntry.installments.totalRequired");
             }
 
             await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
@@ -197,7 +195,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 
@@ -205,7 +203,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             FinancialEntry? entry = await DbContext.Set<FinancialEntry>()
@@ -214,7 +212,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (entry is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
@@ -258,7 +256,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (entry is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             bool accountExists = await DbContext.Set<FinancialAccount>()
@@ -267,7 +265,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!accountExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             entry.Update(
@@ -400,7 +398,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!accountExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             if (campaignId.HasValue)
@@ -411,7 +409,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
                 if (!campaignExists)
                 {
-                    throw new InvalidOperationException(localizer["record.notFound"]);
+                    throw new InvalidOperationException("record.notFound");
                 }
             }
 
@@ -423,7 +421,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
                 if (!deliverableExists)
                 {
-                    throw new InvalidOperationException(localizer["record.notFound"]);
+                    throw new InvalidOperationException("record.notFound");
                 }
             }
         }
@@ -483,12 +481,10 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class FinancialAccountService : IFinancialAccountService
     {
         private readonly DbContext dbContext;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public FinancialAccountService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer)
+        public FinancialAccountService(DbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<FinancialAccountModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -588,14 +584,14 @@ namespace AgencyCampaign.Infrastructure.Services
             FinancialAccount account = new(request.Name, request.Type, request.InitialBalance, request.Color, request.Bank, request.Agency, request.Number);
             dbContext.Set<FinancialAccount>().Add(account);
             await dbContext.SaveChangesAsync(cancellationToken);
-            return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException(localizer["record.notFound"]);
+            return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException("record.notFound");
         }
 
         public async Task<FinancialAccountModel> Update(long id, UpdateFinancialAccountRequest request, CancellationToken cancellationToken = default)
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             FinancialAccount? account = await dbContext.Set<FinancialAccount>()
@@ -604,12 +600,12 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (account is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             account.Update(request.Name, request.Type, request.InitialBalance, request.Color, request.Bank, request.Agency, request.Number, request.IsActive);
             await dbContext.SaveChangesAsync(cancellationToken);
-            return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException(localizer["record.notFound"]);
+            return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException("record.notFound");
         }
 
         public async Task Delete(long id, CancellationToken cancellationToken = default)
@@ -620,7 +616,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (account is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             bool inUse = await dbContext.Set<FinancialEntry>()
@@ -629,7 +625,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (inUse)
             {
-                throw new InvalidOperationException(localizer["financialAccount.hasEntries.cannotDelete"]);
+                throw new InvalidOperationException("financialAccount.hasEntries.cannotDelete");
             }
 
             dbContext.Set<FinancialAccount>().Remove(account);

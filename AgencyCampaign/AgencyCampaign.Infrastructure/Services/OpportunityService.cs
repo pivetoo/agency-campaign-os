@@ -16,13 +16,11 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class OpportunityService : CrudService<Opportunity>, IOpportunityService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
         private readonly IdentityUsersClient identityUsersClient;
 
-        public OpportunityService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IdentityUsersClient identityUsersClient) : base(dbContext)
+        public OpportunityService(DbContext dbContext, ICurrentUser currentUser, IdentityUsersClient identityUsersClient) : base(dbContext)
         {
-            this.localizer = localizer;
             this.currentUser = currentUser;
             this.identityUsersClient = identityUsersClient;
         }
@@ -176,7 +174,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             Opportunity? opportunity = await DbContext.Set<Opportunity>()
@@ -186,7 +184,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (opportunity is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             await EnsureBrandExists(request.BrandId, cancellationToken);
@@ -403,7 +401,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return await DbContext.Set<OpportunityStageHistory>()
@@ -537,7 +535,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 
@@ -554,7 +552,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ThenBy(item => item.DisplayOrder)
                 .FirstOrDefaultAsync(item => item.IsActive, cancellationToken);
 
-            return initialStage ?? throw new InvalidOperationException(localizer["commercialPipelineStage.initial.missing"]);
+            return initialStage ?? throw new InvalidOperationException("commercialPipelineStage.initial.missing");
         }
 
         private async Task<CommercialPipelineStage> ResolveFinalStage(CommercialPipelineStageFinalBehavior finalBehavior, CancellationToken cancellationToken)
@@ -563,7 +561,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(item => item.IsActive && item.IsFinal && item.FinalBehavior == finalBehavior, cancellationToken);
 
-            return stage ?? throw new InvalidOperationException(localizer["commercialPipelineStage.final.missing"]);
+            return stage ?? throw new InvalidOperationException("commercialPipelineStage.final.missing");
         }
 
         private async Task<CommercialPipelineStage> ResolveStage(long stageId, CancellationToken cancellationToken)
@@ -572,7 +570,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(item => item.Id == stageId, cancellationToken);
 
-            return stage ?? throw new InvalidOperationException(localizer["record.notFound"]);
+            return stage ?? throw new InvalidOperationException("record.notFound");
         }
 
         private async Task<Opportunity> GetTrackedOpportunity(long id, CancellationToken cancellationToken)
@@ -583,7 +581,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (opportunity is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return opportunity;

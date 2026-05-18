@@ -17,13 +17,11 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICurrentUser currentUser;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public DeliverableShareLinkService(DbContext dbContext, ICurrentUser currentUser, IStringLocalizer<AgencyCampaignResource> localizer)
+        public DeliverableShareLinkService(DbContext dbContext, ICurrentUser currentUser)
         {
             this.dbContext = dbContext;
             this.currentUser = currentUser;
-            this.localizer = localizer;
         }
 
         public async Task<IReadOnlyCollection<DeliverableShareLinkModel>> GetByDeliverable(long deliverableId, CancellationToken cancellationToken = default)
@@ -57,7 +55,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!deliverableExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             string token = GenerateToken();
@@ -96,7 +94,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (shareLink is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             shareLink.Revoke();
@@ -113,13 +111,11 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class DeliverablePublicService : IDeliverablePublicService
     {
         private readonly DbContext dbContext;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly INotificationService notificationService;
 
-        public DeliverablePublicService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, INotificationService notificationService)
+        public DeliverablePublicService(DbContext dbContext, INotificationService notificationService)
         {
             this.dbContext = dbContext;
-            this.localizer = localizer;
             this.notificationService = notificationService;
         }
 
@@ -152,7 +148,7 @@ namespace AgencyCampaign.Infrastructure.Services
             DeliverableShareLink? shareLink = await ResolveActiveShareLink(token, cancellationToken);
             if (shareLink is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             DeliverableApproval? approval = await dbContext.Set<DeliverableApproval>()
@@ -200,7 +196,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return await BuildViewModel(shareLink.CampaignDeliverableId, cancellationToken)
-                ?? throw new InvalidOperationException(localizer["record.notFound"]);
+                ?? throw new InvalidOperationException("record.notFound");
         }
 
         private async Task<DeliverableShareLink?> ResolveActiveShareLink(string token, CancellationToken cancellationToken)

@@ -87,7 +87,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             CampaignDeliverable? deliverable = await DbContext.Set<CampaignDeliverable>()
@@ -97,7 +97,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (deliverable is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             await EnsureReferencesExist(deliverable.CampaignId, deliverable.CampaignCreatorId, request.DeliverableKindId, request.PlatformId, cancellationToken);
@@ -176,7 +176,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!campaignExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             bool campaignCreatorExists = await DbContext.Set<CampaignCreator>()
@@ -185,7 +185,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!campaignCreatorExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             bool deliverableKindExists = await DbContext.Set<DeliverableKind>()
@@ -194,7 +194,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!deliverableKindExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             bool platformExists = await DbContext.Set<Platform>()
@@ -203,7 +203,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!platformExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 
@@ -213,7 +213,7 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 if (string.IsNullOrWhiteSpace(publishedUrl))
                 {
-                    throw new InvalidOperationException(localizer["deliverable.publishedUrl.required"]);
+                    throw new InvalidOperationException("deliverable.publishedUrl.required");
                 }
 
                 EnsureBrandApprovalExists(deliverable);
@@ -234,7 +234,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!hasBrandApproval)
             {
-                throw new InvalidOperationException(localizer["deliverable.publish.brandApprovalRequired"]);
+                throw new InvalidOperationException("deliverable.publish.brandApprovalRequired");
             }
         }
 

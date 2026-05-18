@@ -56,7 +56,7 @@ namespace AgencyCampaign.Api.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return Http401(ex.Message);
+                return Http401(Localizer[ex.Message]);
             }
         }
 
@@ -84,7 +84,7 @@ namespace AgencyCampaign.Api.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return Http401(ex.Message);
+                return Http401(Localizer[ex.Message]);
             }
         }
 
@@ -99,7 +99,7 @@ namespace AgencyCampaign.Api.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return Http401(ex.Message);
+                return Http401(Localizer[ex.Message]);
             }
         }
 
@@ -114,7 +114,7 @@ namespace AgencyCampaign.Api.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return Http401(ex.Message);
+                return Http401(Localizer[ex.Message]);
             }
         }
 
@@ -141,7 +141,7 @@ namespace AgencyCampaign.Api.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return Http401(ex.Message);
+                return Http401(Localizer[ex.Message]);
             }
         }
 
@@ -163,7 +163,7 @@ namespace AgencyCampaign.Api.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return Http401(ex.Message);
+                return Http401(Localizer[ex.Message]);
             }
         }
     }

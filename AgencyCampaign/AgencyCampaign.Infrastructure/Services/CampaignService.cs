@@ -16,13 +16,11 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CampaignService : CrudService<Campaign>, ICampaignService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
         private readonly IdentityUsersClient identityUsersClient;
 
-        public CampaignService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IdentityUsersClient identityUsersClient) : base(dbContext)
+        public CampaignService(DbContext dbContext, ICurrentUser currentUser, IdentityUsersClient identityUsersClient) : base(dbContext)
         {
-            this.localizer = localizer;
             this.currentUser = currentUser;
             this.identityUsersClient = identityUsersClient;
         }
@@ -86,7 +84,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             Campaign? campaign = await DbContext.Set<Campaign>()
@@ -95,7 +93,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (campaign is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             await EnsureBrandExists(request.BrandId, cancellationToken);
@@ -226,7 +224,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 

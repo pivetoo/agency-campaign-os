@@ -12,11 +12,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class OpportunityNegotiationService : CrudService<OpportunityNegotiation>, IOpportunityNegotiationService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public OpportunityNegotiationService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public OpportunityNegotiationService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<OpportunityNegotiation?> GetOpportunityNegotiationById(long id, CancellationToken cancellationToken = default)
@@ -54,7 +52,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (negotiation is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             negotiation.Update(request.Title, request.Amount, request.NegotiatedAt, request.Notes);
@@ -76,7 +74,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (negotiation is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             switch (request.Status)
@@ -97,7 +95,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     negotiation.MarkAcceptedByClient();
                     break;
                 default:
-                    throw new InvalidOperationException(localizer["opportunityNegotiation.statusTransition.unsupported"]);
+                    throw new InvalidOperationException("opportunityNegotiation.statusTransition.unsupported");
             }
 
             OpportunityNegotiation? result = await Update(negotiation, cancellationToken);
@@ -117,7 +115,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (negotiation is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             await Delete([negotiation], cancellationToken);
@@ -141,7 +139,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
     }

@@ -12,11 +12,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class DeliverableKindService : CrudService<DeliverableKind>, IDeliverableKindService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public DeliverableKindService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public DeliverableKindService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<DeliverableKind>> GetDeliverableKinds(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -72,7 +70,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             DeliverableKind? deliverableKind = await DbContext.Set<DeliverableKind>()
@@ -81,7 +79,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (deliverableKind is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             deliverableKind.Update(request.Name, request.DisplayOrder, request.IsActive);

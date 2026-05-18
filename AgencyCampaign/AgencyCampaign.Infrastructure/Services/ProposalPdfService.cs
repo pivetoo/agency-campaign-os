@@ -11,12 +11,10 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class ProposalPdfService : IProposalPdfService
     {
         private readonly DbContext dbContext;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public ProposalPdfService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer)
+        public ProposalPdfService(DbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.localizer = localizer;
         }
 
         public async Task<byte[]> GenerateForProposalAsync(long proposalId, CancellationToken cancellationToken = default)
@@ -24,7 +22,7 @@ namespace AgencyCampaign.Infrastructure.Services
             Proposal? proposal = await LoadProposalAsync(proposalId, cancellationToken);
             if (proposal is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             AgencySettings agency = await ResolveAgencyAsync(cancellationToken);

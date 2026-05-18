@@ -15,11 +15,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CreatorService : CrudService<Creator>, ICreatorService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public CreatorService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public CreatorService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<Creator>> GetCreators(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -63,7 +61,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             Creator? creator = await DbContext.Set<Creator>()
@@ -72,7 +70,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (creator is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             creator.Update(request.Name, request.StageName, request.Email, request.Phone, request.Document, request.PixKey, request.PixKeyType, request.PrimaryNiche, request.City, request.State, request.Notes, request.DefaultAgencyFeePercent, request.IsActive);
@@ -122,7 +120,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (creator is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return creator;

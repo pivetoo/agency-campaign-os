@@ -24,20 +24,18 @@ namespace AgencyCampaign.Infrastructure.Services
 
         private readonly IWebHostEnvironment environment;
         private readonly ITenantContext tenantContext;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public ImageUploadStorage(IWebHostEnvironment environment, ITenantContext tenantContext, IStringLocalizer<AgencyCampaignResource> localizer)
+        public ImageUploadStorage(IWebHostEnvironment environment, ITenantContext tenantContext)
         {
             this.environment = environment;
             this.tenantContext = tenantContext;
-            this.localizer = localizer;
         }
 
         public async Task<string> SaveAsync(string section, long entityId, Stream content, string contentType, CancellationToken cancellationToken = default)
         {
             if (!AllowedContentTypes.Contains(contentType))
             {
-                throw new InvalidOperationException(localizer["imageUpload.fileType.unsupported"]);
+                throw new InvalidOperationException("imageUpload.fileType.unsupported");
             }
 
             string normalizedSection = NormalizeSection(section);

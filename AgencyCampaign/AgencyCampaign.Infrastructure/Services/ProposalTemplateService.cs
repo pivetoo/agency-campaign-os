@@ -15,13 +15,11 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICurrentUser currentUser;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public ProposalTemplateService(DbContext dbContext, ICurrentUser currentUser, IStringLocalizer<AgencyCampaignResource> localizer)
+        public ProposalTemplateService(DbContext dbContext, ICurrentUser currentUser)
         {
             this.dbContext = dbContext;
             this.currentUser = currentUser;
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<ProposalTemplateModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -83,7 +81,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             ProposalTemplate? template = await dbContext.Set<ProposalTemplate>()
@@ -92,7 +90,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (template is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             template.Update(request.Name, request.Description, request.IsActive);
@@ -116,7 +114,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (template is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             dbContext.Set<ProposalTemplate>().Remove(template);
@@ -131,7 +129,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (proposal is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             ProposalTemplate? template = await dbContext.Set<ProposalTemplate>()
@@ -141,7 +139,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (template is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             DateTimeOffset reference = DateTimeOffset.UtcNow;

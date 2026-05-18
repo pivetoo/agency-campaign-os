@@ -12,11 +12,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class AutomationService : CrudService<Automation>, IAutomationService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public AutomationService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public AutomationService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<Automation>> GetAutomations(PagedRequest request, CancellationToken cancellationToken = default)
@@ -59,7 +57,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             Automation? automation = await DbContext.Set<Automation>()
@@ -68,7 +66,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (automation is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             automation.Update(

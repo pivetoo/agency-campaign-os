@@ -24,13 +24,11 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private static readonly Regex PlaceholderRegex = new(@"\{\{\s*(\w+)\s*\}\}", RegexOptions.Compiled);
 
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly DocumentEmailOptions emailOptions;
         private readonly IntegrationPlatformClient integrationPlatformClient;
 
-        public CampaignDocumentService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IOptions<DocumentEmailOptions> emailOptions, IntegrationPlatformClient integrationPlatformClient) : base(dbContext)
+        public CampaignDocumentService(DbContext dbContext, IOptions<DocumentEmailOptions> emailOptions, IntegrationPlatformClient integrationPlatformClient) : base(dbContext)
         {
-            this.localizer = localizer;
             this.emailOptions = emailOptions.Value;
             this.integrationPlatformClient = integrationPlatformClient;
         }
@@ -95,7 +93,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (template is null || !template.IsActive)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             Dictionary<string, object?> values = await BuildTemplateVariables(request.CampaignId, request.CampaignCreatorId, request.Overrides, cancellationToken);
@@ -146,7 +144,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             CampaignDocument? document = await DbContext.Set<CampaignDocument>()
@@ -155,7 +153,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (document is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             await EnsureReferencesExist(document.CampaignId, request.CampaignCreatorId, cancellationToken);
@@ -179,7 +177,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (document is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             EnsureEmailConfigured();
@@ -223,12 +221,12 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (document is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             if (string.IsNullOrWhiteSpace(document.Body) && string.IsNullOrWhiteSpace(document.DocumentUrl))
             {
-                throw new InvalidOperationException(localizer["campaignDocument.body.required"]);
+                throw new InvalidOperationException("campaignDocument.body.required");
             }
 
             foreach (SendCampaignDocumentForSignatureRequest.SignerInput signer in request.Signers)
@@ -306,7 +304,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
                 if (document is null)
                 {
-                    throw new InvalidOperationException(localizer["record.notFound"]);
+                    throw new InvalidOperationException("record.notFound");
                 }
 
                 document.AttachToProvider(request.Provider, request.ProviderDocumentId);
@@ -400,7 +398,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (document is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             document.MarkSigned(request.SignedAt);
@@ -521,7 +519,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!campaignExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             if (!campaignCreatorId.HasValue)
@@ -535,7 +533,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!campaignCreatorExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 
@@ -543,7 +541,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (string.IsNullOrWhiteSpace(emailOptions.Host) || string.IsNullOrWhiteSpace(emailOptions.FromEmail))
             {
-                throw new InvalidOperationException(localizer["email.configuration.invalid"]);
+                throw new InvalidOperationException("email.configuration.invalid");
             }
         }
 

@@ -13,13 +13,11 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICurrentUser currentUser;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public OpportunityCommentService(DbContext dbContext, ICurrentUser currentUser, IStringLocalizer<AgencyCampaignResource> localizer)
+        public OpportunityCommentService(DbContext dbContext, ICurrentUser currentUser)
         {
             this.dbContext = dbContext;
             this.currentUser = currentUser;
-            this.localizer = localizer;
         }
 
         public async Task<IReadOnlyCollection<OpportunityCommentModel>> GetByOpportunityId(long opportunityId, CancellationToken cancellationToken = default)
@@ -62,7 +60,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!comment.CanBeDeletedBy(currentUser.UserId))
             {
-                throw new InvalidOperationException(localizer["opportunityComment.delete.onlyAuthor"]);
+                throw new InvalidOperationException("opportunityComment.delete.onlyAuthor");
             }
 
             dbContext.Set<OpportunityComment>().Remove(comment);
@@ -77,7 +75,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 
@@ -89,7 +87,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (comment is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return comment;

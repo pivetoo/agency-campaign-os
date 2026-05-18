@@ -14,12 +14,10 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CampaignDocumentTemplateService : CrudService<CampaignDocumentTemplate>, ICampaignDocumentTemplateService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
 
-        public CampaignDocumentTemplateService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
+        public CampaignDocumentTemplateService(DbContext dbContext, ICurrentUser currentUser) : base(dbContext)
         {
-            this.localizer = localizer;
             this.currentUser = currentUser;
         }
 
@@ -70,7 +68,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             CampaignDocumentTemplate? template = await DbContext.Set<CampaignDocumentTemplate>()
@@ -79,7 +77,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (template is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             template.Update(request.Name, request.DocumentType, request.Body, request.Description, request.IsActive);
@@ -101,7 +99,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (template is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             bool inUse = await DbContext.Set<CampaignDocument>()

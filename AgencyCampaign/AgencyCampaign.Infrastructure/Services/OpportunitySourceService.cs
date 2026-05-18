@@ -13,12 +13,10 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class OpportunitySourceService : IOpportunitySourceService
     {
         private readonly DbContext dbContext;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public OpportunitySourceService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer)
+        public OpportunitySourceService(DbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<OpportunitySourceModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -61,7 +59,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             OpportunitySource? source = await dbContext.Set<OpportunitySource>()
@@ -70,7 +68,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (source is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             source.Update(request.Name, request.Color, request.DisplayOrder, request.IsActive);
@@ -86,7 +84,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (source is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             dbContext.Set<OpportunitySource>().Remove(source);
@@ -106,12 +104,10 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class OpportunityTagService : IOpportunityTagService
     {
         private readonly DbContext dbContext;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public OpportunityTagService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer)
+        public OpportunityTagService(DbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<OpportunityTagModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -152,7 +148,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             OpportunityTag? tag = await dbContext.Set<OpportunityTag>()
@@ -161,7 +157,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (tag is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             tag.Update(request.Name, request.Color, request.IsActive);
@@ -177,7 +173,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (tag is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             dbContext.Set<OpportunityTag>().Remove(tag);

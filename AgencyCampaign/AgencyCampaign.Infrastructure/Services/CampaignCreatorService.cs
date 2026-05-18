@@ -15,13 +15,11 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CampaignCreatorService : CrudService<CampaignCreator>, ICampaignCreatorService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
         private readonly INotificationService notificationService;
 
-        public CampaignCreatorService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, INotificationService notificationService) : base(dbContext)
+        public CampaignCreatorService(DbContext dbContext, ICurrentUser currentUser, INotificationService notificationService) : base(dbContext)
         {
-            this.localizer = localizer;
             this.currentUser = currentUser;
             this.notificationService = notificationService;
         }
@@ -83,7 +81,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             CampaignCreator? campaignCreator = await DbContext.Set<CampaignCreator>()
@@ -92,7 +90,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (campaignCreator is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             campaignCreator.Update(request.AgreedAmount, request.Notes);
@@ -109,7 +107,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
                 if (newStatus is null)
                 {
-                    throw new InvalidOperationException(localizer["campaignCreator.status.notFound"]);
+                    throw new InvalidOperationException("campaignCreator.status.notFound");
                 }
 
                 campaignCreator.ChangeStatus(newStatus);
@@ -194,7 +192,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (status is null)
             {
-                throw new InvalidOperationException(localizer["campaignCreator.initialStatus.missing"]);
+                throw new InvalidOperationException("campaignCreator.initialStatus.missing");
             }
 
             return status.Id;
@@ -208,7 +206,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!campaignExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             bool creatorExists = await DbContext.Set<Creator>()
@@ -217,7 +215,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!creatorExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 
@@ -229,7 +227,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (exists)
             {
-                throw new InvalidOperationException(localizer["campaignCreator.duplicate"]);
+                throw new InvalidOperationException("campaignCreator.duplicate");
             }
         }
 

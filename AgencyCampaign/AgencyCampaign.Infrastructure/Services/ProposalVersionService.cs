@@ -10,12 +10,10 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class ProposalVersionService : IProposalVersionService
     {
         private readonly DbContext dbContext;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public ProposalVersionService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer)
+        public ProposalVersionService(DbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.localizer = localizer;
         }
 
         public async Task<IReadOnlyCollection<ProposalVersionModel>> GetByProposalId(long proposalId, CancellationToken cancellationToken = default)
@@ -26,7 +24,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return await dbContext.Set<ProposalVersion>()

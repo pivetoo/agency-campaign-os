@@ -11,12 +11,10 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class CreatorSocialHandleService : ICreatorSocialHandleService
     {
         private readonly DbContext dbContext;
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public CreatorSocialHandleService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer)
+        public CreatorSocialHandleService(DbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.localizer = localizer;
         }
 
         public async Task<IReadOnlyCollection<CreatorSocialHandleModel>> GetByCreator(long creatorId, CancellationToken cancellationToken = default)
@@ -54,7 +52,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             CreatorSocialHandle? handle = await dbContext.Set<CreatorSocialHandle>()
@@ -63,7 +61,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (handle is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             handle.Update(
@@ -88,7 +86,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (handle is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             dbContext.Set<CreatorSocialHandle>().Remove(handle);
@@ -104,7 +102,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (handle is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return Map(handle);
@@ -118,7 +116,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!creatorExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             bool platformExists = await dbContext.Set<Platform>()
@@ -127,7 +125,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!platformExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 

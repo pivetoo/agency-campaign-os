@@ -11,11 +11,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class ProposalItemService : CrudService<ProposalItem>, IProposalItemService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public ProposalItemService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public ProposalItemService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<ProposalItem?> GetProposalItemById(long id, CancellationToken cancellationToken = default)
@@ -63,7 +61,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (item is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             long proposalId = item.ProposalId;
@@ -94,7 +92,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (item is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             long proposalId = item.ProposalId;
@@ -121,7 +119,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 
@@ -133,7 +131,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
         }
 

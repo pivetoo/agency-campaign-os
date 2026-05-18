@@ -18,15 +18,13 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class ProposalService : CrudService<Proposal>, IProposalService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
         private readonly IFinancialAutoGeneration financialAutoGeneration;
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
 
-        public ProposalService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService) : base(dbContext)
+        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService) : base(dbContext)
         {
-            this.localizer = localizer;
             this.currentUser = currentUser;
             this.financialAutoGeneration = financialAutoGeneration;
             this.automationDispatcher = automationDispatcher;
@@ -93,7 +91,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetOpportunity(request.OpportunityId, cancellationToken);
 
-            long responsibleUserId = request.ResponsibleUserId ?? opportunity.ResponsibleUserId ?? throw new InvalidOperationException(localizer["proposal.responsibleUser.required"]);
+            long responsibleUserId = request.ResponsibleUserId ?? opportunity.ResponsibleUserId ?? throw new InvalidOperationException("proposal.responsibleUser.required");
             string commercialResponsibleName = opportunity.ResponsibleUserName ?? string.Empty;
 
             Proposal proposal = new(
@@ -124,7 +122,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             Proposal? proposal = await DbContext.Set<Proposal>()
@@ -133,7 +131,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (proposal is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             Opportunity opportunity = await GetOpportunity(request.OpportunityId, cancellationToken);
@@ -164,7 +162,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (proposal is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             int nextVersion = await DbContext.Set<ProposalVersion>()
@@ -264,7 +262,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!campaignExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             proposal.ConvertToCampaign(campaignId, currentUser.UserId, currentUser.UserName);
@@ -338,7 +336,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!exists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return await DbContext.Set<ProposalStatusHistory>()
@@ -368,7 +366,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (proposal is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return proposal;
@@ -382,7 +380,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (opportunity is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             return opportunity;

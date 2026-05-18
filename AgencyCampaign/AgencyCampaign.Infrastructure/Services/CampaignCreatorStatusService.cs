@@ -12,11 +12,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CampaignCreatorStatusService : CrudService<CampaignCreatorStatus>, ICampaignCreatorStatusService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public CampaignCreatorStatusService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public CampaignCreatorStatusService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<CampaignCreatorStatus>> GetStatuses(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -82,7 +80,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             await EnsureInitialStageRules(request.IsInitial, id, cancellationToken);
@@ -93,7 +91,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (status is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             status.Update(
@@ -129,7 +127,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (hasInitial)
             {
-                throw new InvalidOperationException(localizer["campaignCreatorStatus.initial.duplicate"]);
+                throw new InvalidOperationException("campaignCreatorStatus.initial.duplicate");
             }
         }
     }

@@ -12,11 +12,9 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class PlatformService : CrudService<Platform>, IPlatformService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
 
-        public PlatformService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer) : base(dbContext)
+        public PlatformService(DbContext dbContext) : base(dbContext)
         {
-            this.localizer = localizer;
         }
 
         public async Task<PagedResult<Platform>> GetPlatforms(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -72,7 +70,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             if (id != request.Id)
             {
-                throw new InvalidOperationException(localizer["request.route.idMismatch"]);
+                throw new InvalidOperationException("request.route.idMismatch");
             }
 
             Platform? platform = await DbContext.Set<Platform>()
@@ -81,7 +79,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (platform is null)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             platform.Update(request.Name, request.DisplayOrder, request.IsActive);

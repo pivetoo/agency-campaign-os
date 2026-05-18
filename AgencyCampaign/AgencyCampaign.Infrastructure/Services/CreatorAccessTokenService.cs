@@ -12,12 +12,10 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CreatorAccessTokenService : CrudService<CreatorAccessToken>, ICreatorAccessTokenService
     {
-        private readonly IStringLocalizer<AgencyCampaignResource> localizer;
         private readonly ICurrentUser currentUser;
 
-        public CreatorAccessTokenService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, ICurrentUser currentUser) : base(dbContext)
+        public CreatorAccessTokenService(DbContext dbContext, ICurrentUser currentUser) : base(dbContext)
         {
-            this.localizer = localizer;
             this.currentUser = currentUser;
         }
 
@@ -29,7 +27,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (!creatorExists)
             {
-                throw new InvalidOperationException(localizer["record.notFound"]);
+                throw new InvalidOperationException("record.notFound");
             }
 
             string tokenValue = Guid.NewGuid().ToString("N");
