@@ -179,6 +179,23 @@
   <data name="financialEntry.notFoundForAccount" xml:space="preserve">
     <value>Asiento no encontrado para esta cuenta.</value>
   </data>
+  <data name="opportunity.stage.inactive" xml:space="preserve"><value>Las etapas inactivas del pipeline no pueden ser utilizadas.</value></data>
+  <data name="opportunity.alreadyClosed" xml:space="preserve"><value>Esta oportunidad ya está cerrada. Reábrala antes de cambiar el estado nuevamente.</value></data>
+  <data name="opportunityNegotiation.approved.cannotReturnToPending" xml:space="preserve"><value>Las negociaciones aprobadas no pueden volver a aprobación pendiente.</value></data>
+  <data name="opportunityNegotiation.sendToClient.notApproved" xml:space="preserve"><value>Solo las negociaciones aprobadas pueden enviarse al cliente.</value></data>
+  <data name="opportunityNegotiation.clientAcceptance.notApproved" xml:space="preserve"><value>La negociación debe estar aprobada antes de la aceptación del cliente.</value></data>
+  <data name="opportunityFollowUp.alreadyCompleted" xml:space="preserve"><value>Esta actividad ya está completada.</value></data>
+  <data name="opportunityComment.onlyAuthorCanEdit" xml:space="preserve"><value>Solo el autor del comentario puede editarlo.</value></data>
+  <data name="campaignDeliverable.amountsExceedGross" xml:space="preserve"><value>El monto del creator más la comisión de la agencia no puede superar el monto bruto de la entrega.</value></data>
+  <data name="creatorPayment.alreadyFinalized" xml:space="preserve"><value>El pago ya fue finalizado y no puede modificarse.</value></data>
+  <data name="creatorPayment.cannotCancelPaid" xml:space="preserve"><value>No es posible cancelar un pago ya marcado como Pagado.</value></data>
+  <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>La propuesta debe estar Enviada para ser marcada como Vista.</value></data>
+  <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>La propuesta debe estar Enviada o Vista para ser Aprobada.</value></data>
+  <data name="proposal.reject.notSentOrViewed" xml:space="preserve"><value>La propuesta debe estar Enviada o Vista para ser Rechazada.</value></data>
+  <data name="proposal.convert.notApproved" xml:space="preserve"><value>La propuesta debe estar Aprobada para ser Convertida.</value></data>
+  <data name="proposal.cancel.alreadyConverted" xml:space="preserve"><value>No es posible cancelar una propuesta ya Convertida.</value></data>
+  <data name="proposal.item.alreadyExists" xml:space="preserve"><value>Este ítem ya existe en esta propuesta.</value></data>
+  <data name="proposal.item.notFound" xml:space="preserve"><value>Ítem no encontrado en esta propuesta.</value></data>
   <data name="integrationPlatform.pipeline.noDefault" xml:space="preserve">
     <value>La integración no tiene pipeline predeterminado configurado.</value>
   </data>

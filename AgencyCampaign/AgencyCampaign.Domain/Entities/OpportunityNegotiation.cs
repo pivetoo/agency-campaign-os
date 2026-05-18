@@ -59,7 +59,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status == OpportunityNegotiationStatus.Approved || Status == OpportunityNegotiationStatus.AcceptedByClient)
             {
-                throw new InvalidOperationException("Approved negotiations cannot return to pending approval.");
+                throw new InvalidOperationException("opportunityNegotiation.approved.cannotReturnToPending");
             }
 
             Status = OpportunityNegotiationStatus.PendingApproval;
@@ -82,7 +82,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status != OpportunityNegotiationStatus.Approved)
             {
-                throw new InvalidOperationException("Only approved negotiations can be sent to client.");
+                throw new InvalidOperationException("opportunityNegotiation.sendToClient.notApproved");
             }
 
             Status = OpportunityNegotiationStatus.SentToClient;
@@ -93,7 +93,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status != OpportunityNegotiationStatus.SentToClient && Status != OpportunityNegotiationStatus.Approved)
             {
-                throw new InvalidOperationException("Negotiation must be approved before client acceptance.");
+                throw new InvalidOperationException("opportunityNegotiation.clientAcceptance.notApproved");
             }
 
             Status = OpportunityNegotiationStatus.AcceptedByClient;

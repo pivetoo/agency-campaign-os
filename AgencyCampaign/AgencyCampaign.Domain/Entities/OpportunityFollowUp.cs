@@ -49,7 +49,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (IsCompleted)
             {
-                throw new InvalidOperationException("Follow-up is already completed.");
+                throw new InvalidOperationException("opportunityFollowUp.alreadyCompleted");
             }
 
             IsCompleted = true;

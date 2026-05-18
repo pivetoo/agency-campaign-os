@@ -164,7 +164,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status == PaymentStatus.Paid || Status == PaymentStatus.Cancelled)
             {
-                throw new InvalidOperationException("Payment is already finalized and cannot be modified.");
+                throw new InvalidOperationException("creatorPayment.alreadyFinalized");
             }
         }
 
@@ -172,7 +172,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status == PaymentStatus.Paid)
             {
-                throw new InvalidOperationException("Cannot cancel a payment already marked as Paid.");
+                throw new InvalidOperationException("creatorPayment.cannotCancelPaid");
             }
         }
 

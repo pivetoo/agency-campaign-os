@@ -122,7 +122,7 @@ namespace AgencyCampaign.Domain.Entities
 
             if (!stage.IsActive)
             {
-                throw new InvalidOperationException("Inactive pipeline stages cannot be used.");
+                throw new InvalidOperationException("opportunity.stage.inactive");
             }
 
             long? fromStageId = CommercialPipelineStageId == 0 ? null : CommercialPipelineStageId;
@@ -210,7 +210,7 @@ namespace AgencyCampaign.Domain.Entities
 
             if (IsClosed())
             {
-                throw new InvalidOperationException("Opportunity is already closed.");
+                throw new InvalidOperationException("opportunity.alreadyClosed");
             }
 
             long? fromStageId = CommercialPipelineStageId == 0 ? null : CommercialPipelineStageId;

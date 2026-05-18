@@ -38,7 +38,7 @@ namespace AgencyCampaign.Domain.Entities
 
             if (AuthorUserId.HasValue && requestingUserId.HasValue && AuthorUserId.Value != requestingUserId.Value)
             {
-                throw new InvalidOperationException("Only the comment author can edit it.");
+                throw new InvalidOperationException("opportunityComment.onlyAuthorCanEdit");
             }
 
             Body = body.Trim();

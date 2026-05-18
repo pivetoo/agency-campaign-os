@@ -108,7 +108,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status != ProposalStatus.Sent)
             {
-                throw new InvalidOperationException("Proposal must be Sent to be marked as Viewed.");
+                throw new InvalidOperationException("proposal.markAsViewed.notSent");
             }
 
             ApplyStatusChange(ProposalStatus.Viewed, changedByUserId, changedByUserName, reason);
@@ -118,7 +118,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status != ProposalStatus.Sent && Status != ProposalStatus.Viewed)
             {
-                throw new InvalidOperationException("Proposal must be Sent or Viewed to be Approved.");
+                throw new InvalidOperationException("proposal.approve.notSentOrViewed");
             }
 
             ApplyStatusChange(ProposalStatus.Approved, changedByUserId, changedByUserName, reason);
@@ -128,7 +128,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status != ProposalStatus.Sent && Status != ProposalStatus.Viewed)
             {
-                throw new InvalidOperationException("Proposal must be Sent or Viewed to be Rejected.");
+                throw new InvalidOperationException("proposal.reject.notSentOrViewed");
             }
 
             ApplyStatusChange(ProposalStatus.Rejected, changedByUserId, changedByUserName, reason);
@@ -138,7 +138,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status != ProposalStatus.Approved)
             {
-                throw new InvalidOperationException("Proposal must be Approved to be Converted.");
+                throw new InvalidOperationException("proposal.convert.notApproved");
             }
 
             CampaignId = campaignId;
@@ -157,7 +157,7 @@ namespace AgencyCampaign.Domain.Entities
         {
             if (Status == ProposalStatus.Converted)
             {
-                throw new InvalidOperationException("Cannot cancel a Converted proposal.");
+                throw new InvalidOperationException("proposal.cancel.alreadyConverted");
             }
 
             ApplyStatusChange(ProposalStatus.Cancelled, changedByUserId, changedByUserName, reason);
@@ -184,7 +184,7 @@ namespace AgencyCampaign.Domain.Entities
 
             if (items.Any(x => x.Id == item.Id))
             {
-                throw new InvalidOperationException("Item already exists in this proposal.");
+                throw new InvalidOperationException("proposal.item.alreadyExists");
             }
 
             items.Add(item);
@@ -197,7 +197,7 @@ namespace AgencyCampaign.Domain.Entities
             var item = items.FirstOrDefault(x => x.Id == itemId);
             if (item == null)
             {
-                throw new InvalidOperationException("Item not found in this proposal.");
+                throw new InvalidOperationException("proposal.item.notFound");
             }
 
             items.Remove(item);
