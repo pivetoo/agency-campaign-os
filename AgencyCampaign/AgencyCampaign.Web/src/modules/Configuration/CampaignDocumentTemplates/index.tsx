@@ -4,11 +4,7 @@ import { PageLayout, DataTable, Badge, ConfirmModal, useApi, useI18n } from 'arc
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { campaignDocumentTemplateService } from '../../../services/campaignDocumentTemplateService'
-import {
-  CampaignDocumentType,
-  campaignDocumentTypeLabels,
-  type CampaignDocumentTypeValue,
-} from '../../../types/campaignDocument'
+import { CampaignDocumentType, campaignDocumentTypeLabels, type CampaignDocumentTypeValue } from '../../../types/campaignDocument'
 
 const documentTypeBadgeClass: Record<CampaignDocumentTypeValue, string> = {
   [CampaignDocumentType.CreatorAgreement]: 'border-transparent bg-blue-500/15 text-blue-700',

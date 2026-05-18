@@ -1,16 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Modal,
-  ModalContent,
-  ModalDescription,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Modal, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { financialAccountService } from '../../services/financialAccountService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import { IntegrationCategoryIdentifier, type Connector } from '../../types/integrationPlatform'

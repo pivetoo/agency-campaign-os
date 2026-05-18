@@ -1,22 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import {
-  Button,
-  Checkbox,
-  ConfirmModal,
-  Input,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Checkbox, ConfirmModal, Input, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { RefreshCw, Trash2 } from 'lucide-react'
 import HtmlTemplateEditor, { type TemplateVariableGroup } from '../../../components/editor/HtmlTemplateEditor'
 import { campaignDocumentTemplateService } from '../../../services/campaignDocumentTemplateService'
-import {
-  CampaignDocumentType,
-  campaignDocumentTypeLabels,
-  type CampaignDocumentTypeValue,
-} from '../../../types/campaignDocument'
+import { CampaignDocumentType, campaignDocumentTypeLabels, type CampaignDocumentTypeValue } from '../../../types/campaignDocument'
 import type { CampaignDocumentTemplate, CampaignDocumentTemplateVariableMap } from '../../../types/campaignDocumentTemplate'
 
 const documentTypeOptions = Object.values(CampaignDocumentType).map((value) => ({

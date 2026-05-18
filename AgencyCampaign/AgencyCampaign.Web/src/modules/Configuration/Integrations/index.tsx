@@ -1,21 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  ConfirmModal,
-  PageLayout,
-  SearchableSelect,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, ConfirmModal, PageLayout, SearchableSelect, Tabs, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui'
 import { CheckCircle2, CircleDashed, ExternalLink, GitBranch, Megaphone, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
 import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
@@ -23,11 +7,7 @@ import AutomationFormModal from '../../../components/modals/AutomationFormModal'
 import AutomationList from '../Automations/AutomationList'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import { automationService } from '../../../services/automationService'
-import type {
-  Connector,
-  IntegrationCategory,
-  IntegrationPlatformIntegration,
-} from '../../../types/integrationPlatform'
+import type { Connector, IntegrationCategory, IntegrationPlatformIntegration } from '../../../types/integrationPlatform'
 import type { Automation } from '../../../types/automation'
 import { automationTriggerLabels } from '../../../types/automationTrigger'
 

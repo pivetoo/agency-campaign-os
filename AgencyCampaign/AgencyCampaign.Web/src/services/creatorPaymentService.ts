@@ -1,9 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type {
-  CreatorPayment,
-  PaymentMethodValue,
-  PaymentStatusValue,
-} from '../types/creatorPayment'
+import type { CreatorPayment, PaymentMethodValue, PaymentStatusValue } from '../types/creatorPayment'
 
 const BASE_URL = '/CreatorPayments'
 

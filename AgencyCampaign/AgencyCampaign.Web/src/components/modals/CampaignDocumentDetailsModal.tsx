@@ -1,29 +1,8 @@
 import { useEffect, useState } from 'react'
-import {
-  Badge,
-  Button,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Badge, Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Tabs, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui'
 import { Check, Clock, Download, ExternalLink } from 'lucide-react'
 import { campaignDocumentService } from '../../services/campaignDocumentService'
-import {
-  campaignDocumentEventTypeLabels,
-  campaignDocumentSignerRoleLabels,
-  campaignDocumentStatusLabels,
-  campaignDocumentTypeLabels,
-  type CampaignDocument,
-  type CampaignDocumentStatusValue,
-} from '../../types/campaignDocument'
+import { campaignDocumentEventTypeLabels, campaignDocumentSignerRoleLabels, campaignDocumentStatusLabels, campaignDocumentTypeLabels, type CampaignDocument, type CampaignDocumentStatusValue } from '../../types/campaignDocument'
 
 interface Props {
   open: boolean

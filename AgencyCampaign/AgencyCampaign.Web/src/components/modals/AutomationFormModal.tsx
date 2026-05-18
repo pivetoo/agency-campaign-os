@@ -1,31 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Checkbox,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { Plus, X } from 'lucide-react'
 import { automationService } from '../../services/automationService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
-import {
-  automationTriggerGroups,
-  automationTriggerLabels,
-} from '../../types/automationTrigger'
+import { automationTriggerGroups, automationTriggerLabels } from '../../types/automationTrigger'
 import type { Automation, CreateAutomationPayload } from '../../types/automation'
-import type {
-  Connector,
-  IntegrationCategory,
-  IntegrationPlatformIntegration,
-  Pipeline,
-} from '../../types/integrationPlatform'
+import type { Connector, IntegrationCategory, IntegrationPlatformIntegration, Pipeline } from '../../types/integrationPlatform'
 
 interface Props {
   open: boolean

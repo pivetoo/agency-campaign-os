@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  PageLayout,
-  DataTable,
-  Badge,
-  FilterPanel,
-  TableToolbar,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { CheckCircle, Clock, Eye, Send, XCircle } from 'lucide-react'
 import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValue, type ProposalListFilters } from '../../../services/proposalService'

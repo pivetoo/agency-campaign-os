@@ -1,13 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  Button,
-  Card,
-  CardContent,
-  Badge,
-  useApi,
-  useI18n,
-  DataTable,
-} from 'archon-ui'
+import { Button, Card, CardContent, Badge, useApi, useI18n, DataTable } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Plus, Zap, ClipboardList } from 'lucide-react'
 import { automationService } from '../../../services/automationService'

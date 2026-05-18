@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, ConfirmModal, Input, useApi, useToast, useI18n } from 'archon-ui'
 import { Copy, Eye, Link as LinkIcon, Link2, ShieldOff } from 'lucide-react'
-import {
-  proposalService,
-  type ProposalShareLink,
-  type ProposalVersion,
-} from '../../../services/proposalService'
+import { proposalService, type ProposalShareLink, type ProposalVersion } from '../../../services/proposalService'
 
 interface ProposalShareTabProps {
   proposalId: number

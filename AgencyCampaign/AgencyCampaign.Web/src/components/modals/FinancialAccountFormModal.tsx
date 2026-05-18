@@ -1,17 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Checkbox,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { financialAccountService } from '../../services/financialAccountService'
 import { bankService } from '../../services/bankService'
 import { FinancialAccountType, financialAccountTypeLabels, type FinancialAccount, type FinancialAccountTypeValue } from '../../types/financialAccount'

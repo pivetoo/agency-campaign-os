@@ -1,29 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  AreaChart,
-  BarChart,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  ChartContainer,
-  GlobalLoader,
-  LineChart,
-  PieChart,
-  useAuth,
-  useI18n,
-} from 'archon-ui'
-import {
-  Activity,
-  BarChart3,
-  LineChart as LineChartIcon,
-  PieChart as PieChartIcon,
-  Sparkles,
-  Megaphone,
-  Building2,
-  Users,
-  Clock,
-} from 'lucide-react'
+import { AreaChart, BarChart, Card, CardContent, CardHeader, CardTitle, ChartContainer, GlobalLoader, LineChart, PieChart, useAuth, useI18n } from 'archon-ui'
+import { Activity, BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon, Sparkles, Megaphone, Building2, Users, Clock } from 'lucide-react'
 import { dashboardService } from '../../services/dashboardService'
 import type { DashboardOverview } from '../../types/dashboard'
 // import TourButton from '../../components/tour/TourButton'

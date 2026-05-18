@@ -1,18 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type {
-  IntegrationCategory,
-  IntegrationPlatformIntegration,
-  IntegrationAttribute,
-  Connector,
-  ConnectorDetail,
-  Pipeline,
-  Execution,
-  ProcessingQueue,
-  CreateConnectorPayload,
-  UpdateConnectorPayload,
-  ExecutePipelinePayload,
-  EnqueuePipelinePayload,
-} from '../types/integrationPlatform'
+import type { IntegrationCategory, IntegrationPlatformIntegration, IntegrationAttribute, Connector, ConnectorDetail, Pipeline, Execution, ProcessingQueue, CreateConnectorPayload, UpdateConnectorPayload, ExecutePipelinePayload, EnqueuePipelinePayload } from '../types/integrationPlatform'
 
 export const integrationPlatformService = {
   async getActiveIntegrationCategories(): Promise<IntegrationCategory[]> {

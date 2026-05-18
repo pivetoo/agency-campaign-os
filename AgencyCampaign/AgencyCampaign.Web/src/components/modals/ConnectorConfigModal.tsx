@@ -1,27 +1,9 @@
 import { useEffect, useState, useMemo } from 'react'
-import {
-  Button,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  Checkbox,
-  useApi,
-  useI18n,
-  useToast,
-} from 'archon-ui'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Checkbox, useApi, useI18n, useToast } from 'archon-ui'
 import { ExternalLink, Eye, EyeOff, Sparkles } from 'lucide-react'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import { getDocLink, smtpPresets } from '../../lib/integrationDocs'
-import type {
-  IntegrationPlatformIntegration,
-  IntegrationAttribute,
-  Connector,
-  ConnectorAttributeValue,
-  ConnectorAttributeValuePayload,
-} from '../../types/integrationPlatform'
+import type { IntegrationPlatformIntegration, IntegrationAttribute, Connector, ConnectorAttributeValue, ConnectorAttributeValuePayload } from '../../types/integrationPlatform'
 
 interface ConnectorConfigModalProps {
   open: boolean

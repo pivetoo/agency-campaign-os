@@ -1,24 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalDescription,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  Switch,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Input, Modal, ModalBody, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle, Switch, useApi, useI18n } from 'archon-ui'
 import { Plus, Trash2 } from 'lucide-react'
-import {
-  proposalTemplateService,
-  type ProposalTemplate,
-  type ProposalTemplateItem,
-} from '../../services/proposalTemplateService'
+import { proposalTemplateService, type ProposalTemplate, type ProposalTemplateItem } from '../../services/proposalTemplateService'
 
 interface ProposalTemplateFormModalProps {
   open: boolean

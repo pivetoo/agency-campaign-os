@@ -1,37 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  SearchableSelect,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useI18n } from 'archon-ui'
 import { Plus, Trash2 } from 'lucide-react'
 import { campaignDocumentService, type CampaignDocumentSignerInput } from '../../services/campaignDocumentService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
-import {
-  CampaignDocumentSignerRole,
-  campaignDocumentSignerRoleLabels,
-  type CampaignDocument,
-  type CampaignDocumentSignerRoleValue,
-} from '../../types/campaignDocument'
-import {
-  IntegrationCategoryIdentifier,
-  type Connector,
-  type IntegrationCategory,
-  type IntegrationPlatformIntegration,
-  type Pipeline,
-} from '../../types/integrationPlatform'
+import { CampaignDocumentSignerRole, campaignDocumentSignerRoleLabels, type CampaignDocument, type CampaignDocumentSignerRoleValue } from '../../types/campaignDocument'
+import { IntegrationCategoryIdentifier, type Connector, type IntegrationCategory, type IntegrationPlatformIntegration, type Pipeline } from '../../types/integrationPlatform'
 
 interface Props {
   open: boolean

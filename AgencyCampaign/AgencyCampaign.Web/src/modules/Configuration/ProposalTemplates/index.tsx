@@ -2,10 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
-import {
-  proposalTemplateService,
-  type ProposalTemplate,
-} from '../../../services/proposalTemplateService'
+import { proposalTemplateService, type ProposalTemplate } from '../../../services/proposalTemplateService'
 import ProposalTemplateFormModal from '../../../components/modals/ProposalTemplateFormModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 

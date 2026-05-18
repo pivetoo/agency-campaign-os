@@ -1,29 +1,8 @@
 import { useEffect, useState } from 'react'
-import {
-  Badge,
-  Button,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Badge, Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Tabs, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui'
 import { ExternalLink } from 'lucide-react'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
-import {
-  creatorPaymentEventTypeLabels,
-  paymentMethodLabels,
-  paymentStatusLabels,
-  pixKeyTypeLabels,
-  type CreatorPayment,
-  type PaymentStatusValue,
-} from '../../types/creatorPayment'
+import { creatorPaymentEventTypeLabels, paymentMethodLabels, paymentStatusLabels, pixKeyTypeLabels, type CreatorPayment, type PaymentStatusValue } from '../../types/creatorPayment'
 
 interface Props {
   open: boolean

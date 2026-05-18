@@ -1,21 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalDescription,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
-import {
-  proposalTemplateService,
-  type ProposalTemplate,
-} from '../../services/proposalTemplateService'
+import { Button, Modal, ModalBody, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
+import { proposalTemplateService, type ProposalTemplate } from '../../services/proposalTemplateService'
 
 interface ApplyProposalTemplateModalProps {
   open: boolean

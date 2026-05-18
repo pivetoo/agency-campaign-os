@@ -1,18 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  DataTable,
-  PageLayout,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, DataTable, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, PageAction } from 'archon-ui'
 import { CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Send, Trash2, XCircle } from 'lucide-react'
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'

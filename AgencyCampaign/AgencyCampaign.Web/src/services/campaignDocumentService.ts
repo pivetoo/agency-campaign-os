@@ -1,9 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type {
-  CampaignDocument,
-  CampaignDocumentSignerRoleValue,
-  CampaignDocumentTypeValue,
-} from '../types/campaignDocument'
+import type { CampaignDocument, CampaignDocumentSignerRoleValue, CampaignDocumentTypeValue } from '../types/campaignDocument'
 
 const BASE_URL = '/CampaignDocuments'
 

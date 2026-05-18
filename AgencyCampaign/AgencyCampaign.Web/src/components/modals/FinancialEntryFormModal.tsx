@@ -1,18 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Checkbox, Input, SearchableSelect, useApi, useI18n } from 'archon-ui'
-import {
-  financialEntryService,
-  type CreateFinancialEntryRequest,
-  type UpdateFinancialEntryRequest,
-} from '../../services/financialEntryService'
+import { financialEntryService, type CreateFinancialEntryRequest, type UpdateFinancialEntryRequest } from '../../services/financialEntryService'
 import { financialAccountService } from '../../services/financialAccountService'
 import { financialSubcategoryService } from '../../services/financialSubcategoryService'
 import { campaignService } from '../../services/campaignService'
 import { campaignDeliverableService } from '../../services/campaignDeliverableService'
-import {
-  financialEntryCategoryLabels,
-  type FinancialEntry,
-} from '../../types/financialEntry'
+import { financialEntryCategoryLabels, type FinancialEntry } from '../../types/financialEntry'
 import type { FinancialAccount } from '../../types/financialAccount'
 import type { FinancialSubcategory } from '../../types/financialSubcategory'
 import type { Campaign } from '../../types/campaign'

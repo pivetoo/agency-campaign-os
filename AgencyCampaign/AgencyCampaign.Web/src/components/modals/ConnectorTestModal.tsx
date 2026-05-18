@@ -1,14 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  Button,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  useI18n,
-} from 'archon-ui'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useI18n } from 'archon-ui'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { integrationPlatformService, type TestConnectorResult } from '../../services/integrationPlatformService'
 import type { Connector, IntegrationCategory, IntegrationPlatformIntegration } from '../../types/integrationPlatform'

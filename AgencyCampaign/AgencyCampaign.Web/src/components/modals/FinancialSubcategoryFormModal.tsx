@@ -1,17 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Checkbox,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { financialSubcategoryService } from '../../services/financialSubcategoryService'
 import { financialEntryCategoryLabels } from '../../types/financialEntry'
 import type { FinancialSubcategory } from '../../types/financialSubcategory'

@@ -4,14 +4,7 @@ import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { CheckCircle2, Pencil } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../../services/financialEntryService'
 import { financialAccountService } from '../../../services/financialAccountService'
-import {
-  FinancialEntryStatus,
-  financialEntryCategoryLabels,
-  financialEntryReceivableStatusLabels,
-  financialEntryStatusLabels,
-  type FinancialEntry,
-  type FinancialSummary,
-} from '../../../types/financialEntry'
+import { FinancialEntryStatus, financialEntryCategoryLabels, financialEntryReceivableStatusLabels, financialEntryStatusLabels, type FinancialEntry, type FinancialSummary } from '../../../types/financialEntry'
 import type { FinancialAccount } from '../../../types/financialAccount'
 import FinancialEntryFormModal from '../../../components/modals/FinancialEntryFormModal'
 import MarkAsPaidModal from '../../../components/modals/MarkAsPaidModal'

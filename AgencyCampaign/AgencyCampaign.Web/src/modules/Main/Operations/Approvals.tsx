@@ -3,10 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Link as LinkIcon, ExternalLink, ShieldCheck } from 'lucide-react'
-import {
-  deliverableApprovalsService,
-  deliverableShareLinkService,
-} from '../../../services/deliverableShareLinkService'
+import { deliverableApprovalsService, deliverableShareLinkService } from '../../../services/deliverableShareLinkService'
 import { DeliverableApprovalStatus } from '../../../types/deliverableShareLink'
 import type { PendingApproval } from '../../../types/deliverableShareLink'
 

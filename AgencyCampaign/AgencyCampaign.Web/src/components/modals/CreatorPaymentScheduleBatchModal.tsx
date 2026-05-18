@@ -1,26 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import type { CreatorPayment } from '../../types/creatorPayment'
-import {
-  IntegrationCategoryIdentifier,
-  type Connector,
-  type IntegrationCategory,
-  type IntegrationPlatformIntegration,
-  type Pipeline,
-} from '../../types/integrationPlatform'
+import { IntegrationCategoryIdentifier, type Connector, type IntegrationCategory, type IntegrationPlatformIntegration, type Pipeline } from '../../types/integrationPlatform'
 
 interface Props {
   open: boolean

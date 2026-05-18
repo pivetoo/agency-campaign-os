@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  PageLayout,
-  DataTable,
-  Badge,
-  FilterPanel,
-  TableToolbar,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Eye } from 'lucide-react'
 import { opportunityService, type Opportunity, type OpportunityListFilters } from '../../../services/opportunityService'

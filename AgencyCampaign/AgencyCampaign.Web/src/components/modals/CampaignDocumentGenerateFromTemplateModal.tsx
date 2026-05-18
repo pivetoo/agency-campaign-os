@@ -1,23 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { campaignDocumentService } from '../../services/campaignDocumentService'
 import { campaignDocumentTemplateService } from '../../services/campaignDocumentTemplateService'
-import {
-  CampaignDocumentType,
-  campaignDocumentTypeLabels,
-  type CampaignDocumentTypeValue,
-} from '../../types/campaignDocument'
+import { CampaignDocumentType, campaignDocumentTypeLabels, type CampaignDocumentTypeValue } from '../../types/campaignDocument'
 import type { CampaignDocumentTemplate } from '../../types/campaignDocumentTemplate'
 import type { CampaignCreator } from '../../types/campaignCreator'
 

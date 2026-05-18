@@ -1,30 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import {
-  PageLayout,
-  Card,
-  CardContent,
-  Badge,
-  DataTable,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  Button,
-  ConfirmModal,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { PageLayout, Card, CardContent, Badge, DataTable, Tabs, TabsList, TabsTrigger, TabsContent, Button, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { ExternalLink, Plus, Pencil, Trash2, Users, Activity, Megaphone } from 'lucide-react'
 import { creatorService, resolveCreatorPhotoUrl } from '../../../../services/creatorService'
 import { creatorSocialHandleService } from '../../../../services/creatorSocialHandleService'
 import type { Creator } from '../../../../types/creator'
-import type {
-  CreatorCampaignEntry,
-  CreatorSocialHandle,
-  CreatorSummary,
-} from '../../../../types/creatorSocialHandle'
+import type { CreatorCampaignEntry, CreatorSocialHandle, CreatorSummary } from '../../../../types/creatorSocialHandle'
 import CreatorSocialHandleFormModal from '../../../../components/modals/CreatorSocialHandleFormModal'
 
 function formatCurrency(value: number): string {

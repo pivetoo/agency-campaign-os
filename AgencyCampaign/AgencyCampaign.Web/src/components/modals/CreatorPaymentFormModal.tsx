@@ -1,24 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  SearchableSelect,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { creatorPaymentService, type CreateCreatorPaymentRequest, type UpdateCreatorPaymentRequest } from '../../services/creatorPaymentService'
 import { campaignCreatorService } from '../../services/campaignCreatorService'
-import {
-  PaymentMethod,
-  paymentMethodLabels,
-  type CreatorPayment,
-  type PaymentMethodValue,
-} from '../../types/creatorPayment'
+import { PaymentMethod, paymentMethodLabels, type CreatorPayment, type PaymentMethodValue } from '../../types/creatorPayment'
 import type { CampaignCreator } from '../../types/campaignCreator'
 
 interface Props {

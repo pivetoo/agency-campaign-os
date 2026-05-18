@@ -1,9 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type {
-  DeliverablePublicView,
-  DeliverableShareLink,
-  PendingApproval,
-} from '../types/deliverableShareLink'
+import type { DeliverablePublicView, DeliverableShareLink, PendingApproval } from '../types/deliverableShareLink'
 
 export interface CreateDeliverableShareLinkRequest {
   campaignDeliverableId: number

@@ -1,15 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  Button,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useI18n } from 'archon-ui'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
 import type { CreatorPayment } from '../../types/creatorPayment'
 

@@ -1,20 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Checkbox,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  useApi,
-  useI18n,
-} from 'archon-ui'
-import {
-  opportunitySourceService,
-  opportunityTagService,
-} from '../../services/opportunitySourceService'
+import { Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useI18n } from 'archon-ui'
+import { opportunitySourceService, opportunityTagService } from '../../services/opportunitySourceService'
 import type { OpportunitySource, OpportunityTag } from '../../types/opportunitySource'
 
 interface BaseProps {

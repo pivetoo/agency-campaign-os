@@ -1,16 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  Button,
-  Checkbox,
-  Input,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Button, Checkbox, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useI18n } from 'archon-ui'
 import { ImagePlus, Trash2 } from 'lucide-react'
 import { bankService, resolveBankLogoUrl } from '../../services/bankService'
 import type { Bank } from '../../types/bank'

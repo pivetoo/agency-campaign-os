@@ -1,15 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  Badge,
-  Button,
-  useApi,
-  useI18n,
-} from 'archon-ui'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge, Button, useApi, useI18n } from 'archon-ui'
 import { CheckCircle2, XCircle, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react'
 import { automationService } from '../../services/automationService'
 import { automationTriggerLabels } from '../../types/automationTrigger'

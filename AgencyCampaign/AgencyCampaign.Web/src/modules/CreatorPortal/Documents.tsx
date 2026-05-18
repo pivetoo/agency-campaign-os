@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { useI18n } from 'archon-ui'
 import { creatorPortalService } from '../../services/creatorPortalService'
-import {
-  campaignDocumentStatusLabels,
-  campaignDocumentTypeLabels,
-  type CampaignDocument,
-  type CampaignDocumentStatusValue,
-} from '../../types/campaignDocument'
+import { campaignDocumentStatusLabels, campaignDocumentTypeLabels, type CampaignDocument, type CampaignDocumentStatusValue } from '../../types/campaignDocument'
 import { usePortalContext } from './hooks'
 
 const STATUS_COLOR: Record<CampaignDocumentStatusValue, string> = {
