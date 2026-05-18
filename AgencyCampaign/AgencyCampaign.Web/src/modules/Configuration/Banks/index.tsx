@@ -78,7 +78,7 @@ export default function Banks() {
 
   const columns: DataTableColumn<Bank>[] = [
     { key: 'logo', title: t('configuration.banks.field.logo'), dataIndex: 'logoUrl', width: 64, render: renderLogoCell },
-    { key: 'compe', title: t('configuration.banks.field.compe'), dataIndex: 'compe', width: 100, render: (value: string) => <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{value}</code> },
+    { key: 'compe', title: t('configuration.banks.column.code'), dataIndex: 'compe', width: 100, render: (value: string) => <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{value}</code> },
     {
       key: 'shortName',
       title: t('configuration.banks.field.shortName'),
