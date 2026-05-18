@@ -22,6 +22,10 @@ namespace AgencyCampaign.Application.Services
 
         Task<Opportunity> CloseAsLost(long id, CloseOpportunityAsLostRequest request, CancellationToken cancellationToken = default);
 
+        Task<Opportunity> SetProbability(long id, SetOpportunityProbabilityRequest request, CancellationToken cancellationToken = default);
+
+        Task<Opportunity> ResetProbability(long id, CancellationToken cancellationToken = default);
+
         Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoard(CancellationToken cancellationToken = default);
 
         Task<CommercialDashboardSummaryModel> GetDashboardSummary(CancellationToken cancellationToken = default);

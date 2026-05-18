@@ -179,6 +179,15 @@ namespace AgencyCampaign.Domain.Entities
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
+        public void ResetProbabilityToStageDefault(CommercialPipelineStage stage)
+        {
+            ArgumentNullException.ThrowIfNull(stage);
+
+            ProbabilityIsManual = false;
+            ApplyStageProbability(stage);
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
         private void ApplyStageProbability(CommercialPipelineStage stage)
         {
             if (stage.FinalBehavior == CommercialPipelineStageFinalBehavior.Won)
