@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, DataTable, Badge, FilterPanel, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, TableToolbar, useI18n, usePermissions, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
+import { PageLayout, DataTable, Badge, FilterPanel, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, TableToolbar, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { FileSpreadsheet, Download, Upload, History } from 'lucide-react'
+import { FileSpreadsheet, Download, Upload } from 'lucide-react'
 
 import { brandService, resolveBrandLogoUrl } from '../../services/brandService'
 import type { Brand } from '../../types/brand'
 import BrandFormModal from '../../components/modals/BrandFormModal'
 import BrandImportModal from '../../components/modals/BrandImportModal'
-import AuditTimelineModal from '../../components/modals/AuditTimelineModal'
-import type { PageAction } from 'archon-ui'
+import AuditIconButton from '../../components/buttons/AuditIconButton'
 
 export default function Brands() {
   const { t } = useI18n()
-  const { isRoot } = usePermissions()
   const [brands, setBrands] = useState<Brand[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -23,7 +21,6 @@ export default function Brands() {
   const [previewBrand, setPreviewBrand] = useState<Brand | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
-  const [auditBrandId, setAuditBrandId] = useState<number | null>(null)
   const { execute: fetchBrands, loading, pagination } = useApi<Brand[]>({ showErrorMessage: true })
 
   const loadBrands = async () => {
@@ -108,48 +105,46 @@ export default function Brands() {
     URL.revokeObjectURL(url)
   }
 
-  const excelButton = (
-    <Dropdown>
-      <DropdownTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-lg border border-[#1d6f42]/50 px-3.5 py-1.5 text-sm font-medium text-[#1d6f42] transition-colors hover:bg-[#1d6f42]/8 hover:border-[#1d6f42]">
-          <FileSpreadsheet size={15} className="text-[#1d6f42]" />
-          Excel
-        </button>
-      </DropdownTrigger>
-      <DropdownContent align="end" className="w-40">
-        <DropdownItem className="gap-2 cursor-pointer" onSelect={() => setIsImportOpen(true)}>
-          <Upload size={14} />
-          Importar
-        </DropdownItem>
-        <DropdownSeparator />
-        <DropdownItem className="gap-2 cursor-pointer" onSelect={() => void handleExport()}>
-          <Download size={14} />
-          Exportar
-        </DropdownItem>
-      </DropdownContent>
-    </Dropdown>
-  )
+  const utilityBar = (
+    <div className="flex items-center gap-1">
+      <Dropdown>
+        <DropdownTrigger asChild>
+          <button
+            type="button"
+            title="Importar ou exportar Excel"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-[#1d6f42]"
+          >
+            <FileSpreadsheet size={16} />
+          </button>
+        </DropdownTrigger>
+        <DropdownContent align="end" className="w-40">
+          <DropdownItem className="gap-2 cursor-pointer" onSelect={() => setIsImportOpen(true)}>
+            <Upload size={14} />
+            Importar
+          </DropdownItem>
+          <DropdownSeparator />
+          <DropdownItem className="gap-2 cursor-pointer" onSelect={() => void handleExport()}>
+            <Download size={14} />
+            Exportar
+          </DropdownItem>
+        </DropdownContent>
+      </Dropdown>
 
-  const extraActions: PageAction[] = isRoot
-    ? [{
-        key: 'audit',
-        label: 'Auditoria',
-        icon: <History className="h-4 w-4" />,
-        variant: 'outline',
-        onClick: () => selectedBrand && setAuditBrandId(selectedBrand.id),
-        disabled: !selectedBrand,
-      }]
-    : []
+      <AuditIconButton entityName="Brand" entityLabel="Marca" entityId={selectedBrand?.id ?? null} />
+
+      <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+    </div>
+  )
 
   return (
     <>
       <PageLayout
         title={t('brands.title')}
         subtitle={t('brands.subtitle')}
-        actionsSlot={excelButton}
-        actions={extraActions}
+        actionsSlot={utilityBar}
         onAdd={() => { setSelectedBrand(null); setIsFormOpen(true) }}
         onEdit={() => selectedBrand && setIsFormOpen(true)}
+        addLabel="Nova marca"
         onRefresh={() => void loadBrands()}
         selectedRowsCount={selectedBrand ? 1 : 0}
       >
@@ -245,13 +240,6 @@ export default function Brands() {
         </SheetContent>
       </Sheet>
 
-      <AuditTimelineModal
-        entityName="Brand"
-        entityLabel="Marca"
-        entityId={auditBrandId}
-        open={auditBrandId !== null}
-        onClose={() => setAuditBrandId(null)}
-      />
     </>
   )
 }

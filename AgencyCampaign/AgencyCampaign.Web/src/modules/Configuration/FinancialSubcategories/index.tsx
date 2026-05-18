@@ -6,6 +6,7 @@ import { financialSubcategoryService } from '../../../services/financialSubcateg
 import { financialEntryCategoryLabels } from '../../../types/financialEntry'
 import type { FinancialSubcategory } from '../../../types/financialSubcategory'
 import FinancialSubcategoryFormModal from '../../../components/modals/FinancialSubcategoryFormModal'
+import AuditIconButton from '../../../components/buttons/AuditIconButton'
 
 export default function FinancialSubcategories() {
   const { t } = useI18n()
@@ -103,6 +104,13 @@ export default function FinancialSubcategories() {
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}
+        actionsSlot={
+          <div className="flex items-center gap-1">
+            <AuditIconButton entityName="FinancialSubcategory" entityLabel="Subcategoria financeira" entityId={selected?.id ?? null} />
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+          </div>
+        }
+        addLabel="Nova subcategoria"
         selectedRowsCount={selected ? 1 : 0}
         actions={[
           {

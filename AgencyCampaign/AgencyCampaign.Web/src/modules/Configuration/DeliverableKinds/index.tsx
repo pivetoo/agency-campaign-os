@@ -4,6 +4,7 @@ import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { deliverableKindService } from '../../../services/deliverableKindService'
 import type { DeliverableKind } from '../../../types/deliverableKind'
 import DeliverableKindFormModal from '../../../components/modals/DeliverableKindFormModal'
+import AuditIconButton from '../../../components/buttons/AuditIconButton'
 
 export default function DeliverableKinds() {
   const { t } = useI18n()
@@ -74,6 +75,13 @@ export default function DeliverableKinds() {
         onAdd={() => { setSelectedDeliverableKind(null); setIsFormOpen(true) }}
         onEdit={() => selectedDeliverableKind && setIsFormOpen(true)}
         onRefresh={() => void loadDeliverableKinds()}
+        actionsSlot={
+          <div className="flex items-center gap-1">
+            <AuditIconButton entityName="DeliverableKind" entityLabel="Tipo de entrega" entityId={selectedDeliverableKind?.id ?? null} />
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+          </div>
+        }
+        addLabel="Novo tipo"
         selectedRowsCount={selectedDeliverableKind ? 1 : 0}
       >
         <TableToolbar

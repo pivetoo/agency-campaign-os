@@ -15,6 +15,7 @@ import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValu
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import type { CommercialResponsible } from '../../types/commercialResponsible'
 import ProposalFormModal from '../../components/modals/ProposalFormModal'
+import AuditIconButton from '../../components/buttons/AuditIconButton'
 
 const STATUS_ALL = ''
 
@@ -231,9 +232,16 @@ export default function CommercialProposals() {
       <PageLayout
         title={t('proposals.title')}
         subtitle={t('proposals.subtitle')}
+        actionsSlot={
+          <div className="flex items-center gap-1">
+            <AuditIconButton entityName="Proposal" entityLabel="Proposta" entityId={selectedProposal?.id ?? null} />
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+          </div>
+        }
         onAdd={() => { setSelectedProposal(null); setIsFormOpen(true) }}
         onEdit={() => selectedProposal && setIsFormOpen(true)}
         onRefresh={() => void loadProposals()}
+        addLabel="Nova proposta"
         selectedRowsCount={selectedProposal ? 1 : 0}
         actions={[
           {

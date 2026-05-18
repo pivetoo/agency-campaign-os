@@ -17,6 +17,7 @@ import { commercialResponsibleService } from '../../services/commercialResponsib
 import type { CommercialPipelineStage } from '../../types/commercialPipelineStage'
 import type { CommercialResponsible } from '../../types/commercialResponsible'
 import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
+import AuditIconButton from '../../components/buttons/AuditIconButton'
 
 const STATUS_ALL = ''
 
@@ -171,9 +172,16 @@ export default function CommercialOpportunities() {
       <PageLayout
         title={t('opportunities.title')}
         subtitle={t('opportunities.subtitle')}
+        actionsSlot={
+          <div className="flex items-center gap-1">
+            <AuditIconButton entityName="Opportunity" entityLabel="Oportunidade" entityId={selectedOpportunity?.id ?? null} />
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+          </div>
+        }
         onAdd={() => { setSelectedOpportunity(null); setIsFormOpen(true) }}
         onEdit={() => selectedOpportunity && setIsFormOpen(true)}
         onRefresh={reload}
+        addLabel="Nova oportunidade"
         selectedRowsCount={selectedOpportunity ? 1 : 0}
       ><TableToolbar
           searchValue={searchInput}

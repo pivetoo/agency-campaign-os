@@ -9,6 +9,7 @@ import {
 } from '../../../types/campaignDocument'
 import type { CampaignDocumentTemplate } from '../../../types/campaignDocumentTemplate'
 import CampaignDocumentTemplateFormModal from '../../../components/modals/CampaignDocumentTemplateFormModal'
+import AuditIconButton from '../../../components/buttons/AuditIconButton'
 
 export default function CampaignDocumentTemplates() {
   const { t } = useI18n()
@@ -83,6 +84,13 @@ export default function CampaignDocumentTemplates() {
         }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}
+        actionsSlot={
+          <div className="flex items-center gap-1">
+            <AuditIconButton entityName="CampaignDocumentTemplate" entityLabel="Modelo de documento" entityId={selected?.id ?? null} />
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+          </div>
+        }
+        addLabel="Novo modelo"
         selectedRowsCount={selected ? 1 : 0}
         actions={[
           {

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Badge, DataTable, FilterPanel, PageLayout, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import CommercialPipelineStageFormModal from '../../../components/modals/CommercialPipelineStageFormModal'
+import AuditIconButton from '../../../components/buttons/AuditIconButton'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
 import type { CommercialPipelineStage } from '../../../types/commercialPipelineStage'
 
@@ -78,6 +79,13 @@ export default function CommercialPipelineStages() {
         onAdd={() => { setSelectedStage(null); setIsFormOpen(true) }}
         onEdit={() => selectedStage && setIsFormOpen(true)}
         onRefresh={() => void loadStages()}
+        actionsSlot={
+          <div className="flex items-center gap-1">
+            <AuditIconButton entityName="CommercialPipelineStage" entityLabel="Etapa do pipeline" entityId={selectedStage?.id ?? null} />
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+          </div>
+        }
+        addLabel="Nova etapa"
         selectedRowsCount={selectedStage ? 1 : 0}
       >
         <TableToolbar

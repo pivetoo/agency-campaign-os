@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Badge, DataTable, FilterPanel, PageLayout, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import CampaignCreatorStatusFormModal from '../../../components/modals/CampaignCreatorStatusFormModal'
+import AuditIconButton from '../../../components/buttons/AuditIconButton'
 import { campaignCreatorStatusService } from '../../../services/campaignCreatorStatusService'
 import type { CampaignCreatorStatus } from '../../../types/campaignCreatorStatus'
 
@@ -88,6 +89,13 @@ export default function CampaignCreatorStatuses() {
         onAdd={() => { setSelectedStatus(null); setIsFormOpen(true) }}
         onEdit={() => selectedStatus && setIsFormOpen(true)}
         onRefresh={() => void loadStatuses()}
+        actionsSlot={
+          <div className="flex items-center gap-1">
+            <AuditIconButton entityName="CampaignCreatorStatus" entityLabel="Status" entityId={selectedStatus?.id ?? null} />
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+          </div>
+        }
+        addLabel="Novo status"
         selectedRowsCount={selectedStatus ? 1 : 0}
       >
         <TableToolbar

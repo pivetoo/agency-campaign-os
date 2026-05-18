@@ -7,6 +7,7 @@ import {
   type ProposalTemplate,
 } from '../../../services/proposalTemplateService'
 import ProposalTemplateFormModal from '../../../components/modals/ProposalTemplateFormModal'
+import AuditIconButton from '../../../components/buttons/AuditIconButton'
 
 export default function ProposalTemplates() {
   const { t } = useI18n()
@@ -107,6 +108,13 @@ export default function ProposalTemplates() {
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}
+        actionsSlot={
+          <div className="flex items-center gap-1">
+            <AuditIconButton entityName="ProposalTemplate" entityLabel="Modelo de proposta" entityId={selected?.id ?? null} />
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+          </div>
+        }
+        addLabel="Novo modelo"
         selectedRowsCount={selected ? 1 : 0}
         actions={[
           {

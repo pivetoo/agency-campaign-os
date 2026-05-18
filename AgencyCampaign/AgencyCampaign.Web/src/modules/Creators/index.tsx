@@ -9,6 +9,7 @@ import type { Creator } from '../../types/creator'
 import CreatorFormModal from '../../components/modals/CreatorFormModal'
 import CreatorAccessTokensModal from '../../components/modals/CreatorAccessTokensModal'
 import CreatorImportModal from '../../components/modals/CreatorImportModal'
+import AuditIconButton from '../../components/buttons/AuditIconButton'
 
 export default function Creators() {
   const { t } = useI18n()
@@ -120,26 +121,35 @@ export default function Creators() {
     URL.revokeObjectURL(url)
   }
 
-  const excelButton = (
-    <Dropdown>
-      <DropdownTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-lg border border-[#1d6f42]/50 px-3.5 py-1.5 text-sm font-medium text-[#1d6f42] transition-colors hover:bg-[#1d6f42]/8 hover:border-[#1d6f42]">
-          <FileSpreadsheet size={15} className="text-[#1d6f42]" />
-          Excel
-        </button>
-      </DropdownTrigger>
-      <DropdownContent align="end" className="w-40">
-        <DropdownItem className="gap-2 cursor-pointer" onSelect={() => setIsImportOpen(true)}>
-          <Upload size={14} />
-          Importar
-        </DropdownItem>
-        <DropdownSeparator />
-        <DropdownItem className="gap-2 cursor-pointer" onSelect={() => void handleExport()}>
-          <Download size={14} />
-          Exportar
-        </DropdownItem>
-      </DropdownContent>
-    </Dropdown>
+  const utilityBar = (
+    <div className="flex items-center gap-1">
+      <Dropdown>
+        <DropdownTrigger asChild>
+          <button
+            type="button"
+            title="Importar ou exportar Excel"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-[#1d6f42]"
+          >
+            <FileSpreadsheet size={16} />
+          </button>
+        </DropdownTrigger>
+        <DropdownContent align="end" className="w-40">
+          <DropdownItem className="gap-2 cursor-pointer" onSelect={() => setIsImportOpen(true)}>
+            <Upload size={14} />
+            Importar
+          </DropdownItem>
+          <DropdownSeparator />
+          <DropdownItem className="gap-2 cursor-pointer" onSelect={() => void handleExport()}>
+            <Download size={14} />
+            Exportar
+          </DropdownItem>
+        </DropdownContent>
+      </Dropdown>
+
+      <AuditIconButton entityName="Creator" entityLabel="Influenciador" entityId={selectedCreator?.id ?? null} />
+
+      <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+    </div>
   )
 
   return (
@@ -147,18 +157,20 @@ export default function Creators() {
       <PageLayout
         title={t('creators.title')}
         subtitle={t('creators.subtitle')}
-        actionsSlot={excelButton}
+        actionsSlot={utilityBar}
         onAdd={() => { setSelectedCreator(null); setIsFormOpen(true) }}
         onEdit={() => selectedCreator && setIsFormOpen(true)}
         onRefresh={() => void loadCreators()}
+        addLabel="Novo influenciador"
         selectedRowsCount={selectedCreator ? 1 : 0}
         actions={[
           {
             key: 'access-tokens',
             label: t('creators.action.portalLinks'),
             icon: <LinkIcon className="h-4 w-4" />,
-            variant: 'outline',
+            variant: 'ghost',
             disabled: !selectedCreator,
+            tooltip: selectedCreator ? undefined : 'Selecione um influenciador para gerar links do portal',
             onClick: () => selectedCreator && setIsTokensOpen(true),
           },
         ]}
