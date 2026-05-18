@@ -20,6 +20,29 @@ namespace AgencyCampaign.Application.Models.Financial
         public FinancialAccountSyncStatus SyncStatus { get; set; }
     }
 
+    public sealed class BankTransactionModel
+    {
+        public long Id { get; set; }
+        public long AccountId { get; set; }
+        public string ExternalId { get; set; } = string.Empty;
+        public DateTimeOffset OccurredAt { get; set; }
+        public decimal Amount { get; set; }
+        public BankTransactionDirection Direction { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string? Category { get; set; }
+        public long? FinancialEntryId { get; set; }
+        public DateTimeOffset? MatchedAt { get; set; }
+        public BankTransactionMatchKind? MatchKind { get; set; }
+        public DateTimeOffset ImportedAt { get; set; }
+    }
+
+    public sealed class ImportBankTransactionsResult
+    {
+        public int Imported { get; set; }
+        public int Skipped { get; set; }
+        public int AutoMatched { get; set; }
+    }
+
     public sealed class FinancialAccountSummaryModel
     {
         public int ActiveCount { get; set; }

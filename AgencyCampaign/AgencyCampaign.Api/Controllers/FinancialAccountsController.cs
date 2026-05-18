@@ -77,5 +77,35 @@ namespace AgencyCampaign.Api.Controllers
             await service.Delete(id, cancellationToken);
             return Http204();
         }
+
+        [RequireAccess("Permite vincular uma conta financeira a um conector do IntegrationPlatform.")]
+        [PutEndpoint("{id:long}/attach-connector")]
+        public async Task<IActionResult> AttachConnector(long id, [FromBody] AttachConnectorRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await service.AttachConnector(id, request.ConnectorId, cancellationToken);
+            return Http200(result, Localizer["financialAccount.connector.attached"]);
+        }
+
+        [RequireAccess("Permite remover o vínculo da conta financeira com o conector.")]
+        [PutEndpoint("{id:long}/detach-connector")]
+        public async Task<IActionResult> DetachConnector(long id, CancellationToken cancellationToken)
+        {
+            var result = await service.DetachConnector(id, cancellationToken);
+            return Http200(result, Localizer["financialAccount.connector.detached"]);
+        }
+
+        [RequireAccess("Permite disparar uma sincronização manual da conta financeira.")]
+        [PostEndpoint("{id:long}/sync")]
+        public async Task<IActionResult> Sync(long id, CancellationToken cancellationToken)
+        {
+            long executionId = await service.TriggerSync(id, cancellationToken);
+            return Http200(new { executionId }, Localizer["financialAccount.sync.triggered"]);
+        }
     }
 }

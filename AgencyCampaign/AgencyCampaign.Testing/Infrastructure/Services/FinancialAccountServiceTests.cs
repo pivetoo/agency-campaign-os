@@ -19,7 +19,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new FinancialAccountService(db);
+            service = new FinancialAccountService(db, null!);
         }
 
         [TearDown]

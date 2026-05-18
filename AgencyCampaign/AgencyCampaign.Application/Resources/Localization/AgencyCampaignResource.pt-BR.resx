@@ -93,6 +93,42 @@
   <data name="validation.financialAccount.color.invalidHex" xml:space="preserve">
     <value>Cor inválida. Use o formato hexadecimal (#RRGGBB).</value>
   </data>
+  <data name="financialAccount.notFound" xml:space="preserve">
+    <value>Conta financeira não encontrada.</value>
+  </data>
+  <data name="financialAccount.connector.attached" xml:space="preserve">
+    <value>Conector vinculado com sucesso.</value>
+  </data>
+  <data name="financialAccount.connector.detached" xml:space="preserve">
+    <value>Conector desvinculado.</value>
+  </data>
+  <data name="financialAccount.sync.triggered" xml:space="preserve">
+    <value>Sincronização disparada.</value>
+  </data>
+  <data name="financialAccount.sync.noConnector" xml:space="preserve">
+    <value>Configure um conector antes de sincronizar.</value>
+  </data>
+  <data name="financialAccount.sync.cannotPendWithoutConnector" xml:space="preserve">
+    <value>Não é possível marcar sincronização como pendente sem um conector vinculado.</value>
+  </data>
+  <data name="bankTransaction.import.success" xml:space="preserve">
+    <value>Transações importadas com sucesso.</value>
+  </data>
+  <data name="bankTransaction.match.success" xml:space="preserve">
+    <value>Transação vinculada ao lançamento.</value>
+  </data>
+  <data name="bankTransaction.unmatch.success" xml:space="preserve">
+    <value>Vínculo removido.</value>
+  </data>
+  <data name="bankTransaction.notFound" xml:space="preserve">
+    <value>Transação bancária não encontrada.</value>
+  </data>
+  <data name="financialEntry.notFoundForAccount" xml:space="preserve">
+    <value>Lançamento não encontrado para esta conta.</value>
+  </data>
+  <data name="integrationPlatform.pipeline.noDefault" xml:space="preserve">
+    <value>A integração não possui pipeline padrão configurado.</value>
+  </data>
   <data name="opportunityApproval.notPending" xml:space="preserve">
     <value>Apenas solicitações de aprovação pendentes podem ser decididas.</value>
   </data>
@@ -993,6 +1029,18 @@
   <data name="configuration.bankAccounts.confirm.deactivate" xml:space="preserve"><value>Desativar a conta "{0}"?</value></data>
   <data name="configuration.bankAccounts.confirm.activate" xml:space="preserve"><value>Reativar a conta "{0}"?</value></data>
   <data name="modal.financialAccount.field.namePlaceholder" xml:space="preserve"><value>Ex.: PJ Itaú, Caixinha PIX</value></data>
+  <data name="configuration.bankAccounts.connector.modal.title" xml:space="preserve"><value>Conector de sincronização</value></data>
+  <data name="configuration.bankAccounts.connector.modal.description" xml:space="preserve"><value>Escolha qual conector do IntegrationPlatform deve abastecer essa conta.</value></data>
+  <data name="configuration.bankAccounts.connector.modal.current" xml:space="preserve"><value>Conector atual</value></data>
+  <data name="configuration.bankAccounts.connector.modal.selectConnector" xml:space="preserve"><value>Selecione um conector</value></data>
+  <data name="configuration.bankAccounts.connector.modal.empty" xml:space="preserve"><value>Nenhum conector ativo. Cadastre em Integrações.</value></data>
+  <data name="configuration.bankAccounts.action.attachConnector" xml:space="preserve"><value>Vincular</value></data>
+  <data name="configuration.bankAccounts.action.changeConnector" xml:space="preserve"><value>Trocar conector</value></data>
+  <data name="configuration.bankAccounts.action.detachConnector" xml:space="preserve"><value>Desvincular</value></data>
+  <data name="configuration.bankAccounts.action.openConnector" xml:space="preserve"><value>Conector</value></data>
+  <data name="configuration.bankAccounts.action.sync" xml:space="preserve"><value>Sincronizar agora</value></data>
+  <data name="configuration.bankAccounts.tooltip.lastSync" xml:space="preserve"><value>Última sincronização: {0}</value></data>
+  <data name="configuration.bankAccounts.tooltip.bankBalance" xml:space="preserve"><value>Saldo bancário: {0}</value></data>
   <data name="configuration.financialSubcategories.empty" xml:space="preserve"><value>Nenhuma subcategoria cadastrada</value></data>
   <data name="configuration.financialSubcategories.confirm.delete" xml:space="preserve"><value>Excluir a subcategoria "{0}"?</value></data>
   <data name="configuration.financialSubcategories.field.subcategory" xml:space="preserve"><value>Subcategoria</value></data>

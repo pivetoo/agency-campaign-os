@@ -17,5 +17,11 @@ namespace AgencyCampaign.Application.Services
         Task<FinancialAccountModel> Update(long id, UpdateFinancialAccountRequest request, CancellationToken cancellationToken = default);
 
         Task Delete(long id, CancellationToken cancellationToken = default);
+
+        Task<FinancialAccountModel> AttachConnector(long id, long connectorId, CancellationToken cancellationToken = default);
+
+        Task<FinancialAccountModel> DetachConnector(long id, CancellationToken cancellationToken = default);
+
+        Task<long> TriggerSync(long id, CancellationToken cancellationToken = default);
     }
 }

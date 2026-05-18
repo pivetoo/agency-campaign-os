@@ -3,6 +3,7 @@ using AgencyCampaign.Application.Requests.FinancialAccounts;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using AgencyCampaign.Infrastructure.Clients;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +13,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class FinancialAccountService : IFinancialAccountService
     {
         private readonly DbContext dbContext;
+        private readonly IntegrationPlatformClient integrationPlatformClient;
 
-        public FinancialAccountService(DbContext dbContext)
+        public FinancialAccountService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient)
         {
             this.dbContext = dbContext;
+            this.integrationPlatformClient = integrationPlatformClient;
         }
 
         public async Task<PagedResult<FinancialAccountModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -207,6 +210,61 @@ namespace AgencyCampaign.Infrastructure.Services
 
             dbContext.Set<FinancialAccount>().Remove(account);
             await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<FinancialAccountModel> AttachConnector(long id, long connectorId, CancellationToken cancellationToken = default)
+        {
+            FinancialAccount account = await LoadTracked(id, cancellationToken);
+            account.AttachConnector(connectorId);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException("record.notFound");
+        }
+
+        public async Task<FinancialAccountModel> DetachConnector(long id, CancellationToken cancellationToken = default)
+        {
+            FinancialAccount account = await LoadTracked(id, cancellationToken);
+            account.DetachConnector();
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException("record.notFound");
+        }
+
+        public async Task<long> TriggerSync(long id, CancellationToken cancellationToken = default)
+        {
+            FinancialAccount account = await LoadTracked(id, cancellationToken);
+            if (account.IntegrationConnectorId is null)
+            {
+                throw new InvalidOperationException("financialAccount.sync.noConnector");
+            }
+
+            account.MarkSyncPending();
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            string payload = $"{{\"financialAccountId\":{account.Id}}}";
+            try
+            {
+                ExecutionDto execution = await integrationPlatformClient.ExecuteDefaultPipelineAsync(account.IntegrationConnectorId.Value, payload, cancellationToken);
+                return execution.Id;
+            }
+            catch
+            {
+                account.MarkSyncError(DateTimeOffset.UtcNow);
+                await dbContext.SaveChangesAsync(CancellationToken.None);
+                throw;
+            }
+        }
+
+        private async Task<FinancialAccount> LoadTracked(long id, CancellationToken cancellationToken)
+        {
+            FinancialAccount? account = await dbContext.Set<FinancialAccount>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (account is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            return account;
         }
 
         private async Task EnsureNameIsUnique(string name, long? ignoreId, CancellationToken cancellationToken)

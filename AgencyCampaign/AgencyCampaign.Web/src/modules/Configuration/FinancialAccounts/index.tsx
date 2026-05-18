@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { PageLayout, DataTable, Badge, Card, CardContent, ConfirmModal, Switch, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Power, PowerOff, Trash2 } from 'lucide-react'
+import { Link as LinkIcon, Power, PowerOff, RefreshCw, Trash2 } from 'lucide-react'
 import { financialAccountService } from '../../../services/financialAccountService'
 import {
   FinancialAccountSyncStatus,
@@ -11,6 +11,7 @@ import {
   type FinancialAccountSyncStatusValue,
 } from '../../../types/financialAccount'
 import FinancialAccountFormModal from '../../../components/modals/FinancialAccountFormModal'
+import FinancialAccountConnectorBindingModal from '../../../components/modals/FinancialAccountConnectorBindingModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 
 function formatCurrency(value: number): string {
@@ -39,10 +40,12 @@ export default function FinancialAccounts() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isToggleConfirmOpen, setIsToggleConfirmOpen] = useState(false)
+  const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false)
   const { execute: fetchAll, loading, pagination } = useApi<FinancialAccount[]>({ showErrorMessage: true })
   const { execute: fetchSummary } = useApi<FinancialAccountSummary>({ showErrorMessage: false })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: runToggle, loading: toggling } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: runSync, loading: syncing } = useApi<{ executionId: number }>({ showSuccessMessage: true, showErrorMessage: true })
 
   const load = async () => {
     const result = await fetchAll(() => financialAccountService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive }))
@@ -84,6 +87,14 @@ export default function FinancialAccounts() {
     if (result !== null) {
       setSelected(null)
       setIsConfirmOpen(false)
+      refreshList()
+    }
+  }
+
+  const handleSync = async () => {
+    if (!selected) return
+    const result = await runSync(() => financialAccountService.sync(selected.id))
+    if (result !== null) {
       refreshList()
     }
   }
@@ -132,9 +143,17 @@ export default function FinancialAccounts() {
       key: 'syncStatus',
       title: t('configuration.bankAccounts.field.sync'),
       dataIndex: 'syncStatus',
-      render: (value: FinancialAccountSyncStatusValue) => {
+      render: (value: FinancialAccountSyncStatusValue, record) => {
         const meta = SYNC_STATUS_META[value] ?? SYNC_STATUS_META[FinancialAccountSyncStatus.NotConfigured]
-        return <Badge variant={meta.variant}>{t(meta.labelKey)}</Badge>
+        const tooltipParts: string[] = []
+        if (record.lastSyncedAt) {
+          tooltipParts.push(t('configuration.bankAccounts.tooltip.lastSync').replace('{0}', new Date(record.lastSyncedAt).toLocaleString('pt-BR')))
+        }
+        if (record.lastSyncedBalance != null) {
+          tooltipParts.push(t('configuration.bankAccounts.tooltip.bankBalance').replace('{0}', formatCurrency(record.lastSyncedBalance)))
+        }
+        const tooltip = tooltipParts.join(' • ')
+        return <span title={tooltip || undefined}><Badge variant={meta.variant}>{t(meta.labelKey)}</Badge></span>
       },
     },
     {
@@ -169,6 +188,24 @@ export default function FinancialAccounts() {
         addLabel={t('configuration.bankAccounts.addLabel')}
         selectedRowsCount={selected ? 1 : 0}
         actions={[
+          {
+            key: 'connector',
+            label: t('configuration.bankAccounts.action.openConnector'),
+            testId: 'financial-account-connector-button',
+            icon: <LinkIcon className="h-4 w-4" />,
+            variant: 'ghost',
+            disabled: !selected,
+            onClick: () => setIsConnectorModalOpen(true),
+          },
+          {
+            key: 'sync',
+            label: t('configuration.bankAccounts.action.sync'),
+            testId: 'financial-account-sync-button',
+            icon: <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />,
+            variant: 'ghost',
+            disabled: !selected || syncing || !selected?.integrationConnectorId,
+            onClick: () => void handleSync(),
+          },
           {
             key: 'toggle',
             label: toggleLabel,
@@ -263,6 +300,16 @@ export default function FinancialAccounts() {
         variant={selected?.isActive ? 'warning' : 'primary'}
         onConfirm={() => void handleToggleActive()}
         loading={toggling}
+      />
+
+      <FinancialAccountConnectorBindingModal
+        open={isConnectorModalOpen}
+        onOpenChange={setIsConnectorModalOpen}
+        account={selected}
+        onSuccess={() => {
+          setIsConnectorModalOpen(false)
+          refreshList()
+        }}
       />
 
       <FinancialAccountFormModal

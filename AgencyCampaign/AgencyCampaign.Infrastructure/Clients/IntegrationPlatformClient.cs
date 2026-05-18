@@ -236,6 +236,25 @@ namespace AgencyCampaign.Infrastructure.Clients
                 : throw new InvalidOperationException("integrationPlatform.pipeline.executeFailed");
         }
 
+        public async Task<ExecutionDto> ExecuteDefaultPipelineAsync(long connectorId, string? inputData = null, CancellationToken ct = default)
+        {
+            ConnectorDto connector = await GetConnectorByIdAsync(connectorId, ct);
+            List<PipelineDto> pipelines = await GetPipelinesByIntegrationAsync(connector.IntegrationId, ct);
+
+            PipelineDto? defaultPipeline = pipelines.FirstOrDefault(item => item.IsDefault);
+            if (defaultPipeline is null)
+            {
+                throw new InvalidOperationException("integrationPlatform.pipeline.noDefault");
+            }
+
+            return await ExecutePipelineAsync(new ExecutePipelineRequest
+            {
+                ConnectorId = connectorId,
+                PipelineId = defaultPipeline.Id,
+                InputData = inputData
+            }, ct);
+        }
+
         public async Task<ProcessingQueueDto> EnqueuePipelineAsync(EnqueuePipelineRequest request, CancellationToken ct = default)
         {
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
