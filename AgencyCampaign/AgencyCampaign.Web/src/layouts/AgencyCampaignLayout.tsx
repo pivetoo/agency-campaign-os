@@ -174,8 +174,8 @@ export default function AgencyCampaignLayout() {
     {
       label: t('nav.group.finance'),
       items: [
-        { key: 'configuracao-contas-financeiras', label: t('nav.item.bankAccounts'), path: '/configuracao/contas-financeiras', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
         { key: 'configuracao-bancos', label: t('nav.item.banks'), path: '/configuracao/bancos', icon: <Landmark size={20} />, requires: ['banks.get'] },
+        { key: 'configuracao-contas-financeiras', label: t('nav.item.bankAccounts'), path: '/configuracao/contas-financeiras', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
         { key: 'configuracao-subcategorias-financeiras', label: t('nav.item.financialSubcategories'), path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} />, requires: ['financialSubcategories.get'] },
       ],
     },
