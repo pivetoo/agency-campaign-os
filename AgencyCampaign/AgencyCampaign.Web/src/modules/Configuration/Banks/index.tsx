@@ -83,17 +83,19 @@ export default function Banks() {
       key: 'shortName',
       title: t('configuration.banks.field.shortName'),
       dataIndex: 'shortName',
-      render: (value: string, record) => (
-        <span className="inline-flex items-center gap-1">
-          <span className="font-medium">{value}</span>
-          {record.isSystem && (
-            <span className="text-destructive font-semibold leading-none" title={t('configuration.banks.systemBadge')}>*</span>
-          )}
-        </span>
-      ),
+      render: (value: string) => <span className="font-medium">{value}</span>,
     },
     { key: 'name', title: t('common.field.name'), dataIndex: 'name', hiddenBelow: 'md' },
     { key: 'ispb', title: t('configuration.banks.field.ispb'), dataIndex: 'ispb', hiddenBelow: 'lg', render: (value?: string | null) => value || '-' },
+    {
+      key: 'origin',
+      title: t('configuration.banks.column.origin'),
+      dataIndex: 'isSystem',
+      hiddenBelow: 'sm',
+      render: (_: unknown, record: Bank) => record.isSystem
+        ? <span className="text-muted-foreground">{t('configuration.banks.origin.system')}</span>
+        : <span>{record.createdByUserName ?? '—'}</span>,
+    },
     {
       key: 'isActive',
       title: t('common.field.status'),

@@ -10,5 +10,6 @@ namespace AgencyCampaign.Application.Models.Financial
         public string? LogoUrl { get; set; }
         public bool IsActive { get; set; }
         public bool IsSystem { get; set; }
+        public string? CreatedByUserName { get; set; }
     }
 }

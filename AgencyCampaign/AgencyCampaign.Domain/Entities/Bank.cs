@@ -18,11 +18,13 @@ namespace AgencyCampaign.Domain.Entities
 
         public bool IsSystem { get; private set; }
 
+        public string? CreatedByUserName { get; private set; }
+
         private Bank()
         {
         }
 
-        public Bank(string compe, string name, string shortName, string? ispb = null, string? logoUrl = null, bool isSystem = false)
+        public Bank(string compe, string name, string shortName, string? ispb = null, string? logoUrl = null, bool isSystem = false, string? createdByUserName = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(compe);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -34,6 +36,7 @@ namespace AgencyCampaign.Domain.Entities
             Ispb = string.IsNullOrWhiteSpace(ispb) ? null : ispb.Trim();
             LogoUrl = string.IsNullOrWhiteSpace(logoUrl) ? null : logoUrl.Trim();
             IsSystem = isSystem;
+            CreatedByUserName = string.IsNullOrWhiteSpace(createdByUserName) ? null : createdByUserName.Trim();
         }
 
         public void Update(string compe, string name, string shortName, string? ispb, string? logoUrl, bool isActive)

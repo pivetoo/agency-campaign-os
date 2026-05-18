@@ -78,12 +78,7 @@ export default function BankFormModal({ open, onOpenChange, bank, onSuccess }: P
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="form">
         <ModalHeader>
-          <ModalTitle className="flex items-center gap-1">
-            <span>{isEditing ? t('modal.bank.title.edit') : t('modal.bank.title.new')}</span>
-            {isSystem && (
-              <span className="text-destructive font-semibold leading-none" title={t('configuration.banks.systemBadge')}>*</span>
-            )}
-          </ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.bank.title.edit') : t('modal.bank.title.new')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">

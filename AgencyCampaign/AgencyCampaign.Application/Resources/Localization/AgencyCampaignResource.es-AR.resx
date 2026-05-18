@@ -126,6 +126,8 @@
   <data name="configuration.banks.addLabel" xml:space="preserve"><value>Nuevo banco</value></data>
   <data name="configuration.banks.field.compe" xml:space="preserve"><value>Código (compe)</value></data>
   <data name="configuration.banks.column.code" xml:space="preserve"><value>Código</value></data>
+  <data name="configuration.banks.column.origin" xml:space="preserve"><value>Origen</value></data>
+  <data name="configuration.banks.origin.system" xml:space="preserve"><value>Sistema</value></data>
   <data name="configuration.banks.field.ispb" xml:space="preserve"><value>ISPB</value></data>
   <data name="configuration.banks.field.shortName" xml:space="preserve"><value>Nombre corto</value></data>
   <data name="configuration.banks.field.logoUrl" xml:space="preserve"><value>URL del logo</value></data>

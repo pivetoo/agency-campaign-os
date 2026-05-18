@@ -7,6 +7,7 @@ export interface Bank {
   logoUrl?: string | null
   isActive: boolean
   isSystem: boolean
+  createdByUserName?: string | null
 }
 
 export interface CreateBankRequest {

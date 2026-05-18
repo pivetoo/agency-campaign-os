@@ -2,6 +2,7 @@ using AgencyCampaign.Application.Models.Financial;
 using AgencyCampaign.Application.Requests.Banks;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using Archon.Application.Abstractions;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class BankService : IBankService
     {
         private readonly DbContext dbContext;
+        private readonly ICurrentUser currentUser;
 
-        public BankService(DbContext dbContext)
+        public BankService(DbContext dbContext, ICurrentUser currentUser)
         {
             this.dbContext = dbContext;
+            this.currentUser = currentUser;
         }
 
         public async Task<PagedResult<BankModel>> GetAll(PagedRequest request, string? search, bool includeInactive, CancellationToken cancellationToken = default)
@@ -61,7 +64,8 @@ namespace AgencyCampaign.Infrastructure.Services
                     ShortName = item.ShortName,
                     LogoUrl = item.LogoUrl,
                     IsActive = item.IsActive,
-                    IsSystem = item.IsSystem
+                    IsSystem = item.IsSystem,
+                    CreatedByUserName = item.CreatedByUserName
                 })
                 .ToListAsync(cancellationToken);
         }
@@ -79,7 +83,8 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             await EnsureCompeIsUnique(request.Compe, ignoreId: null, cancellationToken);
 
-            Bank bank = new(request.Compe, request.Name, request.ShortName, request.Ispb, request.LogoUrl);
+            string? createdByUserName = currentUser.UserName ?? currentUser.Email;
+            Bank bank = new(request.Compe, request.Name, request.ShortName, request.Ispb, request.LogoUrl, isSystem: false, createdByUserName: createdByUserName);
             dbContext.Set<Bank>().Add(bank);
             await dbContext.SaveChangesAsync(cancellationToken);
             return ToModel(bank);
@@ -161,7 +166,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 ShortName = bank.ShortName,
                 LogoUrl = bank.LogoUrl,
                 IsActive = bank.IsActive,
-                IsSystem = bank.IsSystem
+                IsSystem = bank.IsSystem,
+                CreatedByUserName = bank.CreatedByUserName
             };
         }
     }

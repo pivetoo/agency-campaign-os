@@ -17,6 +17,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.LogoUrl).HasMaxLength(500);
             builder.Property(entity => entity.IsActive).IsRequired();
             builder.Property(entity => entity.IsSystem).IsRequired().HasDefaultValue(false);
+            builder.Property(entity => entity.CreatedByUserName).HasMaxLength(160);
 
             builder.HasIndex(entity => entity.Compe).IsUnique();
         }
