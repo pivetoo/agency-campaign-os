@@ -94,11 +94,11 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<bool> DeleteTemplate(long id, CancellationToken cancellationToken = default)
         {
-            CampaignDocumentTemplate? template = await DbContext.Set<CampaignDocumentTemplate>()
-                .AsTracking()
-                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+            bool exists = await DbContext.Set<CampaignDocumentTemplate>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == id, cancellationToken);
 
-            if (template is null)
+            if (!exists)
             {
                 throw new InvalidOperationException("record.notFound");
             }
@@ -109,12 +109,21 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (inUse)
             {
+                CampaignDocumentTemplate? template = await DbContext.Set<CampaignDocumentTemplate>()
+                    .AsTracking()
+                    .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+                if (template is null)
+                {
+                    return false;
+                }
+
                 template.Deactivate();
                 await Update(template, cancellationToken);
                 return false;
             }
 
-            CampaignDocumentTemplate? deleted = await Delete(template.Id, cancellationToken);
+            CampaignDocumentTemplate? deleted = await Delete(id, cancellationToken);
             return deleted is not null;
         }
 
