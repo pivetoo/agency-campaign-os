@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  Badge,
   Button,
   Checkbox,
   Input,
@@ -79,9 +78,11 @@ export default function BankFormModal({ open, onOpenChange, bank, onSuccess }: P
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="form">
         <ModalHeader>
-          <ModalTitle className="flex items-center gap-2">
-            {isEditing ? t('modal.bank.title.edit') : t('modal.bank.title.new')}
-            {isSystem && <Badge variant="outline">{t('configuration.banks.systemBadge')}</Badge>}
+          <ModalTitle className="flex items-center gap-1">
+            <span>{isEditing ? t('modal.bank.title.edit') : t('modal.bank.title.new')}</span>
+            {isSystem && (
+              <span className="text-destructive font-semibold leading-none" title={t('configuration.banks.systemBadge')}>*</span>
+            )}
           </ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">

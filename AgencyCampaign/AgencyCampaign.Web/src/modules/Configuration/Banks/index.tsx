@@ -84,9 +84,11 @@ export default function Banks() {
       title: t('configuration.banks.field.shortName'),
       dataIndex: 'shortName',
       render: (value: string, record) => (
-        <span className="inline-flex items-center gap-2">
+        <span className="inline-flex items-center gap-1">
           <span className="font-medium">{value}</span>
-          {record.isSystem && <Badge variant="outline" className="text-xs">{t('configuration.banks.systemBadge')}</Badge>}
+          {record.isSystem && (
+            <span className="text-destructive font-semibold leading-none" title={t('configuration.banks.systemBadge')}>*</span>
+          )}
         </span>
       ),
     },
