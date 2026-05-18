@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Editor, { type OnMount } from '@monaco-editor/react'
 import { Button, ConfirmModal, useApi, useI18n } from 'archon-ui'
-import { Braces, ChevronDown, RefreshCw, Trash2 } from 'lucide-react'
+import { Braces, ChevronDown, Eye, RefreshCw, Trash2 } from 'lucide-react'
 import { agencySettingsService } from '../../../services/agencySettingsService'
 import type { ProposalLayout, ProposalTemplateVersion } from '../../../services/agencySettingsService'
 import type { AgencySettings } from '../../../types/agencySettings'
@@ -370,6 +370,14 @@ export default function ProposalTemplate() {
                           <span className="text-[10px] text-muted-foreground">{formatDate(version.createdAt)}</span>
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
+                          <button
+                            type="button"
+                            title="Visualizar no editor"
+                            onClick={() => { setTemplate(version.template); setSavePickerOpen(false) }}
+                            className="rounded p-1 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </button>
                           {!version.isActive && (
                             <button
                               type="button"
@@ -381,6 +389,7 @@ export default function ProposalTemplate() {
                           )}
                           <button
                             type="button"
+                            title="Excluir versão"
                             onClick={() => setVersionToDelete(version)}
                             className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                           >
