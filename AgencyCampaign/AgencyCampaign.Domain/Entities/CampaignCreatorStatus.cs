@@ -15,8 +15,6 @@ namespace AgencyCampaign.Domain.Entities
 
         public bool IsInitial { get; private set; }
 
-        public bool IsFinal { get; private set; }
-
         public CampaignCreatorStatusCategory Category { get; private set; }
 
         public bool MarksAsConfirmed { get; private set; }
@@ -29,7 +27,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public CampaignCreatorStatus(string name, int displayOrder, string color, string? description = null, bool isInitial = false, bool isFinal = false, CampaignCreatorStatusCategory category = CampaignCreatorStatusCategory.InProgress, bool marksAsConfirmed = false)
+        public CampaignCreatorStatus(string name, int displayOrder, string color, string? description = null, bool isInitial = false, CampaignCreatorStatusCategory category = CampaignCreatorStatusCategory.InProgress, bool marksAsConfirmed = false)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -39,14 +37,13 @@ namespace AgencyCampaign.Domain.Entities
             Color = color.Trim();
             Description = Normalize(description);
             IsInitial = isInitial;
-            IsFinal = isFinal;
             Category = category;
             MarksAsConfirmed = marksAsConfirmed;
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void Update(string name, int displayOrder, string color, string? description, bool isInitial, bool isFinal, CampaignCreatorStatusCategory category, bool isActive, bool marksAsConfirmed)
+        public void Update(string name, int displayOrder, string color, string? description, bool isInitial, CampaignCreatorStatusCategory category, bool isActive, bool marksAsConfirmed)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -56,7 +53,6 @@ namespace AgencyCampaign.Domain.Entities
             Color = color.Trim();
             Description = Normalize(description);
             IsInitial = isInitial;
-            IsFinal = isFinal;
             Category = category;
             MarksAsConfirmed = marksAsConfirmed;
             IsActive = isActive;

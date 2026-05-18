@@ -5,7 +5,6 @@ export interface CampaignCreatorStatus {
   displayOrder: number
   color: string
   isInitial: boolean
-  isFinal: boolean
   category: number
   marksAsConfirmed: boolean
   isActive: boolean

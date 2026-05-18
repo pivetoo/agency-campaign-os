@@ -12,7 +12,6 @@ namespace AgencyCampaign.Testing.Builders
         private string color = "#22c55e";
         private string? description = null;
         private bool isInitial;
-        private bool isFinal;
         private CampaignCreatorStatusCategory category = CampaignCreatorStatusCategory.InProgress;
         private bool marksAsConfirmed;
 
@@ -20,12 +19,11 @@ namespace AgencyCampaign.Testing.Builders
         public CampaignCreatorStatusBuilder WithName(string value) { name = value; return this; }
         public CampaignCreatorStatusBuilder WithCategory(CampaignCreatorStatusCategory value) { category = value; return this; }
         public CampaignCreatorStatusBuilder MarksAsConfirmed() { marksAsConfirmed = true; return this; }
-        public CampaignCreatorStatusBuilder AsFinal() { isFinal = true; return this; }
         public CampaignCreatorStatusBuilder AsInitial() { isInitial = true; return this; }
 
         public CampaignCreatorStatus Build()
         {
-            CampaignCreatorStatus status = new(name, displayOrder, color, description, isInitial, isFinal, category, marksAsConfirmed);
+            CampaignCreatorStatus status = new(name, displayOrder, color, description, isInitial, category, marksAsConfirmed);
             return status.WithId(id);
         }
     }

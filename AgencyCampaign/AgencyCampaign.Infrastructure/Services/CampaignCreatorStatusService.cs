@@ -66,7 +66,6 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Color,
                 request.Description,
                 request.IsInitial,
-                request.IsFinal,
                 request.Category,
                 request.MarksAsConfirmed);
 
@@ -103,7 +102,6 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Color,
                 request.Description,
                 request.IsInitial,
-                request.IsFinal,
                 request.Category,
                 request.IsActive,
                 request.MarksAsConfirmed);

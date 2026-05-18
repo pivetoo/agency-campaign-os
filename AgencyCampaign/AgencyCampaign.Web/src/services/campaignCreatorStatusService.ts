@@ -10,7 +10,6 @@ export interface CreateCampaignCreatorStatusRequest {
   displayOrder: number
   color: string
   isInitial: boolean
-  isFinal: boolean
   category: number
   marksAsConfirmed: boolean
 }

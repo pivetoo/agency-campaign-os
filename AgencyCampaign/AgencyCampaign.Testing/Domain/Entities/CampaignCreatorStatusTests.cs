@@ -12,7 +12,6 @@ namespace AgencyCampaign.Testing.Domain.Entities
             CampaignCreatorStatus status = new("  Confirmado  ", 1, "  #22c55e  ",
                 description: "  ok  ",
                 isInitial: true,
-                isFinal: false,
                 category: CampaignCreatorStatusCategory.Success,
                 marksAsConfirmed: true);
 
@@ -56,10 +55,9 @@ namespace AgencyCampaign.Testing.Domain.Entities
         {
             CampaignCreatorStatus status = new("x", 1, "#fff");
 
-            status.Update("y", 2, "#000", "d", false, true, CampaignCreatorStatusCategory.Failure, false, false);
+            status.Update("y", 2, "#000", "d", false, CampaignCreatorStatusCategory.Failure, false, false);
 
             status.Name.Should().Be("y");
-            status.IsFinal.Should().BeTrue();
             status.Category.Should().Be(CampaignCreatorStatusCategory.Failure);
             status.IsActive.Should().BeFalse();
             status.MarksAsCancelled.Should().BeTrue();

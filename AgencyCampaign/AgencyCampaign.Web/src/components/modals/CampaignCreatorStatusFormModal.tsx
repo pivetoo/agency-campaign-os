@@ -16,7 +16,6 @@ const initialFormData: CreateCampaignCreatorStatusRequest = {
   displayOrder: 0,
   color: '#6366f1',
   isInitial: false,
-  isFinal: false,
   category: 0,
   marksAsConfirmed: false,
 }
@@ -36,7 +35,6 @@ export default function CampaignCreatorStatusFormModal({ open, onOpenChange, sta
         displayOrder: status.displayOrder,
         color: status.color,
         isInitial: status.isInitial,
-        isFinal: status.isFinal,
         category: status.category,
         marksAsConfirmed: status.marksAsConfirmed,
       })
@@ -110,7 +108,6 @@ export default function CampaignCreatorStatusFormModal({ open, onOpenChange, sta
 
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isInitial} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isInitial: !!checked }))} /><span>Status inicial</span></label>
-            <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isFinal} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isFinal: !!checked }))} /><span>Status final</span></label>
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.marksAsConfirmed} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, marksAsConfirmed: !!checked }))} /><span>Marca creator como confirmado</span></label>
             {isEditing && <label className="flex items-center gap-2 text-sm"><Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} /><span>{t('common.status.active')}</span></label>}
           </div>

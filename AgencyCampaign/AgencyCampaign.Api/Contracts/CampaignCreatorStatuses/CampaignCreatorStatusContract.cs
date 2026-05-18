@@ -17,8 +17,6 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreatorStatuses
 
         public bool IsInitial { get; init; }
 
-        public bool IsFinal { get; init; }
-
         public int Category { get; init; }
 
         public bool MarksAsConfirmed { get; init; }
@@ -37,7 +35,6 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreatorStatuses
             DisplayOrder = item.DisplayOrder,
             Color = item.Color,
             IsInitial = item.IsInitial,
-            IsFinal = item.IsFinal,
             Category = (int)item.Category,
             MarksAsConfirmed = item.MarksAsConfirmed,
             IsActive = item.IsActive,
