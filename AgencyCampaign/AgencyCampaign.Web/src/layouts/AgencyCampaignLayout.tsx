@@ -135,6 +135,7 @@ export default function AgencyCampaignLayout() {
     {
       label: t('nav.group.finance'),
       items: [
+        { key: 'financeiro-contas', label: t('nav.item.bankAccounts'), path: '/financeiro/contas', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
         { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} />, requires: ['financialEntries.get'] },
         { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} />, requires: ['financialEntries.get'] },
         { key: 'financeiro-repasses-creators', label: t('nav.item.creatorPayments'), path: '/financeiro/repasses-creators', icon: <HandCoins size={20} />, requires: ['creatorPayments.get'] },
@@ -175,7 +176,6 @@ export default function AgencyCampaignLayout() {
       label: t('nav.group.finance'),
       items: [
         { key: 'configuracao-bancos', label: t('nav.item.banks'), path: '/configuracao/bancos', icon: <Landmark size={20} />, requires: ['banks.get'] },
-        { key: 'configuracao-contas-financeiras', label: t('nav.item.bankAccounts'), path: '/configuracao/contas-financeiras', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
         { key: 'configuracao-subcategorias-financeiras', label: t('nav.item.financialSubcategories'), path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} />, requires: ['financialSubcategories.get'] },
       ],
     },
@@ -245,7 +245,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/origens-oportunidade': t('nav.item.opportunitySources'),
       '/configuracao/tags-oportunidade': t('nav.item.opportunityTags'),
       '/configuracao/modelos-contrato': t('nav.item.contractTemplates'),
-      '/configuracao/contas-financeiras': t('nav.item.bankAccounts'),
+      '/financeiro/contas': t('nav.item.bankAccounts'),
       '/configuracao/bancos': t('nav.item.banks'),
       '/configuracao/subcategorias-financeiras': t('nav.item.financialSubcategories'),
       '/configuracao/empresa': t('nav.item.agency'),

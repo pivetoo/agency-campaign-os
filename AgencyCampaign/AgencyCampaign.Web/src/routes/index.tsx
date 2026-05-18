@@ -120,7 +120,8 @@ function AppRoutes() {
           <Route path="configuracao/tags-oportunidade" element={<OpportunityTags />} />
           <Route path="configuracao/modelos-contrato" element={<CampaignDocumentTemplates />} />
           <Route path="configuracao/modelos-contrato/:id" element={<DocumentTemplateEditor />} />
-          <Route path="configuracao/contas-financeiras" element={<FinancialAccounts />} />
+          <Route path="financeiro/contas" element={<FinancialAccounts />} />
+          <Route path="configuracao/contas-financeiras" element={<Navigate to="/financeiro/contas" replace />} />
           <Route path="configuracao/bancos" element={<Banks />} />
           <Route path="configuracao/subcategorias-financeiras" element={<FinancialSubcategories />} />
           <Route path="configuracao" element={<AgencyConfiguration />} />
