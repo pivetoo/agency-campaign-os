@@ -100,19 +100,19 @@
     <value>Cannot change the initial balance after this account has entries. Create an adjustment entry under Accounts Payable or Receivable instead.</value>
   </data>
   <data name="financialAccount.connector.attached" xml:space="preserve">
-    <value>Connector successfully attached.</value>
+    <value>Integration successfully attached.</value>
   </data>
   <data name="financialAccount.connector.detached" xml:space="preserve">
-    <value>Connector detached.</value>
+    <value>Integration detached.</value>
   </data>
   <data name="financialAccount.sync.triggered" xml:space="preserve">
     <value>Sync triggered.</value>
   </data>
   <data name="financialAccount.sync.noConnector" xml:space="preserve">
-    <value>Attach a connector before syncing.</value>
+    <value>Attach an integration before syncing.</value>
   </data>
   <data name="financialAccount.sync.cannotPendWithoutConnector" xml:space="preserve">
-    <value>Cannot mark sync as pending without an attached connector.</value>
+    <value>Cannot mark sync as pending without an attached integration.</value>
   </data>
   <data name="bankTransaction.import.success" xml:space="preserve">
     <value>Bank transactions imported successfully.</value>
@@ -1033,15 +1033,15 @@
   <data name="configuration.bankAccounts.confirm.activate" xml:space="preserve"><value>Reactivate account "{0}"?</value></data>
   <data name="modal.financialAccount.field.namePlaceholder" xml:space="preserve"><value>E.g.: BB Checking, PIX Wallet</value></data>
   <data name="modal.financialAccount.field.initialBalanceLockedHint" xml:space="preserve"><value>Balance locked — this account already has entries. Create an adjustment entry under Accounts Payable or Receivable.</value></data>
-  <data name="configuration.bankAccounts.connector.modal.title" xml:space="preserve"><value>Sync connector</value></data>
-  <data name="configuration.bankAccounts.connector.modal.description" xml:space="preserve"><value>Choose which IntegrationPlatform connector should feed this account.</value></data>
-  <data name="configuration.bankAccounts.connector.modal.current" xml:space="preserve"><value>Current connector</value></data>
-  <data name="configuration.bankAccounts.connector.modal.selectConnector" xml:space="preserve"><value>Select a connector</value></data>
-  <data name="configuration.bankAccounts.connector.modal.empty" xml:space="preserve"><value>No active connectors. Create one in Integrations.</value></data>
+  <data name="configuration.bankAccounts.connector.modal.title" xml:space="preserve"><value>Sync integration</value></data>
+  <data name="configuration.bankAccounts.connector.modal.description" xml:space="preserve"><value>Choose which integration should feed this account with balance and statement.</value></data>
+  <data name="configuration.bankAccounts.connector.modal.current" xml:space="preserve"><value>Current integration</value></data>
+  <data name="configuration.bankAccounts.connector.modal.selectConnector" xml:space="preserve"><value>Select an integration</value></data>
+  <data name="configuration.bankAccounts.connector.modal.empty" xml:space="preserve"><value>No active integrations. Create one in the Integrations screen.</value></data>
   <data name="configuration.bankAccounts.action.attachConnector" xml:space="preserve"><value>Attach</value></data>
-  <data name="configuration.bankAccounts.action.changeConnector" xml:space="preserve"><value>Change connector</value></data>
+  <data name="configuration.bankAccounts.action.changeConnector" xml:space="preserve"><value>Change integration</value></data>
   <data name="configuration.bankAccounts.action.detachConnector" xml:space="preserve"><value>Detach</value></data>
-  <data name="configuration.bankAccounts.action.openConnector" xml:space="preserve"><value>Connector</value></data>
+  <data name="configuration.bankAccounts.action.openConnector" xml:space="preserve"><value>Integration</value></data>
   <data name="configuration.bankAccounts.action.sync" xml:space="preserve"><value>Sync now</value></data>
   <data name="configuration.bankAccounts.tooltip.lastSync" xml:space="preserve"><value>Last sync: {0}</value></data>
   <data name="configuration.bankAccounts.tooltip.bankBalance" xml:space="preserve"><value>Bank balance: {0}</value></data>
