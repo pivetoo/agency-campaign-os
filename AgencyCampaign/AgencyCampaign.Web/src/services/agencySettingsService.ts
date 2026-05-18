@@ -69,12 +69,12 @@ export const agencySettingsService = {
   },
 
   async getProposalTemplateVersionById(id: number): Promise<ProposalTemplateVersion | null> {
-    const response = await httpClient.get<ProposalTemplateVersion>(`${BASE_URL}/GetProposalTemplateVersionById/${id}`)
+    const response = await httpClient.get<ProposalTemplateVersion>(`${BASE_URL}/ProposalTemplateVersion/${id}`)
     return response.data ?? null
   },
 
   updateProposalTemplateVersion(id: number, name: string, template: string, isDefault: boolean) {
-    return httpClient.put<ProposalTemplateVersion>(`${BASE_URL}/UpdateProposalTemplateVersion/${id}`, { name, template, isDefault })
+    return httpClient.put<ProposalTemplateVersion>(`${BASE_URL}/ProposalTemplateVersion/${id}`, { name, template, isDefault })
   },
 }
 
