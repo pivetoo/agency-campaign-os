@@ -7,6 +7,7 @@ const BASE_URL = '/FinancialAccounts'
 export interface CreateFinancialAccountRequest {
   name: string
   type: FinancialAccountTypeValue
+  bankId?: number | null
   bank?: string
   agency?: string
   number?: string

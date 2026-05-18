@@ -12,6 +12,8 @@ namespace AgencyCampaign.Application.Requests.FinancialAccounts
         [Required]
         public FinancialAccountType Type { get; set; }
 
+        public long? BankId { get; set; }
+
         [StringLength(120)]
         public string? Bank { get; set; }
 

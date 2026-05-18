@@ -15,6 +15,10 @@ namespace AgencyCampaign.Application.Models.Financial
         public string Color { get; set; } = "#6366f1";
         public bool IsActive { get; set; }
         public bool HasEntries { get; set; }
+        public long? BankId { get; set; }
+        public string? BankCompe { get; set; }
+        public string? BankShortName { get; set; }
+        public string? BankLogoUrl { get; set; }
         public long? IntegrationConnectorId { get; set; }
         public decimal? LastSyncedBalance { get; set; }
         public DateTimeOffset? LastSyncedAt { get; set; }

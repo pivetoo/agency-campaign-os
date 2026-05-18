@@ -124,20 +124,33 @@ export default function FinancialAccounts() {
     }
   }
 
+  const renderLogoCell = (_: unknown, record: FinancialAccount) => (
+    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded border bg-muted/30">
+      {record.bankLogoUrl ? (
+        <img src={record.bankLogoUrl} alt={record.bankShortName ?? ''} className="h-full w-full object-contain p-0.5" />
+      ) : (
+        <span className="text-xs font-semibold text-muted-foreground">
+          {(record.bankShortName ?? record.name)?.charAt(0).toUpperCase() ?? '?'}
+        </span>
+      )}
+    </div>
+  )
+
   const columns: DataTableColumn<FinancialAccount>[] = [
+    { key: 'logo', title: '', dataIndex: 'bankLogoUrl', width: 56, render: renderLogoCell },
     {
       key: 'name',
       title: t('common.field.account'),
       dataIndex: 'name',
-      render: (value: string, record) => (
-        <span className="inline-flex items-center gap-2">
-          <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: record.color }} />
-          <span className="font-medium">{value}</span>
-        </span>
-      ),
+      render: (value: string) => <span className="font-medium">{value}</span>,
     },
     { key: 'type', title: t('common.field.type'), dataIndex: 'type', render: (value: number) => financialAccountTypeLabels[value] || '-' },
-    { key: 'bank', title: t('configuration.bankAccounts.field.bank'), dataIndex: 'bank', render: (value?: string | null) => value || '-' },
+    {
+      key: 'bank',
+      title: t('configuration.bankAccounts.field.bank'),
+      dataIndex: 'bankShortName',
+      render: (value?: string | null, record?: FinancialAccount) => value ?? record?.bank ?? '-',
+    },
     {
       key: 'currentBalance',
       title: t('configuration.bankAccounts.field.currentBalance'),

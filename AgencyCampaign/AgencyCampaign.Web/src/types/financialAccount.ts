@@ -27,6 +27,10 @@ export interface FinancialAccount {
   id: number
   name: string
   type: FinancialAccountTypeValue
+  bankId?: number | null
+  bankCompe?: string | null
+  bankShortName?: string | null
+  bankLogoUrl?: string | null
   bank?: string | null
   agency?: string | null
   number?: string | null

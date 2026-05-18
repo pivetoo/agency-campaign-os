@@ -72,7 +72,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public async Task GetAll_should_filter_inactive_when_requested()
         {
             FinancialAccount inactive = new("Inactive", FinancialAccountType.Bank, 0m, "#fff");
-            inactive.Update("Inactive", FinancialAccountType.Bank, 0m, "#fff", null, null, null, isActive: false);
+            inactive.Update("Inactive", FinancialAccountType.Bank, 0m, "#fff", bankId: null, bank: null, agency: null, number: null, isActive: false);
             db.Add(new FinancialAccount("Active", FinancialAccountType.Bank, 0m, "#fff"));
             db.Add(inactive);
             await db.SaveChangesAsync();

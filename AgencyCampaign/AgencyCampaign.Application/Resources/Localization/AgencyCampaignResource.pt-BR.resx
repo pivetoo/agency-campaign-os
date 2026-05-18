@@ -96,6 +96,48 @@
   <data name="financialAccount.notFound" xml:space="preserve">
     <value>Conta financeira não encontrada.</value>
   </data>
+  <data name="bank.notFound" xml:space="preserve">
+    <value>Banco não encontrado.</value>
+  </data>
+  <data name="bank.compe.duplicated" xml:space="preserve">
+    <value>Já existe um banco com esse código compe.</value>
+  </data>
+  <data name="bank.compe.systemReadonly" xml:space="preserve">
+    <value>Bancos do sistema não permitem alterar o código compe.</value>
+  </data>
+  <data name="bank.system.cannotDelete" xml:space="preserve">
+    <value>Bancos do sistema não podem ser excluídos.</value>
+  </data>
+  <data name="bank.hasAccounts.cannotDelete" xml:space="preserve">
+    <value>Banco vinculado a contas financeiras; desative em vez de excluir.</value>
+  </data>
+  <data name="validation.bank.compe.invalidFormat" xml:space="preserve">
+    <value>Código compe inválido. Use 3 dígitos numéricos (ex.: 001, 237, 341).</value>
+  </data>
+  <data name="validation.bank.ispb.invalidFormat" xml:space="preserve">
+    <value>ISPB inválido. Use até 8 dígitos numéricos.</value>
+  </data>
+  <data name="validation.bank.logoUrl.invalidFormat" xml:space="preserve">
+    <value>URL do logo inválida.</value>
+  </data>
+  <data name="configuration.banks.title" xml:space="preserve"><value>Bancos</value></data>
+  <data name="configuration.banks.subtitle" xml:space="preserve"><value>Catálogo de bancos usados nas contas financeiras.</value></data>
+  <data name="configuration.banks.empty" xml:space="preserve"><value>Nenhum banco cadastrado</value></data>
+  <data name="configuration.banks.addLabel" xml:space="preserve"><value>Novo banco</value></data>
+  <data name="configuration.banks.field.compe" xml:space="preserve"><value>Código (compe)</value></data>
+  <data name="configuration.banks.field.ispb" xml:space="preserve"><value>ISPB</value></data>
+  <data name="configuration.banks.field.shortName" xml:space="preserve"><value>Nome curto</value></data>
+  <data name="configuration.banks.field.logoUrl" xml:space="preserve"><value>URL do logo</value></data>
+  <data name="configuration.banks.field.logo" xml:space="preserve"><value>Logo</value></data>
+  <data name="configuration.banks.field.system" xml:space="preserve"><value>Sistema</value></data>
+  <data name="configuration.banks.confirm.delete" xml:space="preserve"><value>Excluir o banco "{0}"?</value></data>
+  <data name="configuration.banks.systemBadge" xml:space="preserve"><value>Sistema</value></data>
+  <data name="modal.bank.title.new" xml:space="preserve"><value>Novo banco</value></data>
+  <data name="modal.bank.title.edit" xml:space="preserve"><value>Editar banco</value></data>
+  <data name="modal.bank.field.compeHint" xml:space="preserve"><value>Código de 3 dígitos usado pelo BACEN para identificar o banco (ex.: 341 = Itaú, 237 = Bradesco).</value></data>
+  <data name="modal.bank.field.compeSystemHint" xml:space="preserve"><value>Banco do sistema. O código compe é fixo; você pode editar o nome de exibição.</value></data>
+  <data name="modal.bank.field.logoHint" xml:space="preserve"><value>Cole a URL pública da imagem do logo. Recomenda-se PNG ou SVG com fundo transparente.</value></data>
+  <data name="nav.item.banks" xml:space="preserve"><value>Bancos</value></data>
   <data name="financialAccount.initialBalance.lockedAfterEntries" xml:space="preserve">
     <value>Não é possível alterar o saldo inicial após esta conta receber lançamentos. Crie um lançamento de ajuste em Contas a Pagar ou a Receber.</value>
   </data>

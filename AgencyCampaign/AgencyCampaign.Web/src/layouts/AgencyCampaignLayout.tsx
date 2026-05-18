@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Sparkles, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Sparkles, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush, Landmark } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
@@ -175,6 +175,7 @@ export default function AgencyCampaignLayout() {
       label: t('nav.group.finance'),
       items: [
         { key: 'configuracao-contas-financeiras', label: t('nav.item.bankAccounts'), path: '/configuracao/contas-financeiras', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
+        { key: 'configuracao-bancos', label: t('nav.item.banks'), path: '/configuracao/bancos', icon: <Landmark size={20} />, requires: ['banks.get'] },
         { key: 'configuracao-subcategorias-financeiras', label: t('nav.item.financialSubcategories'), path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} />, requires: ['financialSubcategories.get'] },
       ],
     },
@@ -245,6 +246,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/tags-oportunidade': t('nav.item.opportunityTags'),
       '/configuracao/modelos-contrato': t('nav.item.contractTemplates'),
       '/configuracao/contas-financeiras': t('nav.item.bankAccounts'),
+      '/configuracao/bancos': t('nav.item.banks'),
       '/configuracao/subcategorias-financeiras': t('nav.item.financialSubcategories'),
       '/configuracao/empresa': t('nav.item.agency'),
       '/operacao/aprovacoes': t('nav.item.approvals'),

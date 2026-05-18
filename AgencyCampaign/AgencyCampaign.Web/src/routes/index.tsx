@@ -39,6 +39,7 @@ import OpportunityTags from '../modules/Configuration/OpportunityTags'
 import CampaignDocumentTemplates from '../modules/Configuration/CampaignDocumentTemplates'
 import DocumentTemplateEditor from '../modules/Configuration/DocumentTemplate'
 import FinancialAccounts from '../modules/Configuration/FinancialAccounts'
+import Banks from '../modules/Configuration/Banks'
 import FinancialSubcategories from '../modules/Configuration/FinancialSubcategories'
 import AgencyConfiguration from '../modules/Configuration/Agency'
 import ProposalLayouts from '../modules/Configuration/ProposalLayouts'
@@ -120,6 +121,7 @@ function AppRoutes() {
           <Route path="configuracao/modelos-contrato" element={<CampaignDocumentTemplates />} />
           <Route path="configuracao/modelos-contrato/:id" element={<DocumentTemplateEditor />} />
           <Route path="configuracao/contas-financeiras" element={<FinancialAccounts />} />
+          <Route path="configuracao/bancos" element={<Banks />} />
           <Route path="configuracao/subcategorias-financeiras" element={<FinancialSubcategories />} />
           <Route path="configuracao" element={<AgencyConfiguration />} />
           <Route path="configuracao/layouts-proposta" element={<ProposalLayouts />} />

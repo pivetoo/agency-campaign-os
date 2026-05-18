@@ -9,6 +9,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public FinancialAccountType Type { get; private set; }
 
+        public long? BankId { get; private set; }
+
         public string? Bank { get; private set; }
 
         public string? Agency { get; private set; }
@@ -33,7 +35,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public FinancialAccount(string name, FinancialAccountType type, decimal initialBalance, string color, string? bank = null, string? agency = null, string? number = null)
+        public FinancialAccount(string name, FinancialAccountType type, decimal initialBalance, string color, long? bankId = null, string? bank = null, string? agency = null, string? number = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -42,12 +44,13 @@ namespace AgencyCampaign.Domain.Entities
             Type = type;
             InitialBalance = initialBalance;
             Color = color.Trim();
+            BankId = bankId;
             Bank = Normalize(bank);
             Agency = Normalize(agency);
             Number = Normalize(number);
         }
 
-        public void Update(string name, FinancialAccountType type, decimal initialBalance, string color, string? bank, string? agency, string? number, bool isActive)
+        public void Update(string name, FinancialAccountType type, decimal initialBalance, string color, long? bankId, string? bank, string? agency, string? number, bool isActive)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(color);
@@ -56,6 +59,7 @@ namespace AgencyCampaign.Domain.Entities
             Type = type;
             InitialBalance = initialBalance;
             Color = color.Trim();
+            BankId = bankId;
             Bank = Normalize(bank);
             Agency = Normalize(agency);
             Number = Normalize(number);

@@ -13,7 +13,9 @@ import {
   useI18n,
 } from 'archon-ui'
 import { financialAccountService } from '../../services/financialAccountService'
+import { bankService } from '../../services/bankService'
 import { FinancialAccountType, financialAccountTypeLabels, type FinancialAccount, type FinancialAccountTypeValue } from '../../types/financialAccount'
+import type { Bank } from '../../types/bank'
 
 interface Props {
   open: boolean
@@ -29,12 +31,13 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
   const isEditing = !!account
   const [name, setName] = useState('')
   const [type, setType] = useState<FinancialAccountTypeValue>(FinancialAccountType.Cash)
-  const [bank, setBank] = useState('')
+  const [bankId, setBankId] = useState<string>('')
   const [agency, setAgency] = useState('')
   const [number, setNumber] = useState('')
   const [initialBalance, setInitialBalance] = useState<string>('')
   const [color, setColor] = useState('#6366f1')
   const [isActive, setIsActive] = useState(true)
+  const [banks, setBanks] = useState<Bank[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   const showBankFields = type === FinancialAccountType.Bank
@@ -42,10 +45,19 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
 
   useEffect(() => {
     if (!open) return
+    let cancelled = false
+    bankService.getActive()
+      .then((list) => { if (!cancelled) setBanks(list) })
+      .catch(() => { if (!cancelled) setBanks([]) })
+    return () => { cancelled = true }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
     if (account) {
       setName(account.name)
       setType(account.type)
-      setBank(account.bank ?? '')
+      setBankId(account.bankId ? String(account.bankId) : '')
       setAgency(account.agency ?? '')
       setNumber(account.number ?? '')
       setInitialBalance(String(account.initialBalance))
@@ -54,7 +66,7 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
     } else {
       setName('')
       setType(FinancialAccountType.Cash)
-      setBank('')
+      setBankId('')
       setAgency('')
       setNumber('')
       setInitialBalance('0')
@@ -65,11 +77,16 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
 
   const isValid = useMemo(() => name.trim().length >= 2 && /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color), [name, color])
 
+  const bankOptions = useMemo(
+    () => banks.map((bank) => ({ value: String(bank.id), label: `${bank.compe} — ${bank.shortName}` })),
+    [banks],
+  )
+
   const handleTypeChange = (value: string) => {
     const next = Number(value) as FinancialAccountTypeValue
     setType(next)
     if (next !== FinancialAccountType.Bank) {
-      setBank('')
+      setBankId('')
       setAgency('')
       setNumber('')
     }
@@ -80,7 +97,7 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
     const payload = {
       name: name.trim(),
       type,
-      bank: showBankFields && bank.trim() ? bank.trim() : undefined,
+      bankId: showBankFields && bankId ? Number(bankId) : null,
       agency: showBankFields && agency.trim() ? agency.trim() : undefined,
       number: showBankFields && number.trim() ? number.trim() : undefined,
       initialBalance: initialBalanceLocked && account
@@ -138,9 +155,14 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
             </div>
             {showBankFields && (
               <>
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-medium">{t('modal.financialAccount.field.bank')}</label>
-                  <Input value={bank} onChange={(e) => setBank(e.target.value)} />
+                  <SearchableSelect
+                    value={bankId}
+                    onValueChange={setBankId}
+                    options={bankOptions}
+                    placeholder={t('modal.financialAccount.field.bank')}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t('modal.financialAccount.field.agency')}</label>

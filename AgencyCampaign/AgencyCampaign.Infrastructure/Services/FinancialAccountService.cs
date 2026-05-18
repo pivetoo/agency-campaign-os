@@ -42,6 +42,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ToPagedResultAsync(request, cancellationToken);
 
             List<long> accountIds = paged.Items.Select(item => item.Id).ToList();
+            List<long> bankIds = paged.Items.Where(item => item.BankId.HasValue).Select(item => item.BankId!.Value).Distinct().ToList();
 
             var balances = await dbContext.Set<FinancialEntry>()
                 .AsNoTracking()
@@ -58,10 +59,18 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ToListAsync(cancellationToken))
                 .ToHashSet();
 
+            Dictionary<long, Bank> banksById = (await dbContext.Set<Bank>()
+                .AsNoTracking()
+                .Where(item => bankIds.Contains(item.Id))
+                .ToListAsync(cancellationToken))
+                .ToDictionary(item => item.Id);
+
             FinancialAccountModel[] items = paged.Items.Select(account =>
             {
                 decimal received = balances.Where(b => b.AccountId == account.Id && b.Type == FinancialEntryType.Receivable).Sum(b => b.Total);
                 decimal paid = balances.Where(b => b.AccountId == account.Id && b.Type == FinancialEntryType.Payable).Sum(b => b.Total);
+
+                Bank? bank = account.BankId.HasValue && banksById.TryGetValue(account.BankId.Value, out Bank? value) ? value : null;
 
                 return new FinancialAccountModel
                 {
@@ -76,6 +85,10 @@ namespace AgencyCampaign.Infrastructure.Services
                     Color = account.Color,
                     IsActive = account.IsActive,
                     HasEntries = accountIdsWithEntries.Contains(account.Id),
+                    BankId = account.BankId,
+                    BankCompe = bank?.Compe,
+                    BankShortName = bank?.ShortName,
+                    BankLogoUrl = bank?.LogoUrl,
                     IntegrationConnectorId = account.IntegrationConnectorId,
                     LastSyncedBalance = account.LastSyncedBalance,
                     LastSyncedAt = account.LastSyncedAt,
@@ -146,6 +159,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .AnyAsync(item => item.AccountId == id, cancellationToken);
 
+            Bank? bank = account.BankId.HasValue
+                ? await dbContext.Set<Bank>().AsNoTracking().FirstOrDefaultAsync(item => item.Id == account.BankId.Value, cancellationToken)
+                : null;
+
             decimal received = balances.Where(b => b.Type == FinancialEntryType.Receivable).Sum(b => b.Total);
             decimal paid = balances.Where(b => b.Type == FinancialEntryType.Payable).Sum(b => b.Total);
 
@@ -162,6 +179,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 Color = account.Color,
                 IsActive = account.IsActive,
                 HasEntries = hasEntries,
+                BankId = account.BankId,
+                BankCompe = bank?.Compe,
+                BankShortName = bank?.ShortName,
+                BankLogoUrl = bank?.LogoUrl,
                 IntegrationConnectorId = account.IntegrationConnectorId,
                 LastSyncedBalance = account.LastSyncedBalance,
                 LastSyncedAt = account.LastSyncedAt,
@@ -173,7 +194,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             await EnsureNameIsUnique(request.Name, ignoreId: null, cancellationToken);
 
-            FinancialAccount account = new(request.Name, request.Type, request.InitialBalance, request.Color, request.Bank, request.Agency, request.Number);
+            FinancialAccount account = new(request.Name, request.Type, request.InitialBalance, request.Color, request.BankId, request.Bank, request.Agency, request.Number);
             dbContext.Set<FinancialAccount>().Add(account);
             await dbContext.SaveChangesAsync(cancellationToken);
             return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException("record.notFound");
@@ -209,7 +230,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
             }
 
-            account.Update(request.Name, request.Type, request.InitialBalance, request.Color, request.Bank, request.Agency, request.Number, request.IsActive);
+            account.Update(request.Name, request.Type, request.InitialBalance, request.Color, request.BankId, request.Bank, request.Agency, request.Number, request.IsActive);
             await dbContext.SaveChangesAsync(cancellationToken);
             return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException("record.notFound");
         }

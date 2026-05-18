@@ -12,7 +12,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.ToTable("financialaccount");
 
             builder.Property(entity => entity.Name).IsRequired().HasMaxLength(120);
+            builder.Property(entity => entity.BankId);
             builder.Property(entity => entity.Bank).HasMaxLength(120);
+            builder.HasIndex(entity => entity.BankId);
             builder.Property(entity => entity.Agency).HasMaxLength(50);
             builder.Property(entity => entity.Number).HasMaxLength(50);
             builder.Property(entity => entity.Color).IsRequired().HasMaxLength(32);
