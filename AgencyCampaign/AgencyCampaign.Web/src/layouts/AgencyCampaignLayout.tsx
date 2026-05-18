@@ -275,6 +275,12 @@ export default function AgencyCampaignLayout() {
       crumbs.push({ label: t('breadcrumb.details') })
     }
 
+    const contractTemplateMatch = path.match(/^\/configuracao\/modelos-contrato\/(novo|\d+)$/)
+    if (contractTemplateMatch) {
+      crumbs.push({ label: t('nav.item.contractTemplates'), onClick: () => navigate('/configuracao/modelos-contrato') })
+      crumbs.push({ label: contractTemplateMatch[1] === 'novo' ? 'Novo modelo' : 'Editar modelo' })
+    }
+
     return crumbs
   }, [location.pathname, navigate, homePathByModule, t])
 

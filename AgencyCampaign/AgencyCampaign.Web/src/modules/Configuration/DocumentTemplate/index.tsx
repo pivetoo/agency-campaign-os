@@ -9,7 +9,7 @@ import {
   useApi,
   useI18n,
 } from 'archon-ui'
-import { ArrowLeft, RefreshCw, Trash2 } from 'lucide-react'
+import { RefreshCw, Trash2 } from 'lucide-react'
 import HtmlTemplateEditor, { type TemplateVariableGroup } from '../../../components/editor/HtmlTemplateEditor'
 import { campaignDocumentTemplateService } from '../../../services/campaignDocumentTemplateService'
 import {
@@ -130,11 +130,6 @@ export default function DocumentTemplateEditor() {
       />
 
       <div className="flex shrink-0 flex-wrap items-end gap-3 border-b bg-background px-4 py-3">
-        <Button type="button" variant="ghost" size="sm" onClick={() => navigate('/configuracao/modelos-contrato')}>
-          <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
-          Voltar
-        </Button>
-
         <div className="min-w-[220px] flex-1">
           <label className="mb-1 block text-xs font-medium text-muted-foreground">Nome</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Contrato padrão de creator" />
