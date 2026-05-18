@@ -15,12 +15,12 @@ Se o arquivo não existir, o frontend renderiza fallback com o código compe em 
 
 ## Origem dos arquivos
 
-Logos vetoriais baixados de [Tgentil/Bancos-em-SVG](https://github.com/Tgentil/Bancos-em-SVG). 28 dos 30 bancos seedados foram encontrados. Não disponíveis no repo de origem:
+Logos vetoriais baixados de duas fontes:
 
-- `376` — JPMorgan
-- `477` — Citibank
+- 28 bancos: [Tgentil/Bancos-em-SVG](https://github.com/Tgentil/Bancos-em-SVG).
+- `376` (JPMorgan) e `477` (Citibank): Wikimedia Commons.
 
-Para esses dois, o frontend mostra fallback com o código compe. Se precisar, adicione manualmente um `376.svg` e `477.svg` aqui.
+Para `197` (Stone), `212` (Original), `246` (ABC Brasil), `260` (Nubank) e `336` (C6), foi escolhida explicitamente a variante colorida (a default do repo era a versão branca, que não contrasta no fundo claro do grid).
 
 ## Sobre direitos de marca
 
