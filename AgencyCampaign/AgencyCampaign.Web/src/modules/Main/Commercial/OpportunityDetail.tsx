@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useI18n } from 'archon-ui'
+import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, FileText, MapPin, MessageSquare, Pencil, Plus, Tag, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
@@ -85,6 +85,8 @@ export default function OpportunityDetail() {
   const [isFollowUpFormOpen, setIsFollowUpFormOpen] = useState(false)
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
   const [selectedStage, setSelectedStage] = useState<string>('1')
+  const [pendingFinalStage, setPendingFinalStage] = useState<{ id: number; name: string; kind: 'won' | 'lost' } | null>(null)
+  const [finalNotes, setFinalNotes] = useState('')
 
   const { execute: fetchOpportunity, loading } = useApi<Opportunity | null>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -203,9 +205,46 @@ export default function OpportunityDetail() {
 
   const handleChangeStage = async (stageId: number) => {
     if (!opportunity) return
+    const targetStage = stages.find((stage) => stage.id === stageId)
+
+    if (targetStage && targetStage.finalBehavior === 1) {
+      setPendingFinalStage({ id: targetStage.id, name: targetStage.name, kind: 'won' })
+      setFinalNotes('')
+      return
+    }
+
+    if (targetStage && targetStage.finalBehavior === 2) {
+      setPendingFinalStage({ id: targetStage.id, name: targetStage.name, kind: 'lost' })
+      setFinalNotes('')
+      return
+    }
+
     setSelectedStage(String(stageId))
     const result = await executeAction(() => opportunityService.changeStage(opportunity.id, { commercialPipelineStageId: stageId }))
     if (result !== null) await loadOpportunity()
+  }
+
+  const confirmFinalChange = async () => {
+    if (!opportunity || !pendingFinalStage) return
+    const trimmedNotes = finalNotes.trim()
+    if (pendingFinalStage.kind === 'lost' && trimmedNotes.length === 0) return
+
+    const result = await executeAction(() =>
+      pendingFinalStage.kind === 'won'
+        ? opportunityService.closeAsWon(opportunity.id, trimmedNotes ? { wonNotes: trimmedNotes } : {})
+        : opportunityService.closeAsLost(opportunity.id, { lossReason: trimmedNotes }),
+    )
+    if (result !== null) {
+      setPendingFinalStage(null)
+      setFinalNotes('')
+      await loadOpportunity()
+    }
+  }
+
+  const cancelFinalChange = () => {
+    setPendingFinalStage(null)
+    setFinalNotes('')
+    if (opportunity) setSelectedStage(String(opportunity.commercialPipelineStageId))
   }
 
   const handleDeleteNegotiation = async () => {
@@ -687,6 +726,46 @@ export default function OpportunityDetail() {
           }
         }}
       />
+
+      <Modal open={!!pendingFinalStage} onOpenChange={(open) => { if (!open) cancelFinalChange() }}>
+        <ModalContent size="form">
+          <ModalHeader>
+            <ModalTitle>
+              {pendingFinalStage?.kind === 'won' ? 'Encerrar como ganha' : 'Encerrar como perdida'}
+            </ModalTitle>
+          </ModalHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Você está movendo a oportunidade para <strong>{pendingFinalStage?.name}</strong>.
+              {pendingFinalStage?.kind === 'lost' ? ' Informe o motivo da perda.' : ' Deixe uma observação se quiser.'}
+            </p>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {pendingFinalStage?.kind === 'won' ? 'Notas de fechamento (opcional)' : 'Motivo da perda'}
+                {pendingFinalStage?.kind === 'lost' && <span className="text-destructive"> *</span>}
+              </label>
+              <textarea
+                className="min-h-[100px] w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                value={finalNotes}
+                onChange={(e) => setFinalNotes(e.target.value)}
+                placeholder={pendingFinalStage?.kind === 'won' ? 'Ex.: Cliente aprovou orçamento completo.' : 'Ex.: Cliente escolheu concorrente.'}
+                autoFocus
+              />
+            </div>
+          </div>
+          <ModalFooter>
+            <Button type="button" variant="outline" onClick={cancelFinalChange} disabled={actionLoading}>Cancelar</Button>
+            <Button
+              type="button"
+              variant={pendingFinalStage?.kind === 'lost' ? 'danger' : 'primary'}
+              onClick={() => void confirmFinalChange()}
+              disabled={actionLoading || (pendingFinalStage?.kind === 'lost' && finalNotes.trim().length === 0)}
+            >
+              {actionLoading ? 'Salvando...' : 'Confirmar'}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   )
 }
