@@ -7,7 +7,7 @@ import {
   type ProposalBlock,
 } from '../../../services/proposalBlockService'
 import ProposalBlockFormModal from '../../../components/modals/ProposalBlockFormModal'
-import AuditIconButton from '../../../components/buttons/AuditIconButton'
+import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 
 export default function ProposalBlocks() {
   const { t } = useI18n()
@@ -99,12 +99,7 @@ export default function ProposalBlocks() {
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}
-        actionsSlot={
-          <div className="flex items-center gap-1">
-            <AuditIconButton entityName="ProposalBlock" entityLabel="Bloco de proposta" entityId={selected?.id ?? null} />
-            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
-          </div>
-        }
+        actionsSlot={<AuditUtilityBar entityName="ProposalBlock" entityLabel="Bloco de proposta" entityId={selected?.id ?? null} />}
         addLabel="Novo bloco"
         selectedRowsCount={selected ? 1 : 0}
         actions={[

@@ -4,7 +4,7 @@ import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { platformService } from '../../../services/platformService'
 import type { Platform } from '../../../types/platform'
 import PlatformFormModal from '../../../components/modals/PlatformFormModal'
-import AuditIconButton from '../../../components/buttons/AuditIconButton'
+import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 
 export default function Platforms() {
   const { t } = useI18n()
@@ -75,12 +75,7 @@ export default function Platforms() {
         onAdd={() => { setSelectedPlatform(null); setIsFormOpen(true) }}
         onEdit={() => selectedPlatform && setIsFormOpen(true)}
         onRefresh={() => void loadPlatforms()}
-        actionsSlot={
-          <div className="flex items-center gap-1">
-            <AuditIconButton entityName="Platform" entityLabel="Rede social" entityId={selectedPlatform?.id ?? null} />
-            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
-          </div>
-        }
+        actionsSlot={<AuditUtilityBar entityName="Platform" entityLabel="Rede social" entityId={selectedPlatform?.id ?? null} />}
         addLabel="Nova rede social"
         selectedRowsCount={selectedPlatform ? 1 : 0}
       >

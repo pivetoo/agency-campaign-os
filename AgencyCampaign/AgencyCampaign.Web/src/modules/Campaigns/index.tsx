@@ -6,7 +6,7 @@ import { Eye } from 'lucide-react'
 import { campaignService } from '../../services/campaignService'
 import type { Campaign } from '../../types/campaign'
 import CampaignFormModal from '../../components/modals/CampaignFormModal'
-import AuditIconButton from '../../components/buttons/AuditIconButton'
+import AuditUtilityBar from '../../components/buttons/AuditUtilityBar'
 
 const campaignStatusKeys: Record<number, string> = {
   1: 'campaign.status.draft',
@@ -105,12 +105,7 @@ export default function Campaigns() {
       <PageLayout
         title={t('campaigns.title')}
         subtitle={t('campaigns.subtitle')}
-        actionsSlot={
-          <div className="flex items-center gap-1">
-            <AuditIconButton entityName="Campaign" entityLabel="Campanha" entityId={selectedCampaign?.id ?? null} />
-            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
-          </div>
-        }
+        actionsSlot={<AuditUtilityBar entityName="Campaign" entityLabel="Campanha" entityId={selectedCampaign?.id ?? null} />}
         onAdd={() => { setSelectedCampaign(null); setIsFormOpen(true) }}
         onEdit={() => selectedCampaign && setIsFormOpen(true)}
         onRefresh={() => void loadCampaigns()}

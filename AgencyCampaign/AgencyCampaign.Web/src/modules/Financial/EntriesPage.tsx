@@ -15,7 +15,7 @@ import {
 import type { FinancialAccount } from '../../types/financialAccount'
 import FinancialEntryFormModal from '../../components/modals/FinancialEntryFormModal'
 import MarkAsPaidModal from '../../components/modals/MarkAsPaidModal'
-import AuditIconButton from '../../components/buttons/AuditIconButton'
+import AuditUtilityBar from '../../components/buttons/AuditUtilityBar'
 
 interface FinancialEntriesPageProps {
   type: 1 | 2
@@ -196,12 +196,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
       <PageLayout
         title={title}
         subtitle={subtitle}
-        actionsSlot={
-          <div className="flex items-center gap-1">
-            <AuditIconButton entityName="FinancialEntry" entityLabel="Lançamento" entityId={selected?.id ?? null} />
-            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
-          </div>
-        }
+        actionsSlot={<AuditUtilityBar entityName="FinancialEntry" entityLabel="Lançamento" entityId={selected?.id ?? null} />}
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onRefresh={() => { void loadEntries(); void loadSummary() }}
         addLabel={t('financial.entries.action.new')}

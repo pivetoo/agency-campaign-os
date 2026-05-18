@@ -5,7 +5,7 @@ import { Trash2 } from 'lucide-react'
 import { financialAccountService } from '../../../services/financialAccountService'
 import { financialAccountTypeLabels, type FinancialAccount } from '../../../types/financialAccount'
 import FinancialAccountFormModal from '../../../components/modals/FinancialAccountFormModal'
-import AuditIconButton from '../../../components/buttons/AuditIconButton'
+import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 
 function formatCurrency(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -102,12 +102,7 @@ export default function FinancialAccounts() {
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}
-        actionsSlot={
-          <div className="flex items-center gap-1">
-            <AuditIconButton entityName="FinancialAccount" entityLabel="Conta financeira" entityId={selected?.id ?? null} />
-            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
-          </div>
-        }
+        actionsSlot={<AuditUtilityBar entityName="FinancialAccount" entityLabel="Conta financeira" entityId={selected?.id ?? null} />}
         addLabel="Nova conta"
         selectedRowsCount={selected ? 1 : 0}
         actions={[
