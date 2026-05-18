@@ -9,7 +9,7 @@ namespace AgencyCampaign.Infrastructure.Migrations
         {
             Execute.Sql(@"
                 UPDATE bank
-                SET logourl = '/banks/' || compe || '.svg', updatedat = NOW()
+                SET logourl = '/banks/' || compe || '.png', updatedat = NOW()
                 WHERE issystem = true AND logourl IS NULL;
             ");
         }
