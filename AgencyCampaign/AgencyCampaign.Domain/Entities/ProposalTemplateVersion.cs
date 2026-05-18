@@ -39,5 +39,14 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             Name = name.Trim();
         }
+
+        public void UpdateContent(string name, string template)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            ArgumentException.ThrowIfNullOrWhiteSpace(template);
+            Name = name.Trim();
+            Template = template;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
     }
 }

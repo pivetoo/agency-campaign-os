@@ -17,5 +17,7 @@ namespace AgencyCampaign.Application.Requests.Proposals
         public string? Notes { get; set; }
 
         public long? ResponsibleUserId { get; set; }
+
+        public long? ProposalLayoutId { get; set; }
     }
 }

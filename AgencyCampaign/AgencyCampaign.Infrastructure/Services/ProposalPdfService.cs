@@ -26,7 +26,8 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             AgencySettings agency = await ResolveAgencyAsync(cancellationToken);
-            string html = ProposalHtmlBuilder.Build(proposal, agency);
+            string? template = await ResolveTemplateAsync(proposal, agency, cancellationToken);
+            string html = ProposalHtmlBuilder.Build(proposal, agency, template);
             return await RenderToPdfAsync(html);
         }
 
@@ -53,7 +54,8 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             AgencySettings agency = await ResolveAgencyAsync(cancellationToken);
-            string html = ProposalHtmlBuilder.Build(proposal, agency);
+            string? template = await ResolveTemplateAsync(proposal, agency, cancellationToken);
+            string html = ProposalHtmlBuilder.Build(proposal, agency, template);
             return await RenderToPdfAsync(html);
         }
 
@@ -65,7 +67,29 @@ namespace AgencyCampaign.Infrastructure.Services
                     .ThenInclude(item => item!.Brand)
                 .Include(item => item.Items)
                     .ThenInclude(item => item.Creator)
+                .Include(item => item.ProposalLayout)
                 .FirstOrDefaultAsync(item => item.Id == proposalId, cancellationToken);
+        }
+
+        private async Task<string?> ResolveTemplateAsync(Proposal proposal, AgencySettings agency, CancellationToken cancellationToken)
+        {
+            if (!string.IsNullOrWhiteSpace(proposal.ProposalLayout?.Template))
+            {
+                return proposal.ProposalLayout.Template;
+            }
+
+            ProposalTemplateVersion? defaultLayout = await dbContext.Set<ProposalTemplateVersion>()
+                .AsNoTracking()
+                .Where(item => item.IsActive)
+                .OrderByDescending(item => item.CreatedAt)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(defaultLayout?.Template))
+            {
+                return defaultLayout.Template;
+            }
+
+            return string.IsNullOrWhiteSpace(agency.ProposalHtmlTemplate) ? null : agency.ProposalHtmlTemplate;
         }
 
         private async Task<AgencySettings> ResolveAgencyAsync(CancellationToken cancellationToken)

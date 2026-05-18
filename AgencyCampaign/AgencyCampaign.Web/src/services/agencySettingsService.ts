@@ -67,6 +67,15 @@ export const agencySettingsService = {
   deleteProposalTemplateVersion(id: number) {
     return httpClient.delete<unknown>(`${BASE_URL}/DeleteProposalTemplateVersion?id=${id}`)
   },
+
+  async getProposalTemplateVersionById(id: number): Promise<ProposalTemplateVersion | null> {
+    const response = await httpClient.get<ProposalTemplateVersion>(`${BASE_URL}/GetProposalTemplateVersionById/${id}`)
+    return response.data ?? null
+  },
+
+  updateProposalTemplateVersion(id: number, name: string, template: string, isDefault: boolean) {
+    return httpClient.put<ProposalTemplateVersion>(`${BASE_URL}/UpdateProposalTemplateVersion/${id}`, { name, template, isDefault })
+  },
 }
 
 export interface ProposalLayout {

@@ -18,5 +18,7 @@ namespace AgencyCampaign.Application.Requests.Proposals
 
         [StringLength(1000)]
         public string? Notes { get; set; }
+
+        public long? ProposalLayoutId { get; set; }
     }
 }

@@ -26,6 +26,7 @@ export interface HtmlTemplateEditorProps {
   insertVariableLabel?: string
   previewEmptyLabel?: string
   previewSubtitle?: string
+  tokenFormat?: (key: string) => string
 }
 
 export default function HtmlTemplateEditor({
@@ -40,6 +41,7 @@ export default function HtmlTemplateEditor({
   insertVariableLabel = 'Inserir variável',
   previewEmptyLabel = 'A pré-visualização aparece aqui após editar o template.',
   previewSubtitle = 'Pré-visualização — dados de exemplo',
+  tokenFormat = (key: string) => `{{ ${key} }}`,
 }: HtmlTemplateEditorProps) {
   const [previewHtml, setPreviewHtml] = useState<string>('')
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -100,7 +102,7 @@ export default function HtmlTemplateEditor({
   }
 
   const insertVariable = (key: string) => {
-    const token = `{{ ${key} }}`
+    const token = tokenFormat(key)
     setPickerOpen(false)
     const ed = editorRef.current
     if (!ed) {
@@ -152,7 +154,7 @@ export default function HtmlTemplateEditor({
                           onClick={() => insertVariable(variable.key)}
                           className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-muted/60"
                         >
-                          <code className="text-xs font-medium text-primary">{`{{ ${variable.key} }}`}</code>
+                          <code className="text-xs font-medium text-primary">{tokenFormat(variable.key)}</code>
                           {variable.label ? (
                             <span className="text-[11px] font-medium text-foreground">{variable.label}</span>
                           ) : null}

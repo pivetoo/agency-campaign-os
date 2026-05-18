@@ -10,11 +10,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private static readonly CultureInfo PtBR = CultureInfo.GetCultureInfo("pt-BR");
 
-        public static string Build(Proposal proposal, AgencySettings agency)
+        public static string Build(Proposal proposal, AgencySettings agency, string? explicitTemplate = null)
         {
-            string template = !string.IsNullOrWhiteSpace(agency.ProposalHtmlTemplate)
-                ? agency.ProposalHtmlTemplate
-                : PadraoTemplate;
+            string template = !string.IsNullOrWhiteSpace(explicitTemplate)
+                ? explicitTemplate
+                : !string.IsNullOrWhiteSpace(agency.ProposalHtmlTemplate)
+                    ? agency.ProposalHtmlTemplate
+                    : PadraoTemplate;
 
             AgencyData agencyData = MapAgency(agency);
             ProposalData proposalData = MapProposal(proposal);

@@ -21,7 +21,11 @@ namespace AgencyCampaign.Application.Services
 
         Task<IReadOnlyList<ProposalTemplateVersionModel>> GetProposalTemplateVersions(CancellationToken cancellationToken = default);
 
+        Task<ProposalTemplateVersionModel?> GetProposalTemplateVersionById(long id, CancellationToken cancellationToken = default);
+
         Task<ProposalTemplateVersionModel> SaveProposalTemplateVersion(string name, string template, bool activate, CancellationToken cancellationToken = default);
+
+        Task<ProposalTemplateVersionModel> UpdateProposalTemplateVersion(long id, string name, string template, bool isDefault, CancellationToken cancellationToken = default);
 
         Task<ProposalTemplateVersionModel> ActivateProposalTemplateVersion(long id, CancellationToken cancellationToken = default);
 

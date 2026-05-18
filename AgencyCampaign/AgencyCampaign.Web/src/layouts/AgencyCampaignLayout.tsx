@@ -159,7 +159,7 @@ export default function AgencyCampaignLayout() {
         { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} />, requires: ['opportunitySources.get'] },
         { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} />, requires: ['opportunityTags.get'] },
         { key: 'configuracao-itens-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/itens-proposta', icon: <FileSignature size={20} />, requires: ['proposalTemplates.get'] },
-        { key: 'configuracao-layout-proposta', label: t('nav.item.proposalTemplate'), path: '/configuracao/layout-proposta', icon: <Paintbrush size={20} />, requires: ['agencySettings.saveProposalTemplate'] },
+        { key: 'configuracao-layouts-proposta', label: 'Layouts da proposta', path: '/configuracao/layouts-proposta', icon: <Paintbrush size={20} />, requires: ['agencySettings.getProposalTemplateVersions'] },
       ],
     },
     {
@@ -240,7 +240,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/tipos-entrega': t('nav.item.deliverableKinds'),
       '/configuracao/integracoes': t('nav.item.integrations'),
       '/configuracao/itens-proposta': t('nav.item.proposalTemplates'),
-      '/configuracao/layout-proposta': t('nav.item.proposalTemplate'),
+      '/configuracao/layouts-proposta': 'Layouts da proposta',
       '/configuracao/origens-oportunidade': t('nav.item.opportunitySources'),
       '/configuracao/tags-oportunidade': t('nav.item.opportunityTags'),
       '/configuracao/modelos-contrato': t('nav.item.contractTemplates'),
@@ -279,6 +279,12 @@ export default function AgencyCampaignLayout() {
     if (contractTemplateMatch) {
       crumbs.push({ label: t('nav.item.contractTemplates'), onClick: () => navigate('/configuracao/modelos-contrato') })
       crumbs.push({ label: contractTemplateMatch[1] === 'novo' ? 'Novo modelo' : 'Editar modelo' })
+    }
+
+    const proposalLayoutMatch = path.match(/^\/configuracao\/layouts-proposta\/(novo|\d+)$/)
+    if (proposalLayoutMatch) {
+      crumbs.push({ label: 'Layouts da proposta', onClick: () => navigate('/configuracao/layouts-proposta') })
+      crumbs.push({ label: proposalLayoutMatch[1] === 'novo' ? 'Novo layout' : 'Editar layout' })
     }
 
     return crumbs

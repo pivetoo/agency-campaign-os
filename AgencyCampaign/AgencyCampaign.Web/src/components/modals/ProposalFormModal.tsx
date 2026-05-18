@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { proposalService, type Proposal, type CreateProposalRequest, type UpdateProposalRequest } from '../../services/proposalService'
 import { opportunityService, type Opportunity } from '../../services/opportunityService'
+import { agencySettingsService, type ProposalTemplateVersion } from '../../services/agencySettingsService'
 
 interface ProposalFormModalProps {
   open: boolean
@@ -16,18 +17,23 @@ const initialFormData: CreateProposalRequest = {
   description: '',
   validityUntil: undefined,
   notes: '',
+  proposalLayoutId: null,
 }
+
+const DEFAULT_LAYOUT_VALUE = '__default__'
 
 export default function ProposalFormModal({ open, onOpenChange, proposal, presetOpportunityId, onSuccess }: ProposalFormModalProps) {
   const { t } = useI18n()
   const isEditing = !!proposal
   const [formData, setFormData] = useState<CreateProposalRequest>(initialFormData)
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+  const [layouts, setLayouts] = useState<ProposalTemplateVersion[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
     if (!open) return
     void opportunityService.getAll({ pageSize: 10 }).then((r) => setOpportunities(r.data ?? []))
+    void agencySettingsService.getProposalTemplateVersions().then((r) => setLayouts(r.data ?? []))
   }, [open])
 
   useEffect(() => {
@@ -37,12 +43,21 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
         description: proposal.description || '',
         validityUntil: proposal.validityUntil,
         notes: proposal.notes || '',
+        proposalLayoutId: proposal.proposalLayoutId ?? null,
       })
       return
     }
 
     setFormData({ ...initialFormData, opportunityId: presetOpportunityId ?? 0 })
   }, [proposal, open, presetOpportunityId])
+
+  const layoutOptions = [
+    { value: DEFAULT_LAYOUT_VALUE, label: 'Padrão da agência' },
+    ...layouts.map((layout) => ({
+      value: String(layout.id),
+      label: layout.isActive ? `${layout.name} (padrão)` : layout.name,
+    })),
+  ]
 
   const opportunityOptions = opportunities.map((opportunity) => ({
     value: String(opportunity.id),
@@ -114,6 +129,16 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.description')}</label>
               <Input value={formData.description || ''} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Layout da proposta</label>
+              <SearchableSelect
+                value={formData.proposalLayoutId ? String(formData.proposalLayoutId) : DEFAULT_LAYOUT_VALUE}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, proposalLayoutId: value === DEFAULT_LAYOUT_VALUE ? null : Number(value) }))}
+                options={layoutOptions}
+                placeholder="Padrão da agência"
+              />
             </div>
           </div>
 

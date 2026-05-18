@@ -131,6 +131,28 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.created"]);
         }
 
+        [RequireAccess("Permite consultar uma versão do template de proposta por ID.")]
+        [GetEndpoint("ProposalTemplateVersion/{id:long}")]
+        public async Task<IActionResult> GetProposalTemplateVersionById(long id, CancellationToken cancellationToken)
+        {
+            var version = await service.GetProposalTemplateVersionById(id, cancellationToken);
+            return version is null ? Http404(Localizer["record.notFound"]) : Http200(version);
+        }
+
+        [RequireAccess("Permite atualizar uma versão (layout) de proposta.")]
+        [PutEndpoint("ProposalTemplateVersion/{id:long}")]
+        public async Task<IActionResult> UpdateProposalTemplateVersion(long id, [FromBody] UpdateProposalTemplateVersionRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await service.UpdateProposalTemplateVersion(id, request.Name, request.Template, request.IsDefault, cancellationToken);
+            return Http200(result, Localizer["record.updated"]);
+        }
+
         [RequireAccess("Permite ativar uma versão do template de proposta.")]
         [PutEndpoint("[action]")]
         public async Task<IActionResult> ActivateProposalTemplateVersion([FromQuery] long id, CancellationToken cancellationToken)

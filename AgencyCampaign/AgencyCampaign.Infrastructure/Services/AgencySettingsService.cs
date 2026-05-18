@@ -140,6 +140,44 @@ namespace AgencyCampaign.Infrastructure.Services
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task<ProposalTemplateVersionModel?> GetProposalTemplateVersionById(long id, CancellationToken cancellationToken = default)
+        {
+            ProposalTemplateVersion? version = await dbContext.Set<ProposalTemplateVersion>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+            return version is null ? null : MapVersion(version);
+        }
+
+        public async Task<ProposalTemplateVersionModel> UpdateProposalTemplateVersion(long id, string name, string template, bool isDefault, CancellationToken cancellationToken = default)
+        {
+            ProposalTemplateVersion? version = await dbContext.Set<ProposalTemplateVersion>()
+                .AsTracking()
+                .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+            if (version is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            version.UpdateContent(name, template);
+
+            if (isDefault)
+            {
+                await DeactivateAllVersions(cancellationToken);
+                version.Activate();
+                AgencySettings settings = await ResolveOrCreate(cancellationToken);
+                settings.SetProposalHtmlTemplate(template);
+            }
+            else if (version.IsActive)
+            {
+                version.Deactivate();
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return MapVersion(version);
+        }
+
         private async Task DeactivateAllVersions(CancellationToken cancellationToken)
         {
             List<ProposalTemplateVersion> all = await dbContext.Set<ProposalTemplateVersion>()

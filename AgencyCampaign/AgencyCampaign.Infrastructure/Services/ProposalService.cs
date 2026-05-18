@@ -109,6 +109,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 proposal.SetInternalOwner(responsibleUserId, commercialResponsibleName);
             }
 
+            if (request.ProposalLayoutId.HasValue)
+            {
+                proposal.SetProposalLayout(request.ProposalLayoutId);
+            }
+
             bool success = await Insert(cancellationToken, proposal);
             if (!success)
             {
@@ -142,6 +147,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Description,
                 request.Notes,
                 request.OpportunityId);
+
+            proposal.SetProposalLayout(request.ProposalLayoutId);
 
             Proposal? result = await Update(proposal, cancellationToken);
             if (result is null)

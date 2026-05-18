@@ -58,6 +58,7 @@ export interface Proposal {
     name: string
   }
   items?: ProposalItem[]
+  proposalLayoutId?: number | null
   createdAt: string
   updatedAt?: string
 }
@@ -69,6 +70,7 @@ export interface CreateProposalRequest {
   notes?: string
   internalOwnerId?: number
   internalOwnerName?: string
+  proposalLayoutId?: number | null
 }
 
 export interface UpdateProposalRequest extends CreateProposalRequest {

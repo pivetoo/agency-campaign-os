@@ -34,6 +34,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? Notes { get; private set; }
 
+        public long? ProposalLayoutId { get; private set; }
+
+        public ProposalTemplateVersion? ProposalLayout { get; private set; }
+
         public IReadOnlyCollection<ProposalItem> Items => items.AsReadOnly();
 
         public IReadOnlyCollection<ProposalStatusHistory> StatusHistory => statusHistory.AsReadOnly();
@@ -81,6 +85,12 @@ namespace AgencyCampaign.Domain.Entities
             ValidityUntil = validityUntil?.ToUniversalTime();
             OpportunityId = opportunityId;
             Notes = Normalize(notes);
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        public void SetProposalLayout(long? layoutId)
+        {
+            ProposalLayoutId = layoutId;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
