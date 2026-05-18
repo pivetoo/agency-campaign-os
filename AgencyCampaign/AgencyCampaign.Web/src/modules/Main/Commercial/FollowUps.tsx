@@ -3,20 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { Badge, Button, PageLayout, useI18n } from 'archon-ui'
 import { ArrowRight, Building2, Check, CheckCircle2, ClipboardCheck, Clock, ExternalLink, Loader2, Sparkles } from 'lucide-react'
 import { opportunityService, type OpportunityFollowUp, type FollowUpSummary } from '../../../services/opportunityService'
+import { formatDate } from '../../../lib/format'
+import { formatCurrency } from '../../../lib/format'
 
 type StatusKey = 'overdue' | 'today' | 'upcoming' | 'completed'
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    maximumFractionDigits: 0,
-  }).format(value)
-}
-
-function formatDateBR(value: string) {
-  return new Date(value).toLocaleDateString('pt-BR')
-}
 
 function relativeLabel(dueAt: string, isCompleted: boolean, t: (key: string) => string): { label: string; tone: 'overdue' | 'today' | 'upcoming' | 'completed' } {
   if (isCompleted) return { label: t('followups.relative.completed'), tone: 'completed' }
@@ -35,7 +25,7 @@ function relativeLabel(dueAt: string, isCompleted: boolean, t: (key: string) => 
   }
   if (diffDays === 0) return { label: t('followups.relative.today'), tone: 'today' }
   if (diffDays === 1) return { label: t('followups.relative.tomorrow'), tone: 'upcoming' }
-  return { label: t('followups.relative.inDays').replace('{0}', String(diffDays)).replace('{1}', formatDateBR(dueAt)), tone: 'upcoming' }
+  return { label: t('followups.relative.inDays').replace('{0}', String(diffDays)).replace('{1}', formatDate(dueAt)), tone: 'upcoming' }
 }
 
 const TONE_BADGE: Record<'overdue' | 'today' | 'upcoming' | 'completed', { variant: 'destructive' | 'warning' | 'secondary' | 'success'; className: string }> = {

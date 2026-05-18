@@ -9,15 +9,12 @@ import type { FinancialAccount } from '../../../types/financialAccount'
 import FinancialEntryFormModal from '../../../components/modals/FinancialEntryFormModal'
 import MarkAsPaidModal from '../../../components/modals/MarkAsPaidModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
+import { formatCurrency } from '../../../lib/format'
 
 interface FinancialEntriesPageProps {
   type: 1 | 2
   title: string
   subtitle: string
-}
-
-function formatCurrency(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
 export default function FinancialEntriesPage({ type, title, subtitle }: FinancialEntriesPageProps) {

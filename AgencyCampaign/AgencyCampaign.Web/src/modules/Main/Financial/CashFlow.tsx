@@ -2,10 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, Card, CardContent, useApi, SearchableSelect, Input, useI18n } from 'archon-ui'
 import { ResponsiveLine } from '@nivo/line'
 import { CashFlowGranularity, financialReportService, type CashFlowGranularityValue, type CashFlowSeries } from '../../../services/financialReportService'
-
-function formatCurrency(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
+import { formatCurrency } from '../../../lib/format'
 
 function defaultRange(granularity: CashFlowGranularityValue): { from: string; to: string } {
   const now = new Date()

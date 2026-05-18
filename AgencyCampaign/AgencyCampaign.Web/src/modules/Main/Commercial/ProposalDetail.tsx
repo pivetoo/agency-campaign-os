@@ -10,6 +10,8 @@ import ProposalShareTab from './ProposalShareTab'
 import { campaignService } from '../../../services/campaignService'
 import { proposalService, ProposalStatus, type Proposal, type ProposalItem, type ProposalStatusValue } from '../../../services/proposalService'
 import type { Campaign } from '../../../types/campaign'
+import { formatDate } from '../../../lib/format'
+import { formatCurrency } from '../../../lib/format'
 
 const proposalStatusKeys: Record<ProposalStatusValue, string> = {
   [ProposalStatus.Draft]: 'proposal.status.draft',
@@ -31,14 +33,6 @@ const proposalStatusVariant: Record<ProposalStatusValue, 'default' | 'warning' |
   [ProposalStatus.Converted]: 'success',
   [ProposalStatus.Expired]: 'destructive',
   [ProposalStatus.Cancelled]: 'destructive',
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
-}
-
-function formatDate(value?: string) {
-  return value ? new Date(value).toLocaleDateString('pt-BR') : '-'
 }
 
 export default function CommercialProposalDetail() {

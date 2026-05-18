@@ -4,11 +4,7 @@ import { Button, Card, CardContent, CardHeader, CardTitle, Badge, useI18n } from
 import { CheckCircle2, XCircle, ExternalLink, AlertTriangle } from 'lucide-react'
 import { deliverablePublicService } from '../../services/deliverableShareLinkService'
 import type { DeliverablePublicView } from '../../types/deliverableShareLink'
-
-function formatDate(value?: string | null): string {
-  if (!value) return '-'
-  return new Date(value).toLocaleDateString('pt-BR')
-}
+import { formatDate } from '../../lib/format'
 
 const approvalStatusLabels: Record<number, string> = {
   1: 'Pendente',

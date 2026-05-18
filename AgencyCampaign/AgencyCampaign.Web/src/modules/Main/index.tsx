@@ -3,6 +3,7 @@ import { AreaChart, BarChart, Card, CardContent, CardHeader, CardTitle, ChartCon
 import { Activity, BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon, Sparkles, Megaphone, Building2, Users, Clock } from 'lucide-react'
 import { dashboardService } from '../../services/dashboardService'
 import type { DashboardOverview } from '../../types/dashboard'
+import { formatCurrencyShort } from '../../lib/format'
 // import TourButton from '../../components/tour/TourButton'
 
 const chartColors = ['#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6']
@@ -11,12 +12,6 @@ const pipelineColors = ['#6366f1', '#06b6d4', '#f59e0b', '#ec4899', '#22c55e']
 function truncateLabel(value: string) {
   const parts = value.trim().split(/\s+/)
   return parts.length > 1 && value.length > 12 ? `${parts[0]}...` : value
-}
-
-function formatCurrencyShort(value: number) {
-  if (value >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1)}M`
-  if (value >= 1_000) return `R$ ${(value / 1_000).toFixed(0)}k`
-  return `R$ ${value.toFixed(0)}`
 }
 
 function buildGreeting(t: (key: string) => string, firstName: string | undefined): string {

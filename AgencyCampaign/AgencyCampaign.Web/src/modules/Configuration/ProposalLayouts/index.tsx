@@ -5,10 +5,7 @@ import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { agencySettingsService, type ProposalTemplateVersion } from '../../../services/agencySettingsService'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
-}
+import { formatDate } from '../../../lib/format'
 
 export default function ProposalLayouts() {
   const { t } = useI18n()

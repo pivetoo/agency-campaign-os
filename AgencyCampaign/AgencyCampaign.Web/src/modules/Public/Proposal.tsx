@@ -3,15 +3,8 @@ import { useParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, useI18n } from 'archon-ui'
 import { AlertTriangle, CalendarClock, FileDown, FileText, Sparkles } from 'lucide-react'
 import { proposalPublicService, type ProposalPublicSnapshot, type ProposalPublicView } from '../../services/proposalPublicService'
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
-}
-
-function formatDate(value?: string): string {
-  if (!value) return '-'
-  return new Date(value).toLocaleDateString('pt-BR')
-}
+import { formatDate } from '../../lib/format'
+import { formatCurrency } from '../../lib/format'
 
 export default function PublicProposal() {
   const { t } = useI18n()

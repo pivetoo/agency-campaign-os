@@ -8,10 +8,7 @@ import { FinancialAccountSyncStatus, financialAccountTypeLabels, type FinancialA
 import FinancialAccountFormModal from '../../../../components/modals/FinancialAccountFormModal'
 import FinancialAccountConnectorBindingModal from '../../../../components/modals/FinancialAccountConnectorBindingModal'
 import AuditUtilityBar from '../../../../components/buttons/AuditUtilityBar'
-
-function formatCurrency(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
+import { formatCurrency } from '../../../../lib/format'
 
 type BadgeVariant = 'outline' | 'warning' | 'success' | 'destructive'
 

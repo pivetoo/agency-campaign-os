@@ -3,6 +3,7 @@ import { Modal, ModalContent, ModalHeader, ModalTitle, ModalDescription, Badge, 
 import { ChevronDown, ChevronRight, FilePlus, FileX, Pencil, History, Loader2 } from 'lucide-react'
 import { auditService } from '../../services/auditService'
 import { AuditActionValue, type AuditAction, type AuditEntry, type AuditPropertyChange } from '../../types/audit'
+import { formatDate } from '../../lib/format'
 
 interface AuditTimelineModalProps {
   entityName: string
@@ -16,16 +17,6 @@ const actionMeta: Record<AuditAction, { label: string; variant: 'success' | 'sec
   [AuditActionValue.Insert]: { label: 'Criado', variant: 'success', icon: FilePlus, iconClass: 'bg-success/15 text-success' },
   [AuditActionValue.Update]: { label: 'Atualizado', variant: 'secondary', icon: Pencil, iconClass: 'bg-primary/15 text-primary' },
   [AuditActionValue.Delete]: { label: 'Excluído', variant: 'destructive', icon: FileX, iconClass: 'bg-destructive/15 text-destructive' },
-}
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value))
 }
 
 function formatPropertyName(raw: string): string {

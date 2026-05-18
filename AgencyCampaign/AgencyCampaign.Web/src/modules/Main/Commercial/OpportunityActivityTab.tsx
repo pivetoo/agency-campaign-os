@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button, Card, CardContent, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import { ArrowRight, MessageSquare, Pencil, Send, Trash2 } from 'lucide-react'
 import { opportunityService, type OpportunityComment, type OpportunityStageHistoryItem } from '../../../services/opportunityService'
+import { formatDateTime } from '../../../lib/format'
 
 interface OpportunityActivityTabProps {
   opportunityId: number
@@ -13,11 +14,6 @@ interface TimelineItem {
   kind: 'stage' | 'comment'
   occurredAt: string
   data: OpportunityStageHistoryItem | OpportunityComment
-}
-
-function formatDateTime(value: string): string {
-  const date = new Date(value)
-  return `${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
 }
 
 function relativeTime(value: string, t: (key: string) => string): string {

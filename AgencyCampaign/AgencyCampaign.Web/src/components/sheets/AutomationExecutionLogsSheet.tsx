@@ -4,22 +4,12 @@ import { CheckCircle2, XCircle, ChevronDown, ChevronUp, ClipboardList } from 'lu
 import { automationService } from '../../services/automationService'
 import { automationTriggerLabels } from '../../types/automationTrigger'
 import type { Automation, AutomationExecutionLog } from '../../types/automation'
+import { formatDate } from '../../lib/format'
 
 interface Props {
   automation: Automation | null
   open: boolean
   onClose: () => void
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(new Date(value))
 }
 
 function tryFormatJson(raw?: string) {

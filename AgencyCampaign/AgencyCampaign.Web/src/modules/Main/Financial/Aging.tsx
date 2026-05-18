@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react'
 import { PageLayout, Card, CardContent, useApi, Badge, useI18n } from 'archon-ui'
 import { financialReportService, type AgingReport } from '../../../services/financialReportService'
-
-function formatCurrency(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
+import { formatCurrency } from '../../../lib/format'
 
 export default function Aging() {
   const { t } = useI18n()

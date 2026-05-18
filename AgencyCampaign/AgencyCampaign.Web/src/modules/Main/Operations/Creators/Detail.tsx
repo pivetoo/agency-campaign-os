@@ -8,20 +8,8 @@ import { creatorSocialHandleService } from '../../../../services/creatorSocialHa
 import type { Creator } from '../../../../types/creator'
 import type { CreatorCampaignEntry, CreatorSocialHandle, CreatorSummary } from '../../../../types/creatorSocialHandle'
 import CreatorSocialHandleFormModal from '../../../../components/modals/CreatorSocialHandleFormModal'
-
-function formatCurrency(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
-
-function formatNumber(value?: number | null): string {
-  if (value == null) return '-'
-  return value.toLocaleString('pt-BR')
-}
-
-function formatPercent(value?: number | null): string {
-  if (value == null) return '-'
-  return `${value.toFixed(2)}%`
-}
+import { formatNumber } from '../../../../lib/format'
+import { formatCurrency, formatPercent } from '../../../../lib/format'
 
 export default function CreatorDetail() {
   const { t } = useI18n()

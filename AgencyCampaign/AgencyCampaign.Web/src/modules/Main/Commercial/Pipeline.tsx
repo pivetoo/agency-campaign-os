@@ -5,17 +5,8 @@ import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserR
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value)
-}
-
-function formatDate(value: string | undefined, fallback: string) {
-  return value ? new Date(value).toLocaleDateString('pt-BR') : fallback
-}
+import { formatDate } from '../../../lib/format'
+import { formatCurrency } from '../../../lib/format'
 
 function getContrastColor(hexColor: string) {
   const normalized = hexColor.replace('#', '')

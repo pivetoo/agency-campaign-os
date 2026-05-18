@@ -12,6 +12,8 @@ import OpportunityApprovalRequestFormModal from '../../../components/modals/Oppo
 import OpportunityActivityTab from './OpportunityActivityTab'
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
+import { formatDate } from '../../../lib/format'
+import { formatCurrency } from '../../../lib/format'
 
 const proposalStatusKeys: Record<number, string> = {
   1: 'proposal.status.draft',
@@ -57,14 +59,6 @@ const approvalStatusKeys: Record<OpportunityApprovalStatusValue, string> = {
   [OpportunityApprovalStatus.Approved]: 'approvals.status.approved',
   [OpportunityApprovalStatus.Rejected]: 'approvals.status.rejected',
   [OpportunityApprovalStatus.Cancelled]: 'approvals.status.cancelled',
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
-}
-
-function formatDate(value?: string) {
-  return value ? new Date(value).toLocaleDateString('pt-BR') : '-'
 }
 
 function getStageBadgeVariant(finalBehavior?: number): 'default' | 'success' | 'destructive' | 'warning' {

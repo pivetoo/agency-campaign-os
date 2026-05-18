@@ -2,15 +2,10 @@ import { useEffect, useState } from 'react'
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, ConfirmModal, Input, useApi, useToast, useI18n } from 'archon-ui'
 import { Copy, Eye, Link as LinkIcon, Link2, ShieldOff } from 'lucide-react'
 import { proposalService, type ProposalShareLink, type ProposalVersion } from '../../../services/proposalService'
+import { formatDateTime } from '../../../lib/format'
 
 interface ProposalShareTabProps {
   proposalId: number
-}
-
-function formatDateTime(value?: string): string {
-  if (!value) return '-'
-  const date = new Date(value)
-  return `${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
 }
 
 function buildPublicUrl(token: string): string {
