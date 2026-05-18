@@ -19,16 +19,4 @@ namespace AgencyCampaign.Application.Services
         Task<int> ApplyToProposal(long proposalId, long templateId, CancellationToken cancellationToken = default);
     }
 
-    public interface IProposalBlockService
-    {
-        Task<PagedResult<ProposalBlockModel>> GetAll(PagedRequest request, string? search, string? category, bool includeInactive, CancellationToken cancellationToken = default);
-
-        Task<ProposalBlockModel?> GetById(long id, CancellationToken cancellationToken = default);
-
-        Task<ProposalBlockModel> Create(CreateProposalBlockRequest request, CancellationToken cancellationToken = default);
-
-        Task<ProposalBlockModel> Update(long id, UpdateProposalBlockRequest request, CancellationToken cancellationToken = default);
-
-        Task Delete(long id, CancellationToken cancellationToken = default);
-    }
 }

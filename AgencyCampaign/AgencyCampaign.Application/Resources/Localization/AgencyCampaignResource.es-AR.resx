@@ -152,7 +152,6 @@
   <data name="nav.item.opportunitySources" xml:space="preserve"><value>Orígenes de oportunidad</value></data>
   <data name="nav.item.opportunityTags" xml:space="preserve"><value>Etiquetas de oportunidad</value></data>
   <data name="nav.item.proposalTemplates" xml:space="preserve"><value>Ítems de propuesta</value></data>
-  <data name="nav.item.proposalBlocks" xml:space="preserve"><value>Bloques de propuesta</value></data>
   <data name="nav.item.proposalTemplate" xml:space="preserve"><value>Diseño de propuesta</value></data>
   <data name="nav.item.socialNetworks" xml:space="preserve"><value>Redes sociales</value></data>
   <data name="nav.item.creatorStatus" xml:space="preserve"><value>Estado del influencer</value></data>
@@ -548,8 +547,6 @@
   <data name="configuration.opportunitySources.subtitle" xml:space="preserve"><value>De dónde vienen los leads. Úselo para análisis de canal e informes.</value></data>
   <data name="configuration.opportunityTags.title" xml:space="preserve"><value>Etiquetas de oportunidad</value></data>
   <data name="configuration.opportunityTags.subtitle" xml:space="preserve"><value>Marcadores personalizados (estratégico, hot, Q4, etc.) para clasificar deals.</value></data>
-  <data name="configuration.proposalBlocks.title" xml:space="preserve"><value>Bloques de propuesta</value></data>
-  <data name="configuration.proposalBlocks.subtitle" xml:space="preserve"><value>Cláusulas, condiciones y descripciones reutilizables para armar propuestas.</value></data>
   <data name="configuration.proposalTemplates.title" xml:space="preserve"><value>Ítems de propuesta</value></data>
   <data name="configuration.proposalTemplates.subtitle" xml:space="preserve"><value>Modelos reutilizables con ítems estándar para agilizar la creación de propuestas.</value></data>
   <data name="configuration.proposalTemplate.title" xml:space="preserve"><value>Diseño de propuesta</value></data>
@@ -989,10 +986,6 @@
   <data name="configuration.opportunityTags.empty" xml:space="preserve"><value>No hay etiquetas registradas</value></data>
   <data name="configuration.opportunityTags.confirm.delete" xml:space="preserve"><value>¿Eliminar la etiqueta "{0}"?</value></data>
   <data name="configuration.opportunityTags.field.tag" xml:space="preserve"><value>Etiqueta</value></data>
-  <data name="configuration.proposalBlocks.empty" xml:space="preserve"><value>No hay bloques registrados</value></data>
-  <data name="configuration.proposalBlocks.confirm.delete" xml:space="preserve"><value>¿Eliminar el bloque "{0}"?</value></data>
-  <data name="configuration.proposalBlocks.field.block" xml:space="preserve"><value>Bloque</value></data>
-  <data name="configuration.proposalBlocks.field.contentPreview" xml:space="preserve"><value>Vista previa del contenido</value></data>
   <data name="configuration.proposalTemplates.empty" xml:space="preserve"><value>No hay plantillas de ítems registradas</value></data>
   <data name="configuration.proposalTemplates.confirm.delete" xml:space="preserve"><value>¿Eliminar la plantilla "{0}"? Los ítems ya copiados en propuestas permanecerán allí.</value></data>
   <data name="configuration.proposalTemplates.field.template" xml:space="preserve"><value>Plantilla</value></data>

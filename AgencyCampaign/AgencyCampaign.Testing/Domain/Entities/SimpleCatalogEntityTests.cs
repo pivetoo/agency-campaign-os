@@ -254,30 +254,6 @@ namespace AgencyCampaign.Testing.Domain.Entities
     }
 
     [TestFixture]
-    public sealed class ProposalBlockTests
-    {
-        [Test]
-        public void Constructor_should_trim_inputs()
-        {
-            ProposalBlock subject = new("  Termos  ", "  body  ", "  cat  ", null, null);
-            subject.Name.Should().Be("Termos");
-            subject.Body.Should().Be("body");
-            subject.Category.Should().Be("cat");
-            subject.IsActive.Should().BeTrue();
-        }
-
-        [Test]
-        public void Constructor_should_reject_blank_required_fields()
-        {
-            Action blankBody = () => _ = new ProposalBlock("x", " ", "y", null, null);
-            Action blankCategory = () => _ = new ProposalBlock("x", "y", " ", null, null);
-
-            blankBody.Should().Throw<ArgumentException>();
-            blankCategory.Should().Throw<ArgumentException>();
-        }
-    }
-
-    [TestFixture]
     public sealed class ProposalVersionTests
     {
         [Test]

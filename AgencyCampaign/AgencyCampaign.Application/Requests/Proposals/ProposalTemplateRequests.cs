@@ -52,38 +52,4 @@ namespace AgencyCampaign.Application.Requests.Proposals
         public int DisplayOrder { get; set; }
     }
 
-    public sealed class CreateProposalBlockRequest
-    {
-        [Required]
-        [StringLength(150, MinimumLength = 2)]
-        public string Name { get; set; } = string.Empty;
-
-        [Required]
-        [MinLength(1)]
-        public string Body { get; set; } = string.Empty;
-
-        [Required]
-        [StringLength(100, MinimumLength = 1)]
-        public string Category { get; set; } = string.Empty;
-    }
-
-    public sealed class UpdateProposalBlockRequest
-    {
-        [Required]
-        public long Id { get; set; }
-
-        [Required]
-        [StringLength(150, MinimumLength = 2)]
-        public string Name { get; set; } = string.Empty;
-
-        [Required]
-        [MinLength(1)]
-        public string Body { get; set; } = string.Empty;
-
-        [Required]
-        [StringLength(100, MinimumLength = 1)]
-        public string Category { get; set; } = string.Empty;
-
-        public bool IsActive { get; set; } = true;
-    }
 }

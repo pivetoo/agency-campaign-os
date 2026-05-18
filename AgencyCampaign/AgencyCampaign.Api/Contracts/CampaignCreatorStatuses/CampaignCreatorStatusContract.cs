@@ -21,6 +21,8 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreatorStatuses
 
         public int Category { get; init; }
 
+        public bool MarksAsConfirmed { get; init; }
+
         public bool IsActive { get; init; }
 
         public DateTimeOffset CreatedAt { get; init; }
@@ -37,6 +39,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreatorStatuses
             IsInitial = item.IsInitial,
             IsFinal = item.IsFinal,
             Category = (int)item.Category,
+            MarksAsConfirmed = item.MarksAsConfirmed,
             IsActive = item.IsActive,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt

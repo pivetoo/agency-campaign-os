@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Blocks, Sparkles, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ListChecks, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Sparkles, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
@@ -160,7 +160,6 @@ export default function AgencyCampaignLayout() {
         { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} />, requires: ['opportunityTags.get'] },
         { key: 'configuracao-itens-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/itens-proposta', icon: <FileSignature size={20} />, requires: ['proposalTemplates.get'] },
         { key: 'configuracao-layout-proposta', label: t('nav.item.proposalTemplate'), path: '/configuracao/layout-proposta', icon: <Paintbrush size={20} />, requires: ['agencySettings.saveProposalTemplate'] },
-        { key: 'configuracao-blocos-proposta', label: t('nav.item.proposalBlocks'), path: '/configuracao/blocos-proposta', icon: <Blocks size={20} />, requires: ['proposalBlocks.get'] },
       ],
     },
     {
@@ -242,7 +241,6 @@ export default function AgencyCampaignLayout() {
       '/configuracao/integracoes': t('nav.item.integrations'),
       '/configuracao/itens-proposta': t('nav.item.proposalTemplates'),
       '/configuracao/layout-proposta': t('nav.item.proposalTemplate'),
-      '/configuracao/blocos-proposta': t('nav.item.proposalBlocks'),
       '/configuracao/origens-oportunidade': t('nav.item.opportunitySources'),
       '/configuracao/tags-oportunidade': t('nav.item.opportunityTags'),
       '/configuracao/templates-documento': t('nav.item.contractTemplates'),

@@ -34,7 +34,6 @@ import CampaignCreatorStatuses from '../modules/Configuration/CampaignCreatorSta
 import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
 import Integrations from '../modules/Configuration/Integrations'
 import ProposalTemplates from '../modules/Configuration/ProposalTemplates'
-import ProposalBlocks from '../modules/Configuration/ProposalBlocks'
 import OpportunitySources from '../modules/Configuration/OpportunitySources'
 import OpportunityTags from '../modules/Configuration/OpportunityTags'
 import CampaignDocumentTemplates from '../modules/Configuration/CampaignDocumentTemplates'
@@ -114,7 +113,6 @@ function AppRoutes() {
           <Route path="configuracao/tipos-entrega" element={<DeliverableKinds />} />
           <Route path="configuracao/integracoes" element={<Integrations />} />
           <Route path="configuracao/itens-proposta" element={<ProposalTemplates />} />
-          <Route path="configuracao/blocos-proposta" element={<ProposalBlocks />} />
           <Route path="configuracao/origens-oportunidade" element={<OpportunitySources />} />
           <Route path="configuracao/tags-oportunidade" element={<OpportunityTags />} />
 <Route path="configuracao/templates-documento" element={<CampaignDocumentTemplates />} />

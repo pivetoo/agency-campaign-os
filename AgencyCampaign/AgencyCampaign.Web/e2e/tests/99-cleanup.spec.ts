@@ -128,14 +128,7 @@ test.describe('Cleanup E2E artifacts (opt-in)', () => {
       deleteUrl: (id) => `/api/ProposalTemplates/${id}`,
     })
 
-    // 5) Blocos de proposta
-    await cleanup({
-      entity: 'ProposalBlocks',
-      listUrl: '/api/ProposalBlocks/Get?includeInactive=true',
-      deleteUrl: (id) => `/api/ProposalBlocks/${id}`,
-    })
-
-    // 6) Cadastros simples
+    // 5) Cadastros simples
     await cleanup({
       entity: 'OpportunitySources',
       listUrl: '/api/OpportunitySources/Get?includeInactive=true',

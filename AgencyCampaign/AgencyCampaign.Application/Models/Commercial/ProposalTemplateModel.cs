@@ -38,22 +38,4 @@ namespace AgencyCampaign.Application.Models.Commercial
         public int DisplayOrder { get; init; }
     }
 
-    public sealed class ProposalBlockModel
-    {
-        public long Id { get; init; }
-
-        public string Name { get; init; } = string.Empty;
-
-        public string Body { get; init; } = string.Empty;
-
-        public string Category { get; init; } = string.Empty;
-
-        public bool IsActive { get; init; }
-
-        public string? CreatedByUserName { get; init; }
-
-        public DateTimeOffset CreatedAt { get; init; }
-
-        public DateTimeOffset? UpdatedAt { get; init; }
-    }
 }
