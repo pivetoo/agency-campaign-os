@@ -113,7 +113,7 @@ function AppRoutes() {
           <Route path="configuracao/status-creators" element={<CampaignCreatorStatuses />} />
           <Route path="configuracao/tipos-entrega" element={<DeliverableKinds />} />
           <Route path="configuracao/integracoes" element={<Integrations />} />
-          <Route path="configuracao/templates-proposta" element={<ProposalTemplates />} />
+          <Route path="configuracao/itens-proposta" element={<ProposalTemplates />} />
           <Route path="configuracao/blocos-proposta" element={<ProposalBlocks />} />
           <Route path="configuracao/origens-oportunidade" element={<OpportunitySources />} />
           <Route path="configuracao/tags-oportunidade" element={<OpportunityTags />} />
@@ -121,7 +121,7 @@ function AppRoutes() {
           <Route path="configuracao/contas-financeiras" element={<FinancialAccounts />} />
           <Route path="configuracao/subcategorias-financeiras" element={<FinancialSubcategories />} />
           <Route path="configuracao" element={<AgencyConfiguration />} />
-          <Route path="configuracao/template-proposta" element={<ProposalTemplateEditor />} />
+          <Route path="configuracao/layout-proposta" element={<ProposalTemplateEditor />} />
           <Route path="usuarios" element={<UsersManagementPage />} />
         </Route>
 

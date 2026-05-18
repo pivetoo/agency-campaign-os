@@ -273,7 +273,7 @@ export default function ProposalTemplate() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => navigate('/configuracao/templates-proposta')}
+            onClick={() => navigate('/configuracao/itens-proposta')}
           >
             <List className="mr-1.5 h-3.5 w-3.5" />
             Lista
