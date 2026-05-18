@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageLayout, DataTable, Badge, Button, FilterPanel, useApi, useAuth, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalStatusValue, type OpportunityApprovalRequest, type ApprovalSummary } from '../../services/opportunityService'
+import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalStatusValue, type OpportunityApprovalRequest, type ApprovalSummary } from '../../../services/opportunityService'
 
 const approvalTypeKeys: Record<number, string> = {
   1: 'approvals.type.discount',

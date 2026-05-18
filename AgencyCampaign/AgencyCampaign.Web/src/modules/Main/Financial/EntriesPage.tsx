@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Input, FilterPanel, TableToolbar, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { CheckCircle2, Pencil } from 'lucide-react'
-import { financialEntryService, type FinancialEntryFilters } from '../../services/financialEntryService'
-import { financialAccountService } from '../../services/financialAccountService'
+import { financialEntryService, type FinancialEntryFilters } from '../../../services/financialEntryService'
+import { financialAccountService } from '../../../services/financialAccountService'
 import {
   FinancialEntryStatus,
   financialEntryCategoryLabels,
@@ -11,11 +11,11 @@ import {
   financialEntryStatusLabels,
   type FinancialEntry,
   type FinancialSummary,
-} from '../../types/financialEntry'
-import type { FinancialAccount } from '../../types/financialAccount'
-import FinancialEntryFormModal from '../../components/modals/FinancialEntryFormModal'
-import MarkAsPaidModal from '../../components/modals/MarkAsPaidModal'
-import AuditUtilityBar from '../../components/buttons/AuditUtilityBar'
+} from '../../../types/financialEntry'
+import type { FinancialAccount } from '../../../types/financialAccount'
+import FinancialEntryFormModal from '../../../components/modals/FinancialEntryFormModal'
+import MarkAsPaidModal from '../../../components/modals/MarkAsPaidModal'
+import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 
 interface FinancialEntriesPageProps {
   type: 1 | 2

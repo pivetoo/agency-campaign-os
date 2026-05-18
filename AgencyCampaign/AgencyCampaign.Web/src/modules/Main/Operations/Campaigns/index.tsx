@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Eye } from 'lucide-react'
-import { campaignService } from '../../services/campaignService'
-import type { Campaign } from '../../types/campaign'
-import CampaignFormModal from '../../components/modals/CampaignFormModal'
-import AuditUtilityBar from '../../components/buttons/AuditUtilityBar'
+import { campaignService } from '../../../../services/campaignService'
+import type { Campaign } from '../../../../types/campaign'
+import CampaignFormModal from '../../../../components/modals/CampaignFormModal'
+import AuditUtilityBar from '../../../../components/buttons/AuditUtilityBar'
 
 const campaignStatusKeys: Record<number, string> = {
   1: 'campaign.status.draft',

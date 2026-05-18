@@ -15,13 +15,13 @@ import {
 } from 'archon-ui'
 import type { DataTableColumn, PageAction } from 'archon-ui'
 import { CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Send, Trash2, XCircle } from 'lucide-react'
-import ProposalFormModal from '../../components/modals/ProposalFormModal'
-import ProposalItemFormModal from '../../components/modals/ProposalItemFormModal'
-import ApplyProposalTemplateModal from '../../components/modals/ApplyProposalTemplateModal'
+import ProposalFormModal from '../../../components/modals/ProposalFormModal'
+import ProposalItemFormModal from '../../../components/modals/ProposalItemFormModal'
+import ApplyProposalTemplateModal from '../../../components/modals/ApplyProposalTemplateModal'
 import ProposalShareTab from './ProposalShareTab'
-import { campaignService } from '../../services/campaignService'
-import { proposalService, ProposalStatus, type Proposal, type ProposalItem, type ProposalStatusValue } from '../../services/proposalService'
-import type { Campaign } from '../../types/campaign'
+import { campaignService } from '../../../services/campaignService'
+import { proposalService, ProposalStatus, type Proposal, type ProposalItem, type ProposalStatusValue } from '../../../services/proposalService'
+import type { Campaign } from '../../../types/campaign'
 
 const proposalStatusKeys: Record<ProposalStatusValue, string> = {
   [ProposalStatus.Draft]: 'proposal.status.draft',

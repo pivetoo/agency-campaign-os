@@ -6,7 +6,7 @@ import {
   proposalPublicService,
   type ProposalPublicSnapshot,
   type ProposalPublicView,
-} from '../services/proposalPublicService'
+} from '../../services/proposalPublicService'
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)

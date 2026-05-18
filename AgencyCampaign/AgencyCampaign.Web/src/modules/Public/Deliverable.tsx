@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge, useI18n } from 'archon-ui'
 import { CheckCircle2, XCircle, ExternalLink, AlertTriangle } from 'lucide-react'
-import { deliverablePublicService } from '../services/deliverableShareLinkService'
-import type { DeliverablePublicView } from '../types/deliverableShareLink'
+import { deliverablePublicService } from '../../services/deliverableShareLinkService'
+import type { DeliverablePublicView } from '../../types/deliverableShareLink'
 
 function formatDate(value?: string | null): string {
   if (!value) return '-'

@@ -4,12 +4,12 @@ import { PageLayout, DataTable, FilterPanel, useApi, Sheet, SheetContent, SheetP
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Link as LinkIcon, FileSpreadsheet, Download, Upload } from 'lucide-react'
 
-import { creatorService, resolveCreatorPhotoUrl } from '../../services/creatorService'
-import type { Creator } from '../../types/creator'
-import CreatorFormModal from '../../components/modals/CreatorFormModal'
-import CreatorAccessTokensModal from '../../components/modals/CreatorAccessTokensModal'
-import CreatorImportModal from '../../components/modals/CreatorImportModal'
-import AuditIconButton from '../../components/buttons/AuditIconButton'
+import { creatorService, resolveCreatorPhotoUrl } from '../../../../services/creatorService'
+import type { Creator } from '../../../../types/creator'
+import CreatorFormModal from '../../../../components/modals/CreatorFormModal'
+import CreatorAccessTokensModal from '../../../../components/modals/CreatorAccessTokensModal'
+import CreatorImportModal from '../../../../components/modals/CreatorImportModal'
+import AuditIconButton from '../../../../components/buttons/AuditIconButton'
 
 export default function Creators() {
   const { t } = useI18n()

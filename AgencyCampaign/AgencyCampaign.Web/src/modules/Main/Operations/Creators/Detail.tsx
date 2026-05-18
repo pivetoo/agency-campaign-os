@@ -17,15 +17,15 @@ import {
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { ExternalLink, Plus, Pencil, Trash2, Users, Activity, Megaphone } from 'lucide-react'
-import { creatorService, resolveCreatorPhotoUrl } from '../../services/creatorService'
-import { creatorSocialHandleService } from '../../services/creatorSocialHandleService'
-import type { Creator } from '../../types/creator'
+import { creatorService, resolveCreatorPhotoUrl } from '../../../../services/creatorService'
+import { creatorSocialHandleService } from '../../../../services/creatorSocialHandleService'
+import type { Creator } from '../../../../types/creator'
 import type {
   CreatorCampaignEntry,
   CreatorSocialHandle,
   CreatorSummary,
-} from '../../types/creatorSocialHandle'
-import CreatorSocialHandleFormModal from '../../components/modals/CreatorSocialHandleFormModal'
+} from '../../../../types/creatorSocialHandle'
+import CreatorSocialHandleFormModal from '../../../../components/modals/CreatorSocialHandleFormModal'
 
 function formatCurrency(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })

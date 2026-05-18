@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { PageLayout, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { financialEntryService } from '../../services/financialEntryService'
-import type { FinancialEntry, FinancialSummary } from '../../types/financialEntry'
+import { financialEntryService } from '../../../services/financialEntryService'
+import type { FinancialEntry, FinancialSummary } from '../../../types/financialEntry'
 
 export default function FinancialOverview() {
   const { t } = useI18n()

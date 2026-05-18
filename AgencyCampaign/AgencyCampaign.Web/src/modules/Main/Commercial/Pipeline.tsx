@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, PageLayout, useApi, useI18n } from 'archon-ui'
 import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
-import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../services/opportunityService'
-import OpportunityFormModal from '../../components/modals/OpportunityFormModal'
-import { resolveAssetUrl } from '../../lib/assetUrl'
+import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
+import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
+import { resolveAssetUrl } from '../../../lib/assetUrl'
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {

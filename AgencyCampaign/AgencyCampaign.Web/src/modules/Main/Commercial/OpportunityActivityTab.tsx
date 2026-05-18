@@ -5,7 +5,7 @@ import {
   opportunityService,
   type OpportunityComment,
   type OpportunityStageHistoryItem,
-} from '../../services/opportunityService'
+} from '../../../services/opportunityService'
 
 interface OpportunityActivityTabProps {
   opportunityId: number

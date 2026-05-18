@@ -11,11 +11,11 @@ import {
 } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { CheckCircle, Clock, Eye, Send, XCircle } from 'lucide-react'
-import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValue, type ProposalListFilters } from '../../services/proposalService'
-import { commercialResponsibleService } from '../../services/commercialResponsibleService'
-import type { CommercialResponsible } from '../../types/commercialResponsible'
-import ProposalFormModal from '../../components/modals/ProposalFormModal'
-import AuditUtilityBar from '../../components/buttons/AuditUtilityBar'
+import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValue, type ProposalListFilters } from '../../../services/proposalService'
+import { commercialResponsibleService } from '../../../services/commercialResponsibleService'
+import type { CommercialResponsible } from '../../../types/commercialResponsible'
+import ProposalFormModal from '../../../components/modals/ProposalFormModal'
+import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 
 const STATUS_ALL = ''
 

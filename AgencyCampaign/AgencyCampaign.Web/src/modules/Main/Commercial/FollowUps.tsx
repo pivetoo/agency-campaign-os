@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Badge, Button, PageLayout, useI18n } from 'archon-ui'
 import { ArrowRight, Building2, Check, CheckCircle2, ClipboardCheck, Clock, ExternalLink, Loader2, Sparkles } from 'lucide-react'
-import { opportunityService, type OpportunityFollowUp, type FollowUpSummary } from '../../services/opportunityService'
+import { opportunityService, type OpportunityFollowUp, type FollowUpSummary } from '../../../services/opportunityService'
 
 type StatusKey = 'overdue' | 'today' | 'upcoming' | 'completed'
 

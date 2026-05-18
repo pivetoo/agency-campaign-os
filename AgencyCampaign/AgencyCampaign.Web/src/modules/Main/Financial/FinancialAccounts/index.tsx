@@ -2,17 +2,17 @@ import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Link as LinkIcon, Power, PowerOff, RefreshCw, Trash2 } from 'lucide-react'
-import { financialAccountService } from '../../../services/financialAccountService'
-import { resolveBankLogoUrl } from '../../../services/bankService'
+import { financialAccountService } from '../../../../services/financialAccountService'
+import { resolveBankLogoUrl } from '../../../../services/bankService'
 import {
   FinancialAccountSyncStatus,
   financialAccountTypeLabels,
   type FinancialAccount,
   type FinancialAccountSyncStatusValue,
-} from '../../../types/financialAccount'
-import FinancialAccountFormModal from '../../../components/modals/FinancialAccountFormModal'
-import FinancialAccountConnectorBindingModal from '../../../components/modals/FinancialAccountConnectorBindingModal'
-import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
+} from '../../../../types/financialAccount'
+import FinancialAccountFormModal from '../../../../components/modals/FinancialAccountFormModal'
+import FinancialAccountConnectorBindingModal from '../../../../components/modals/FinancialAccountConnectorBindingModal'
+import AuditUtilityBar from '../../../../components/buttons/AuditUtilityBar'
 
 function formatCurrency(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })

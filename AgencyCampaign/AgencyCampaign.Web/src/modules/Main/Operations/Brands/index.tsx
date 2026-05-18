@@ -3,11 +3,11 @@ import { PageLayout, DataTable, Badge, FilterPanel, useApi, Sheet, SheetContent,
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { FileSpreadsheet, Download, Upload } from 'lucide-react'
 
-import { brandService, resolveBrandLogoUrl } from '../../services/brandService'
-import type { Brand } from '../../types/brand'
-import BrandFormModal from '../../components/modals/BrandFormModal'
-import BrandImportModal from '../../components/modals/BrandImportModal'
-import AuditIconButton from '../../components/buttons/AuditIconButton'
+import { brandService, resolveBrandLogoUrl } from '../../../../services/brandService'
+import type { Brand } from '../../../../types/brand'
+import BrandFormModal from '../../../../components/modals/BrandFormModal'
+import BrandImportModal from '../../../../components/modals/BrandImportModal'
+import AuditIconButton from '../../../../components/buttons/AuditIconButton'
 
 export default function Brands() {
   const { t } = useI18n()

@@ -5,7 +5,7 @@ import {
   proposalService,
   type ProposalShareLink,
   type ProposalVersion,
-} from '../../services/proposalService'
+} from '../../../services/proposalService'
 
 interface ProposalShareTabProps {
   proposalId: number

@@ -6,9 +6,9 @@ import { Link as LinkIcon, ExternalLink, ShieldCheck } from 'lucide-react'
 import {
   deliverableApprovalsService,
   deliverableShareLinkService,
-} from '../../services/deliverableShareLinkService'
-import { DeliverableApprovalStatus } from '../../types/deliverableShareLink'
-import type { PendingApproval } from '../../types/deliverableShareLink'
+} from '../../../services/deliverableShareLinkService'
+import { DeliverableApprovalStatus } from '../../../types/deliverableShareLink'
+import type { PendingApproval } from '../../../types/deliverableShareLink'
 
 const deliverableStatusLabels: Record<number, string> = {
   1: 'Pendente',

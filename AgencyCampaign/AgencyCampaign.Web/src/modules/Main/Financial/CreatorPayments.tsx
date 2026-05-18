@@ -11,21 +11,21 @@ import {
 } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Ban, Eye, Pencil, Plus, Receipt, Send, Signature } from 'lucide-react'
-import { campaignService } from '../../services/campaignService'
-import { creatorPaymentService } from '../../services/creatorPaymentService'
-import type { Campaign } from '../../types/campaign'
+import { campaignService } from '../../../services/campaignService'
+import { creatorPaymentService } from '../../../services/creatorPaymentService'
+import type { Campaign } from '../../../types/campaign'
 import {
   PaymentStatus,
   paymentMethodLabels,
   paymentStatusLabels,
   type CreatorPayment,
   type PaymentStatusValue,
-} from '../../types/creatorPayment'
-import CreatorPaymentFormModal from '../../components/modals/CreatorPaymentFormModal'
-import CreatorPaymentInvoiceModal from '../../components/modals/CreatorPaymentInvoiceModal'
-import CreatorPaymentMarkPaidModal from '../../components/modals/CreatorPaymentMarkPaidModal'
-import CreatorPaymentScheduleBatchModal from '../../components/modals/CreatorPaymentScheduleBatchModal'
-import CreatorPaymentDetailsModal from '../../components/modals/CreatorPaymentDetailsModal'
+} from '../../../types/creatorPayment'
+import CreatorPaymentFormModal from '../../../components/modals/CreatorPaymentFormModal'
+import CreatorPaymentInvoiceModal from '../../../components/modals/CreatorPaymentInvoiceModal'
+import CreatorPaymentMarkPaidModal from '../../../components/modals/CreatorPaymentMarkPaidModal'
+import CreatorPaymentScheduleBatchModal from '../../../components/modals/CreatorPaymentScheduleBatchModal'
+import CreatorPaymentDetailsModal from '../../../components/modals/CreatorPaymentDetailsModal'
 
 const STATUS_VARIANTS: Record<PaymentStatusValue, 'default' | 'success' | 'warning' | 'destructive' | 'outline'> = {
   1: 'outline',

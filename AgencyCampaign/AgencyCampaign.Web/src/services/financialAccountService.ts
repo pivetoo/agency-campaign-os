@@ -12,7 +12,7 @@ export interface CreateFinancialAccountRequest {
   agency?: string
   number?: string
   initialBalance: number
-  color: string
+  color?: string
 }
 
 export interface UpdateFinancialAccountRequest extends CreateFinancialAccountRequest {
