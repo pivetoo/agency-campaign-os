@@ -34,6 +34,7 @@ export interface FinancialAccount {
   currentBalance: number
   color: string
   isActive: boolean
+  hasEntries: boolean
   integrationConnectorId?: number | null
   lastSyncedBalance?: number | null
   lastSyncedAt?: string | null

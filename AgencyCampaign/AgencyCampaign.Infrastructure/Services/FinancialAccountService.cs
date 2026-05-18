@@ -50,6 +50,14 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Select(group => new { group.Key.AccountId, group.Key.Type, Total = group.Sum(item => item.Amount) })
                 .ToListAsync(cancellationToken);
 
+            HashSet<long> accountIdsWithEntries = (await dbContext.Set<FinancialEntry>()
+                .AsNoTracking()
+                .Where(item => accountIds.Contains(item.AccountId))
+                .Select(item => item.AccountId)
+                .Distinct()
+                .ToListAsync(cancellationToken))
+                .ToHashSet();
+
             FinancialAccountModel[] items = paged.Items.Select(account =>
             {
                 decimal received = balances.Where(b => b.AccountId == account.Id && b.Type == FinancialEntryType.Receivable).Sum(b => b.Total);
@@ -67,6 +75,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     CurrentBalance = account.InitialBalance + received - paid,
                     Color = account.Color,
                     IsActive = account.IsActive,
+                    HasEntries = accountIdsWithEntries.Contains(account.Id),
                     IntegrationConnectorId = account.IntegrationConnectorId,
                     LastSyncedBalance = account.LastSyncedBalance,
                     LastSyncedAt = account.LastSyncedAt,
@@ -133,6 +142,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Select(group => new { Type = group.Key, Total = group.Sum(item => item.Amount) })
                 .ToListAsync(cancellationToken);
 
+            bool hasEntries = await dbContext.Set<FinancialEntry>()
+                .AsNoTracking()
+                .AnyAsync(item => item.AccountId == id, cancellationToken);
+
             decimal received = balances.Where(b => b.Type == FinancialEntryType.Receivable).Sum(b => b.Total);
             decimal paid = balances.Where(b => b.Type == FinancialEntryType.Payable).Sum(b => b.Total);
 
@@ -148,6 +161,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 CurrentBalance = account.InitialBalance + received - paid,
                 Color = account.Color,
                 IsActive = account.IsActive,
+                HasEntries = hasEntries,
                 IntegrationConnectorId = account.IntegrationConnectorId,
                 LastSyncedBalance = account.LastSyncedBalance,
                 LastSyncedAt = account.LastSyncedAt,
@@ -182,6 +196,18 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             await EnsureNameIsUnique(request.Name, ignoreId: id, cancellationToken);
+
+            if (request.InitialBalance != account.InitialBalance)
+            {
+                bool hasEntries = await dbContext.Set<FinancialEntry>()
+                    .AsNoTracking()
+                    .AnyAsync(item => item.AccountId == id, cancellationToken);
+
+                if (hasEntries)
+                {
+                    throw new InvalidOperationException("financialAccount.initialBalance.lockedAfterEntries");
+                }
+            }
 
             account.Update(request.Name, request.Type, request.InitialBalance, request.Color, request.Bank, request.Agency, request.Number, request.IsActive);
             await dbContext.SaveChangesAsync(cancellationToken);

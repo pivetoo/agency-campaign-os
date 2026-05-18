@@ -96,6 +96,9 @@
   <data name="financialAccount.notFound" xml:space="preserve">
     <value>Conta financeira não encontrada.</value>
   </data>
+  <data name="financialAccount.initialBalance.lockedAfterEntries" xml:space="preserve">
+    <value>Não é possível alterar o saldo inicial após esta conta receber lançamentos. Crie um lançamento de ajuste em Contas a Pagar ou a Receber.</value>
+  </data>
   <data name="financialAccount.connector.attached" xml:space="preserve">
     <value>Conector vinculado com sucesso.</value>
   </data>
@@ -1029,6 +1032,7 @@
   <data name="configuration.bankAccounts.confirm.deactivate" xml:space="preserve"><value>Desativar a conta "{0}"?</value></data>
   <data name="configuration.bankAccounts.confirm.activate" xml:space="preserve"><value>Reativar a conta "{0}"?</value></data>
   <data name="modal.financialAccount.field.namePlaceholder" xml:space="preserve"><value>Ex.: PJ Itaú, Caixinha PIX</value></data>
+  <data name="modal.financialAccount.field.initialBalanceLockedHint" xml:space="preserve"><value>Saldo bloqueado — esta conta já tem lançamentos. Use um lançamento de ajuste em Contas a Pagar ou a Receber.</value></data>
   <data name="configuration.bankAccounts.connector.modal.title" xml:space="preserve"><value>Conector de sincronização</value></data>
   <data name="configuration.bankAccounts.connector.modal.description" xml:space="preserve"><value>Escolha qual conector do IntegrationPlatform deve abastecer essa conta.</value></data>
   <data name="configuration.bankAccounts.connector.modal.current" xml:space="preserve"><value>Conector atual</value></data>

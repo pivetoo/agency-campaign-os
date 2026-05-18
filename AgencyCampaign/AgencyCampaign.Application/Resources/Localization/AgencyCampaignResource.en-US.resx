@@ -96,6 +96,9 @@
   <data name="financialAccount.notFound" xml:space="preserve">
     <value>Financial account not found.</value>
   </data>
+  <data name="financialAccount.initialBalance.lockedAfterEntries" xml:space="preserve">
+    <value>Cannot change the initial balance after this account has entries. Create an adjustment entry under Accounts Payable or Receivable instead.</value>
+  </data>
   <data name="financialAccount.connector.attached" xml:space="preserve">
     <value>Connector successfully attached.</value>
   </data>
@@ -1029,6 +1032,7 @@
   <data name="configuration.bankAccounts.confirm.deactivate" xml:space="preserve"><value>Deactivate account "{0}"?</value></data>
   <data name="configuration.bankAccounts.confirm.activate" xml:space="preserve"><value>Reactivate account "{0}"?</value></data>
   <data name="modal.financialAccount.field.namePlaceholder" xml:space="preserve"><value>E.g.: BB Checking, PIX Wallet</value></data>
+  <data name="modal.financialAccount.field.initialBalanceLockedHint" xml:space="preserve"><value>Balance locked — this account already has entries. Create an adjustment entry under Accounts Payable or Receivable.</value></data>
   <data name="configuration.bankAccounts.connector.modal.title" xml:space="preserve"><value>Sync connector</value></data>
   <data name="configuration.bankAccounts.connector.modal.description" xml:space="preserve"><value>Choose which IntegrationPlatform connector should feed this account.</value></data>
   <data name="configuration.bankAccounts.connector.modal.current" xml:space="preserve"><value>Current connector</value></data>

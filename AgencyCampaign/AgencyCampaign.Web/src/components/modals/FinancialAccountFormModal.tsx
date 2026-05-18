@@ -38,6 +38,7 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   const showBankFields = type === FinancialAccountType.Bank
+  const initialBalanceLocked = isEditing && (account?.hasEntries ?? false)
 
   useEffect(() => {
     if (!open) return
@@ -82,7 +83,11 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
       bank: showBankFields && bank.trim() ? bank.trim() : undefined,
       agency: showBankFields && agency.trim() ? agency.trim() : undefined,
       number: showBankFields && number.trim() ? number.trim() : undefined,
-      initialBalance: initialBalance.trim() === '' ? 0 : Number(initialBalance),
+      initialBalance: initialBalanceLocked && account
+        ? account.initialBalance
+        : initialBalance.trim() === ''
+          ? 0
+          : Number(initialBalance),
       color,
     }
     const result = await execute(() => {
@@ -120,7 +125,16 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.financialAccount.field.initialBalance')}</label>
-              <Input type="number" step="0.01" value={initialBalance} onChange={(e) => setInitialBalance(e.target.value)} />
+              <Input
+                type="number"
+                step="0.01"
+                value={initialBalance}
+                onChange={(e) => setInitialBalance(e.target.value)}
+                disabled={initialBalanceLocked}
+              />
+              {initialBalanceLocked && (
+                <p className="text-xs text-muted-foreground">{t('modal.financialAccount.field.initialBalanceLockedHint')}</p>
+              )}
             </div>
             {showBankFields && (
               <>
