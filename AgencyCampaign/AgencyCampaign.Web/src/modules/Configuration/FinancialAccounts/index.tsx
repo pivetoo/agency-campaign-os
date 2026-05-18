@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react'
-import { PageLayout, DataTable, Badge, Card, CardContent, ConfirmModal, Switch, TableToolbar, useApi, useI18n } from 'archon-ui'
-import type { DataTableColumn } from 'archon-ui'
+import { useEffect, useMemo, useState } from 'react'
+import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Link as LinkIcon, Power, PowerOff, RefreshCw, Trash2 } from 'lucide-react'
 import { financialAccountService } from '../../../services/financialAccountService'
 import {
   FinancialAccountSyncStatus,
   financialAccountTypeLabels,
   type FinancialAccount,
-  type FinancialAccountSummary,
   type FinancialAccountSyncStatusValue,
 } from '../../../types/financialAccount'
 import FinancialAccountFormModal from '../../../components/modals/FinancialAccountFormModal'
@@ -30,31 +29,26 @@ const SYNC_STATUS_META: Record<FinancialAccountSyncStatusValue, { variant: Badge
 export default function FinancialAccounts() {
   const { t } = useI18n()
   const [items, setItems] = useState<FinancialAccount[]>([])
-  const [summary, setSummary] = useState<FinancialAccountSummary | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [includeInactive, setIncludeInactive] = useState(false)
+  const [includeInactiveFilter, setIncludeInactiveFilter] = useState('')
   const [selected, setSelected] = useState<FinancialAccount | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isToggleConfirmOpen, setIsToggleConfirmOpen] = useState(false)
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false)
   const { execute: fetchAll, loading, pagination } = useApi<FinancialAccount[]>({ showErrorMessage: true })
-  const { execute: fetchSummary } = useApi<FinancialAccountSummary>({ showErrorMessage: false })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: runToggle, loading: toggling } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: runSync, loading: syncing } = useApi<{ executionId: number }>({ showSuccessMessage: true, showErrorMessage: true })
 
+  const includeInactive = includeInactiveFilter === 'all'
+
   const load = async () => {
     const result = await fetchAll(() => financialAccountService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive }))
     if (result) setItems(result)
-  }
-
-  const loadSummary = async () => {
-    const result = await fetchSummary(() => financialAccountService.getSummary())
-    if (result) setSummary(result)
   }
 
   useEffect(() => {
@@ -64,21 +58,32 @@ export default function FinancialAccounts() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch, includeInactive])
+  }, [debouncedSearch, includeInactiveFilter])
 
   useEffect(() => {
     void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, debouncedSearch, includeInactive])
+  }, [page, pageSize, debouncedSearch, includeInactiveFilter])
 
-  useEffect(() => {
-    void loadSummary()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const filterSections: FilterSection[] = useMemo(() => [
+    {
+      key: 'inactiveFilter',
+      label: t('common.field.status'),
+      value: includeInactiveFilter,
+      onChange: setIncludeInactiveFilter,
+      options: [
+        { value: 'all', label: t('configuration.bankAccounts.filter.includeInactive') },
+      ],
+      allLabel: 'Somente ativas',
+    },
+  ], [includeInactiveFilter, t])
+
+  const clearFilters = () => {
+    setIncludeInactiveFilter('')
+  }
 
   const refreshList = () => {
     void load()
-    void loadSummary()
   }
 
   const handleDelete = async () => {
@@ -172,10 +177,6 @@ export default function FinancialAccounts() {
     ? t('configuration.bankAccounts.confirm.deactivate')
     : t('configuration.bankAccounts.confirm.activate')
 
-  const totalAccounts = summary ? summary.activeCount + summary.inactiveCount : 0
-  const accountsWithConnector = summary ? summary.syncedAccountsCount + summary.pendingSyncAccountsCount + summary.erroredSyncAccountsCount : 0
-  const suffixTemplate = t('configuration.bankAccounts.kpi.totalAccountsSuffix')
-
   return (
     <>
       <PageLayout
@@ -226,45 +227,11 @@ export default function FinancialAccounts() {
           },
         ]}
       >
-        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">{t('configuration.bankAccounts.kpi.activeAccounts')}</div>
-              <div className="mt-1 text-2xl font-semibold">{summary?.activeCount ?? '—'}</div>
-              {summary && (
-                <div className="text-xs text-muted-foreground">{suffixTemplate.replace('{0}', String(totalAccounts))}</div>
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">{t('configuration.bankAccounts.kpi.totalKanvasBalance')}</div>
-              <div className={`mt-1 text-2xl font-semibold ${summary && summary.totalKanvasBalance < 0 ? 'text-destructive' : 'text-primary'}`}>
-                {summary ? formatCurrency(summary.totalKanvasBalance) : '—'}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">{t('configuration.bankAccounts.kpi.syncedAccounts')}</div>
-              <div className="mt-1 text-2xl font-semibold">{summary?.syncedAccountsCount ?? '—'}</div>
-              {summary && accountsWithConnector > 0 && (
-                <div className="text-xs text-muted-foreground">{suffixTemplate.replace('{0}', String(accountsWithConnector))}</div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
         <TableToolbar
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={t('common.action.search')}
-          rightSlot={
-            <label className="flex items-center gap-2 text-sm">
-              <Switch checked={includeInactive} onCheckedChange={(checked) => setIncludeInactive(!!checked)} />
-              <span>{t('configuration.bankAccounts.filter.includeInactive')}</span>
-            </label>
-          }
+          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
           className="mb-3"
         />
         <DataTable
@@ -323,7 +290,6 @@ export default function FinancialAccounts() {
             refreshList()
           } else {
             setPage(1)
-            void loadSummary()
           }
         }}
       />
