@@ -20,23 +20,25 @@ namespace AgencyCampaign.Infrastructure.Migrations
                 .WithColumn("createdat").AsDateTimeOffset().NotNullable()
                 .WithColumn("updatedat").AsDateTimeOffset().Nullable();
 
-            Insert.IntoTable("financialaccount").Row(new
-            {
-                name = "Caixa",
-                type = 2,
-                initialbalance = 0,
-                color = "#6366f1",
-                isactive = true,
-                createdat = SystemMethods.CurrentUTCDateTime,
-                updatedat = SystemMethods.CurrentUTCDateTime
-            });
-
             Execute.Sql("ALTER TABLE campaignfinancialentry RENAME TO financialentry;");
 
             Alter.Table("financialentry")
                 .AddColumn("accountid").AsInt64().Nullable();
 
-            Execute.Sql("UPDATE financialentry SET accountid = (SELECT id FROM financialaccount ORDER BY id LIMIT 1);");
+            Execute.Sql(@"
+                DO $$
+                DECLARE
+                    fallback_id BIGINT;
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM financialentry WHERE accountid IS NULL) THEN
+                        INSERT INTO financialaccount (name, type, initialbalance, color, isactive, createdat, updatedat)
+                        VALUES ('Caixa', 2, 0, '#6366f1', true, NOW() AT TIME ZONE 'utc', NOW() AT TIME ZONE 'utc')
+                        RETURNING id INTO fallback_id;
+
+                        UPDATE financialentry SET accountid = fallback_id WHERE accountid IS NULL;
+                    END IF;
+                END $$;
+            ");
 
             Alter.Column("accountid").OnTable("financialentry").AsInt64().NotNullable();
 
