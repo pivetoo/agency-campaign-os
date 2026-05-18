@@ -5,9 +5,18 @@ import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
 import { campaignDocumentTemplateService } from '../../../services/campaignDocumentTemplateService'
 import {
+  CampaignDocumentType,
   campaignDocumentTypeLabels,
   type CampaignDocumentTypeValue,
 } from '../../../types/campaignDocument'
+
+const documentTypeBadgeClass: Record<CampaignDocumentTypeValue, string> = {
+  [CampaignDocumentType.CreatorAgreement]: 'border-transparent bg-blue-500/15 text-blue-700',
+  [CampaignDocumentType.BrandContract]: 'border-transparent bg-primary/15 text-primary',
+  [CampaignDocumentType.AuthorizationTerm]: 'border-transparent bg-amber-500/15 text-amber-700',
+  [CampaignDocumentType.BriefingAttachment]: 'border-transparent bg-emerald-500/15 text-emerald-700',
+  [CampaignDocumentType.Other]: 'border-transparent bg-muted text-muted-foreground',
+}
 import type { CampaignDocumentTemplate } from '../../../types/campaignDocumentTemplate'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 
@@ -52,7 +61,7 @@ export default function CampaignDocumentTemplates() {
       title: t('common.field.type'),
       dataIndex: 'documentType',
       render: (value: CampaignDocumentTypeValue) => (
-        <Badge variant="outline">{campaignDocumentTypeLabels[value]}</Badge>
+        <Badge className={documentTypeBadgeClass[value]}>{campaignDocumentTypeLabels[value]}</Badge>
       ),
     },
     {
