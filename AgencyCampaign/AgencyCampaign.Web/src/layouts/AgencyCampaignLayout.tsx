@@ -20,8 +20,12 @@ export default function AgencyCampaignLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const { createMenuGroup } = useAppNavigation({})
-  const { isRoot } = usePermissions()
+  const { isRoot, hasAnyPermission } = usePermissions()
   const { t } = useI18n()
+
+  type NavItem = { key: string; label: string; path: string; icon: React.ReactNode; requires?: string[] }
+  const canShow = (item: NavItem) => isRoot || !item.requires || hasAnyPermission(item.requires)
+  const filterItems = (items: NavItem[]) => items.filter(canShow)
   const sidebarLogo = <img src={logoAgencyCampaign} alt="Mainstay" style={{ width: 28, height: 28, objectFit: 'contain' }} />
 
   const handleLogout = async () => {
@@ -100,58 +104,92 @@ export default function AgencyCampaignLayout() {
     navigate('/notificacoes')
   }, [navigate])
 
-  const systemGroups = [
-    createMenuGroup(t('nav.group.general'), [
-      { key: 'dashboard', label: t('nav.item.dashboard'), path: '/', icon: <LayoutDashboard size={20} /> },
-      ...(isRoot
-        ? [{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> }]
-        : []),
-    ]),
-    createMenuGroup(t('nav.group.commercial'), [
-      { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} /> },
-      { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} /> },
-      { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} /> },
-      { key: 'comercial-followups', label: t('nav.item.activities'), path: '/comercial/followups', icon: <ListChecks size={20} /> },
-    ]),
-    createMenuGroup(t('nav.group.operations'), [
-      { key: 'marcas', label: t('nav.item.brands'), path: '/marcas', icon: <Building2 size={20} /> },
-      { key: 'creators', label: t('nav.item.creators'), path: '/creators', icon: <Users size={20} /> },
-      { key: 'campanhas', label: t('nav.item.campaigns'), path: '/campanhas', icon: <Megaphone size={20} /> },
-      { key: 'operacao-aprovacoes', label: t('nav.item.approvals'), path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} /> },
-    ]),
-    createMenuGroup(t('nav.group.finance'), [
-      { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} /> },
-      { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} /> },
-      { key: 'financeiro-repasses-creators', label: t('nav.item.creatorPayments'), path: '/financeiro/repasses-creators', icon: <HandCoins size={20} /> },
-      { key: 'financeiro-fluxo-caixa', label: t('nav.item.cashFlow'), path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} /> },
-      { key: 'financeiro-aging', label: t('nav.item.aging'), path: '/financeiro/aging', icon: <Hourglass size={20} /> },
-    ]),
+  const systemGroupDefs: { label: string; items: NavItem[] }[] = [
+    {
+      label: t('nav.group.general'),
+      items: [
+        { key: 'dashboard', label: t('nav.item.dashboard'), path: '/', icon: <LayoutDashboard size={20} />, requires: ['dashboard.overview', 'dashboard.charts'] },
+        ...(isRoot
+          ? [{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> }]
+          : []),
+      ],
+    },
+    {
+      label: t('nav.group.commercial'),
+      items: [
+        { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} />, requires: ['opportunities.board', 'opportunities.get'] },
+        { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },
+        { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} />, requires: ['opportunityApprovals.get'] },
+        { key: 'comercial-followups', label: t('nav.item.activities'), path: '/comercial/followups', icon: <ListChecks size={20} />, requires: ['opportunities.getAllFollowUps'] },
+      ],
+    },
+    {
+      label: t('nav.group.operations'),
+      items: [
+        { key: 'marcas', label: t('nav.item.brands'), path: '/marcas', icon: <Building2 size={20} />, requires: ['brands.get'] },
+        { key: 'creators', label: t('nav.item.creators'), path: '/creators', icon: <Users size={20} />, requires: ['creators.get'] },
+        { key: 'campanhas', label: t('nav.item.campaigns'), path: '/campanhas', icon: <Megaphone size={20} />, requires: ['campaigns.get'] },
+        { key: 'operacao-aprovacoes', label: t('nav.item.approvals'), path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} />, requires: ['deliverableApprovals.get'] },
+      ],
+    },
+    {
+      label: t('nav.group.finance'),
+      items: [
+        { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} />, requires: ['financialEntries.get'] },
+        { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} />, requires: ['financialEntries.get'] },
+        { key: 'financeiro-repasses-creators', label: t('nav.item.creatorPayments'), path: '/financeiro/repasses-creators', icon: <HandCoins size={20} />, requires: ['creatorPayments.get'] },
+        { key: 'financeiro-fluxo-caixa', label: t('nav.item.cashFlow'), path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} />, requires: ['financialReports.getCashFlow'] },
+        { key: 'financeiro-aging', label: t('nav.item.aging'), path: '/financeiro/aging', icon: <Hourglass size={20} />, requires: ['financialReports.getAging'] },
+      ],
+    },
   ]
 
-  const configurationGroups = [
-    createMenuGroup(t('nav.group.general'), [
-      { key: 'configuracao-agencia', label: t('nav.item.agency'), path: '/configuracao', icon: <Briefcase size={20} /> },
-      { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} /> },
-    ]),
-    createMenuGroup(t('nav.group.commercial'), [
-      { key: 'configuracao-pipeline-comercial', label: t('nav.item.commercialFunnel'), path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} /> },
-      { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} /> },
-      { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} /> },
-      { key: 'configuracao-templates-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/templates-proposta', icon: <FileSignature size={20} /> },
-      { key: 'configuracao-template-proposta', label: t('nav.item.proposalTemplate'), path: '/configuracao/template-proposta', icon: <Paintbrush size={20} /> },
-      { key: 'configuracao-blocos-proposta', label: t('nav.item.proposalBlocks'), path: '/configuracao/blocos-proposta', icon: <Blocks size={20} /> },
-    ]),
-    createMenuGroup(t('nav.group.operations'), [
-      { key: 'configuracao-plataformas', label: t('nav.item.socialNetworks'), path: '/configuracao/plataformas', icon: <Share2 size={20} /> },
-      { key: 'configuracao-status-creators', label: t('nav.item.creatorStatus'), path: '/configuracao/status-creators', icon: <UserCheck size={20} /> },
-      { key: 'configuracao-tipos-entrega', label: t('nav.item.deliverableKinds'), path: '/configuracao/tipos-entrega', icon: <Package size={20} /> },
-      { key: 'configuracao-templates-documento', label: t('nav.item.contractTemplates'), path: '/configuracao/templates-documento', icon: <ScrollText size={20} /> },
-    ]),
-    createMenuGroup(t('nav.group.finance'), [
-      { key: 'configuracao-contas-financeiras', label: t('nav.item.bankAccounts'), path: '/configuracao/contas-financeiras', icon: <Wallet size={20} /> },
-      { key: 'configuracao-subcategorias-financeiras', label: t('nav.item.financialSubcategories'), path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} /> },
-    ]),
+  const configurationGroupDefs: { label: string; items: NavItem[] }[] = [
+    {
+      label: t('nav.group.general'),
+      items: [
+        { key: 'configuracao-agencia', label: t('nav.item.agency'), path: '/configuracao', icon: <Briefcase size={20} />, requires: ['agencySettings.get'] },
+        { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
+      ],
+    },
+    {
+      label: t('nav.group.commercial'),
+      items: [
+        { key: 'configuracao-pipeline-comercial', label: t('nav.item.commercialFunnel'), path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} />, requires: ['commercialPipelineStages.get'] },
+        { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} />, requires: ['opportunitySources.get'] },
+        { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} />, requires: ['opportunityTags.get'] },
+        { key: 'configuracao-templates-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/templates-proposta', icon: <FileSignature size={20} />, requires: ['proposalTemplates.get'] },
+        { key: 'configuracao-template-proposta', label: t('nav.item.proposalTemplate'), path: '/configuracao/template-proposta', icon: <Paintbrush size={20} />, requires: ['agencySettings.saveProposalTemplate'] },
+        { key: 'configuracao-blocos-proposta', label: t('nav.item.proposalBlocks'), path: '/configuracao/blocos-proposta', icon: <Blocks size={20} />, requires: ['proposalBlocks.get'] },
+      ],
+    },
+    {
+      label: t('nav.group.operations'),
+      items: [
+        { key: 'configuracao-plataformas', label: t('nav.item.socialNetworks'), path: '/configuracao/plataformas', icon: <Share2 size={20} />, requires: ['platforms.get'] },
+        { key: 'configuracao-status-creators', label: t('nav.item.creatorStatus'), path: '/configuracao/status-creators', icon: <UserCheck size={20} />, requires: ['campaignCreatorStatuses.get'] },
+        { key: 'configuracao-tipos-entrega', label: t('nav.item.deliverableKinds'), path: '/configuracao/tipos-entrega', icon: <Package size={20} />, requires: ['deliverableKinds.get'] },
+        { key: 'configuracao-templates-documento', label: t('nav.item.contractTemplates'), path: '/configuracao/templates-documento', icon: <ScrollText size={20} />, requires: ['campaignDocumentTemplates.get'] },
+      ],
+    },
+    {
+      label: t('nav.group.finance'),
+      items: [
+        { key: 'configuracao-contas-financeiras', label: t('nav.item.bankAccounts'), path: '/configuracao/contas-financeiras', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
+        { key: 'configuracao-subcategorias-financeiras', label: t('nav.item.financialSubcategories'), path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} />, requires: ['financialSubcategories.get'] },
+      ],
+    },
   ]
+
+  const buildMenuGroups = (defs: { label: string; items: NavItem[] }[]) =>
+    defs
+      .map((group) => ({ label: group.label, items: filterItems(group.items) }))
+      .filter((group) => group.items.length > 0)
+      .map((group) => createMenuGroup(group.label, group.items))
+
+  const systemGroups = buildMenuGroups(systemGroupDefs)
+  const configurationGroups = buildMenuGroups(configurationGroupDefs)
+  const hasConfigurationAccess = configurationGroups.length > 0
 
   const isInConfiguration = location.pathname.startsWith('/configuracao')
   const currentModule = isInConfiguration ? 'configuracao' : 'sistema'
@@ -159,7 +197,9 @@ export default function AgencyCampaignLayout() {
 
   const modules = [
     { id: 'sistema', name: t('nav.module.panel'), icon: <LayoutDashboard size={16} /> },
-    { id: 'configuracao', name: t('nav.module.configuration'), icon: <Settings size={16} /> },
+    ...(hasConfigurationAccess
+      ? [{ id: 'configuracao', name: t('nav.module.configuration'), icon: <Settings size={16} /> }]
+      : []),
   ]
 
   const handleModuleChange = (moduleId: string) => {
