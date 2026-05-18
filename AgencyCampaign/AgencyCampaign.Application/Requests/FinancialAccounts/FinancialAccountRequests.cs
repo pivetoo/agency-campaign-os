@@ -25,6 +25,7 @@ namespace AgencyCampaign.Application.Requests.FinancialAccounts
 
         [Required]
         [StringLength(32)]
+        [RegularExpression("^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$", ErrorMessage = "validation.financialAccount.color.invalidHex")]
         public string Color { get; set; } = "#6366f1";
     }
 

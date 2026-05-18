@@ -1,4 +1,3 @@
-using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Financial;
 using AgencyCampaign.Application.Requests.FinancialAccounts;
 using AgencyCampaign.Domain.Entities;
@@ -20,7 +19,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new FinancialAccountService(db, LocalizerMock.Create<AgencyCampaignResource>());
+            service = new FinancialAccountService(db);
         }
 
         [TearDown]
@@ -126,6 +125,69 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await service.Delete(account.Id);
 
             (await db.Set<FinancialAccount>().CountAsync()).Should().Be(0);
+        }
+
+        [Test]
+        public async Task Create_should_throw_when_name_already_exists_case_insensitive()
+        {
+            db.Add(new FinancialAccount("Conta Principal", FinancialAccountType.Bank, 0m, "#ffffff"));
+            await db.SaveChangesAsync();
+
+            CreateFinancialAccountRequest request = new()
+            {
+                Name = "conta PRINCIPAL",
+                Type = FinancialAccountType.Cash,
+                Color = "#000000"
+            };
+
+            Func<Task> act = () => service.Create(request);
+            await act.Should().ThrowAsync<InvalidOperationException>()
+                .WithMessage("financialAccount.name.duplicated");
+        }
+
+        [Test]
+        public async Task Update_should_throw_when_renaming_to_existing_account_name()
+        {
+            FinancialAccount first = new("Conta A", FinancialAccountType.Bank, 0m, "#ffffff");
+            FinancialAccount second = new("Conta B", FinancialAccountType.Cash, 0m, "#000000");
+            db.Add(first);
+            db.Add(second);
+            await db.SaveChangesAsync();
+
+            UpdateFinancialAccountRequest request = new()
+            {
+                Id = second.Id,
+                Name = "conta a",
+                Type = FinancialAccountType.Cash,
+                Color = "#000000",
+                IsActive = true
+            };
+
+            Func<Task> act = () => service.Update(second.Id, request);
+            await act.Should().ThrowAsync<InvalidOperationException>()
+                .WithMessage("financialAccount.name.duplicated");
+        }
+
+        [Test]
+        public async Task Update_should_allow_keeping_same_name_for_same_account()
+        {
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#ffffff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            UpdateFinancialAccountRequest request = new()
+            {
+                Id = account.Id,
+                Name = "Conta",
+                Type = FinancialAccountType.Bank,
+                Color = "#ffffff",
+                InitialBalance = 250m,
+                IsActive = true
+            };
+
+            FinancialAccountModel result = await service.Update(account.Id, request);
+
+            result.InitialBalance.Should().Be(250m);
         }
     }
 }

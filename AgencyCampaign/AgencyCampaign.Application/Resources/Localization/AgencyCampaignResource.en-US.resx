@@ -87,6 +87,12 @@
   <data name="financialAccount.hasEntries.cannotDelete" xml:space="preserve">
     <value>Account has linked entries; deactivate instead of deleting.</value>
   </data>
+  <data name="financialAccount.name.duplicated" xml:space="preserve">
+    <value>An account with this name already exists.</value>
+  </data>
+  <data name="validation.financialAccount.color.invalidHex" xml:space="preserve">
+    <value>Invalid color. Use the hex format (#RRGGBB).</value>
+  </data>
   <data name="opportunityApproval.notPending" xml:space="preserve">
     <value>Only pending approval requests can be decided.</value>
   </data>
@@ -968,6 +974,14 @@
   <data name="configuration.bankAccounts.confirm.delete" xml:space="preserve"><value>Delete account "{0}"? If there are entries, prefer to deactivate.</value></data>
   <data name="configuration.bankAccounts.field.bank" xml:space="preserve"><value>Bank</value></data>
   <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Current balance</value></data>
+  <data name="configuration.bankAccounts.addLabel" xml:space="preserve"><value>New account</value></data>
+  <data name="configuration.bankAccounts.filter.includeInactive" xml:space="preserve"><value>Include inactive</value></data>
+  <data name="configuration.bankAccounts.audit.entityLabel" xml:space="preserve"><value>Financial account</value></data>
+  <data name="configuration.bankAccounts.action.deactivate" xml:space="preserve"><value>Deactivate</value></data>
+  <data name="configuration.bankAccounts.action.activate" xml:space="preserve"><value>Activate</value></data>
+  <data name="configuration.bankAccounts.confirm.deactivate" xml:space="preserve"><value>Deactivate account "{0}"?</value></data>
+  <data name="configuration.bankAccounts.confirm.activate" xml:space="preserve"><value>Reactivate account "{0}"?</value></data>
+  <data name="modal.financialAccount.field.namePlaceholder" xml:space="preserve"><value>E.g.: BB Checking, PIX Wallet</value></data>
   <data name="configuration.financialSubcategories.empty" xml:space="preserve"><value>No subcategories registered</value></data>
   <data name="configuration.financialSubcategories.confirm.delete" xml:space="preserve"><value>Delete subcategory "{0}"?</value></data>
   <data name="configuration.financialSubcategories.field.subcategory" xml:space="preserve"><value>Subcategory</value></data>

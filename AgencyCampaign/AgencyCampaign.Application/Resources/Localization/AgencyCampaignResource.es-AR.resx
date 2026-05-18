@@ -87,6 +87,12 @@
   <data name="financialAccount.hasEntries.cannotDelete" xml:space="preserve">
     <value>La cuenta tiene asientos vinculados; desactívela en lugar de eliminarla.</value>
   </data>
+  <data name="financialAccount.name.duplicated" xml:space="preserve">
+    <value>Ya existe una cuenta con ese nombre.</value>
+  </data>
+  <data name="validation.financialAccount.color.invalidHex" xml:space="preserve">
+    <value>Color inválido. Use el formato hexadecimal (#RRGGBB).</value>
+  </data>
   <data name="opportunityApproval.notPending" xml:space="preserve">
     <value>Solo se pueden decidir solicitudes de aprobación pendientes.</value>
   </data>
@@ -968,6 +974,14 @@
   <data name="configuration.bankAccounts.confirm.delete" xml:space="preserve"><value>¿Eliminar la cuenta "{0}"? Si hay movimientos, prefiera desactivar.</value></data>
   <data name="configuration.bankAccounts.field.bank" xml:space="preserve"><value>Banco</value></data>
   <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Saldo actual</value></data>
+  <data name="configuration.bankAccounts.addLabel" xml:space="preserve"><value>Nueva cuenta</value></data>
+  <data name="configuration.bankAccounts.filter.includeInactive" xml:space="preserve"><value>Incluir inactivas</value></data>
+  <data name="configuration.bankAccounts.audit.entityLabel" xml:space="preserve"><value>Cuenta financiera</value></data>
+  <data name="configuration.bankAccounts.action.deactivate" xml:space="preserve"><value>Desactivar</value></data>
+  <data name="configuration.bankAccounts.action.activate" xml:space="preserve"><value>Activar</value></data>
+  <data name="configuration.bankAccounts.confirm.deactivate" xml:space="preserve"><value>¿Desactivar la cuenta "{0}"?</value></data>
+  <data name="configuration.bankAccounts.confirm.activate" xml:space="preserve"><value>¿Reactivar la cuenta "{0}"?</value></data>
+  <data name="modal.financialAccount.field.namePlaceholder" xml:space="preserve"><value>Ej.: Cuenta corriente, Billetera PIX</value></data>
   <data name="configuration.financialSubcategories.empty" xml:space="preserve"><value>No hay subcategorías registradas</value></data>
   <data name="configuration.financialSubcategories.confirm.delete" xml:space="preserve"><value>¿Eliminar la subcategoría "{0}"?</value></data>
   <data name="configuration.financialSubcategories.field.subcategory" xml:space="preserve"><value>Subcategoría</value></data>

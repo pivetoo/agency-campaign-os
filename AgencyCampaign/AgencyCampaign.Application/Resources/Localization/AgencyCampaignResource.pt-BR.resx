@@ -87,6 +87,12 @@
   <data name="financialAccount.hasEntries.cannotDelete" xml:space="preserve">
     <value>Conta possui lançamentos vinculados; inative ao invés de excluir.</value>
   </data>
+  <data name="financialAccount.name.duplicated" xml:space="preserve">
+    <value>Já existe uma conta com esse nome.</value>
+  </data>
+  <data name="validation.financialAccount.color.invalidHex" xml:space="preserve">
+    <value>Cor inválida. Use o formato hexadecimal (#RRGGBB).</value>
+  </data>
   <data name="opportunityApproval.notPending" xml:space="preserve">
     <value>Apenas solicitações de aprovação pendentes podem ser decididas.</value>
   </data>
@@ -968,6 +974,14 @@
   <data name="configuration.bankAccounts.confirm.delete" xml:space="preserve"><value>Excluir a conta "{0}"? Se houver lançamentos, prefira inativar.</value></data>
   <data name="configuration.bankAccounts.field.bank" xml:space="preserve"><value>Banco</value></data>
   <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Saldo atual</value></data>
+  <data name="configuration.bankAccounts.addLabel" xml:space="preserve"><value>Nova conta</value></data>
+  <data name="configuration.bankAccounts.filter.includeInactive" xml:space="preserve"><value>Incluir inativas</value></data>
+  <data name="configuration.bankAccounts.audit.entityLabel" xml:space="preserve"><value>Conta financeira</value></data>
+  <data name="configuration.bankAccounts.action.deactivate" xml:space="preserve"><value>Desativar</value></data>
+  <data name="configuration.bankAccounts.action.activate" xml:space="preserve"><value>Ativar</value></data>
+  <data name="configuration.bankAccounts.confirm.deactivate" xml:space="preserve"><value>Desativar a conta "{0}"?</value></data>
+  <data name="configuration.bankAccounts.confirm.activate" xml:space="preserve"><value>Reativar a conta "{0}"?</value></data>
+  <data name="modal.financialAccount.field.namePlaceholder" xml:space="preserve"><value>Ex.: PJ Itaú, Caixinha PIX</value></data>
   <data name="configuration.financialSubcategories.empty" xml:space="preserve"><value>Nenhuma subcategoria cadastrada</value></data>
   <data name="configuration.financialSubcategories.confirm.delete" xml:space="preserve"><value>Excluir a subcategoria "{0}"?</value></data>
   <data name="configuration.financialSubcategories.field.subcategory" xml:space="preserve"><value>Subcategoria</value></data>

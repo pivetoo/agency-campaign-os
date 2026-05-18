@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
-import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { PageLayout, DataTable, Badge, ConfirmModal, Switch, TableToolbar, useApi, useI18n } from 'archon-ui'
+import type { DataTableColumn } from 'archon-ui'
+import { Power, PowerOff, Trash2 } from 'lucide-react'
 import { financialAccountService } from '../../../services/financialAccountService'
 import { financialAccountTypeLabels, type FinancialAccount } from '../../../types/financialAccount'
 import FinancialAccountFormModal from '../../../components/modals/FinancialAccountFormModal'
@@ -18,15 +18,17 @@ export default function FinancialAccounts() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [includeInactiveFilter, setIncludeInactiveFilter] = useState('')
+  const [includeInactive, setIncludeInactive] = useState(false)
   const [selected, setSelected] = useState<FinancialAccount | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isToggleConfirmOpen, setIsToggleConfirmOpen] = useState(false)
   const { execute: fetchAll, loading, pagination } = useApi<FinancialAccount[]>({ showErrorMessage: true })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: runToggle, loading: toggling } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
   const load = async () => {
-    const result = await fetchAll(() => financialAccountService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive: includeInactiveFilter === 'all' }))
+    const result = await fetchAll(() => financialAccountService.getAll({ page, pageSize, search: debouncedSearch || undefined, includeInactive }))
     if (result) setItems(result)
   }
 
@@ -37,29 +39,12 @@ export default function FinancialAccounts() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch, includeInactiveFilter])
+  }, [debouncedSearch, includeInactive])
 
   useEffect(() => {
     void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, debouncedSearch, includeInactiveFilter])
-
-  const filterSections: FilterSection[] = useMemo(() => [
-    {
-      key: 'inactiveFilter',
-      label: t('common.field.status'),
-      value: includeInactiveFilter,
-      onChange: setIncludeInactiveFilter,
-      options: [
-        { value: 'all', label: 'Incluir inativos' },
-      ],
-      allLabel: 'Somente ativos',
-    },
-  ], [includeInactiveFilter, t])
-
-  const clearFilters = () => {
-    setIncludeInactiveFilter('')
-  }
+  }, [page, pageSize, debouncedSearch, includeInactive])
 
   const handleDelete = async () => {
     if (!selected) return
@@ -67,6 +52,26 @@ export default function FinancialAccounts() {
     if (result !== null) {
       setSelected(null)
       setIsConfirmOpen(false)
+      void load()
+    }
+  }
+
+  const handleToggleActive = async () => {
+    if (!selected) return
+    const result = await runToggle(() => financialAccountService.update(selected.id, {
+      id: selected.id,
+      name: selected.name,
+      type: selected.type,
+      bank: selected.bank ?? undefined,
+      agency: selected.agency ?? undefined,
+      number: selected.number ?? undefined,
+      initialBalance: selected.initialBalance,
+      color: selected.color,
+      isActive: !selected.isActive,
+    }))
+    if (result !== null) {
+      setSelected(null)
+      setIsToggleConfirmOpen(false)
       void load()
     }
   }
@@ -94,6 +99,14 @@ export default function FinancialAccounts() {
     },
   ]
 
+  const toggleLabel = selected?.isActive
+    ? t('configuration.bankAccounts.action.deactivate')
+    : t('configuration.bankAccounts.action.activate')
+
+  const toggleConfirmTemplate = selected?.isActive
+    ? t('configuration.bankAccounts.confirm.deactivate')
+    : t('configuration.bankAccounts.confirm.activate')
+
   return (
     <>
       <PageLayout
@@ -102,10 +115,19 @@ export default function FinancialAccounts() {
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}
-        actionsSlot={<AuditUtilityBar entityName="FinancialAccount" entityLabel="Conta financeira" entityId={selected?.id ?? null} />}
-        addLabel="Nova conta"
+        actionsSlot={<AuditUtilityBar entityName="FinancialAccount" entityLabel={t('configuration.bankAccounts.audit.entityLabel')} entityId={selected?.id ?? null} />}
+        addLabel={t('configuration.bankAccounts.addLabel')}
         selectedRowsCount={selected ? 1 : 0}
         actions={[
+          {
+            key: 'toggle',
+            label: toggleLabel,
+            testId: 'crud-toggle-active-button',
+            icon: selected?.isActive ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />,
+            variant: 'ghost',
+            disabled: !selected || toggling,
+            onClick: () => setIsToggleConfirmOpen(true),
+          },
           {
             key: 'delete',
             label: t('common.action.delete'),
@@ -121,7 +143,12 @@ export default function FinancialAccounts() {
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={t('common.action.search')}
-          rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
+          rightSlot={
+            <label className="flex items-center gap-2 text-sm">
+              <Switch checked={includeInactive} onCheckedChange={(checked) => setIncludeInactive(!!checked)} />
+              <span>{t('configuration.bankAccounts.filter.includeInactive')}</span>
+            </label>
+          }
           className="mb-3"
         />
         <DataTable
@@ -148,6 +175,15 @@ export default function FinancialAccounts() {
         variant="danger"
         onConfirm={() => void handleDelete()}
         loading={deleting}
+      />
+
+      <ConfirmModal
+        open={isToggleConfirmOpen}
+        onOpenChange={setIsToggleConfirmOpen}
+        description={toggleConfirmTemplate.replace('{0}', selected?.name ?? '')}
+        variant={selected?.isActive ? 'warning' : 'primary'}
+        onConfirm={() => void handleToggleActive()}
+        loading={toggling}
       />
 
       <FinancialAccountFormModal

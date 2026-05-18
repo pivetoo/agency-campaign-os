@@ -17,7 +17,7 @@ export const financialAccountTypeLabels: Record<number, string> = {
 export interface FinancialAccount {
   id: number
   name: string
-  type: number
+  type: FinancialAccountTypeValue
   bank?: string | null
   agency?: string | null
   number?: string | null

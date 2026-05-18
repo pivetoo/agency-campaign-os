@@ -1,12 +1,12 @@
 import { httpClient, buildPaginationQuery } from 'archon-ui'
 import type { ApiResponse } from 'archon-ui'
-import type { FinancialAccount } from '../types/financialAccount'
+import type { FinancialAccount, FinancialAccountTypeValue } from '../types/financialAccount'
 
 const BASE_URL = '/FinancialAccounts'
 
 export interface CreateFinancialAccountRequest {
   name: string
-  type: number
+  type: FinancialAccountTypeValue
   bank?: string
   agency?: string
   number?: string
