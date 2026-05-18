@@ -49,7 +49,7 @@ export const agencySettingsService = {
   },
 
   previewProposalTemplate(template: string) {
-    return httpClient.post<{ html: string }>(`${BASE_URL}/PreviewProposalTemplate`, { template })
+    return httpClient.post<{ html: string }>(`${BASE_URL}/PreviewProposalTemplate`, { template }, { silent: true })
   },
 
   getProposalTemplateVersions() {

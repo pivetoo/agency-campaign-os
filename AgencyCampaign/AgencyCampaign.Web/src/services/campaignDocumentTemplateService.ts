@@ -53,7 +53,11 @@ export const campaignDocumentTemplateService = {
   },
 
   async preview(body: string, documentType: CampaignDocumentTypeValue): Promise<string> {
-    const response = await httpClient.post<{ html: string }>(`${BASE_URL}/Preview`, { body, documentType })
+    const response = await httpClient.post<{ html: string }>(
+      `${BASE_URL}/Preview`,
+      { body, documentType },
+      { silent: true },
+    )
     return response.data?.html ?? ''
   },
 }
