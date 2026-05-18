@@ -14,11 +14,12 @@ import {
 import { creatorPaymentService } from '../../services/creatorPaymentService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import type { CreatorPayment } from '../../types/creatorPayment'
-import type {
-  Connector,
-  IntegrationCategory,
-  IntegrationPlatformIntegration,
-  Pipeline,
+import {
+  IntegrationCategoryIdentifier,
+  type Connector,
+  type IntegrationCategory,
+  type IntegrationPlatformIntegration,
+  type Pipeline,
 } from '../../types/integrationPlatform'
 
 interface Props {
@@ -27,8 +28,6 @@ interface Props {
   payments: CreatorPayment[]
   onSuccess: () => void
 }
-
-import { IntegrationCategoryIdentifier } from '../../types/integrationPlatform'
 
 const PAYMENT_CATEGORY_IDENTIFIER = IntegrationCategoryIdentifier.Payment
 

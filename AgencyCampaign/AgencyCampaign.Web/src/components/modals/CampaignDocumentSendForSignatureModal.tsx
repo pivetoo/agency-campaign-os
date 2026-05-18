@@ -25,11 +25,12 @@ import {
   type CampaignDocument,
   type CampaignDocumentSignerRoleValue,
 } from '../../types/campaignDocument'
-import type {
-  Connector,
-  IntegrationCategory,
-  IntegrationPlatformIntegration,
-  Pipeline,
+import {
+  IntegrationCategoryIdentifier,
+  type Connector,
+  type IntegrationCategory,
+  type IntegrationPlatformIntegration,
+  type Pipeline,
 } from '../../types/integrationPlatform'
 
 interface Props {
@@ -38,8 +39,6 @@ interface Props {
   document: CampaignDocument | null
   onSuccess: () => void
 }
-
-import { IntegrationCategoryIdentifier } from '../../types/integrationPlatform'
 
 const SIGNATURE_CATEGORY_IDENTIFIER = IntegrationCategoryIdentifier.DigitalSignature
 
