@@ -231,7 +231,7 @@ namespace AgencyCampaign.Domain.Entities
 
             if (IsClosed())
             {
-                throw new InvalidOperationException("Opportunity is already closed.");
+                throw new InvalidOperationException("opportunity.alreadyClosed");
             }
 
             ArgumentException.ThrowIfNullOrWhiteSpace(lossReason);
