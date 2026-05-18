@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
-import { bankService } from '../../../services/bankService'
+import { bankService, resolveBankLogoUrl } from '../../../services/bankService'
 import type { Bank } from '../../../types/bank'
 import BankFormModal from '../../../components/modals/BankFormModal'
 
@@ -66,15 +66,18 @@ export default function Banks() {
     }
   }
 
-  const renderLogoCell = (_: unknown, record: Bank) => (
-    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded border bg-muted/30">
-      {record.logoUrl ? (
-        <img src={record.logoUrl} alt={record.shortName} className="h-full w-full object-contain p-0.5" />
-      ) : (
-        <span className="text-[10px] font-semibold text-muted-foreground">{record.compe}</span>
-      )}
-    </div>
-  )
+  const renderLogoCell = (_: unknown, record: Bank) => {
+    const url = resolveBankLogoUrl(record.logoUrl)
+    return (
+      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded border bg-muted/30">
+        {url ? (
+          <img src={url} alt={record.shortName} className="h-full w-full object-contain p-0.5" />
+        ) : (
+          <span className="text-[10px] font-semibold text-muted-foreground">{record.compe}</span>
+        )}
+      </div>
+    )
+  }
 
   const columns: DataTableColumn<Bank>[] = [
     { key: 'logo', title: t('configuration.banks.field.logo'), dataIndex: 'logoUrl', width: 64, render: renderLogoCell },

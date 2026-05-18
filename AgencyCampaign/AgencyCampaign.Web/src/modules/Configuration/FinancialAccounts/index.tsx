@@ -3,6 +3,7 @@ import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, 
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { Link as LinkIcon, Power, PowerOff, RefreshCw, Trash2 } from 'lucide-react'
 import { financialAccountService } from '../../../services/financialAccountService'
+import { resolveBankLogoUrl } from '../../../services/bankService'
 import {
   FinancialAccountSyncStatus,
   financialAccountTypeLabels,
@@ -124,17 +125,20 @@ export default function FinancialAccounts() {
     }
   }
 
-  const renderLogoCell = (_: unknown, record: FinancialAccount) => (
-    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded border bg-muted/30">
-      {record.bankLogoUrl ? (
-        <img src={record.bankLogoUrl} alt={record.bankShortName ?? ''} className="h-full w-full object-contain p-0.5" />
-      ) : (
-        <span className="text-xs font-semibold text-muted-foreground">
-          {(record.bankShortName ?? record.name)?.charAt(0).toUpperCase() ?? '?'}
-        </span>
-      )}
-    </div>
-  )
+  const renderLogoCell = (_: unknown, record: FinancialAccount) => {
+    const url = resolveBankLogoUrl(record.bankLogoUrl)
+    return (
+      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded border bg-muted/30">
+        {url ? (
+          <img src={url} alt={record.bankShortName ?? ''} className="h-full w-full object-contain p-0.5" />
+        ) : (
+          <span className="text-xs font-semibold text-muted-foreground">
+            {(record.bankShortName ?? record.name)?.charAt(0).toUpperCase() ?? '?'}
+          </span>
+        )}
+      </div>
+    )
+  }
 
   const columns: DataTableColumn<FinancialAccount>[] = [
     { key: 'logo', title: '', dataIndex: 'bankLogoUrl', width: 56, render: renderLogoCell },

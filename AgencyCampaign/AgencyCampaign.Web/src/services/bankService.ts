@@ -1,8 +1,11 @@
 import { httpClient, buildPaginationQuery } from 'archon-ui'
 import type { ApiResponse } from 'archon-ui'
 import type { Bank, CreateBankRequest, UpdateBankRequest } from '../types/bank'
+import { resolveUploadUrl } from '../lib/uploadUrl'
 
 const BASE_URL = '/Banks'
+
+export const resolveBankLogoUrl = resolveUploadUrl
 
 export const bankService = {
   getAll(params?: { page?: number; pageSize?: number; search?: string; includeInactive?: boolean }): Promise<ApiResponse<Bank[]>> {

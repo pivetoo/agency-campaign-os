@@ -11,7 +11,7 @@ import {
   useApi,
   useI18n,
 } from 'archon-ui'
-import { bankService } from '../../services/bankService'
+import { bankService, resolveBankLogoUrl } from '../../services/bankService'
 import type { Bank } from '../../types/bank'
 
 interface Props {
@@ -119,7 +119,7 @@ export default function BankFormModal({ open, onOpenChange, bank, onSuccess }: P
             {logoUrl.trim() && (
               <div className="md:col-span-3">
                 <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded border bg-muted/30">
-                  <img src={logoUrl.trim()} alt={shortName || compe} className="h-full w-full object-contain p-1" />
+                  <img src={resolveBankLogoUrl(logoUrl.trim())} alt={shortName || compe} className="h-full w-full object-contain p-1" />
                 </div>
               </div>
             )}
