@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PageLayout, DataTable, Badge, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Trash2 } from 'lucide-react'
@@ -8,14 +9,13 @@ import {
   type CampaignDocumentTypeValue,
 } from '../../../types/campaignDocument'
 import type { CampaignDocumentTemplate } from '../../../types/campaignDocumentTemplate'
-import CampaignDocumentTemplateFormModal from '../../../components/modals/CampaignDocumentTemplateFormModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 
 export default function CampaignDocumentTemplates() {
   const { t } = useI18n()
+  const navigate = useNavigate()
   const [items, setItems] = useState<CampaignDocumentTemplate[]>([])
   const [selected, setSelected] = useState<CampaignDocumentTemplate | null>(null)
-  const [isFormOpen, setIsFormOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -78,13 +78,10 @@ export default function CampaignDocumentTemplates() {
       <PageLayout
         title={t('configuration.contractTemplates.title')}
         subtitle={t('configuration.contractTemplates.subtitle')}
-        onAdd={() => {
-          setSelected(null)
-          setIsFormOpen(true)
-        }}
-        onEdit={() => selected && setIsFormOpen(true)}
+        onAdd={() => navigate('/configuracao/modelos-contrato/novo')}
+        onEdit={() => selected && navigate(`/configuracao/modelos-contrato/${selected.id}`)}
         onRefresh={() => void load()}
-        actionsSlot={<AuditUtilityBar entityName="CampaignDocumentTemplate" entityLabel="Modelo de documento" entityId={selected?.id ?? null} />}
+        actionsSlot={<AuditUtilityBar entityName="CampaignDocumentTemplate" entityLabel="Modelo de contrato" entityId={selected?.id ?? null} />}
         addLabel="Novo modelo"
         selectedRowsCount={selected ? 1 : 0}
         actions={[
@@ -105,6 +102,7 @@ export default function CampaignDocumentTemplates() {
           rowKey="id"
           selectedRows={selected ? [selected] : []}
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
+          onRowDoubleClick={(row) => navigate(`/configuracao/modelos-contrato/${row.id}`)}
           emptyText={t('configuration.contractTemplates.empty')}
           loading={loading}
           pageSize={pageSize}
@@ -123,17 +121,6 @@ export default function CampaignDocumentTemplates() {
         variant="danger"
         onConfirm={() => void handleDelete()}
         loading={deleting}
-      />
-
-      <CampaignDocumentTemplateFormModal
-        open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        template={selected}
-        onSuccess={() => {
-          setIsFormOpen(false)
-          setSelected(null)
-          void load()
-        }}
       />
     </>
   )

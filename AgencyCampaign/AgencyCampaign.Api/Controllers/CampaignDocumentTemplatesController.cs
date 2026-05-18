@@ -98,5 +98,19 @@ namespace AgencyCampaign.Api.Controllers
             bool deleted = await templateService.DeleteTemplate(id, cancellationToken);
             return Http200(new { deleted, deactivatedInsteadOfDeleted = !deleted }, Localizer["record.deleted"]);
         }
+
+        [RequireAccess("Permite pre-visualizar o body do template com dados de exemplo.")]
+        [PostEndpoint("[action]")]
+        public async Task<IActionResult> Preview([FromBody] PreviewCampaignDocumentTemplateRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            string html = await templateService.PreviewTemplate(request.Body, request.DocumentType, cancellationToken);
+            return Http200(new { html });
+        }
     }
 }

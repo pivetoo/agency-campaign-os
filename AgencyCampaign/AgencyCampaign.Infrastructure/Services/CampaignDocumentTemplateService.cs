@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CampaignDocumentTemplates;
 using AgencyCampaign.Application.Services;
@@ -115,6 +116,49 @@ namespace AgencyCampaign.Infrastructure.Services
 
             CampaignDocumentTemplate? deleted = await Delete(template.Id, cancellationToken);
             return deleted is not null;
+        }
+
+        public Task<string> PreviewTemplate(string body, CampaignDocumentType documentType, CancellationToken cancellationToken = default)
+        {
+            string rendered = Render(body ?? string.Empty, SampleValues);
+            return Task.FromResult(rendered);
+        }
+
+        private static readonly Regex PlaceholderRegex = new(@"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", RegexOptions.Compiled);
+
+        private static readonly IReadOnlyDictionary<string, string> SampleValues = new Dictionary<string, string>
+        {
+            ["today"] = DateTime.Now.ToString("dd/MM/yyyy"),
+            ["campaignId"] = "1234",
+            ["campaignName"] = "Lançamento Verão 2026",
+            ["campaignDescription"] = "Campanha de ativação focada em conteúdo orgânico e mídia paga.",
+            ["campaignObjective"] = "Aumentar reconhecimento de marca e gerar vendas diretas.",
+            ["campaignBriefing"] = "Tom descontraído, foco em momentos do dia a dia com o produto.",
+            ["campaignStartDate"] = "01/06/2026",
+            ["campaignEndDate"] = "30/06/2026",
+            ["campaignBudget"] = "R$ 45.000,00",
+            ["brandName"] = "Marca Exemplo Ltda.",
+            ["brandTradeName"] = "Marca Exemplo",
+            ["brandDocument"] = "12.345.678/0001-90",
+            ["brandContactName"] = "Joana Souza",
+            ["brandContactEmail"] = "joana@marcaexemplo.com.br",
+            ["creatorName"] = "Maria da Silva",
+            ["creatorStageName"] = "@mariasilva",
+            ["creatorEmail"] = "maria@example.com",
+            ["creatorDocument"] = "123.456.789-00",
+            ["creatorAgreedAmount"] = "R$ 5.000,00",
+            ["creatorAgencyFeePercent"] = "20%",
+            ["creatorAgencyFeeAmount"] = "R$ 1.000,00",
+            ["scopeNotes"] = "Inclui 1 Reels e 3 Stories sequenciais.",
+        };
+
+        private static string Render(string template, IReadOnlyDictionary<string, string> values)
+        {
+            return PlaceholderRegex.Replace(template, match =>
+            {
+                string key = match.Groups[1].Value;
+                return values.TryGetValue(key, out string? value) ? value : string.Empty;
+            });
         }
     }
 }

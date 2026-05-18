@@ -14,5 +14,6 @@ namespace AgencyCampaign.Application.Services
         Task<CampaignDocumentTemplate> CreateTemplate(CreateCampaignDocumentTemplateRequest request, CancellationToken cancellationToken = default);
         Task<CampaignDocumentTemplate> UpdateTemplate(long id, UpdateCampaignDocumentTemplateRequest request, CancellationToken cancellationToken = default);
         Task<bool> DeleteTemplate(long id, CancellationToken cancellationToken = default);
+        Task<string> PreviewTemplate(string body, CampaignDocumentType documentType, CancellationToken cancellationToken = default);
     }
 }

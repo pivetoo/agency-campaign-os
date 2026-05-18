@@ -168,7 +168,7 @@ export default function AgencyCampaignLayout() {
         { key: 'configuracao-plataformas', label: t('nav.item.socialNetworks'), path: '/configuracao/plataformas', icon: <Share2 size={20} />, requires: ['platforms.get'] },
         { key: 'configuracao-status-creators', label: t('nav.item.creatorStatus'), path: '/configuracao/status-creators', icon: <UserCheck size={20} />, requires: ['campaignCreatorStatuses.get'] },
         { key: 'configuracao-tipos-entrega', label: t('nav.item.deliverableKinds'), path: '/configuracao/tipos-entrega', icon: <Package size={20} />, requires: ['deliverableKinds.get'] },
-        { key: 'configuracao-templates-documento', label: t('nav.item.contractTemplates'), path: '/configuracao/templates-documento', icon: <ScrollText size={20} />, requires: ['campaignDocumentTemplates.get'] },
+        { key: 'configuracao-modelos-contrato', label: t('nav.item.contractTemplates'), path: '/configuracao/modelos-contrato', icon: <ScrollText size={20} />, requires: ['campaignDocumentTemplates.get'] },
       ],
     },
     {
@@ -243,7 +243,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/layout-proposta': t('nav.item.proposalTemplate'),
       '/configuracao/origens-oportunidade': t('nav.item.opportunitySources'),
       '/configuracao/tags-oportunidade': t('nav.item.opportunityTags'),
-      '/configuracao/templates-documento': t('nav.item.contractTemplates'),
+      '/configuracao/modelos-contrato': t('nav.item.contractTemplates'),
       '/configuracao/contas-financeiras': t('nav.item.bankAccounts'),
       '/configuracao/subcategorias-financeiras': t('nav.item.financialSubcategories'),
       '/configuracao/empresa': t('nav.item.agency'),
