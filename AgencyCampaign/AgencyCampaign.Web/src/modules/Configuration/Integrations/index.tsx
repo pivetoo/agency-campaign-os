@@ -593,7 +593,7 @@ export default function Integrations() {
                                     title={t('configuration.integrations.action.delete')}
                                     onClick={() => askDeleteConnector(connector)}
                                   >
-                                    <Trash2 size={14} className="text-destructive" />
+                                    <Trash2 size={14} />
                                   </Button>
                                 </div>
                               </div>

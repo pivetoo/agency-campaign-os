@@ -254,7 +254,7 @@ export default function CommercialProposalDetail() {
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline-danger"
+                        variant="ghost"
                         icon={<Trash2 className="h-3.5 w-3.5" />}
                         disabled={!selectedItem}
                         onClick={() => selectedItem && void runProposalAction(() => proposalService.deleteItem(selectedItem.id))}

@@ -532,7 +532,7 @@ export default function OpportunityDetail() {
                   >
                     <CheckCircle className="mr-2 h-4 w-4" /> {t('opportunityDetail.negotiations.requestApproval')}
                   </Button>
-                  <Button size="sm" variant="outline-danger" onClick={() => void handleDeleteNegotiation()} disabled={!selectedNegotiation || actionLoading}>
+                  <Button size="sm" variant="ghost" onClick={() => void handleDeleteNegotiation()} disabled={!selectedNegotiation || actionLoading}>
                     <Trash2 className="mr-2 h-4 w-4" /> {t('common.action.delete')}
                   </Button>
                 </div>
@@ -610,7 +610,7 @@ export default function OpportunityDetail() {
                   <Button size="sm" variant="outline-success" onClick={() => void handleCompleteFollowUp()} disabled={!selectedFollowUp || selectedFollowUp?.isCompleted || actionLoading}>
                     <CheckCircle className="mr-2 h-4 w-4" /> {t('opportunityDetail.followups.complete')}
                   </Button>
-                  <Button size="sm" variant="outline-danger" onClick={() => void handleDeleteFollowUp()} disabled={!selectedFollowUp || actionLoading}>
+                  <Button size="sm" variant="ghost" onClick={() => void handleDeleteFollowUp()} disabled={!selectedFollowUp || actionLoading}>
                     <Trash2 className="mr-2 h-4 w-4" /> {t('common.action.delete')}
                   </Button>
                 </div>
