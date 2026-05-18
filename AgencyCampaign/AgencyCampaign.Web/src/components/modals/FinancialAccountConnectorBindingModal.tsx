@@ -13,7 +13,7 @@ import {
 } from 'archon-ui'
 import { financialAccountService } from '../../services/financialAccountService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
-import type { Connector } from '../../types/integrationPlatform'
+import { IntegrationCategoryIdentifier, type Connector } from '../../types/integrationPlatform'
 import type { FinancialAccount } from '../../types/financialAccount'
 
 interface Props {
@@ -40,7 +40,7 @@ export default function FinancialAccountConnectorBindingModal({ open, onOpenChan
     if (!open) return
     let cancelled = false
     setLoadingConnectors(true)
-    integrationPlatformService.getActiveConnectors()
+    integrationPlatformService.getConnectorsByCategoryIdentifier(IntegrationCategoryIdentifier.Banking)
       .then((list) => { if (!cancelled) setConnectors(list) })
       .catch(() => { if (!cancelled) setConnectors([]) })
       .finally(() => { if (!cancelled) setLoadingConnectors(false) })

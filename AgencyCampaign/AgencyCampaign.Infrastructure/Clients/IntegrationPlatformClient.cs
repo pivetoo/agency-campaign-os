@@ -90,6 +90,20 @@ namespace AgencyCampaign.Infrastructure.Clients
             return response.Ok ? response.Data?.Data ?? [] : [];
         }
 
+        public async Task<List<ConnectorDto>> GetConnectorsByCategoryIdentifierAsync(string identifier, CancellationToken ct = default)
+        {
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null || string.IsNullOrWhiteSpace(identifier))
+            {
+                return [];
+            }
+
+            RestResponse<ApiResponse<List<ConnectorDto>>> response = await restApi.Fetch<ApiResponse<List<ConnectorDto>>>(
+                RestRequest.Get($"{baseUrl}/api/connectors/by-category-identifier/{Uri.EscapeDataString(identifier)}").WithTenantApiKey(tenantId, secret!), ct);
+
+            return response.Ok ? response.Data?.Data ?? [] : [];
+        }
+
         public async Task<List<ConnectorDto>> GetActiveConnectorsAsync(CancellationToken ct = default)
         {
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);

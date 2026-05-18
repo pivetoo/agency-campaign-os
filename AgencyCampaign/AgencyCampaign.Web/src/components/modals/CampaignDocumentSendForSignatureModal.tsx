@@ -39,7 +39,9 @@ interface Props {
   onSuccess: () => void
 }
 
-const SIGNATURE_CATEGORY_HINTS = ['assinatura', 'signature']
+import { IntegrationCategoryIdentifier } from '../../types/integrationPlatform'
+
+const SIGNATURE_CATEGORY_IDENTIFIER = IntegrationCategoryIdentifier.DigitalSignature
 
 export default function CampaignDocumentSendForSignatureModal({ open, onOpenChange, document, onSuccess }: Props) {
   const { t } = useI18n()
@@ -67,9 +69,7 @@ export default function CampaignDocumentSendForSignatureModal({ open, onOpenChan
     void loadCategories(() => integrationPlatformService.getActiveIntegrationCategories()).then((result) => {
       if (!result) return
       setCategories(result)
-      const signatureCategory = result.find((category) =>
-        SIGNATURE_CATEGORY_HINTS.some((hint) => category.name.toLowerCase().includes(hint)),
-      )
+      const signatureCategory = result.find((category) => category.identifier === SIGNATURE_CATEGORY_IDENTIFIER)
       setCategoryId(signatureCategory?.id ?? result[0]?.id)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps

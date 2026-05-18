@@ -56,6 +56,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(connectors);
         }
 
+        [RequireAccess("Permite listar conectores ativos filtrados pelo identifier da categoria de integração.")]
+        [GetEndpoint("connectors/by-category-identifier/{identifier}")]
+        public async Task<IActionResult> GetConnectorsByCategoryIdentifier(string identifier, CancellationToken cancellationToken)
+        {
+            List<ConnectorDto> connectors = await integrationPlatformClient.GetConnectorsByCategoryIdentifierAsync(identifier, cancellationToken);
+            return Http200(connectors);
+        }
+
         [RequireAccess("Permite obter os detalhes de um conector do IntegrationPlatform.")]
         [GetEndpoint("connectors/detail/{connectorId:long}")]
         public async Task<IActionResult> GetConnectorDetail(long connectorId, CancellationToken cancellationToken)

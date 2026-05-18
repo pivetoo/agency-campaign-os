@@ -28,7 +28,9 @@ interface Props {
   onSuccess: () => void
 }
 
-const PAYMENT_CATEGORY_HINTS = ['pagamento', 'payment', 'transfer', 'repasse']
+import { IntegrationCategoryIdentifier } from '../../types/integrationPlatform'
+
+const PAYMENT_CATEGORY_IDENTIFIER = IntegrationCategoryIdentifier.Payment
 
 export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, payments, onSuccess }: Props) {
   const { t } = useI18n()
@@ -55,9 +57,7 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
     void loadCategories(() => integrationPlatformService.getActiveIntegrationCategories()).then((result) => {
       if (!result) return
       setCategories(result)
-      const paymentCategory = result.find((c) =>
-        PAYMENT_CATEGORY_HINTS.some((hint) => c.name.toLowerCase().includes(hint)),
-      )
+      const paymentCategory = result.find((c) => c.identifier === PAYMENT_CATEGORY_IDENTIFIER)
       setCategoryId(paymentCategory?.id ?? result[0]?.id)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps

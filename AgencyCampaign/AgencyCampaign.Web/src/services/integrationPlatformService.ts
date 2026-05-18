@@ -45,6 +45,11 @@ export const integrationPlatformService = {
     return response.data ?? []
   },
 
+  async getConnectorsByCategoryIdentifier(identifier: string): Promise<Connector[]> {
+    const response = await httpClient.get<Connector[]>(`/IntegrationPlatformProxy/connectors/by-category-identifier/${encodeURIComponent(identifier)}`)
+    return response.data ?? []
+  },
+
   async getConnectorDetail(connectorId: number): Promise<ConnectorDetail> {
     const response = await httpClient.get<ConnectorDetail>(`/IntegrationPlatformProxy/connectors/detail/${connectorId}`)
     return response.data!
