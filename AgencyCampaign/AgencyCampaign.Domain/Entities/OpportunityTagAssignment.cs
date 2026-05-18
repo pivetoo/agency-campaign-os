@@ -18,7 +18,7 @@ namespace AgencyCampaign.Domain.Entities
 
         public OpportunityTagAssignment(long opportunityId, long opportunityTagId)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityId);
+            ArgumentOutOfRangeException.ThrowIfNegative(opportunityId);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityTagId);
 
             OpportunityId = opportunityId;
