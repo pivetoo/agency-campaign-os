@@ -58,5 +58,16 @@ namespace AgencyCampaign.Domain.Entities
             LogoUrl = string.IsNullOrWhiteSpace(logoUrl) ? null : logoUrl.Trim();
             IsActive = isActive;
         }
+
+        public void SetLogoUrl(string logoUrl)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(logoUrl);
+            LogoUrl = logoUrl.Trim();
+        }
+
+        public void ResetLogoUrl()
+        {
+            LogoUrl = IsSystem ? $"/banks/{Compe}.png" : null;
+        }
     }
 }

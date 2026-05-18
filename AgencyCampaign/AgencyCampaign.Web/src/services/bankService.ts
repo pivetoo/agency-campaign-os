@@ -36,4 +36,16 @@ export const bankService = {
   delete(id: number) {
     return httpClient.delete(`${BASE_URL}/Delete/${id}`)
   },
+
+  uploadLogo(id: number, file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return httpClient.post<Bank>(`${BASE_URL}/UploadLogo/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+
+  removeLogo(id: number) {
+    return httpClient.delete<Bank>(`${BASE_URL}/RemoveLogo/${id}`)
+  },
 }

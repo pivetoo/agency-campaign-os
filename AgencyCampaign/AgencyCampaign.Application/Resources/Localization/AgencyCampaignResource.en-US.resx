@@ -139,7 +139,12 @@
   <data name="modal.bank.title.edit" xml:space="preserve"><value>Edit bank</value></data>
   <data name="modal.bank.field.compeHint" xml:space="preserve"><value>3-digit code used by BACEN to identify the bank (e.g., 341 = Itaú, 237 = Bradesco).</value></data>
   <data name="modal.bank.field.compeSystemHint" xml:space="preserve"><value>System bank. The compe code is fixed; you can still edit the display name.</value></data>
-  <data name="modal.bank.field.logoHint" xml:space="preserve"><value>Paste the public URL for the logo image. PNG or SVG with transparent background recommended.</value></data>
+  <data name="modal.bank.field.logoHint" xml:space="preserve"><value>Upload a PNG, JPG or WEBP file up to 2MB. For system banks, removing the logo restores the default.</value></data>
+  <data name="modal.bank.action.uploadLogo" xml:space="preserve"><value>Upload logo</value></data>
+  <data name="modal.bank.action.changeLogo" xml:space="preserve"><value>Change logo</value></data>
+  <data name="modal.bank.logo.empty" xml:space="preserve"><value>No logo</value></data>
+  <data name="imageUpload.file.required" xml:space="preserve"><value>File not provided.</value></data>
+  <data name="imageUpload.file.exceedsLimit" xml:space="preserve"><value>File exceeds the 2MB limit.</value></data>
   <data name="nav.item.banks" xml:space="preserve"><value>Banks</value></data>
   <data name="financialAccount.initialBalance.lockedAfterEntries" xml:space="preserve">
     <value>Cannot change the initial balance after this account has entries. Create an adjustment entry under Accounts Payable or Receivable instead.</value>

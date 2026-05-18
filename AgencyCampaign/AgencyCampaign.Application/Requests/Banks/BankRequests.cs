@@ -19,10 +19,6 @@ namespace AgencyCampaign.Application.Requests.Banks
         [Required]
         [StringLength(80, MinimumLength = 2)]
         public string ShortName { get; set; } = string.Empty;
-
-        [StringLength(500)]
-        [Url(ErrorMessage = "validation.bank.logoUrl.invalidFormat")]
-        public string? LogoUrl { get; set; }
     }
 
     public sealed class UpdateBankRequest : CreateBankRequest

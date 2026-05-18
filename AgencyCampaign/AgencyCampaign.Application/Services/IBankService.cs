@@ -17,5 +17,9 @@ namespace AgencyCampaign.Application.Services
         Task<BankModel> Update(long id, UpdateBankRequest request, CancellationToken cancellationToken = default);
 
         Task Delete(long id, CancellationToken cancellationToken = default);
+
+        Task<BankModel> SetLogo(long id, string logoUrl, CancellationToken cancellationToken = default);
+
+        Task<BankModel> RemoveLogo(long id, CancellationToken cancellationToken = default);
     }
 }

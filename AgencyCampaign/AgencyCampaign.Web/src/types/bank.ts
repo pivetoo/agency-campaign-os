@@ -15,7 +15,6 @@ export interface CreateBankRequest {
   ispb?: string
   name: string
   shortName: string
-  logoUrl?: string
 }
 
 export interface UpdateBankRequest extends CreateBankRequest {

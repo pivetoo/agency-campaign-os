@@ -84,7 +84,7 @@ namespace AgencyCampaign.Infrastructure.Services
             await EnsureCompeIsUnique(request.Compe, ignoreId: null, cancellationToken);
 
             string? createdByUserName = currentUser.UserName ?? currentUser.Email;
-            Bank bank = new(request.Compe, request.Name, request.ShortName, request.Ispb, request.LogoUrl, isSystem: false, createdByUserName: createdByUserName);
+            Bank bank = new(request.Compe, request.Name, request.ShortName, request.Ispb, logoUrl: null, isSystem: false, createdByUserName: createdByUserName);
             dbContext.Set<Bank>().Add(bank);
             await dbContext.SaveChangesAsync(cancellationToken);
             return ToModel(bank);
@@ -108,7 +108,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await EnsureCompeIsUnique(request.Compe, ignoreId: id, cancellationToken);
 
-            bank.Update(request.Compe, request.Name, request.ShortName, request.Ispb, request.LogoUrl, request.IsActive);
+            bank.Update(request.Compe, request.Name, request.ShortName, request.Ispb, bank.LogoUrl, request.IsActive);
             await dbContext.SaveChangesAsync(cancellationToken);
             return ToModel(bank);
         }
@@ -140,6 +140,38 @@ namespace AgencyCampaign.Infrastructure.Services
 
             dbContext.Set<Bank>().Remove(bank);
             await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<BankModel> SetLogo(long id, string logoUrl, CancellationToken cancellationToken = default)
+        {
+            Bank? bank = await dbContext.Set<Bank>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (bank is null)
+            {
+                throw new InvalidOperationException("bank.notFound");
+            }
+
+            bank.SetLogoUrl(logoUrl);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return ToModel(bank);
+        }
+
+        public async Task<BankModel> RemoveLogo(long id, CancellationToken cancellationToken = default)
+        {
+            Bank? bank = await dbContext.Set<Bank>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (bank is null)
+            {
+                throw new InvalidOperationException("bank.notFound");
+            }
+
+            bank.ResetLogoUrl();
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return ToModel(bank);
         }
 
         private async Task EnsureCompeIsUnique(string compe, long? ignoreId, CancellationToken cancellationToken)
