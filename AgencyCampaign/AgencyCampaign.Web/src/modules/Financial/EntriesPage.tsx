@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, Input, FilterPanel, TableToolbar, useI18n } from 'archon-ui'
+import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Input, FilterPanel, TableToolbar, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { CheckCircle2, Pencil, Trash2 } from 'lucide-react'
+import { CheckCircle2, Pencil } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../services/financialEntryService'
 import { financialAccountService } from '../../services/financialAccountService'
 import {
@@ -15,6 +15,7 @@ import {
 import type { FinancialAccount } from '../../types/financialAccount'
 import FinancialEntryFormModal from '../../components/modals/FinancialEntryFormModal'
 import MarkAsPaidModal from '../../components/modals/MarkAsPaidModal'
+import AuditIconButton from '../../components/buttons/AuditIconButton'
 
 interface FinancialEntriesPageProps {
   type: 1 | 2
@@ -195,18 +196,15 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
       <PageLayout
         title={title}
         subtitle={subtitle}
+        actionsSlot={
+          <div className="flex items-center gap-1">
+            <AuditIconButton entityName="FinancialEntry" entityLabel="Lançamento" entityId={selected?.id ?? null} />
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+          </div>
+        }
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onRefresh={() => { void loadEntries(); void loadSummary() }}
-        showDefaultActions={false}
-        actions={[
-          {
-            key: 'new',
-            label: t('financial.entries.action.new'),
-            testId: 'crud-add-button',
-            icon: <Trash2 className="h-4 w-4 hidden" />,
-            onClick: () => { setSelected(null); setIsFormOpen(true) },
-          },
-        ]}
+        addLabel={t('financial.entries.action.new')}
       >
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 mb-4" data-tour="financial-entries-kpis">
           <Card>
@@ -263,10 +261,6 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
               onPageChange={setPage}
               onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
             />
-
-            <div className="flex justify-end">
-              <Button onClick={() => { setSelected(null); setIsFormOpen(true) }}>{t('financial.entries.action.new')}</Button>
-            </div>
           </CardContent>
         </Card>
       </PageLayout>
