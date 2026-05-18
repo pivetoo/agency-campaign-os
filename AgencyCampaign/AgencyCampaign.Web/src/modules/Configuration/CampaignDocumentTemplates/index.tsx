@@ -93,7 +93,7 @@ export default function CampaignDocumentTemplates() {
             label: t('common.action.delete'),
             testId: 'crud-delete-button',
             icon: <Trash2 className="h-4 w-4" />,
-            variant: 'outline-danger',
+            variant: 'ghost',
             disabled: !selected || deleting,
             onClick: () => setIsConfirmOpen(true),
           },
