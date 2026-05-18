@@ -199,15 +199,6 @@ export default function FinancialAccounts() {
             onClick: () => setIsConnectorModalOpen(true),
           },
           {
-            key: 'sync',
-            label: t('configuration.bankAccounts.action.sync'),
-            testId: 'financial-account-sync-button',
-            icon: <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />,
-            variant: 'ghost',
-            disabled: !selected || syncing || !selected?.integrationConnectorId,
-            onClick: () => void handleSync(),
-          },
-          {
             key: 'toggle',
             label: toggleLabel,
             testId: 'crud-toggle-active-button',
@@ -215,6 +206,15 @@ export default function FinancialAccounts() {
             variant: 'ghost',
             disabled: !selected || toggling,
             onClick: () => setIsToggleConfirmOpen(true),
+          },
+          {
+            key: 'sync',
+            label: t('configuration.bankAccounts.action.sync'),
+            testId: 'financial-account-sync-button',
+            icon: <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />,
+            variant: 'ghost',
+            disabled: !selected || syncing || !selected?.integrationConnectorId,
+            onClick: () => void handleSync(),
           },
           {
             key: 'delete',
