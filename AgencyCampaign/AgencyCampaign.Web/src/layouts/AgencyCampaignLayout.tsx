@@ -253,12 +253,18 @@ export default function AgencyCampaignLayout() {
     }
 
     const currentLabel = routeMap[path]
-    if (currentLabel && path !== '/configuracao' && path !== '/') {
+    if (currentLabel && path !== '/configuracao' && path !== '/' && path !== '/comercial/oportunidades') {
       crumbs.push({ label: currentLabel })
+    }
+
+    if (path === '/comercial/oportunidades') {
+      crumbs.push({ label: t('nav.item.pipeline'), onClick: () => navigate('/comercial/pipeline') })
+      crumbs.push({ label: t('nav.item.opportunities') })
     }
 
     if (path.match(/^\/comercial\/oportunidades\/\d+$/)) {
       crumbs.push({ label: t('nav.item.pipeline'), onClick: () => navigate('/comercial/pipeline') })
+      crumbs.push({ label: t('nav.item.opportunities'), onClick: () => navigate('/comercial/oportunidades') })
       crumbs.push({ label: t('breadcrumb.details') })
     }
 
