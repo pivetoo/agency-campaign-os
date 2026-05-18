@@ -1,12 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, PageLayout, useApi, useI18n } from 'archon-ui'
+import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, useApi, useI18n } from 'archon-ui'
 import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
+
+interface PendingFinalMove {
+  item: OpportunityBoardItem
+  targetStage: OpportunityBoardStage
+  kind: 'won' | 'lost'
+}
 
 function getContrastColor(hexColor: string) {
   const normalized = hexColor.replace('#', '')
@@ -123,7 +129,10 @@ export default function CommercialPipeline() {
   const [draggedItem, setDraggedItem] = useState<OpportunityBoardItem | null>(null)
   const [dragOverStage, setDragOverStage] = useState<number | null>(null)
   const [movingOpportunityId, setMovingOpportunityId] = useState<number | null>(null)
+  const [pendingFinal, setPendingFinal] = useState<PendingFinalMove | null>(null)
+  const [finalNotes, setFinalNotes] = useState('')
   const { execute: fetchBoard, loading } = useApi<OpportunityBoardStage[]>({ showErrorMessage: true })
+  const { execute: runFinalClose, loading: closing } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   const loadBoard = async () => {
     const result = await fetchBoard(() => opportunityService.getBoard())
@@ -159,8 +168,25 @@ export default function CommercialPipeline() {
       return
     }
 
-    const previousBoard = board
     const targetColumn = board.find((column) => column.commercialPipelineStageId === targetStage)
+
+    if (targetColumn && targetColumn.finalBehavior === 1) {
+      setPendingFinal({ item: draggedItem, targetStage: targetColumn, kind: 'won' })
+      setFinalNotes('')
+      setDragOverStage(null)
+      setDraggedItem(null)
+      return
+    }
+
+    if (targetColumn && targetColumn.finalBehavior === 2) {
+      setPendingFinal({ item: draggedItem, targetStage: targetColumn, kind: 'lost' })
+      setFinalNotes('')
+      setDragOverStage(null)
+      setDraggedItem(null)
+      return
+    }
+
+    const previousBoard = board
     const updatedItem = {
       ...draggedItem,
       commercialPipelineStageId: targetStage,
@@ -202,6 +228,30 @@ export default function CommercialPipeline() {
       setMovingOpportunityId(null)
       setDraggedItem(null)
     }
+  }
+
+  const confirmFinalMove = async () => {
+    if (!pendingFinal) return
+    const { item, kind } = pendingFinal
+    const trimmedNotes = finalNotes.trim()
+
+    if (kind === 'lost' && trimmedNotes.length === 0) return
+
+    const result = await runFinalClose(() =>
+      kind === 'won'
+        ? opportunityService.closeAsWon(item.id, trimmedNotes ? { wonNotes: trimmedNotes } : {})
+        : opportunityService.closeAsLost(item.id, { lossReason: trimmedNotes }),
+    )
+    if (result !== null) {
+      setPendingFinal(null)
+      setFinalNotes('')
+      void loadBoard()
+    }
+  }
+
+  const cancelFinalMove = () => {
+    setPendingFinal(null)
+    setFinalNotes('')
   }
 
   return (
@@ -355,6 +405,46 @@ export default function CommercialPipeline() {
           void loadBoard()
         }}
       />
+
+      <Modal open={!!pendingFinal} onOpenChange={(open) => { if (!open) cancelFinalMove() }}>
+        <ModalContent size="form">
+          <ModalHeader>
+            <ModalTitle>
+              {pendingFinal?.kind === 'won' ? 'Encerrar como ganha' : 'Encerrar como perdida'}
+            </ModalTitle>
+          </ModalHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Você está movendo <strong>{pendingFinal?.item.name}</strong> para <strong>{pendingFinal?.targetStage.name}</strong>.
+              {pendingFinal?.kind === 'lost' ? ' Informe o motivo da perda.' : ' Deixe uma observação se quiser.'}
+            </p>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {pendingFinal?.kind === 'won' ? 'Notas de fechamento (opcional)' : 'Motivo da perda'}
+                {pendingFinal?.kind === 'lost' && <span className="text-destructive"> *</span>}
+              </label>
+              <textarea
+                className="min-h-[100px] w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                value={finalNotes}
+                onChange={(e) => setFinalNotes(e.target.value)}
+                placeholder={pendingFinal?.kind === 'won' ? 'Ex.: Cliente aprovou orçamento completo.' : 'Ex.: Cliente escolheu concorrente.'}
+                autoFocus
+              />
+            </div>
+          </div>
+          <ModalFooter>
+            <Button type="button" variant="outline" onClick={cancelFinalMove} disabled={closing}>Cancelar</Button>
+            <Button
+              type="button"
+              variant={pendingFinal?.kind === 'lost' ? 'danger' : 'primary'}
+              onClick={() => void confirmFinalMove()}
+              disabled={closing || (pendingFinal?.kind === 'lost' && finalNotes.trim().length === 0)}
+            >
+              {closing ? 'Salvando...' : 'Confirmar'}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </PageLayout>
   )
 }
