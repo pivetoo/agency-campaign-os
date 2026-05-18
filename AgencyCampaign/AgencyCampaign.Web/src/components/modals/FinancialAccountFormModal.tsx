@@ -30,12 +30,11 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
   const { t } = useI18n()
   const isEditing = !!account
   const [name, setName] = useState('')
-  const [type, setType] = useState<FinancialAccountTypeValue>(FinancialAccountType.Cash)
+  const [type, setType] = useState<FinancialAccountTypeValue>(FinancialAccountType.Bank)
   const [bankId, setBankId] = useState<string>('')
   const [agency, setAgency] = useState('')
   const [number, setNumber] = useState('')
   const [initialBalance, setInitialBalance] = useState<string>('')
-  const [color, setColor] = useState('#6366f1')
   const [isActive, setIsActive] = useState(true)
   const [banks, setBanks] = useState<Bank[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -61,21 +60,19 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
       setAgency(account.agency ?? '')
       setNumber(account.number ?? '')
       setInitialBalance(String(account.initialBalance))
-      setColor(account.color)
       setIsActive(account.isActive)
     } else {
       setName('')
-      setType(FinancialAccountType.Cash)
+      setType(FinancialAccountType.Bank)
       setBankId('')
       setAgency('')
       setNumber('')
       setInitialBalance('0')
-      setColor('#6366f1')
       setIsActive(true)
     }
   }, [open, account])
 
-  const isValid = useMemo(() => name.trim().length >= 2 && /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color), [name, color])
+  const isValid = useMemo(() => name.trim().length >= 2, [name])
 
   const bankOptions = useMemo(
     () => banks.map((bank) => ({ value: String(bank.id), label: `${bank.compe} — ${bank.shortName}` })),
@@ -105,7 +102,6 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
         : initialBalance.trim() === ''
           ? 0
           : Number(initialBalance),
-      color,
     }
     const result = await execute(() => {
       if (isEditing && account) {
@@ -135,10 +131,6 @@ export default function FinancialAccountFormModal({ open, onOpenChange, account,
                 onValueChange={handleTypeChange}
                 options={accountTypeOptions}
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t('common.field.color')}</label>
-              <Input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.financialAccount.field.initialBalance')}</label>

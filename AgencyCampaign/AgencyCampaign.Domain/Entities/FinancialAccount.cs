@@ -35,30 +35,34 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public FinancialAccount(string name, FinancialAccountType type, decimal initialBalance, string color, long? bankId = null, string? bank = null, string? agency = null, string? number = null)
+        public FinancialAccount(string name, FinancialAccountType type, decimal initialBalance, string? color = null, long? bankId = null, string? bank = null, string? agency = null, string? number = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-            ArgumentException.ThrowIfNullOrWhiteSpace(color);
 
             Name = name.Trim();
             Type = type;
             InitialBalance = initialBalance;
-            Color = color.Trim();
+            if (!string.IsNullOrWhiteSpace(color))
+            {
+                Color = color.Trim();
+            }
             BankId = bankId;
             Bank = Normalize(bank);
             Agency = Normalize(agency);
             Number = Normalize(number);
         }
 
-        public void Update(string name, FinancialAccountType type, decimal initialBalance, string color, long? bankId, string? bank, string? agency, string? number, bool isActive)
+        public void Update(string name, FinancialAccountType type, decimal initialBalance, string? color, long? bankId, string? bank, string? agency, string? number, bool isActive)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-            ArgumentException.ThrowIfNullOrWhiteSpace(color);
 
             Name = name.Trim();
             Type = type;
             InitialBalance = initialBalance;
-            Color = color.Trim();
+            if (!string.IsNullOrWhiteSpace(color))
+            {
+                Color = color.Trim();
+            }
             BankId = bankId;
             Bank = Normalize(bank);
             Agency = Normalize(agency);
