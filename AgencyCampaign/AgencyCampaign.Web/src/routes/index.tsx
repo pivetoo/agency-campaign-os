@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 import { Callback, ProtectedRoute, useAuth, UsersManagementPage } from 'archon-ui'
 import AgencyCampaignLayout from '../layouts/AgencyCampaignLayout'
-import Dashboard from '../modules/Main/Dashboard'
+import Dashboard from '../modules/Main'
 import Brands from '../modules/Main/Operations/Brands'
 import Creators from '../modules/Main/Operations/Creators'
 import CreatorDetail from '../modules/Main/Operations/Creators/Detail'
