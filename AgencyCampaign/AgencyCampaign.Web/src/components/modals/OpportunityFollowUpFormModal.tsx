@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, useApi, useI18n } from 'archon-ui'
 import { opportunityService, type OpportunityFollowUp, type CreateOpportunityFollowUpRequest, type UpdateOpportunityFollowUpRequest } from '../../services/opportunityService'
+import { dateInputToIso, isoToDateInput } from '../../lib/format'
 
 interface OpportunityFollowUpFormModalProps {
   open: boolean
@@ -13,7 +14,7 @@ interface OpportunityFollowUpFormModalProps {
 const initialFormData: CreateOpportunityFollowUpRequest = {
   opportunityId: 0,
   subject: '',
-  dueAt: new Date().toISOString(),
+  dueAt: dateInputToIso(new Date().toISOString().split('T')[0]!),
   notes: '',
 }
 
@@ -70,7 +71,7 @@ export default function OpportunityFollowUpFormModal({ open, onOpenChange, oppor
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.dueDate')}</label>
-              <Input type="date" value={formData.dueAt.split('T')[0]} onChange={(e) => setFormData((prev) => ({ ...prev, dueAt: new Date(e.target.value).toISOString() }))} />
+              <Input type="date" value={isoToDateInput(formData.dueAt)} onChange={(e) => setFormData((prev) => ({ ...prev, dueAt: dateInputToIso(e.target.value) }))} />
             </div>
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
               <label className="text-sm font-medium">{t('common.field.notes')}</label>

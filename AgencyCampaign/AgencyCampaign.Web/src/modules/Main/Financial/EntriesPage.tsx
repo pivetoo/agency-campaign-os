@@ -9,7 +9,7 @@ import type { FinancialAccount } from '../../../types/financialAccount'
 import FinancialEntryFormModal from '../../../components/modals/FinancialEntryFormModal'
 import MarkAsPaidModal from '../../../components/modals/MarkAsPaidModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
-import { formatCurrency } from '../../../lib/format'
+import { formatCurrency, dateInputToIso, isoToDateInput } from '../../../lib/format'
 
 interface FinancialEntriesPageProps {
   type: 1 | 2
@@ -229,8 +229,8 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
               rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
             />
             <div className="flex gap-2 md:max-w-md">
-              <Input type="date" value={filters.dueFrom?.slice(0, 10) ?? ''} onChange={(e) => setFilters((prev) => ({ ...prev, dueFrom: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
-              <Input type="date" value={filters.dueTo?.slice(0, 10) ?? ''} onChange={(e) => setFilters((prev) => ({ ...prev, dueTo: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
+              <Input type="date" value={isoToDateInput(filters.dueFrom)} onChange={(e) => setFilters((prev) => ({ ...prev, dueFrom: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
+              <Input type="date" value={isoToDateInput(filters.dueTo)} onChange={(e) => setFilters((prev) => ({ ...prev, dueTo: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
             </div>
 
             <DataTable

@@ -3,6 +3,7 @@ import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Inpu
 import { proposalService, type Proposal, type CreateProposalRequest, type UpdateProposalRequest } from '../../services/proposalService'
 import { opportunityService, type Opportunity } from '../../services/opportunityService'
 import { agencySettingsService, type ProposalTemplateVersion } from '../../services/agencySettingsService'
+import { dateInputToIso, isoToDateInput } from '../../lib/format'
 
 interface ProposalFormModalProps {
   open: boolean
@@ -121,8 +122,8 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
               <label className="text-sm font-medium">{t('common.field.validity')}</label>
               <Input
                 type="date"
-                value={formData.validityUntil?.split('T')[0] || ''}
-                onChange={(e) => setFormData((prev) => ({ ...prev, validityUntil: e.target.value ? new Date(e.target.value).toISOString() : undefined }))}
+                value={isoToDateInput(formData.validityUntil)}
+                onChange={(e) => setFormData((prev) => ({ ...prev, validityUntil: e.target.value ? dateInputToIso(e.target.value) : undefined }))}
               />
             </div>
 

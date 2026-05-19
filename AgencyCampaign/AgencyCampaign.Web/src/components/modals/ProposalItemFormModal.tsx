@@ -3,6 +3,7 @@ import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitl
 import { creatorService } from '../../services/creatorService'
 import { proposalService, type CreateProposalItemRequest, type ProposalItem, type UpdateProposalItemRequest } from '../../services/proposalService'
 import type { Creator } from '../../types/creator'
+import { dateInputToIso, isoToDateInput } from '../../lib/format'
 
 interface ProposalItemFormModalProps {
   open: boolean
@@ -97,7 +98,7 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.proposalItem.field.deliveryDeadline')}</label>
-              <Input type="date" value={formData.deliveryDeadline?.split('T')[0] || ''} onChange={(event) => setFormData((prev) => ({ ...prev, deliveryDeadline: event.target.value ? new Date(event.target.value).toISOString() : undefined }))} />
+              <Input type="date" value={isoToDateInput(formData.deliveryDeadline)} onChange={(event) => setFormData((prev) => ({ ...prev, deliveryDeadline: event.target.value ? dateInputToIso(event.target.value) : undefined }))} />
             </div>
 
             <div className="space-y-2">

@@ -8,6 +8,7 @@ import type { CommercialResponsible } from '../../types/commercialResponsible'
 import type { OpportunitySource, OpportunityTag } from '../../types/opportunitySource'
 import { opportunityService, type Opportunity, type CreateOpportunityRequest, type UpdateOpportunityRequest } from '../../services/opportunityService'
 import { cleanFormPayload } from '../../lib/cleanFormPayload'
+import { dateInputToIso, isoToDateInput } from '../../lib/format'
 
 interface OpportunityFormModalProps {
   open: boolean
@@ -133,7 +134,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
 
             <div className="space-y-2">
               <label htmlFor="opportunity-expected-close-at" className="text-sm font-medium">{t('modal.opportunity.field.expectedClose')}</label>
-              <Input id="opportunity-expected-close-at" type="date" value={formData.expectedCloseAt?.split('T')[0] || ''} onChange={(e) => setFormData((prev) => ({ ...prev, expectedCloseAt: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} />
+              <Input id="opportunity-expected-close-at" type="date" value={isoToDateInput(formData.expectedCloseAt)} onChange={(e) => setFormData((prev) => ({ ...prev, expectedCloseAt: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
             </div>
 
             <div className="space-y-2">

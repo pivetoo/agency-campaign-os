@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, useApi, useI18n } from 'archon-ui'
 import { opportunityService, type OpportunityNegotiation, type CreateOpportunityNegotiationRequest, type UpdateOpportunityNegotiationRequest } from '../../services/opportunityService'
+import { dateInputToIso, isoToDateInput } from '../../lib/format'
 
 interface OpportunityNegotiationFormModalProps {
   open: boolean
@@ -14,7 +15,7 @@ const initialFormData: CreateOpportunityNegotiationRequest = {
   opportunityId: 0,
   title: '',
   amount: 0,
-  negotiatedAt: new Date().toISOString(),
+  negotiatedAt: dateInputToIso(new Date().toISOString().split('T')[0]!),
   notes: '',
 }
 
@@ -77,7 +78,7 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.date')}</label>
-              <Input type="date" value={formData.negotiatedAt.split('T')[0]} onChange={(e) => setFormData((prev) => ({ ...prev, negotiatedAt: new Date(e.target.value).toISOString() }))} />
+              <Input type="date" value={isoToDateInput(formData.negotiatedAt)} onChange={(e) => setFormData((prev) => ({ ...prev, negotiatedAt: dateInputToIso(e.target.value) }))} />
             </div>
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
               <label className="text-sm font-medium">{t('common.field.notes')}</label>

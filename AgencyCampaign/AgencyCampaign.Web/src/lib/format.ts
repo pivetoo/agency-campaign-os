@@ -33,3 +33,13 @@ export function formatDateTime(value?: string | null, fallback = '-'): string {
     minute: '2-digit',
   })
 }
+
+export function dateInputToIso(value: string): string {
+  if (!value) return ''
+  return `${value}T12:00:00.000Z`
+}
+
+export function isoToDateInput(value?: string | null): string {
+  if (!value) return ''
+  return value.split('T')[0] ?? ''
+}
