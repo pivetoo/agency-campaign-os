@@ -574,6 +574,8 @@
   <data name="opportunityDetail.negotiations.new" xml:space="preserve"><value>New negotiation</value></data>
   <data name="opportunityDetail.negotiations.description" xml:space="preserve"><value>Each negotiation records a round of offer with value and reason (initial proposal, counter offer, discount adjustment). Select one to edit or request internal approval.</value></data>
   <data name="opportunityDetail.negotiations.requestApproval" xml:space="preserve"><value>Request approval</value></data>
+  <data name="opportunityDetail.negotiations.changeStatus" xml:space="preserve"><value>Change status</value></data>
+  <data name="opportunityDetail.negotiations.changeStatus.description" xml:space="preserve"><value>Select the new status of the negotiation. Changes are not propagated to the Approvals tab.</value></data>
   <data name="opportunityDetail.negotiations.empty" xml:space="preserve"><value>No negotiations registered</value></data>
   <data name="opportunityDetail.negotiations.title.selectFirst" xml:space="preserve"><value>Select a negotiation</value></data>
   <data name="opportunityDetail.negotiations.title.onlyDraft" xml:space="preserve"><value>Available only for Draft negotiations (current: {0})</value></data>

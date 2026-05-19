@@ -574,6 +574,8 @@
   <data name="opportunityDetail.negotiations.new" xml:space="preserve"><value>Nova negociação</value></data>
   <data name="opportunityDetail.negotiations.description" xml:space="preserve"><value>Cada negociação registra uma rodada de oferta com valor e motivo (proposta inicial, contraproposta, ajuste de desconto). Selecione uma para editar ou pedir aprovação interna.</value></data>
   <data name="opportunityDetail.negotiations.requestApproval" xml:space="preserve"><value>Solicitar aprovação</value></data>
+  <data name="opportunityDetail.negotiations.changeStatus" xml:space="preserve"><value>Alterar status</value></data>
+  <data name="opportunityDetail.negotiations.changeStatus.description" xml:space="preserve"><value>Selecione o novo status da negociação. As mudanças não são propagadas para a aba de Aprovações.</value></data>
   <data name="opportunityDetail.negotiations.empty" xml:space="preserve"><value>Nenhuma negociação cadastrada</value></data>
   <data name="opportunityDetail.negotiations.title.selectFirst" xml:space="preserve"><value>Selecione uma negociação</value></data>
   <data name="opportunityDetail.negotiations.title.onlyDraft" xml:space="preserve"><value>Disponível apenas para negociações em Rascunho (atual: {0})</value></data>

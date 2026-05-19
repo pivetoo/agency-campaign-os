@@ -105,6 +105,8 @@ export default function OpportunityDetail() {
   const [selectedStage, setSelectedStage] = useState<string>('1')
   const [pendingFinalStage, setPendingFinalStage] = useState<{ id: number; name: string; kind: 'won' | 'lost' } | null>(null)
   const [finalNotes, setFinalNotes] = useState('')
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+  const [statusToSet, setStatusToSet] = useState<string>('')
 
   const { execute: fetchOpportunity, loading } = useApi<Opportunity | null>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -263,6 +265,22 @@ export default function OpportunityDetail() {
     setPendingFinalStage(null)
     setFinalNotes('')
     if (opportunity) setSelectedStage(String(opportunity.commercialPipelineStageId))
+  }
+
+  const openStatusModal = () => {
+    if (!selectedNegotiation) return
+    setStatusToSet(String(selectedNegotiation.status))
+    setIsStatusModalOpen(true)
+  }
+
+  const submitStatusChange = async () => {
+    if (!selectedNegotiation || !statusToSet) return
+    const result = await executeAction(() => opportunityService.changeNegotiationStatus(selectedNegotiation.id, { status: Number(statusToSet) }))
+    if (result !== null) {
+      setIsStatusModalOpen(false)
+      setSelectedNegotiation(null)
+      await loadOpportunity()
+    }
   }
 
 
@@ -598,6 +616,9 @@ export default function OpportunityDetail() {
                   <Button size="sm" variant="outline" onClick={() => selectedNegotiation && setIsNegotiationFormOpen(true)} disabled={!selectedNegotiation}>
                     <Pencil className="mr-2 h-4 w-4" /> {t('common.action.edit')}
                   </Button>
+                  <Button size="sm" variant="outline" onClick={openStatusModal} disabled={!selectedNegotiation || actionLoading}>
+                    <Activity className="mr-2 h-4 w-4" /> {t('opportunityDetail.negotiations.changeStatus')}
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"
@@ -774,6 +795,36 @@ export default function OpportunityDetail() {
           }
         }}
       />
+
+      <Modal open={isStatusModalOpen} onOpenChange={(open) => { if (!open) setIsStatusModalOpen(false) }}>
+        <ModalContent size="form">
+          <ModalHeader>
+            <ModalTitle>{t('opportunityDetail.negotiations.changeStatus')}</ModalTitle>
+          </ModalHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">{t('opportunityDetail.negotiations.changeStatus.description')}</p>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t('common.field.status')}</label>
+              <Select value={statusToSet} onValueChange={setStatusToSet}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(negotiationStatusKeys).map(([value, key]) => (
+                    <SelectItem key={value} value={value}>{t(key)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <ModalFooter>
+            <Button type="button" variant="outline" onClick={() => setIsStatusModalOpen(false)} disabled={actionLoading}>{t('common.action.cancel')}</Button>
+            <Button type="button" variant="primary" onClick={() => void submitStatusChange()} disabled={actionLoading || !statusToSet || Number(statusToSet) === selectedNegotiation?.status}>
+              {actionLoading ? t('common.action.saving') : t('common.action.save')}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       <Modal open={!!pendingFinalStage} onOpenChange={(open) => { if (!open) cancelFinalChange() }}>
         <ModalContent size="form">
