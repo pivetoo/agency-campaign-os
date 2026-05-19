@@ -5,6 +5,9 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -18,7 +21,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new ProposalShareLinkService(db, CurrentUserMock.Create(), LocalizerMock.Create<AgencyCampaignResource>());
+            service = new ProposalShareLinkService(db, CurrentUserMock.Create());
         }
 
         [TearDown]

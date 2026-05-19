@@ -9,6 +9,8 @@ using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using DomainEntities = AgencyCampaign.Domain.Entities;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -24,7 +26,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             notifications = new Mock<INotificationService>();
-            service = new CampaignCreatorService(db, LocalizerMock.Create<AgencyCampaignResource>(), CurrentUserMock.Create(), notifications.Object);
+            service = new CampaignCreatorService(db, CurrentUserMock.Create(), notifications.Object);
         }
 
         [TearDown]

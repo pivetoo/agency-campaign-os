@@ -8,6 +8,9 @@ using AgencyCampaign.Testing.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using DomainEntities = AgencyCampaign.Domain.Entities;
 using CampaignCreatorStatus = AgencyCampaign.Domain.Entities.CampaignCreatorStatus;
+using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -21,7 +24,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new CreatorService(db, LocalizerMock.Create<AgencyCampaignResource>());
+            service = new CreatorService(db);
         }
 
         [TearDown]

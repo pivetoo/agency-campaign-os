@@ -63,5 +63,48 @@ namespace AgencyCampaign.Testing.Domain.Entities
             subject.CanBeDeletedBy(7).Should().BeTrue();
             subject.CanBeDeletedBy(99).Should().BeFalse();
         }
+
+        [Test]
+        public void MarkAsDeleted_should_set_IsDeleted_and_preserve_body()
+        {
+            OpportunityComment subject = new(1, "body", authorUserId: 7, authorName: "Alice");
+
+            subject.MarkAsDeleted();
+
+            subject.IsDeleted.Should().BeTrue();
+            subject.Body.Should().Be("body");
+        }
+
+        [Test]
+        public void MarkAsDeleted_should_be_idempotent()
+        {
+            OpportunityComment subject = new(1, "body", authorUserId: 7, authorName: "Alice");
+            subject.MarkAsDeleted();
+            DateTimeOffset? firstUpdate = subject.UpdatedAt;
+
+            subject.MarkAsDeleted();
+
+            subject.IsDeleted.Should().BeTrue();
+            subject.UpdatedAt.Should().Be(firstUpdate);
+        }
+
+        [Test]
+        public void Update_should_throw_when_already_deleted()
+        {
+            OpportunityComment subject = new(1, "body", authorUserId: 7, authorName: "Alice");
+            subject.MarkAsDeleted();
+
+            Action act = () => subject.Update("edited", requestingUserId: 7);
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void IsDeleted_should_be_false_on_new_comment()
+        {
+            OpportunityComment subject = new(1, "body", authorUserId: 7, authorName: "Alice");
+
+            subject.IsDeleted.Should().BeFalse();
+        }
     }
 }

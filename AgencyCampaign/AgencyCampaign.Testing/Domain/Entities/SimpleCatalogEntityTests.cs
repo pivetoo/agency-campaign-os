@@ -25,54 +25,13 @@ namespace AgencyCampaign.Testing.Domain.Entities
         {
             AgencySettings subject = new("Old");
 
-            subject.Update("New", " trade ", " doc ", " a@x ", " 999 ", " addr ", " logo ", " #fff ", defaultEmailConnectorId: 5);
+            subject.Update("New", " trade ", " doc ", " a@x ", " 999 ", " addr ", " logo ", " #fff ");
 
             subject.AgencyName.Should().Be("New");
             subject.TradeName.Should().Be("trade");
             subject.PrimaryEmail.Should().Be("a@x");
             subject.LogoUrl.Should().Be("logo");
             subject.PrimaryColor.Should().Be("#fff");
-            subject.DefaultEmailConnectorId.Should().Be(5);
-        }
-    }
-
-    [TestFixture]
-    public sealed class EmailTemplateTests
-    {
-        [Test]
-        public void Constructor_should_trim_inputs_but_preserve_html_body()
-        {
-            EmailTemplate subject = new("  Hello  ", EmailEventType.ProposalSent, "  Subject  ", "<p>Body</p>", createdByUserId: 5, createdByUserName: " Tester ");
-
-            subject.Name.Should().Be("Hello");
-            subject.Subject.Should().Be("Subject");
-            subject.HtmlBody.Should().Be("<p>Body</p>");
-            subject.CreatedByUserName.Should().Be("Tester");
-            subject.IsActive.Should().BeTrue();
-        }
-
-        [Test]
-        public void Constructor_should_reject_blank_required_fields()
-        {
-            Action blankName = () => _ = new EmailTemplate(" ", EmailEventType.ProposalSent, "x", "y", null, null);
-            Action blankSubject = () => _ = new EmailTemplate("x", EmailEventType.ProposalSent, " ", "y", null, null);
-            Action blankBody = () => _ = new EmailTemplate("x", EmailEventType.ProposalSent, "y", " ", null, null);
-
-            blankName.Should().Throw<ArgumentException>();
-            blankSubject.Should().Throw<ArgumentException>();
-            blankBody.Should().Throw<ArgumentException>();
-        }
-
-        [Test]
-        public void Update_should_replace_state_and_toggle_active()
-        {
-            EmailTemplate subject = new("Old", EmailEventType.ProposalSent, "Subj", "<p>x</p>", null, null);
-
-            subject.Update("New", EmailEventType.ProposalApproved, "New Subj", "<p>y</p>", isActive: false);
-
-            subject.Name.Should().Be("New");
-            subject.EventType.Should().Be(EmailEventType.ProposalApproved);
-            subject.IsActive.Should().BeFalse();
         }
     }
 
@@ -94,10 +53,8 @@ namespace AgencyCampaign.Testing.Domain.Entities
         public void Constructor_should_reject_blank_required_fields()
         {
             Action blankName = () => _ = new FinancialAccount(" ", FinancialAccountType.Bank, 0m, "#fff");
-            Action blankColor = () => _ = new FinancialAccount("x", FinancialAccountType.Bank, 0m, " ");
 
             blankName.Should().Throw<ArgumentException>();
-            blankColor.Should().Throw<ArgumentException>();
         }
 
         [Test]
@@ -105,10 +62,10 @@ namespace AgencyCampaign.Testing.Domain.Entities
         {
             FinancialAccount subject = new("Old", FinancialAccountType.Bank, 0m, "#fff");
 
-            subject.Update("New", FinancialAccountType.Wallet, 500m, "#000", "Bank", "0001", "999", isActive: false);
+            subject.Update("New", FinancialAccountType.Cash, 500m, "#000", bankId: null, "Bank", "0001", "999", isActive: false);
 
             subject.Name.Should().Be("New");
-            subject.Type.Should().Be(FinancialAccountType.Wallet);
+            subject.Type.Should().Be(FinancialAccountType.Cash);
             subject.IsActive.Should().BeFalse();
         }
     }

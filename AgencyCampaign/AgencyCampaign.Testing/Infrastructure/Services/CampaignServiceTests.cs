@@ -7,6 +7,9 @@ using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using DomainEntities = AgencyCampaign.Domain.Entities;
+using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -20,7 +23,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new CampaignService(db, LocalizerMock.Create<AgencyCampaignResource>(), CurrentUserMock.Create(), IdentityClientFactory.CreateInert());
+            service = new CampaignService(db, CurrentUserMock.Create(), IdentityClientFactory.CreateInert());
         }
 
         [TearDown]

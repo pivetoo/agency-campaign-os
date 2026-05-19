@@ -8,6 +8,8 @@ using AgencyCampaign.Testing.TestSupport;
 using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -25,7 +27,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db = TestDbContext.CreateInMemory();
             automation = new Mock<IAutomationDispatcher>();
             notifications = new Mock<INotificationService>();
-            service = new FinancialEntryService(db, LocalizerMock.Create<AgencyCampaignResource>(), automation.Object, notifications.Object);
+            service = new FinancialEntryService(db, automation.Object, notifications.Object, NullLogger<FinancialEntryService>.Instance);
         }
 
         [TearDown]

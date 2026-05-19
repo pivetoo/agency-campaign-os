@@ -8,6 +8,9 @@ using AgencyCampaign.Testing.Builders;
 using AgencyCampaign.Testing.TestSupport;
 using Archon.Core.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -21,7 +24,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new OpportunityService(db, LocalizerMock.Create<AgencyCampaignResource>(), CurrentUserMock.Create(), IdentityClientFactory.CreateInert());
+            service = new OpportunityService(db, CurrentUserMock.Create(), IdentityClientFactory.CreateInert());
         }
 
         [TearDown]

@@ -8,6 +8,9 @@ using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
 using Archon.Core.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -21,7 +24,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new OpportunitySourceService(db, LocalizerMock.Create<AgencyCampaignResource>());
+            service = new OpportunitySourceService(db);
         }
 
         [TearDown]
@@ -81,7 +84,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new OpportunityTagService(db, LocalizerMock.Create<AgencyCampaignResource>());
+            service = new OpportunityTagService(db);
         }
 
         [TearDown]
@@ -120,7 +123,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new DeliverableKindService(db, LocalizerMock.Create<AgencyCampaignResource>());
+            service = new DeliverableKindService(db);
         }
 
         [TearDown]
@@ -165,7 +168,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new PlatformService(db, LocalizerMock.Create<AgencyCampaignResource>());
+            service = new PlatformService(db);
         }
 
         [TearDown]

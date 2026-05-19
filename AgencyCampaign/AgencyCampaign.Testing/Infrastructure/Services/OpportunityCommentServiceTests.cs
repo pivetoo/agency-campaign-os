@@ -7,6 +7,9 @@ using AgencyCampaign.Testing.Builders;
 using AgencyCampaign.Testing.TestSupport;
 using Archon.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -26,7 +29,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
         private OpportunityCommentService BuildService(ICurrentUser currentUser)
         {
-            return new OpportunityCommentService(db, currentUser, LocalizerMock.Create<AgencyCampaignResource>());
+            return new OpportunityCommentService(db, currentUser, Mock.Of<Archon.Application.Services.INotificationService>());
         }
 
         private async Task<Opportunity> SeedOpportunityAsync()
@@ -124,7 +127,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task DeleteComment_should_remove_when_user_is_author()
+        public async Task DeleteComment_should_soft_delete_when_user_is_author()
         {
             Opportunity opportunity = await SeedOpportunityAsync();
             OpportunityComment comment = new(opportunity.Id, "body", authorUserId: 7, authorName: "Alice");
@@ -135,7 +138,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             OpportunityCommentService service = BuildService(CurrentUserMock.Create(userId: 7));
             await service.DeleteComment(comment.Id);
 
-            (await db.Set<OpportunityComment>().CountAsync()).Should().Be(0);
+            OpportunityComment persisted = await db.Set<OpportunityComment>().AsNoTracking().FirstAsync();
+            persisted.IsDeleted.Should().BeTrue();
+            persisted.Body.Should().Be("body");
         }
 
         [Test]

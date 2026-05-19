@@ -7,6 +7,8 @@ using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -22,7 +24,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             tokenService = new Mock<ICreatorAccessTokenService>();
-            service = new CreatorPortalService(db, tokenService.Object, LocalizerMock.Create<AgencyCampaignResource>());
+            service = new CreatorPortalService(db, tokenService.Object);
         }
 
         [TearDown]

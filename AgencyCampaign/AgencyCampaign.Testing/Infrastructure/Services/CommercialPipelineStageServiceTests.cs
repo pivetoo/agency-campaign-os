@@ -8,6 +8,9 @@ using AgencyCampaign.Testing.TestSupport;
 using Archon.Core.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -22,7 +25,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             IStringLocalizer<AgencyCampaignResource> localizer = LocalizerMock.Create<AgencyCampaignResource>();
-            service = new CommercialPipelineStageService(db, localizer);
+            service = new CommercialPipelineStageService(db);
         }
 
         [TearDown]

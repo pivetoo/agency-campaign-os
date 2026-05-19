@@ -227,5 +227,63 @@ namespace AgencyCampaign.Testing.Domain.Entities
 
             subject.OpportunitySourceId.Should().Be(42);
         }
+
+        [Test]
+        public void ResetProbabilityToStageDefault_should_clear_manual_flag_and_apply_stage_default()
+        {
+            Opportunity subject = BuildDefault();
+            subject.SetProbability(85m);
+            CommercialPipelineStage stageWithDefault = new CommercialPipelineStageBuilder()
+                .WithId(50)
+                .WithDefaultProbability(35m)
+                .Build();
+
+            subject.ResetProbabilityToStageDefault(stageWithDefault);
+
+            subject.ProbabilityIsManual.Should().BeFalse();
+            subject.Probability.Should().Be(35m);
+        }
+
+        [Test]
+        public void ResetProbabilityToStageDefault_with_won_stage_should_force_100()
+        {
+            Opportunity subject = BuildDefault();
+            subject.SetProbability(10m);
+            CommercialPipelineStage wonStage = new CommercialPipelineStageBuilder()
+                .WithId(51)
+                .AsFinal(CommercialPipelineStageFinalBehavior.Won)
+                .Build();
+
+            subject.ResetProbabilityToStageDefault(wonStage);
+
+            subject.Probability.Should().Be(100m);
+            subject.ProbabilityIsManual.Should().BeFalse();
+        }
+
+        [Test]
+        public void ResetProbabilityToStageDefault_with_lost_stage_should_force_zero()
+        {
+            Opportunity subject = BuildDefault();
+            subject.SetProbability(90m);
+            CommercialPipelineStage lostStage = new CommercialPipelineStageBuilder()
+                .WithId(52)
+                .AsFinal(CommercialPipelineStageFinalBehavior.Lost)
+                .Build();
+
+            subject.ResetProbabilityToStageDefault(lostStage);
+
+            subject.Probability.Should().Be(0m);
+            subject.ProbabilityIsManual.Should().BeFalse();
+        }
+
+        [Test]
+        public void ResetProbabilityToStageDefault_should_throw_when_stage_is_null()
+        {
+            Opportunity subject = BuildDefault();
+
+            Action act = () => subject.ResetProbabilityToStageDefault(null!);
+
+            act.Should().Throw<ArgumentNullException>();
+        }
     }
 }

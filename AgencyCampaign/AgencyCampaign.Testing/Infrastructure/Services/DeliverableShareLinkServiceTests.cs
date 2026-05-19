@@ -9,6 +9,8 @@ using AgencyCampaign.Testing.TestSupport;
 using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -22,7 +24,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new DeliverableShareLinkService(db, CurrentUserMock.Create(), LocalizerMock.Create<AgencyCampaignResource>());
+            service = new DeliverableShareLinkService(db, CurrentUserMock.Create());
         }
 
         [TearDown]
@@ -122,7 +124,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             notifications = new Mock<INotificationService>();
-            service = new DeliverablePublicService(db, LocalizerMock.Create<AgencyCampaignResource>(), notifications.Object);
+            service = new DeliverablePublicService(db, notifications.Object);
         }
 
         [TearDown]

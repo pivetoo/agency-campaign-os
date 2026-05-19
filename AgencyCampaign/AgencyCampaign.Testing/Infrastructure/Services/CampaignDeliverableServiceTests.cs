@@ -8,6 +8,8 @@ using AgencyCampaign.Testing.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using DomainEntities = AgencyCampaign.Domain.Entities;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -23,7 +25,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             financial = new Mock<IFinancialAutoGeneration>();
-            service = new CampaignDeliverableService(db, LocalizerMock.Create<AgencyCampaignResource>(), financial.Object);
+            service = new CampaignDeliverableService(db, LocalizerMock.Create<AgencyCampaignResource>(), financial.Object, Mock.Of<Archon.Application.Services.INotificationService>(), NullLogger<CampaignDeliverableService>.Instance);
         }
 
         [TearDown]

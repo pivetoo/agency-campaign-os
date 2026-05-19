@@ -8,6 +8,8 @@ using AgencyCampaign.Testing.TestSupport;
 using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -23,7 +25,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             notifications = new Mock<INotificationService>();
-            service = new OpportunityApprovalRequestService(db, LocalizerMock.Create<AgencyCampaignResource>(), notifications.Object);
+            service = new OpportunityApprovalRequestService(db, notifications.Object);
         }
 
         [TearDown]

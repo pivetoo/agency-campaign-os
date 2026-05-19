@@ -2,6 +2,7 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -15,7 +16,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            dispatcher = new AutomationDispatcher(db, IntegrationPlatformClientFactory.CreateInert());
+            dispatcher = new AutomationDispatcher(db, IntegrationPlatformClientFactory.CreateInert(), NullLogger<AutomationDispatcher>.Instance);
         }
 
         [TearDown]
