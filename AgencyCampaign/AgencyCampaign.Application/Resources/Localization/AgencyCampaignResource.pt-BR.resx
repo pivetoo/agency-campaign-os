@@ -502,6 +502,7 @@
   <data name="opportunityActivity.loading" xml:space="preserve"><value>Carregando atividades...</value></data>
   <data name="opportunityActivity.empty" xml:space="preserve"><value>Nenhuma atividade registrada ainda.</value></data>
   <data name="opportunityActivity.editedBadge" xml:space="preserve"><value>(editado)</value></data>
+  <data name="opportunityActivity.deletedBadge" xml:space="preserve"><value>Mensagem excluída</value></data>
   <data name="opportunityActivity.confirm.delete" xml:space="preserve"><value>Excluir este comentário?</value></data>
   <data name="common.action.add" xml:space="preserve"><value>Adicionar</value></data>
   <data name="common.action.edit" xml:space="preserve"><value>Editar</value></data>

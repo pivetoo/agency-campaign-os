@@ -12,6 +12,8 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public string Body { get; init; } = string.Empty;
 
+        public bool IsDeleted { get; init; }
+
         public DateTimeOffset CreatedAt { get; init; }
 
         public DateTimeOffset? UpdatedAt { get; init; }

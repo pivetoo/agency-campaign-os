@@ -174,7 +174,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
   }
 
   const canEdit = (comment: OpportunityComment) =>
-    !comment.authorUserId || (currentUserId != null && comment.authorUserId === currentUserId)
+    !comment.isDeleted && (!comment.authorUserId || (currentUserId != null && comment.authorUserId === currentUserId))
 
   return (
     <>
@@ -321,7 +321,7 @@ function CommentEvent(props: CommentEventProps) {
         <span className="text-xs text-muted-foreground" title={formatDateTime(comment.createdAt)}>
           {relativeTime(comment.createdAt, t)}
         </span>
-        {comment.updatedAt && comment.updatedAt !== comment.createdAt ? (
+        {comment.updatedAt && comment.updatedAt !== comment.createdAt && !comment.isDeleted ? (
           <span className="text-xs italic text-muted-foreground">{t('opportunityActivity.editedBadge')}</span>
         ) : null}
         {canEdit && !isEditing ? (
@@ -361,6 +361,8 @@ function CommentEvent(props: CommentEventProps) {
             </Button>
           </div>
         </div>
+      ) : comment.isDeleted ? (
+        <div className="text-sm italic text-muted-foreground">{t('opportunityActivity.deletedBadge')}</div>
       ) : (
         <div className="whitespace-pre-wrap text-sm text-foreground">{renderBodyWithMentions(comment.body, users)}</div>
       )}

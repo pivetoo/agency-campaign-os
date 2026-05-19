@@ -207,6 +207,7 @@ export interface OpportunityComment {
   authorUserId?: number
   authorName: string
   body: string
+  isDeleted: boolean
   createdAt: string
   updatedAt?: string
 }

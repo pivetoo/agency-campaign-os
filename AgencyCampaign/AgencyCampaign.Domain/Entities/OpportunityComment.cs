@@ -14,6 +14,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public string Body { get; private set; } = string.Empty;
 
+        public bool IsDeleted { get; private set; }
+
         private OpportunityComment()
         {
         }
@@ -36,6 +38,11 @@ namespace AgencyCampaign.Domain.Entities
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(body);
 
+            if (IsDeleted)
+            {
+                throw new InvalidOperationException("opportunityComment.alreadyDeleted");
+            }
+
             if (AuthorUserId.HasValue && requestingUserId.HasValue && AuthorUserId.Value != requestingUserId.Value)
             {
                 throw new InvalidOperationException("opportunityComment.onlyAuthorCanEdit");
@@ -53,6 +60,17 @@ namespace AgencyCampaign.Domain.Entities
             }
 
             return AuthorUserId.Value == requestingUserId.Value;
+        }
+
+        public void MarkAsDeleted()
+        {
+            if (IsDeleted)
+            {
+                return;
+            }
+
+            IsDeleted = true;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
     }
 }

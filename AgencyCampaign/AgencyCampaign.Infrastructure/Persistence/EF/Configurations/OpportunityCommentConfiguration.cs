@@ -18,6 +18,10 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .IsRequired()
                 .HasMaxLength(4000);
 
+            builder.Property(entity => entity.IsDeleted)
+                .IsRequired()
+                .HasDefaultValue(false);
+
             builder.HasIndex(entity => new { entity.OpportunityId, entity.CreatedAt })
                 .HasDatabaseName("ixopportunitycommentopportunityidcreatedat");
         }

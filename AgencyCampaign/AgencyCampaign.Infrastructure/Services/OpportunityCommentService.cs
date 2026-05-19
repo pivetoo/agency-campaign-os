@@ -107,7 +107,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("opportunityComment.delete.onlyAuthor");
             }
 
-            dbContext.Set<OpportunityComment>().Remove(comment);
+            comment.MarkAsDeleted();
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
@@ -145,7 +145,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 OpportunityId = comment.OpportunityId,
                 AuthorUserId = comment.AuthorUserId,
                 AuthorName = comment.AuthorName,
-                Body = comment.Body,
+                Body = comment.IsDeleted ? string.Empty : comment.Body,
+                IsDeleted = comment.IsDeleted,
                 CreatedAt = comment.CreatedAt,
                 UpdatedAt = comment.UpdatedAt
             };
