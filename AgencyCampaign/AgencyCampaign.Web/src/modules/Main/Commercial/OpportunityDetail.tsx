@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, MapPin, MessageSquare, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
@@ -73,6 +73,24 @@ export default function OpportunityDetail() {
   const opportunityId = Number(id || 0)
   const navigate = useNavigate()
   const { user: authUser } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'summary')
+
+  useEffect(() => {
+    const fromUrl = searchParams.get('tab')
+    if (fromUrl && fromUrl !== activeTab) setActiveTab(fromUrl)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  const handleTabChange = (next: string) => {
+    setActiveTab(next)
+    if (next === 'summary') {
+      searchParams.delete('tab')
+    } else {
+      searchParams.set('tab', next)
+    }
+    setSearchParams(searchParams, { replace: true })
+  }
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
   const [stages, setStages] = useState<Array<{ id: number; name: string; finalBehavior: number }>>([])
@@ -405,7 +423,7 @@ export default function OpportunityDetail() {
             </Card>
           </div>
 
-        <Tabs defaultValue="summary" className="pt-2">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="pt-2">
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger value="summary" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <FileText className="h-4 w-4" /> {t('opportunityDetail.tab.summary')}

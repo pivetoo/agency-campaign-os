@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Card, CardContent, ConfirmModal, useApi, useI18n } from 'archon-ui'
+import type React from 'react'
+import { Button, Card, CardContent, ConfirmModal, useApi, useI18n, UsersManagementService } from 'archon-ui'
 import { ArrowRight, MessageSquare, Pencil, Send, Trash2 } from 'lucide-react'
 import { opportunityService, type OpportunityComment, type OpportunityStageHistoryItem } from '../../../services/opportunityService'
 import { formatDateTime } from '../../../lib/format'
+import CommentInputWithMentions, { type MentionableUser } from '../../../components/comments/CommentInputWithMentions'
 
 interface OpportunityActivityTabProps {
   opportunityId: number
@@ -14,6 +16,33 @@ interface TimelineItem {
   kind: 'stage' | 'comment'
   occurredAt: string
   data: OpportunityStageHistoryItem | OpportunityComment
+}
+
+function renderBodyWithMentions(body: string, users: MentionableUser[]): Array<string | React.ReactElement> {
+  const sorted = [...users].sort((a, b) => b.name.length - a.name.length)
+  const parts: Array<string | React.ReactElement> = []
+  let cursor = 0
+  let nodeIndex = 0
+  while (cursor < body.length) {
+    const atIdx = body.indexOf('@', cursor)
+    if (atIdx === -1) {
+      parts.push(body.slice(cursor))
+      break
+    }
+    if (atIdx > cursor) parts.push(body.slice(cursor, atIdx))
+    const remaining = body.slice(atIdx + 1)
+    const found = sorted.find((u) => u.name && remaining.startsWith(u.name))
+    if (found) {
+      parts.push(
+        <span key={`m-${nodeIndex++}`} className="rounded bg-primary/15 px-1 font-medium text-primary">@{found.name}</span>,
+      )
+      cursor = atIdx + 1 + found.name.length
+    } else {
+      parts.push('@')
+      cursor = atIdx + 1
+    }
+  }
+  return parts
 }
 
 function relativeTime(value: string, t: (key: string) => string): string {
@@ -34,9 +63,17 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
   const [comments, setComments] = useState<OpportunityComment[]>([])
   const [stageHistory, setStageHistory] = useState<OpportunityStageHistoryItem[]>([])
   const [body, setBody] = useState('')
+  const [mentionedUserIds, setMentionedUserIds] = useState<number[]>([])
+  const [users, setUsers] = useState<MentionableUser[]>([])
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editingBody, setEditingBody] = useState('')
   const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(null)
+
+  useEffect(() => {
+    void UsersManagementService.listInCurrentContract().then((list) => {
+      setUsers(list.filter((u) => u.isActive).map((u) => ({ userId: u.userId, name: u.name, email: u.email })))
+    })
+  }, [])
 
   const { execute: load, loading } = useApi<unknown>({ showErrorMessage: true })
   const { execute: runMutation, loading: mutating } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
@@ -53,6 +90,17 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opportunityId])
+
+  useEffect(() => {
+    const hash = window.location.hash
+    if (!hash.startsWith('#comment-') || comments.length === 0) return
+    const target = document.getElementById(hash.slice(1))
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      target.classList.add('ring-2', 'ring-primary')
+      window.setTimeout(() => target.classList.remove('ring-2', 'ring-primary'), 2000)
+    }
+  }, [comments])
 
   const reload = async () => {
     const [commentList, history] = await Promise.all([
@@ -85,9 +133,11 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
     const trimmed = body.trim()
     if (!trimmed) return
 
-    const result = await runMutation(() => opportunityService.createComment(opportunityId, { body: trimmed }))
+    const presentMentions = mentionedUserIds.filter((id) => trimmed.includes('@' + (users.find((u) => u.userId === id)?.name ?? '')))
+    const result = await runMutation(() => opportunityService.createComment(opportunityId, { body: trimmed, mentionedUserIds: presentMentions }))
     if (result !== null) {
       setBody('')
+      setMentionedUserIds([])
       await reload()
     }
   }
@@ -143,12 +193,14 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
             <MessageSquare className="h-4 w-4 text-primary" />
             {t('opportunityActivity.title')}
           </div>
-          <textarea
+          <CommentInputWithMentions
             value={body}
-            onChange={(e) => setBody(e.target.value)}
+            onChange={setBody}
+            mentionedUserIds={mentionedUserIds}
+            onMentionsChange={setMentionedUserIds}
+            users={users}
             placeholder={t('opportunityActivity.placeholder')}
             rows={3}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             disabled={mutating}
           />
           <div className="flex justify-end">
@@ -173,7 +225,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
           ) : (
             <ol className="relative ml-3 space-y-4 border-l border-border pl-6">
               {timeline.map((item) => (
-                <li key={item.id} className="relative">
+                <li key={item.id} id={item.kind === 'comment' ? item.id : undefined} className="relative scroll-mt-24">
                   <span
                     className={`absolute -left-[1.6rem] top-1 flex h-4 w-4 items-center justify-center rounded-full ring-2 ring-background ${
                       item.kind === 'stage' ? 'bg-primary/15' : 'bg-emerald-500/20'
@@ -195,6 +247,7 @@ export default function OpportunityActivityTab({ opportunityId, currentUserId }:
                       editingBody={editingBody}
                       canEdit={canEdit(item.data as OpportunityComment)}
                       mutating={mutating}
+                      users={users}
                       onStartEdit={startEditing}
                       onCancelEdit={cancelEditing}
                       onSaveEdit={saveEditing}
@@ -249,6 +302,7 @@ interface CommentEventProps {
   editingBody: string
   canEdit: boolean
   mutating: boolean
+  users: MentionableUser[]
   onStartEdit: (comment: OpportunityComment) => void
   onCancelEdit: () => void
   onSaveEdit: () => void
@@ -258,7 +312,7 @@ interface CommentEventProps {
 }
 
 function CommentEvent(props: CommentEventProps) {
-  const { comment, isEditing, editingBody, canEdit, mutating, onStartEdit, onCancelEdit, onSaveEdit, onChangeEdit, onDelete, t } = props
+  const { comment, isEditing, editingBody, canEdit, mutating, users, onStartEdit, onCancelEdit, onSaveEdit, onChangeEdit, onDelete, t } = props
 
   return (
     <div className="space-y-1">
@@ -308,7 +362,7 @@ function CommentEvent(props: CommentEventProps) {
           </div>
         </div>
       ) : (
-        <div className="whitespace-pre-wrap text-sm text-foreground">{comment.body}</div>
+        <div className="whitespace-pre-wrap text-sm text-foreground">{renderBodyWithMentions(comment.body, users)}</div>
       )}
     </div>
   )

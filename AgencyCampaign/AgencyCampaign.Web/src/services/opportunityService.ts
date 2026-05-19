@@ -213,6 +213,7 @@ export interface OpportunityComment {
 
 export interface CreateOpportunityCommentRequest {
   body: string
+  mentionedUserIds?: number[]
 }
 
 export interface UpdateOpportunityCommentRequest {

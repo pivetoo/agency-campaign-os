@@ -7,6 +7,8 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         [Required]
         [StringLength(4000, MinimumLength = 1)]
         public string Body { get; set; } = string.Empty;
+
+        public List<long>? MentionedUserIds { get; set; }
     }
 
     public sealed class UpdateOpportunityCommentRequest

@@ -4,6 +4,9 @@ using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Abstractions;
+using Archon.Application.Services;
+using Archon.Core.Notifications;
+using Archon.Core.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -13,11 +16,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICurrentUser currentUser;
+        private readonly INotificationService notificationService;
 
-        public OpportunityCommentService(DbContext dbContext, ICurrentUser currentUser)
+        public OpportunityCommentService(DbContext dbContext, ICurrentUser currentUser, INotificationService notificationService)
         {
             this.dbContext = dbContext;
             this.currentUser = currentUser;
+            this.notificationService = notificationService;
         }
 
         public async Task<IReadOnlyCollection<OpportunityCommentModel>> GetByOpportunityId(long opportunityId, CancellationToken cancellationToken = default)
@@ -42,7 +47,46 @@ namespace AgencyCampaign.Infrastructure.Services
             dbContext.Set<OpportunityComment>().Add(comment);
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            await NotifyMentionedUsers(opportunityId, comment, authorName, request.MentionedUserIds, cancellationToken);
+
             return Map(comment);
+        }
+
+        private async Task NotifyMentionedUsers(long opportunityId, OpportunityComment comment, string authorName, List<long>? mentionedUserIds, CancellationToken cancellationToken)
+        {
+            if (mentionedUserIds is null || mentionedUserIds.Count == 0)
+            {
+                return;
+            }
+
+            HashSet<long> distinct = mentionedUserIds
+                .Where(userId => userId > 0 && userId != currentUser.UserId)
+                .ToHashSet();
+
+            if (distinct.Count == 0)
+            {
+                return;
+            }
+
+            string excerpt = comment.Body.Length > 140 ? comment.Body[..140] + "..." : comment.Body;
+            string link = $"/comercial/oportunidades/{opportunityId}?tab=activity#comment-{comment.Id}";
+
+            foreach (long userId in distinct)
+            {
+                CreateNotificationRequest notification = new()
+                {
+                    UserId = userId,
+                    Title = "Você foi mencionado em uma oportunidade",
+                    Message = $"{authorName}: {excerpt}",
+                    Type = NotificationType.Info,
+                    Link = link,
+                    Source = "AgencyCampaign.OpportunityComment",
+                    ReferenceEntityName = "OpportunityComment",
+                    ReferenceEntityId = comment.Id.ToString()
+                };
+
+                await notificationService.Create(notification, cancellationToken);
+            }
         }
 
         public async Task<OpportunityCommentModel> UpdateComment(long commentId, UpdateOpportunityCommentRequest request, CancellationToken cancellationToken = default)
