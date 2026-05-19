@@ -236,7 +236,20 @@ export default function CommercialPipeline() {
     })
 
     try {
-      await opportunityService.changeStage(draggedItem.id, { commercialPipelineStageId: targetStage })
+      const response = await opportunityService.changeStage(draggedItem.id, { commercialPipelineStageId: targetStage })
+      const updated = response?.data
+      if (updated) {
+        setBoard((currentBoard) =>
+          currentBoard.map((stage) => ({
+            ...stage,
+            items: stage.items.map((boardItem) =>
+              boardItem.id === draggedItem.id
+                ? { ...boardItem, probability: updated.probability, probabilityIsManual: updated.probabilityIsManual }
+                : boardItem,
+            ),
+          })),
+        )
+      }
     } catch {
       setBoard(previousBoard)
     } finally {
