@@ -1166,4 +1166,18 @@
   <data name="creators.detail.empty.handles" xml:space="preserve"><value>No social handles registered</value></data>
   <data name="creators.detail.empty.deliverables" xml:space="preserve"><value>No deliverables registered for this creator</value></data>
   <data name="operations.approvals.empty" xml:space="preserve"><value>No deliverables awaiting approval</value></data>
+  <data name="agencySettings.area" xml:space="preserve"><value>Agency settings</value></data>
+  <data name="agencySettings.get.description" xml:space="preserve"><value>Allows consulting agency settings.</value></data>
+  <data name="agencySettings.update.description" xml:space="preserve"><value>Allows updating agency settings.</value></data>
+  <data name="agencySettings.uploadLogo.description" xml:space="preserve"><value>Allows uploading the agency logo.</value></data>
+  <data name="agencySettings.removeLogo.description" xml:space="preserve"><value>Allows removing the agency logo.</value></data>
+  <data name="agencySettings.getProposalLayouts.description" xml:space="preserve"><value>Allows consulting available proposal layouts.</value></data>
+  <data name="agencySettings.saveProposalTemplate.description" xml:space="preserve"><value>Allows saving the proposal HTML template.</value></data>
+  <data name="agencySettings.previewProposalTemplate.description" xml:space="preserve"><value>Allows previewing the proposal HTML template.</value></data>
+  <data name="agencySettings.getProposalTemplateVersions.description" xml:space="preserve"><value>Allows listing saved proposal template versions.</value></data>
+  <data name="agencySettings.saveProposalTemplateVersion.description" xml:space="preserve"><value>Allows saving a new proposal template version.</value></data>
+  <data name="agencySettings.getProposalTemplateVersionById.description" xml:space="preserve"><value>Allows consulting a proposal template version by ID.</value></data>
+  <data name="agencySettings.updateProposalTemplateVersion.description" xml:space="preserve"><value>Allows updating a proposal template (layout) version.</value></data>
+  <data name="agencySettings.activateProposalTemplateVersion.description" xml:space="preserve"><value>Allows activating a proposal template version.</value></data>
+  <data name="agencySettings.deleteProposalTemplateVersion.description" xml:space="preserve"><value>Allows deleting a proposal template version.</value></data>
 </root>

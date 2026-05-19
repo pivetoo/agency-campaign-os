@@ -1166,4 +1166,18 @@
   <data name="creators.detail.empty.handles" xml:space="preserve"><value>No hay handles sociales registrados</value></data>
   <data name="creators.detail.empty.deliverables" xml:space="preserve"><value>Sin entregas registradas para el creator</value></data>
   <data name="operations.approvals.empty" xml:space="preserve"><value>No hay entregas esperando aprobación</value></data>
+  <data name="agencySettings.area" xml:space="preserve"><value>Configuración de la agencia</value></data>
+  <data name="agencySettings.get.description" xml:space="preserve"><value>Permite consultar la configuración de la agencia.</value></data>
+  <data name="agencySettings.update.description" xml:space="preserve"><value>Permite actualizar la configuración de la agencia.</value></data>
+  <data name="agencySettings.uploadLogo.description" xml:space="preserve"><value>Permite enviar el logo de la agencia.</value></data>
+  <data name="agencySettings.removeLogo.description" xml:space="preserve"><value>Permite remover el logo de la agencia.</value></data>
+  <data name="agencySettings.getProposalLayouts.description" xml:space="preserve"><value>Permite consultar los layouts de propuesta disponibles.</value></data>
+  <data name="agencySettings.saveProposalTemplate.description" xml:space="preserve"><value>Permite guardar el template HTML de la propuesta.</value></data>
+  <data name="agencySettings.previewProposalTemplate.description" xml:space="preserve"><value>Permite previsualizar el template HTML de la propuesta.</value></data>
+  <data name="agencySettings.getProposalTemplateVersions.description" xml:space="preserve"><value>Permite listar las versiones guardadas del template de propuesta.</value></data>
+  <data name="agencySettings.saveProposalTemplateVersion.description" xml:space="preserve"><value>Permite guardar una nueva versión del template de propuesta.</value></data>
+  <data name="agencySettings.getProposalTemplateVersionById.description" xml:space="preserve"><value>Permite consultar una versión del template de propuesta por ID.</value></data>
+  <data name="agencySettings.updateProposalTemplateVersion.description" xml:space="preserve"><value>Permite actualizar una versión (layout) de propuesta.</value></data>
+  <data name="agencySettings.activateProposalTemplateVersion.description" xml:space="preserve"><value>Permite activar una versión del template de propuesta.</value></data>
+  <data name="agencySettings.deleteProposalTemplateVersion.description" xml:space="preserve"><value>Permite eliminar una versión del template de propuesta.</value></data>
 </root>

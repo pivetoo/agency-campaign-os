@@ -8,6 +8,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("agencySettings.area")]
     public sealed class AgencySettingsController : ApiControllerBase
     {
         private const long MaxLogoBytes = 2 * 1024 * 1024;
@@ -23,14 +24,14 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite consultar as configurações da agência.")]
+        [RequireAccess("agencySettings.get.description")]
         [GetEndpoint("[action]")]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             return Http200(await service.Get(cancellationToken));
         }
 
-        [RequireAccess("Permite atualizar as configurações da agência.")]
+        [RequireAccess("agencySettings.update.description")]
         [PutEndpoint("[action]")]
         public async Task<IActionResult> Update([FromBody] UpdateAgencySettingsRequest request, CancellationToken cancellationToken)
         {
@@ -44,7 +45,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite enviar a logo da agência.")]
+        [RequireAccess("agencySettings.uploadLogo.description")]
         [PostEndpoint("[action]")]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(MaxLogoBytes)]
@@ -69,7 +70,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite remover a logo da agência.")]
+        [RequireAccess("agencySettings.removeLogo.description")]
         [DeleteEndpoint("[action]")]
         public async Task<IActionResult> RemoveLogo(CancellationToken cancellationToken)
         {
@@ -79,7 +80,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite consultar os layouts de proposta disponíveis.")]
+        [RequireAccess("agencySettings.getProposalLayouts.description")]
         [GetEndpoint("[action]")]
         public async Task<IActionResult> GetProposalLayouts(CancellationToken cancellationToken)
         {
@@ -87,7 +88,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(layouts);
         }
 
-        [RequireAccess("Permite salvar o template HTML da proposta.")]
+        [RequireAccess("agencySettings.saveProposalTemplate.description")]
         [PutEndpoint("[action]")]
         public async Task<IActionResult> SaveProposalTemplate([FromBody] SetProposalTemplateRequest request, CancellationToken cancellationToken)
         {
@@ -95,7 +96,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite visualizar um preview do template HTML da proposta.")]
+        [RequireAccess("agencySettings.previewProposalTemplate.description")]
         [PostEndpoint("[action]")]
         public async Task<IActionResult> PreviewProposalTemplate([FromBody] PreviewProposalTemplateRequest request, CancellationToken cancellationToken)
         {
@@ -109,7 +110,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(new { html });
         }
 
-        [RequireAccess("Permite listar as versões salvas do template de proposta.")]
+        [RequireAccess("agencySettings.getProposalTemplateVersions.description")]
         [GetEndpoint("[action]")]
         public async Task<IActionResult> GetProposalTemplateVersions(CancellationToken cancellationToken)
         {
@@ -117,7 +118,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(versions);
         }
 
-        [RequireAccess("Permite salvar uma nova versão do template de proposta.")]
+        [RequireAccess("agencySettings.saveProposalTemplateVersion.description")]
         [PostEndpoint("[action]")]
         public async Task<IActionResult> SaveProposalTemplateVersion([FromBody] SaveProposalTemplateVersionRequest request, CancellationToken cancellationToken)
         {
@@ -131,7 +132,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite consultar uma versão do template de proposta por ID.")]
+        [RequireAccess("agencySettings.getProposalTemplateVersionById.description")]
         [GetEndpoint("ProposalTemplateVersion/{id:long}")]
         public async Task<IActionResult> GetProposalTemplateVersionById(long id, CancellationToken cancellationToken)
         {
@@ -139,7 +140,7 @@ namespace AgencyCampaign.Api.Controllers
             return version is null ? Http404(Localizer["record.notFound"]) : Http200(version);
         }
 
-        [RequireAccess("Permite atualizar uma versão (layout) de proposta.")]
+        [RequireAccess("agencySettings.updateProposalTemplateVersion.description")]
         [PutEndpoint("ProposalTemplateVersion/{id:long}")]
         public async Task<IActionResult> UpdateProposalTemplateVersion(long id, [FromBody] UpdateProposalTemplateVersionRequest request, CancellationToken cancellationToken)
         {
@@ -153,7 +154,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite ativar uma versão do template de proposta.")]
+        [RequireAccess("agencySettings.activateProposalTemplateVersion.description")]
         [PutEndpoint("[action]")]
         public async Task<IActionResult> ActivateProposalTemplateVersion([FromQuery] long id, CancellationToken cancellationToken)
         {
@@ -161,7 +162,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir uma versão do template de proposta.")]
+        [RequireAccess("agencySettings.deleteProposalTemplateVersion.description")]
         [DeleteEndpoint("[action]")]
         public async Task<IActionResult> DeleteProposalTemplateVersion([FromQuery] long id, CancellationToken cancellationToken)
         {
