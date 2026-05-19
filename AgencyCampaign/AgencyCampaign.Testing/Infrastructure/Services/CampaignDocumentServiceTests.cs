@@ -115,5 +115,215 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             persisted.Events.Should().Contain(item => item.EventType == CampaignDocumentEventType.Created);
             persisted.Events.Should().Contain(item => item.EventType == CampaignDocumentEventType.ReadyToSend);
         }
+
+        private async Task<Campaign> SeedCampaignAsync()
+        {
+            db.Add(new Brand("Acme"));
+            await db.SaveChangesAsync();
+            Campaign campaign = new(1, "C", 0m, DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+            return campaign;
+        }
+
+        [Test]
+        public async Task GetDocumentById_should_return_null_when_not_found()
+        {
+            CampaignDocument? result = await service.GetDocumentById(99);
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetByProviderDocumentId_should_return_null_when_not_found()
+        {
+            CampaignDocument? result = await service.GetByProviderDocumentId("provider", "doc-123");
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetByCampaign_should_filter_by_campaign_id()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc1 = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "A");
+            CampaignDocument doc2 = new(999, CampaignDocumentType.CreatorAgreement, "B");
+            db.Add(doc1);
+            db.Add(doc2);
+            await db.SaveChangesAsync();
+
+            List<CampaignDocument> result = await service.GetByCampaign(campaign.Id);
+
+            result.Should().HaveCount(1);
+            result.First().Title.Should().Be("A");
+        }
+
+        [Test]
+        public async Task CreateDocument_should_throw_when_campaign_creator_does_not_belong_to_campaign()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CreateCampaignDocumentRequest request = new()
+            {
+                CampaignId = campaign.Id,
+                CampaignCreatorId = 999,
+                DocumentType = CampaignDocumentType.CreatorAgreement,
+                Title = "Contrato"
+            };
+
+            Func<Task> act = () => service.CreateDocument(request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("record.notFound");
+        }
+
+        [Test]
+        public async Task GenerateFromTemplate_should_throw_when_template_not_found()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            GenerateCampaignDocumentFromTemplateRequest request = new()
+            {
+                CampaignId = campaign.Id,
+                TemplateId = 99,
+                Title = "Doc"
+            };
+
+            Func<Task> act = () => service.GenerateFromTemplate(request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("record.notFound");
+        }
+
+        [Test]
+        public async Task UpdateDocument_should_persist_changes()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Original");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCampaignDocumentRequest request = new()
+            {
+                Id = doc.Id,
+                DocumentType = CampaignDocumentType.CreatorAgreement,
+                Title = "Atualizado",
+                Notes = "Novas notas"
+            };
+
+            CampaignDocument result = await service.UpdateDocument(doc.Id, request);
+
+            result.Title.Should().Be("Atualizado");
+            result.Notes.Should().Be("Novas notas");
+        }
+
+        [Test]
+        public async Task SendDocumentEmail_should_throw_when_smtp_not_configured()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Doc");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            SendCampaignDocumentEmailRequest request = new()
+            {
+                RecipientEmail = "to@x",
+                Subject = "Subject",
+                Body = "Body"
+            };
+
+            Func<Task> act = () => service.SendDocumentEmail(doc.Id, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("email.configuration.invalid");
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_throw_when_document_not_found()
+        {
+            CampaignDocumentProviderCallbackRequest request = new()
+            {
+                Provider = "p",
+                ProviderDocumentId = "doc-x",
+                EventType = "signed"
+            };
+
+            Func<Task> act = () => service.HandleProviderCallback(request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("record.notFound");
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_register_viewed_event()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Doc");
+            doc.AttachToProvider("provider-x", "doc-1");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            CampaignDocument result = await service.HandleProviderCallback(new CampaignDocumentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderDocumentId = "doc-1",
+                EventType = "viewed"
+            });
+
+            result.Events.Should().Contain(item => item.EventType == CampaignDocumentEventType.Viewed);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_mark_signed_on_completed_event()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Doc");
+            doc.AttachToProvider("provider-x", "doc-2");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            CampaignDocument result = await service.HandleProviderCallback(new CampaignDocumentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderDocumentId = "doc-2",
+                EventType = "completed",
+                SignedDocumentUrl = "/signed.pdf"
+            });
+
+            result.Status.Should().Be(CampaignDocumentStatus.Signed);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_mark_cancelled_on_cancelled_event()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Doc");
+            doc.AttachToProvider("provider-x", "doc-3");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            CampaignDocument result = await service.HandleProviderCallback(new CampaignDocumentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderDocumentId = "doc-3",
+                EventType = "cancelled"
+            });
+
+            result.Status.Should().Be(CampaignDocumentStatus.Cancelled);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_register_unknown_event_as_sync_error()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Doc");
+            doc.AttachToProvider("provider-x", "doc-4");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            CampaignDocument result = await service.HandleProviderCallback(new CampaignDocumentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderDocumentId = "doc-4",
+                EventType = "estranho"
+            });
+
+            result.Events.Should().Contain(item => item.EventType == CampaignDocumentEventType.ProviderSyncError);
+        }
     }
 }
