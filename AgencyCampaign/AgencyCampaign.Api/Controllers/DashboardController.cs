@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("dashboard.area")]
     public sealed class DashboardController : ApiControllerBase
     {
         private readonly IDashboardService dashboardService;
@@ -15,7 +16,7 @@ namespace AgencyCampaign.Api.Controllers
             this.dashboardService = dashboardService;
         }
 
-        [RequireAccess("Permite consultar a visão geral do dashboard da agência.")]
+        [RequireAccess("dashboard.overview.description")]
         [GetEndpoint]
         public async Task<IActionResult> Overview(CancellationToken cancellationToken)
         {

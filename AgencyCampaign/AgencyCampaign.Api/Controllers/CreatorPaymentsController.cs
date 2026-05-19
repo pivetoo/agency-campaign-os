@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("creatorPayments.area")]
     public sealed class CreatorPaymentsController : ApiControllerBase
     {
         private readonly ICreatorPaymentService creatorPaymentService;
@@ -28,7 +29,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os pagamentos de creators.")]
+        [RequireAccess("creatorPayments.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
@@ -40,7 +41,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de um pagamento.")]
+        [RequireAccess("creatorPayments.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -48,7 +49,7 @@ namespace AgencyCampaign.Api.Controllers
             return payment is null ? Http404(Localizer["record.notFound"]) : Http200(MapPayment(payment));
         }
 
-        [RequireAccess("Permite listar pagamentos por campanha.")]
+        [RequireAccess("creatorPayments.getByCampaign.description")]
         [GetEndpoint("campaign/{campaignId:long}")]
         public async Task<IActionResult> GetByCampaign(long campaignId, CancellationToken cancellationToken)
         {
@@ -56,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(payments.Select(MapPayment).ToList());
         }
 
-        [RequireAccess("Permite listar pagamentos por status.")]
+        [RequireAccess("creatorPayments.getByStatus.description")]
         [GetEndpoint("status/{status:int}")]
         public async Task<IActionResult> GetByStatus(int status, CancellationToken cancellationToken)
         {
@@ -64,7 +65,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(payments.Select(MapPayment).ToList());
         }
 
-        [RequireAccess("Permite registrar um pagamento a creator.")]
+        [RequireAccess("creatorPayments.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCreatorPaymentRequest request, CancellationToken cancellationToken)
         {
@@ -78,7 +79,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapPayment(payment), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar dados de um pagamento.")]
+        [RequireAccess("creatorPayments.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCreatorPaymentRequest request, CancellationToken cancellationToken)
         {
@@ -92,7 +93,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapPayment(payment), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite anexar nota fiscal a um pagamento.")]
+        [RequireAccess("creatorPayments.attachInvoice.description")]
         [PostEndpoint("{id:long}/invoice")]
         public async Task<IActionResult> AttachInvoice(long id, [FromBody] AttachInvoiceRequest request, CancellationToken cancellationToken)
         {
@@ -106,7 +107,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapPayment(payment), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite marcar um pagamento como pago.")]
+        [RequireAccess("creatorPayments.markPaid.description")]
         [PostEndpoint("{id:long}/mark-paid")]
         public async Task<IActionResult> MarkPaid(long id, [FromBody] MarkCreatorPaymentPaidRequest request, CancellationToken cancellationToken)
         {
@@ -120,7 +121,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapPayment(payment), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite cancelar um pagamento.")]
+        [RequireAccess("creatorPayments.cancel.description")]
         [PostEndpoint("{id:long}/cancel")]
         public async Task<IActionResult> Cancel(long id, CancellationToken cancellationToken)
         {
@@ -128,7 +129,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapPayment(payment), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite agendar um lote de pagamentos via gateway.")]
+        [RequireAccess("creatorPayments.scheduleBatch.description")]
         [PostEndpoint]
         public async Task<IActionResult> ScheduleBatch([FromBody] SchedulePaymentBatchRequest request, CancellationToken cancellationToken)
         {

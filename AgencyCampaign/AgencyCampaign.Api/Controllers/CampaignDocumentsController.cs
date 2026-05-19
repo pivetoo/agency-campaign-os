@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("campaignDocuments.area")]
     public sealed class CampaignDocumentsController : ApiControllerBase
     {
         private readonly ICampaignDocumentService campaignDocumentService;
@@ -28,7 +29,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os documentos cadastrados.")]
+        [RequireAccess("campaignDocuments.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
@@ -40,7 +41,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de um documento.")]
+        [RequireAccess("campaignDocuments.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -48,7 +49,7 @@ namespace AgencyCampaign.Api.Controllers
             return document is null ? Http404(Localizer["record.notFound"]) : Http200(MapDocument(document));
         }
 
-        [RequireAccess("Permite listar os documentos vinculados a uma campanha.")]
+        [RequireAccess("campaignDocuments.getByCampaign.description")]
         [GetEndpoint("campaign/{campaignId:long}")]
         public async Task<IActionResult> GetByCampaign(long campaignId, CancellationToken cancellationToken)
         {
@@ -61,7 +62,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(documents.Select(MapDocument).ToList());
         }
 
-        [RequireAccess("Permite cadastrar um documento.")]
+        [RequireAccess("campaignDocuments.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignDocumentRequest request, CancellationToken cancellationToken)
         {
@@ -75,7 +76,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapDocument(document), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um documento.")]
+        [RequireAccess("campaignDocuments.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCampaignDocumentRequest request, CancellationToken cancellationToken)
         {
@@ -89,7 +90,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapDocument(document), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite enviar um documento por e-mail.")]
+        [RequireAccess("campaignDocuments.sendEmail.description")]
         [PostEndpoint("{id:long}/send-email")]
         public async Task<IActionResult> SendEmail(long id, [FromBody] SendCampaignDocumentEmailRequest request, CancellationToken cancellationToken)
         {
@@ -103,7 +104,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapDocument(document), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite marcar um documento como assinado.")]
+        [RequireAccess("campaignDocuments.markSigned.description")]
         [PostEndpoint("{id:long}/mark-signed")]
         public async Task<IActionResult> MarkSigned(long id, [FromBody] MarkCampaignDocumentSignedRequest request, CancellationToken cancellationToken)
         {
@@ -117,7 +118,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapDocument(document), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite gerar um documento a partir de um template.")]
+        [RequireAccess("campaignDocuments.generateFromTemplate.description")]
         [PostEndpoint]
         public async Task<IActionResult> GenerateFromTemplate([FromBody] GenerateCampaignDocumentFromTemplateRequest request, CancellationToken cancellationToken)
         {
@@ -131,7 +132,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapDocument(document), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite enviar um documento para assinatura digital via IntegrationPlatform.")]
+        [RequireAccess("campaignDocuments.sendForSignature.description")]
         [PostEndpoint("{id:long}/send-signature")]
         public async Task<IActionResult> SendForSignature(long id, [FromBody] SendCampaignDocumentForSignatureRequest request, CancellationToken cancellationToken)
         {

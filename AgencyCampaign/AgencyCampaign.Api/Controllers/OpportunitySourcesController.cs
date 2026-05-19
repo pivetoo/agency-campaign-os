@@ -9,6 +9,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("opportunitySources.area")]
     public sealed class OpportunitySourcesController : ApiControllerBase
     {
         private readonly IOpportunitySourceService service;
@@ -20,14 +21,14 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as origens de oportunidades cadastradas.")]
+        [RequireAccess("opportunitySources.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
-        [RequireAccess("Permite cadastrar uma origem de oportunidade.")]
+        [RequireAccess("opportunitySources.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateOpportunitySourceRequest request, CancellationToken cancellationToken)
         {
@@ -41,7 +42,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(result, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar uma origem de oportunidade.")]
+        [RequireAccess("opportunitySources.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateOpportunitySourceRequest request, CancellationToken cancellationToken)
         {
@@ -55,7 +56,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir uma origem de oportunidade.")]
+        [RequireAccess("opportunitySources.delete.description")]
         [DeleteEndpoint("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {
@@ -75,14 +76,14 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as tags de oportunidades cadastradas.")]
+        [RequireAccess("opportunitySources.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
-        [RequireAccess("Permite cadastrar uma tag de oportunidade.")]
+        [RequireAccess("opportunitySources.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateOpportunityTagRequest request, CancellationToken cancellationToken)
         {
@@ -96,7 +97,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(result, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar uma tag de oportunidade.")]
+        [RequireAccess("opportunitySources.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateOpportunityTagRequest request, CancellationToken cancellationToken)
         {
@@ -110,7 +111,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir uma tag de oportunidade.")]
+        [RequireAccess("opportunitySources.delete.description")]
         [DeleteEndpoint("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {

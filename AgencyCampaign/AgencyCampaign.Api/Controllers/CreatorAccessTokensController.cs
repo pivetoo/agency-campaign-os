@@ -10,6 +10,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("creatorAccessTokens.area")]
     public sealed class CreatorAccessTokensController : ApiControllerBase
     {
         private readonly ICreatorAccessTokenService accessTokenService;
@@ -22,7 +23,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os links de acesso ao portal de um creator.")]
+        [RequireAccess("creatorAccessTokens.getByCreator.description")]
         [GetEndpoint("creator/{creatorId:long}")]
         public async Task<IActionResult> GetByCreator(long creatorId, CancellationToken cancellationToken)
         {
@@ -30,7 +31,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(tokens.Select(MapToken).ToList());
         }
 
-        [RequireAccess("Permite emitir um novo link de acesso ao portal do creator.")]
+        [RequireAccess("creatorAccessTokens.issue.description")]
         [PostEndpoint]
         public async Task<IActionResult> Issue([FromBody] IssueCreatorAccessTokenRequest request, CancellationToken cancellationToken)
         {
@@ -44,7 +45,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapToken(token), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite revogar um link de acesso ao portal do creator.")]
+        [RequireAccess("creatorAccessTokens.revoke.description")]
         [PostEndpoint("{id:long}/revoke")]
         public async Task<IActionResult> Revoke(long id, CancellationToken cancellationToken)
         {

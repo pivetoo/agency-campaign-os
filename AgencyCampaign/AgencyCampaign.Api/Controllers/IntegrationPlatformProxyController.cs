@@ -7,6 +7,7 @@ using System.Text.Json;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("integrationPlatformProxy.area")]
     public sealed class IntegrationPlatformProxyController : ApiControllerBase
     {
         private readonly IntegrationPlatformClient integrationPlatformClient;
@@ -16,7 +17,7 @@ namespace AgencyCampaign.Api.Controllers
             this.integrationPlatformClient = integrationPlatformClient;
         }
 
-        [RequireAccess("Permite listar integrações disponíveis no IntegrationPlatform por categoria.")]
+        [RequireAccess("integrationPlatformProxy.getIntegrationsByCategory.description")]
         [GetEndpoint("integrations/{categoryId:long}")]
         public async Task<IActionResult> GetIntegrationsByCategory(long categoryId, CancellationToken cancellationToken)
         {
@@ -24,7 +25,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(integrations);
         }
 
-        [RequireAccess("Permite listar atributos configuráveis de uma integração.")]
+        [RequireAccess("integrationPlatformProxy.getIntegrationAttributes.description")]
         [GetEndpoint("integrationattributes/{integrationId:long}")]
         public async Task<IActionResult> GetIntegrationAttributes(long integrationId, CancellationToken cancellationToken)
         {
@@ -32,7 +33,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(attributes);
         }
 
-        [RequireAccess("Permite listar pipelines de uma integração.")]
+        [RequireAccess("integrationPlatformProxy.getPipelinesByIntegration.description")]
         [GetEndpoint("pipelines/{integrationId:long}")]
         public async Task<IActionResult> GetPipelinesByIntegration(long integrationId, CancellationToken cancellationToken)
         {
@@ -40,7 +41,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(pipelines);
         }
 
-        [RequireAccess("Permite listar conectores de uma integração.")]
+        [RequireAccess("integrationPlatformProxy.getConnectorsByIntegration.description")]
         [GetEndpoint("connectors/{integrationId:long}")]
         public async Task<IActionResult> GetConnectorsByIntegration(long integrationId, CancellationToken cancellationToken)
         {
@@ -48,7 +49,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(connectors);
         }
 
-        [RequireAccess("Permite listar todos os conectores ativos do tenant.")]
+        [RequireAccess("integrationPlatformProxy.getActiveConnectors.description")]
         [GetEndpoint("connectors/active")]
         public async Task<IActionResult> GetActiveConnectors(CancellationToken cancellationToken)
         {
@@ -56,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(connectors);
         }
 
-        [RequireAccess("Permite listar conectores ativos filtrados pelo identifier da categoria de integração.")]
+        [RequireAccess("integrationPlatformProxy.getConnectorsByCategoryIdentifier.description")]
         [GetEndpoint("connectors/by-category-identifier/{identifier}")]
         public async Task<IActionResult> GetConnectorsByCategoryIdentifier(string identifier, CancellationToken cancellationToken)
         {
@@ -64,7 +65,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(connectors);
         }
 
-        [RequireAccess("Permite obter os detalhes de um conector do IntegrationPlatform.")]
+        [RequireAccess("integrationPlatformProxy.getConnectorDetail.description")]
         [GetEndpoint("connectors/detail/{connectorId:long}")]
         public async Task<IActionResult> GetConnectorDetail(long connectorId, CancellationToken cancellationToken)
         {
@@ -73,7 +74,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(new ConnectorDetailContract(connector, values));
         }
 
-        [RequireAccess("Permite criar um conector no IntegrationPlatform.")]
+        [RequireAccess("integrationPlatformProxy.createConnector.description")]
         [PostEndpoint("connectors")]
         public async Task<IActionResult> CreateConnector([FromBody] CreateConnectorPayload payload, CancellationToken cancellationToken)
         {
@@ -104,7 +105,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(connector);
         }
 
-        [RequireAccess("Permite atualizar um conector no IntegrationPlatform.")]
+        [RequireAccess("integrationPlatformProxy.updateConnector.description")]
         [PutEndpoint("connectors/{connectorId:long}")]
         public async Task<IActionResult> UpdateConnector(long connectorId, [FromBody] UpdateConnectorPayload payload, CancellationToken cancellationToken)
         {
@@ -157,7 +158,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(connector);
         }
 
-        [RequireAccess("Permite executar um pipeline no IntegrationPlatform.")]
+        [RequireAccess("integrationPlatformProxy.executePipeline.description")]
         [PostEndpoint("executions")]
         public async Task<IActionResult> ExecutePipeline([FromBody] ExecutePipelinePayload payload, CancellationToken cancellationToken)
         {
@@ -173,7 +174,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(execution);
         }
 
-        [RequireAccess("Permite excluir um conector do IntegrationPlatform.")]
+        [RequireAccess("integrationPlatformProxy.deleteConnector.description")]
         [DeleteEndpoint("connectors/{connectorId:long}")]
         public async Task<IActionResult> DeleteConnector(long connectorId, CancellationToken cancellationToken)
         {
@@ -181,7 +182,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(new { id = connectorId });
         }
 
-        [RequireAccess("Permite ativar ou desativar um conector sem reenviar todas as configuracoes.")]
+        [RequireAccess("integrationPlatformProxy.setConnectorActive.description")]
         [PostEndpoint("connectors/{connectorId:long}/setactive")]
         public async Task<IActionResult> SetConnectorActive(long connectorId, [FromBody] SetConnectorActivePayload payload, CancellationToken cancellationToken)
         {
@@ -202,7 +203,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(updated);
         }
 
-        [RequireAccess("Permite testar um conector executando o pipeline de teste correspondente.")]
+        [RequireAccess("integrationPlatformProxy.testConnector.description")]
         [PostEndpoint("connectors/{connectorId:long}/test")]
         public async Task<IActionResult> TestConnector(long connectorId, [FromBody] TestConnectorPayload? payload, CancellationToken cancellationToken)
         {
@@ -256,7 +257,7 @@ namespace AgencyCampaign.Api.Controllers
             }
         }
 
-        [RequireAccess("Permite enfileirar um pipeline no IntegrationPlatform.")]
+        [RequireAccess("integrationPlatformProxy.enqueuePipeline.description")]
         [PostEndpoint("processingqueues/enqueue")]
         public async Task<IActionResult> EnqueuePipeline([FromBody] EnqueuePipelinePayload payload, CancellationToken cancellationToken)
         {

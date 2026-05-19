@@ -10,6 +10,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("automations.area")]
     public sealed class AutomationsController : ApiControllerBase
     {
         private readonly IAutomationService automationService;
@@ -21,7 +22,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as automacoes cadastradas.")]
+        [RequireAccess("automations.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
@@ -29,7 +30,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result);
         }
 
-        [RequireAccess("Permite consultar os detalhes de uma automacao.")]
+        [RequireAccess("automations.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -37,7 +38,7 @@ namespace AgencyCampaign.Api.Controllers
             return automation is null ? Http404(Localizer["record.notFound"]) : Http200(automation);
         }
 
-        [RequireAccess("Permite cadastrar uma nova automacao.")]
+        [RequireAccess("automations.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateAutomationRequest request, CancellationToken cancellationToken)
         {
@@ -51,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(automation, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar os dados de uma automacao.")]
+        [RequireAccess("automations.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateAutomationRequest request, CancellationToken cancellationToken)
         {
@@ -65,7 +66,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(automation, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite consultar os logs de execucao de uma automacao.")]
+        [RequireAccess("automations.logs.description")]
         [GetEndpoint("{automationId:long}/[action]")]
         public async Task<IActionResult> Logs(long automationId, [FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {

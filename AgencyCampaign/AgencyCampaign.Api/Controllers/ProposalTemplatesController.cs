@@ -9,6 +9,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("proposalTemplates.area")]
     public sealed class ProposalTemplatesController : ApiControllerBase
     {
         private readonly IProposalTemplateService templateService;
@@ -20,14 +21,14 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os templates de proposta.")]
+        [RequireAccess("proposalTemplates.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await templateService.GetAll(request, search, includeInactive, cancellationToken));
         }
 
-        [RequireAccess("Permite consultar um template de proposta.")]
+        [RequireAccess("proposalTemplates.getById.description")]
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
             return template is null ? Http404(Localizer["record.notFound"]) : Http200(template);
         }
 
-        [RequireAccess("Permite cadastrar um template de proposta.")]
+        [RequireAccess("proposalTemplates.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateProposalTemplateRequest request, CancellationToken cancellationToken)
         {
@@ -49,7 +50,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(template, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um template de proposta.")]
+        [RequireAccess("proposalTemplates.update.description")]
         [HttpPut("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateProposalTemplateRequest request, CancellationToken cancellationToken)
         {
@@ -63,7 +64,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(template, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir um template de proposta.")]
+        [RequireAccess("proposalTemplates.delete.description")]
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {
@@ -71,7 +72,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http204();
         }
 
-        [RequireAccess("Permite aplicar um template a uma proposta existente.")]
+        [RequireAccess("proposalTemplates.applyToProposal.description")]
         [HttpPost("{templateId:long}/ApplyToProposal/{proposalId:long}")]
         public async Task<IActionResult> ApplyToProposal(long templateId, long proposalId, CancellationToken cancellationToken)
         {

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("deliverableApprovals.area")]
     public sealed class DeliverableApprovalsController : ApiControllerBase
     {
         private readonly IDeliverableApprovalService deliverableApprovalService;
@@ -23,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as aprovações de entregas.")]
+        [RequireAccess("deliverableApprovals.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de uma aprovação de entrega.")]
+        [RequireAccess("deliverableApprovals.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -43,7 +44,7 @@ namespace AgencyCampaign.Api.Controllers
             return approval is null ? Http404(Localizer["record.notFound"]) : Http200(MapApproval(approval));
         }
 
-        [RequireAccess("Permite listar as aprovações de uma entrega específica.")]
+        [RequireAccess("deliverableApprovals.getByDeliverable.description")]
         [GetEndpoint("deliverable/{campaignDeliverableId:long}")]
         public async Task<IActionResult> GetByDeliverable(long campaignDeliverableId, CancellationToken cancellationToken)
         {
@@ -56,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(approvals.Select(MapApproval).ToList());
         }
 
-        [RequireAccess("Permite cadastrar uma aprovação para uma entrega.")]
+        [RequireAccess("deliverableApprovals.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateDeliverableApprovalRequest request, CancellationToken cancellationToken)
         {
@@ -70,7 +71,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapApproval(approval), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar uma aprovação de entrega.")]
+        [RequireAccess("deliverableApprovals.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateDeliverableApprovalRequest request, CancellationToken cancellationToken)
         {

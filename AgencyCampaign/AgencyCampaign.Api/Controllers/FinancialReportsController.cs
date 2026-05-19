@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("financialReports.area")]
     public sealed class FinancialReportsController : ApiControllerBase
     {
         private readonly IFinancialReportService service;
@@ -15,7 +16,7 @@ namespace AgencyCampaign.Api.Controllers
             this.service = service;
         }
 
-        [RequireAccess("Permite consultar o fluxo de caixa por período e granularidade.")]
+        [RequireAccess("financialReports.getCashFlow.description")]
         [GetEndpoint("cashflow")]
         public async Task<IActionResult> GetCashFlow([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, [FromQuery] int granularity, CancellationToken cancellationToken)
         {
@@ -24,7 +25,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result);
         }
 
-        [RequireAccess("Permite consultar o relatório de aging financeiro.")]
+        [RequireAccess("financialReports.getAging.description")]
         [GetEndpoint("aging")]
         public async Task<IActionResult> GetAging(CancellationToken cancellationToken)
         {

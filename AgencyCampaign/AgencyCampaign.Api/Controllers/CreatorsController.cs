@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("creators.area")]
     public sealed class CreatorsController : ApiControllerBase
     {
         private const long MaxPhotoBytes = 2 * 1024 * 1024;
@@ -27,7 +28,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os creators cadastrados.")]
+        [RequireAccess("creators.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
@@ -39,7 +40,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de um creator.")]
+        [RequireAccess("creators.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -47,7 +48,7 @@ namespace AgencyCampaign.Api.Controllers
             return creator is null ? Http404(Localizer["record.notFound"]) : Http200(MapCreator(creator));
         }
 
-        [RequireAccess("Permite cadastrar um novo creator.")]
+        [RequireAccess("creators.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCreatorRequest request, CancellationToken cancellationToken)
         {
@@ -61,7 +62,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapCreator(creator), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar os dados de um creator.")]
+        [RequireAccess("creators.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCreatorRequest request, CancellationToken cancellationToken)
         {
@@ -75,7 +76,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapCreator(creator), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite consultar o resumo de performance de um creator.")]
+        [RequireAccess("creators.getSummary.description")]
         [GetEndpoint("summary/{id:long}")]
         public async Task<IActionResult> GetSummary(long id, CancellationToken cancellationToken)
         {
@@ -83,7 +84,7 @@ namespace AgencyCampaign.Api.Controllers
             return summary is null ? Http404(Localizer["record.notFound"]) : Http200(summary);
         }
 
-        [RequireAccess("Permite enviar a foto do creator.")]
+        [RequireAccess("creators.uploadPhoto.description")]
         [PostEndpoint("[action]/{id:long}")]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(MaxPhotoBytes)]
@@ -112,7 +113,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapCreator(creator), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite remover a foto do creator.")]
+        [RequireAccess("creators.removePhoto.description")]
         [DeleteEndpoint("[action]/{id:long}")]
         public async Task<IActionResult> RemovePhoto(long id, CancellationToken cancellationToken)
         {
@@ -127,7 +128,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapCreator(creator), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite exportar os creators cadastrados.")]
+        [RequireAccess("creators.export.description")]
         [GetEndpoint]
         public async Task Export(CancellationToken cancellationToken)
         {
@@ -142,7 +143,7 @@ namespace AgencyCampaign.Api.Controllers
             }
         }
 
-        [RequireAccess("Permite listar as campanhas em que o creator participou.")]
+        [RequireAccess("creators.getCampaigns.description")]
         [GetEndpoint("campaigns/{id:long}")]
         public async Task<IActionResult> GetCampaigns(long id, CancellationToken cancellationToken)
         {

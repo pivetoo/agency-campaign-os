@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("platforms.area")]
     public sealed class PlatformsController : ApiControllerBase
     {
         private readonly IPlatformService platformService;
@@ -23,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as plataformas cadastradas.")]
+        [RequireAccess("platforms.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de uma plataforma.")]
+        [RequireAccess("platforms.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -43,7 +44,7 @@ namespace AgencyCampaign.Api.Controllers
             return platform is null ? Http404(Localizer["record.notFound"]) : Http200(MapPlatform(platform));
         }
 
-        [RequireAccess("Permite listar as plataformas ativas.")]
+        [RequireAccess("platforms.getActive.description")]
         [GetEndpoint("active")]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
@@ -51,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(platforms.Select(MapPlatform).ToList());
         }
 
-        [RequireAccess("Permite cadastrar uma nova plataforma.")]
+        [RequireAccess("platforms.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreatePlatformRequest request, CancellationToken cancellationToken)
         {
@@ -65,7 +66,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapPlatform(platform), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar os dados de uma plataforma.")]
+        [RequireAccess("platforms.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdatePlatformRequest request, CancellationToken cancellationToken)
         {

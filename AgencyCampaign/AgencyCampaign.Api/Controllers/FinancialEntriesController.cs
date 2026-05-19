@@ -12,6 +12,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("financialEntries.area")]
     public sealed class FinancialEntriesController : ApiControllerBase
     {
         private readonly IFinancialEntryService financialEntryService;
@@ -24,7 +25,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os lançamentos financeiros cadastrados.")]
+        [RequireAccess("financialEntries.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] FinancialEntryFilters filters, CancellationToken cancellationToken)
         {
@@ -36,7 +37,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de um lançamento financeiro.")]
+        [RequireAccess("financialEntries.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -44,7 +45,7 @@ namespace AgencyCampaign.Api.Controllers
             return entry is null ? Http404(Localizer["record.notFound"]) : Http200(MapEntry(entry));
         }
 
-        [RequireAccess("Permite listar os lançamentos financeiros vinculados a uma campanha.")]
+        [RequireAccess("financialEntries.getByCampaign.description")]
         [GetEndpoint("campaign/{campaignId:long}")]
         public async Task<IActionResult> GetByCampaign(long campaignId, CancellationToken cancellationToken)
         {
@@ -57,7 +58,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(entries.Select(MapEntry).ToList());
         }
 
-        [RequireAccess("Permite cadastrar um lançamento financeiro.")]
+        [RequireAccess("financialEntries.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateFinancialEntryRequest request, CancellationToken cancellationToken)
         {
@@ -71,7 +72,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapEntry(entry), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um lançamento financeiro.")]
+        [RequireAccess("financialEntries.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateFinancialEntryRequest request, CancellationToken cancellationToken)
         {
@@ -85,7 +86,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapEntry(entry), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite marcar um lançamento financeiro como pago/recebido.")]
+        [RequireAccess("financialEntries.markAsPaid.description")]
         [PostEndpoint("markaspaid/{id:long}")]
         public async Task<IActionResult> MarkAsPaid(long id, [FromBody] MarkAsPaidRequest request, CancellationToken cancellationToken)
         {
@@ -99,7 +100,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapEntry(entry), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite consultar o resumo financeiro por tipo (a receber/a pagar).")]
+        [RequireAccess("financialEntries.getSummary.description")]
         [GetEndpoint("summary/{type:int}")]
         public async Task<IActionResult> GetSummary(int type, CancellationToken cancellationToken)
         {
@@ -107,7 +108,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await financialEntryService.GetSummary(entryType, cancellationToken));
         }
 
-        [RequireAccess("Permite gerar uma série de parcelas a partir de um lançamento financeiro.")]
+        [RequireAccess("financialEntries.createInstallments.description")]
         [PostEndpoint]
         public async Task<IActionResult> CreateInstallments([FromBody] CreateInstallmentSeriesRequest request, CancellationToken cancellationToken)
         {

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("proposals.area")]
     public sealed class ProposalsController : ApiControllerBase
     {
         private readonly IProposalService proposalService;
@@ -38,7 +39,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite baixar a proposta em PDF.")]
+        [RequireAccess("proposals.getPdf.description")]
         [GetEndpoint("pdf/{id:long}")]
         public async Task<IActionResult> GetPdf(long id, CancellationToken cancellationToken)
         {
@@ -46,7 +47,7 @@ namespace AgencyCampaign.Api.Controllers
             return File(bytes, "application/pdf", $"proposta-{id}.pdf");
         }
 
-        [RequireAccess("Permite listar as propostas comerciais.")]
+        [RequireAccess("proposals.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] ProposalListFilters filters, CancellationToken cancellationToken)
         {
@@ -58,7 +59,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de uma proposta.")]
+        [RequireAccess("proposals.getById.description")]
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -66,7 +67,7 @@ namespace AgencyCampaign.Api.Controllers
             return proposal is null ? Http404(Localizer["record.notFound"]) : Http200(MapProposal(proposal));
         }
 
-        [RequireAccess("Permite cadastrar uma nova proposta comercial.")]
+        [RequireAccess("proposals.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateProposalRequest request, CancellationToken cancellationToken)
         {
@@ -80,7 +81,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapProposal(proposal), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar os dados de uma proposta.")]
+        [RequireAccess("proposals.update.description")]
         [HttpPut("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateProposalRequest request, CancellationToken cancellationToken)
         {
@@ -94,7 +95,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite enviar uma proposta para a marca.")]
+        [RequireAccess("proposals.send.description")]
         [HttpPost("{id:long}/Send")]
         public async Task<IActionResult> Send(long id, CancellationToken cancellationToken)
         {
@@ -102,7 +103,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite marcar uma proposta como visualizada.")]
+        [RequireAccess("proposals.markAsViewed.description")]
         [HttpPost("{id:long}/MarkAsViewed")]
         public async Task<IActionResult> MarkAsViewed(long id, CancellationToken cancellationToken)
         {
@@ -110,7 +111,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal));
         }
 
-        [RequireAccess("Permite aprovar uma proposta.")]
+        [RequireAccess("proposals.approve.description")]
         [HttpPost("{id:long}/Approve")]
         public async Task<IActionResult> Approve(long id, CancellationToken cancellationToken)
         {
@@ -118,7 +119,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite rejeitar uma proposta.")]
+        [RequireAccess("proposals.reject.description")]
         [HttpPost("{id:long}/Reject")]
         public async Task<IActionResult> Reject(long id, CancellationToken cancellationToken)
         {
@@ -126,7 +127,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite converter uma proposta em campanha.")]
+        [RequireAccess("proposals.convertToCampaign.description")]
         [HttpPost("{id:long}/ConvertToCampaign")]
         public async Task<IActionResult> ConvertToCampaign(long id, [FromBody] ConvertToCampaignRequest request, CancellationToken cancellationToken)
         {
@@ -134,7 +135,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite cancelar uma proposta.")]
+        [RequireAccess("proposals.cancel.description")]
         [HttpPost("{id:long}/Cancel")]
         public async Task<IActionResult> Cancel(long id, CancellationToken cancellationToken)
         {
@@ -142,21 +143,21 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite consultar o histórico de status de uma proposta.")]
+        [RequireAccess("proposals.statusHistory.description")]
         [HttpGet("{id:long}/StatusHistory")]
         public async Task<IActionResult> StatusHistory(long id, CancellationToken cancellationToken)
         {
             return Http200(await proposalService.GetStatusHistory(id, cancellationToken));
         }
 
-        [RequireAccess("Permite listar as versões de uma proposta.")]
+        [RequireAccess("proposals.getVersions.description")]
         [HttpGet("{id:long}/versions/Get")]
         public async Task<IActionResult> GetVersions(long id, CancellationToken cancellationToken)
         {
             return Http200(await versionService.GetByProposalId(id, cancellationToken));
         }
 
-        [RequireAccess("Permite consultar uma versão específica de proposta.")]
+        [RequireAccess("proposals.getVersionById.description")]
         [HttpGet("versions/{versionId:long}")]
         public async Task<IActionResult> GetVersionById(long versionId, CancellationToken cancellationToken)
         {
@@ -164,14 +165,14 @@ namespace AgencyCampaign.Api.Controllers
             return version is null ? Http404(Localizer["record.notFound"]) : Http200(version);
         }
 
-        [RequireAccess("Permite listar os links de compartilhamento de uma proposta.")]
+        [RequireAccess("proposals.getShareLinks.description")]
         [HttpGet("{id:long}/share-links/Get")]
         public async Task<IActionResult> GetShareLinks(long id, CancellationToken cancellationToken)
         {
             return Http200(await shareLinkService.GetByProposalId(id, cancellationToken));
         }
 
-        [RequireAccess("Permite gerar um novo link público para uma proposta.")]
+        [RequireAccess("proposals.createShareLink.description")]
         [HttpPost("{id:long}/share-links/Create")]
         public async Task<IActionResult> CreateShareLink(long id, [FromBody] CreateProposalShareLinkRequest request, CancellationToken cancellationToken)
         {
@@ -179,7 +180,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(link, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite revogar um link público de proposta.")]
+        [RequireAccess("proposals.revokeShareLink.description")]
         [HttpPost("share-links/{shareLinkId:long}/Revoke")]
         public async Task<IActionResult> RevokeShareLink(long shareLinkId, CancellationToken cancellationToken)
         {
@@ -187,7 +188,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(link, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite listar os itens de uma proposta.")]
+        [RequireAccess("proposals.getItems.description")]
         [HttpGet("{proposalId:long}/items/Get")]
         public async Task<IActionResult> GetItems(long proposalId, CancellationToken cancellationToken)
         {
@@ -195,7 +196,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(items.Select(MapProposalItem).ToList());
         }
 
-        [RequireAccess("Permite adicionar um item a uma proposta.")]
+        [RequireAccess("proposals.createItem.description")]
         [HttpPost("{proposalId:long}/items/Create")]
         public async Task<IActionResult> CreateItem(long proposalId, [FromBody] CreateProposalItemRequest request, CancellationToken cancellationToken)
         {
@@ -214,7 +215,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapProposalItem(item), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um item da proposta.")]
+        [RequireAccess("proposals.updateItem.description")]
         [PutEndpoint("items/{id:long}")]
         public async Task<IActionResult> UpdateItem(long id, [FromBody] UpdateProposalItemRequest request, CancellationToken cancellationToken)
         {
@@ -228,7 +229,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposalItem(item), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir um item da proposta.")]
+        [RequireAccess("proposals.deleteItem.description")]
         [DeleteEndpoint("items/{id:long}")]
         public async Task<IActionResult> DeleteItem(long id, CancellationToken cancellationToken)
         {

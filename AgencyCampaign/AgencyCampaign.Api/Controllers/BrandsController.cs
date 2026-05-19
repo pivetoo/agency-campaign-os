@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("brands.area")]
     public sealed class BrandsController : ApiControllerBase
     {
         private const long MaxLogoBytes = 2 * 1024 * 1024;
@@ -27,7 +28,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as marcas cadastradas.")]
+        [RequireAccess("brands.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
@@ -39,7 +40,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de uma marca.")]
+        [RequireAccess("brands.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -47,7 +48,7 @@ namespace AgencyCampaign.Api.Controllers
             return brand is null ? Http404(Localizer["record.notFound"]) : Http200(MapBrand(brand));
         }
 
-        [RequireAccess("Permite cadastrar uma nova marca.")]
+        [RequireAccess("brands.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateBrandRequest request, CancellationToken cancellationToken)
         {
@@ -61,7 +62,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapBrand(brand), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar os dados de uma marca.")]
+        [RequireAccess("brands.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateBrandRequest request, CancellationToken cancellationToken)
         {
@@ -75,7 +76,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapBrand(brand), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite enviar a logo da marca.")]
+        [RequireAccess("brands.uploadLogo.description")]
         [PostEndpoint("[action]/{id:long}")]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(MaxLogoBytes)]
@@ -104,7 +105,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapBrand(brand), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite remover a logo da marca.")]
+        [RequireAccess("brands.removeLogo.description")]
         [DeleteEndpoint("[action]/{id:long}")]
         public async Task<IActionResult> RemoveLogo(long id, CancellationToken cancellationToken)
         {
@@ -119,7 +120,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapBrand(brand), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite exportar as marcas cadastradas.")]
+        [RequireAccess("brands.export.description")]
         [GetEndpoint]
         public async Task Export(CancellationToken cancellationToken)
         {

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("campaignCreators.area")]
     public sealed class CampaignCreatorsController : ApiControllerBase
     {
         private readonly ICampaignCreatorService campaignCreatorService;
@@ -23,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os creators vinculados às campanhas.")]
+        [RequireAccess("campaignCreators.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de um vínculo entre campanha e creator.")]
+        [RequireAccess("campaignCreators.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -43,7 +44,7 @@ namespace AgencyCampaign.Api.Controllers
             return campaignCreator is null ? Http404(Localizer["record.notFound"]) : Http200(MapCampaignCreator(campaignCreator));
         }
 
-        [RequireAccess("Permite listar os creators vinculados a uma campanha.")]
+        [RequireAccess("campaignCreators.getByCampaign.description")]
         [GetEndpoint("campaign/{campaignId:long}")]
         public async Task<IActionResult> GetByCampaign(long campaignId, CancellationToken cancellationToken)
         {
@@ -56,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(campaignCreators.Select(MapCampaignCreator).ToList());
         }
 
-        [RequireAccess("Permite vincular um creator a uma campanha.")]
+        [RequireAccess("campaignCreators.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignCreatorRequest request, CancellationToken cancellationToken)
         {
@@ -70,7 +71,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapCampaignCreator(campaignCreator), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar o vínculo entre campanha e creator.")]
+        [RequireAccess("campaignCreators.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCampaignCreatorRequest request, CancellationToken cancellationToken)
         {
@@ -84,7 +85,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapCampaignCreator(campaignCreator), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite consultar o histórico de mudanças de status de um creator na campanha.")]
+        [RequireAccess("campaignCreators.getStatusHistory.description")]
         [GetEndpoint("statushistory/{id:long}")]
         public async Task<IActionResult> GetStatusHistory(long id, CancellationToken cancellationToken)
         {

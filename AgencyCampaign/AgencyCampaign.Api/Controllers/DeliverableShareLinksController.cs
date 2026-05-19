@@ -8,6 +8,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("deliverableShareLinks.area")]
     public sealed class DeliverableShareLinksController : ApiControllerBase
     {
         private readonly IDeliverableShareLinkService service;
@@ -19,14 +20,14 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os share links de uma entrega.")]
+        [RequireAccess("deliverableShareLinks.getByDeliverable.description")]
         [GetEndpoint("deliverable/{deliverableId:long}")]
         public async Task<IActionResult> GetByDeliverable(long deliverableId, CancellationToken cancellationToken)
         {
             return Http200(await service.GetByDeliverable(deliverableId, cancellationToken));
         }
 
-        [RequireAccess("Permite gerar um share link para aprovação da marca.")]
+        [RequireAccess("deliverableShareLinks.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateDeliverableShareLinkRequest request, CancellationToken cancellationToken)
         {
@@ -40,7 +41,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(result, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite revogar um share link de entrega.")]
+        [RequireAccess("deliverableShareLinks.revoke.description")]
         [PostEndpoint("revoke/{id:long}")]
         public async Task<IActionResult> Revoke(long id, CancellationToken cancellationToken)
         {
@@ -58,7 +59,7 @@ namespace AgencyCampaign.Api.Controllers
             this.service = service;
         }
 
-        [RequireAccess("Permite listar as entregas com aprovação pendente da marca.")]
+        [RequireAccess("deliverableShareLinks.getPending.description")]
         [GetEndpoint("pending")]
         public async Task<IActionResult> GetPending(CancellationToken cancellationToken)
         {

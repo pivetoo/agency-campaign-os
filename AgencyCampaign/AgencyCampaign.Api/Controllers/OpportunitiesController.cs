@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("opportunities.area")]
     public sealed class OpportunitiesController : ApiControllerBase
     {
         private readonly IOpportunityService opportunityService;
@@ -36,7 +37,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as oportunidades comerciais cadastradas.")]
+        [RequireAccess("opportunities.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] OpportunityListFilters filters, CancellationToken cancellationToken)
         {
@@ -48,7 +49,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de uma oportunidade comercial.")]
+        [RequireAccess("opportunities.getById.description")]
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -56,42 +57,42 @@ namespace AgencyCampaign.Api.Controllers
             return opportunity is null ? Http404(Localizer["record.notFound"]) : Http200(MapOpportunity(opportunity));
         }
 
-        [RequireAccess("Permite consultar o board comercial por estágio.")]
+        [RequireAccess("opportunities.board.description")]
         [GetEndpoint]
         public async Task<IActionResult> Board(CancellationToken cancellationToken)
         {
             return Http200(await opportunityService.GetBoard(cancellationToken));
         }
 
-        [RequireAccess("Permite consultar o resumo do dashboard comercial.")]
+        [RequireAccess("opportunities.dashboard.description")]
         [GetEndpoint]
         public async Task<IActionResult> Dashboard(CancellationToken cancellationToken)
         {
             return Http200(await opportunityService.GetDashboardSummary(cancellationToken));
         }
 
-        [RequireAccess("Permite consultar os alertas comerciais.")]
+        [RequireAccess("opportunities.alerts.description")]
         [GetEndpoint]
         public async Task<IActionResult> Alerts(CancellationToken cancellationToken)
         {
             return Http200(await opportunityService.GetAlerts(cancellationToken));
         }
 
-        [RequireAccess("Permite consultar o histórico de estágios de uma oportunidade.")]
+        [RequireAccess("opportunities.stageHistory.description")]
         [HttpGet("{id:long}/StageHistory")]
         public async Task<IActionResult> StageHistory(long id, CancellationToken cancellationToken)
         {
             return Http200(await opportunityService.GetStageHistory(id, cancellationToken));
         }
 
-        [RequireAccess("Permite listar os comentários de uma oportunidade.")]
+        [RequireAccess("opportunities.getComments.description")]
         [HttpGet("{opportunityId:long}/comments/Get")]
         public async Task<IActionResult> GetComments(long opportunityId, CancellationToken cancellationToken)
         {
             return Http200(await commentService.GetByOpportunityId(opportunityId, cancellationToken));
         }
 
-        [RequireAccess("Permite adicionar um comentário a uma oportunidade.")]
+        [RequireAccess("opportunities.createComment.description")]
         [HttpPost("{opportunityId:long}/comments/Create")]
         public async Task<IActionResult> CreateComment(long opportunityId, [FromBody] CreateOpportunityCommentRequest request, CancellationToken cancellationToken)
         {
@@ -105,7 +106,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(comment, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um comentário.")]
+        [RequireAccess("opportunities.updateComment.description")]
         [PutEndpoint("comments/{id:long}")]
         public async Task<IActionResult> UpdateComment(long id, [FromBody] UpdateOpportunityCommentRequest request, CancellationToken cancellationToken)
         {
@@ -119,7 +120,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(comment, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir um comentário.")]
+        [RequireAccess("opportunities.deleteComment.description")]
         [DeleteEndpoint("comments/{id:long}")]
         public async Task<IActionResult> DeleteComment(long id, CancellationToken cancellationToken)
         {
@@ -128,7 +129,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
 
-        [RequireAccess("Permite cadastrar uma nova oportunidade comercial.")]
+        [RequireAccess("opportunities.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateOpportunityRequest request, CancellationToken cancellationToken)
         {
@@ -142,7 +143,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapOpportunity(opportunity), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar os dados de uma oportunidade comercial.")]
+        [RequireAccess("opportunities.update.description")]
         [HttpPut("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateOpportunityRequest request, CancellationToken cancellationToken)
         {
@@ -156,7 +157,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite alterar o estágio de uma oportunidade comercial.")]
+        [RequireAccess("opportunities.changeStage.description")]
         [HttpPost("{id:long}/ChangeStage")]
         public async Task<IActionResult> ChangeStage(long id, [FromBody] ChangeOpportunityStageRequest request, CancellationToken cancellationToken)
         {
@@ -164,7 +165,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite encerrar uma oportunidade como ganha.")]
+        [RequireAccess("opportunities.closeAsWon.description")]
         [HttpPost("{id:long}/CloseAsWon")]
         public async Task<IActionResult> CloseAsWon(long id, [FromBody] CloseOpportunityAsWonRequest request, CancellationToken cancellationToken)
         {
@@ -178,7 +179,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite encerrar uma oportunidade como perdida.")]
+        [RequireAccess("opportunities.closeAsLost.description")]
         [HttpPost("{id:long}/CloseAsLost")]
         public async Task<IActionResult> CloseAsLost(long id, [FromBody] CloseOpportunityAsLostRequest request, CancellationToken cancellationToken)
         {
@@ -192,7 +193,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir uma oportunidade comercial.")]
+        [RequireAccess("opportunities.delete.description")]
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {
@@ -200,7 +201,7 @@ namespace AgencyCampaign.Api.Controllers
             return opportunity is null ? Http404(Localizer["record.notFound"]) : Http204();
         }
 
-        [RequireAccess("Permite listar as negociações de uma oportunidade.")]
+        [RequireAccess("opportunities.getNegotiations.description")]
         [HttpGet("{opportunityId:long}/negotiations/GetNegotiations")]
         public async Task<IActionResult> GetNegotiations(long opportunityId, CancellationToken cancellationToken)
         {
@@ -208,7 +209,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(negotiations.Select(MapNegotiation).ToList());
         }
 
-        [RequireAccess("Permite adicionar uma negociação a uma oportunidade.")]
+        [RequireAccess("opportunities.createNegotiation.description")]
         [HttpPost("{opportunityId:long}/negotiations/CreateNegotiation")]
         public async Task<IActionResult> CreateNegotiation(long opportunityId, [FromBody] CreateOpportunityNegotiationRequest request, CancellationToken cancellationToken)
         {
@@ -227,7 +228,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapNegotiation(negotiation), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar uma negociação da oportunidade.")]
+        [RequireAccess("opportunities.updateNegotiation.description")]
         [PutEndpoint("negotiations/{id:long}")]
         public async Task<IActionResult> UpdateNegotiation(long id, [FromBody] UpdateOpportunityNegotiationRequest request, CancellationToken cancellationToken)
         {
@@ -241,7 +242,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapNegotiation(negotiation), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite alterar o status de uma negociação.")]
+        [RequireAccess("opportunities.changeStatus.description")]
         [PostEndpoint("negotiations/{id:long}/[action]")]
         public async Task<IActionResult> ChangeStatus(long id, [FromBody] ChangeOpportunityNegotiationStatusRequest request, CancellationToken cancellationToken)
         {
@@ -249,7 +250,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapNegotiation(negotiation), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir uma negociação da oportunidade.")]
+        [RequireAccess("opportunities.deleteNegotiation.description")]
         [DeleteEndpoint("negotiations/{id:long}")]
         public async Task<IActionResult> DeleteNegotiation(long id, CancellationToken cancellationToken)
         {
@@ -257,7 +258,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http204();
         }
 
-        [RequireAccess("Permite listar todos os follow-ups.")]
+        [RequireAccess("opportunities.getAllFollowUps.description")]
         [HttpGet("followups/Get")]
         public async Task<IActionResult> GetAllFollowUps([FromQuery] string? status, CancellationToken cancellationToken)
         {
@@ -279,14 +280,14 @@ namespace AgencyCampaign.Api.Controllers
             }).ToList());
         }
 
-        [RequireAccess("Permite consultar o resumo de follow-ups.")]
+        [RequireAccess("opportunities.getFollowUpsSummary.description")]
         [HttpGet("followups/Summary")]
         public async Task<IActionResult> GetFollowUpsSummary(CancellationToken cancellationToken)
         {
             return Http200(await followUpService.GetFollowUpsSummary(cancellationToken));
         }
 
-        [RequireAccess("Permite listar os follow-ups de uma oportunidade.")]
+        [RequireAccess("opportunities.getFollowUps.description")]
         [HttpGet("{opportunityId:long}/followups/GetFollowUps")]
         public async Task<IActionResult> GetFollowUps(long opportunityId, CancellationToken cancellationToken)
         {
@@ -294,7 +295,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(followUps.Select(MapFollowUp).ToList());
         }
 
-        [RequireAccess("Permite adicionar um follow-up a uma oportunidade.")]
+        [RequireAccess("opportunities.createFollowUp.description")]
         [HttpPost("{opportunityId:long}/followups/CreateFollowUp")]
         public async Task<IActionResult> CreateFollowUp(long opportunityId, [FromBody] CreateOpportunityFollowUpRequest request, CancellationToken cancellationToken)
         {
@@ -313,7 +314,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapFollowUp(followUp), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um follow-up da oportunidade.")]
+        [RequireAccess("opportunities.updateFollowUp.description")]
         [PutEndpoint("followups/{id:long}")]
         public async Task<IActionResult> UpdateFollowUp(long id, [FromBody] UpdateOpportunityFollowUpRequest request, CancellationToken cancellationToken)
         {
@@ -327,7 +328,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapFollowUp(followUp), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite concluir um follow-up da oportunidade.")]
+        [RequireAccess("opportunities.complete.description")]
         [PostEndpoint("followups/{id:long}/[action]")]
         public async Task<IActionResult> Complete(long id, CancellationToken cancellationToken)
         {
@@ -335,7 +336,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapFollowUp(followUp), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir um follow-up da oportunidade.")]
+        [RequireAccess("opportunities.deleteFollowUp.description")]
         [DeleteEndpoint("followups/{id:long}")]
         public async Task<IActionResult> DeleteFollowUp(long id, CancellationToken cancellationToken)
         {

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("campaigns.area")]
     public sealed class CampaignsController : ApiControllerBase
     {
         private readonly ICampaignService campaignService;
@@ -23,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as campanhas cadastradas.")]
+        [RequireAccess("campaigns.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de uma campanha.")]
+        [RequireAccess("campaigns.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -43,7 +44,7 @@ namespace AgencyCampaign.Api.Controllers
             return campaign is null ? Http404(Localizer["record.notFound"]) : Http200(MapCampaign(campaign));
         }
 
-        [RequireAccess("Permite consultar o resumo de uma campanha.")]
+        [RequireAccess("campaigns.getSummary.description")]
         [GetEndpoint("summary/{id:long}")]
         public async Task<IActionResult> GetSummary(long id, CancellationToken cancellationToken)
         {
@@ -51,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
             return summary is null ? Http404(Localizer["record.notFound"]) : Http200(summary);
         }
 
-        [RequireAccess("Permite cadastrar uma nova campanha.")]
+        [RequireAccess("campaigns.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignRequest request, CancellationToken cancellationToken)
         {
@@ -65,7 +66,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapCampaign(campaign), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar os dados de uma campanha.")]
+        [RequireAccess("campaigns.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCampaignRequest request, CancellationToken cancellationToken)
         {
@@ -79,7 +80,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapCampaign(campaign), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite consultar o histórico de mudanças de status de uma campanha.")]
+        [RequireAccess("campaigns.getStatusHistory.description")]
         [GetEndpoint("statushistory/{id:long}")]
         public async Task<IActionResult> GetStatusHistory(long id, CancellationToken cancellationToken)
         {

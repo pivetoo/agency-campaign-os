@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("profile.area")]
     public sealed class ProfileController : ApiControllerBase
     {
         private const long MaxAvatarBytes = 2 * 1024 * 1024;
@@ -16,7 +17,7 @@ namespace AgencyCampaign.Api.Controllers
             this.imageStorage = imageStorage;
         }
 
-        [RequireAccess("Permite enviar foto de perfil do usuário.")]
+        [RequireAccess("profile.uploadAvatar.description")]
         [PostEndpoint]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(MaxAvatarBytes)]

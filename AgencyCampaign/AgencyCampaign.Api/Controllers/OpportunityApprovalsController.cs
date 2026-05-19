@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("opportunityApprovals.area")]
     public sealed class OpportunityApprovalsController : ApiControllerBase
     {
         private readonly IOpportunityApprovalRequestService approvalRequestService;
@@ -22,7 +23,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar todas as aprovações comerciais.")]
+        [RequireAccess("opportunityApprovals.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
@@ -34,14 +35,14 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar o resumo de aprovações comerciais.")]
+        [RequireAccess("opportunityApprovals.summary.description")]
         [GetEndpoint]
         public async Task<IActionResult> Summary(CancellationToken cancellationToken)
         {
             return Http200(await approvalRequestService.GetApprovalsSummary(cancellationToken));
         }
 
-        [RequireAccess("Permite listar as aprovações de uma negociação comercial.")]
+        [RequireAccess("opportunityApprovals.getByNegotiation.description")]
         [GetEndpoint("negotiation/{opportunityNegotiationId:long}")]
         public async Task<IActionResult> GetByNegotiation(long opportunityNegotiationId, CancellationToken cancellationToken)
         {
@@ -49,7 +50,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(approvals.Select(OpportunityContractExtensions.MapApprovalRequest).ToList());
         }
 
-        [RequireAccess("Permite solicitar uma aprovação comercial.")]
+        [RequireAccess("opportunityApprovals.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateOpportunityApprovalRequest request, CancellationToken cancellationToken)
         {
@@ -63,7 +64,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite aprovar uma solicitação comercial.")]
+        [RequireAccess("opportunityApprovals.approve.description")]
         [HttpPost("{id:long}/Approve")]
         public async Task<IActionResult> Approve(long id, [FromBody] DecideOpportunityApprovalRequest request, CancellationToken cancellationToken)
         {
@@ -77,7 +78,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite rejeitar uma solicitação comercial.")]
+        [RequireAccess("opportunityApprovals.reject.description")]
         [HttpPost("{id:long}/Reject")]
         public async Task<IActionResult> Reject(long id, [FromBody] DecideOpportunityApprovalRequest request, CancellationToken cancellationToken)
         {

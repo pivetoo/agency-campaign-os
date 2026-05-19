@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("campaignCreatorStatuses.area")]
     public sealed class CampaignCreatorStatusesController : ApiControllerBase
     {
         private readonly ICampaignCreatorStatusService statusService;
@@ -23,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os status configurados de creators em campanhas.")]
+        [RequireAccess("campaignCreatorStatuses.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite listar os status ativos de creators em campanhas.")]
+        [RequireAccess("campaignCreatorStatuses.getActive.description")]
         [GetEndpoint("active")]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
@@ -43,7 +44,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(statuses.Select(MapStatus).ToList());
         }
 
-        [RequireAccess("Permite consultar um status de creator em campanha.")]
+        [RequireAccess("campaignCreatorStatuses.getById.description")]
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -51,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
             return status is null ? Http404(Localizer["record.notFound"]) : Http200(MapStatus(status));
         }
 
-        [RequireAccess("Permite cadastrar um status de creator em campanha.")]
+        [RequireAccess("campaignCreatorStatuses.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignCreatorStatusRequest request, CancellationToken cancellationToken)
         {
@@ -65,7 +66,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapStatus(status), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um status de creator em campanha.")]
+        [RequireAccess("campaignCreatorStatuses.update.description")]
         [HttpPut("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCampaignCreatorStatusRequest request, CancellationToken cancellationToken)
         {

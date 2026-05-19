@@ -9,6 +9,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("financialAccounts.area")]
     public sealed class FinancialAccountsController : ApiControllerBase
     {
         private readonly IFinancialAccountService service;
@@ -20,21 +21,21 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as contas financeiras cadastradas.")]
+        [RequireAccess("financialAccounts.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
-        [RequireAccess("Permite consultar o resumo agregado das contas financeiras.")]
+        [RequireAccess("financialAccounts.getSummary.description")]
         [GetEndpoint]
         public async Task<IActionResult> GetSummary(CancellationToken cancellationToken)
         {
             return Http200(await service.GetSummary(cancellationToken));
         }
 
-        [RequireAccess("Permite consultar uma conta financeira por id.")]
+        [RequireAccess("financialAccounts.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -42,7 +43,7 @@ namespace AgencyCampaign.Api.Controllers
             return result is null ? Http404(Localizer["record.notFound"]) : Http200(result);
         }
 
-        [RequireAccess("Permite cadastrar uma nova conta financeira.")]
+        [RequireAccess("financialAccounts.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateFinancialAccountRequest request, CancellationToken cancellationToken)
         {
@@ -56,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(result, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar uma conta financeira.")]
+        [RequireAccess("financialAccounts.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateFinancialAccountRequest request, CancellationToken cancellationToken)
         {
@@ -70,7 +71,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir uma conta financeira.")]
+        [RequireAccess("financialAccounts.delete.description")]
         [DeleteEndpoint("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {
@@ -78,7 +79,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http204();
         }
 
-        [RequireAccess("Permite vincular uma conta financeira a um conector do IntegrationPlatform.")]
+        [RequireAccess("financialAccounts.attachConnector.description")]
         [PutEndpoint("{id:long}/attach-connector")]
         public async Task<IActionResult> AttachConnector(long id, [FromBody] AttachConnectorRequest request, CancellationToken cancellationToken)
         {
@@ -92,7 +93,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["financialAccount.connector.attached"]);
         }
 
-        [RequireAccess("Permite remover o vínculo da conta financeira com o conector.")]
+        [RequireAccess("financialAccounts.detachConnector.description")]
         [PutEndpoint("{id:long}/detach-connector")]
         public async Task<IActionResult> DetachConnector(long id, CancellationToken cancellationToken)
         {
@@ -100,7 +101,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["financialAccount.connector.detached"]);
         }
 
-        [RequireAccess("Permite disparar uma sincronização manual da conta financeira.")]
+        [RequireAccess("financialAccounts.sync.description")]
         [PostEndpoint("{id:long}/sync")]
         public async Task<IActionResult> Sync(long id, CancellationToken cancellationToken)
         {

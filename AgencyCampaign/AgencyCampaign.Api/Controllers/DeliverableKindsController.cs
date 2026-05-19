@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("deliverableKinds.area")]
     public sealed class DeliverableKindsController : ApiControllerBase
     {
         private readonly IDeliverableKindService deliverableKindService;
@@ -23,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os tipos de entrega cadastrados.")]
+        [RequireAccess("deliverableKinds.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de um tipo de entrega.")]
+        [RequireAccess("deliverableKinds.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -43,7 +44,7 @@ namespace AgencyCampaign.Api.Controllers
             return deliverableKind is null ? Http404(Localizer["record.notFound"]) : Http200(MapDeliverableKind(deliverableKind));
         }
 
-        [RequireAccess("Permite listar os tipos de entrega ativos.")]
+        [RequireAccess("deliverableKinds.getActive.description")]
         [GetEndpoint("active")]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
@@ -51,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(deliverableKinds.Select(MapDeliverableKind).ToList());
         }
 
-        [RequireAccess("Permite cadastrar um novo tipo de entrega.")]
+        [RequireAccess("deliverableKinds.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateDeliverableKindRequest request, CancellationToken cancellationToken)
         {
@@ -65,7 +66,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapDeliverableKind(deliverableKind), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar os dados de um tipo de entrega.")]
+        [RequireAccess("deliverableKinds.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateDeliverableKindRequest request, CancellationToken cancellationToken)
         {

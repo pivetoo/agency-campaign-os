@@ -1180,4 +1180,255 @@
   <data name="agencySettings.updateProposalTemplateVersion.description" xml:space="preserve"><value>Permite atualizar uma versão (layout) de proposta.</value></data>
   <data name="agencySettings.activateProposalTemplateVersion.description" xml:space="preserve"><value>Permite ativar uma versão do template de proposta.</value></data>
   <data name="agencySettings.deleteProposalTemplateVersion.description" xml:space="preserve"><value>Permite excluir uma versão do template de proposta.</value></data>
+  <data name="automations.area" xml:space="preserve"><value>Automations</value></data>
+  <data name="automations.create.description" xml:space="preserve"><value>Permite cadastrar uma nova automacao.</value></data>
+  <data name="automations.get.description" xml:space="preserve"><value>Permite listar as automacoes cadastradas.</value></data>
+  <data name="automations.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de uma automacao.</value></data>
+  <data name="automations.logs.description" xml:space="preserve"><value>Permite consultar os logs de execucao de uma automacao.</value></data>
+  <data name="automations.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma automacao.</value></data>
+  <data name="bankTransactions.area" xml:space="preserve"><value>Bank transactions</value></data>
+  <data name="bankTransactions.getByAccount.description" xml:space="preserve"><value>Permite listar transações bancárias de uma conta.</value></data>
+  <data name="bankTransactions.import.description" xml:space="preserve"><value>Permite que o IntegrationPlatform importe transações bancárias para uma conta.</value></data>
+  <data name="bankTransactions.match.description" xml:space="preserve"><value>Permite casar manualmente uma transação bancária com um lançamento financeiro.</value></data>
+  <data name="bankTransactions.unmatch.description" xml:space="preserve"><value>Permite desfazer o vínculo entre uma transação bancária e um lançamento financeiro.</value></data>
+  <data name="banks.area" xml:space="preserve"><value>Banks</value></data>
+  <data name="banks.create.description" xml:space="preserve"><value>Permite cadastrar um novo banco no catálogo.</value></data>
+  <data name="banks.delete.description" xml:space="preserve"><value>Permite excluir um banco custom (não permitido em bancos do sistema).</value></data>
+  <data name="banks.get.description" xml:space="preserve"><value>Permite listar os bancos cadastrados.</value></data>
+  <data name="banks.getActive.description" xml:space="preserve"><value>Permite listar bancos ativos para seleção.</value></data>
+  <data name="banks.getById.description" xml:space="preserve"><value>Permite consultar um banco por id.</value></data>
+  <data name="banks.removeLogo.description" xml:space="preserve"><value>Permite remover o logo customizado do banco (bancos system voltam ao logo padrão).</value></data>
+  <data name="banks.update.description" xml:space="preserve"><value>Permite atualizar os dados de um banco.</value></data>
+  <data name="banks.uploadLogo.description" xml:space="preserve"><value>Permite enviar o logo do banco.</value></data>
+  <data name="brands.area" xml:space="preserve"><value>Brands</value></data>
+  <data name="brands.create.description" xml:space="preserve"><value>Permite cadastrar uma nova marca.</value></data>
+  <data name="brands.export.description" xml:space="preserve"><value>Permite exportar as marcas cadastradas.</value></data>
+  <data name="brands.get.description" xml:space="preserve"><value>Permite listar as marcas cadastradas.</value></data>
+  <data name="brands.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de uma marca.</value></data>
+  <data name="brands.removeLogo.description" xml:space="preserve"><value>Permite remover a logo da marca.</value></data>
+  <data name="brands.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma marca.</value></data>
+  <data name="brands.uploadLogo.description" xml:space="preserve"><value>Permite enviar a logo da marca.</value></data>
+  <data name="campaignCreatorStatuses.area" xml:space="preserve"><value>Campaign creator statuses</value></data>
+  <data name="campaignCreatorStatuses.create.description" xml:space="preserve"><value>Permite cadastrar um status de creator em campanha.</value></data>
+  <data name="campaignCreatorStatuses.get.description" xml:space="preserve"><value>Permite listar os status configurados de creators em campanhas.</value></data>
+  <data name="campaignCreatorStatuses.getActive.description" xml:space="preserve"><value>Permite listar os status ativos de creators em campanhas.</value></data>
+  <data name="campaignCreatorStatuses.getById.description" xml:space="preserve"><value>Permite consultar um status de creator em campanha.</value></data>
+  <data name="campaignCreatorStatuses.update.description" xml:space="preserve"><value>Permite atualizar um status de creator em campanha.</value></data>
+  <data name="campaignCreators.area" xml:space="preserve"><value>Campaign creators</value></data>
+  <data name="campaignCreators.create.description" xml:space="preserve"><value>Permite vincular um creator a uma campanha.</value></data>
+  <data name="campaignCreators.get.description" xml:space="preserve"><value>Permite listar os creators vinculados às campanhas.</value></data>
+  <data name="campaignCreators.getByCampaign.description" xml:space="preserve"><value>Permite listar os creators vinculados a uma campanha.</value></data>
+  <data name="campaignCreators.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um vínculo entre campanha e creator.</value></data>
+  <data name="campaignCreators.getStatusHistory.description" xml:space="preserve"><value>Permite consultar o histórico de mudanças de status de um creator na campanha.</value></data>
+  <data name="campaignCreators.update.description" xml:space="preserve"><value>Permite atualizar o vínculo entre campanha e creator.</value></data>
+  <data name="campaignDeliverables.area" xml:space="preserve"><value>Campaign deliverables</value></data>
+  <data name="campaignDeliverables.create.description" xml:space="preserve"><value>Permite cadastrar uma nova entrega de campanha.</value></data>
+  <data name="campaignDeliverables.delete.description" xml:space="preserve"><value>Permite excluir uma entrega de campanha.</value></data>
+  <data name="campaignDeliverables.get.description" xml:space="preserve"><value>Permite listar as entregas de campanha cadastradas.</value></data>
+  <data name="campaignDeliverables.getByCampaign.description" xml:space="preserve"><value>Permite listar as entregas vinculadas a uma campanha.</value></data>
+  <data name="campaignDeliverables.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de uma entrega de campanha.</value></data>
+  <data name="campaignDeliverables.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma entrega de campanha.</value></data>
+  <data name="campaignDocumentTemplates.area" xml:space="preserve"><value>Campaign document templates</value></data>
+  <data name="campaignDocumentTemplates.create.description" xml:space="preserve"><value>Permite cadastrar um template de documento.</value></data>
+  <data name="campaignDocumentTemplates.delete.description" xml:space="preserve"><value>Permite remover um template de documento.</value></data>
+  <data name="campaignDocumentTemplates.get.description" xml:space="preserve"><value>Permite listar os templates de documento.</value></data>
+  <data name="campaignDocumentTemplates.getActiveByDocumentType.description" xml:space="preserve"><value>Permite listar os templates ativos por tipo de documento.</value></data>
+  <data name="campaignDocumentTemplates.getById.description" xml:space="preserve"><value>Permite consultar um template de documento.</value></data>
+  <data name="campaignDocumentTemplates.preview.description" xml:space="preserve"><value>Permite pre-visualizar o body do template com dados de exemplo.</value></data>
+  <data name="campaignDocumentTemplates.update.description" xml:space="preserve"><value>Permite atualizar um template de documento.</value></data>
+  <data name="campaignDocumentTemplates.variables.description" xml:space="preserve"><value>Permite listar as variaveis disponiveis por tipo de documento.</value></data>
+  <data name="campaignDocuments.area" xml:space="preserve"><value>Campaign documents</value></data>
+  <data name="campaignDocuments.create.description" xml:space="preserve"><value>Permite cadastrar um documento.</value></data>
+  <data name="campaignDocuments.generateFromTemplate.description" xml:space="preserve"><value>Permite gerar um documento a partir de um template.</value></data>
+  <data name="campaignDocuments.get.description" xml:space="preserve"><value>Permite listar os documentos cadastrados.</value></data>
+  <data name="campaignDocuments.getByCampaign.description" xml:space="preserve"><value>Permite listar os documentos vinculados a uma campanha.</value></data>
+  <data name="campaignDocuments.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um documento.</value></data>
+  <data name="campaignDocuments.markSigned.description" xml:space="preserve"><value>Permite marcar um documento como assinado.</value></data>
+  <data name="campaignDocuments.sendEmail.description" xml:space="preserve"><value>Permite enviar um documento por e-mail.</value></data>
+  <data name="campaignDocuments.sendForSignature.description" xml:space="preserve"><value>Permite enviar um documento para assinatura digital via IntegrationPlatform.</value></data>
+  <data name="campaignDocuments.update.description" xml:space="preserve"><value>Permite atualizar um documento.</value></data>
+  <data name="campaigns.area" xml:space="preserve"><value>Campaigns</value></data>
+  <data name="campaigns.create.description" xml:space="preserve"><value>Permite cadastrar uma nova campanha.</value></data>
+  <data name="campaigns.get.description" xml:space="preserve"><value>Permite listar as campanhas cadastradas.</value></data>
+  <data name="campaigns.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de uma campanha.</value></data>
+  <data name="campaigns.getStatusHistory.description" xml:space="preserve"><value>Permite consultar o histórico de mudanças de status de uma campanha.</value></data>
+  <data name="campaigns.getSummary.description" xml:space="preserve"><value>Permite consultar o resumo de uma campanha.</value></data>
+  <data name="campaigns.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma campanha.</value></data>
+  <data name="commercialPipelineStages.area" xml:space="preserve"><value>Commercial pipeline stages</value></data>
+  <data name="commercialPipelineStages.create.description" xml:space="preserve"><value>Permite cadastrar um estágio do pipeline comercial.</value></data>
+  <data name="commercialPipelineStages.get.description" xml:space="preserve"><value>Permite listar os estágios configurados do pipeline comercial.</value></data>
+  <data name="commercialPipelineStages.getActive.description" xml:space="preserve"><value>Permite listar os estágios ativos do pipeline comercial.</value></data>
+  <data name="commercialPipelineStages.getById.description" xml:space="preserve"><value>Permite consultar um estágio do pipeline comercial.</value></data>
+  <data name="commercialPipelineStages.update.description" xml:space="preserve"><value>Permite atualizar um estágio do pipeline comercial.</value></data>
+  <data name="creatorAccessTokens.area" xml:space="preserve"><value>Creator access tokens</value></data>
+  <data name="creatorAccessTokens.getByCreator.description" xml:space="preserve"><value>Permite listar os links de acesso ao portal de um creator.</value></data>
+  <data name="creatorAccessTokens.issue.description" xml:space="preserve"><value>Permite emitir um novo link de acesso ao portal do creator.</value></data>
+  <data name="creatorAccessTokens.revoke.description" xml:space="preserve"><value>Permite revogar um link de acesso ao portal do creator.</value></data>
+  <data name="creatorPayments.area" xml:space="preserve"><value>Creator payments</value></data>
+  <data name="creatorPayments.attachInvoice.description" xml:space="preserve"><value>Permite anexar nota fiscal a um pagamento.</value></data>
+  <data name="creatorPayments.cancel.description" xml:space="preserve"><value>Permite cancelar um pagamento.</value></data>
+  <data name="creatorPayments.create.description" xml:space="preserve"><value>Permite registrar um pagamento a creator.</value></data>
+  <data name="creatorPayments.get.description" xml:space="preserve"><value>Permite listar os pagamentos de creators.</value></data>
+  <data name="creatorPayments.getByCampaign.description" xml:space="preserve"><value>Permite listar pagamentos por campanha.</value></data>
+  <data name="creatorPayments.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um pagamento.</value></data>
+  <data name="creatorPayments.getByStatus.description" xml:space="preserve"><value>Permite listar pagamentos por status.</value></data>
+  <data name="creatorPayments.markPaid.description" xml:space="preserve"><value>Permite marcar um pagamento como pago.</value></data>
+  <data name="creatorPayments.scheduleBatch.description" xml:space="preserve"><value>Permite agendar um lote de pagamentos via gateway.</value></data>
+  <data name="creatorPayments.update.description" xml:space="preserve"><value>Permite atualizar dados de um pagamento.</value></data>
+  <data name="creatorSocialHandles.area" xml:space="preserve"><value>Creator social handles</value></data>
+  <data name="creatorSocialHandles.create.description" xml:space="preserve"><value>Permite cadastrar um handle social para o creator.</value></data>
+  <data name="creatorSocialHandles.delete.description" xml:space="preserve"><value>Permite excluir um handle social do creator.</value></data>
+  <data name="creatorSocialHandles.getByCreator.description" xml:space="preserve"><value>Permite listar os handles sociais de um creator.</value></data>
+  <data name="creatorSocialHandles.update.description" xml:space="preserve"><value>Permite atualizar um handle social do creator.</value></data>
+  <data name="creators.area" xml:space="preserve"><value>Creators</value></data>
+  <data name="creators.create.description" xml:space="preserve"><value>Permite cadastrar um novo creator.</value></data>
+  <data name="creators.export.description" xml:space="preserve"><value>Permite exportar os creators cadastrados.</value></data>
+  <data name="creators.get.description" xml:space="preserve"><value>Permite listar os creators cadastrados.</value></data>
+  <data name="creators.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um creator.</value></data>
+  <data name="creators.getCampaigns.description" xml:space="preserve"><value>Permite listar as campanhas em que o creator participou.</value></data>
+  <data name="creators.getSummary.description" xml:space="preserve"><value>Permite consultar o resumo de performance de um creator.</value></data>
+  <data name="creators.removePhoto.description" xml:space="preserve"><value>Permite remover a foto do creator.</value></data>
+  <data name="creators.update.description" xml:space="preserve"><value>Permite atualizar os dados de um creator.</value></data>
+  <data name="creators.uploadPhoto.description" xml:space="preserve"><value>Permite enviar a foto do creator.</value></data>
+  <data name="dashboard.area" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="dashboard.overview.description" xml:space="preserve"><value>Permite consultar a visão geral do dashboard da agência.</value></data>
+  <data name="deliverableApprovals.area" xml:space="preserve"><value>Deliverable approvals</value></data>
+  <data name="deliverableApprovals.create.description" xml:space="preserve"><value>Permite cadastrar uma aprovação para uma entrega.</value></data>
+  <data name="deliverableApprovals.get.description" xml:space="preserve"><value>Permite listar as aprovações de entregas.</value></data>
+  <data name="deliverableApprovals.getByDeliverable.description" xml:space="preserve"><value>Permite listar as aprovações de uma entrega específica.</value></data>
+  <data name="deliverableApprovals.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de uma aprovação de entrega.</value></data>
+  <data name="deliverableApprovals.update.description" xml:space="preserve"><value>Permite atualizar uma aprovação de entrega.</value></data>
+  <data name="deliverableKinds.area" xml:space="preserve"><value>Deliverable kinds</value></data>
+  <data name="deliverableKinds.create.description" xml:space="preserve"><value>Permite cadastrar um novo tipo de entrega.</value></data>
+  <data name="deliverableKinds.get.description" xml:space="preserve"><value>Permite listar os tipos de entrega cadastrados.</value></data>
+  <data name="deliverableKinds.getActive.description" xml:space="preserve"><value>Permite listar os tipos de entrega ativos.</value></data>
+  <data name="deliverableKinds.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um tipo de entrega.</value></data>
+  <data name="deliverableKinds.update.description" xml:space="preserve"><value>Permite atualizar os dados de um tipo de entrega.</value></data>
+  <data name="deliverableShareLinks.area" xml:space="preserve"><value>Deliverable share links</value></data>
+  <data name="deliverableShareLinks.create.description" xml:space="preserve"><value>Permite gerar um share link para aprovação da marca.</value></data>
+  <data name="deliverableShareLinks.getByDeliverable.description" xml:space="preserve"><value>Permite listar os share links de uma entrega.</value></data>
+  <data name="deliverableShareLinks.getPending.description" xml:space="preserve"><value>Permite listar as entregas com aprovação pendente da marca.</value></data>
+  <data name="deliverableShareLinks.revoke.description" xml:space="preserve"><value>Permite revogar um share link de entrega.</value></data>
+  <data name="financialAccounts.area" xml:space="preserve"><value>Financial accounts</value></data>
+  <data name="financialAccounts.attachConnector.description" xml:space="preserve"><value>Permite vincular uma conta financeira a um conector do IntegrationPlatform.</value></data>
+  <data name="financialAccounts.create.description" xml:space="preserve"><value>Permite cadastrar uma nova conta financeira.</value></data>
+  <data name="financialAccounts.delete.description" xml:space="preserve"><value>Permite excluir uma conta financeira.</value></data>
+  <data name="financialAccounts.detachConnector.description" xml:space="preserve"><value>Permite remover o vínculo da conta financeira com o conector.</value></data>
+  <data name="financialAccounts.get.description" xml:space="preserve"><value>Permite listar as contas financeiras cadastradas.</value></data>
+  <data name="financialAccounts.getById.description" xml:space="preserve"><value>Permite consultar uma conta financeira por id.</value></data>
+  <data name="financialAccounts.getSummary.description" xml:space="preserve"><value>Permite consultar o resumo agregado das contas financeiras.</value></data>
+  <data name="financialAccounts.sync.description" xml:space="preserve"><value>Permite disparar uma sincronização manual da conta financeira.</value></data>
+  <data name="financialAccounts.update.description" xml:space="preserve"><value>Permite atualizar uma conta financeira.</value></data>
+  <data name="financialEntries.area" xml:space="preserve"><value>Financial entries</value></data>
+  <data name="financialEntries.create.description" xml:space="preserve"><value>Permite cadastrar um lançamento financeiro.</value></data>
+  <data name="financialEntries.createInstallments.description" xml:space="preserve"><value>Permite gerar uma série de parcelas a partir de um lançamento financeiro.</value></data>
+  <data name="financialEntries.get.description" xml:space="preserve"><value>Permite listar os lançamentos financeiros cadastrados.</value></data>
+  <data name="financialEntries.getByCampaign.description" xml:space="preserve"><value>Permite listar os lançamentos financeiros vinculados a uma campanha.</value></data>
+  <data name="financialEntries.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um lançamento financeiro.</value></data>
+  <data name="financialEntries.getSummary.description" xml:space="preserve"><value>Permite consultar o resumo financeiro por tipo (a receber/a pagar).</value></data>
+  <data name="financialEntries.markAsPaid.description" xml:space="preserve"><value>Permite marcar um lançamento financeiro como pago/recebido.</value></data>
+  <data name="financialEntries.update.description" xml:space="preserve"><value>Permite atualizar um lançamento financeiro.</value></data>
+  <data name="financialReports.area" xml:space="preserve"><value>Financial reports</value></data>
+  <data name="financialReports.getAging.description" xml:space="preserve"><value>Permite consultar o relatório de aging financeiro.</value></data>
+  <data name="financialReports.getCashFlow.description" xml:space="preserve"><value>Permite consultar o fluxo de caixa por período e granularidade.</value></data>
+  <data name="financialSubcategories.area" xml:space="preserve"><value>Financial subcategories</value></data>
+  <data name="financialSubcategories.create.description" xml:space="preserve"><value>Permite cadastrar uma subcategoria financeira.</value></data>
+  <data name="financialSubcategories.delete.description" xml:space="preserve"><value>Permite excluir uma subcategoria financeira.</value></data>
+  <data name="financialSubcategories.get.description" xml:space="preserve"><value>Permite listar as subcategorias financeiras cadastradas.</value></data>
+  <data name="financialSubcategories.update.description" xml:space="preserve"><value>Permite atualizar uma subcategoria financeira.</value></data>
+  <data name="integrationCategories.area" xml:space="preserve"><value>Integration categories</value></data>
+  <data name="integrationCategories.getActive.description" xml:space="preserve"><value>Permite listar as categorias de integracao disponiveis.</value></data>
+  <data name="integrationPlatformProxy.area" xml:space="preserve"><value>Integration platform proxy</value></data>
+  <data name="integrationPlatformProxy.createConnector.description" xml:space="preserve"><value>Permite criar um conector no IntegrationPlatform.</value></data>
+  <data name="integrationPlatformProxy.deleteConnector.description" xml:space="preserve"><value>Permite excluir um conector do IntegrationPlatform.</value></data>
+  <data name="integrationPlatformProxy.enqueuePipeline.description" xml:space="preserve"><value>Permite enfileirar um pipeline no IntegrationPlatform.</value></data>
+  <data name="integrationPlatformProxy.executePipeline.description" xml:space="preserve"><value>Permite executar um pipeline no IntegrationPlatform.</value></data>
+  <data name="integrationPlatformProxy.getActiveConnectors.description" xml:space="preserve"><value>Permite listar todos os conectores ativos do tenant.</value></data>
+  <data name="integrationPlatformProxy.getConnectorDetail.description" xml:space="preserve"><value>Permite obter os detalhes de um conector do IntegrationPlatform.</value></data>
+  <data name="integrationPlatformProxy.getConnectorsByCategoryIdentifier.description" xml:space="preserve"><value>Permite listar conectores ativos filtrados pelo identifier da categoria de integração.</value></data>
+  <data name="integrationPlatformProxy.getConnectorsByIntegration.description" xml:space="preserve"><value>Permite listar conectores de uma integração.</value></data>
+  <data name="integrationPlatformProxy.getIntegrationAttributes.description" xml:space="preserve"><value>Permite listar atributos configuráveis de uma integração.</value></data>
+  <data name="integrationPlatformProxy.getIntegrationsByCategory.description" xml:space="preserve"><value>Permite listar integrações disponíveis no IntegrationPlatform por categoria.</value></data>
+  <data name="integrationPlatformProxy.getPipelinesByIntegration.description" xml:space="preserve"><value>Permite listar pipelines de uma integração.</value></data>
+  <data name="integrationPlatformProxy.setConnectorActive.description" xml:space="preserve"><value>Permite ativar ou desativar um conector sem reenviar todas as configuracoes.</value></data>
+  <data name="integrationPlatformProxy.testConnector.description" xml:space="preserve"><value>Permite testar um conector executando o pipeline de teste correspondente.</value></data>
+  <data name="integrationPlatformProxy.updateConnector.description" xml:space="preserve"><value>Permite atualizar um conector no IntegrationPlatform.</value></data>
+  <data name="opportunities.alerts.description" xml:space="preserve"><value>Permite consultar os alertas comerciais.</value></data>
+  <data name="opportunities.area" xml:space="preserve"><value>Opportunities</value></data>
+  <data name="opportunities.board.description" xml:space="preserve"><value>Permite consultar o board comercial por estágio.</value></data>
+  <data name="opportunities.changeStage.description" xml:space="preserve"><value>Permite alterar o estágio de uma oportunidade comercial.</value></data>
+  <data name="opportunities.changeStatus.description" xml:space="preserve"><value>Permite alterar o status de uma negociação.</value></data>
+  <data name="opportunities.closeAsLost.description" xml:space="preserve"><value>Permite encerrar uma oportunidade como perdida.</value></data>
+  <data name="opportunities.closeAsWon.description" xml:space="preserve"><value>Permite encerrar uma oportunidade como ganha.</value></data>
+  <data name="opportunities.complete.description" xml:space="preserve"><value>Permite concluir um follow-up da oportunidade.</value></data>
+  <data name="opportunities.create.description" xml:space="preserve"><value>Permite cadastrar uma nova oportunidade comercial.</value></data>
+  <data name="opportunities.createComment.description" xml:space="preserve"><value>Permite adicionar um comentário a uma oportunidade.</value></data>
+  <data name="opportunities.createFollowUp.description" xml:space="preserve"><value>Permite adicionar um follow-up a uma oportunidade.</value></data>
+  <data name="opportunities.createNegotiation.description" xml:space="preserve"><value>Permite adicionar uma negociação a uma oportunidade.</value></data>
+  <data name="opportunities.dashboard.description" xml:space="preserve"><value>Permite consultar o resumo do dashboard comercial.</value></data>
+  <data name="opportunities.delete.description" xml:space="preserve"><value>Permite excluir uma oportunidade comercial.</value></data>
+  <data name="opportunities.deleteComment.description" xml:space="preserve"><value>Permite excluir um comentário.</value></data>
+  <data name="opportunities.deleteFollowUp.description" xml:space="preserve"><value>Permite excluir um follow-up da oportunidade.</value></data>
+  <data name="opportunities.deleteNegotiation.description" xml:space="preserve"><value>Permite excluir uma negociação da oportunidade.</value></data>
+  <data name="opportunities.get.description" xml:space="preserve"><value>Permite listar as oportunidades comerciais cadastradas.</value></data>
+  <data name="opportunities.getAllFollowUps.description" xml:space="preserve"><value>Permite listar todos os follow-ups.</value></data>
+  <data name="opportunities.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de uma oportunidade comercial.</value></data>
+  <data name="opportunities.getComments.description" xml:space="preserve"><value>Permite listar os comentários de uma oportunidade.</value></data>
+  <data name="opportunities.getFollowUps.description" xml:space="preserve"><value>Permite listar os follow-ups de uma oportunidade.</value></data>
+  <data name="opportunities.getFollowUpsSummary.description" xml:space="preserve"><value>Permite consultar o resumo de follow-ups.</value></data>
+  <data name="opportunities.getNegotiations.description" xml:space="preserve"><value>Permite listar as negociações de uma oportunidade.</value></data>
+  <data name="opportunities.stageHistory.description" xml:space="preserve"><value>Permite consultar o histórico de estágios de uma oportunidade.</value></data>
+  <data name="opportunities.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma oportunidade comercial.</value></data>
+  <data name="opportunities.updateComment.description" xml:space="preserve"><value>Permite atualizar um comentário.</value></data>
+  <data name="opportunities.updateFollowUp.description" xml:space="preserve"><value>Permite atualizar um follow-up da oportunidade.</value></data>
+  <data name="opportunities.updateNegotiation.description" xml:space="preserve"><value>Permite atualizar uma negociação da oportunidade.</value></data>
+  <data name="opportunityApprovals.approve.description" xml:space="preserve"><value>Permite aprovar uma solicitação comercial.</value></data>
+  <data name="opportunityApprovals.area" xml:space="preserve"><value>Opportunity approvals</value></data>
+  <data name="opportunityApprovals.create.description" xml:space="preserve"><value>Permite solicitar uma aprovação comercial.</value></data>
+  <data name="opportunityApprovals.get.description" xml:space="preserve"><value>Permite listar todas as aprovações comerciais.</value></data>
+  <data name="opportunityApprovals.getByNegotiation.description" xml:space="preserve"><value>Permite listar as aprovações de uma negociação comercial.</value></data>
+  <data name="opportunityApprovals.reject.description" xml:space="preserve"><value>Permite rejeitar uma solicitação comercial.</value></data>
+  <data name="opportunityApprovals.summary.description" xml:space="preserve"><value>Permite consultar o resumo de aprovações comerciais.</value></data>
+  <data name="opportunitySources.area" xml:space="preserve"><value>Opportunity sources</value></data>
+  <data name="opportunitySources.create.description" xml:space="preserve"><value>Permite cadastrar uma tag de oportunidade.</value></data>
+  <data name="opportunitySources.delete.description" xml:space="preserve"><value>Permite excluir uma tag de oportunidade.</value></data>
+  <data name="opportunitySources.get.description" xml:space="preserve"><value>Permite listar as tags de oportunidades cadastradas.</value></data>
+  <data name="opportunitySources.update.description" xml:space="preserve"><value>Permite atualizar uma tag de oportunidade.</value></data>
+  <data name="platforms.area" xml:space="preserve"><value>Platforms</value></data>
+  <data name="platforms.create.description" xml:space="preserve"><value>Permite cadastrar uma nova plataforma.</value></data>
+  <data name="platforms.get.description" xml:space="preserve"><value>Permite listar as plataformas cadastradas.</value></data>
+  <data name="platforms.getActive.description" xml:space="preserve"><value>Permite listar as plataformas ativas.</value></data>
+  <data name="platforms.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de uma plataforma.</value></data>
+  <data name="platforms.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma plataforma.</value></data>
+  <data name="profile.area" xml:space="preserve"><value>Profile</value></data>
+  <data name="profile.uploadAvatar.description" xml:space="preserve"><value>Permite enviar foto de perfil do usuário.</value></data>
+  <data name="proposalTemplates.applyToProposal.description" xml:space="preserve"><value>Permite aplicar um template a uma proposta existente.</value></data>
+  <data name="proposalTemplates.area" xml:space="preserve"><value>Proposal templates</value></data>
+  <data name="proposalTemplates.create.description" xml:space="preserve"><value>Permite cadastrar um template de proposta.</value></data>
+  <data name="proposalTemplates.delete.description" xml:space="preserve"><value>Permite excluir um template de proposta.</value></data>
+  <data name="proposalTemplates.get.description" xml:space="preserve"><value>Permite listar os templates de proposta.</value></data>
+  <data name="proposalTemplates.getById.description" xml:space="preserve"><value>Permite consultar um template de proposta.</value></data>
+  <data name="proposalTemplates.update.description" xml:space="preserve"><value>Permite atualizar um template de proposta.</value></data>
+  <data name="proposals.approve.description" xml:space="preserve"><value>Permite aprovar uma proposta.</value></data>
+  <data name="proposals.area" xml:space="preserve"><value>Proposals</value></data>
+  <data name="proposals.cancel.description" xml:space="preserve"><value>Permite cancelar uma proposta.</value></data>
+  <data name="proposals.convertToCampaign.description" xml:space="preserve"><value>Permite converter uma proposta em campanha.</value></data>
+  <data name="proposals.create.description" xml:space="preserve"><value>Permite cadastrar uma nova proposta comercial.</value></data>
+  <data name="proposals.createItem.description" xml:space="preserve"><value>Permite adicionar um item a uma proposta.</value></data>
+  <data name="proposals.createShareLink.description" xml:space="preserve"><value>Permite gerar um novo link público para uma proposta.</value></data>
+  <data name="proposals.deleteItem.description" xml:space="preserve"><value>Permite excluir um item da proposta.</value></data>
+  <data name="proposals.get.description" xml:space="preserve"><value>Permite listar as propostas comerciais.</value></data>
+  <data name="proposals.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de uma proposta.</value></data>
+  <data name="proposals.getItems.description" xml:space="preserve"><value>Permite listar os itens de uma proposta.</value></data>
+  <data name="proposals.getPdf.description" xml:space="preserve"><value>Permite baixar a proposta em PDF.</value></data>
+  <data name="proposals.getShareLinks.description" xml:space="preserve"><value>Permite listar os links de compartilhamento de uma proposta.</value></data>
+  <data name="proposals.getVersionById.description" xml:space="preserve"><value>Permite consultar uma versão específica de proposta.</value></data>
+  <data name="proposals.getVersions.description" xml:space="preserve"><value>Permite listar as versões de uma proposta.</value></data>
+  <data name="proposals.markAsViewed.description" xml:space="preserve"><value>Permite marcar uma proposta como visualizada.</value></data>
+  <data name="proposals.reject.description" xml:space="preserve"><value>Permite rejeitar uma proposta.</value></data>
+  <data name="proposals.revokeShareLink.description" xml:space="preserve"><value>Permite revogar um link público de proposta.</value></data>
+  <data name="proposals.send.description" xml:space="preserve"><value>Permite enviar uma proposta para a marca.</value></data>
+  <data name="proposals.statusHistory.description" xml:space="preserve"><value>Permite consultar o histórico de status de uma proposta.</value></data>
+  <data name="proposals.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma proposta.</value></data>
+  <data name="proposals.updateItem.description" xml:space="preserve"><value>Permite atualizar um item da proposta.</value></data>
 </root>

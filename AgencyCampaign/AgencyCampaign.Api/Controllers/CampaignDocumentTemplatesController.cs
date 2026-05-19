@@ -13,6 +13,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("campaignDocumentTemplates.area")]
     public sealed class CampaignDocumentTemplatesController : ApiControllerBase
     {
         private readonly ICampaignDocumentTemplateService templateService;
@@ -25,7 +26,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os templates de documento.")]
+        [RequireAccess("campaignDocumentTemplates.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
@@ -37,7 +38,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar um template de documento.")]
+        [RequireAccess("campaignDocumentTemplates.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -45,7 +46,7 @@ namespace AgencyCampaign.Api.Controllers
             return template is null ? Http404(Localizer["record.notFound"]) : Http200(MapTemplate(template));
         }
 
-        [RequireAccess("Permite listar os templates ativos por tipo de documento.")]
+        [RequireAccess("campaignDocumentTemplates.getActiveByDocumentType.description")]
         [GetEndpoint("active/{documentType:int}")]
         public async Task<IActionResult> GetActiveByDocumentType(int documentType, CancellationToken cancellationToken)
         {
@@ -54,7 +55,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(templates.Select(MapTemplate).ToList());
         }
 
-        [RequireAccess("Permite listar as variaveis disponiveis por tipo de documento.")]
+        [RequireAccess("campaignDocumentTemplates.variables.description")]
         [GetEndpoint]
         public IActionResult Variables()
         {
@@ -63,7 +64,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result);
         }
 
-        [RequireAccess("Permite cadastrar um template de documento.")]
+        [RequireAccess("campaignDocumentTemplates.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignDocumentTemplateRequest request, CancellationToken cancellationToken)
         {
@@ -77,7 +78,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapTemplate(template), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um template de documento.")]
+        [RequireAccess("campaignDocumentTemplates.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCampaignDocumentTemplateRequest request, CancellationToken cancellationToken)
         {
@@ -91,7 +92,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapTemplate(template), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite remover um template de documento.")]
+        [RequireAccess("campaignDocumentTemplates.delete.description")]
         [DeleteEndpoint("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {
@@ -99,7 +100,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(new { deleted, deactivatedInsteadOfDeleted = !deleted }, Localizer["record.deleted"]);
         }
 
-        [RequireAccess("Permite pre-visualizar o body do template com dados de exemplo.")]
+        [RequireAccess("campaignDocumentTemplates.preview.description")]
         [PostEndpoint]
         public async Task<IActionResult> Preview([FromBody] PreviewCampaignDocumentTemplateRequest request, CancellationToken cancellationToken)
         {

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("creatorSocialHandles.area")]
     public sealed class CreatorSocialHandlesController : ApiControllerBase
     {
         private readonly ICreatorSocialHandleService service;
@@ -19,14 +20,14 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os handles sociais de um creator.")]
+        [RequireAccess("creatorSocialHandles.getByCreator.description")]
         [GetEndpoint("creator/{creatorId:long}")]
         public async Task<IActionResult> GetByCreator(long creatorId, CancellationToken cancellationToken)
         {
             return Http200(await service.GetByCreator(creatorId, cancellationToken));
         }
 
-        [RequireAccess("Permite cadastrar um handle social para o creator.")]
+        [RequireAccess("creatorSocialHandles.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCreatorSocialHandleRequest request, CancellationToken cancellationToken)
         {
@@ -40,7 +41,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(result, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um handle social do creator.")]
+        [RequireAccess("creatorSocialHandles.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCreatorSocialHandleRequest request, CancellationToken cancellationToken)
         {
@@ -54,7 +55,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir um handle social do creator.")]
+        [RequireAccess("creatorSocialHandles.delete.description")]
         [DeleteEndpoint("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("commercialPipelineStages.area")]
     public sealed class CommercialPipelineStagesController : ApiControllerBase
     {
         private readonly ICommercialPipelineStageService stageService;
@@ -23,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar os estágios configurados do pipeline comercial.")]
+        [RequireAccess("commercialPipelineStages.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite listar os estágios ativos do pipeline comercial.")]
+        [RequireAccess("commercialPipelineStages.getActive.description")]
         [GetEndpoint("active")]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
@@ -43,7 +44,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(stages.Select(MapStage).ToList());
         }
 
-        [RequireAccess("Permite consultar um estágio do pipeline comercial.")]
+        [RequireAccess("commercialPipelineStages.getById.description")]
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -51,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
             return stage is null ? Http404(Localizer["record.notFound"]) : Http200(MapStage(stage));
         }
 
-        [RequireAccess("Permite cadastrar um estágio do pipeline comercial.")]
+        [RequireAccess("commercialPipelineStages.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCommercialPipelineStageRequest request, CancellationToken cancellationToken)
         {
@@ -65,7 +66,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapStage(stage), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar um estágio do pipeline comercial.")]
+        [RequireAccess("commercialPipelineStages.update.description")]
         [HttpPut("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCommercialPipelineStageRequest request, CancellationToken cancellationToken)
         {

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("bankTransactions.area")]
     public sealed class BankTransactionsController : ApiControllerBase
     {
         private readonly IBankTransactionService service;
@@ -20,7 +21,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite que o IntegrationPlatform importe transações bancárias para uma conta.")]
+        [RequireAccess("bankTransactions.import.description")]
         [PostEndpoint]
         public async Task<IActionResult> Import([FromBody] ImportBankTransactionsRequest request, CancellationToken cancellationToken)
         {
@@ -34,14 +35,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["bankTransaction.import.success"]);
         }
 
-        [RequireAccess("Permite listar transações bancárias de uma conta.")]
+        [RequireAccess("bankTransactions.getByAccount.description")]
         [GetEndpoint]
         public async Task<IActionResult> GetByAccount([FromQuery] long accountId, [FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             return Http200(await service.GetByAccount(accountId, request, cancellationToken));
         }
 
-        [RequireAccess("Permite casar manualmente uma transação bancária com um lançamento financeiro.")]
+        [RequireAccess("bankTransactions.match.description")]
         [PostEndpoint("{id:long}/match")]
         public async Task<IActionResult> Match(long id, [FromBody] MatchBankTransactionRequest request, CancellationToken cancellationToken)
         {
@@ -55,7 +56,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["bankTransaction.match.success"]);
         }
 
-        [RequireAccess("Permite desfazer o vínculo entre uma transação bancária e um lançamento financeiro.")]
+        [RequireAccess("bankTransactions.unmatch.description")]
         [PostEndpoint("{id:long}/unmatch")]
         public async Task<IActionResult> Unmatch(long id, CancellationToken cancellationToken)
         {

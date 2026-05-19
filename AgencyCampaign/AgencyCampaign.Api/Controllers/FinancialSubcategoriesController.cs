@@ -9,6 +9,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("financialSubcategories.area")]
     public sealed class FinancialSubcategoriesController : ApiControllerBase
     {
         private readonly IFinancialSubcategoryService service;
@@ -20,14 +21,14 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as subcategorias financeiras cadastradas.")]
+        [RequireAccess("financialSubcategories.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
-        [RequireAccess("Permite cadastrar uma subcategoria financeira.")]
+        [RequireAccess("financialSubcategories.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateFinancialSubcategoryRequest request, CancellationToken cancellationToken)
         {
@@ -41,7 +42,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(result, Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar uma subcategoria financeira.")]
+        [RequireAccess("financialSubcategories.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateFinancialSubcategoryRequest request, CancellationToken cancellationToken)
         {
@@ -55,7 +56,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir uma subcategoria financeira.")]
+        [RequireAccess("financialSubcategories.delete.description")]
         [DeleteEndpoint("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {

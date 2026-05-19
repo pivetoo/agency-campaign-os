@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("campaignDeliverables.area")]
     public sealed class CampaignDeliverablesController : ApiControllerBase
     {
         private readonly ICampaignDeliverableService campaignDeliverableService;
@@ -23,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
             Localizer = localizer;
         }
 
-        [RequireAccess("Permite listar as entregas de campanha cadastradas.")]
+        [RequireAccess("campaignDeliverables.get.description")]
         [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
-        [RequireAccess("Permite consultar os detalhes de uma entrega de campanha.")]
+        [RequireAccess("campaignDeliverables.getById.description")]
         [GetEndpoint("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
@@ -43,7 +44,7 @@ namespace AgencyCampaign.Api.Controllers
             return deliverable is null ? Http404(Localizer["record.notFound"]) : Http200(MapDeliverable(deliverable));
         }
 
-        [RequireAccess("Permite listar as entregas vinculadas a uma campanha.")]
+        [RequireAccess("campaignDeliverables.getByCampaign.description")]
         [GetEndpoint("campaign/{campaignId:long}")]
         public async Task<IActionResult> GetByCampaign(long campaignId, CancellationToken cancellationToken)
         {
@@ -56,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(deliverables.Select(MapDeliverable).ToList());
         }
 
-        [RequireAccess("Permite cadastrar uma nova entrega de campanha.")]
+        [RequireAccess("campaignDeliverables.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignDeliverableRequest request, CancellationToken cancellationToken)
         {
@@ -70,7 +71,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http201(MapDeliverable(deliverable), Localizer["record.created"]);
         }
 
-        [RequireAccess("Permite atualizar os dados de uma entrega de campanha.")]
+        [RequireAccess("campaignDeliverables.update.description")]
         [PutEndpoint("{id:long}")]
         public async Task<IActionResult> Update(long id, [FromBody] UpdateCampaignDeliverableRequest request, CancellationToken cancellationToken)
         {
@@ -84,7 +85,7 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapDeliverable(deliverable), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite excluir uma entrega de campanha.")]
+        [RequireAccess("campaignDeliverables.delete.description")]
         [DeleteEndpoint("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {

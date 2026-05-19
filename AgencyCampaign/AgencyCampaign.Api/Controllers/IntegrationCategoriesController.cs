@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgencyCampaign.Api.Controllers
 {
+    [AccessArea("integrationCategories.area")]
     public sealed class IntegrationCategoriesController : ApiControllerBase
     {
         private readonly IntegrationPlatformClient integrationPlatformClient;
@@ -14,7 +15,7 @@ namespace AgencyCampaign.Api.Controllers
             this.integrationPlatformClient = integrationPlatformClient;
         }
 
-        [RequireAccess("Permite listar as categorias de integracao disponiveis.")]
+        [RequireAccess("integrationCategories.getActive.description")]
         [GetEndpoint("active")]
         public async Task<IActionResult> GetActive(CancellationToken cancellationToken)
         {
