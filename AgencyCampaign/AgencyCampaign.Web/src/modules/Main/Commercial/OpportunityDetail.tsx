@@ -613,8 +613,11 @@ export default function OpportunityDetail() {
               </CardHeader>
               <CardContent>
                 <div className="mb-3 flex flex-wrap gap-2">
-                  <Button size="sm" variant="outline" onClick={() => selectedNegotiation && setIsNegotiationFormOpen(true)} disabled={!selectedNegotiation}>
+                  <Button size="sm" variant="ghost" onClick={() => selectedNegotiation && setIsNegotiationFormOpen(true)} disabled={!selectedNegotiation}>
                     <Pencil className="mr-2 h-4 w-4" /> {t('common.action.edit')}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => void handleDeleteNegotiation()} disabled={!selectedNegotiation || actionLoading}>
+                    <Trash2 className="mr-2 h-4 w-4" /> {t('common.action.delete')}
                   </Button>
                   <Button size="sm" variant="outline" onClick={openStatusModal} disabled={!selectedNegotiation || actionLoading}>
                     <Activity className="mr-2 h-4 w-4" /> {t('opportunityDetail.negotiations.changeStatus')}
@@ -633,9 +636,6 @@ export default function OpportunityDetail() {
                     }
                   >
                     <CheckCircle className="mr-2 h-4 w-4" /> {t('opportunityDetail.negotiations.requestApproval')}
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => void handleDeleteNegotiation()} disabled={!selectedNegotiation || actionLoading}>
-                    <Trash2 className="mr-2 h-4 w-4" /> {t('common.action.delete')}
                   </Button>
                 </div>
                 <DataTable
