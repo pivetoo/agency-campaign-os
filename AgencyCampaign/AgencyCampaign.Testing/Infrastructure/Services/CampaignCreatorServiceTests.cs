@@ -151,5 +151,65 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
+
+        [Test]
+        public async Task GetCampaignCreatorById_should_return_null_when_not_found()
+        {
+            (await service.GetCampaignCreatorById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetCampaignCreatorById_should_return_when_found()
+        {
+            await SeedAsync();
+            DomainEntities.CampaignCreator cc = new(10, 20, 30, 100m, 10m);
+            db.Add(cc);
+            await db.SaveChangesAsync();
+
+            CampaignCreator? result = await service.GetCampaignCreatorById(cc.Id);
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task GetByCampaign_should_filter_by_campaign_id()
+        {
+            await SeedAsync();
+            db.Add(new Campaign(1, "C2", 0m, DateTimeOffset.UtcNow).WithId(11));
+            db.Add(new DomainEntities.CampaignCreator(10, 20, 30, 100m, 10m));
+            db.Add(new DomainEntities.CampaignCreator(11, 20, 30, 100m, 10m));
+            await db.SaveChangesAsync();
+
+            List<CampaignCreator> result = await service.GetByCampaign(10);
+
+            result.Should().HaveCount(1);
+        }
+
+        [Test]
+        public async Task GetCampaignCreators_should_return_paged_result()
+        {
+            await SeedAsync();
+            db.Add(new Creator("Bar").WithId(21));
+            db.Add(new DomainEntities.CampaignCreator(10, 20, 30, 100m, 10m));
+            db.Add(new DomainEntities.CampaignCreator(10, 21, 30, 100m, 10m));
+            await db.SaveChangesAsync();
+
+            Archon.Core.Pagination.PagedResult<CampaignCreator> result = await service.GetCampaignCreators(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 });
+
+            result.Items.Should().HaveCount(2);
+        }
+
+        [Test]
+        public async Task GetStatusHistory_should_return_empty_when_no_history()
+        {
+            await SeedAsync();
+            DomainEntities.CampaignCreator cc = new(10, 20, 30, 100m, 10m);
+            db.Add(cc);
+            await db.SaveChangesAsync();
+
+            IReadOnlyCollection<CampaignCreatorStatusHistory> result = await service.GetStatusHistory(cc.Id);
+
+            result.Should().BeEmpty();
+        }
     }
 }

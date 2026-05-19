@@ -127,5 +127,83 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Func<Task> act = () => service.ApplyToProposal(proposal.Id, inactive.Id);
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
+
+        [Test]
+        public async Task GetAll_should_return_paged_result()
+        {
+            db.Add(new ProposalTemplate("A", null, null, null));
+            db.Add(new ProposalTemplate("B", null, null, null));
+            await db.SaveChangesAsync();
+
+            var result = await service.GetAll(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 }, search: null, includeInactive: true);
+
+            result.Items.Should().HaveCount(2);
+        }
+
+        [Test]
+        public async Task GetAll_should_filter_inactive_by_default()
+        {
+            db.Add(new ProposalTemplate("Active", null, null, null));
+            ProposalTemplate inactive = new("Inactive", null, null, null);
+            inactive.Update("Inactive", null, false);
+            db.Add(inactive);
+            await db.SaveChangesAsync();
+
+            var result = await service.GetAll(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 }, search: null, includeInactive: false);
+
+            result.Items.Should().ContainSingle(item => item.Name == "Active");
+        }
+
+        [Test]
+        public async Task GetAll_should_filter_by_search()
+        {
+            db.Add(new ProposalTemplate("Pacote A", null, null, null));
+            db.Add(new ProposalTemplate("Outro", null, null, null));
+            await db.SaveChangesAsync();
+
+            var result = await service.GetAll(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 }, search: "pacote", includeInactive: true);
+
+            result.Items.Should().ContainSingle();
+        }
+
+        [Test]
+        public async Task GetById_should_return_null_when_not_found()
+        {
+            (await service.GetById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetById_should_return_template_when_found()
+        {
+            ProposalTemplate template = new("T", null, null, null);
+            db.Add(template);
+            await db.SaveChangesAsync();
+
+            ProposalTemplateModel? result = await service.GetById(template.Id);
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task Update_should_throw_when_not_found()
+        {
+            UpdateProposalTemplateRequest request = new() { Id = 99, Name = "x" };
+
+            Func<Task> act = () => service.Update(99, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task Delete_should_remove_template()
+        {
+            ProposalTemplate template = new("T", null, null, null);
+            db.Add(template);
+            await db.SaveChangesAsync();
+
+            await service.Delete(template.Id);
+
+            (await db.Set<ProposalTemplate>().CountAsync()).Should().Be(0);
+        }
     }
 }

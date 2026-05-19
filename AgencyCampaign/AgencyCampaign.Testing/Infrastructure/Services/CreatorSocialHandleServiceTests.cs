@@ -91,6 +91,64 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task Update_should_throw_when_not_found()
+        {
+            UpdateCreatorSocialHandleRequest request = new() { Id = 99, CreatorId = 1, PlatformId = 1, Handle = "x" };
+
+            Func<Task> act = () => service.Update(99, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task Update_should_persist_changes()
+        {
+            (Creator creator, Platform platform) = await SeedAsync();
+            CreatorSocialHandle handle = new(creator.Id, platform.Id, "@old", null, 100, null, isPrimary: false);
+            db.Add(handle);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCreatorSocialHandleRequest request = new()
+            {
+                Id = handle.Id,
+                CreatorId = creator.Id,
+                PlatformId = platform.Id,
+                Handle = "@new",
+                Followers = 5000,
+                IsPrimary = true,
+                IsActive = true
+            };
+
+            var result = await service.Update(handle.Id, request);
+
+            result.Handle.Should().Be("@new");
+            result.Followers.Should().Be(5000);
+            result.IsPrimary.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Delete_should_remove_handle()
+        {
+            (Creator creator, Platform platform) = await SeedAsync();
+            CreatorSocialHandle handle = new(creator.Id, platform.Id, "@foo", null, null, null, isPrimary: false);
+            db.Add(handle);
+            await db.SaveChangesAsync();
+
+            await service.Delete(handle.Id);
+
+            (await db.Set<CreatorSocialHandle>().CountAsync()).Should().Be(0);
+        }
+
+        [Test]
+        public async Task GetByCreator_should_return_empty_when_creator_has_no_handles()
+        {
+            var result = await service.GetByCreator(999);
+
+            result.Should().BeEmpty();
+        }
+
+        [Test]
         public async Task GetByCreator_should_order_primary_first_then_by_platform_name()
         {
             (Creator creator, Platform ig) = await SeedAsync();

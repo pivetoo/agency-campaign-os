@@ -123,5 +123,59 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Events.Should().ContainSingle(item => item.EventType == CreatorPaymentEventType.InvoiceAttached);
         }
 
+        [Test]
+        public async Task GetCampaigns_should_return_empty_when_creator_has_none()
+        {
+            List<CampaignCreator> result = await service.GetCampaigns(99);
+
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task GetCampaigns_should_return_only_creator_campaigns()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "C", 0m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new AgencyCampaign.Domain.Entities.CampaignCreatorStatus("S", 1, "#fff").WithId(50));
+            db.Add(new CampaignCreator(10, 7, 50, 100m, 10m).WithId(100));
+            db.Add(new CampaignCreator(10, 99, 50, 100m, 10m).WithId(101));
+            await db.SaveChangesAsync();
+
+            List<CampaignCreator> result = await service.GetCampaigns(7);
+
+            result.Should().HaveCount(1);
+        }
+
+        [Test]
+        public async Task GetDocuments_should_return_creator_documents_only()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "C", 0m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new AgencyCampaign.Domain.Entities.CampaignCreatorStatus("S", 1, "#fff").WithId(50));
+            db.Add(new CampaignCreator(10, 7, 50, 100m, 10m).WithId(100));
+            db.Add(new CampaignDocument(10, CampaignDocumentType.CreatorAgreement, "Doc1", campaignCreatorId: 100));
+            db.Add(new CampaignDocument(10, CampaignDocumentType.CreatorAgreement, "Doc2"));
+            await db.SaveChangesAsync();
+
+            List<CampaignDocument> result = await service.GetDocuments(7);
+
+            result.Should().ContainSingle(item => item.Title == "Doc1");
+        }
+
+        [Test]
+        public async Task GetPayments_should_return_creator_payments()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "C", 0m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new AgencyCampaign.Domain.Entities.CampaignCreatorStatus("S", 1, "#fff").WithId(50));
+            db.Add(new CampaignCreator(10, 7, 50, 100m, 10m).WithId(100));
+            db.Add(new CreatorPayment(100, 7, 100m, 0m, PaymentMethod.Pix));
+            db.Add(new CreatorPayment(100, 99, 100m, 0m, PaymentMethod.Pix));
+            await db.SaveChangesAsync();
+
+            List<CreatorPayment> result = await service.GetPayments(7);
+
+            result.Should().HaveCount(1);
+        }
     }
 }

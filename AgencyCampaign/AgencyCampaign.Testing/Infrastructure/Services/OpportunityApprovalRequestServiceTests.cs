@@ -174,6 +174,104 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task Reject_should_throw_when_not_found()
+        {
+            Func<Task> act = () => service.Reject(99, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Boss" });
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task Reject_should_throw_when_already_decided()
+        {
+            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            negotiation.MarkPendingApproval();
+            await db.SaveChangesAsync();
+
+            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            approval.Reject("Boss");
+            db.Add(approval);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.Reject(approval.Id, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Boss" });
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task CreateOpportunityApprovalRequest_should_notify_each_approver_when_user_ids_provided()
+        {
+            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+
+            await service.CreateOpportunityApprovalRequest(new CreateOpportunityApprovalRequest
+            {
+                OpportunityNegotiationId = negotiation.Id,
+                ApprovalType = OpportunityApprovalType.DiscountApproval,
+                Reason = "alta",
+                RequestedByUserName = "Tester",
+                RequestedByUserId = 1,
+                ApproverUserIds = new List<long> { 10, 20, 30 }
+            });
+
+            notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+        }
+
+        [Test]
+        public async Task GetOpportunityApprovalRequestById_should_return_null_when_not_found()
+        {
+            (await service.GetOpportunityApprovalRequestById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetOpportunityApprovalRequestById_should_return_when_found()
+        {
+            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "x", "Tester");
+            db.Add(approval);
+            await db.SaveChangesAsync();
+
+            OpportunityApprovalRequest? result = await service.GetOpportunityApprovalRequestById(approval.Id);
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task GetAllApprovals_should_return_paged_result()
+        {
+            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            db.Add(new OpportunityApprovalRequest(negotiation.Id, OpportunityApprovalType.DiscountApproval, "a", "Tester"));
+            db.Add(new OpportunityApprovalRequest(negotiation.Id, OpportunityApprovalType.DeadlineApproval, "b", "Tester"));
+            await db.SaveChangesAsync();
+
+            Archon.Core.Pagination.PagedResult<OpportunityApprovalRequest> result = await service.GetAllApprovals(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 });
+
+            result.Items.Should().HaveCount(2);
+        }
+
+        [Test]
+        public async Task GetApprovalsSummary_should_aggregate_by_status()
+        {
+            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            OpportunityApprovalRequest pending = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "pending", "Tester");
+            OpportunityApprovalRequest approved = new(negotiation.Id, OpportunityApprovalType.DeadlineApproval, "approved", "Tester");
+            approved.Approve("Boss");
+            OpportunityApprovalRequest rejected = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "rejected", "Tester");
+            rejected.Reject("Boss");
+
+            db.Add(pending);
+            db.Add(approved);
+            db.Add(rejected);
+            await db.SaveChangesAsync();
+
+            var summary = await service.GetApprovalsSummary();
+
+            summary.Pending.Should().Be(1);
+            summary.Approved.Should().Be(1);
+            summary.Rejected.Should().Be(1);
+        }
+
+        [Test]
         public async Task GetApprovalsByNegotiationId_should_filter_and_order_desc()
         {
             OpportunityNegotiation negotiation = await SeedNegotiationAsync();

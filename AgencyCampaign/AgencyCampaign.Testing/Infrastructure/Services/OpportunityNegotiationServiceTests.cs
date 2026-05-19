@@ -137,6 +137,59 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetOpportunityNegotiationById_should_return_null_when_not_found()
+        {
+            (await service.GetOpportunityNegotiationById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetOpportunityNegotiationById_should_return_negotiation_when_found()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            OpportunityNegotiation negotiation = new(opportunity.Id, "v1", 100m, DateTimeOffset.UtcNow);
+            db.Add(negotiation);
+            await db.SaveChangesAsync();
+
+            OpportunityNegotiation? result = await service.GetOpportunityNegotiationById(negotiation.Id);
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task UpdateOpportunityNegotiation_should_throw_when_not_found()
+        {
+            UpdateOpportunityNegotiationRequest request = new() { Title = "v1", Amount = 100m, NegotiatedAt = DateTimeOffset.UtcNow };
+
+            Func<Task> act = () => service.UpdateOpportunityNegotiation(99, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task UpdateOpportunityNegotiation_should_persist_changes()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            OpportunityNegotiation negotiation = new(opportunity.Id, "old", 100m, DateTimeOffset.UtcNow);
+            db.Add(negotiation);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateOpportunityNegotiationRequest request = new()
+            {
+                Title = "new",
+                Amount = 500m,
+                NegotiatedAt = DateTimeOffset.UtcNow,
+                Notes = "novas notas"
+            };
+
+            OpportunityNegotiation result = await service.UpdateOpportunityNegotiation(negotiation.Id, request);
+
+            result.Title.Should().Be("new");
+            result.Amount.Should().Be(500m);
+            result.Notes.Should().Be("novas notas");
+        }
+
+        [Test]
         public async Task GetNegotiationsByOpportunityId_should_filter_and_order_by_negotiated_at_desc()
         {
             Opportunity opportunity = await SeedOpportunityAsync();

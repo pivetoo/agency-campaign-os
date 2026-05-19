@@ -194,6 +194,69 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetSummary_should_return_zero_metrics_for_creator_with_no_campaigns()
+        {
+            db.Add(new Creator("Solo").WithId(7));
+            await db.SaveChangesAsync();
+
+            CreatorSummaryModel? summary = await service.GetSummary(7);
+
+            summary.Should().NotBeNull();
+            summary!.CreatorId.Should().Be(7);
+            summary.TotalCampaigns.Should().Be(0);
+            summary.TotalDeliverables.Should().Be(0);
+            summary.OnTimeDeliveryRate.Should().Be(0);
+            summary.PerformanceByPlatform.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task GetSummary_should_use_creator_name_when_stage_name_is_null()
+        {
+            Creator creator = new Creator("Pessoa Real").WithId(8);
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorSummaryModel? summary = await service.GetSummary(8);
+
+            summary!.CreatorName.Should().Be("Pessoa Real");
+        }
+
+        [Test]
+        public async Task GetSummary_should_use_stage_name_when_provided()
+        {
+            Creator creator = new Creator("Pessoa Real", stageName: "@nick").WithId(9);
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorSummaryModel? summary = await service.GetSummary(9);
+
+            summary!.CreatorName.Should().Be("@nick");
+        }
+
+        [Test]
+        public async Task GetSummary_should_group_by_multiple_platforms_in_performance()
+        {
+            db.Add(new Creator("X").WithId(15));
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "C", 0m, DateTimeOffset.UtcNow).WithId(20));
+            db.Add(new Platform("Instagram").WithId(1));
+            db.Add(new Platform("TikTok").WithId(2));
+            db.Add(new DeliverableKind("Story").WithId(1));
+            db.Add(new CampaignCreatorStatus("Open", 1, "#fff").WithId(50));
+            db.Add(new DomainEntities.CampaignCreator(20, 15, 50, 100m, 10m).WithId(200));
+
+            db.Add(new CampaignDeliverable(20, 200, "Ig1", 1, 1, DateTimeOffset.UtcNow.AddDays(1), 100m, 80m, 10m));
+            db.Add(new CampaignDeliverable(20, 200, "Ig2", 1, 1, DateTimeOffset.UtcNow.AddDays(1), 200m, 160m, 20m));
+            db.Add(new CampaignDeliverable(20, 200, "Tk1", 1, 2, DateTimeOffset.UtcNow.AddDays(1), 50m, 40m, 5m));
+            await db.SaveChangesAsync();
+
+            CreatorSummaryModel? summary = await service.GetSummary(15);
+
+            summary!.PerformanceByPlatform.Should().HaveCount(2);
+            summary.PerformanceByPlatform.First().GrossAmount.Should().BeGreaterThan(summary.PerformanceByPlatform.Last().GrossAmount);
+        }
+
+        [Test]
         public async Task GetSummary_should_compute_aggregated_metrics()
         {
             Creator creator = new Creator("Foo").WithId(1);

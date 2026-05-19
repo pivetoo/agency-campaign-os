@@ -326,5 +326,229 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             result.Should().BeEmpty();
         }
+
+        [Test]
+        public async Task HandleProviderCallback_should_throw_when_payment_not_found()
+        {
+            CreatorPaymentProviderCallbackRequest request = new()
+            {
+                Provider = "p",
+                ProviderTransactionId = "tx-1",
+                EventType = "paid"
+            };
+
+            Func<Task> act = () => service.HandleProviderCallback(request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("record.notFound");
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_mark_paid_on_paid_event()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 100m,
+                Method = PaymentMethod.Pix
+            });
+            await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest
+            {
+                Provider = "provider-x",
+                ProviderTransactionId = "tx-callback",
+                PaidAt = DateTimeOffset.UtcNow
+            });
+
+            CreatorPayment result = await service.HandleProviderCallback(new CreatorPaymentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderTransactionId = "tx-callback",
+                EventType = "paid"
+            });
+
+            result.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Paid);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_register_sync_error_for_unknown_event()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 100m,
+                Method = PaymentMethod.Pix
+            });
+            await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest
+            {
+                Provider = "provider-x",
+                ProviderTransactionId = "tx-callback",
+                PaidAt = DateTimeOffset.UtcNow
+            });
+
+            CreatorPayment result = await service.HandleProviderCallback(new CreatorPaymentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderTransactionId = "tx-callback",
+                EventType = "estranho"
+            });
+
+            result.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.ProviderSyncError);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_mark_failed_on_failed_event()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 100m,
+                Method = PaymentMethod.Pix
+            });
+            CreatorPayment? tracked = await db.Set<CreatorPayment>().AsTracking().FirstAsync(item => item.Id == payment.Id);
+            tracked.AttachToProvider("provider-x", "tx-failed");
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            CreatorPayment result = await service.HandleProviderCallback(new CreatorPaymentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderTransactionId = "tx-failed",
+                EventType = "transfer.failed",
+                FailureReason = "saldo insuficiente"
+            });
+
+            result.Status.Should().Be(PaymentStatus.Failed);
+            result.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Failed);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_cancel_on_cancelled_event()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 100m,
+                Method = PaymentMethod.Pix
+            });
+            CreatorPayment? tracked = await db.Set<CreatorPayment>().AsTracking().FirstAsync(item => item.Id == payment.Id);
+            tracked.AttachToProvider("provider-x", "tx-cancelled");
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            CreatorPayment result = await service.HandleProviderCallback(new CreatorPaymentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderTransactionId = "tx-cancelled",
+                EventType = "cancelled",
+                FailureReason = "cliente desistiu"
+            });
+
+            result.Status.Should().Be(PaymentStatus.Cancelled);
+            result.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Cancelled);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_normalize_event_type_case_and_whitespace()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 100m,
+                Method = PaymentMethod.Pix
+            });
+            CreatorPayment? tracked = await db.Set<CreatorPayment>().AsTracking().FirstAsync(item => item.Id == payment.Id);
+            tracked.AttachToProvider("provider-x", "tx-mix");
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            CreatorPayment result = await service.HandleProviderCallback(new CreatorPaymentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderTransactionId = "tx-mix",
+                EventType = "  TRANSFER.COMPLETED  "
+            });
+
+            result.Status.Should().Be(PaymentStatus.Paid);
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_mark_failed_when_integration_throws()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 100m,
+                Method = PaymentMethod.Pix
+            });
+
+            SchedulePaymentBatchRequest request = new()
+            {
+                CreatorPaymentIds = new List<long> { payment.Id },
+                ScheduledFor = DateTimeOffset.UtcNow,
+                ConnectorId = 1,
+                PipelineId = 99
+            };
+
+            List<CreatorPayment> result = await service.SchedulePaymentBatch(request);
+
+            result.Should().BeEmpty();
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
+            refreshed.Status.Should().Be(PaymentStatus.Failed);
+            refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.ProviderSyncError);
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_default_scheduled_for_to_utc_now_when_null()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync(pixKey: null, pixKeyType: null);
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 100m,
+                Method = PaymentMethod.Pix
+            });
+
+            SchedulePaymentBatchRequest request = new()
+            {
+                CreatorPaymentIds = new List<long> { payment.Id },
+                ScheduledFor = null
+            };
+
+            List<CreatorPayment> result = await service.SchedulePaymentBatch(request);
+
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task GetByStatus_should_return_empty_when_no_match()
+        {
+            List<CreatorPayment> result = await service.GetByStatus((int)PaymentStatus.Paid);
+
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task CreatePayment_should_attach_campaign_document_when_provided()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CampaignDocument doc = new(campaignId: 1, documentType: CampaignDocumentType.CreatorAgreement, title: "Doc");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 100m,
+                Method = PaymentMethod.Pix,
+                CampaignDocumentId = doc.Id
+            });
+
+            payment.CampaignDocumentId.Should().Be(doc.Id);
+        }
     }
 }

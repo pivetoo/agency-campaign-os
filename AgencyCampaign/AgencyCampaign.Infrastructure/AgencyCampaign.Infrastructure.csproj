@@ -17,4 +17,8 @@
     <ProjectReference Include="..\AgencyCampaign.Application\AgencyCampaign.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="AgencyCampaign.Testing" />
+  </ItemGroup>
+
 </Project>

@@ -102,6 +102,70 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetProposalItemById_should_return_null_when_not_found()
+        {
+            (await service.GetProposalItemById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetProposalItemById_should_return_item_when_found()
+        {
+            Proposal proposal = await SeedProposalAsync();
+            ProposalItem item = new(proposal.Id, "x", 1, 100m);
+            db.Add(item);
+            await db.SaveChangesAsync();
+
+            ProposalItem? result = await service.GetProposalItemById(item.Id);
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task UpdateProposalItem_should_persist_changes_and_recalculate_total()
+        {
+            Proposal proposal = await SeedProposalAsync();
+            ProposalItem item = new(proposal.Id, "old", 1, 100m);
+            db.Add(item);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateProposalItemRequest request = new()
+            {
+                Description = "new",
+                Quantity = 2,
+                UnitPrice = 250m
+            };
+
+            ProposalItem result = await service.UpdateProposalItem(item.Id, request);
+
+            result.Description.Should().Be("new");
+            result.Quantity.Should().Be(2);
+            result.UnitPrice.Should().Be(250m);
+
+            db.ChangeTracker.Clear();
+            Proposal refreshed = await db.Set<Proposal>().AsNoTracking().SingleAsync();
+            refreshed.TotalValue.Should().Be(500m);
+        }
+
+        [Test]
+        public async Task DeleteProposalItem_should_remove_and_recalculate_total()
+        {
+            Proposal proposal = await SeedProposalAsync();
+            ProposalItem keep = new(proposal.Id, "keep", 1, 100m);
+            ProposalItem remove = new(proposal.Id, "remove", 1, 200m);
+            db.Add(keep);
+            db.Add(remove);
+            await db.SaveChangesAsync();
+
+            await service.DeleteProposalItem(remove.Id);
+
+            db.ChangeTracker.Clear();
+            Proposal refreshed = await db.Set<Proposal>().AsNoTracking().SingleAsync();
+            refreshed.TotalValue.Should().Be(100m);
+            (await db.Set<ProposalItem>().CountAsync()).Should().Be(1);
+        }
+
+        [Test]
         public async Task GetItemsByProposalId_should_filter_by_proposal()
         {
             Proposal proposal = await SeedProposalAsync();

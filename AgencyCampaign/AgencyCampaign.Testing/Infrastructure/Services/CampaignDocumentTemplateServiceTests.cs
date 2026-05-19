@@ -159,5 +159,80 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             await act.Should().NotThrowAsync();
         }
+
+        [Test]
+        public async Task DeleteTemplate_when_not_in_use_should_remove_from_db()
+        {
+            CampaignDocumentTemplate template = new("X", CampaignDocumentType.CreatorAgreement, "body".PadRight(20), null, null, null);
+            db.Add(template);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+            long id = template.Id;
+
+            await service.DeleteTemplate(id);
+
+            (await db.Set<CampaignDocumentTemplate>().AsNoTracking().AnyAsync(item => item.Id == id)).Should().BeFalse();
+        }
+
+        [Test]
+        public async Task PreviewTemplate_should_replace_known_placeholders()
+        {
+            string body = "Cliente: {{brandName}} - Creator: {{creatorStageName}}";
+
+            string rendered = await service.PreviewTemplate(body, CampaignDocumentType.CreatorAgreement);
+
+            rendered.Should().Be("Cliente: Marca Exemplo Ltda. - Creator: @mariasilva");
+        }
+
+        [Test]
+        public async Task PreviewTemplate_should_drop_unknown_placeholders()
+        {
+            string body = "{{unknownKey}} fixed text {{campaignId}}";
+
+            string rendered = await service.PreviewTemplate(body, CampaignDocumentType.CreatorAgreement);
+
+            rendered.Should().Be(" fixed text 1234");
+        }
+
+        [Test]
+        public async Task PreviewTemplate_should_tolerate_whitespace_inside_braces()
+        {
+            string body = "{{   campaignName  }}";
+
+            string rendered = await service.PreviewTemplate(body, CampaignDocumentType.CreatorAgreement);
+
+            rendered.Should().Contain("2026");
+            rendered.Should().NotContain("{{");
+        }
+
+        [Test]
+        public async Task PreviewTemplate_should_handle_empty_body()
+        {
+            string rendered = await service.PreviewTemplate(string.Empty, CampaignDocumentType.CreatorAgreement);
+
+            rendered.Should().Be(string.Empty);
+        }
+
+        [Test]
+        public async Task GetActiveByDocumentType_should_return_empty_when_no_matches()
+        {
+            List<CampaignDocumentTemplate> result = await service.GetActiveByDocumentType(CampaignDocumentType.BrandContract);
+
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task GetTemplates_should_order_by_id_descending()
+        {
+            db.Add(new CampaignDocumentTemplate("First", CampaignDocumentType.CreatorAgreement, "body".PadRight(20), null, null, null));
+            await db.SaveChangesAsync();
+            db.Add(new CampaignDocumentTemplate("Second", CampaignDocumentType.BrandContract, "body".PadRight(20), null, null, null));
+            await db.SaveChangesAsync();
+
+            Archon.Core.Pagination.PagedResult<CampaignDocumentTemplate> result = await service.GetTemplates(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 });
+
+            result.Items.First().Name.Should().Be("Second");
+            result.Items.Last().Name.Should().Be("First");
+        }
     }
 }

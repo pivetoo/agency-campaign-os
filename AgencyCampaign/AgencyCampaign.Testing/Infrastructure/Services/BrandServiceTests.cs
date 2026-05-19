@@ -182,5 +182,40 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Items.Should().ContainSingle();
             result.Items.First().Name.Should().Be("Acme Corp");
         }
+
+        [Test]
+        public async Task ExportAsync_should_yield_lines_for_each_brand()
+        {
+            db.Add(new Brand("A"));
+            db.Add(new Brand("B"));
+            await db.SaveChangesAsync();
+
+            List<string> lines = new();
+            await foreach (string line in service.ExportAsync())
+            {
+                lines.Add(line);
+            }
+
+            lines.Should().HaveCount(2);
+        }
+
+        [Test]
+        public async Task ExportAsync_should_escape_fields_with_commas_and_quotes()
+        {
+            Brand brand = new("Acme, Inc.");
+            brand.Update("Acme, Inc.", null, null, null, "He said \"hi\"", null, true);
+            db.Add(brand);
+            await db.SaveChangesAsync();
+
+            List<string> lines = new();
+            await foreach (string line in service.ExportAsync())
+            {
+                lines.Add(line);
+            }
+
+            lines.Should().ContainSingle();
+            lines.First().Should().Contain("\"Acme, Inc.\"");
+            lines.First().Should().Contain("\"He said \"\"hi\"\"\"");
+        }
     }
 }
