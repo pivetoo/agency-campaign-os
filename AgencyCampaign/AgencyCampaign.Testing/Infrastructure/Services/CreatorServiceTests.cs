@@ -66,6 +66,134 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetCreators_should_filter_inactive_by_default()
+        {
+            Creator active = new("Alice");
+            Creator inactive = new("Bob");
+            inactive.Update("Bob", null, null, null, null, null, null, null, null, null, null, 0m, isActive: false);
+            db.Add(active);
+            db.Add(inactive);
+            await db.SaveChangesAsync();
+
+            Archon.Core.Pagination.PagedResult<Creator> result = await service.GetCreators(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 }, search: null, includeInactive: false);
+
+            result.Items.Should().HaveCount(1);
+            result.Items.First().Name.Should().Be("Alice");
+        }
+
+        [Test]
+        public async Task GetCreators_should_search_by_name_or_stage_name()
+        {
+            db.Add(new Creator("Foo Bar", stageName: "FooBarStage"));
+            db.Add(new Creator("Outro", stageName: "BarStage"));
+            await db.SaveChangesAsync();
+
+            Archon.Core.Pagination.PagedResult<Creator> byName = await service.GetCreators(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 }, "foo", includeInactive: true);
+            Archon.Core.Pagination.PagedResult<Creator> byStage = await service.GetCreators(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 }, "barstage", includeInactive: true);
+
+            byName.Items.Should().ContainSingle();
+            byStage.Items.Should().HaveCount(2);
+        }
+
+        [Test]
+        public async Task GetCreatorById_should_return_null_when_not_found()
+        {
+            (await service.GetCreatorById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetCreatorById_should_return_creator_when_found()
+        {
+            Creator creator = new("Alice");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            Creator? result = await service.GetCreatorById(creator.Id);
+
+            result.Should().NotBeNull();
+            result!.Name.Should().Be("Alice");
+        }
+
+        [Test]
+        public async Task UpdateCreator_should_persist_changes()
+        {
+            Creator creator = new("Alice");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCreatorRequest request = new()
+            {
+                Id = creator.Id,
+                Name = "Updated",
+                Email = "new@x"
+            };
+
+            Creator result = await service.UpdateCreator(creator.Id, request);
+
+            result.Name.Should().Be("Updated");
+            result.Email.Should().Be("new@x");
+        }
+
+        [Test]
+        public async Task SetCreatorPhoto_should_persist_photo_url()
+        {
+            Creator creator = new("Alice");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Creator result = await service.SetCreatorPhoto(creator.Id, "/photo.jpg");
+
+            result.PhotoUrl.Should().Be("/photo.jpg");
+        }
+
+        [Test]
+        public async Task SetCreatorPhoto_should_throw_when_not_found()
+        {
+            Func<Task> act = () => service.SetCreatorPhoto(99, "/photo.jpg");
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task RemoveCreatorPhoto_should_clear_photo_url()
+        {
+            Creator creator = new("Alice");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+            await service.SetCreatorPhoto(creator.Id, "/photo.jpg");
+            db.ChangeTracker.Clear();
+
+            Creator result = await service.RemoveCreatorPhoto(creator.Id);
+
+            result.PhotoUrl.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetCampaignsByCreator_should_return_empty_when_none()
+        {
+            IReadOnlyCollection<DomainEntities.CampaignCreator> result = await service.GetCampaignsByCreator(99);
+
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task GetCampaignsByCreator_should_return_associations()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "C1", 0m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new Creator("Foo").WithId(1));
+            db.Add(new CampaignCreatorStatus("Open", 1, "#fff").WithId(50));
+            db.Add(new DomainEntities.CampaignCreator(10, 1, 50, 100m, 10m).WithId(100));
+            await db.SaveChangesAsync();
+
+            IReadOnlyCollection<DomainEntities.CampaignCreator> result = await service.GetCampaignsByCreator(1);
+
+            result.Should().HaveCount(1);
+        }
+
+        [Test]
         public async Task GetSummary_should_compute_aggregated_metrics()
         {
             Creator creator = new Creator("Foo").WithId(1);

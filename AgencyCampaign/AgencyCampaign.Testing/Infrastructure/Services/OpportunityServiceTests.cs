@@ -235,5 +235,283 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             result.Should().HaveCount(3); // 1 from constructor + 2 added manually
         }
+
+        [Test]
+        public async Task GetOpportunityById_should_return_null_when_not_found()
+        {
+            Opportunity? result = await service.GetOpportunityById(99);
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetOpportunityById_should_return_with_includes_when_found()
+        {
+            await SeedBaseAsync();
+            Opportunity opportunity = new(1, 1, "Big", 100m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+
+            Opportunity? result = await service.GetOpportunityById(opportunity.Id);
+
+            result.Should().NotBeNull();
+            result!.Brand.Should().NotBeNull();
+            result.CommercialPipelineStage.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task CreateOpportunity_should_throw_when_stage_id_provided_but_not_found()
+        {
+            await SeedBaseAsync();
+
+            Func<Task> act = () => service.CreateOpportunity(new CreateOpportunityRequest
+            {
+                BrandId = 1,
+                CommercialPipelineStageId = 999,
+                Name = "x",
+                EstimatedValue = 0
+            });
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task CreateOpportunity_should_apply_tags_and_source_when_provided()
+        {
+            await SeedBaseAsync();
+            db.Add(new OpportunitySource("Indicação", "#fff", 1).WithId(50));
+            db.Add(new OpportunityTag("vip", "#000").WithId(60));
+            db.Add(new OpportunityTag("hot", "#111").WithId(61));
+            await db.SaveChangesAsync();
+
+            Opportunity result = await service.CreateOpportunity(new CreateOpportunityRequest
+            {
+                BrandId = 1,
+                Name = "Big",
+                EstimatedValue = 100m,
+                OpportunitySourceId = 50,
+                TagIds = new List<long> { 60, 61 }
+            });
+
+            result.OpportunitySourceId.Should().Be(50);
+            result.TagAssignments.Should().HaveCount(2);
+        }
+
+        [Test]
+        public async Task UpdateOpportunity_should_throw_when_route_id_does_not_match_body()
+        {
+            await SeedBaseAsync();
+            Opportunity opportunity = new(1, 1, "x", 0m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+
+            UpdateOpportunityRequest request = new() { Id = 999, BrandId = 1, Name = "x", EstimatedValue = 0 };
+
+            Func<Task> act = () => service.UpdateOpportunity(opportunity.Id, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("request.route.idMismatch");
+        }
+
+        [Test]
+        public async Task UpdateOpportunity_should_throw_when_not_found()
+        {
+            await SeedBaseAsync();
+
+            UpdateOpportunityRequest request = new() { Id = 99, BrandId = 1, Name = "x", EstimatedValue = 0 };
+
+            Func<Task> act = () => service.UpdateOpportunity(99, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("record.notFound");
+        }
+
+        [Test]
+        public async Task UpdateOpportunity_should_persist_changes_and_replace_tags()
+        {
+            await SeedBaseAsync();
+            db.Add(new OpportunityTag("a", "#fff").WithId(60));
+            db.Add(new OpportunityTag("b", "#000").WithId(61));
+            db.Add(new OpportunityTag("c", "#111").WithId(62));
+            Opportunity opportunity = new(1, 1, "Old", 100m);
+            opportunity.ReplaceTags(new long[] { 60, 61 });
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateOpportunityRequest request = new()
+            {
+                Id = opportunity.Id,
+                BrandId = 1,
+                Name = "Updated",
+                EstimatedValue = 250m,
+                TagIds = new List<long> { 61, 62 },
+                Probability = 70m
+            };
+
+            Opportunity result = await service.UpdateOpportunity(opportunity.Id, request);
+
+            result.Name.Should().Be("Updated");
+            result.EstimatedValue.Should().Be(250m);
+            result.Probability.Should().Be(70m);
+            result.ProbabilityIsManual.Should().BeTrue();
+            result.TagAssignments.Select(item => item.OpportunityTagId).Should().BeEquivalentTo(new long[] { 61, 62 });
+        }
+
+        [Test]
+        public async Task CloseAsLost_should_throw_when_no_lost_stage_configured()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new CommercialPipelineStageBuilder().WithId(1).Build());
+            Opportunity opportunity = new(1, 1, "Big", 1000m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.CloseAsLost(opportunity.Id, new CloseOpportunityAsLostRequest { LossReason = "preço" });
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task ChangeStage_should_throw_when_opportunity_not_found()
+        {
+            await SeedBaseAsync();
+
+            Func<Task> act = () => service.ChangeStage(99, new ChangeOpportunityStageRequest { CommercialPipelineStageId = 2 });
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task GetBoard_should_return_stages_with_opportunities_grouped()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "a", 100m));
+            db.Add(new Opportunity(1, 2, "b", 200m));
+            await db.SaveChangesAsync();
+
+            IReadOnlyCollection<OpportunityBoardStageModel> result = await service.GetBoard();
+
+            result.Should().HaveCount(4);
+            result.First(stage => stage.CommercialPipelineStageId == 1).Items.Should().HaveCount(1);
+            result.First(stage => stage.CommercialPipelineStageId == 2).Items.Should().HaveCount(1);
+            result.First(stage => stage.CommercialPipelineStageId == 2).EstimatedValueTotal.Should().Be(200m);
+        }
+
+        [Test]
+        public async Task GetAlerts_should_emit_followup_alerts()
+        {
+            await SeedBaseAsync();
+            Opportunity opportunity = new(1, 1, "x", 0m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+            db.Add(new OpportunityFollowUp(opportunity.Id, "Ligar", DateTimeOffset.UtcNow.AddDays(-1), "x"));
+            await db.SaveChangesAsync();
+
+            IReadOnlyCollection<CommercialAlertModel> result = await service.GetAlerts();
+
+            result.Should().Contain(item => item.Type == "followup");
+        }
+
+        [Test]
+        public async Task GetAlerts_should_emit_expected_close_overdue_alerts()
+        {
+            await SeedBaseAsync();
+            Opportunity opportunity = new(1, 1, "x", 0m, expectedCloseAt: DateTimeOffset.UtcNow.AddDays(-2));
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+
+            IReadOnlyCollection<CommercialAlertModel> result = await service.GetAlerts();
+
+            result.Should().Contain(item => item.Type == "expectedclose");
+        }
+
+        [Test]
+        public async Task GetOpportunities_should_apply_responsible_filter()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "mine", 100m, responsibleUserId: 7, responsibleUserName: "Alice"));
+            db.Add(new Opportunity(1, 1, "other", 100m, responsibleUserId: 99, responsibleUserName: "Bob"));
+            await db.SaveChangesAsync();
+
+            PagedResult<Opportunity> result = await service.GetOpportunities(new PagedRequest { Page = 1, PageSize = 10 }, new OpportunityListFilters { ResponsibleUserId = 7 });
+
+            result.Items.Should().ContainSingle(item => item.Name == "mine");
+        }
+
+        [Test]
+        public async Task GetOpportunities_should_apply_search_filter_by_name()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Hello world", 100m));
+            db.Add(new Opportunity(1, 1, "Outro nome", 100m));
+            await db.SaveChangesAsync();
+
+            PagedResult<Opportunity> result = await service.GetOpportunities(new PagedRequest { Page = 1, PageSize = 10 }, new OpportunityListFilters { Search = "hello" });
+
+            result.Items.Should().ContainSingle(item => item.Name == "Hello world");
+        }
+
+        [Test]
+        public async Task GetOpportunities_should_apply_status_filter_for_lost()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "open", 100m));
+            db.Add(new Opportunity(1, 4, "lost", 100m));
+            await db.SaveChangesAsync();
+
+            PagedResult<Opportunity> result = await service.GetOpportunities(new PagedRequest { Page = 1, PageSize = 10 }, new OpportunityListFilters { Status = "lost" });
+
+            result.Items.Should().ContainSingle(item => item.Name == "lost");
+        }
+
+        [Test]
+        public async Task GetOpportunities_should_apply_status_filter_for_open()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "open", 100m));
+            db.Add(new Opportunity(1, 3, "won", 100m));
+            db.Add(new Opportunity(1, 4, "lost", 100m));
+            await db.SaveChangesAsync();
+
+            PagedResult<Opportunity> result = await service.GetOpportunities(new PagedRequest { Page = 1, PageSize = 10 }, new OpportunityListFilters { Status = "open" });
+
+            result.Items.Should().ContainSingle(item => item.Name == "open");
+        }
+
+        [Test]
+        public async Task GetOpportunities_should_apply_stage_filter()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "stage-1", 100m));
+            db.Add(new Opportunity(1, 2, "stage-2", 100m));
+            await db.SaveChangesAsync();
+
+            PagedResult<Opportunity> result = await service.GetOpportunities(new PagedRequest { Page = 1, PageSize = 10 }, new OpportunityListFilters { CommercialPipelineStageId = 2 });
+
+            result.Items.Should().ContainSingle(item => item.Name == "stage-2");
+        }
+
+        [Test]
+        public async Task GetOpportunities_should_apply_source_and_tag_filters()
+        {
+            await SeedBaseAsync();
+            db.Add(new OpportunitySource("ind", "#fff", 1).WithId(50));
+            db.Add(new OpportunityTag("vip", "#fff").WithId(60));
+
+            Opportunity withSourceAndTag = new(1, 1, "a", 100m);
+            withSourceAndTag.SetSource(50);
+            withSourceAndTag.ReplaceTags(new long[] { 60 });
+            db.Add(withSourceAndTag);
+
+            Opportunity other = new(1, 1, "b", 100m);
+            db.Add(other);
+            await db.SaveChangesAsync();
+
+            PagedResult<Opportunity> bySource = await service.GetOpportunities(new PagedRequest { Page = 1, PageSize = 10 }, new OpportunityListFilters { OpportunitySourceId = 50 });
+            PagedResult<Opportunity> byTag = await service.GetOpportunities(new PagedRequest { Page = 1, PageSize = 10 }, new OpportunityListFilters { OpportunityTagId = 60 });
+
+            bySource.Items.Should().ContainSingle(item => item.Name == "a");
+            byTag.Items.Should().ContainSingle(item => item.Name == "a");
+        }
     }
 }

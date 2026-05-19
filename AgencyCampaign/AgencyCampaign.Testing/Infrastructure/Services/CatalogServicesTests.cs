@@ -72,6 +72,46 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Func<Task> act = () => service.Delete(99);
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
+
+        [Test]
+        public async Task GetAll_should_filter_by_search()
+        {
+            db.Add(new OpportunitySource("Indicação", "#fff", 1));
+            db.Add(new OpportunitySource("Inbound", "#fff", 2));
+            await db.SaveChangesAsync();
+
+            PagedResult<OpportunitySourceModel> result = await service.GetAll(new PagedRequest(), search: "indic", includeInactive: true);
+
+            result.Items.Should().ContainSingle(item => item.Name == "Indicação");
+        }
+
+        [Test]
+        public async Task Update_should_persist_changes()
+        {
+            OpportunitySource source = new("Old", "#fff", 1);
+            db.Add(source);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateOpportunitySourceRequest request = new() { Id = source.Id, Name = "New", Color = "#000", DisplayOrder = 5, IsActive = false };
+
+            OpportunitySourceModel result = await service.Update(source.Id, request);
+
+            result.Name.Should().Be("New");
+            result.IsActive.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task Delete_should_remove_source()
+        {
+            OpportunitySource source = new("Old", "#fff", 1);
+            db.Add(source);
+            await db.SaveChangesAsync();
+
+            await service.Delete(source.Id);
+
+            (await db.Set<OpportunitySource>().CountAsync()).Should().Be(0);
+        }
     }
 
     [TestFixture]
@@ -110,6 +150,55 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             Func<Task> act = () => service.Delete(99);
             await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task Update_should_throw_when_not_found()
+        {
+            UpdateOpportunityTagRequest request = new() { Id = 99, Name = "x", Color = "#fff" };
+
+            Func<Task> act = () => service.Update(99, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task Update_should_persist_changes()
+        {
+            OpportunityTag tag = new("vip", "#fff");
+            db.Add(tag);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            OpportunityTagModel result = await service.Update(tag.Id, new UpdateOpportunityTagRequest { Id = tag.Id, Name = "vip-edited", Color = "#000", IsActive = false });
+
+            result.Name.Should().Be("vip-edited");
+            result.IsActive.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task GetAll_should_filter_by_active_status()
+        {
+            db.Add(new OpportunityTag("active", "#fff"));
+            OpportunityTag inactive = new("inactive", "#fff");
+            inactive.Update("inactive", "#fff", false);
+            db.Add(inactive);
+            await db.SaveChangesAsync();
+
+            (await service.GetAll(new PagedRequest(), search: null, includeInactive: false)).Items.Should().ContainSingle(item => item.Name == "active");
+            (await service.GetAll(new PagedRequest(), search: null, includeInactive: true)).Items.Should().HaveCount(2);
+        }
+
+        [Test]
+        public async Task Delete_should_remove_tag()
+        {
+            OpportunityTag tag = new("vip", "#fff");
+            db.Add(tag);
+            await db.SaveChangesAsync();
+
+            await service.Delete(tag.Id);
+
+            (await db.Set<OpportunityTag>().CountAsync()).Should().Be(0);
         }
     }
 
@@ -156,6 +245,48 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             List<DeliverableKind> result = await service.GetActiveDeliverableKinds();
             result.Should().ContainSingle(item => item.Name == "Active");
         }
+
+        [Test]
+        public async Task UpdateDeliverableKind_should_throw_when_not_found()
+        {
+            UpdateDeliverableKindRequest request = new() { Id = 99, Name = "x" };
+
+            Func<Task> act = () => service.UpdateDeliverableKind(99, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task UpdateDeliverableKind_should_persist_changes()
+        {
+            DeliverableKind kind = new("Old");
+            db.Add(kind);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            DeliverableKind result = await service.UpdateDeliverableKind(kind.Id, new UpdateDeliverableKindRequest { Id = kind.Id, Name = "New", DisplayOrder = 5, IsActive = false });
+
+            result.Name.Should().Be("New");
+            result.IsActive.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task GetDeliverableKindById_should_return_null_when_not_found()
+        {
+            (await service.GetDeliverableKindById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetDeliverableKinds_should_filter_by_search_term()
+        {
+            db.Add(new DeliverableKind("Stories"));
+            db.Add(new DeliverableKind("Reels"));
+            await db.SaveChangesAsync();
+
+            PagedResult<DeliverableKind> result = await service.GetDeliverableKinds(new PagedRequest(), search: "ree", includeInactive: true);
+
+            result.Items.Should().ContainSingle(item => item.Name == "Reels");
+        }
     }
 
     [TestFixture]
@@ -200,6 +331,48 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             List<Platform> result = await service.GetActivePlatforms();
             result.Should().ContainSingle(item => item.Name == "Active");
+        }
+
+        [Test]
+        public async Task UpdatePlatform_should_throw_when_not_found()
+        {
+            UpdatePlatformRequest request = new() { Id = 99, Name = "x" };
+
+            Func<Task> act = () => service.UpdatePlatform(99, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task UpdatePlatform_should_persist_changes()
+        {
+            Platform platform = new("Old");
+            db.Add(platform);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Platform result = await service.UpdatePlatform(platform.Id, new UpdatePlatformRequest { Id = platform.Id, Name = "New", DisplayOrder = 5, IsActive = false });
+
+            result.Name.Should().Be("New");
+            result.IsActive.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task GetPlatformById_should_return_null_when_not_found()
+        {
+            (await service.GetPlatformById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetPlatforms_should_filter_by_search_and_active()
+        {
+            db.Add(new Platform("Instagram"));
+            db.Add(new Platform("TikTok"));
+            await db.SaveChangesAsync();
+
+            PagedResult<Platform> result = await service.GetPlatforms(new PagedRequest(), search: "tik", includeInactive: true);
+
+            result.Items.Should().ContainSingle(item => item.Name == "TikTok");
         }
     }
 }

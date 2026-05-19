@@ -190,5 +190,141 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             // Just verify it doesn't throw.
             await service.GetByCampaign(10);
         }
+
+        [Test]
+        public async Task GetPaymentById_should_return_null_when_not_found()
+        {
+            CreatorPayment? result = await service.GetPaymentById(99);
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetPaymentById_should_return_payment_when_found()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 1000m,
+                Method = PaymentMethod.Pix
+            });
+
+            CreatorPayment? result = await service.GetPaymentById(payment.Id);
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task GetPayments_should_return_paged_result_ordered_desc()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+            await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 200m, Method = PaymentMethod.Pix });
+
+            Archon.Core.Pagination.PagedResult<CreatorPayment> result = await service.GetPayments(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 });
+
+            result.Items.Should().HaveCount(2);
+        }
+
+        [Test]
+        public async Task GetByStatus_should_filter_by_status_enum()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment p1 = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+            CreatorPayment p2 = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 200m, Method = PaymentMethod.Pix });
+            await service.MarkPaid(p2.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            List<CreatorPayment> result = await service.GetByStatus((int)PaymentStatus.Paid);
+
+            result.Should().HaveCount(1);
+            result.First().Status.Should().Be(PaymentStatus.Paid);
+        }
+
+        [Test]
+        public async Task UpdatePayment_should_persist_changes_and_register_event()
+        {
+            CreatorPayment payment = await SeedExistingPaymentAsync();
+
+            UpdateCreatorPaymentRequest request = new()
+            {
+                Id = payment.Id,
+                GrossAmount = 500m,
+                Discounts = 10m,
+                Method = PaymentMethod.Ted,
+                Description = "atualizado"
+            };
+
+            CreatorPayment result = await service.UpdatePayment(payment.Id, request);
+
+            result.GrossAmount.Should().Be(500m);
+            result.Method.Should().Be(PaymentMethod.Ted);
+            result.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Updated);
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_throw_when_no_payments_found()
+        {
+            SchedulePaymentBatchRequest request = new()
+            {
+                CreatorPaymentIds = new List<long> { 999 },
+                ScheduledFor = DateTimeOffset.UtcNow
+            };
+
+            Func<Task> act = () => service.SchedulePaymentBatch(request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("record.notFound");
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_register_error_when_creator_has_no_pix_key()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync(pixKey: null, pixKeyType: null);
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 1000m,
+                Method = PaymentMethod.Pix
+            });
+
+            SchedulePaymentBatchRequest request = new()
+            {
+                CreatorPaymentIds = new List<long> { payment.Id },
+                ScheduledFor = DateTimeOffset.UtcNow
+            };
+
+            List<CreatorPayment> result = await service.SchedulePaymentBatch(request);
+
+            result.Should().BeEmpty();
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
+            refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.ProviderSyncError);
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_skip_payments_already_paid()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest
+            {
+                CampaignCreatorId = cc.Id,
+                GrossAmount = 1000m,
+                Method = PaymentMethod.Pix
+            });
+
+            CreatorPayment? tracked = await db.Set<CreatorPayment>().AsTracking().FirstAsync(item => item.Id == payment.Id);
+            tracked.MarkPaid(DateTimeOffset.UtcNow);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            SchedulePaymentBatchRequest request = new()
+            {
+                CreatorPaymentIds = new List<long> { payment.Id },
+                ScheduledFor = DateTimeOffset.UtcNow
+            };
+
+            List<CreatorPayment> result = await service.SchedulePaymentBatch(request);
+
+            result.Should().BeEmpty();
+        }
     }
 }
