@@ -1,4 +1,5 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Models.Financial;
 using AgencyCampaign.Application.Requests.FinancialEntries;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
@@ -225,5 +226,90 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Func<Task> act = () => service.MarkAsPaid(99, new MarkAsPaidRequest { AccountId = account.Id });
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
+
+        [Test]
+        public async Task GetEntryById_should_return_null_when_not_found()
+        {
+            FinancialEntry? result = await service.GetEntryById(99);
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetEntryById_should_return_entry_when_found()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry entry = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "x", 100m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            db.Add(entry);
+            await db.SaveChangesAsync();
+
+            FinancialEntry? result = await service.GetEntryById(entry.Id);
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task GetByCampaign_should_filter_by_campaign_id()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            db.Add(new FinancialEntry(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "a", 100m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, campaignId: 10));
+            db.Add(new FinancialEntry(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "b", 100m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, campaignId: 20));
+            await db.SaveChangesAsync();
+
+            List<FinancialEntry> result = await service.GetByCampaign(10);
+
+            result.Should().ContainSingle(item => item.Description == "a");
+        }
+
+        [Test]
+        public async Task UpdateEntry_should_throw_when_not_found()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            UpdateFinancialEntryRequest request = new()
+            {
+                Id = 99,
+                AccountId = account.Id,
+                Type = FinancialEntryType.Receivable,
+                Category = FinancialEntryCategory.BrandReceivable,
+                Description = "x",
+                Amount = 100m,
+                DueAt = DateTimeOffset.UtcNow,
+                OccurredAt = DateTimeOffset.UtcNow,
+                Status = FinancialEntryStatus.Pending
+            };
+
+            Func<Task> act = () => service.UpdateEntry(99, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("record.notFound");
+        }
+
+        [Test]
+        public async Task UpdateEntry_should_persist_changes()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry entry = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "old", 100m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            db.Add(entry);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateFinancialEntryRequest request = new()
+            {
+                Id = entry.Id,
+                AccountId = account.Id,
+                Type = FinancialEntryType.Receivable,
+                Category = FinancialEntryCategory.BrandReceivable,
+                Description = "atualizado",
+                Amount = 250m,
+                DueAt = DateTimeOffset.UtcNow.AddDays(10),
+                OccurredAt = DateTimeOffset.UtcNow,
+                Status = FinancialEntryStatus.Pending
+            };
+
+            FinancialEntry result = await service.UpdateEntry(entry.Id, request);
+
+            result.Description.Should().Be("atualizado");
+            result.Amount.Should().Be(250m);
+        }
+
     }
 }

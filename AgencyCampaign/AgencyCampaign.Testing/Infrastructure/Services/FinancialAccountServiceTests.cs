@@ -192,5 +192,100 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             result.InitialBalance.Should().Be(250m);
         }
+
+        [Test]
+        public async Task GetById_should_return_null_when_not_found()
+        {
+            (await service.GetById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetById_should_return_account_when_found()
+        {
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#fff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            FinancialAccountModel? result = await service.GetById(account.Id);
+
+            result.Should().NotBeNull();
+            result!.Name.Should().Be("Conta");
+        }
+
+        [Test]
+        public async Task GetAll_should_apply_search_filter()
+        {
+            db.Add(new FinancialAccount("Conta corrente", FinancialAccountType.Bank, 0m, "#fff"));
+            db.Add(new FinancialAccount("Caixinha", FinancialAccountType.Cash, 0m, "#000"));
+            await db.SaveChangesAsync();
+
+            PagedResult<FinancialAccountModel> result = await service.GetAll(new PagedRequest(), search: "conta", includeInactive: true);
+
+            result.Items.Should().ContainSingle(item => item.Name == "Conta corrente");
+        }
+
+        [Test]
+        public async Task GetSummary_should_aggregate_account_balances()
+        {
+            FinancialAccount a = new("A", FinancialAccountType.Bank, 1000m, "#fff");
+            FinancialAccount b = new("B", FinancialAccountType.Cash, 500m, "#000");
+            db.Add(a);
+            db.Add(b);
+            await db.SaveChangesAsync();
+
+            FinancialAccountSummaryModel summary = await service.GetSummary();
+
+            summary.ActiveCount.Should().Be(2);
+            summary.TotalKanvasBalance.Should().Be(1500m);
+        }
+
+        [Test]
+        public async Task Delete_should_throw_when_account_not_found()
+        {
+            Func<Task> act = () => service.Delete(99);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task AttachConnector_should_throw_when_account_not_found()
+        {
+            Func<Task> act = () => service.AttachConnector(99, 1);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task AttachConnector_should_set_connector_id()
+        {
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#fff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            FinancialAccountModel result = await service.AttachConnector(account.Id, 42);
+
+            result.IntegrationConnectorId.Should().Be(42);
+        }
+
+        [Test]
+        public async Task DetachConnector_should_throw_when_account_not_found()
+        {
+            Func<Task> act = () => service.DetachConnector(99);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task DetachConnector_should_clear_connector_id()
+        {
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#fff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+            await service.AttachConnector(account.Id, 42);
+
+            FinancialAccountModel result = await service.DetachConnector(account.Id);
+
+            result.IntegrationConnectorId.Should().BeNull();
+        }
     }
 }

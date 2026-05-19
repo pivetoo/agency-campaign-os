@@ -128,5 +128,59 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             result.LogoUrl.Should().BeNull();
         }
+
+        [Test]
+        public async Task GetBrandById_should_return_null_when_not_found()
+        {
+            (await service.GetBrandById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetBrandById_should_return_brand_when_found()
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            await db.SaveChangesAsync();
+
+            Brand? result = await service.GetBrandById(brand.Id);
+
+            result.Should().NotBeNull();
+            result!.Name.Should().Be("Acme");
+        }
+
+        [Test]
+        public async Task RemoveBrandLogo_should_throw_when_brand_not_found()
+        {
+            Func<Task> act = () => service.RemoveBrandLogo(99);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task GetBrands_should_filter_inactive_when_requested()
+        {
+            db.Add(new Brand("Active"));
+            Brand inactive = new("Inactive");
+            inactive.Update("Inactive", null, null, null, null, null, false);
+            db.Add(inactive);
+            await db.SaveChangesAsync();
+
+            PagedResult<Brand> result = await service.GetBrands(new PagedRequest { Page = 1, PageSize = 10 }, null, includeInactive: false);
+
+            result.Items.Should().ContainSingle(item => item.Name == "Active");
+        }
+
+        [Test]
+        public async Task GetBrands_should_apply_search_filter()
+        {
+            db.Add(new Brand("Acme Corp"));
+            db.Add(new Brand("Outra Empresa"));
+            await db.SaveChangesAsync();
+
+            PagedResult<Brand> result = await service.GetBrands(new PagedRequest { Page = 1, PageSize = 10 }, "acme", includeInactive: true);
+
+            result.Items.Should().ContainSingle();
+            result.Items.First().Name.Should().Be("Acme Corp");
+        }
     }
 }

@@ -95,5 +95,69 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Func<Task> act = () => service.DeleteTemplate(99);
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
+
+        [Test]
+        public async Task GetTemplates_should_return_paged_result()
+        {
+            db.Add(new CampaignDocumentTemplate("A", CampaignDocumentType.CreatorAgreement, "body".PadRight(20), null, null, null));
+            db.Add(new CampaignDocumentTemplate("B", CampaignDocumentType.BrandContract, "body".PadRight(20), null, null, null));
+            await db.SaveChangesAsync();
+
+            Archon.Core.Pagination.PagedResult<CampaignDocumentTemplate> result = await service.GetTemplates(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 });
+
+            result.Items.Should().HaveCount(2);
+        }
+
+        [Test]
+        public async Task GetTemplateById_should_return_null_when_not_found()
+        {
+            (await service.GetTemplateById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetTemplateById_should_return_template_when_found()
+        {
+            CampaignDocumentTemplate template = new("X", CampaignDocumentType.CreatorAgreement, "body".PadRight(20), null, null, null);
+            db.Add(template);
+            await db.SaveChangesAsync();
+
+            CampaignDocumentTemplate? result = await service.GetTemplateById(template.Id);
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task UpdateTemplate_should_persist_changes()
+        {
+            CampaignDocumentTemplate template = new("Old", CampaignDocumentType.CreatorAgreement, "old body padded".PadRight(20), null, null, null);
+            db.Add(template);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCampaignDocumentTemplateRequest request = new()
+            {
+                Id = template.Id,
+                Name = "Updated",
+                DocumentType = CampaignDocumentType.BrandContract,
+                Body = "new body that is long enough"
+            };
+
+            CampaignDocumentTemplate result = await service.UpdateTemplate(template.Id, request);
+
+            result.Name.Should().Be("Updated");
+            result.DocumentType.Should().Be(CampaignDocumentType.BrandContract);
+        }
+
+        [Test]
+        public async Task DeleteTemplate_when_not_in_use_should_not_throw()
+        {
+            CampaignDocumentTemplate template = new("X", CampaignDocumentType.CreatorAgreement, "body".PadRight(20), null, null, null);
+            db.Add(template);
+            await db.SaveChangesAsync();
+
+            Func<Task> act = () => service.DeleteTemplate(template.Id);
+
+            await act.Should().NotThrowAsync();
+        }
     }
 }

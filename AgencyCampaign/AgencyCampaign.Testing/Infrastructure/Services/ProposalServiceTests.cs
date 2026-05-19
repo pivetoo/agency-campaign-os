@@ -179,5 +179,112 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Func<Task> act = () => service.GetStatusHistory(99);
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
+
+        [Test]
+        public async Task GetProposalById_should_return_null_when_not_found()
+        {
+            (await service.GetProposalById(99)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetProposalById_should_return_proposal_when_found()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+
+            Proposal? result = await service.GetProposalById(proposal.Id);
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task GetProposals_should_filter_by_opportunity()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+
+            Archon.Core.Pagination.PagedResult<Proposal> result = await service.GetProposals(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 }, new ProposalListFilters { OpportunityId = opportunity.Id });
+
+            result.Items.Should().HaveCount(1);
+        }
+
+        [Test]
+        public async Task GetProposals_should_filter_by_status()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal p1 = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            Proposal p2 = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(p2.Id);
+
+            Archon.Core.Pagination.PagedResult<Proposal> result = await service.GetProposals(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 }, new ProposalListFilters { Status = (int)ProposalStatus.Sent });
+
+            result.Items.Should().ContainSingle(item => item.Id == p2.Id);
+        }
+
+        [Test]
+        public async Task UpdateProposal_should_throw_when_not_found()
+        {
+            UpdateProposalRequest request = new() { Id = 99, OpportunityId = 1 };
+
+            Func<Task> act = () => service.UpdateProposal(99, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task UpdateProposal_should_persist_changes()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            db.ChangeTracker.Clear();
+
+            UpdateProposalRequest request = new()
+            {
+                Id = proposal.Id,
+                OpportunityId = opportunity.Id,
+                Description = "Updated description",
+                ValidityUntil = DateTimeOffset.UtcNow.AddDays(30)
+            };
+
+            Proposal result = await service.UpdateProposal(proposal.Id, request);
+
+            result.Description.Should().Be("Updated description");
+        }
+
+        [Test]
+        public async Task MarkAsViewed_should_set_viewed_status()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(proposal.Id);
+
+            Proposal result = await service.MarkAsViewed(proposal.Id);
+
+            result.Status.Should().Be(ProposalStatus.Viewed);
+        }
+
+        [Test]
+        public async Task RejectProposal_should_persist_when_sent()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(proposal.Id);
+
+            Proposal result = await service.RejectProposal(proposal.Id);
+
+            result.Status.Should().Be(ProposalStatus.Rejected);
+        }
+
+        [Test]
+        public async Task GetStatusHistory_should_return_history_when_proposal_exists()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(proposal.Id);
+
+            IReadOnlyCollection<AgencyCampaign.Application.Models.Commercial.ProposalStatusHistoryModel> result = await service.GetStatusHistory(proposal.Id);
+
+            result.Should().NotBeEmpty();
+        }
     }
 }
