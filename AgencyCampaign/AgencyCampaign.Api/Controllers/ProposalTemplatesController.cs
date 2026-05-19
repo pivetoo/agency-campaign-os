@@ -21,7 +21,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os templates de proposta.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await templateService.GetAll(request, search, includeInactive, cancellationToken));
@@ -36,7 +36,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um template de proposta.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateProposalTemplateRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

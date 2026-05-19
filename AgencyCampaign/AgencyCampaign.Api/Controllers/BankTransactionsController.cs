@@ -21,7 +21,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite que o IntegrationPlatform importe transações bancárias para uma conta.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Import([FromBody] ImportBankTransactionsRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -35,7 +35,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar transações bancárias de uma conta.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> GetByAccount([FromQuery] long accountId, [FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             return Http200(await service.GetByAccount(accountId, request, cancellationToken));

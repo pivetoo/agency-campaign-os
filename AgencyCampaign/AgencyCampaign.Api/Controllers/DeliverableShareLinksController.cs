@@ -27,7 +27,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite gerar um share link para aprovação da marca.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateDeliverableShareLinkRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

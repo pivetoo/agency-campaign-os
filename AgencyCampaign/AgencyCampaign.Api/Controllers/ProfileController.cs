@@ -17,7 +17,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite enviar foto de perfil do usuário.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(MaxAvatarBytes)]
         public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file, CancellationToken cancellationToken)

@@ -21,14 +21,14 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as subcategorias financeiras cadastradas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
         [RequireAccess("Permite cadastrar uma subcategoria financeira.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateFinancialSubcategoryRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

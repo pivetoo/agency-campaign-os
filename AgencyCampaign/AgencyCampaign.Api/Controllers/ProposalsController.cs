@@ -47,7 +47,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as propostas comerciais.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] ProposalListFilters filters, CancellationToken cancellationToken)
         {
             PagedResult<Proposal> result = await proposalService.GetProposals(request, filters, cancellationToken);
@@ -67,7 +67,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar uma nova proposta comercial.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateProposalRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

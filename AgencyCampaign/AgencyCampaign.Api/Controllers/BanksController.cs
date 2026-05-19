@@ -25,7 +25,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os bancos cadastrados.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
@@ -47,7 +47,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um novo banco no catálogo.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateBankRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

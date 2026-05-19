@@ -24,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os status configurados de creators em campanhas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             PagedResult<CampaignCreatorStatus> result = await statusService.GetStatuses(request, search, includeInactive, cancellationToken);
@@ -52,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um status de creator em campanha.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignCreatorStatusRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

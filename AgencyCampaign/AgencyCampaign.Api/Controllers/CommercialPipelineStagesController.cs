@@ -24,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os estágios configurados do pipeline comercial.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             PagedResult<CommercialPipelineStage> result = await stageService.GetStages(request, search, includeInactive, cancellationToken);
@@ -52,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um estágio do pipeline comercial.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCommercialPipelineStageRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

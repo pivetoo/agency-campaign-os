@@ -24,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as aprovações de entregas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<DeliverableApproval> result = await deliverableApprovalService.GetApprovals(request, cancellationToken);
@@ -57,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar uma aprovação para uma entrega.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateDeliverableApprovalRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

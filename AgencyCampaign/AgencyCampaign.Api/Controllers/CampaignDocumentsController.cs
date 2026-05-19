@@ -29,7 +29,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os documentos cadastrados.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<CampaignDocument> result = await campaignDocumentService.GetDocuments(request, cancellationToken);
@@ -62,7 +62,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um documento.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignDocumentRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -118,7 +118,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite gerar um documento a partir de um template.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> GenerateFromTemplate([FromBody] GenerateCampaignDocumentFromTemplateRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -146,7 +146,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [AllowAnonymous]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> ProviderCallback([FromBody] CampaignDocumentProviderCallbackRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(webhookOptions.ProviderCallbackSecret))

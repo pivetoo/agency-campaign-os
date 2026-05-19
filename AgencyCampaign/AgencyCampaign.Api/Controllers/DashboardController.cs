@@ -16,7 +16,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite consultar a visão geral do dashboard da agência.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Overview(CancellationToken cancellationToken)
         {
             DashboardOverviewModel result = await dashboardService.GetOverview(cancellationToken);

@@ -23,7 +23,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar todas as aprovações comerciais.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             var result = await approvalRequestService.GetAllApprovals(request, cancellationToken);
@@ -35,7 +35,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite consultar o resumo de aprovações comerciais.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Summary(CancellationToken cancellationToken)
         {
             return Http200(await approvalRequestService.GetApprovalsSummary(cancellationToken));
@@ -50,7 +50,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite solicitar uma aprovação comercial.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateOpportunityApprovalRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

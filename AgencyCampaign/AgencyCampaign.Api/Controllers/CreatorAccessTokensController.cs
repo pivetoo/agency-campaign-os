@@ -31,7 +31,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite emitir um novo link de acesso ao portal do creator.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Issue([FromBody] IssueCreatorAccessTokenRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

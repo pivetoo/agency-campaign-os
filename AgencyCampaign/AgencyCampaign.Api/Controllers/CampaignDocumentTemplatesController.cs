@@ -26,7 +26,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os templates de documento.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<CampaignDocumentTemplate> result = await templateService.GetTemplates(request, cancellationToken);
@@ -55,7 +55,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as variaveis disponiveis por tipo de documento.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public IActionResult Variables()
         {
             var result = CampaignDocumentTemplateVariableCatalog.All
@@ -64,7 +64,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um template de documento.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignDocumentTemplateRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -100,7 +100,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite pre-visualizar o body do template com dados de exemplo.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Preview([FromBody] PreviewCampaignDocumentTemplateRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

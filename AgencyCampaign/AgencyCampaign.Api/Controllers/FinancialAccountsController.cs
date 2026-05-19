@@ -21,14 +21,14 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as contas financeiras cadastradas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
         [RequireAccess("Permite consultar o resumo agregado das contas financeiras.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> GetSummary(CancellationToken cancellationToken)
         {
             return Http200(await service.GetSummary(cancellationToken));
@@ -43,7 +43,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar uma nova conta financeira.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateFinancialAccountRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

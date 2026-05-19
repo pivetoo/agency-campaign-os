@@ -28,7 +28,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as marcas cadastradas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             PagedResult<Brand> result = await brandService.GetBrands(request, search, includeInactive, cancellationToken);
@@ -48,7 +48,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar uma nova marca.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateBrandRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -120,7 +120,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite exportar as marcas cadastradas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task Export(CancellationToken cancellationToken)
         {
             Response.ContentType = "text/csv; charset=utf-8";

@@ -25,7 +25,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os lançamentos financeiros cadastrados.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] FinancialEntryFilters filters, CancellationToken cancellationToken)
         {
             PagedResult<FinancialEntry> result = await financialEntryService.GetEntries(request, filters, cancellationToken);
@@ -58,7 +58,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um lançamento financeiro.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateFinancialEntryRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -108,7 +108,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite gerar uma série de parcelas a partir de um lançamento financeiro.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> CreateInstallments([FromBody] CreateInstallmentSeriesRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

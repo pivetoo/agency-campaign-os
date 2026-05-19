@@ -25,14 +25,14 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.get.description")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             return Http200(await service.Get(cancellationToken));
         }
 
         [RequireAccess("agencySettings.update.description")]
-        [PutEndpoint("[action]")]
+        [PutEndpoint]
         public async Task<IActionResult> Update([FromBody] UpdateAgencySettingsRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -46,7 +46,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.uploadLogo.description")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(MaxLogoBytes)]
         public async Task<IActionResult> UploadLogo([FromForm] IFormFile file, CancellationToken cancellationToken)
@@ -71,7 +71,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.removeLogo.description")]
-        [DeleteEndpoint("[action]")]
+        [DeleteEndpoint]
         public async Task<IActionResult> RemoveLogo(CancellationToken cancellationToken)
         {
             var current = await service.Get(cancellationToken);
@@ -81,7 +81,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.getProposalLayouts.description")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> GetProposalLayouts(CancellationToken cancellationToken)
         {
             var layouts = await service.GetProposalLayouts(cancellationToken);
@@ -89,7 +89,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.saveProposalTemplate.description")]
-        [PutEndpoint("[action]")]
+        [PutEndpoint]
         public async Task<IActionResult> SaveProposalTemplate([FromBody] SetProposalTemplateRequest request, CancellationToken cancellationToken)
         {
             var result = await service.SaveProposalTemplate(request.Template, cancellationToken);
@@ -97,7 +97,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.previewProposalTemplate.description")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> PreviewProposalTemplate([FromBody] PreviewProposalTemplateRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -111,7 +111,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.getProposalTemplateVersions.description")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> GetProposalTemplateVersions(CancellationToken cancellationToken)
         {
             var versions = await service.GetProposalTemplateVersions(cancellationToken);
@@ -119,7 +119,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.saveProposalTemplateVersion.description")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> SaveProposalTemplateVersion([FromBody] SaveProposalTemplateVersionRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -155,7 +155,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.activateProposalTemplateVersion.description")]
-        [PutEndpoint("[action]")]
+        [PutEndpoint]
         public async Task<IActionResult> ActivateProposalTemplateVersion([FromQuery] long id, CancellationToken cancellationToken)
         {
             var result = await service.ActivateProposalTemplateVersion(id, cancellationToken);
@@ -163,7 +163,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("agencySettings.deleteProposalTemplateVersion.description")]
-        [DeleteEndpoint("[action]")]
+        [DeleteEndpoint]
         public async Task<IActionResult> DeleteProposalTemplateVersion([FromQuery] long id, CancellationToken cancellationToken)
         {
             await service.DeleteProposalTemplateVersion(id, cancellationToken);

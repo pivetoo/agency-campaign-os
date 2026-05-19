@@ -24,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os creators vinculados às campanhas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<CampaignCreator> result = await campaignCreatorService.GetCampaignCreators(request, cancellationToken);
@@ -57,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite vincular um creator a uma campanha.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignCreatorRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

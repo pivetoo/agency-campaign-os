@@ -29,7 +29,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os pagamentos de creators.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<CreatorPayment> result = await creatorPaymentService.GetPayments(request, cancellationToken);
@@ -65,7 +65,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite registrar um pagamento a creator.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCreatorPaymentRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -129,7 +129,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite agendar um lote de pagamentos via gateway.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> ScheduleBatch([FromBody] SchedulePaymentBatchRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -143,7 +143,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [AllowAnonymous]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> ProviderCallback([FromBody] CreatorPaymentProviderCallbackRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(webhookOptions.ProviderCallbackSecret))

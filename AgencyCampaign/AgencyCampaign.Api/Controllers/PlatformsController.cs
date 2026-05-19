@@ -24,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as plataformas cadastradas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             PagedResult<Platform> result = await platformService.GetPlatforms(request, search, includeInactive, cancellationToken);
@@ -52,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar uma nova plataforma.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreatePlatformRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

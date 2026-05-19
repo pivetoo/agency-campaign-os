@@ -24,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os tipos de entrega cadastrados.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             PagedResult<DeliverableKind> result = await deliverableKindService.GetDeliverableKinds(request, search, includeInactive, cancellationToken);
@@ -52,7 +52,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um novo tipo de entrega.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateDeliverableKindRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

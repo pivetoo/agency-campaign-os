@@ -24,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as entregas de campanha cadastradas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
             PagedResult<CampaignDeliverable> result = await campaignDeliverableService.GetDeliverables(request, cancellationToken);
@@ -57,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar uma nova entrega de campanha.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignDeliverableRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

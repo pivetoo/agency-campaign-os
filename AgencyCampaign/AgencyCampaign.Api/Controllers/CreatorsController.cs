@@ -28,7 +28,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar os creators cadastrados.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             PagedResult<Creator> result = await creatorService.GetCreators(request, search, includeInactive, cancellationToken);
@@ -48,7 +48,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um novo creator.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCreatorRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -128,7 +128,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite exportar os creators cadastrados.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task Export(CancellationToken cancellationToken)
         {
             Response.ContentType = "text/csv; charset=utf-8";

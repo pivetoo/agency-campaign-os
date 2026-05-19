@@ -21,14 +21,14 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as origens de oportunidades cadastradas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
         [RequireAccess("Permite cadastrar uma origem de oportunidade.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateOpportunitySourceRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -76,14 +76,14 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as tags de oportunidades cadastradas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] string? search, [FromQuery] bool includeInactive, CancellationToken cancellationToken)
         {
             return Http200(await service.GetAll(request, search, includeInactive, cancellationToken));
         }
 
         [RequireAccess("Permite cadastrar uma tag de oportunidade.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateOpportunityTagRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

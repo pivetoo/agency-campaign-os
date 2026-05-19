@@ -27,7 +27,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite cadastrar um handle social para o creator.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCreatorSocialHandleRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

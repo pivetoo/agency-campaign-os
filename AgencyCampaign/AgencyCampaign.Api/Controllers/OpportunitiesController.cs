@@ -37,7 +37,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite listar as oportunidades comerciais cadastradas.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Get([FromQuery] PagedRequest request, [FromQuery] OpportunityListFilters filters, CancellationToken cancellationToken)
         {
             PagedResult<Opportunity> result = await opportunityService.GetOpportunities(request, filters, cancellationToken);
@@ -57,21 +57,21 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("Permite consultar o board comercial por estágio.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Board(CancellationToken cancellationToken)
         {
             return Http200(await opportunityService.GetBoard(cancellationToken));
         }
 
         [RequireAccess("Permite consultar o resumo do dashboard comercial.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Dashboard(CancellationToken cancellationToken)
         {
             return Http200(await opportunityService.GetDashboardSummary(cancellationToken));
         }
 
         [RequireAccess("Permite consultar os alertas comerciais.")]
-        [GetEndpoint("[action]")]
+        [GetEndpoint]
         public async Task<IActionResult> Alerts(CancellationToken cancellationToken)
         {
             return Http200(await opportunityService.GetAlerts(cancellationToken));
@@ -129,7 +129,7 @@ namespace AgencyCampaign.Api.Controllers
 
 
         [RequireAccess("Permite cadastrar uma nova oportunidade comercial.")]
-        [PostEndpoint("[action]")]
+        [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateOpportunityRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
