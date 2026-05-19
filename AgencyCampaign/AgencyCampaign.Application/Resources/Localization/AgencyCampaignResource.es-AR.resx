@@ -563,6 +563,9 @@
   <data name="opportunityDetail.probability.field" xml:space="preserve"><value>Probabilidad (%)</value></data>
   <data name="opportunityDetail.probability.reset" xml:space="preserve"><value>Restaurar automática</value></data>
   <data name="opportunityDetail.probability.save" xml:space="preserve"><value>Guardar</value></data>
+  <data name="opportunityDetail.summary.source" xml:space="preserve"><value>Origen</value></data>
+  <data name="opportunityDetail.summary.tags" xml:space="preserve"><value>Tags</value></data>
+  <data name="opportunityDetail.summary.empty" xml:space="preserve"><value>No informado</value></data>
   <data name="opportunityDetail.tab.summary" xml:space="preserve"><value>Resumen</value></data>
   <data name="opportunityDetail.tab.proposals" xml:space="preserve"><value>Propuestas</value></data>
   <data name="opportunityDetail.tab.negotiations" xml:space="preserve"><value>Negociaciones</value></data>

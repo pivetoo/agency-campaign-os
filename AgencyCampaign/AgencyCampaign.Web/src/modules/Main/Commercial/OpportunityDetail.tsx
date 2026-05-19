@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, FileText, MapPin, MessageSquare, Pencil, Percent, Plus, RotateCcw, Tag, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
+import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, MapPin, MessageSquare, Pencil, Percent, Plus, RotateCcw, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import type { CommercialPipelineStage } from '../../../types/commercialPipelineStage'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
 import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type OpportunityApprovalStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../../services/opportunityService'
@@ -529,6 +529,35 @@ export default function OpportunityDetail() {
                       <Tag className="h-3.5 w-3.5" /> {t('common.field.notes')}
                     </p>
                     <p className="text-sm">{opportunity?.notes || '-'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+                      <Compass className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.source')}
+                    </p>
+                    {opportunity?.opportunitySource ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium" style={{ borderColor: opportunity.opportunitySource.color, color: opportunity.opportunitySource.color }}>
+                        <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: opportunity.opportunitySource.color }} />
+                        {opportunity.opportunitySource.name}
+                      </span>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">{t('opportunityDetail.summary.empty')}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1 md:col-span-2">
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+                      <Tags className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.tags')}
+                    </p>
+                    {opportunity?.tags && opportunity.tags.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {opportunity.tags.map((tag) => (
+                          <span key={tag.id} className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${tag.color}20`, color: tag.color, borderColor: tag.color, borderWidth: 1 }}>
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">{t('opportunityDetail.summary.empty')}</p>
+                    )}
                   </div>
                   <div className="space-y-1">
                     <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
