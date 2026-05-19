@@ -990,6 +990,9 @@
   <data name="modal.opportunityApproval.field.type" xml:space="preserve"><value>Tipo de aprobación</value></data>
   <data name="modal.opportunityApproval.field.requestedBy" xml:space="preserve"><value>Solicitado por</value></data>
   <data name="modal.opportunityApproval.field.reason" xml:space="preserve"><value>Motivo</value></data>
+  <data name="modal.opportunityApproval.field.approvers" xml:space="preserve"><value>Aprobadores</value></data>
+  <data name="modal.opportunityApproval.placeholder.approvers" xml:space="preserve"><value>Seleccioná quién debe aprobar</value></data>
+  <data name="modal.opportunityApproval.help.approvers" xml:space="preserve"><value>Cada aprobador recibirá una notificación. Cualquiera puede aprobar o rechazar.</value></data>
   <data name="modal.opportunityApproval.type.discount" xml:space="preserve"><value>Descuento</value></data>
   <data name="modal.opportunityApproval.type.margin" xml:space="preserve"><value>Margen</value></data>
   <data name="modal.opportunityApproval.type.term" xml:space="preserve"><value>Plazo</value></data>

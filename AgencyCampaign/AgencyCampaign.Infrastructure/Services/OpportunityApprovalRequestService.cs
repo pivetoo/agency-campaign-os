@@ -52,7 +52,22 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
-            await TryNotify(KanvasNotifications.OpportunityApprovalRequested(approvalRequest, opportunityId, opportunityName), cancellationToken);
+
+            HashSet<long> approvers = (request.ApproverUserIds ?? [])
+                .Where(userId => userId > 0 && userId != request.RequestedByUserId)
+                .ToHashSet();
+
+            if (approvers.Count == 0)
+            {
+                await TryNotify(KanvasNotifications.OpportunityApprovalRequested(approvalRequest, opportunityId, opportunityName), cancellationToken);
+            }
+            else
+            {
+                foreach (long approverUserId in approvers)
+                {
+                    await TryNotify(KanvasNotifications.OpportunityApprovalRequested(approvalRequest, opportunityId, opportunityName, approverUserId), cancellationToken);
+                }
+            }
 
             return await GetOpportunityApprovalRequestById(approvalRequest.Id, cancellationToken) ?? approvalRequest;
         }

@@ -22,5 +22,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         [Required]
         [StringLength(150, MinimumLength = 2)]
         public string RequestedByUserName { get; set; } = string.Empty;
+
+        public List<long>? ApproverUserIds { get; set; }
     }
 }

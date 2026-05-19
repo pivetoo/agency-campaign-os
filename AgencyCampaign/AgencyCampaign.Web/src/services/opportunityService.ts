@@ -294,6 +294,7 @@ export interface CreateOpportunityApprovalRequest {
   reason: string
   requestedByUserId?: number
   requestedByUserName: string
+  approverUserIds?: number[]
 }
 
 export interface DecideOpportunityApprovalRequest {

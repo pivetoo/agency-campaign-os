@@ -68,15 +68,15 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
-        public static CreateNotificationRequest OpportunityApprovalRequested(OpportunityApprovalRequest request, long? opportunityId, string opportunityName)
+        public static CreateNotificationRequest OpportunityApprovalRequested(OpportunityApprovalRequest request, long? opportunityId, string opportunityName, long? approverUserId = null)
         {
             return new CreateNotificationRequest
             {
-                UserId = null,
+                UserId = approverUserId,
                 Type = NotificationType.Info,
                 Title = "Aprovação pendente",
                 Message = $"{request.RequestedByUserName} solicitou aprovação para a oportunidade \"{opportunityName}\".",
-                Link = opportunityId.HasValue ? $"/comercial/oportunidades/{opportunityId.Value}" : "/comercial/aprovacoes",
+                Link = opportunityId.HasValue ? $"/comercial/oportunidades/{opportunityId.Value}?tab=approvals" : "/comercial/aprovacoes",
                 Source = "opportunity",
                 ReferenceEntityName = nameof(OpportunityApprovalRequest),
                 ReferenceEntityId = request.Id.ToString()
