@@ -553,16 +553,6 @@
   <data name="opportunityDetail.kpi.estimatedValue" xml:space="preserve"><value>Estimated value</value></data>
   <data name="opportunityDetail.kpi.forecast" xml:space="preserve"><value>Forecast</value></data>
   <data name="opportunityDetail.kpi.pendingFollowUps" xml:space="preserve"><value>Pending follow-ups</value></data>
-  <data name="opportunityDetail.kpi.probability" xml:space="preserve"><value>Probability</value></data>
-  <data name="opportunityDetail.probability.manual" xml:space="preserve"><value>Manual</value></data>
-  <data name="opportunityDetail.probability.automatic" xml:space="preserve"><value>Automatic</value></data>
-  <data name="opportunityDetail.probability.automaticHint" xml:space="preserve"><value>Set by the current stage ({0}%).</value></data>
-  <data name="opportunityDetail.probability.noStageDefault" xml:space="preserve"><value>The current stage doesn't define a default probability.</value></data>
-  <data name="opportunityDetail.probability.edit.title" xml:space="preserve"><value>Edit probability</value></data>
-  <data name="opportunityDetail.probability.edit.description" xml:space="preserve"><value>Set manually the chance of closing the opportunity. Once edited, probability will no longer be auto-updated by the stage.</value></data>
-  <data name="opportunityDetail.probability.field" xml:space="preserve"><value>Probability (%)</value></data>
-  <data name="opportunityDetail.probability.reset" xml:space="preserve"><value>Reset to automatic</value></data>
-  <data name="opportunityDetail.probability.save" xml:space="preserve"><value>Save</value></data>
   <data name="opportunityDetail.summary.source" xml:space="preserve"><value>Source</value></data>
   <data name="opportunityDetail.summary.tags" xml:space="preserve"><value>Tags</value></data>
   <data name="opportunityDetail.summary.empty" xml:space="preserve"><value>Not informed</value></data>

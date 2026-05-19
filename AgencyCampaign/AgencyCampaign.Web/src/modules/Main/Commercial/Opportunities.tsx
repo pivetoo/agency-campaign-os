@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { Eye, Pencil } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import { opportunityService, type Opportunity, type OpportunityListFilters } from '../../../services/opportunityService'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
 import { commercialResponsibleService } from '../../../services/commercialResponsibleService'
@@ -123,27 +123,6 @@ export default function CommercialOpportunities() {
     { key: 'name', title: t('opportunities.field.opportunity'), dataIndex: 'name' },
     { key: 'brand', title: t('campaign.field.brand'), dataIndex: 'brand', render: (value?: Opportunity['brand']) => value?.name || '-' },
     { key: 'estimatedValue', title: t('opportunities.field.estimatedValue'), dataIndex: 'estimatedValue', hiddenBelow: 'md', render: (value: number) => `R$ ${value.toFixed(2)}` },
-    {
-      key: 'probability',
-      title: t('opportunityDetail.kpi.probability'),
-      dataIndex: 'probability',
-      hiddenBelow: 'lg',
-      render: (value: number, record: Opportunity) => (
-        <span
-          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-            value >= 70
-              ? 'bg-emerald-50 text-emerald-700'
-              : value >= 30
-                ? 'bg-amber-50 text-amber-700'
-                : 'bg-rose-50 text-rose-700'
-          }`}
-          title={record.probabilityIsManual ? t('opportunityDetail.probability.manual') : t('opportunityDetail.probability.automatic')}
-        >
-          {record.probabilityIsManual && <Pencil className="h-3 w-3" />}
-          {value.toFixed(0)}%
-        </span>
-      ),
-    },
     { key: 'expectedCloseAt', title: t('opportunities.field.expectedCloseAt'), dataIndex: 'expectedCloseAt', hiddenBelow: 'md', render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-' },
     {
       key: 'stage',

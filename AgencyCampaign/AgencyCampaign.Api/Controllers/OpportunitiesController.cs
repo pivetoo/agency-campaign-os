@@ -192,28 +192,6 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
         }
 
-        [RequireAccess("Permite definir manualmente a probabilidade de fechamento de uma oportunidade.")]
-        [HttpPost("{id:long}/SetProbability")]
-        public async Task<IActionResult> SetProbability(long id, [FromBody] SetOpportunityProbabilityRequest request, CancellationToken cancellationToken)
-        {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
-            Opportunity opportunity = await opportunityService.SetProbability(id, request, cancellationToken);
-            return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
-        }
-
-        [RequireAccess("Permite restaurar a probabilidade da oportunidade para o valor padrão do estágio.")]
-        [HttpPost("{id:long}/ResetProbability")]
-        public async Task<IActionResult> ResetProbability(long id, CancellationToken cancellationToken)
-        {
-            Opportunity opportunity = await opportunityService.ResetProbability(id, cancellationToken);
-            return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
-        }
-
         [RequireAccess("Permite excluir uma oportunidade comercial.")]
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)

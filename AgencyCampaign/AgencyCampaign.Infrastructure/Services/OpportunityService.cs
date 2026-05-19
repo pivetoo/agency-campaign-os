@@ -254,23 +254,6 @@ namespace AgencyCampaign.Infrastructure.Services
             return await SaveAndReturn(opportunity, cancellationToken);
         }
 
-        public async Task<Opportunity> SetProbability(long id, SetOpportunityProbabilityRequest request, CancellationToken cancellationToken = default)
-        {
-            Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
-            opportunity.SetProbability(request.Probability);
-
-            return await SaveAndReturn(opportunity, cancellationToken);
-        }
-
-        public async Task<Opportunity> ResetProbability(long id, CancellationToken cancellationToken = default)
-        {
-            Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
-            CommercialPipelineStage stage = await ResolveStage(opportunity.CommercialPipelineStageId, cancellationToken);
-            opportunity.ResetProbabilityToStageDefault(stage);
-
-            return await SaveAndReturn(opportunity, cancellationToken);
-        }
-
         public async Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoard(CancellationToken cancellationToken = default)
         {
             List<Opportunity> opportunities = await QueryWithDetails()
@@ -344,8 +327,6 @@ namespace AgencyCampaign.Infrastructure.Services
                                 CommercialPipelineStageName = stage.Name,
                                 CommercialPipelineStageColor = stage.Color,
                                 EstimatedValue = item.EstimatedValue,
-                                Probability = item.Probability,
-                                ProbabilityIsManual = item.ProbabilityIsManual,
                                 ExpectedCloseAt = item.ExpectedCloseAt,
                                 CommercialResponsibleName = item.ResponsibleUserName,
                                 ProposalCount = item.Proposals.Count,

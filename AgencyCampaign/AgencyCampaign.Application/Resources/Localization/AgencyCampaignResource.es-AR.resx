@@ -553,16 +553,6 @@
   <data name="opportunityDetail.kpi.estimatedValue" xml:space="preserve"><value>Valor estimado</value></data>
   <data name="opportunityDetail.kpi.forecast" xml:space="preserve"><value>Previsión</value></data>
   <data name="opportunityDetail.kpi.pendingFollowUps" xml:space="preserve"><value>Follow-ups pendientes</value></data>
-  <data name="opportunityDetail.kpi.probability" xml:space="preserve"><value>Probabilidad</value></data>
-  <data name="opportunityDetail.probability.manual" xml:space="preserve"><value>Manual</value></data>
-  <data name="opportunityDetail.probability.automatic" xml:space="preserve"><value>Automática</value></data>
-  <data name="opportunityDetail.probability.automaticHint" xml:space="preserve"><value>Definida por el estado actual ({0}%).</value></data>
-  <data name="opportunityDetail.probability.noStageDefault" xml:space="preserve"><value>El estado actual no define una probabilidad por defecto.</value></data>
-  <data name="opportunityDetail.probability.edit.title" xml:space="preserve"><value>Editar probabilidad</value></data>
-  <data name="opportunityDetail.probability.edit.description" xml:space="preserve"><value>Definí manualmente la chance de cierre. Al editar, la probabilidad deja de actualizarse automáticamente por el estado.</value></data>
-  <data name="opportunityDetail.probability.field" xml:space="preserve"><value>Probabilidad (%)</value></data>
-  <data name="opportunityDetail.probability.reset" xml:space="preserve"><value>Restaurar automática</value></data>
-  <data name="opportunityDetail.probability.save" xml:space="preserve"><value>Guardar</value></data>
   <data name="opportunityDetail.summary.source" xml:space="preserve"><value>Origen</value></data>
   <data name="opportunityDetail.summary.tags" xml:space="preserve"><value>Tags</value></data>
   <data name="opportunityDetail.summary.empty" xml:space="preserve"><value>No informado</value></data>

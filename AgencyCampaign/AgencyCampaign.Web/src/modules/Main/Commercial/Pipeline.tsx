@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, useApi, useI18n } from 'archon-ui'
-import { AlertTriangle, CalendarClock, DollarSign, List, Percent, Plus, RefreshCcw, UserRound } from 'lucide-react'
+import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
@@ -86,24 +86,9 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-2 text-sm font-semibold text-foreground">
-        <span className="flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-emerald-500" />
-          {formatCurrency(item.estimatedValue)}
-        </span>
-        <span
-          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-            item.probability >= 70
-              ? 'bg-emerald-50 text-emerald-700'
-              : item.probability >= 30
-                ? 'bg-amber-50 text-amber-700'
-                : 'bg-rose-50 text-rose-700'
-          }`}
-          title={item.probabilityIsManual ? t('opportunityDetail.probability.manual') : t('opportunityDetail.probability.automatic')}
-        >
-          <Percent className="h-3 w-3" />
-          {item.probability.toFixed(0)}
-        </span>
+      <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+        <DollarSign className="h-4 w-4 text-emerald-500" />
+        {formatCurrency(item.estimatedValue)}
       </div>
 
       <div className="mt-3 space-y-2 text-xs text-muted-foreground">
@@ -236,20 +221,7 @@ export default function CommercialPipeline() {
     })
 
     try {
-      const response = await opportunityService.changeStage(draggedItem.id, { commercialPipelineStageId: targetStage })
-      const updated = response?.data
-      if (updated) {
-        setBoard((currentBoard) =>
-          currentBoard.map((stage) => ({
-            ...stage,
-            items: stage.items.map((boardItem) =>
-              boardItem.id === draggedItem.id
-                ? { ...boardItem, probability: updated.probability, probabilityIsManual: updated.probabilityIsManual }
-                : boardItem,
-            ),
-          })),
-        )
-      }
+      await opportunityService.changeStage(draggedItem.id, { commercialPipelineStageId: targetStage })
     } catch {
       setBoard(previousBoard)
     } finally {

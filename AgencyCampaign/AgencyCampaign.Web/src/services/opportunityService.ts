@@ -152,8 +152,6 @@ export interface OpportunityBoardItem {
   commercialPipelineStageName: string
   commercialPipelineStageColor: string
   estimatedValue: number
-  probability: number
-  probabilityIsManual: boolean
   expectedCloseAt?: string
   commercialResponsibleName?: string
   proposalCount: number
@@ -267,10 +265,6 @@ export interface CloseOpportunityAsWonRequest {
 
 export interface CloseOpportunityAsLostRequest {
   lossReason: string
-}
-
-export interface SetOpportunityProbabilityRequest {
-  probability: number
 }
 
 export interface CreateOpportunityNegotiationRequest {
@@ -412,14 +406,6 @@ export const opportunityService = {
 
   closeAsLost(id: number, data: CloseOpportunityAsLostRequest) {
     return httpClient.post<Opportunity>(`${BASE_URL}/${id}/CloseAsLost`, data)
-  },
-
-  setProbability(id: number, data: SetOpportunityProbabilityRequest) {
-    return httpClient.post<Opportunity>(`${BASE_URL}/${id}/SetProbability`, data)
-  },
-
-  resetProbability(id: number) {
-    return httpClient.post<Opportunity>(`${BASE_URL}/${id}/ResetProbability`, {})
   },
 
   delete(id: number) {

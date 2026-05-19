@@ -20,10 +20,6 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public decimal EstimatedValue { get; init; }
 
-        public decimal Probability { get; init; }
-
-        public bool ProbabilityIsManual { get; init; }
-
         public DateTimeOffset? ExpectedCloseAt { get; init; }
 
         public string? CommercialResponsibleName { get; init; }

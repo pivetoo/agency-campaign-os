@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, MapPin, MessageSquare, Pencil, Percent, Plus, RotateCcw, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
-import type { CommercialPipelineStage } from '../../../types/commercialPipelineStage'
+import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, MapPin, MessageSquare, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
 import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type OpportunityApprovalStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
@@ -76,7 +75,7 @@ export default function OpportunityDetail() {
   const { user: authUser } = useAuth()
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
-  const [stages, setStages] = useState<CommercialPipelineStage[]>([])
+  const [stages, setStages] = useState<Array<{ id: number; name: string; finalBehavior: number }>>([])
   const [selectedNegotiation, setSelectedNegotiation] = useState<OpportunityNegotiation | null>(null)
   const [selectedApprovalRequest, setSelectedApprovalRequest] = useState<OpportunityApprovalRequest | null>(null)
   const [selectedFollowUp, setSelectedFollowUp] = useState<OpportunityFollowUp | null>(null)
@@ -88,8 +87,6 @@ export default function OpportunityDetail() {
   const [selectedStage, setSelectedStage] = useState<string>('1')
   const [pendingFinalStage, setPendingFinalStage] = useState<{ id: number; name: string; kind: 'won' | 'lost' } | null>(null)
   const [finalNotes, setFinalNotes] = useState('')
-  const [isProbabilityModalOpen, setIsProbabilityModalOpen] = useState(false)
-  const [probabilityInput, setProbabilityInput] = useState('')
 
   const { execute: fetchOpportunity, loading } = useApi<Opportunity | null>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -250,34 +247,6 @@ export default function OpportunityDetail() {
     if (opportunity) setSelectedStage(String(opportunity.commercialPipelineStageId))
   }
 
-  const currentStage = useMemo(() => stages.find((stage) => stage.id === opportunity?.commercialPipelineStageId), [stages, opportunity?.commercialPipelineStageId])
-
-  const openProbabilityModal = () => {
-    setProbabilityInput(opportunity ? String(opportunity.probability) : '')
-    setIsProbabilityModalOpen(true)
-  }
-
-  const submitProbability = async () => {
-    if (!opportunity) return
-    const value = Number(probabilityInput)
-    if (Number.isNaN(value) || value < 0 || value > 100) return
-
-    const result = await executeAction(() => opportunityService.setProbability(opportunity.id, { probability: value }))
-    if (result !== null) {
-      setIsProbabilityModalOpen(false)
-      await loadOpportunity()
-    }
-  }
-
-  const resetProbability = async () => {
-    if (!opportunity) return
-    const result = await executeAction(() => opportunityService.resetProbability(opportunity.id))
-    if (result !== null) {
-      setIsProbabilityModalOpen(false)
-      await loadOpportunity()
-    }
-  }
-
 
   const handleDeleteNegotiation = async () => {
     if (!selectedNegotiation) return
@@ -390,7 +359,7 @@ export default function OpportunityDetail() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <Card className="border border-border/70 shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
@@ -398,31 +367,6 @@ export default function OpportunityDetail() {
                   {t('opportunityDetail.kpi.estimatedValue')}
                 </div>
                 <p className="mt-1.5 text-lg font-semibold text-foreground">{formatCurrency(opportunity?.estimatedValue ?? 0)}</p>
-              </CardContent>
-            </Card>
-            <Card className="border border-border/70 shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground">
-                  <span className="flex items-center gap-2">
-                    <Percent className="h-3.5 w-3.5 text-emerald-600" />
-                    {t('opportunityDetail.kpi.probability')}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={openProbabilityModal}
-                    className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                    aria-label={t('opportunityDetail.probability.edit.title')}
-                    disabled={!opportunity}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-                <div className="mt-1.5 flex items-baseline gap-2">
-                  <p className="text-lg font-semibold text-foreground">{(opportunity?.probability ?? 0).toFixed(0)}%</p>
-                  <Badge variant={opportunity?.probabilityIsManual ? 'warning' : 'default'} className="px-1.5 py-0 text-[10px]">
-                    {opportunity?.probabilityIsManual ? t('opportunityDetail.probability.manual') : t('opportunityDetail.probability.automatic')}
-                  </Badge>
-                </div>
               </CardContent>
             </Card>
             <Card className="border border-border/70 shadow-sm">
@@ -812,56 +756,6 @@ export default function OpportunityDetail() {
           }
         }}
       />
-
-      <Modal open={isProbabilityModalOpen} onOpenChange={(open) => { if (!open) setIsProbabilityModalOpen(false) }}>
-        <ModalContent size="form">
-          <ModalHeader>
-            <ModalTitle>{t('opportunityDetail.probability.edit.title')}</ModalTitle>
-          </ModalHeader>
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">{t('opportunityDetail.probability.edit.description')}</p>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t('opportunityDetail.probability.field')}</label>
-              <input
-                type="number"
-                min={0}
-                max={100}
-                step={1}
-                className="w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                value={probabilityInput}
-                onChange={(e) => setProbabilityInput(e.target.value)}
-                autoFocus
-              />
-              <p className="text-xs text-muted-foreground">
-                {currentStage?.defaultProbability != null
-                  ? t('opportunityDetail.probability.automaticHint').replace('{0}', String(currentStage.defaultProbability))
-                  : t('opportunityDetail.probability.noStageDefault')}
-              </p>
-            </div>
-          </div>
-          <ModalFooter>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => void resetProbability()}
-              disabled={actionLoading || !opportunity?.probabilityIsManual}
-            >
-              <RotateCcw className="mr-2 h-4 w-4" /> {t('opportunityDetail.probability.reset')}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => setIsProbabilityModalOpen(false)} disabled={actionLoading}>
-              {t('common.action.cancel')}
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              onClick={() => void submitProbability()}
-              disabled={actionLoading || probabilityInput === '' || Number.isNaN(Number(probabilityInput)) || Number(probabilityInput) < 0 || Number(probabilityInput) > 100}
-            >
-              {actionLoading ? '...' : t('opportunityDetail.probability.save')}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
 
       <Modal open={!!pendingFinalStage} onOpenChange={(open) => { if (!open) cancelFinalChange() }}>
         <ModalContent size="form">
