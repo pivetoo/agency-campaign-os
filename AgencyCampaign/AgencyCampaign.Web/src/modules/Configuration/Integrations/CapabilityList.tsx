@@ -228,7 +228,7 @@ export default function CapabilityList() {
                               <span className="text-sm font-semibold">{descriptor.label}</span>
                               {configured && state.isActive ? (
                                 <Badge variant="success" className="gap-1">
-                                  <CheckCircle2 size={11} className="text-emerald-500" />
+                                  <CheckCircle2 size={11} className="text-white" />
                                   Ativa
                                 </Badge>
                               ) : configured ? (
