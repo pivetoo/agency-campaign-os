@@ -300,7 +300,7 @@ export default function CommercialProposalDetail() {
             </div>
 
             <aside className="min-w-0 space-y-4">
-              <ProposalShareTab proposalId={proposalId} />
+              <ProposalShareTab proposalId={proposalId} proposalStatus={proposal?.status ?? ProposalStatus.Draft} />
             </aside>
           </div>
         </div>

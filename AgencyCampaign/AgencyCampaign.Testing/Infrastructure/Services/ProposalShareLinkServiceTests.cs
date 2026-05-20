@@ -27,9 +27,13 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [TearDown]
         public void TearDown() => db.Dispose();
 
-        private async Task<Proposal> SeedProposalAsync()
+        private async Task<Proposal> SeedProposalAsync(bool sent = true)
         {
             Proposal proposal = new(opportunityId: 1, name: "P", internalOwnerId: 1);
+            if (sent)
+            {
+                proposal.MarkAsSent();
+            }
             db.Add(proposal);
             await db.SaveChangesAsync();
             return proposal;
@@ -40,6 +44,16 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             Func<Task> act = () => service.CreateShareLink(99, new CreateProposalShareLinkRequest());
             await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task CreateShareLink_should_throw_when_proposal_is_in_draft()
+        {
+            Proposal proposal = await SeedProposalAsync(sent: false);
+
+            Func<Task> act = () => service.CreateShareLink(proposal.Id, new CreateProposalShareLinkRequest());
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("proposal.share.draftNotAllowed");
         }
 
         [Test]

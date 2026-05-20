@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, ConfirmModal, Input, useApi, useToast, useI18n } from 'archon-ui'
-import { Copy, Eye, Link as LinkIcon, Link2, ShieldOff } from 'lucide-react'
-import { proposalService, type ProposalShareLink, type ProposalVersion } from '../../../services/proposalService'
+import { AlertTriangle, Copy, Eye, Link as LinkIcon, Link2, ShieldOff } from 'lucide-react'
+import { ProposalStatus, proposalService, type ProposalShareLink, type ProposalStatusValue, type ProposalVersion } from '../../../services/proposalService'
 import { formatDateTime } from '../../../lib/format'
 
 interface ProposalShareTabProps {
   proposalId: number
+  proposalStatus: ProposalStatusValue
 }
 
 function buildPublicUrl(token: string): string {
@@ -16,8 +17,9 @@ function maskToken(token: string): string {
   return `${token.slice(0, 8)}...${token.slice(-4)}`
 }
 
-export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) {
+export default function ProposalShareTab({ proposalId, proposalStatus }: ProposalShareTabProps) {
   const { t } = useI18n()
+  const canShare = proposalStatus !== ProposalStatus.Draft
   const [shareLinks, setShareLinks] = useState<ProposalShareLink[]>([])
   const [versions, setVersions] = useState<ProposalVersion[]>([])
   const [expiresAt, setExpiresAt] = useState('')
@@ -99,35 +101,45 @@ export default function ProposalShareTab({ proposalId }: ProposalShareTabProps) 
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 p-4">
-          <div className="rounded-md border border-dashed border-border/70 bg-muted/20 p-4">
-            <div className="text-sm font-medium text-foreground">{t('proposalShare.generate.title')}</div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t('proposalShare.generate.description')}
-            </p>
-            <div className="mt-3 space-y-2">
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">
-                  {t('proposalShare.generate.expiresLabel')}
-                </label>
-                <Input
-                  type="datetime-local"
-                  value={expiresAt}
-                  onChange={(e) => setExpiresAt(e.target.value)}
-                  className="mt-1 w-full"
+          {canShare ? (
+            <div className="rounded-md border border-dashed border-border/70 bg-muted/20 p-4">
+              <div className="text-sm font-medium text-foreground">{t('proposalShare.generate.title')}</div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t('proposalShare.generate.description')}
+              </p>
+              <div className="mt-3 space-y-2">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">
+                    {t('proposalShare.generate.expiresLabel')}
+                  </label>
+                  <Input
+                    type="datetime-local"
+                    value={expiresAt}
+                    onChange={(e) => setExpiresAt(e.target.value)}
+                    className="mt-1 w-full"
+                    disabled={mutating}
+                  />
+                </div>
+                <Button
+                  data-testid="proposal-generate-public-link-button"
+                  icon={<Link2 className="h-4 w-4" />}
+                  onClick={() => void generateLink()}
                   disabled={mutating}
-                />
+                  fullWidth
+                >
+                  {t('proposalShare.generate.button')}
+                </Button>
               </div>
-              <Button
-                data-testid="proposal-generate-public-link-button"
-                icon={<Link2 className="h-4 w-4" />}
-                onClick={() => void generateLink()}
-                disabled={mutating}
-                fullWidth
-              >
-                {t('proposalShare.generate.button')}
-              </Button>
             </div>
-          </div>
+          ) : (
+            <div data-testid="proposal-share-draft-warning" className="flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4">
+              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
+              <div className="space-y-1">
+                <div className="text-sm font-medium text-amber-900">{t('proposalShare.draft.title')}</div>
+                <p className="text-xs text-amber-800">{t('proposalShare.draft.description')}</p>
+              </div>
+            </div>
+          )}
 
           {loading && shareLinks.length === 0 ? (
             <div className="text-sm text-muted-foreground">{t('proposalShare.loading')}</div>

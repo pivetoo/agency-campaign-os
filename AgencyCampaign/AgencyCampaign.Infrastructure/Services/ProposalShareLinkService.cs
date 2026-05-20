@@ -3,6 +3,7 @@ using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -49,7 +50,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<ProposalShareLinkModel> CreateShareLink(long proposalId, CreateProposalShareLinkRequest request, CancellationToken cancellationToken = default)
         {
-            await EnsureProposalExists(proposalId, cancellationToken);
+            await EnsureProposalCanBeShared(proposalId, cancellationToken);
 
             string token = GenerateToken();
             ProposalShareLink shareLink = new(proposalId, token, request.ExpiresAt, currentUser.UserId, currentUser.UserName);
@@ -86,6 +87,25 @@ namespace AgencyCampaign.Infrastructure.Services
             if (!exists)
             {
                 throw new InvalidOperationException("record.notFound");
+            }
+        }
+
+        private async Task EnsureProposalCanBeShared(long proposalId, CancellationToken cancellationToken)
+        {
+            ProposalStatus? status = await dbContext.Set<Proposal>()
+                .AsNoTracking()
+                .Where(item => item.Id == proposalId)
+                .Select(item => (ProposalStatus?)item.Status)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (status is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            if (status == ProposalStatus.Draft)
+            {
+                throw new InvalidOperationException("proposal.share.draftNotAllowed");
             }
         }
 
