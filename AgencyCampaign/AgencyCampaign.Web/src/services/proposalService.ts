@@ -183,6 +183,10 @@ export const proposalService = {
     return httpClient.post<Proposal>(`${BASE_URL}/${id}/SendByEmail`, data)
   },
 
+  markAsSent(id: number) {
+    return httpClient.post<Proposal>(`${BASE_URL}/${id}/MarkAsSent`, {})
+  },
+
   approve(id: number) {
     return httpClient.post<Proposal>(`${BASE_URL}/${id}/Approve`, {})
   },

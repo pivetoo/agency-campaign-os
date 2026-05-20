@@ -515,7 +515,9 @@
   <data name="modal.proposalSend.binding.sendingVia" xml:space="preserve"><value>Enviando via</value></data>
   <data name="modal.proposalSend.binding.change" xml:space="preserve"><value>Alterar conector</value></data>
   <data name="modal.proposalSend.binding.missing.title" xml:space="preserve"><value>Ação não configurada</value></data>
-  <data name="modal.proposalSend.binding.missing.description" xml:space="preserve"><value>Esta proposta vai ser enviada, mas a ação "Enviar proposta por email" não tem conector/pipeline padrão. Configure em Configurações → Integrações → Ações, ou escolha abaixo só desta vez.</value></data>
+  <data name="modal.proposalSend.binding.missing.description" xml:space="preserve"><value>A ação "Enviar proposta por email" ainda não tem uma automação padrão configurada. Você pode marcar a proposta como enviada (sem disparar email) ou configurar a automação agora.</value></data>
+  <data name="modal.proposalSend.binding.missing.goToIntegrations" xml:space="preserve"><value>Configurar Integrações</value></data>
+  <data name="modal.proposalSend.binding.missing.markAsSent" xml:space="preserve"><value>Marcar como enviada mesmo assim</value></data>
   <data name="integrationBinding.notConfigured" xml:space="preserve"><value>Esta ação não tem conector/pipeline padrão. Configure em Configurações → Integrações → Ações.</value></data>
   <data name="automation.userAction.notConfigured" xml:space="preserve"><value>Esta ação não tem automação padrão configurada. Crie uma em Configurações → Integrações → Automações com o tipo "Quando o usuário fizer".</value></data>
   <data name="modal.automation.field.triggerType" xml:space="preserve"><value>Quando disparar</value></data>

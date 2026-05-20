@@ -103,6 +103,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 
+        [RequireAccess("proposals.markAsSent.description")]
+        [HttpPost("{id:long}/MarkAsSent")]
+        public async Task<IActionResult> MarkAsSent(long id, CancellationToken cancellationToken)
+        {
+            Proposal proposal = await proposalService.MarkAsSent(id, cancellationToken);
+            return Http200(MapProposal(proposal), Localizer["record.updated"]);
+        }
+
         [RequireAccess("proposals.markAsViewed.description")]
         [HttpPost("{id:long}/MarkAsViewed")]
         public async Task<IActionResult> MarkAsViewed(long id, CancellationToken cancellationToken)

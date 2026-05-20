@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
-import { AlertTriangle, ChevronDown, ChevronUp, Settings2 } from 'lucide-react'
+import { AlertTriangle, ChevronDown, ChevronUp, ExternalLink, Settings2 } from 'lucide-react'
 import { proposalService, type SendProposalEmailRequest } from '../../services/proposalService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import { automationService } from '../../services/automationService'
@@ -33,6 +34,7 @@ function buildDefaultBody(proposalName: string, agencyName: string | undefined, 
 
 export default function ProposalSendModal({ open, onOpenChange, proposalId, proposalName, agencyName, defaultRecipientEmail, publicLinkUrl, onSuccess }: Props) {
   const { t } = useI18n()
+  const navigate = useNavigate()
   const [bindingConnectorId, setBindingConnectorId] = useState<number | undefined>()
   const [bindingPipelineId, setBindingPipelineId] = useState<number | undefined>()
   const [bindingConnectorName, setBindingConnectorName] = useState<string>('')
@@ -59,6 +61,17 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
   const { execute: loadConnectors, loading: connLoading } = useApi<Connector[]>({ showErrorMessage: true })
   const { execute: loadPipelines, loading: pipeLoading } = useApi<Pipeline[]>({ showErrorMessage: true })
   const { execute: send, loading: sending } = useApi({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: markSent, loading: markingSent } = useApi({ showSuccessMessage: true, showErrorMessage: true })
+
+  const goToIntegrations = () => {
+    onOpenChange(false)
+    navigate('/configuracao/integracoes')
+  }
+
+  const handleMarkAsSent = async () => {
+    const result = await markSent(() => proposalService.markAsSent(proposalId))
+    if (result !== null) onSuccess()
+  }
 
   useEffect(() => {
     if (!open) return
@@ -179,101 +192,115 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
           {bindingLoading ? (
             <div className="rounded-md border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">{t('common.loading')}</div>
           ) : bindingMissing ? (
-            <div className="flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-3">
-              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
-              <div className="space-y-1">
-                <div className="text-sm font-medium text-amber-900">{t('modal.proposalSend.binding.missing.title')}</div>
-                <p className="text-xs text-amber-800">{t('modal.proposalSend.binding.missing.description')}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-md border bg-muted/20 p-3">
-              <div className="flex items-start justify-between gap-3">
+            <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
                 <div className="space-y-1">
-                  <div className="text-xs uppercase tracking-wide text-muted-foreground">{t('modal.proposalSend.binding.sendingVia')}</div>
-                  <div className="text-sm font-medium text-foreground">{bindingConnectorName} <span className="text-muted-foreground">·</span> {bindingPipelineName}</div>
+                  <div className="text-sm font-medium text-amber-900">{t('modal.proposalSend.binding.missing.title')}</div>
+                  <p className="text-xs text-amber-800">{t('modal.proposalSend.binding.missing.description')}</p>
                 </div>
-                <Button type="button" size="sm" variant="ghost" onClick={() => setOverrideOpen(!overrideOpen)}>
-                  <Settings2 className="mr-1 h-3.5 w-3.5" />
-                  {t('modal.proposalSend.binding.change')}
-                  {overrideOpen ? <ChevronUp className="ml-1 h-3.5 w-3.5" /> : <ChevronDown className="ml-1 h-3.5 w-3.5" />}
+              </div>
+              <div className="flex flex-wrap gap-2 pl-8">
+                <Button type="button" size="sm" variant="outline" onClick={goToIntegrations}>
+                  <ExternalLink className="mr-1 h-3.5 w-3.5" /> {t('modal.proposalSend.binding.missing.goToIntegrations')}
+                </Button>
+                <Button type="button" size="sm" variant="outline-primary" onClick={() => void handleMarkAsSent()} disabled={markingSent}>
+                  {markingSent ? t('common.action.saving') : t('modal.proposalSend.binding.missing.markAsSent')}
                 </Button>
               </div>
             </div>
+          ) : (
+            <>
+              <div className="rounded-md border bg-muted/20 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">{t('modal.proposalSend.binding.sendingVia')}</div>
+                    <div className="text-sm font-medium text-foreground">{bindingConnectorName} <span className="text-muted-foreground">·</span> {bindingPipelineName}</div>
+                  </div>
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setOverrideOpen(!overrideOpen)}>
+                    <Settings2 className="mr-1 h-3.5 w-3.5" />
+                    {t('modal.proposalSend.binding.change')}
+                    {overrideOpen ? <ChevronUp className="ml-1 h-3.5 w-3.5" /> : <ChevronDown className="ml-1 h-3.5 w-3.5" />}
+                  </Button>
+                </div>
+              </div>
+
+              {overrideOpen && (
+                <div className="grid grid-cols-1 gap-3 rounded-md border border-dashed border-border/70 bg-background p-3 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('modal.automation.field.integrationCategory')}</label>
+                    <SearchableSelect
+                      value={categoryId ? String(categoryId) : ''}
+                      onValueChange={(value) => setCategoryId(value ? Number(value) : undefined)}
+                      options={categoryOptions}
+                      placeholder={catLoading ? t('common.loading') : t('common.placeholder.select')}
+                      searchPlaceholder={t('common.placeholder.search')}
+                      disabled={catLoading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('modal.automation.field.integration')}</label>
+                    <SearchableSelect
+                      value={integrationId ? String(integrationId) : ''}
+                      onValueChange={(value) => setIntegrationId(value ? Number(value) : undefined)}
+                      options={integrationOptions}
+                      placeholder={intLoading ? t('common.loading') : integrationOptions.length === 0 ? t('modal.proposalSend.placeholder.noIntegration') : t('common.placeholder.select')}
+                      searchPlaceholder={t('common.placeholder.search')}
+                      disabled={intLoading || integrationOptions.length === 0}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Conta</label>
+                    <SearchableSelect
+                      value={overrideConnectorId ? String(overrideConnectorId) : ''}
+                      onValueChange={(value) => setOverrideConnectorId(value ? Number(value) : undefined)}
+                      options={connectorOptions}
+                      placeholder={connLoading ? t('common.loading') : connectorOptions.length === 0 ? t('modal.proposalSend.placeholder.configureConnector') : t('common.placeholder.select')}
+                      searchPlaceholder={t('common.placeholder.search')}
+                      disabled={connLoading || connectorOptions.length === 0}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('modal.document.field.sendPipeline')}</label>
+                    <SearchableSelect
+                      value={overridePipelineId ? String(overridePipelineId) : ''}
+                      onValueChange={(value) => setOverridePipelineId(value ? Number(value) : undefined)}
+                      options={pipelineOptions}
+                      placeholder={pipeLoading ? t('common.loading') : pipelineOptions.length === 0 ? t('modal.proposalSend.placeholder.noPipelines') : t('common.placeholder.select')}
+                      searchPlaceholder={t('common.placeholder.search')}
+                      disabled={pipeLoading || pipelineOptions.length === 0}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('modal.proposalSend.field.recipient')}</label>
+                <Input type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} required />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('common.field.subject')}</label>
+                <Input value={subject} onChange={(e) => setSubject(e.target.value)} required />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('common.field.message')}</label>
+                <textarea
+                  className="min-h-[180px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  required
+                />
+              </div>
+            </>
           )}
-
-          {(overrideOpen || bindingMissing) && (
-            <div className="grid grid-cols-1 gap-3 rounded-md border border-dashed border-border/70 bg-background p-3 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('modal.automation.field.integrationCategory')}</label>
-                <SearchableSelect
-                  value={categoryId ? String(categoryId) : ''}
-                  onValueChange={(value) => setCategoryId(value ? Number(value) : undefined)}
-                  options={categoryOptions}
-                  placeholder={catLoading ? t('common.loading') : t('common.placeholder.select')}
-                  searchPlaceholder={t('common.placeholder.search')}
-                  disabled={catLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('modal.automation.field.integration')}</label>
-                <SearchableSelect
-                  value={integrationId ? String(integrationId) : ''}
-                  onValueChange={(value) => setIntegrationId(value ? Number(value) : undefined)}
-                  options={integrationOptions}
-                  placeholder={intLoading ? t('common.loading') : integrationOptions.length === 0 ? t('modal.proposalSend.placeholder.noIntegration') : t('common.placeholder.select')}
-                  searchPlaceholder={t('common.placeholder.search')}
-                  disabled={intLoading || integrationOptions.length === 0}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Conector</label>
-                <SearchableSelect
-                  value={overrideConnectorId ? String(overrideConnectorId) : ''}
-                  onValueChange={(value) => setOverrideConnectorId(value ? Number(value) : undefined)}
-                  options={connectorOptions}
-                  placeholder={connLoading ? t('common.loading') : connectorOptions.length === 0 ? t('modal.proposalSend.placeholder.configureConnector') : t('common.placeholder.select')}
-                  searchPlaceholder={t('common.placeholder.search')}
-                  disabled={connLoading || connectorOptions.length === 0}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('modal.document.field.sendPipeline')}</label>
-                <SearchableSelect
-                  value={overridePipelineId ? String(overridePipelineId) : ''}
-                  onValueChange={(value) => setOverridePipelineId(value ? Number(value) : undefined)}
-                  options={pipelineOptions}
-                  placeholder={pipeLoading ? t('common.loading') : pipelineOptions.length === 0 ? t('modal.proposalSend.placeholder.noPipelines') : t('common.placeholder.select')}
-                  searchPlaceholder={t('common.placeholder.search')}
-                  disabled={pipeLoading || pipelineOptions.length === 0}
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">{t('modal.proposalSend.field.recipient')}</label>
-            <Input type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} required />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">{t('common.field.subject')}</label>
-            <Input value={subject} onChange={(e) => setSubject(e.target.value)} required />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">{t('common.field.message')}</label>
-            <textarea
-              className="min-h-[180px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              required
-            />
-          </div>
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
-            <Button type="submit" disabled={sending || !canSubmit}>{sending ? t('common.action.sending') : t('modal.proposalSend.action.send')}</Button>
+            {!bindingMissing && (
+              <Button type="submit" disabled={sending || !canSubmit}>{sending ? t('common.action.sending') : t('modal.proposalSend.action.send')}</Button>
+            )}
           </ModalFooter>
         </form>
       </ModalContent>
