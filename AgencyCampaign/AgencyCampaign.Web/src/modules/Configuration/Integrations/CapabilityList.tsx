@@ -12,6 +12,17 @@ interface CapabilityRowState {
   saving: boolean
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+  email: 'Email',
+  messaging: 'Mensagens (WhatsApp / SMS)',
+  'digital-signature': 'Assinatura digital',
+  banking: 'Conta bancária',
+  payment: 'Pagamentos',
+  invoice: 'Notas fiscais',
+}
+
+const labelForCategory = (identifier: string): string => CATEGORY_LABELS[identifier] ?? identifier.replace(/-/g, ' ')
+
 export default function CapabilityList() {
   const [catalog, setCatalog] = useState<IntegrationIntentDescriptor[]>([])
   const [, setCapabilities] = useState<IntegrationCapability[]>([])
@@ -66,8 +77,15 @@ export default function CapabilityList() {
       list.push(descriptor)
       map.set(descriptor.categoryIdentifier, list)
     }
-    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b))
-  }, [catalog])
+    return Array.from(map.entries()).sort(([aIdentifier], [bIdentifier]) => {
+      const aHasAccount = (connectorsByCategory[aIdentifier]?.length ?? 0) > 0
+      const bHasAccount = (connectorsByCategory[bIdentifier]?.length ?? 0) > 0
+      if (aHasAccount !== bHasAccount) {
+        return aHasAccount ? -1 : 1
+      }
+      return labelForCategory(aIdentifier).localeCompare(labelForCategory(bIdentifier))
+    })
+  }, [catalog, connectorsByCategory])
 
   const configuredCount = useMemo(
     () => catalog.filter((descriptor) => {
@@ -165,7 +183,7 @@ export default function CapabilityList() {
         <div className="space-y-1 hidden md:block">
           <span className="text-xs text-muted-foreground">Como funciona</span>
           <p className="text-xs text-muted-foreground">
-            Escolha uma conta cadastrada para cada ação de negócio. O Kanvas resolve sozinho qual pipeline executar.
+            Para cada ação do Kanvas, escolha qual conta deve ser usada. Você só precisa cadastrar a conta uma vez em "Contas conectadas".
           </p>
         </div>
       </div>
@@ -181,20 +199,21 @@ export default function CapabilityList() {
       ) : (
         grouped.map(([categoryIdentifier, descriptors]) => {
           const connectors = connectorsByCategory[categoryIdentifier] ?? []
+          const categoryLabel = labelForCategory(categoryIdentifier)
           return (
             <Card key={categoryIdentifier}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base capitalize">{categoryIdentifier.replace(/-/g, ' ')}</CardTitle>
+                <CardTitle className="text-base">{categoryLabel}</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Ações que dependem de uma integração da categoria <span className="font-medium">{categoryIdentifier}</span>.
+                  Ações do Kanvas que precisam de uma conta de <span className="font-medium">{categoryLabel.toLowerCase()}</span>.
                 </p>
               </CardHeader>
               <CardContent>
                 {connectors.length === 0 ? (
                   <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-6 text-muted-foreground">
                     <CircleDashed size={28} className="mb-2 opacity-50" />
-                    <p className="text-xs">Nenhuma conta da categoria {categoryIdentifier} foi cadastrada ainda.</p>
-                    <p className="text-xs">Cadastre uma conta na aba "Conectores" para liberar estas ações.</p>
+                    <p className="text-xs">Você ainda não tem nenhuma conta de {categoryLabel.toLowerCase()}.</p>
+                    <p className="text-xs">Cadastre uma na aba "Contas conectadas" para liberar estas ações.</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -218,9 +237,6 @@ export default function CapabilityList() {
                                 <Badge variant="secondary">Não configurada</Badge>
                               )}
                             </div>
-                            <p className="mt-1 text-[10px] text-muted-foreground">
-                              service: <span className="font-mono">{descriptor.serviceContractIdentifier}</span>
-                            </p>
                           </div>
                           <div className="w-full md:w-72">
                             <SearchableSelect
