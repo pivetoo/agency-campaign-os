@@ -26,11 +26,13 @@ namespace AgencyCampaign.Infrastructure.Services
 
         private readonly DocumentEmailOptions emailOptions;
         private readonly IntegrationPlatformClient integrationPlatformClient;
+        private readonly IIntegrationCapabilityService integrationCapabilityService;
 
-        public CampaignDocumentService(DbContext dbContext, IOptions<DocumentEmailOptions> emailOptions, IntegrationPlatformClient integrationPlatformClient) : base(dbContext)
+        public CampaignDocumentService(DbContext dbContext, IOptions<DocumentEmailOptions> emailOptions, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService) : base(dbContext)
         {
             this.emailOptions = emailOptions.Value;
             this.integrationPlatformClient = integrationPlatformClient;
+            this.integrationCapabilityService = integrationCapabilityService;
         }
 
         public async Task<PagedResult<CampaignDocument>> GetDocuments(PagedRequest request, CancellationToken cancellationToken = default)
@@ -240,6 +242,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
             }
 
+            ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(Application.Catalogs.IntegrationIntents.CampaignDocumentSendSignature, cancellationToken);
+
             string payload = JsonSerializer.Serialize(new
             {
                 campaignDocumentId = document.Id,
@@ -255,17 +259,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 }),
             });
 
-            EnqueuePipelineRequest enqueueRequest = new()
-            {
-                ConnectorId = request.ConnectorId,
-                PipelineId = request.PipelineId,
-                Payload = payload,
-                Priority = 1,
-            };
-
             try
             {
-                await integrationPlatformClient.EnqueuePipelineAsync(enqueueRequest, cancellationToken);
+                await integrationPlatformClient.EnqueueServiceAsync(capability.ServiceContractIdentifier, capability.ConnectorId, payload, priority: 1, ct: cancellationToken);
             }
             catch (Exception ex)
             {
@@ -275,7 +271,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             document.MarkReadyToSend();
-            document.RegisterEvent(CampaignDocumentEventType.Sent, $"Enviado para assinatura via pipeline {request.PipelineId}.");
+            document.RegisterEvent(CampaignDocumentEventType.Sent, $"Enviado para assinatura via conector {capability.ConnectorId}.");
 
             CampaignDocument? result = await Update(document, cancellationToken);
             if (result is null)

@@ -269,6 +269,58 @@ namespace AgencyCampaign.Infrastructure.Clients
             }, ct);
         }
 
+        public async Task<ExecutionDto> ExecuteServiceAsync(string serviceIdentifier, long connectorId, string? inputData = null, CancellationToken ct = default)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(serviceIdentifier);
+
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
+            }
+
+            ExecuteServiceRequest body = new()
+            {
+                ConnectorId = connectorId,
+                InputData = inputData
+            };
+
+            RestResponse<ApiResponse<ExecutionDto>> response = await restApi.Fetch<ApiResponse<ExecutionDto>>(
+                RestRequest.Post($"{baseUrl}/api/services/{Uri.EscapeDataString(serviceIdentifier.Trim())}/execute", body)
+                           .WithTenantApiKey(tenantId, secret!), ct);
+
+            return response.Ok
+                ? response.Data?.Data ?? throw new InvalidOperationException("integrationPlatform.service.executeFailed")
+                : throw new InvalidOperationException("integrationPlatform.service.executeFailed");
+        }
+
+        public async Task<ProcessingQueueDto> EnqueueServiceAsync(string serviceIdentifier, long connectorId, string? inputData = null, int priority = 5, DateTime? scheduledFor = null, CancellationToken ct = default)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(serviceIdentifier);
+
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
+            }
+
+            EnqueueServiceRequest body = new()
+            {
+                ConnectorId = connectorId,
+                InputData = inputData,
+                Priority = priority,
+                ScheduledFor = scheduledFor
+            };
+
+            RestResponse<ApiResponse<ProcessingQueueDto>> response = await restApi.Fetch<ApiResponse<ProcessingQueueDto>>(
+                RestRequest.Post($"{baseUrl}/api/services/{Uri.EscapeDataString(serviceIdentifier.Trim())}/enqueue", body)
+                           .WithTenantApiKey(tenantId, secret!), ct);
+
+            return response.Ok
+                ? response.Data?.Data ?? throw new InvalidOperationException("integrationPlatform.service.enqueueFailed")
+                : throw new InvalidOperationException("integrationPlatform.service.enqueueFailed");
+        }
+
         public async Task<ProcessingQueueDto> EnqueuePipelineAsync(EnqueuePipelineRequest request, CancellationToken ct = default)
         {
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
@@ -446,5 +498,19 @@ namespace AgencyCampaign.Infrastructure.Clients
         public long PipelineId { get; set; }
         public string? Payload { get; set; }
         public int Priority { get; set; }
+    }
+
+    public sealed class ExecuteServiceRequest
+    {
+        public long ConnectorId { get; set; }
+        public string? InputData { get; set; }
+    }
+
+    public sealed class EnqueueServiceRequest
+    {
+        public long ConnectorId { get; set; }
+        public string? InputData { get; set; }
+        public int Priority { get; set; } = 5;
+        public DateTime? ScheduledFor { get; set; }
     }
 }

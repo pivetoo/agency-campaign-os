@@ -1469,4 +1469,15 @@
   <data name="proposals.statusHistory.description" xml:space="preserve"><value>Permite consultar o histórico de status de uma proposta.</value></data>
   <data name="proposals.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma proposta.</value></data>
   <data name="proposals.updateItem.description" xml:space="preserve"><value>Permite atualizar um item da proposta.</value></data>
+  <data name="integrationCapabilities.area" xml:space="preserve"><value>IntegrationCapabilities</value></data>
+  <data name="integrationCapabilities.get.description" xml:space="preserve"><value>Lista los vínculos activos entre acciones de negocio y conectores configurados.</value></data>
+  <data name="integrationCapabilities.getByIntent.description" xml:space="preserve"><value>Consulta el vínculo de un intent específico con el conector configurado.</value></data>
+  <data name="integrationCapabilities.getCatalog.description" xml:space="preserve"><value>Consulta el catálogo de acciones de negocio integrables en Kanvas.</value></data>
+  <data name="integrationCapabilities.set.description" xml:space="preserve"><value>Define el conector activo para una acción de negocio.</value></data>
+  <data name="integrationCapabilities.remove.description" xml:space="preserve"><value>Elimina el vínculo entre una acción de negocio y un conector.</value></data>
+  <data name="integrationCapability.saved" xml:space="preserve"><value>Vínculo de integración actualizado con éxito.</value></data>
+  <data name="integrationCapability.removed" xml:space="preserve"><value>Vínculo de integración eliminado con éxito.</value></data>
+  <data name="integrationCapability.intent.required" xml:space="preserve"><value>El identificador de la acción de negocio es obligatorio.</value></data>
+  <data name="integrationCapability.intent.unknown" xml:space="preserve"><value>Acción de negocio desconocida.</value></data>
+  <data name="integrationCapability.notConfigured" xml:space="preserve"><value>No se ha configurado ningún conector activo para esta acción. Configura la integración en Configuración → Integraciones.</value></data>
 </root>

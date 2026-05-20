@@ -26,16 +26,16 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
         private readonly IntegrationPlatformClient integrationPlatformClient;
-        private readonly IAutomationService automationService;
+        private readonly IIntegrationCapabilityService integrationCapabilityService;
 
-        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IAutomationService automationService) : base(dbContext)
+        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService) : base(dbContext)
         {
             this.currentUser = currentUser;
             this.financialAutoGeneration = financialAutoGeneration;
             this.automationDispatcher = automationDispatcher;
             this.notificationService = notificationService;
             this.integrationPlatformClient = integrationPlatformClient;
-            this.automationService = automationService;
+            this.integrationCapabilityService = integrationCapabilityService;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -176,7 +176,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> SendByEmail(long id, SendProposalEmailRequest request, CancellationToken cancellationToken = default)
         {
-            (long connectorId, long pipelineId) = await ResolveTargetsAsync(request.ConnectorId, request.PipelineId, IntegrationIntents.ProposalSendEmail, cancellationToken);
+            ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(IntegrationIntents.ProposalSendEmail, cancellationToken);
 
             Proposal proposal = await CreateSentVersionAsync(id, cancellationToken);
 
@@ -186,24 +186,17 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 proposalId = proposal.Id,
                 proposalName = proposal.Name,
-                recipientEmail = request.RecipientEmail,
+                to = new[] { request.RecipientEmail },
                 subject = request.Subject,
                 body = request.Body,
+                isHtml = true,
                 publicToken = shareLink.Token,
                 totalValue = proposal.TotalValue,
                 validityUntil = proposal.ValidityUntil,
                 sentByUserName = currentUser.UserName
             });
 
-            EnqueuePipelineRequest enqueueRequest = new()
-            {
-                ConnectorId = connectorId,
-                PipelineId = pipelineId,
-                Payload = payload,
-                Priority = 1
-            };
-
-            await integrationPlatformClient.EnqueuePipelineAsync(enqueueRequest, cancellationToken);
+            await integrationPlatformClient.EnqueueServiceAsync(capability.ServiceContractIdentifier, capability.ConnectorId, payload, priority: 1, ct: cancellationToken);
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
             await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
@@ -212,7 +205,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> SendByWhatsapp(long id, SendProposalWhatsappRequest request, CancellationToken cancellationToken = default)
         {
-            (long connectorId, long pipelineId) = await ResolveTargetsAsync(request.ConnectorId, request.PipelineId, IntegrationIntents.ProposalSendWhatsapp, cancellationToken);
+            ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(IntegrationIntents.ProposalSendWhatsapp, cancellationToken);
 
             Proposal proposal = await CreateSentVersionAsync(id, cancellationToken);
 
@@ -222,7 +215,8 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 proposalId = proposal.Id,
                 proposalName = proposal.Name,
-                recipientPhone = request.RecipientPhone,
+                to = request.RecipientPhone,
+                channel = "whatsapp",
                 body = request.Body,
                 publicToken = shareLink.Token,
                 totalValue = proposal.TotalValue,
@@ -230,35 +224,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 sentByUserName = currentUser.UserName
             });
 
-            EnqueuePipelineRequest enqueueRequest = new()
-            {
-                ConnectorId = connectorId,
-                PipelineId = pipelineId,
-                Payload = payload,
-                Priority = 1
-            };
-
-            await integrationPlatformClient.EnqueuePipelineAsync(enqueueRequest, cancellationToken);
+            await integrationPlatformClient.EnqueueServiceAsync(capability.ServiceContractIdentifier, capability.ConnectorId, payload, priority: 1, ct: cancellationToken);
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
             await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
             return saved;
-        }
-
-        private async Task<(long ConnectorId, long PipelineId)> ResolveTargetsAsync(long? overrideConnectorId, long? overridePipelineId, string intentKey, CancellationToken cancellationToken)
-        {
-            if (overrideConnectorId is > 0 && overridePipelineId is > 0)
-            {
-                return (overrideConnectorId.Value, overridePipelineId.Value);
-            }
-
-            Automation? defaultAutomation = await automationService.GetDefaultForUserAction(intentKey, cancellationToken);
-            if (defaultAutomation is null)
-            {
-                throw new InvalidOperationException("automation.userAction.notConfigured");
-            }
-
-            return (defaultAutomation.ConnectorId, defaultAutomation.PipelineId);
         }
 
         private async Task<Proposal> CreateSentVersionAsync(long proposalId, CancellationToken cancellationToken)

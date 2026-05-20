@@ -26,19 +26,30 @@ namespace AgencyCampaign.Application.Catalogs
 
         public static readonly IReadOnlyList<IntegrationIntentDescriptor> All =
         [
-            new(ProposalSendEmail, "Enviar proposta por email", "email"),
-            new(ProposalSendWhatsapp, "Enviar proposta por WhatsApp", "whatsapp"),
-            new(CampaignDocumentSendSignature, "Enviar documento para assinatura", "digital-signature"),
-            new(CampaignDocumentSendEmail, "Enviar documento por email", "email"),
-            new(CreatorPaymentSchedulePix, "Agendar pagamento PIX para creator", "payment"),
-            new(NotificationSendTransactional, "Notificação transacional da plataforma", "email"),
-            new(ReceivableIssueInvoice, "Emitir cobrança para cliente", "payment"),
-            new(PayableTransfer, "Pagar fornecedor", "payment"),
-            new(FinancialEntryIssueNf, "Emitir nota fiscal", "invoice"),
-            new(BankAccountSync, "Sincronizar conta bancária", "banking"),
-            new(CreatorPortalNotifyWhatsapp, "Notificar creator por WhatsApp", "whatsapp"),
+            new(ProposalSendEmail, "Enviar proposta por email", "email", "email.send"),
+            new(ProposalSendWhatsapp, "Enviar proposta por WhatsApp", "messaging", "messaging.send"),
+            new(CampaignDocumentSendSignature, "Enviar documento para assinatura", "digital-signature", "signature.envelope.create"),
+            new(CampaignDocumentSendEmail, "Enviar documento por email", "email", "email.send"),
+            new(CreatorPaymentSchedulePix, "Agendar pagamento PIX para creator", "payment", "payment.charge.create"),
+            new(NotificationSendTransactional, "Notificação transacional da plataforma", "email", "email.send"),
+            new(ReceivableIssueInvoice, "Emitir cobrança para cliente", "payment", "payment.charge.create"),
+            new(PayableTransfer, "Pagar fornecedor", "payment", "payment.charge.create"),
+            new(FinancialEntryIssueNf, "Emitir nota fiscal", "invoice", "invoice.issue"),
+            new(BankAccountSync, "Sincronizar conta bancária", "banking", "banking.account.sync"),
+            new(CreatorPortalNotifyWhatsapp, "Notificar creator por WhatsApp", "messaging", "messaging.send"),
         ];
+
+        public static IntegrationIntentDescriptor? Find(string intentKey)
+        {
+            if (string.IsNullOrWhiteSpace(intentKey))
+            {
+                return null;
+            }
+
+            string normalized = intentKey.Trim();
+            return All.FirstOrDefault(item => string.Equals(item.Key, normalized, StringComparison.OrdinalIgnoreCase));
+        }
     }
 
-    public sealed record IntegrationIntentDescriptor(string Key, string Label, string CategoryIdentifier);
+    public sealed record IntegrationIntentDescriptor(string Key, string Label, string CategoryIdentifier, string ServiceContractIdentifier);
 }

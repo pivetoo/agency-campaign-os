@@ -11,9 +11,5 @@ namespace AgencyCampaign.Application.Requests.Proposals
         [Required]
         [StringLength(5000, MinimumLength = 1)]
         public string Body { get; set; } = string.Empty;
-
-        public long? ConnectorId { get; set; }
-
-        public long? PipelineId { get; set; }
     }
 }

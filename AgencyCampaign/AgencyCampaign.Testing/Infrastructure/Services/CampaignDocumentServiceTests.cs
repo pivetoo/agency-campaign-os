@@ -22,7 +22,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new CampaignDocumentService(db, Options.Create(new DocumentEmailOptions()), IntegrationPlatformClientFactory.CreateInert());
+            service = new CampaignDocumentService(db, Options.Create(new DocumentEmailOptions()), IntegrationPlatformClientFactory.CreateInert(), new IntegrationCapabilityService(db));
         }
 
         [TearDown]

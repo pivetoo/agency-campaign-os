@@ -6,14 +6,6 @@ namespace AgencyCampaign.Application.Requests.CampaignDocuments
     public sealed class SendCampaignDocumentForSignatureRequest
     {
         [Required]
-        [Range(1, long.MaxValue)]
-        public long ConnectorId { get; set; }
-
-        [Required]
-        [Range(1, long.MaxValue)]
-        public long PipelineId { get; set; }
-
-        [Required]
         [MinLength(1)]
         public List<SignerInput> Signers { get; set; } = [];
 

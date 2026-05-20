@@ -1469,4 +1469,15 @@
   <data name="proposals.statusHistory.description" xml:space="preserve"><value>Permite consultar o histórico de status de uma proposta.</value></data>
   <data name="proposals.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma proposta.</value></data>
   <data name="proposals.updateItem.description" xml:space="preserve"><value>Permite atualizar um item da proposta.</value></data>
+  <data name="integrationCapabilities.area" xml:space="preserve"><value>IntegrationCapabilities</value></data>
+  <data name="integrationCapabilities.get.description" xml:space="preserve"><value>List active bindings between business actions and configured connectors.</value></data>
+  <data name="integrationCapabilities.getByIntent.description" xml:space="preserve"><value>Get the binding of a specific intent with the configured connector.</value></data>
+  <data name="integrationCapabilities.getCatalog.description" xml:space="preserve"><value>Get the catalog of integrable business actions in Kanvas.</value></data>
+  <data name="integrationCapabilities.set.description" xml:space="preserve"><value>Define the active connector for a business action.</value></data>
+  <data name="integrationCapabilities.remove.description" xml:space="preserve"><value>Remove the binding between a business action and a connector.</value></data>
+  <data name="integrationCapability.saved" xml:space="preserve"><value>Integration binding updated successfully.</value></data>
+  <data name="integrationCapability.removed" xml:space="preserve"><value>Integration binding removed successfully.</value></data>
+  <data name="integrationCapability.intent.required" xml:space="preserve"><value>Business action identifier is required.</value></data>
+  <data name="integrationCapability.intent.unknown" xml:space="preserve"><value>Unknown business action.</value></data>
+  <data name="integrationCapability.notConfigured" xml:space="preserve"><value>No active connector has been configured for this action. Set up the integration at Settings → Integrations.</value></data>
 </root>
