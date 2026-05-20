@@ -1,8 +1,6 @@
-using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
 using PuppeteerSharp;
 using PuppeteerSharp.Media;
 
