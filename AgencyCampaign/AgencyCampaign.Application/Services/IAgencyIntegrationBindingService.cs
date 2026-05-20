@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.IntegrationBindings;
 
@@ -12,5 +13,7 @@ namespace AgencyCampaign.Application.Services
         Task<AgencyIntegrationBindingModel> Save(SaveAgencyIntegrationBindingRequest request, CancellationToken cancellationToken = default);
 
         Task<bool> DeleteByIntentKey(string intentKey, CancellationToken cancellationToken = default);
+
+        IReadOnlyList<IntegrationIntentDescriptor> GetCatalog();
     }
 }

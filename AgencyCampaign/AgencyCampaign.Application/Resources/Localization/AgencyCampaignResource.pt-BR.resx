@@ -500,6 +500,23 @@
   <data name="proposalShare.versions.validUntil" xml:space="preserve"><value>válida até {0}</value></data>
   <data name="common.action.save" xml:space="preserve"><value>Salvar</value></data>
   <data name="common.action.cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="configuration.integrations.tab.actions" xml:space="preserve"><value>Ações</value></data>
+  <data name="configuration.integrations.actions.title" xml:space="preserve"><value>Configure quem entrega cada ação do Kanvas</value></data>
+  <data name="configuration.integrations.actions.description" xml:space="preserve"><value>Escolha o conector e o pipeline padrão de cada ação. Depois disso, os modais abrem direto prontos para enviar — você ainda pode trocar pontualmente.</value></data>
+  <data name="configuration.integrations.actions.configured" xml:space="preserve"><value>Configurado</value></data>
+  <data name="configuration.integrations.actions.notConfigured" xml:space="preserve"><value>Não configurado</value></data>
+  <data name="configuration.integrations.actions.categoryLabel" xml:space="preserve"><value>categoria</value></data>
+  <data name="configuration.integrations.actions.intentLabel" xml:space="preserve"><value>chave</value></data>
+  <data name="configuration.integrations.actions.connector" xml:space="preserve"><value>Conector</value></data>
+  <data name="configuration.integrations.actions.pipeline" xml:space="preserve"><value>Pipeline</value></data>
+  <data name="configuration.integrations.actions.noConnector" xml:space="preserve"><value>Sem conector ativo nesta categoria</value></data>
+  <data name="configuration.integrations.actions.selectConnectorFirst" xml:space="preserve"><value>Selecione um conector</value></data>
+  <data name="configuration.integrations.actions.noPipeline" xml:space="preserve"><value>Sem pipeline ativo</value></data>
+  <data name="modal.proposalSend.binding.sendingVia" xml:space="preserve"><value>Enviando via</value></data>
+  <data name="modal.proposalSend.binding.change" xml:space="preserve"><value>Alterar conector</value></data>
+  <data name="modal.proposalSend.binding.missing.title" xml:space="preserve"><value>Ação não configurada</value></data>
+  <data name="modal.proposalSend.binding.missing.description" xml:space="preserve"><value>Esta proposta vai ser enviada, mas a ação "Enviar proposta por email" não tem conector/pipeline padrão. Configure em Configurações → Integrações → Ações, ou escolha abaixo só desta vez.</value></data>
+  <data name="integrationBinding.notConfigured" xml:space="preserve"><value>Esta ação não tem conector/pipeline padrão. Configure em Configurações → Integrações → Ações.</value></data>
   <data name="common.byUser" xml:space="preserve"><value>por {0}</value></data>
   <data name="common.relative.now" xml:space="preserve"><value>agora</value></data>
   <data name="common.relative.minutesAgo" xml:space="preserve"><value>há {0}min</value></data>

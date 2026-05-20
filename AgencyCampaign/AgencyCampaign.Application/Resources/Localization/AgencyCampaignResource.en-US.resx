@@ -500,6 +500,23 @@
   <data name="proposalShare.versions.validUntil" xml:space="preserve"><value>valid until {0}</value></data>
   <data name="common.action.save" xml:space="preserve"><value>Save</value></data>
   <data name="common.action.cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="configuration.integrations.tab.actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="configuration.integrations.actions.title" xml:space="preserve"><value>Configure who delivers each Kanvas action</value></data>
+  <data name="configuration.integrations.actions.description" xml:space="preserve"><value>Pick the default connector and pipeline for each action. After that, modals open ready to send — you can still override per action.</value></data>
+  <data name="configuration.integrations.actions.configured" xml:space="preserve"><value>Configured</value></data>
+  <data name="configuration.integrations.actions.notConfigured" xml:space="preserve"><value>Not configured</value></data>
+  <data name="configuration.integrations.actions.categoryLabel" xml:space="preserve"><value>category</value></data>
+  <data name="configuration.integrations.actions.intentLabel" xml:space="preserve"><value>key</value></data>
+  <data name="configuration.integrations.actions.connector" xml:space="preserve"><value>Connector</value></data>
+  <data name="configuration.integrations.actions.pipeline" xml:space="preserve"><value>Pipeline</value></data>
+  <data name="configuration.integrations.actions.noConnector" xml:space="preserve"><value>No active connector in this category</value></data>
+  <data name="configuration.integrations.actions.selectConnectorFirst" xml:space="preserve"><value>Select a connector first</value></data>
+  <data name="configuration.integrations.actions.noPipeline" xml:space="preserve"><value>No active pipeline</value></data>
+  <data name="modal.proposalSend.binding.sendingVia" xml:space="preserve"><value>Sending via</value></data>
+  <data name="modal.proposalSend.binding.change" xml:space="preserve"><value>Change connector</value></data>
+  <data name="modal.proposalSend.binding.missing.title" xml:space="preserve"><value>Action not configured</value></data>
+  <data name="modal.proposalSend.binding.missing.description" xml:space="preserve"><value>This proposal will be sent, but the action "Send proposal by email" has no default connector/pipeline. Configure it under Settings → Integrations → Actions, or pick below just this time.</value></data>
+  <data name="integrationBinding.notConfigured" xml:space="preserve"><value>This action has no default connector/pipeline. Configure it under Settings → Integrations → Actions.</value></data>
   <data name="common.byUser" xml:space="preserve"><value>by {0}</value></data>
   <data name="common.relative.now" xml:space="preserve"><value>just now</value></data>
   <data name="common.relative.minutesAgo" xml:space="preserve"><value>{0}min ago</value></data>

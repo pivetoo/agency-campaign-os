@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Notifications;
@@ -25,14 +26,16 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
         private readonly IntegrationPlatformClient integrationPlatformClient;
+        private readonly IAgencyIntegrationBindingService bindingService;
 
-        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient) : base(dbContext)
+        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IAgencyIntegrationBindingService bindingService) : base(dbContext)
         {
             this.currentUser = currentUser;
             this.financialAutoGeneration = financialAutoGeneration;
             this.automationDispatcher = automationDispatcher;
             this.notificationService = notificationService;
             this.integrationPlatformClient = integrationPlatformClient;
+            this.bindingService = bindingService;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -173,6 +176,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> SendByEmail(long id, SendProposalEmailRequest request, CancellationToken cancellationToken = default)
         {
+            (long connectorId, long pipelineId) = await ResolveTargetsAsync(request.ConnectorId, request.PipelineId, IntegrationIntents.ProposalSendEmail, cancellationToken);
+
             Proposal proposal = await CreateSentVersionAsync(id, cancellationToken);
 
             ProposalShareLink shareLink = await EnsureActiveShareLinkAsync(id, cancellationToken);
@@ -192,8 +197,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
             EnqueuePipelineRequest enqueueRequest = new()
             {
-                ConnectorId = request.ConnectorId,
-                PipelineId = request.PipelineId,
+                ConnectorId = connectorId,
+                PipelineId = pipelineId,
                 Payload = payload,
                 Priority = 1
             };
@@ -203,6 +208,22 @@ namespace AgencyCampaign.Infrastructure.Services
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
             await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
             return saved;
+        }
+
+        private async Task<(long ConnectorId, long PipelineId)> ResolveTargetsAsync(long? overrideConnectorId, long? overridePipelineId, string intentKey, CancellationToken cancellationToken)
+        {
+            if (overrideConnectorId is > 0 && overridePipelineId is > 0)
+            {
+                return (overrideConnectorId.Value, overridePipelineId.Value);
+            }
+
+            AgencyIntegrationBindingModel? binding = await bindingService.GetByIntentKey(intentKey, cancellationToken);
+            if (binding is null || !binding.IsActive)
+            {
+                throw new InvalidOperationException("integrationBinding.notConfigured");
+            }
+
+            return (binding.ConnectorId, binding.PipelineId);
         }
 
         private async Task<Proposal> CreateSentVersionAsync(long proposalId, CancellationToken cancellationToken)

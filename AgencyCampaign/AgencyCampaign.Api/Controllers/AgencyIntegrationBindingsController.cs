@@ -27,6 +27,13 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await service.GetAll(cancellationToken));
         }
 
+        [RequireAccess("integrationBindings.catalog.description")]
+        [GetEndpoint]
+        public IActionResult Catalog()
+        {
+            return Http200(service.GetCatalog());
+        }
+
         [RequireAccess("integrationBindings.getByIntentKey.description")]
         [GetEndpoint("{intentKey}")]
         public async Task<IActionResult> GetByIntentKey(string intentKey, CancellationToken cancellationToken)

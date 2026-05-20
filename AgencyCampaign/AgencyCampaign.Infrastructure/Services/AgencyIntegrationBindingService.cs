@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.IntegrationBindings;
 using AgencyCampaign.Application.Services;
@@ -98,6 +99,11 @@ namespace AgencyCampaign.Infrastructure.Services
             dbContext.Set<AgencyIntegrationBinding>().Remove(existing);
             await dbContext.SaveChangesAsync(cancellationToken);
             return true;
+        }
+
+        public IReadOnlyList<IntegrationIntentDescriptor> GetCatalog()
+        {
+            return IntegrationIntents.All;
         }
 
         private static AgencyIntegrationBindingModel Map(AgencyIntegrationBinding binding) => new()
