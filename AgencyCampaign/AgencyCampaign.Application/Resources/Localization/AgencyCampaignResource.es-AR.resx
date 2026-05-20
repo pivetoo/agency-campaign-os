@@ -477,6 +477,9 @@
   <data name="proposalShare.generate.button" xml:space="preserve"><value>Generar enlace público</value></data>
   <data name="proposalShare.loading" xml:space="preserve"><value>Cargando enlaces...</value></data>
   <data name="proposalShare.empty" xml:space="preserve"><value>Aún no hay enlaces generados.</value></data>
+  <data name="proposalShare.draft.title" xml:space="preserve"><value>Envia la propuesta antes de compartir</value></data>
+  <data name="proposalShare.draft.description" xml:space="preserve"><value>El enlace público muestra la versión enviada al cliente. Hacé clic en Enviar en la parte superior de la propuesta para crear la primera versión y habilitar la generación de enlaces.</value></data>
+  <data name="proposal.share.draftNotAllowed" xml:space="preserve"><value>Envia la propuesta antes de generar un enlace público.</value></data>
   <data name="proposalShare.field.created" xml:space="preserve"><value>Creado</value></data>
   <data name="proposalShare.field.expires" xml:space="preserve"><value>Expira</value></data>
   <data name="proposalShare.field.lastView" xml:space="preserve"><value>Última visita</value></data>
