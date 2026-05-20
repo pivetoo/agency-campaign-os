@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Entities;
 
 namespace AgencyCampaign.Domain.Entities
@@ -8,6 +9,8 @@ namespace AgencyCampaign.Domain.Entities
         public string Name { get; private set; } = string.Empty;
 
         public string Trigger { get; private set; } = string.Empty;
+
+        public AutomationTriggerType TriggerType { get; private set; } = AutomationTriggerType.Event;
 
         public string? TriggerCondition { get; private set; }
 
@@ -23,13 +26,14 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Automation(string name, string trigger, long connectorId, long pipelineId, string? triggerCondition = null, Dictionary<string, string>? variableMapping = null, bool isActive = true)
+        public Automation(string name, string trigger, long connectorId, long pipelineId, string? triggerCondition = null, Dictionary<string, string>? variableMapping = null, bool isActive = true, AutomationTriggerType triggerType = AutomationTriggerType.Event)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(trigger);
 
             Name = name.Trim();
             Trigger = trigger.Trim();
+            TriggerType = triggerType;
             ConnectorId = connectorId;
             PipelineId = pipelineId;
             TriggerCondition = Normalize(triggerCondition);
@@ -39,13 +43,17 @@ namespace AgencyCampaign.Domain.Entities
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void Update(string name, string trigger, long connectorId, long pipelineId, string? triggerCondition = null, Dictionary<string, string>? variableMapping = null, bool? isActive = null)
+        public void Update(string name, string trigger, long connectorId, long pipelineId, string? triggerCondition = null, Dictionary<string, string>? variableMapping = null, bool? isActive = null, AutomationTriggerType? triggerType = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(trigger);
 
             Name = name.Trim();
             Trigger = trigger.Trim();
+            if (triggerType.HasValue)
+            {
+                TriggerType = triggerType.Value;
+            }
             ConnectorId = connectorId;
             PipelineId = pipelineId;
             TriggerCondition = Normalize(triggerCondition);

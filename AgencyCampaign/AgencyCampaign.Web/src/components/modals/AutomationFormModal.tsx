@@ -4,7 +4,8 @@ import { Plus, X } from 'lucide-react'
 import { automationService } from '../../services/automationService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import { automationTriggerGroups, automationTriggerLabels } from '../../types/automationTrigger'
-import type { Automation, CreateAutomationPayload } from '../../types/automation'
+import type { Automation, AutomationTriggerTypeValue, CreateAutomationPayload, IntegrationIntentDescriptor } from '../../types/automation'
+import { AutomationTriggerType } from '../../types/automation'
 import type { Connector, IntegrationCategory, IntegrationPlatformIntegration, Pipeline } from '../../types/integrationPlatform'
 
 interface Props {
@@ -57,8 +58,10 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
   const { t } = useI18n()
   const isEditing = !!automation
   const [name, setName] = useState('')
+  const [triggerType, setTriggerType] = useState<AutomationTriggerTypeValue>(AutomationTriggerType.Event)
   const [trigger, setTrigger] = useState<string>('proposal_sent')
   const [triggerCondition, setTriggerCondition] = useState('')
+  const [userActionCatalog, setUserActionCatalog] = useState<IntegrationIntentDescriptor[]>([])
   const [categoryId, setCategoryId] = useState<number | null>(null)
   const [integrationId, setIntegrationId] = useState<number | null>(null)
   const [connectorId, setConnectorId] = useState<number | null>(null)
@@ -78,12 +81,14 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
     if (!open) return
     void integrationPlatformService.getActiveIntegrationCategories().then(setCategories)
     void integrationPlatformService.getActiveConnectors().then(setActiveConnectors)
+    void automationService.getUserActionCatalog().then(setUserActionCatalog)
   }, [open])
 
   useEffect(() => {
     if (!open) return
     if (automation) {
       setName(automation.name)
+      setTriggerType(automation.triggerType ?? AutomationTriggerType.Event)
       setTrigger(automation.trigger)
       setTriggerCondition(automation.triggerCondition ?? '')
       setConnectorId(automation.connectorId)
@@ -94,6 +99,7 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
       void resolveSelectionFromConnector(automation.connectorId)
     } else {
       setName('')
+      setTriggerType(AutomationTriggerType.Event)
       setTrigger('proposal_sent')
       setTriggerCondition('')
       setCategoryId(presetCategoryId ?? null)
@@ -172,6 +178,7 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
     const payload: CreateAutomationPayload = {
       name: name.trim(),
       trigger,
+      triggerType,
       triggerCondition: triggerCondition.trim() || undefined,
       connectorId,
       pipelineId,
@@ -201,14 +208,46 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">{t('modal.automation.field.triggerOn')}</label>
-              <SearchableSelect
-                value={trigger}
-                onValueChange={setTrigger}
-                options={triggerOptions}
-                placeholder={t('modal.automation.placeholder.event')}
-                searchPlaceholder={t('modal.automation.placeholder.searchEvent')}
-              />
+              <label className="text-sm font-medium">{t('modal.automation.field.triggerType')}</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  className={`rounded-md border px-3 py-2 text-left text-sm ${triggerType === AutomationTriggerType.Event ? 'border-primary bg-primary/10 text-primary' : 'border-input text-muted-foreground hover:bg-muted/50'}`}
+                  onClick={() => { setTriggerType(AutomationTriggerType.Event); setTrigger('proposal_sent') }}
+                >
+                  <div className="text-sm font-medium">{t('modal.automation.triggerType.event.title')}</div>
+                  <div className="text-xs">{t('modal.automation.triggerType.event.description')}</div>
+                </button>
+                <button
+                  type="button"
+                  className={`rounded-md border px-3 py-2 text-left text-sm ${triggerType === AutomationTriggerType.UserAction ? 'border-primary bg-primary/10 text-primary' : 'border-input text-muted-foreground hover:bg-muted/50'}`}
+                  onClick={() => { setTriggerType(AutomationTriggerType.UserAction); setTrigger(userActionCatalog[0]?.key ?? '') }}
+                >
+                  <div className="text-sm font-medium">{t('modal.automation.triggerType.userAction.title')}</div>
+                  <div className="text-xs">{t('modal.automation.triggerType.userAction.description')}</div>
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium">{triggerType === AutomationTriggerType.UserAction ? t('modal.automation.field.userAction') : t('modal.automation.field.triggerOn')}</label>
+              {triggerType === AutomationTriggerType.UserAction ? (
+                <SearchableSelect
+                  value={trigger}
+                  onValueChange={setTrigger}
+                  options={userActionCatalog.map((intent) => ({ value: intent.key, label: intent.label }))}
+                  placeholder={t('modal.automation.placeholder.userAction')}
+                  searchPlaceholder={t('common.placeholder.search')}
+                />
+              ) : (
+                <SearchableSelect
+                  value={trigger}
+                  onValueChange={setTrigger}
+                  options={triggerOptions}
+                  placeholder={t('modal.automation.placeholder.event')}
+                  searchPlaceholder={t('modal.automation.placeholder.searchEvent')}
+                />
+              )}
             </div>
 
             <div className="space-y-2">

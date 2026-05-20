@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using AgencyCampaign.Domain.ValueObjects;
 
 namespace AgencyCampaign.Application.Requests.Automations
 {
@@ -11,6 +12,8 @@ namespace AgencyCampaign.Application.Requests.Automations
         [Required]
         [StringLength(100, MinimumLength = 2)]
         public string Trigger { get; set; } = string.Empty;
+
+        public AutomationTriggerType TriggerType { get; set; } = AutomationTriggerType.Event;
 
         [StringLength(500)]
         public string? TriggerCondition { get; set; }

@@ -1,5 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type { Automation, AutomationExecutionLog, CreateAutomationPayload, UpdateAutomationPayload } from '../types/automation'
+import type { Automation, AutomationExecutionLog, CreateAutomationPayload, IntegrationIntentDescriptor, UpdateAutomationPayload } from '../types/automation'
 
 const API_URL = '/Automations'
 
@@ -30,6 +30,20 @@ export const automationService = {
   async updateAutomation(id: number, payload: UpdateAutomationPayload): Promise<Automation> {
     const response = await httpClient.put(`${API_URL}/Update/${id}`, payload)
     return response.data
+  },
+
+  async getUserActionCatalog(): Promise<IntegrationIntentDescriptor[]> {
+    const response = await httpClient.get<IntegrationIntentDescriptor[]>(`${API_URL}/UserActionCatalog`)
+    return response.data ?? []
+  },
+
+  async getDefaultForUserAction(intentKey: string): Promise<Automation | null> {
+    try {
+      const response = await httpClient.get<Automation>(`${API_URL}/GetDefaultForUserAction/${encodeURIComponent(intentKey)}`)
+      return response.data ?? null
+    } catch {
+      return null
+    }
   },
 
   async getExecutionLogs(automationId: number, page = 1, pageSize = 20): Promise<{ items: AutomationExecutionLog[]; pagination: { totalItems: number; totalPages: number; currentPage: number; pageSize: number } }> {

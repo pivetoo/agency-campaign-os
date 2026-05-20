@@ -26,16 +26,16 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
         private readonly IntegrationPlatformClient integrationPlatformClient;
-        private readonly IAgencyIntegrationBindingService bindingService;
+        private readonly IAutomationService automationService;
 
-        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IAgencyIntegrationBindingService bindingService) : base(dbContext)
+        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IAutomationService automationService) : base(dbContext)
         {
             this.currentUser = currentUser;
             this.financialAutoGeneration = financialAutoGeneration;
             this.automationDispatcher = automationDispatcher;
             this.notificationService = notificationService;
             this.integrationPlatformClient = integrationPlatformClient;
-            this.bindingService = bindingService;
+            this.automationService = automationService;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -217,13 +217,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 return (overrideConnectorId.Value, overridePipelineId.Value);
             }
 
-            AgencyIntegrationBindingModel? binding = await bindingService.GetByIntentKey(intentKey, cancellationToken);
-            if (binding is null || !binding.IsActive)
+            Automation? defaultAutomation = await automationService.GetDefaultForUserAction(intentKey, cancellationToken);
+            if (defaultAutomation is null)
             {
-                throw new InvalidOperationException("integrationBinding.notConfigured");
+                throw new InvalidOperationException("automation.userAction.notConfigured");
             }
 
-            return (binding.ConnectorId, binding.PipelineId);
+            return (defaultAutomation.ConnectorId, defaultAutomation.PipelineId);
         }
 
         private async Task<Proposal> CreateSentVersionAsync(long proposalId, CancellationToken cancellationToken)

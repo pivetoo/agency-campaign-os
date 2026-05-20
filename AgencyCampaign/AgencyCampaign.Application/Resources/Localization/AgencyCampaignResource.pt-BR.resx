@@ -517,6 +517,14 @@
   <data name="modal.proposalSend.binding.missing.title" xml:space="preserve"><value>Ação não configurada</value></data>
   <data name="modal.proposalSend.binding.missing.description" xml:space="preserve"><value>Esta proposta vai ser enviada, mas a ação "Enviar proposta por email" não tem conector/pipeline padrão. Configure em Configurações → Integrações → Ações, ou escolha abaixo só desta vez.</value></data>
   <data name="integrationBinding.notConfigured" xml:space="preserve"><value>Esta ação não tem conector/pipeline padrão. Configure em Configurações → Integrações → Ações.</value></data>
+  <data name="automation.userAction.notConfigured" xml:space="preserve"><value>Esta ação não tem automação padrão configurada. Crie uma em Configurações → Integrações → Automações com o tipo "Quando o usuário fizer".</value></data>
+  <data name="modal.automation.field.triggerType" xml:space="preserve"><value>Quando disparar</value></data>
+  <data name="modal.automation.field.userAction" xml:space="preserve"><value>Ação do usuário</value></data>
+  <data name="modal.automation.triggerType.event.title" xml:space="preserve"><value>Quando algo acontecer</value></data>
+  <data name="modal.automation.triggerType.event.description" xml:space="preserve"><value>Reage a eventos do sistema (ex: proposta aprovada).</value></data>
+  <data name="modal.automation.triggerType.userAction.title" xml:space="preserve"><value>Quando o usuário fizer</value></data>
+  <data name="modal.automation.triggerType.userAction.description" xml:space="preserve"><value>Padrão dos botões manuais (ex: clicar Enviar proposta).</value></data>
+  <data name="modal.automation.placeholder.userAction" xml:space="preserve"><value>Selecione a ação do Kanvas</value></data>
   <data name="common.byUser" xml:space="preserve"><value>por {0}</value></data>
   <data name="common.relative.now" xml:space="preserve"><value>agora</value></data>
   <data name="common.relative.minutesAgo" xml:space="preserve"><value>há {0}min</value></data>

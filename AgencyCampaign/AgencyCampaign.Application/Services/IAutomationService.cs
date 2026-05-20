@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Requests.Automations;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Services;
@@ -11,10 +12,14 @@ namespace AgencyCampaign.Application.Services
 
         Task<Automation?> GetAutomationById(long id, CancellationToken cancellationToken = default);
 
+        Task<Automation?> GetDefaultForUserAction(string intentKey, CancellationToken cancellationToken = default);
+
         Task<Automation> CreateAutomation(CreateAutomationRequest request, CancellationToken cancellationToken = default);
 
         Task<Automation> UpdateAutomation(long id, UpdateAutomationRequest request, CancellationToken cancellationToken = default);
 
         Task<PagedResult<AutomationExecutionLog>> GetExecutionLogs(long automationId, PagedRequest request, CancellationToken cancellationToken = default);
+
+        IReadOnlyList<IntegrationIntentDescriptor> GetUserActionCatalog();
     }
 }

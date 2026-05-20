@@ -73,5 +73,20 @@ namespace AgencyCampaign.Api.Controllers
             PagedResult<AutomationExecutionLog> result = await automationService.GetExecutionLogs(automationId, request, cancellationToken);
             return Http200(result);
         }
+
+        [RequireAccess("automations.userActionCatalog.description")]
+        [GetEndpoint]
+        public IActionResult UserActionCatalog()
+        {
+            return Http200(automationService.GetUserActionCatalog());
+        }
+
+        [RequireAccess("automations.getDefaultForUserAction.description")]
+        [GetEndpoint("{intentKey}")]
+        public async Task<IActionResult> GetDefaultForUserAction(string intentKey, CancellationToken cancellationToken)
+        {
+            Automation? automation = await automationService.GetDefaultForUserAction(intentKey, cancellationToken);
+            return automation is null ? Http404(Localizer["record.notFound"]) : Http200(automation);
+        }
     }
 }

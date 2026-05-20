@@ -30,7 +30,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             financial = new Mock<IFinancialAutoGeneration>();
             automation = new Mock<IAutomationDispatcher>();
             notifications = new Mock<INotificationService>();
-            service = new ProposalService(db, CurrentUserMock.Create(), financial.Object, automation.Object, notifications.Object, IntegrationPlatformClientFactory.CreateInert(), new AgencyIntegrationBindingService(db, CurrentUserMock.Create()));
+            service = new ProposalService(db, CurrentUserMock.Create(), financial.Object, automation.Object, notifications.Object, IntegrationPlatformClientFactory.CreateInert(), new AutomationService(db));
         }
 
         [TearDown]

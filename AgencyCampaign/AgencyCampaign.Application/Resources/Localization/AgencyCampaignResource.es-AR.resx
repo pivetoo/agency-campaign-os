@@ -517,6 +517,14 @@
   <data name="modal.proposalSend.binding.missing.title" xml:space="preserve"><value>Acción sin configurar</value></data>
   <data name="modal.proposalSend.binding.missing.description" xml:space="preserve"><value>Esta propuesta se enviará, pero la acción "Enviar propuesta por email" no tiene conector/pipeline predeterminado. Configurá en Configuración → Integraciones → Acciones, o elegí abajo solo esta vez.</value></data>
   <data name="integrationBinding.notConfigured" xml:space="preserve"><value>Esta acción no tiene conector/pipeline predeterminado. Configurá en Configuración → Integraciones → Acciones.</value></data>
+  <data name="automation.userAction.notConfigured" xml:space="preserve"><value>Esta acción no tiene automatización predeterminada configurada. Creá una en Configuración → Integraciones → Automatizaciones con el tipo "Cuando el usuario haga".</value></data>
+  <data name="modal.automation.field.triggerType" xml:space="preserve"><value>Cuándo disparar</value></data>
+  <data name="modal.automation.field.userAction" xml:space="preserve"><value>Acción del usuario</value></data>
+  <data name="modal.automation.triggerType.event.title" xml:space="preserve"><value>Cuando algo suceda</value></data>
+  <data name="modal.automation.triggerType.event.description" xml:space="preserve"><value>Reacciona a eventos del sistema (ej: propuesta aprobada).</value></data>
+  <data name="modal.automation.triggerType.userAction.title" xml:space="preserve"><value>Cuando el usuario haga</value></data>
+  <data name="modal.automation.triggerType.userAction.description" xml:space="preserve"><value>Predeterminado de botones manuales (ej: clic Enviar propuesta).</value></data>
+  <data name="modal.automation.placeholder.userAction" xml:space="preserve"><value>Seleccioná la acción del Kanvas</value></data>
   <data name="common.byUser" xml:space="preserve"><value>por {0}</value></data>
   <data name="common.relative.now" xml:space="preserve"><value>ahora</value></data>
   <data name="common.relative.minutesAgo" xml:space="preserve"><value>hace {0}min</value></data>

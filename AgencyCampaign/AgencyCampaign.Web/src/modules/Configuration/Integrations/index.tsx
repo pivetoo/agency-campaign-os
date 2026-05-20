@@ -5,7 +5,6 @@ import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModa
 import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
 import AutomationFormModal from '../../../components/modals/AutomationFormModal'
 import AutomationList from '../Automations/AutomationList'
-import IntegrationActionBindings from './IntegrationActionBindings'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import { automationService } from '../../../services/automationService'
 import type { Connector, IntegrationCategory, IntegrationPlatformIntegration } from '../../../types/integrationPlatform'
@@ -283,12 +282,6 @@ export default function Integrations() {
               className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
             >
               <Plug className="h-4 w-4" /> {t('configuration.integrations.connectedAccounts')}
-            </TabsTrigger>
-            <TabsTrigger
-              value="actions"
-              className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-            >
-              <Sparkles className="h-4 w-4" /> {t('configuration.integrations.tab.actions')}
             </TabsTrigger>
             <TabsTrigger
               value="automations"
@@ -653,10 +646,6 @@ export default function Integrations() {
                 </Card>
               </div>
             )}
-          </TabsContent>
-
-          <TabsContent value="actions" className="space-y-4">
-            <IntegrationActionBindings />
           </TabsContent>
 
           <TabsContent value="automations" className="space-y-4">

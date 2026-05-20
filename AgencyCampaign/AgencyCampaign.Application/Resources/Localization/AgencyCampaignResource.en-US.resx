@@ -517,6 +517,14 @@
   <data name="modal.proposalSend.binding.missing.title" xml:space="preserve"><value>Action not configured</value></data>
   <data name="modal.proposalSend.binding.missing.description" xml:space="preserve"><value>This proposal will be sent, but the action "Send proposal by email" has no default connector/pipeline. Configure it under Settings → Integrations → Actions, or pick below just this time.</value></data>
   <data name="integrationBinding.notConfigured" xml:space="preserve"><value>This action has no default connector/pipeline. Configure it under Settings → Integrations → Actions.</value></data>
+  <data name="automation.userAction.notConfigured" xml:space="preserve"><value>This action has no default automation configured. Create one in Settings → Integrations → Automations with type "When the user performs".</value></data>
+  <data name="modal.automation.field.triggerType" xml:space="preserve"><value>When to trigger</value></data>
+  <data name="modal.automation.field.userAction" xml:space="preserve"><value>User action</value></data>
+  <data name="modal.automation.triggerType.event.title" xml:space="preserve"><value>When something happens</value></data>
+  <data name="modal.automation.triggerType.event.description" xml:space="preserve"><value>Reacts to system events (e.g. proposal approved).</value></data>
+  <data name="modal.automation.triggerType.userAction.title" xml:space="preserve"><value>When the user performs</value></data>
+  <data name="modal.automation.triggerType.userAction.description" xml:space="preserve"><value>Default for manual buttons (e.g. click Send Proposal).</value></data>
+  <data name="modal.automation.placeholder.userAction" xml:space="preserve"><value>Select the Kanvas action</value></data>
   <data name="common.byUser" xml:space="preserve"><value>by {0}</value></data>
   <data name="common.relative.now" xml:space="preserve"><value>just now</value></data>
   <data name="common.relative.minutesAgo" xml:space="preserve"><value>{0}min ago</value></data>

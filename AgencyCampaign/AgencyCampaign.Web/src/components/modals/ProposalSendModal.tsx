@@ -3,8 +3,8 @@ import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitl
 import { AlertTriangle, ChevronDown, ChevronUp, Settings2 } from 'lucide-react'
 import { proposalService, type SendProposalEmailRequest } from '../../services/proposalService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
-import { agencyIntegrationBindingService } from '../../services/agencyIntegrationBindingService'
-import { IntegrationIntents } from '../../types/integrationBinding'
+import { automationService } from '../../services/automationService'
+import { IntegrationIntents } from '../../types/automation'
 import type { Connector, IntegrationCategory, IntegrationPlatformIntegration, Pipeline } from '../../types/integrationPlatform'
 import { IntegrationCategoryIdentifier } from '../../types/integrationPlatform'
 
@@ -71,25 +71,25 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
     setOverridePipelineId(undefined)
 
     void loadBinding(async () => {
-      const binding = await agencyIntegrationBindingService.getByIntentKey(IntegrationIntents.ProposalSendEmail)
-      if (!binding || !binding.isActive) {
+      const automation = await automationService.getDefaultForUserAction(IntegrationIntents.ProposalSendEmail)
+      if (!automation || !automation.isActive) {
         setBindingMissing(true)
         setBindingConnectorId(undefined)
         setBindingPipelineId(undefined)
         return null
       }
       setBindingMissing(false)
-      setBindingConnectorId(binding.connectorId)
-      setBindingPipelineId(binding.pipelineId)
+      setBindingConnectorId(automation.connectorId)
+      setBindingPipelineId(automation.pipelineId)
 
       const connectorList = await integrationPlatformService.getConnectorsByCategoryIdentifier(IntegrationCategoryIdentifier.Email)
-      const connector = connectorList.find((c) => c.id === binding.connectorId)
-      setBindingConnectorName(connector?.name ?? `Conector #${binding.connectorId}`)
+      const connector = connectorList.find((c) => c.id === automation.connectorId)
+      setBindingConnectorName(connector?.name ?? `Conta #${automation.connectorId}`)
 
       if (connector) {
         const pipelineList = await integrationPlatformService.getPipelinesByIntegration(connector.integrationId)
-        const pipeline = pipelineList.find((p) => p.id === binding.pipelineId)
-        setBindingPipelineName(pipeline?.name ?? `Pipeline #${binding.pipelineId}`)
+        const pipeline = pipelineList.find((p) => p.id === automation.pipelineId)
+        setBindingPipelineName(pipeline?.name ?? `Ação #${automation.pipelineId}`)
       }
       return null
     })

@@ -1,7 +1,9 @@
+using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Automations;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -33,6 +35,28 @@ namespace AgencyCampaign.Infrastructure.Services
                 .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
         }
 
+        public async Task<Automation?> GetDefaultForUserAction(string intentKey, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(intentKey))
+            {
+                return null;
+            }
+
+            string normalized = intentKey.Trim();
+            return await DbContext.Set<Automation>()
+                .AsNoTracking()
+                .Where(item => item.TriggerType == AutomationTriggerType.UserAction
+                    && item.Trigger == normalized
+                    && item.IsActive)
+                .OrderByDescending(item => item.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public IReadOnlyList<IntegrationIntentDescriptor> GetUserActionCatalog()
+        {
+            return IntegrationIntents.All;
+        }
+
         public async Task<Automation> CreateAutomation(CreateAutomationRequest request, CancellationToken cancellationToken = default)
         {
             Automation automation = new(
@@ -42,7 +66,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.PipelineId,
                 request.TriggerCondition,
                 request.VariableMapping,
-                request.IsActive);
+                request.IsActive,
+                request.TriggerType);
 
             bool success = await Insert(cancellationToken, automation);
             if (!success)
@@ -76,7 +101,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.PipelineId,
                 request.TriggerCondition,
                 request.VariableMapping,
-                request.IsActive);
+                request.IsActive,
+                request.TriggerType);
 
             Automation? result = await Update(automation, cancellationToken);
             if (result is null)
