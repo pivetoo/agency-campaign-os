@@ -518,6 +518,7 @@
   <data name="modal.proposalSend.binding.missing.description" xml:space="preserve"><value>La acción "Enviar propuesta por email" todavía no tiene una automatización predeterminada configurada. Podés marcar la propuesta como enviada (sin disparar email) o configurar la automatización ahora.</value></data>
   <data name="modal.proposalSend.binding.missing.goToIntegrations" xml:space="preserve"><value>Configurar Integraciones</value></data>
   <data name="modal.proposalSend.binding.missing.markAsSent" xml:space="preserve"><value>Marcar como enviada igual</value></data>
+  <data name="modal.proposalSend.field.recipientPhone" xml:space="preserve"><value>Teléfono del destinatario</value></data>
   <data name="integrationBinding.notConfigured" xml:space="preserve"><value>Esta acción no tiene conector/pipeline predeterminado. Configurá en Configuración → Integraciones → Acciones.</value></data>
   <data name="automation.userAction.notConfigured" xml:space="preserve"><value>Esta acción no tiene automatización predeterminada configurada. Creá una en Configuración → Integraciones → Automatizaciones con el tipo "Cuando el usuario haga".</value></data>
   <data name="modal.automation.field.triggerType" xml:space="preserve"><value>Cuándo disparar</value></data>

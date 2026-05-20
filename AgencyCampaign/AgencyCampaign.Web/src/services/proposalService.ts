@@ -44,6 +44,7 @@ export interface Proposal {
     id: number
     name: string
     contactEmail?: string
+    contactPhone?: string
   }
   totalValue: number
   internalOwnerId: number
@@ -54,6 +55,7 @@ export interface Proposal {
     id: number
     name: string
     contactEmail?: string
+    contactPhone?: string
   }
   campaign?: {
     id: number
@@ -145,8 +147,15 @@ export interface SendProposalEmailRequest {
   recipientEmail: string
   subject: string
   body: string
-  connectorId: number
-  pipelineId: number
+  connectorId?: number
+  pipelineId?: number
+}
+
+export interface SendProposalWhatsappRequest {
+  recipientPhone: string
+  body: string
+  connectorId?: number
+  pipelineId?: number
 }
 
 export const proposalService = {
@@ -185,6 +194,10 @@ export const proposalService = {
 
   markAsSent(id: number) {
     return httpClient.post<Proposal>(`${BASE_URL}/${id}/MarkAsSent`, {})
+  },
+
+  sendByWhatsapp(id: number, data: SendProposalWhatsappRequest) {
+    return httpClient.post<Proposal>(`${BASE_URL}/${id}/SendByWhatsapp`, data)
   },
 
   approve(id: number) {

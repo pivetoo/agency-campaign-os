@@ -111,6 +111,7 @@ export interface Opportunity {
   }
   contactName?: string
   contactEmail?: string
+  contactPhone?: string
   notes?: string
   closedAt?: string
   lossReason?: string
@@ -246,6 +247,7 @@ export interface CreateOpportunityRequest {
   responsibleUserId?: number
   contactName?: string
   contactEmail?: string
+  contactPhone?: string
   notes?: string
   opportunitySourceId?: number
   tagIds?: number[]

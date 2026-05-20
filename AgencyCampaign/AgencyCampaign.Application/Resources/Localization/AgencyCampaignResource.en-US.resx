@@ -518,6 +518,7 @@
   <data name="modal.proposalSend.binding.missing.description" xml:space="preserve"><value>The action "Send proposal by email" has no default automation configured. You can mark the proposal as sent (without dispatching email) or configure the automation now.</value></data>
   <data name="modal.proposalSend.binding.missing.goToIntegrations" xml:space="preserve"><value>Configure Integrations</value></data>
   <data name="modal.proposalSend.binding.missing.markAsSent" xml:space="preserve"><value>Mark as sent anyway</value></data>
+  <data name="modal.proposalSend.field.recipientPhone" xml:space="preserve"><value>Recipient phone</value></data>
   <data name="integrationBinding.notConfigured" xml:space="preserve"><value>This action has no default connector/pipeline. Configure it under Settings → Integrations → Actions.</value></data>
   <data name="automation.userAction.notConfigured" xml:space="preserve"><value>This action has no default automation configured. Create one in Settings → Integrations → Automations with type "When the user performs".</value></data>
   <data name="modal.automation.field.triggerType" xml:space="preserve"><value>When to trigger</value></data>

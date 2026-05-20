@@ -18,6 +18,7 @@ const initialFormData: CreateBrandRequest = {
   document: '',
   contactName: '',
   contactEmail: '',
+  contactPhone: '',
   notes: '',
 }
 
@@ -44,6 +45,7 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
         document: brand.document || '',
         contactName: brand.contactName || '',
         contactEmail: brand.contactEmail || '',
+        contactPhone: brand.contactPhone || '',
         notes: brand.notes || '',
       })
       setIsActive(brand.isActive)
@@ -193,6 +195,11 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t('common.field.email')}</label>
                 <Input type="email" value={formData.contactEmail || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactEmail: e.target.value }))} />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('common.field.phone')}</label>
+                <Input type="tel" placeholder="+55 11 99999-9999" value={formData.contactPhone || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactPhone: e.target.value }))} />
               </div>
 
               <div className="space-y-2">

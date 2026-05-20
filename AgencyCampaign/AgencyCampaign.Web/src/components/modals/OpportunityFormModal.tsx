@@ -25,6 +25,7 @@ const initialFormData: CreateOpportunityRequest = {
   expectedCloseAt: undefined,
   contactName: '',
   contactEmail: '',
+  contactPhone: '',
   notes: '',
   opportunitySourceId: undefined,
   tagIds: [],
@@ -59,6 +60,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         responsibleUserId: opportunity.responsibleUserId,
         contactName: opportunity.contactName || '',
         contactEmail: opportunity.contactEmail || '',
+        contactPhone: opportunity.contactPhone || '',
         notes: opportunity.notes || '',
         opportunitySourceId: opportunity.opportunitySourceId,
         tagIds: opportunity.tags?.map((tag) => tag.id) ?? [],
@@ -159,6 +161,11 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
             <div className="space-y-2">
               <label htmlFor="opportunity-contact-email" className="text-sm font-medium">{t('common.field.email')}</label>
               <Input id="opportunity-contact-email" type="email" value={formData.contactEmail || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactEmail: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="opportunity-contact-phone" className="text-sm font-medium">{t('common.field.phone')}</label>
+              <Input id="opportunity-contact-phone" type="tel" placeholder="+55 11 99999-9999" value={formData.contactPhone || ''} onChange={(e) => setFormData((prev) => ({ ...prev, contactPhone: e.target.value }))} />
             </div>
 
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>

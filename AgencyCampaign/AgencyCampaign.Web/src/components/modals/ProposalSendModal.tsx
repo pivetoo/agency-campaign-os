@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
-import { AlertTriangle, ChevronDown, ChevronUp, ExternalLink, Settings2 } from 'lucide-react'
-import { proposalService, type SendProposalEmailRequest } from '../../services/proposalService'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, Tabs, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui'
+import { AlertTriangle, ChevronDown, ChevronUp, ExternalLink, Mail, MessageCircle, Settings2 } from 'lucide-react'
+import { proposalService, type SendProposalEmailRequest, type SendProposalWhatsappRequest } from '../../services/proposalService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import { automationService } from '../../services/automationService'
 import { IntegrationIntents } from '../../types/automation'
@@ -16,15 +16,29 @@ interface Props {
   proposalName: string
   agencyName?: string
   defaultRecipientEmail?: string
+  defaultRecipientPhone?: string
   publicLinkUrl?: string
   onSuccess: () => void
 }
+
+type Channel = 'email' | 'whatsapp'
+
+interface ChannelBindingState {
+  loading: boolean
+  missing: boolean
+  connectorId?: number
+  pipelineId?: number
+  connectorName: string
+  pipelineName: string
+}
+
+const INITIAL_BINDING: ChannelBindingState = { loading: true, missing: false, connectorName: '', pipelineName: '' }
 
 function buildDefaultSubject(proposalName: string): string {
   return `Proposta: ${proposalName}`
 }
 
-function buildDefaultBody(proposalName: string, agencyName: string | undefined, publicLinkUrl: string | undefined): string {
+function buildDefaultEmailBody(proposalName: string, agencyName: string | undefined, publicLinkUrl: string | undefined): string {
   const greeting = 'Olá,'
   const intro = `Segue a proposta "${proposalName}"${agencyName ? ` da ${agencyName}` : ''} para sua avaliação.`
   const link = publicLinkUrl ? `\n\nAcesse pelo link:\n${publicLinkUrl}` : ''
@@ -32,14 +46,18 @@ function buildDefaultBody(proposalName: string, agencyName: string | undefined, 
   return `${greeting}\n\n${intro}${link}${closing}`
 }
 
-export default function ProposalSendModal({ open, onOpenChange, proposalId, proposalName, agencyName, defaultRecipientEmail, publicLinkUrl, onSuccess }: Props) {
+function buildDefaultWhatsappBody(proposalName: string, agencyName: string | undefined, publicLinkUrl: string | undefined): string {
+  const intro = `Olá! Segue a proposta "${proposalName}"${agencyName ? ` da ${agencyName}` : ''} para sua avaliação.`
+  const link = publicLinkUrl ? `\n\nLink: ${publicLinkUrl}` : ''
+  return `${intro}${link}`
+}
+
+export default function ProposalSendModal({ open, onOpenChange, proposalId, proposalName, agencyName, defaultRecipientEmail, defaultRecipientPhone, publicLinkUrl, onSuccess }: Props) {
   const { t } = useI18n()
   const navigate = useNavigate()
-  const [bindingConnectorId, setBindingConnectorId] = useState<number | undefined>()
-  const [bindingPipelineId, setBindingPipelineId] = useState<number | undefined>()
-  const [bindingConnectorName, setBindingConnectorName] = useState<string>('')
-  const [bindingPipelineName, setBindingPipelineName] = useState<string>('')
-  const [bindingMissing, setBindingMissing] = useState(false)
+  const [channel, setChannel] = useState<Channel>('email')
+  const [emailBinding, setEmailBinding] = useState<ChannelBindingState>(INITIAL_BINDING)
+  const [whatsappBinding, setWhatsappBinding] = useState<ChannelBindingState>(INITIAL_BINDING)
   const [overrideOpen, setOverrideOpen] = useState(false)
 
   const [categories, setCategories] = useState<IntegrationCategory[]>([])
@@ -53,9 +71,10 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
 
   const [recipientEmail, setRecipientEmail] = useState('')
   const [subject, setSubject] = useState('')
-  const [body, setBody] = useState('')
+  const [emailBody, setEmailBody] = useState('')
+  const [recipientPhone, setRecipientPhone] = useState('')
+  const [whatsappBody, setWhatsappBody] = useState('')
 
-  const { execute: loadBinding, loading: bindingLoading } = useApi<unknown>({ showErrorMessage: false })
   const { execute: loadCategories, loading: catLoading } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
   const { execute: loadIntegrations, loading: intLoading } = useApi<IntegrationPlatformIntegration[]>({ showErrorMessage: true })
   const { execute: loadConnectors, loading: connLoading } = useApi<Connector[]>({ showErrorMessage: true })
@@ -78,47 +97,66 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
 
     setRecipientEmail(defaultRecipientEmail ?? '')
     setSubject(buildDefaultSubject(proposalName))
-    setBody(buildDefaultBody(proposalName, agencyName, publicLinkUrl))
+    setEmailBody(buildDefaultEmailBody(proposalName, agencyName, publicLinkUrl))
+    setRecipientPhone(defaultRecipientPhone ?? '')
+    setWhatsappBody(buildDefaultWhatsappBody(proposalName, agencyName, publicLinkUrl))
     setOverrideOpen(false)
     setOverrideConnectorId(undefined)
     setOverridePipelineId(undefined)
+    setChannel('email')
 
-    void loadBinding(async () => {
-      const automation = await automationService.getDefaultForUserAction(IntegrationIntents.ProposalSendEmail)
-      if (!automation || !automation.isActive) {
-        setBindingMissing(true)
-        setBindingConnectorId(undefined)
-        setBindingPipelineId(undefined)
-        return null
-      }
-      setBindingMissing(false)
-      setBindingConnectorId(automation.connectorId)
-      setBindingPipelineId(automation.pipelineId)
-
-      const connectorList = await integrationPlatformService.getConnectorsByCategoryIdentifier(IntegrationCategoryIdentifier.Email)
-      const connector = connectorList.find((c) => c.id === automation.connectorId)
-      setBindingConnectorName(connector?.name ?? `Conta #${automation.connectorId}`)
-
-      if (connector) {
-        const pipelineList = await integrationPlatformService.getPipelinesByIntegration(connector.integrationId)
-        const pipeline = pipelineList.find((p) => p.id === automation.pipelineId)
-        setBindingPipelineName(pipeline?.name ?? `Ação #${automation.pipelineId}`)
-      }
-      return null
-    })
+    void loadChannelBinding(IntegrationIntents.ProposalSendEmail, IntegrationCategoryIdentifier.Email, setEmailBinding)
+    void loadChannelBinding(IntegrationIntents.ProposalSendWhatsapp, 'whatsapp', setWhatsappBinding)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, proposalId])
+
+  const loadChannelBinding = async (intentKey: string, categoryIdentifier: string, setter: (state: ChannelBindingState) => void) => {
+    setter({ ...INITIAL_BINDING, loading: true })
+    const automation = await automationService.getDefaultForUserAction(intentKey)
+    if (!automation || !automation.isActive) {
+      setter({ loading: false, missing: true, connectorName: '', pipelineName: '' })
+      return
+    }
+
+    let connectorName = `Conta #${automation.connectorId}`
+    let pipelineName = `Ação #${automation.pipelineId}`
+    try {
+      const connectorList = await integrationPlatformService.getConnectorsByCategoryIdentifier(categoryIdentifier)
+      const connector = connectorList.find((c) => c.id === automation.connectorId)
+      if (connector) {
+        connectorName = connector.name
+        const pipelineList = await integrationPlatformService.getPipelinesByIntegration(connector.integrationId)
+        const pipeline = pipelineList.find((p) => p.id === automation.pipelineId)
+        if (pipeline) pipelineName = pipeline.name
+      }
+    } catch {
+      // ignore — keep fallback names
+    }
+
+    setter({ loading: false, missing: false, connectorId: automation.connectorId, pipelineId: automation.pipelineId, connectorName, pipelineName })
+  }
 
   useEffect(() => {
     if (!overrideOpen || categories.length > 0) return
     void loadCategories(() => integrationPlatformService.getActiveIntegrationCategories()).then((result) => {
       if (!result) return
       setCategories(result)
-      const emailCategory = result.find((c) => c.identifier === IntegrationCategoryIdentifier.Email)
-      setCategoryId(emailCategory?.id ?? result[0]?.id)
+      const targetIdentifier = channel === 'email' ? IntegrationCategoryIdentifier.Email : 'whatsapp'
+      const matched = result.find((c) => c.identifier === targetIdentifier)
+      setCategoryId(matched?.id ?? result[0]?.id)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overrideOpen])
+
+  useEffect(() => {
+    if (categories.length === 0) return
+    const targetIdentifier = channel === 'email' ? IntegrationCategoryIdentifier.Email : 'whatsapp'
+    const matched = categories.find((c) => c.identifier === targetIdentifier)
+    if (matched && categoryId !== matched.id) {
+      setCategoryId(matched.id)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channel, categories])
 
   useEffect(() => {
     if (!categoryId) {
@@ -157,28 +195,44 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [integrationId])
 
+  const currentBinding = channel === 'email' ? emailBinding : whatsappBinding
+
   const categoryOptions = useMemo(() => categories.map((c) => ({ value: String(c.id), label: c.name })), [categories])
   const integrationOptions = useMemo(() => integrations.map((i) => ({ value: String(i.id), label: i.name })), [integrations])
   const connectorOptions = useMemo(() => connectors.map((c) => ({ value: String(c.id), label: c.name })), [connectors])
   const pipelineOptions = useMemo(() => pipelines.map((p) => ({ value: String(p.id), label: p.name })), [pipelines])
 
-  const effectiveConnectorId = overrideOpen ? overrideConnectorId : bindingConnectorId
-  const effectivePipelineId = overrideOpen ? overridePipelineId : bindingPipelineId
-  const canSubmit = !bindingMissing && !!effectiveConnectorId && !!effectivePipelineId && recipientEmail.trim().length > 0 && subject.trim().length >= 2 && body.trim().length > 0
+  const effectiveConnectorId = overrideOpen ? overrideConnectorId : currentBinding.connectorId
+  const effectivePipelineId = overrideOpen ? overridePipelineId : currentBinding.pipelineId
+
+  const canSubmitEmail = !emailBinding.missing && !!effectiveConnectorId && !!effectivePipelineId && recipientEmail.trim().length > 0 && subject.trim().length >= 2 && emailBody.trim().length > 0
+  const canSubmitWhatsapp = !whatsappBinding.missing && !!effectiveConnectorId && !!effectivePipelineId && recipientPhone.trim().length >= 8 && whatsappBody.trim().length > 0
+  const canSubmit = channel === 'email' ? canSubmitEmail : canSubmitWhatsapp
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!effectiveConnectorId || !effectivePipelineId) return
 
-    const payload: SendProposalEmailRequest = {
-      recipientEmail: recipientEmail.trim(),
-      subject: subject.trim(),
-      body: body.trim(),
+    if (channel === 'email') {
+      const payload: SendProposalEmailRequest = {
+        recipientEmail: recipientEmail.trim(),
+        subject: subject.trim(),
+        body: emailBody.trim(),
+        connectorId: overrideOpen ? effectiveConnectorId : undefined,
+        pipelineId: overrideOpen ? effectivePipelineId : undefined,
+      }
+      const result = await send(() => proposalService.sendByEmail(proposalId, payload))
+      if (result !== null) onSuccess()
+      return
+    }
+
+    const payload: SendProposalWhatsappRequest = {
+      recipientPhone: recipientPhone.trim(),
+      body: whatsappBody.trim(),
       connectorId: overrideOpen ? effectiveConnectorId : undefined,
       pipelineId: overrideOpen ? effectivePipelineId : undefined,
     }
-
-    const result = await send(() => proposalService.sendByEmail(proposalId, payload))
+    const result = await send(() => proposalService.sendByWhatsapp(proposalId, payload))
     if (result !== null) onSuccess()
   }
 
@@ -189,121 +243,189 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
           <ModalTitle>{t('modal.proposalSend.title')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-4">
-          {bindingLoading ? (
-            <div className="rounded-md border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">{t('common.loading')}</div>
-          ) : bindingMissing ? (
-            <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 p-4">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
-                <div className="space-y-1">
-                  <div className="text-sm font-medium text-amber-900">{t('modal.proposalSend.binding.missing.title')}</div>
-                  <p className="text-xs text-amber-800">{t('modal.proposalSend.binding.missing.description')}</p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 pl-8">
-                <Button type="button" size="sm" variant="outline" onClick={goToIntegrations}>
-                  <ExternalLink className="mr-1 h-3.5 w-3.5" /> {t('modal.proposalSend.binding.missing.goToIntegrations')}
-                </Button>
-                <Button type="button" size="sm" variant="outline-primary" onClick={() => void handleMarkAsSent()} disabled={markingSent}>
-                  {markingSent ? t('common.action.saving') : t('modal.proposalSend.binding.missing.markAsSent')}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="rounded-md border bg-muted/20 p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">{t('modal.proposalSend.binding.sendingVia')}</div>
-                    <div className="text-sm font-medium text-foreground">{bindingConnectorName} <span className="text-muted-foreground">·</span> {bindingPipelineName}</div>
-                  </div>
-                  <Button type="button" size="sm" variant="ghost" onClick={() => setOverrideOpen(!overrideOpen)}>
-                    <Settings2 className="mr-1 h-3.5 w-3.5" />
-                    {t('modal.proposalSend.binding.change')}
-                    {overrideOpen ? <ChevronUp className="ml-1 h-3.5 w-3.5" /> : <ChevronDown className="ml-1 h-3.5 w-3.5" />}
-                  </Button>
-                </div>
-              </div>
+          <Tabs value={channel} onValueChange={(value) => { setChannel(value as Channel); setOverrideOpen(false); setOverrideConnectorId(undefined); setOverridePipelineId(undefined) }}>
+            <TabsList className="w-full">
+              <TabsTrigger value="email" className="flex-1 gap-2">
+                <Mail className="h-4 w-4" /> Email
+              </TabsTrigger>
+              <TabsTrigger value="whatsapp" className="flex-1 gap-2">
+                <MessageCircle className="h-4 w-4" /> WhatsApp
+              </TabsTrigger>
+            </TabsList>
 
-              {overrideOpen && (
-                <div className="grid grid-cols-1 gap-3 rounded-md border border-dashed border-border/70 bg-background p-3 md:grid-cols-2">
+            <TabsContent value="email" className="mt-4 space-y-4">
+              {renderChannelHeader(emailBinding, t, overrideOpen, setOverrideOpen, goToIntegrations, handleMarkAsSent, markingSent)}
+              {!emailBinding.missing && (
+                <>
+                  {overrideOpen && renderOverrideCascade({ categoryId, setCategoryId, integrationId, setIntegrationId, overrideConnectorId, setOverrideConnectorId, overridePipelineId, setOverridePipelineId, categoryOptions, integrationOptions, connectorOptions, pipelineOptions, catLoading, intLoading, connLoading, pipeLoading, t })}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">{t('modal.automation.field.integrationCategory')}</label>
-                    <SearchableSelect
-                      value={categoryId ? String(categoryId) : ''}
-                      onValueChange={(value) => setCategoryId(value ? Number(value) : undefined)}
-                      options={categoryOptions}
-                      placeholder={catLoading ? t('common.loading') : t('common.placeholder.select')}
-                      searchPlaceholder={t('common.placeholder.search')}
-                      disabled={catLoading}
-                    />
+                    <label className="text-sm font-medium">{t('modal.proposalSend.field.recipient')}</label>
+                    <Input type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">{t('modal.automation.field.integration')}</label>
-                    <SearchableSelect
-                      value={integrationId ? String(integrationId) : ''}
-                      onValueChange={(value) => setIntegrationId(value ? Number(value) : undefined)}
-                      options={integrationOptions}
-                      placeholder={intLoading ? t('common.loading') : integrationOptions.length === 0 ? t('modal.proposalSend.placeholder.noIntegration') : t('common.placeholder.select')}
-                      searchPlaceholder={t('common.placeholder.search')}
-                      disabled={intLoading || integrationOptions.length === 0}
-                    />
+                    <label className="text-sm font-medium">{t('common.field.subject')}</label>
+                    <Input value={subject} onChange={(e) => setSubject(e.target.value)} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Conta</label>
-                    <SearchableSelect
-                      value={overrideConnectorId ? String(overrideConnectorId) : ''}
-                      onValueChange={(value) => setOverrideConnectorId(value ? Number(value) : undefined)}
-                      options={connectorOptions}
-                      placeholder={connLoading ? t('common.loading') : connectorOptions.length === 0 ? t('modal.proposalSend.placeholder.configureConnector') : t('common.placeholder.select')}
-                      searchPlaceholder={t('common.placeholder.search')}
-                      disabled={connLoading || connectorOptions.length === 0}
+                    <label className="text-sm font-medium">{t('common.field.message')}</label>
+                    <textarea
+                      className="min-h-[180px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      value={emailBody}
+                      onChange={(e) => setEmailBody(e.target.value)}
+                      required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">{t('modal.document.field.sendPipeline')}</label>
-                    <SearchableSelect
-                      value={overridePipelineId ? String(overridePipelineId) : ''}
-                      onValueChange={(value) => setOverridePipelineId(value ? Number(value) : undefined)}
-                      options={pipelineOptions}
-                      placeholder={pipeLoading ? t('common.loading') : pipelineOptions.length === 0 ? t('modal.proposalSend.placeholder.noPipelines') : t('common.placeholder.select')}
-                      searchPlaceholder={t('common.placeholder.search')}
-                      disabled={pipeLoading || pipelineOptions.length === 0}
-                    />
-                  </div>
-                </div>
+                </>
               )}
+            </TabsContent>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('modal.proposalSend.field.recipient')}</label>
-                <Input type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} required />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('common.field.subject')}</label>
-                <Input value={subject} onChange={(e) => setSubject(e.target.value)} required />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('common.field.message')}</label>
-                <textarea
-                  className="min-h-[180px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  required
-                />
-              </div>
-            </>
-          )}
+            <TabsContent value="whatsapp" className="mt-4 space-y-4">
+              {renderChannelHeader(whatsappBinding, t, overrideOpen, setOverrideOpen, goToIntegrations, handleMarkAsSent, markingSent)}
+              {!whatsappBinding.missing && (
+                <>
+                  {overrideOpen && renderOverrideCascade({ categoryId, setCategoryId, integrationId, setIntegrationId, overrideConnectorId, setOverrideConnectorId, overridePipelineId, setOverridePipelineId, categoryOptions, integrationOptions, connectorOptions, pipelineOptions, catLoading, intLoading, connLoading, pipeLoading, t })}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('modal.proposalSend.field.recipientPhone')}</label>
+                    <Input type="tel" placeholder="+55 11 99999-9999" value={recipientPhone} onChange={(e) => setRecipientPhone(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('common.field.message')}</label>
+                    <textarea
+                      className="min-h-[140px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      value={whatsappBody}
+                      onChange={(e) => setWhatsappBody(e.target.value)}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
-            {!bindingMissing && (
+            {!currentBinding.missing && (
               <Button type="submit" disabled={sending || !canSubmit}>{sending ? t('common.action.sending') : t('modal.proposalSend.action.send')}</Button>
             )}
           </ModalFooter>
         </form>
       </ModalContent>
     </Modal>
+  )
+}
+
+function renderChannelHeader(binding: ChannelBindingState, t: (key: string) => string, overrideOpen: boolean, setOverrideOpen: (v: boolean) => void, goToIntegrations: () => void, handleMarkAsSent: () => void, markingSent: boolean) {
+  if (binding.loading) {
+    return <div className="rounded-md border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">{t('common.loading')}</div>
+  }
+
+  if (binding.missing) {
+    return (
+      <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 p-4">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+          <div className="space-y-1">
+            <div className="text-sm font-medium text-amber-900">{t('modal.proposalSend.binding.missing.title')}</div>
+            <p className="text-xs text-amber-800">{t('modal.proposalSend.binding.missing.description')}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 pl-8">
+          <Button type="button" size="sm" variant="outline" onClick={goToIntegrations}>
+            <ExternalLink className="mr-1 h-3.5 w-3.5" /> {t('modal.proposalSend.binding.missing.goToIntegrations')}
+          </Button>
+          <Button type="button" size="sm" variant="outline-primary" onClick={handleMarkAsSent} disabled={markingSent}>
+            {markingSent ? t('common.action.saving') : t('modal.proposalSend.binding.missing.markAsSent')}
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-md border bg-muted/20 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">{t('modal.proposalSend.binding.sendingVia')}</div>
+          <div className="text-sm font-medium text-foreground">{binding.connectorName} <span className="text-muted-foreground">·</span> {binding.pipelineName}</div>
+        </div>
+        <Button type="button" size="sm" variant="ghost" onClick={() => setOverrideOpen(!overrideOpen)}>
+          <Settings2 className="mr-1 h-3.5 w-3.5" />
+          {t('modal.proposalSend.binding.change')}
+          {overrideOpen ? <ChevronUp className="ml-1 h-3.5 w-3.5" /> : <ChevronDown className="ml-1 h-3.5 w-3.5" />}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+interface OverrideCascadeProps {
+  categoryId?: number
+  setCategoryId: (id: number | undefined) => void
+  integrationId?: number
+  setIntegrationId: (id: number | undefined) => void
+  overrideConnectorId?: number
+  setOverrideConnectorId: (id: number | undefined) => void
+  overridePipelineId?: number
+  setOverridePipelineId: (id: number | undefined) => void
+  categoryOptions: { value: string; label: string }[]
+  integrationOptions: { value: string; label: string }[]
+  connectorOptions: { value: string; label: string }[]
+  pipelineOptions: { value: string; label: string }[]
+  catLoading: boolean
+  intLoading: boolean
+  connLoading: boolean
+  pipeLoading: boolean
+  t: (key: string) => string
+}
+
+function renderOverrideCascade(props: OverrideCascadeProps) {
+  const { categoryId, setCategoryId, integrationId, setIntegrationId, overrideConnectorId, setOverrideConnectorId, overridePipelineId, setOverridePipelineId, categoryOptions, integrationOptions, connectorOptions, pipelineOptions, catLoading, intLoading, connLoading, pipeLoading, t } = props
+  return (
+    <div className="grid grid-cols-1 gap-3 rounded-md border border-dashed border-border/70 bg-background p-3 md:grid-cols-2">
+      <div className="space-y-2">
+        <label className="text-sm font-medium">{t('modal.automation.field.integrationCategory')}</label>
+        <SearchableSelect
+          value={categoryId ? String(categoryId) : ''}
+          onValueChange={(value) => setCategoryId(value ? Number(value) : undefined)}
+          options={categoryOptions}
+          placeholder={catLoading ? t('common.loading') : t('common.placeholder.select')}
+          searchPlaceholder={t('common.placeholder.search')}
+          disabled={catLoading}
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">{t('modal.automation.field.integration')}</label>
+        <SearchableSelect
+          value={integrationId ? String(integrationId) : ''}
+          onValueChange={(value) => setIntegrationId(value ? Number(value) : undefined)}
+          options={integrationOptions}
+          placeholder={intLoading ? t('common.loading') : integrationOptions.length === 0 ? t('modal.proposalSend.placeholder.noIntegration') : t('common.placeholder.select')}
+          searchPlaceholder={t('common.placeholder.search')}
+          disabled={intLoading || integrationOptions.length === 0}
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Conta</label>
+        <SearchableSelect
+          value={overrideConnectorId ? String(overrideConnectorId) : ''}
+          onValueChange={(value) => setOverrideConnectorId(value ? Number(value) : undefined)}
+          options={connectorOptions}
+          placeholder={connLoading ? t('common.loading') : connectorOptions.length === 0 ? t('modal.proposalSend.placeholder.configureConnector') : t('common.placeholder.select')}
+          searchPlaceholder={t('common.placeholder.search')}
+          disabled={connLoading || connectorOptions.length === 0}
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Ação</label>
+        <SearchableSelect
+          value={overridePipelineId ? String(overridePipelineId) : ''}
+          onValueChange={(value) => setOverridePipelineId(value ? Number(value) : undefined)}
+          options={pipelineOptions}
+          placeholder={pipeLoading ? t('common.loading') : pipelineOptions.length === 0 ? t('modal.proposalSend.placeholder.noPipelines') : t('common.placeholder.select')}
+          searchPlaceholder={t('common.placeholder.search')}
+          disabled={pipeLoading || pipelineOptions.length === 0}
+        />
+      </div>
+    </div>
   )
 }

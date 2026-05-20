@@ -342,6 +342,7 @@ export default function CommercialProposalDetail() {
           proposalName={proposal.name}
           agencyName={proposal.brand?.name}
           defaultRecipientEmail={proposal.opportunity?.contactEmail ?? proposal.brand?.contactEmail ?? undefined}
+          defaultRecipientPhone={proposal.opportunity?.contactPhone ?? proposal.brand?.contactPhone ?? undefined}
           publicLinkUrl={undefined}
           onSuccess={() => {
             setIsSendModalOpen(false)
