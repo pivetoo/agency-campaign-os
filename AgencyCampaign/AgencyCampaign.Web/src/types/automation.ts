@@ -57,10 +57,12 @@ export interface IntegrationIntentDescriptor {
   key: string
   label: string
   categoryIdentifier: string
+  serviceContractIdentifier: string
 }
 
 export const IntegrationIntents = {
   ProposalSendEmail: 'proposal.send-email',
+  ProposalSendWhatsapp: 'proposal.send-whatsapp',
   CampaignDocumentSendSignature: 'campaign-document.send-signature',
   CampaignDocumentSendEmail: 'campaign-document.send-email',
   CreatorPaymentSchedulePix: 'creator-payment.schedule-pix',

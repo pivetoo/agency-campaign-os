@@ -5,6 +5,7 @@ import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModa
 import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
 import AutomationFormModal from '../../../components/modals/AutomationFormModal'
 import AutomationList from '../Automations/AutomationList'
+import CapabilityList from './CapabilityList'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import { automationService } from '../../../services/automationService'
 import type { Connector, IntegrationCategory, IntegrationPlatformIntegration } from '../../../types/integrationPlatform'
@@ -43,7 +44,7 @@ const STATUS: Record<IntegrationStatus, StatusConfig> = {
 
 export default function Integrations() {
   const { t } = useI18n()
-  const [activeTab, setActiveTab] = useState('connectors')
+  const [activeTab, setActiveTab] = useState('capabilities')
 
   const [categories, setCategories] = useState<IntegrationCategory[]>([])
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
@@ -278,6 +279,12 @@ export default function Integrations() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger
+              value="capabilities"
+              className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+            >
+              <Zap className="h-4 w-4" /> Ações
+            </TabsTrigger>
+            <TabsTrigger
               value="connectors"
               className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
             >
@@ -290,6 +297,10 @@ export default function Integrations() {
               <GitBranch className="h-4 w-4" /> Automações
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="capabilities" className="space-y-4">
+            <CapabilityList />
+          </TabsContent>
 
           <TabsContent value="connectors" className="space-y-4">
             <div className="grid grid-cols-2 gap-4 rounded-lg border bg-card p-4 md:grid-cols-4">
