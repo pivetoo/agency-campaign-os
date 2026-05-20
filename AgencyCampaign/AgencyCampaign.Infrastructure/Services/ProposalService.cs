@@ -5,7 +5,9 @@ using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using AgencyCampaign.Infrastructure.Clients;
 using Archon.Application.Abstractions;
+using Archon.Application.Integrations;
 using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
@@ -22,13 +24,15 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IFinancialAutoGeneration financialAutoGeneration;
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
+        private readonly IntegrationPlatformClient integrationPlatformClient;
 
-        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService) : base(dbContext)
+        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient) : base(dbContext)
         {
             this.currentUser = currentUser;
             this.financialAutoGeneration = financialAutoGeneration;
             this.automationDispatcher = automationDispatcher;
             this.notificationService = notificationService;
+            this.integrationPlatformClient = integrationPlatformClient;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -161,11 +165,53 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> MarkAsSent(long id, CancellationToken cancellationToken = default)
         {
+            Proposal proposal = await CreateSentVersionAsync(id, cancellationToken);
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+            await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
+            return saved;
+        }
+
+        public async Task<Proposal> SendByEmail(long id, SendProposalEmailRequest request, CancellationToken cancellationToken = default)
+        {
+            Proposal proposal = await CreateSentVersionAsync(id, cancellationToken);
+
+            ProposalShareLink shareLink = await EnsureActiveShareLinkAsync(id, cancellationToken);
+
+            string payload = JsonSerializer.Serialize(new
+            {
+                proposalId = proposal.Id,
+                proposalName = proposal.Name,
+                recipientEmail = request.RecipientEmail,
+                subject = request.Subject,
+                body = request.Body,
+                publicToken = shareLink.Token,
+                totalValue = proposal.TotalValue,
+                validityUntil = proposal.ValidityUntil,
+                sentByUserName = currentUser.UserName
+            });
+
+            EnqueuePipelineRequest enqueueRequest = new()
+            {
+                ConnectorId = request.ConnectorId,
+                PipelineId = request.PipelineId,
+                Payload = payload,
+                Priority = 1
+            };
+
+            await integrationPlatformClient.EnqueuePipelineAsync(enqueueRequest, cancellationToken);
+
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+            await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
+            return saved;
+        }
+
+        private async Task<Proposal> CreateSentVersionAsync(long proposalId, CancellationToken cancellationToken)
+        {
             Proposal? proposal = await DbContext.Set<Proposal>()
                 .AsTracking()
                 .Include(item => item.Items)
                     .ThenInclude(item => item.Creator)
-                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(item => item.Id == proposalId, cancellationToken);
 
             if (proposal is null)
             {
@@ -173,7 +219,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             int nextVersion = await DbContext.Set<ProposalVersion>()
-                .Where(item => item.ProposalId == id)
+                .Where(item => item.ProposalId == proposalId)
                 .CountAsync(cancellationToken) + 1;
 
             string snapshotJson = SerializeSnapshot(proposal);
@@ -193,9 +239,34 @@ namespace AgencyCampaign.Infrastructure.Services
 
             proposal.MarkAsSent(currentUser.UserId, currentUser.UserName);
 
-            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
-            await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
-            return saved;
+            return proposal;
+        }
+
+        private async Task<ProposalShareLink> EnsureActiveShareLinkAsync(long proposalId, CancellationToken cancellationToken)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
+            ProposalShareLink? active = await DbContext.Set<ProposalShareLink>()
+                .AsTracking()
+                .Where(item => item.ProposalId == proposalId
+                    && item.RevokedAt == null
+                    && (item.ExpiresAt == null || item.ExpiresAt > now))
+                .OrderByDescending(item => item.CreatedAt)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (active is not null)
+            {
+                return active;
+            }
+
+            string token = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24))
+                .Replace("+", "-")
+                .Replace("/", "_")
+                .Replace("=", string.Empty);
+
+            ProposalShareLink created = new(proposalId, token, null, currentUser.UserId, currentUser.UserName);
+            DbContext.Set<ProposalShareLink>().Add(created);
+            return created;
         }
 
         private static string SerializeSnapshot(Proposal proposal)

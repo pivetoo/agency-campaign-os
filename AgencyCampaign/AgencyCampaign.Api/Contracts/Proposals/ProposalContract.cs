@@ -53,7 +53,8 @@ namespace AgencyCampaign.Api.Contracts.Proposals
                 : new OpportunityReferenceContract
                 {
                     Id = item.Opportunity.Id,
-                    Name = item.Opportunity.Name
+                    Name = item.Opportunity.Name,
+                    ContactEmail = item.Opportunity.ContactEmail
                 },
             TotalValue = item.TotalValue,
             InternalOwnerId = item.InternalOwnerId,
@@ -65,7 +66,8 @@ namespace AgencyCampaign.Api.Contracts.Proposals
                 : new BrandReferenceContract
                 {
                     Id = item.Opportunity.Brand.Id,
-                    Name = item.Opportunity.Brand.Name
+                    Name = item.Opportunity.Brand.Name,
+                    ContactEmail = item.Opportunity.Brand.ContactEmail
                 },
             Campaign = item.Campaign == null
                 ? null
@@ -152,6 +154,8 @@ namespace AgencyCampaign.Api.Contracts.Proposals
         public long Id { get; init; }
 
         public string Name { get; init; } = string.Empty;
+
+        public string? ContactEmail { get; init; }
     }
 
     public sealed class BrandReferenceContract
@@ -159,6 +163,8 @@ namespace AgencyCampaign.Api.Contracts.Proposals
         public long Id { get; init; }
 
         public string Name { get; init; } = string.Empty;
+
+        public string? ContactEmail { get; init; }
     }
 
     public sealed class CampaignReferenceContract

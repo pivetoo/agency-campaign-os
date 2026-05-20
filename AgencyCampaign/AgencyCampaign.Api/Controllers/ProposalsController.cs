@@ -96,10 +96,10 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("proposals.send.description")]
-        [HttpPost("{id:long}/Send")]
-        public async Task<IActionResult> Send(long id, CancellationToken cancellationToken)
+        [HttpPost("{id:long}/SendByEmail")]
+        public async Task<IActionResult> SendByEmail(long id, [FromBody] SendProposalEmailRequest request, CancellationToken cancellationToken)
         {
-            Proposal proposal = await proposalService.MarkAsSent(id, cancellationToken);
+            Proposal proposal = await proposalService.SendByEmail(id, request, cancellationToken);
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 

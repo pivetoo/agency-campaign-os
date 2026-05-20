@@ -43,6 +43,7 @@ export interface Proposal {
   opportunity?: {
     id: number
     name: string
+    contactEmail?: string
   }
   totalValue: number
   internalOwnerId: number
@@ -52,6 +53,7 @@ export interface Proposal {
   brand?: {
     id: number
     name: string
+    contactEmail?: string
   }
   campaign?: {
     id: number
@@ -139,6 +141,14 @@ export interface CreateProposalShareLinkRequest {
   expiresAt?: string
 }
 
+export interface SendProposalEmailRequest {
+  recipientEmail: string
+  subject: string
+  body: string
+  connectorId: number
+  pipelineId: number
+}
+
 export const proposalService = {
   getAll(params?: { page?: number; pageSize?: number } & ProposalListFilters): Promise<ApiResponse<Proposal[]>> {
     const searchParams = new URLSearchParams()
@@ -169,8 +179,8 @@ export const proposalService = {
     return httpClient.put<Proposal>(`${BASE_URL}/${id}`, data)
   },
 
-  send(id: number) {
-    return httpClient.post<Proposal>(`${BASE_URL}/${id}/Send`, {})
+  sendByEmail(id: number, data: SendProposalEmailRequest) {
+    return httpClient.post<Proposal>(`${BASE_URL}/${id}/SendByEmail`, data)
   },
 
   approve(id: number) {

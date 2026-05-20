@@ -409,6 +409,13 @@
   <data name="proposals.field.opportunity" xml:space="preserve"><value>Oportunidad</value></data>
   <data name="proposals.field.campaign" xml:space="preserve"><value>Campaña</value></data>
   <data name="proposals.action.send" xml:space="preserve"><value>Enviar</value></data>
+  <data name="proposals.action.resend" xml:space="preserve"><value>Reenviar</value></data>
+  <data name="modal.proposalSend.title" xml:space="preserve"><value>Enviar propuesta por email</value></data>
+  <data name="modal.proposalSend.field.recipient" xml:space="preserve"><value>Destinatario</value></data>
+  <data name="modal.proposalSend.action.send" xml:space="preserve"><value>Enviar</value></data>
+  <data name="modal.proposalSend.placeholder.noIntegration" xml:space="preserve"><value>No hay integración disponible en esta categoría</value></data>
+  <data name="modal.proposalSend.placeholder.configureConnector" xml:space="preserve"><value>Configurá un conector primero</value></data>
+  <data name="modal.proposalSend.placeholder.noPipelines" xml:space="preserve"><value>No hay pipeline configurado</value></data>
   <data name="proposals.action.markViewed" xml:space="preserve"><value>Marcar vista</value></data>
   <data name="proposals.action.approve" xml:space="preserve"><value>Aprobar</value></data>
   <data name="proposals.action.reject" xml:space="preserve"><value>Rechazar</value></data>

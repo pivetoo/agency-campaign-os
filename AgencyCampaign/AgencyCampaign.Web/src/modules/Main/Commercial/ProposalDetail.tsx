@@ -6,6 +6,7 @@ import { CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Send, Tra
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'
 import ProposalItemFormModal from '../../../components/modals/ProposalItemFormModal'
 import ApplyProposalTemplateModal from '../../../components/modals/ApplyProposalTemplateModal'
+import ProposalSendModal from '../../../components/modals/ProposalSendModal'
 import ProposalShareTab from './ProposalShareTab'
 import { campaignService } from '../../../services/campaignService'
 import { proposalService, ProposalStatus, type Proposal, type ProposalItem, type ProposalStatusValue } from '../../../services/proposalService'
@@ -47,6 +48,7 @@ export default function CommercialProposalDetail() {
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
   const [isItemFormOpen, setIsItemFormOpen] = useState(false)
   const [isApplyTemplateOpen, setIsApplyTemplateOpen] = useState(false)
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false)
   const [campaignId, setCampaignId] = useState<string>('')
 
   const { execute: fetchProposal, loading } = useApi<Proposal | undefined>({ showErrorMessage: true })
@@ -85,14 +87,14 @@ export default function CommercialProposalDetail() {
 
     const actions: PageAction[] = []
 
-    if (status === ProposalStatus.Draft) {
+    if (status === ProposalStatus.Draft || status === ProposalStatus.Sent || status === ProposalStatus.Viewed) {
       actions.push({
         key: 'send',
-        label: t('proposals.action.send'),
+        label: t(status === ProposalStatus.Draft ? 'proposals.action.send' : 'proposals.action.resend'),
         icon: <Send className="h-4 w-4" />,
         variant: 'outline-primary',
         disabled: actionLoading,
-        onClick: () => void runProposalAction(() => proposalService.send(proposalId)),
+        onClick: () => setIsSendModalOpen(true),
       })
     }
     if (status === ProposalStatus.Sent) {
@@ -332,6 +334,21 @@ export default function CommercialProposalDetail() {
         proposalId={proposalId}
         onApplied={() => void loadProposal()}
       />
+      {proposal ? (
+        <ProposalSendModal
+          open={isSendModalOpen}
+          onOpenChange={setIsSendModalOpen}
+          proposalId={proposalId}
+          proposalName={proposal.name}
+          agencyName={proposal.brand?.name}
+          defaultRecipientEmail={proposal.opportunity?.contactEmail ?? proposal.brand?.contactEmail ?? undefined}
+          publicLinkUrl={undefined}
+          onSuccess={() => {
+            setIsSendModalOpen(false)
+            void loadProposal()
+          }}
+        />
+      ) : null}
     </PageLayout>
   )
 }

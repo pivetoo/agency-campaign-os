@@ -18,6 +18,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<Proposal> MarkAsSent(long id, CancellationToken cancellationToken = default);
 
+        Task<Proposal> SendByEmail(long id, SendProposalEmailRequest request, CancellationToken cancellationToken = default);
+
         Task<Proposal> MarkAsViewed(long id, CancellationToken cancellationToken = default);
 
         Task<Proposal> ApproveProposal(long id, CancellationToken cancellationToken = default);
