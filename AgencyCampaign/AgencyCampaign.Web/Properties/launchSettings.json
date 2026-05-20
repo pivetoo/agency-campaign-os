@@ -1,9 +1,12 @@
 {
   "profiles": {
-    "AgencyCampaign.Web": {
+    "http": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:5173"
+      "applicationUrl": "http://localhost:5173",
+      "environmentVariables": {
+        "BROWSER": "none"
+      }
     }
   }
 }
