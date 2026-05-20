@@ -237,7 +237,7 @@ export default function CommercialProposals() {
             icon: <Send className="h-4 w-4" />,
             variant: 'outline-primary',
             disabled: !selectedProposal || actionLoading || selectedProposal.status !== ProposalStatus.Draft,
-            onClick: () => selectedProposal && void runProposalAction(() => proposalService.send(selectedProposal.id)),
+            onClick: () => selectedProposal && navigate(`/comercial/propostas/${selectedProposal.id}`),
           },
           {
             key: 'viewed',
