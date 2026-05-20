@@ -232,7 +232,7 @@ export default function CapabilityList() {
                                   Ativa
                                 </Badge>
                               ) : configured ? (
-                                <Badge variant="outline">Pausada</Badge>
+                                <Badge variant="destructive">Pausada</Badge>
                               ) : (
                                 <Badge variant="secondary">Não configurada</Badge>
                               )}
