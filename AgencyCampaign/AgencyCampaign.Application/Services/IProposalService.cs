@@ -20,6 +20,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<Proposal> SendByEmail(long id, SendProposalEmailRequest request, CancellationToken cancellationToken = default);
 
+        Task<Proposal> SendByWhatsapp(long id, SendProposalWhatsappRequest request, CancellationToken cancellationToken = default);
+
         Task<Proposal> MarkAsViewed(long id, CancellationToken cancellationToken = default);
 
         Task<Proposal> ApproveProposal(long id, CancellationToken cancellationToken = default);

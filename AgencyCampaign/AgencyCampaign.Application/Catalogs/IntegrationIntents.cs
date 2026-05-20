@@ -4,6 +4,8 @@ namespace AgencyCampaign.Application.Catalogs
     {
         public const string ProposalSendEmail = "proposal.send-email";
 
+        public const string ProposalSendWhatsapp = "proposal.send-whatsapp";
+
         public const string CampaignDocumentSendSignature = "campaign-document.send-signature";
 
         public const string CampaignDocumentSendEmail = "campaign-document.send-email";
@@ -25,6 +27,7 @@ namespace AgencyCampaign.Application.Catalogs
         public static readonly IReadOnlyList<IntegrationIntentDescriptor> All =
         [
             new(ProposalSendEmail, "Enviar proposta por email", "email"),
+            new(ProposalSendWhatsapp, "Enviar proposta por WhatsApp", "whatsapp"),
             new(CampaignDocumentSendSignature, "Enviar documento para assinatura", "digital-signature"),
             new(CampaignDocumentSendEmail, "Enviar documento por email", "email"),
             new(CreatorPaymentSchedulePix, "Agendar pagamento PIX para creator", "payment"),

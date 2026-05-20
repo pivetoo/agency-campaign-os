@@ -37,6 +37,9 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         [EmailAddress]
         public string? ContactEmail { get; set; }
 
+        [StringLength(50)]
+        public string? ContactPhone { get; set; }
+
         [StringLength(1000)]
         public string? Notes { get; set; }
 

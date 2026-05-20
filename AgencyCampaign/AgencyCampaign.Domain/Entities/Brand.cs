@@ -14,6 +14,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? ContactEmail { get; private set; }
 
+        public string? ContactPhone { get; private set; }
+
         public string? Notes { get; private set; }
 
         public string? LogoUrl { get; private set; }
@@ -24,7 +26,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Brand(string name, string? tradeName = null, string? document = null, string? contactName = null, string? contactEmail = null, string? notes = null)
+        public Brand(string name, string? tradeName = null, string? document = null, string? contactName = null, string? contactEmail = null, string? notes = null, string? contactPhone = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
@@ -33,10 +35,11 @@ namespace AgencyCampaign.Domain.Entities
             Document = Normalize(document);
             ContactName = Normalize(contactName);
             ContactEmail = Normalize(contactEmail);
+            ContactPhone = Normalize(contactPhone);
             Notes = Normalize(notes);
         }
 
-        public void Update(string name, string? tradeName, string? document, string? contactName, string? contactEmail, string? notes, bool isActive)
+        public void Update(string name, string? tradeName, string? document, string? contactName, string? contactEmail, string? notes, bool isActive, string? contactPhone = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
@@ -45,6 +48,7 @@ namespace AgencyCampaign.Domain.Entities
             Document = Normalize(document);
             ContactName = Normalize(contactName);
             ContactEmail = Normalize(contactEmail);
+            ContactPhone = Normalize(contactPhone);
             Notes = Normalize(notes);
             IsActive = isActive;
         }

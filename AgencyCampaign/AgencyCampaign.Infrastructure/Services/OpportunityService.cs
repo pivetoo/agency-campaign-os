@@ -149,7 +149,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.ContactEmail,
                 request.Notes,
                 currentUser.UserId,
-                currentUser.UserName);
+                currentUser.UserName,
+                request.ContactPhone);
 
             if (request.OpportunitySourceId.HasValue)
             {
@@ -202,7 +203,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 responsibleUserName,
                 request.ContactName,
                 request.ContactEmail,
-                request.Notes);
+                request.Notes,
+                request.ContactPhone);
 
             opportunity.ChangeStage(stage, currentUser.UserId, currentUser.UserName);
 

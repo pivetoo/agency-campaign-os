@@ -210,6 +210,41 @@ namespace AgencyCampaign.Infrastructure.Services
             return saved;
         }
 
+        public async Task<Proposal> SendByWhatsapp(long id, SendProposalWhatsappRequest request, CancellationToken cancellationToken = default)
+        {
+            (long connectorId, long pipelineId) = await ResolveTargetsAsync(request.ConnectorId, request.PipelineId, IntegrationIntents.ProposalSendWhatsapp, cancellationToken);
+
+            Proposal proposal = await CreateSentVersionAsync(id, cancellationToken);
+
+            ProposalShareLink shareLink = await EnsureActiveShareLinkAsync(id, cancellationToken);
+
+            string payload = JsonSerializer.Serialize(new
+            {
+                proposalId = proposal.Id,
+                proposalName = proposal.Name,
+                recipientPhone = request.RecipientPhone,
+                body = request.Body,
+                publicToken = shareLink.Token,
+                totalValue = proposal.TotalValue,
+                validityUntil = proposal.ValidityUntil,
+                sentByUserName = currentUser.UserName
+            });
+
+            EnqueuePipelineRequest enqueueRequest = new()
+            {
+                ConnectorId = connectorId,
+                PipelineId = pipelineId,
+                Payload = payload,
+                Priority = 1
+            };
+
+            await integrationPlatformClient.EnqueuePipelineAsync(enqueueRequest, cancellationToken);
+
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+            await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
+            return saved;
+        }
+
         private async Task<(long ConnectorId, long PipelineId)> ResolveTargetsAsync(long? overrideConnectorId, long? overridePipelineId, string intentKey, CancellationToken cancellationToken)
         {
             if (overrideConnectorId is > 0 && overridePipelineId is > 0)

@@ -111,6 +111,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 
+        [RequireAccess("proposals.send.description")]
+        [HttpPost("{id:long}/SendByWhatsapp")]
+        public async Task<IActionResult> SendByWhatsapp(long id, [FromBody] SendProposalWhatsappRequest request, CancellationToken cancellationToken)
+        {
+            Proposal proposal = await proposalService.SendByWhatsapp(id, request, cancellationToken);
+            return Http200(MapProposal(proposal), Localizer["record.updated"]);
+        }
+
         [RequireAccess("proposals.markAsViewed.description")]
         [HttpPost("{id:long}/MarkAsViewed")]
         public async Task<IActionResult> MarkAsViewed(long id, CancellationToken cancellationToken)

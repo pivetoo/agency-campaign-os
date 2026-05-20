@@ -41,6 +41,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? ContactEmail { get; private set; }
 
+        public string? ContactPhone { get; private set; }
+
         public long? OpportunitySourceId { get; private set; }
 
         public OpportunitySource? OpportunitySource { get; private set; }
@@ -72,7 +74,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Opportunity(long brandId, long commercialPipelineStageId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt = null, string? description = null, long? responsibleUserId = null, string? responsibleUserName = null, string? contactName = null, string? contactEmail = null, string? notes = null, long? createdByUserId = null, string? createdByUserName = null)
+        public Opportunity(long brandId, long commercialPipelineStageId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt = null, string? description = null, long? responsibleUserId = null, string? responsibleUserName = null, string? contactName = null, string? contactEmail = null, string? notes = null, long? createdByUserId = null, string? createdByUserName = null, string? contactPhone = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(brandId);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(commercialPipelineStageId);
@@ -89,6 +91,7 @@ namespace AgencyCampaign.Domain.Entities
             ResponsibleUserName = Normalize(responsibleUserName);
             ContactName = Normalize(contactName);
             ContactEmail = Normalize(contactEmail);
+            ContactPhone = Normalize(contactPhone);
             Notes = Normalize(notes);
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
@@ -97,7 +100,7 @@ namespace AgencyCampaign.Domain.Entities
                 Id, null, commercialPipelineStageId, createdByUserId, createdByUserName, "Oportunidade criada"));
         }
 
-        public void Update(long brandId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt, string? description, long? responsibleUserId, string? responsibleUserName, string? contactName, string? contactEmail, string? notes)
+        public void Update(long brandId, string name, decimal estimatedValue, DateTimeOffset? expectedCloseAt, string? description, long? responsibleUserId, string? responsibleUserName, string? contactName, string? contactEmail, string? notes, string? contactPhone = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(brandId);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -112,6 +115,7 @@ namespace AgencyCampaign.Domain.Entities
             ResponsibleUserName = Normalize(responsibleUserName);
             ContactName = Normalize(contactName);
             ContactEmail = Normalize(contactEmail);
+            ContactPhone = Normalize(contactPhone);
             Notes = Normalize(notes);
             UpdatedAt = DateTimeOffset.UtcNow;
         }

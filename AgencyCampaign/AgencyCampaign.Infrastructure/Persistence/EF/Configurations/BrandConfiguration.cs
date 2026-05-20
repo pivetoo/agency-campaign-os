@@ -26,6 +26,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.ContactEmail)
                 .HasMaxLength(150);
 
+            builder.Property(entity => entity.ContactPhone)
+                .HasMaxLength(50);
+
             builder.Property(entity => entity.Notes)
                 .HasMaxLength(1000);
 
