@@ -10,5 +10,8 @@
   <Project Path="AgencyCampaign.Domain/AgencyCampaign.Domain.csproj" />
   <Project Path="AgencyCampaign.Infrastructure/AgencyCampaign.Infrastructure.csproj" />
   <Project Path="AgencyCampaign.Testing/AgencyCampaign.Testing.csproj" />
-  <Project Path="AgencyCampaign.Web/AgencyCampaign.Web.esproj" />
+  <Project Path="AgencyCampaign.Web/AgencyCampaign.Web.esproj">
+    <Build Solution="Release|*" />
+    <Deploy Solution="Release|*" />
+  </Project>
 </Solution>
