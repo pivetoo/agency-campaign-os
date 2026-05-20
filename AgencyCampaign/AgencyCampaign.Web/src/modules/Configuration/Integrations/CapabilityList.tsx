@@ -169,6 +169,22 @@ export default function CapabilityList() {
     return { total, active }
   }, [moduleStats])
 
+  const orderedModules = useMemo(() => {
+    const tierOf = (moduleId: string): number => {
+      const stats = moduleStats.find((item) => item.moduleId === moduleId)
+      if (!stats) return 3
+      if (stats.configured > 0) return 0
+      if (stats.hasAccount) return 1
+      return 2
+    }
+    return [...ACTION_MODULES].sort((a, b) => {
+      const tierA = tierOf(a.id)
+      const tierB = tierOf(b.id)
+      if (tierA !== tierB) return tierA - tierB
+      return a.label.localeCompare(b.label)
+    })
+  }, [moduleStats])
+
   const updateRow = (intentKey: string, patch: Partial<RowState>) => {
     setRowState((prev) => ({ ...prev, [intentKey]: { ...prev[intentKey], ...patch } }))
   }
@@ -266,7 +282,7 @@ export default function CapabilityList() {
         <Card className="lg:col-span-4">
           <CardContent className="p-2">
             <div className="space-y-1">
-              {ACTION_MODULES.map((module) => {
+              {orderedModules.map((module) => {
                 const Icon = module.icon
                 const stats = moduleStats.find((item) => item.moduleId === module.id)
                 const isSelected = module.id === selectedModuleId
