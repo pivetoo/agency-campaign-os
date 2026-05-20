@@ -1480,4 +1480,6 @@
   <data name="integrationCapability.intent.required" xml:space="preserve"><value>Business action identifier is required.</value></data>
   <data name="integrationCapability.intent.unknown" xml:space="preserve"><value>Unknown business action.</value></data>
   <data name="integrationCapability.notConfigured" xml:space="preserve"><value>No active connector has been configured for this action. Set up the integration at Settings → Integrations.</value></data>
+  <data name="integrationCallback.received.unhandled" xml:space="preserve"><value>Callback received but no handler is registered for this service.</value></data>
+  <data name="integrationCallback.handled" xml:space="preserve"><value>Callback processed successfully.</value></data>
 </root>

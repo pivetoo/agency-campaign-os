@@ -1480,4 +1480,6 @@
   <data name="integrationCapability.intent.required" xml:space="preserve"><value>El identificador de la acción de negocio es obligatorio.</value></data>
   <data name="integrationCapability.intent.unknown" xml:space="preserve"><value>Acción de negocio desconocida.</value></data>
   <data name="integrationCapability.notConfigured" xml:space="preserve"><value>No se ha configurado ningún conector activo para esta acción. Configura la integración en Configuración → Integraciones.</value></data>
+  <data name="integrationCallback.received.unhandled" xml:space="preserve"><value>Callback recibido, pero no hay handler registrado para este service.</value></data>
+  <data name="integrationCallback.handled" xml:space="preserve"><value>Callback procesado con éxito.</value></data>
 </root>
