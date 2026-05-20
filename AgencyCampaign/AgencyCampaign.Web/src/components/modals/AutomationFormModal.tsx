@@ -138,6 +138,20 @@ export default function AutomationFormModal({ open, onOpenChange, automation, pr
   }, [categoryId, activeConnectors])
 
   useEffect(() => {
+    if (triggerType !== AutomationTriggerType.UserAction) return
+    if (categories.length === 0 || userActionCatalog.length === 0) return
+    const intent = userActionCatalog.find((item) => item.key === trigger)
+    if (!intent) return
+    const matchedCategory = categories.find((category) => category.identifier === intent.categoryIdentifier)
+    if (matchedCategory && categoryId !== matchedCategory.id) {
+      setCategoryId(matchedCategory.id)
+      setIntegrationId(null)
+      setConnectorId(null)
+      setPipelineId(null)
+    }
+  }, [triggerType, trigger, categories, userActionCatalog, categoryId])
+
+  useEffect(() => {
     if (!integrationId) {
       setConnectors([])
       setPipelines([])
