@@ -3,9 +3,7 @@ import type { LucideIcon } from 'lucide-react'
 import { Badge, Button, Card, CardContent, SearchableSelect, useApi } from 'archon-ui'
 import { ArrowLeftRight, CheckCircle2, ChevronRight, CircleDashed, FileSignature, HandCoins, Mail, MessageCircle, Sparkles, Wallet } from 'lucide-react'
 import { integrationCapabilityService } from '../../../services/integrationCapabilityService'
-import { integrationPlatformService } from '../../../services/integrationPlatformService'
-import type { IntegrationCapability, IntegrationIntentDescriptor } from '../../../types/integrationCapability'
-import type { Connector } from '../../../types/integrationPlatform'
+import type { IntegrationCapabilitySummary } from '../../../types/integrationCapability'
 
 interface RowState {
   selectedConnectorId: number | null
@@ -59,88 +57,38 @@ const ACTION_MODULES: ActionModule[] = [
   },
 ]
 
-const CATEGORY_BY_INTENT: Record<string, string> = {}
-
-const intentLabelFallback: Record<string, string> = {
-  'proposal.send-email': 'Enviar proposta por email',
-  'proposal.send-whatsapp': 'Enviar proposta por WhatsApp',
-  'campaign-document.send-email': 'Enviar documento por email',
-  'campaign-document.send-signature': 'Enviar documento para assinatura',
-  'notification.send-transactional': 'Notificação transacional da plataforma',
-  'creator-portal.notify-whatsapp': 'Notificar creator por WhatsApp',
-  'creator-payment.schedule-pix': 'Agendar pagamento PIX para creator',
-  'payable.transfer': 'Pagar fornecedor',
-  'receivable.issue-invoice': 'Emitir cobrança para cliente',
-}
-
 export default function CapabilityList() {
-  const [catalog, setCatalog] = useState<IntegrationIntentDescriptor[]>([])
-  const [, setCapabilities] = useState<IntegrationCapability[]>([])
-  const [connectorsByCategory, setConnectorsByCategory] = useState<Record<string, Connector[]>>({})
+  const [summary, setSummary] = useState<IntegrationCapabilitySummary[]>([])
   const [rowState, setRowState] = useState<Record<string, RowState>>({})
-  const [selectedModuleId, setSelectedModuleId] = useState<string>(ACTION_MODULES[0].id)
+  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null)
 
-  const { execute: fetchCatalog, loading: loadingCatalog } = useApi<IntegrationIntentDescriptor[]>({ showErrorMessage: true })
-  const { execute: fetchCapabilities, loading: loadingCapabilities } = useApi<IntegrationCapability[]>({ showErrorMessage: true })
+  const { execute: fetchSummary, loading } = useApi<IntegrationCapabilitySummary[]>({ showErrorMessage: true })
 
   useEffect(() => {
-    void loadAll()
+    void loadSummary()
   }, [])
 
-  const loadAll = async () => {
-    const [catalogResult, capabilitiesResult] = await Promise.all([
-      fetchCatalog(() => integrationCapabilityService.getCatalog()),
-      fetchCapabilities(() => integrationCapabilityService.getAll()),
-    ])
-
-    const safeCatalog = catalogResult ?? []
-    const safeCapabilities = capabilitiesResult ?? []
-    setCatalog(safeCatalog)
-    setCapabilities(safeCapabilities)
-
-    safeCatalog.forEach((descriptor) => {
-      CATEGORY_BY_INTENT[descriptor.key] = descriptor.categoryIdentifier
-    })
-
-    const uniqueCategories: string[] = Array.from(new Set(safeCatalog.map((item) => item.categoryIdentifier)))
-    const connectorsMap: Record<string, Connector[]> = {}
-    await Promise.all(uniqueCategories.map(async (identifier: string) => {
-      try {
-        connectorsMap[identifier] = await integrationPlatformService.getConnectorsByCategoryIdentifier(identifier)
-      } catch {
-        connectorsMap[identifier] = []
-      }
-    }))
-    setConnectorsByCategory(connectorsMap)
+  const loadSummary = async () => {
+    const result = await fetchSummary(() => integrationCapabilityService.getSummary())
+    const safe = result ?? []
+    setSummary(safe)
 
     const nextState: Record<string, RowState> = {}
-    safeCatalog.forEach((descriptor) => {
-      const existing = safeCapabilities.find((capability) => capability.intentKey === descriptor.key)
-      nextState[descriptor.key] = {
-        selectedConnectorId: existing?.connectorId ?? null,
-        isActive: existing?.isActive ?? true,
+    safe.forEach((item) => {
+      nextState[item.intentKey] = {
+        selectedConnectorId: item.configuredConnectorId ?? null,
+        isActive: item.isActive,
         saving: false,
       }
     })
     setRowState(nextState)
   }
 
-  const intentByKey = useMemo(() => {
-    const map = new Map<string, IntegrationIntentDescriptor>()
-    catalog.forEach((descriptor) => map.set(descriptor.key, descriptor))
+  const summaryByIntent = useMemo(() => {
+    const map = new Map<string, IntegrationCapabilitySummary>()
+    summary.forEach((item) => map.set(item.intentKey, item))
     return map
-  }, [catalog])
-
-  const getDescriptorFor = (intentKey: string): IntegrationIntentDescriptor => {
-    const fromCatalog = intentByKey.get(intentKey)
-    if (fromCatalog) return fromCatalog
-    return {
-      key: intentKey,
-      label: intentLabelFallback[intentKey] ?? intentKey,
-      categoryIdentifier: '',
-      serviceContractIdentifier: '',
-    }
-  }
+  }, [summary])
 
   const moduleStats = useMemo(() => {
     return ACTION_MODULES.map((module) => {
@@ -148,11 +96,8 @@ export default function CapabilityList() {
       let active = 0
       let hasAccount = false
       module.intentKeys.forEach((intentKey) => {
-        const descriptor = intentByKey.get(intentKey)
-        if (descriptor) {
-          const categoryConnectors = connectorsByCategory[descriptor.categoryIdentifier] ?? []
-          if (categoryConnectors.length > 0) hasAccount = true
-        }
+        const item = summaryByIntent.get(intentKey)
+        if (item && item.availableConnectors.length > 0) hasAccount = true
         const state = rowState[intentKey]
         if (state?.selectedConnectorId) {
           configured += 1
@@ -161,7 +106,7 @@ export default function CapabilityList() {
       })
       return { moduleId: module.id, total: module.intentKeys.length, configured, active, hasAccount }
     })
-  }, [intentByKey, connectorsByCategory, rowState])
+  }, [summaryByIntent, rowState])
 
   const overallStats = useMemo(() => {
     const total = moduleStats.reduce((acc, stats) => acc + stats.total, 0)
@@ -185,6 +130,13 @@ export default function CapabilityList() {
     })
   }, [moduleStats])
 
+  useEffect(() => {
+    if (selectedModuleId) return
+    if (orderedModules.length > 0) {
+      setSelectedModuleId(orderedModules[0].id)
+    }
+  }, [orderedModules, selectedModuleId])
+
   const updateRow = (intentKey: string, patch: Partial<RowState>) => {
     setRowState((prev) => ({ ...prev, [intentKey]: { ...prev[intentKey], ...patch } }))
   }
@@ -194,7 +146,7 @@ export default function CapabilityList() {
       updateRow(intentKey, { selectedConnectorId: null })
       try {
         await integrationCapabilityService.remove(intentKey)
-        setCapabilities((prev) => prev.filter((item) => item.intentKey !== intentKey))
+        await loadSummary()
       } catch {
         // erro ja exibido pelo httpClient
       }
@@ -203,14 +155,10 @@ export default function CapabilityList() {
 
     updateRow(intentKey, { selectedConnectorId: connectorId, saving: true })
     try {
-      const saved = await integrationCapabilityService.setCapability({
+      await integrationCapabilityService.setCapability({
         intentKey,
         connectorId,
         isActive: rowState[intentKey]?.isActive ?? true,
-      })
-      setCapabilities((prev) => {
-        const filtered = prev.filter((item) => item.intentKey !== intentKey)
-        return [...filtered, saved]
       })
     } catch {
       // erro ja exibido pelo httpClient
@@ -226,14 +174,10 @@ export default function CapabilityList() {
     const newActive = !state.isActive
     updateRow(intentKey, { isActive: newActive, saving: true })
     try {
-      const saved = await integrationCapabilityService.setCapability({
+      await integrationCapabilityService.setCapability({
         intentKey,
         connectorId: state.selectedConnectorId,
         isActive: newActive,
-      })
-      setCapabilities((prev) => {
-        const filtered = prev.filter((item) => item.intentKey !== intentKey)
-        return [...filtered, saved]
       })
     } catch {
       updateRow(intentKey, { isActive: !newActive })
@@ -242,7 +186,7 @@ export default function CapabilityList() {
     }
   }
 
-  if (loadingCatalog || loadingCapabilities) {
+  if (loading && summary.length === 0) {
     return (
       <Card className="border-dashed">
         <CardContent className="flex items-center justify-center py-12 text-sm text-muted-foreground">
@@ -252,8 +196,8 @@ export default function CapabilityList() {
     )
   }
 
-  const selectedModule = ACTION_MODULES.find((module) => module.id === selectedModuleId) ?? ACTION_MODULES[0]
-  const selectedModuleStats = moduleStats.find((stats) => stats.moduleId === selectedModule.id)
+  const selectedModule = ACTION_MODULES.find((module) => module.id === selectedModuleId) ?? orderedModules[0]
+  const selectedModuleStats = moduleStats.find((stats) => stats.moduleId === selectedModule?.id)
 
   return (
     <div className="space-y-4">
@@ -329,98 +273,107 @@ export default function CapabilityList() {
 
         <Card className="lg:col-span-8">
           <CardContent className="space-y-4 p-5">
-            <div className="flex items-start gap-3 border-b border-border pb-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                <selectedModule.icon size={22} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-lg font-semibold">{selectedModule.label}</h3>
-                <p className="mt-0.5 text-sm text-muted-foreground">{selectedModule.description}</p>
-              </div>
-              {selectedModuleStats && (
-                <Badge variant={selectedModuleStats.active === selectedModuleStats.total && selectedModuleStats.total > 0 ? 'success' : 'outline'}>
-                  {selectedModuleStats.active} de {selectedModuleStats.total} ativas
-                </Badge>
-              )}
-            </div>
-
-            {!selectedModuleStats?.hasAccount ? (
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-amber-200 bg-amber-50/40 py-10 text-center">
-                <CircleDashed size={36} className="mb-3 text-amber-500 opacity-70" />
-                <p className="text-sm font-medium text-foreground">Você ainda não tem uma conta nesta área</p>
-                <p className="mt-1 max-w-md text-xs text-muted-foreground">
-                  Cadastre uma conta na aba <span className="font-medium">"Contas conectadas"</span> para liberar as ações de {selectedModule.label.toLowerCase()}.
-                </p>
+            {!selectedModule ? (
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <Sparkles size={36} className="mb-3 opacity-50" />
+                <p className="text-sm font-medium">Selecione uma área à esquerda.</p>
               </div>
             ) : (
-              <div className="space-y-2.5">
-                {selectedModule.intentKeys.map((intentKey) => {
-                  const descriptor = getDescriptorFor(intentKey)
-                  const categoryIdentifier = descriptor.categoryIdentifier || CATEGORY_BY_INTENT[intentKey] || ''
-                  const connectors = connectorsByCategory[categoryIdentifier] ?? []
-                  const state = rowState[intentKey] ?? { selectedConnectorId: null, isActive: true, saving: false }
-                  const configured = !!state.selectedConnectorId
+              <>
+                <div className="flex items-start gap-3 border-b border-border pb-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                    <selectedModule.icon size={22} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg font-semibold">{selectedModule.label}</h3>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{selectedModule.description}</p>
+                  </div>
+                  {selectedModuleStats && (
+                    <Badge variant={selectedModuleStats.active === selectedModuleStats.total && selectedModuleStats.total > 0 ? 'success' : 'outline'}>
+                      {selectedModuleStats.active} de {selectedModuleStats.total} ativas
+                    </Badge>
+                  )}
+                </div>
 
-                  return (
-                    <div key={intentKey} className="flex flex-col gap-3 rounded-lg border bg-card p-4 transition-colors hover:border-primary/30 md:flex-row md:items-center">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold">{descriptor.label}</span>
-                          {configured && state.isActive ? (
-                            <Badge variant="success" className="gap-1">
-                              <CheckCircle2 size={11} className="text-white" />
-                              Ativa
-                            </Badge>
-                          ) : configured ? (
-                            <Badge variant="destructive">Pausada</Badge>
-                          ) : (
-                            <Badge variant="secondary">Não configurada</Badge>
+                {!selectedModuleStats?.hasAccount ? (
+                  <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-amber-200 bg-amber-50/40 py-10 text-center">
+                    <CircleDashed size={36} className="mb-3 text-amber-500 opacity-70" />
+                    <p className="text-sm font-medium text-foreground">Você ainda não tem uma conta nesta área</p>
+                    <p className="mt-1 max-w-md text-xs text-muted-foreground">
+                      Cadastre uma conta na aba <span className="font-medium">"Contas conectadas"</span> para liberar as ações de {selectedModule.label.toLowerCase()}.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {selectedModule.intentKeys.map((intentKey) => {
+                      const item = summaryByIntent.get(intentKey)
+                      const connectors = item?.availableConnectors ?? []
+                      const label = item?.label ?? intentKey
+                      const state = rowState[intentKey] ?? { selectedConnectorId: null, isActive: true, saving: false }
+                      const configured = !!state.selectedConnectorId
+
+                      return (
+                        <div key={intentKey} className="flex flex-col gap-3 rounded-lg border bg-card p-4 transition-colors hover:border-primary/30 md:flex-row md:items-center">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-semibold">{label}</span>
+                              {configured && state.isActive ? (
+                                <Badge variant="success" className="gap-1">
+                                  <CheckCircle2 size={11} className="text-white" />
+                                  Ativa
+                                </Badge>
+                              ) : configured ? (
+                                <Badge variant="destructive">Pausada</Badge>
+                              ) : (
+                                <Badge variant="secondary">Não configurada</Badge>
+                              )}
+                            </div>
+                            {!configured && (
+                              <p className="mt-1 text-xs text-muted-foreground">Selecione a conta que o Kanvas deve usar para esta ação.</p>
+                            )}
+                          </div>
+                          <div className="w-full md:w-72">
+                            <SearchableSelect
+                              options={connectors.map((connector) => ({
+                                value: String(connector.id),
+                                label: `${connector.name}${connector.isActive ? '' : ' (inativa)'}`,
+                              }))}
+                              value={state.selectedConnectorId ? String(state.selectedConnectorId) : undefined}
+                              onValueChange={(value) => handleConnectorChange(intentKey, value ? Number(value) : null)}
+                              placeholder="Escolha uma conta"
+                              disabled={state.saving}
+                            />
+                          </div>
+                          {configured && (
+                            <Button
+                              size="sm"
+                              variant={state.isActive ? 'outline' : 'secondary'}
+                              onClick={() => handleToggleActive(intentKey)}
+                              disabled={state.saving}
+                              className="md:min-w-[88px]"
+                            >
+                              {state.isActive ? (
+                                <>
+                                  <ArrowLeftRight size={12} className="mr-1.5" />
+                                  Pausar
+                                </>
+                              ) : (
+                                'Reativar'
+                              )}
+                            </Button>
                           )}
                         </div>
-                        {!configured && (
-                          <p className="mt-1 text-xs text-muted-foreground">Selecione a conta que o Kanvas deve usar para esta ação.</p>
-                        )}
-                      </div>
-                      <div className="w-full md:w-72">
-                        <SearchableSelect
-                          options={connectors.map((connector) => ({
-                            value: String(connector.id),
-                            label: `${connector.name}${connector.isActive ? '' : ' (inativa)'}`,
-                          }))}
-                          value={state.selectedConnectorId ? String(state.selectedConnectorId) : undefined}
-                          onValueChange={(value) => handleConnectorChange(intentKey, value ? Number(value) : null)}
-                          placeholder="Escolha uma conta"
-                          disabled={state.saving}
-                        />
-                      </div>
-                      {configured && (
-                        <Button
-                          size="sm"
-                          variant={state.isActive ? 'outline' : 'secondary'}
-                          onClick={() => handleToggleActive(intentKey)}
-                          disabled={state.saving}
-                          className="md:min-w-[88px]"
-                        >
-                          {state.isActive ? (
-                            <>
-                              <ArrowLeftRight size={12} className="mr-1.5" />
-                              Pausar
-                            </>
-                          ) : (
-                            'Reativar'
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {catalog.length === 0 && (
+      {summary.length === 0 && !loading && (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <Sparkles size={36} className="mb-3 opacity-50" />

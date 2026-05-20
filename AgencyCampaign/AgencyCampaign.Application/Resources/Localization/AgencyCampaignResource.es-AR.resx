@@ -1473,6 +1473,7 @@
   <data name="integrationCapabilities.get.description" xml:space="preserve"><value>Lista los vínculos activos entre acciones de negocio y conectores configurados.</value></data>
   <data name="integrationCapabilities.getByIntent.description" xml:space="preserve"><value>Consulta el vínculo de un intent específico con el conector configurado.</value></data>
   <data name="integrationCapabilities.getCatalog.description" xml:space="preserve"><value>Consulta el catálogo de acciones de negocio integrables en Kanvas.</value></data>
+  <data name="integrationCapabilities.getSummary.description" xml:space="preserve"><value>Consulta el catálogo enriquecido con vínculos y cuentas disponibles por intent.</value></data>
   <data name="integrationCapabilities.set.description" xml:space="preserve"><value>Define el conector activo para una acción de negocio.</value></data>
   <data name="integrationCapabilities.remove.description" xml:space="preserve"><value>Elimina el vínculo entre una acción de negocio y un conector.</value></data>
   <data name="integrationCapability.saved" xml:space="preserve"><value>Vínculo de integración actualizado con éxito.</value></data>

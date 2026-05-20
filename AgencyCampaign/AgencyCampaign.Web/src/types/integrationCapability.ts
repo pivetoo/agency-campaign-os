@@ -19,3 +19,19 @@ export interface SetIntegrationCapabilityPayload {
   connectorId: number
   isActive: boolean
 }
+
+export interface CapabilityConnectorOption {
+  id: number
+  name: string
+  isActive: boolean
+}
+
+export interface IntegrationCapabilitySummary {
+  intentKey: string
+  label: string
+  categoryIdentifier: string
+  serviceContractIdentifier: string
+  configuredConnectorId?: number | null
+  isActive: boolean
+  availableConnectors: CapabilityConnectorOption[]
+}

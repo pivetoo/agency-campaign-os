@@ -1,5 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type { IntegrationCapability, IntegrationIntentDescriptor, SetIntegrationCapabilityPayload } from '../types/integrationCapability'
+import type { IntegrationCapability, IntegrationCapabilitySummary, IntegrationIntentDescriptor, SetIntegrationCapabilityPayload } from '../types/integrationCapability'
 
 export const integrationCapabilityService = {
   async getAll(): Promise<IntegrationCapability[]> {
@@ -9,6 +9,11 @@ export const integrationCapabilityService = {
 
   async getCatalog(): Promise<IntegrationIntentDescriptor[]> {
     const response = await httpClient.get<IntegrationIntentDescriptor[]>('/IntegrationCapabilities/catalog')
+    return response.data ?? []
+  },
+
+  async getSummary(): Promise<IntegrationCapabilitySummary[]> {
+    const response = await httpClient.get<IntegrationCapabilitySummary[]>('/IntegrationCapabilities/summary')
     return response.data ?? []
   },
 

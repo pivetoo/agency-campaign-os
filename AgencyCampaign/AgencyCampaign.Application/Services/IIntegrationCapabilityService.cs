@@ -1,4 +1,5 @@
 using AgencyCampaign.Application.Catalogs;
+using AgencyCampaign.Application.Models;
 using AgencyCampaign.Application.Requests.IntegrationCapabilities;
 using AgencyCampaign.Domain.Entities;
 
@@ -11,6 +12,8 @@ namespace AgencyCampaign.Application.Services
         Task<IntegrationCapability?> GetByIntent(string intentKey, CancellationToken cancellationToken = default);
 
         IReadOnlyList<IntegrationIntentDescriptor> GetIntentCatalog();
+
+        Task<List<IntegrationCapabilitySummary>> GetSummary(CancellationToken cancellationToken = default);
 
         Task<IntegrationCapability> SetCapability(SetIntegrationCapabilityRequest request, CancellationToken cancellationToken = default);
 

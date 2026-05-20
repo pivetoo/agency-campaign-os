@@ -1473,6 +1473,7 @@
   <data name="integrationCapabilities.get.description" xml:space="preserve"><value>List active bindings between business actions and configured connectors.</value></data>
   <data name="integrationCapabilities.getByIntent.description" xml:space="preserve"><value>Get the binding of a specific intent with the configured connector.</value></data>
   <data name="integrationCapabilities.getCatalog.description" xml:space="preserve"><value>Get the catalog of integrable business actions in Kanvas.</value></data>
+  <data name="integrationCapabilities.getSummary.description" xml:space="preserve"><value>Get the catalog enriched with bindings and available accounts per intent.</value></data>
   <data name="integrationCapabilities.set.description" xml:space="preserve"><value>Define the active connector for a business action.</value></data>
   <data name="integrationCapabilities.remove.description" xml:space="preserve"><value>Remove the binding between a business action and a connector.</value></data>
   <data name="integrationCapability.saved" xml:space="preserve"><value>Integration binding updated successfully.</value></data>

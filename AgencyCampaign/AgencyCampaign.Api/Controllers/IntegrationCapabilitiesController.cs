@@ -51,6 +51,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(catalog);
         }
 
+        [RequireAccess("integrationCapabilities.getSummary.description")]
+        [GetEndpoint("summary")]
+        public async Task<IActionResult> GetSummary(CancellationToken cancellationToken)
+        {
+            List<Application.Models.IntegrationCapabilitySummary> summary = await capabilityService.GetSummary(cancellationToken);
+            return Http200(summary);
+        }
+
         [RequireAccess("integrationCapabilities.set.description")]
         [PostEndpoint]
         public async Task<IActionResult> Set([FromBody] SetIntegrationCapabilityRequest request, CancellationToken cancellationToken)
