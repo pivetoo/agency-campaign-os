@@ -4,7 +4,7 @@ import { Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, 
 import type { DataTableColumn } from 'archon-ui'
 import { Activity, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MessageSquare, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
-import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type OpportunityApprovalStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../../services/opportunityService'
+import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import OpportunityNegotiationFormModal from '../../../components/modals/OpportunityNegotiationFormModal'
 import OpportunityFollowUpFormModal from '../../../components/modals/OpportunityFollowUpFormModal'
@@ -47,20 +47,6 @@ const negotiationStatusKeys: Record<OpportunityNegotiationStatusValue, string> =
   [OpportunityNegotiationStatus.Cancelled]: 'negotiation.status.cancelled',
 }
 
-const approvalTypeKeys: Record<number, string> = {
-  1: 'approvals.type.discount',
-  2: 'approvals.type.margin',
-  3: 'approvals.type.deadline',
-  4: 'approvals.type.exception',
-}
-
-const approvalStatusKeys: Record<OpportunityApprovalStatusValue, string> = {
-  [OpportunityApprovalStatus.Pending]: 'approvals.status.pending',
-  [OpportunityApprovalStatus.Approved]: 'approvals.status.approved',
-  [OpportunityApprovalStatus.Rejected]: 'approvals.status.rejected',
-  [OpportunityApprovalStatus.Cancelled]: 'approvals.status.cancelled',
-}
-
 export default function OpportunityDetail() {
   const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
@@ -89,7 +75,7 @@ export default function OpportunityDetail() {
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
   const [stages, setStages] = useState<Array<{ id: number; name: string; finalBehavior: number; displayOrder?: number; color?: string }>>([])
   const [selectedNegotiation, setSelectedNegotiation] = useState<OpportunityNegotiation | null>(null)
-  const [selectedApprovalRequest, setSelectedApprovalRequest] = useState<OpportunityApprovalRequest | null>(null)
+  const [, setSelectedApprovalRequest] = useState<OpportunityApprovalRequest | null>(null)
   const [selectedFollowUp, setSelectedFollowUp] = useState<OpportunityFollowUp | null>(null)
   const [isOpportunityFormOpen, setIsOpportunityFormOpen] = useState(false)
   const [isNegotiationFormOpen, setIsNegotiationFormOpen] = useState(false)
@@ -124,23 +110,6 @@ export default function OpportunityDetail() {
 
   const pendingFollowUpsCount = useMemo(() => opportunity?.followUps.filter((item) => !item.isCompleted).length ?? 0, [opportunity])
   const overdueFollowUpsCount = useMemo(() => opportunity?.followUps.filter((item) => !item.isCompleted && new Date(item.dueAt) < new Date()).length ?? 0, [opportunity])
-
-  const approvalColumns: DataTableColumn<OpportunityApprovalRequest>[] = [
-    { key: 'approvalType', title: t('common.field.type'), dataIndex: 'approvalType', render: (value: number) => approvalTypeKeys[value] ? t(approvalTypeKeys[value]) : '-' },
-    {
-      key: 'status',
-      title: t('common.field.status'),
-      dataIndex: 'status',
-      render: (value: number) => (
-        <Badge variant={value === 2 ? 'success' : value === 3 ? 'destructive' : 'warning'}>
-          {approvalStatusKeys[value] ? t(approvalStatusKeys[value]) : '-'}
-        </Badge>
-      ),
-    },
-    { key: 'requestedByUserName', title: t('approvals.field.requestedBy'), dataIndex: 'requestedByUserName' },
-    { key: 'reason', title: t('approvals.field.reason'), dataIndex: 'reason' },
-    { key: 'requestedAt', title: t('approvals.field.requestedAt'), dataIndex: 'requestedAt', render: (value: string) => formatDate(value) },
-  ]
 
   const followUpColumns: DataTableColumn<OpportunityFollowUp>[] = [
     { key: 'subject', title: t('followup.field.subject'), dataIndex: 'subject' },
@@ -254,30 +223,6 @@ export default function OpportunityDetail() {
     }
   }
 
-
-  const handleApproveRequest = async () => {
-    if (!selectedApprovalRequest) return
-    const result = await executeAction(() => opportunityService.approveRequest(selectedApprovalRequest.id, {
-      approvedByUserName: t('opportunityDetail.approvals.userFallback'),
-      decisionNotes: t('opportunityDetail.approvals.decision.approved'),
-    }))
-    if (result !== null) {
-      setSelectedApprovalRequest(null)
-      await loadOpportunity()
-    }
-  }
-
-  const handleRejectRequest = async () => {
-    if (!selectedApprovalRequest) return
-    const result = await executeAction(() => opportunityService.rejectRequest(selectedApprovalRequest.id, {
-      approvedByUserName: t('opportunityDetail.approvals.userFallback'),
-      decisionNotes: t('opportunityDetail.approvals.decision.rejected'),
-    }))
-    if (result !== null) {
-      setSelectedApprovalRequest(null)
-      await loadOpportunity()
-    }
-  }
 
   const approvalRequests = useMemo(() => opportunity?.negotiations.flatMap((item) => item.approvalRequests ?? []) ?? [], [opportunity])
 
@@ -526,9 +471,9 @@ export default function OpportunityDetail() {
                   />
                 </div>
 
-                <div>
-                  <h3 className="mb-3 text-base font-semibold text-foreground">Próximo passo prático</h3>
-                  {nextFollowUp ? (
+                {nextFollowUp && (
+                  <div>
+                    <h3 className="mb-3 text-base font-semibold text-foreground">Próximo passo</h3>
                     <div className={`flex items-center gap-4 rounded-xl border p-4 ${isNextFollowUpOverdue ? 'border-amber-300 bg-amber-50' : 'border-border bg-card'}`}>
                       <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${isNextFollowUpOverdue ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
                         <Calendar className="h-5 w-5" />
@@ -552,21 +497,8 @@ export default function OpportunityDetail() {
                         </Button>
                       </div>
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-4 rounded-xl border border-dashed border-border bg-muted/30 p-4">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                        <Calendar className="h-5 w-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-foreground">Sem follow-up agendado</p>
-                        <p className="text-xs text-muted-foreground">Defina quando você vai voltar a falar com o cliente.</p>
-                      </div>
-                      <Button size="sm" onClick={() => { setSelectedFollowUp(null); setIsFollowUpFormOpen(true) }}>
-                        <Plus className="mr-1.5 h-3.5 w-3.5" /> Agendar
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 <div>
                   <h3 className="mb-3 text-base font-semibold text-foreground">Andamento</h3>
@@ -740,39 +672,35 @@ export default function OpportunityDetail() {
           </TabsContent>
 
           <TabsContent value="approvals" className="mt-0">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-muted-foreground" /> {t('opportunityDetail.tab.approvals')}
-                  </CardTitle>
-                  <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline-success" onClick={() => void handleApproveRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== OpportunityApprovalStatus.Pending || actionLoading}>
-                      <ThumbsUp className="mr-1.5 h-4 w-4" /> {t('proposals.action.approve')}
-                    </Button>
-                    <Button size="sm" variant="outline-danger" onClick={() => void handleRejectRequest()} disabled={!selectedApprovalRequest || selectedApprovalRequest.status !== OpportunityApprovalStatus.Pending || actionLoading}>
-                      <ThumbsDown className="mr-1.5 h-4 w-4" /> {t('proposals.action.reject')}
-                    </Button>
-                  </div>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t('opportunityDetail.approvals.description')}
-                </p>
-              </CardHeader>
-              <CardContent>
-                <DataTable
-                  columns={approvalColumns}
-                  data={approvalRequests}
-                  rowKey="id"
-                  selectedRows={selectedApprovalRequest ? [selectedApprovalRequest] : []}
-                  onSelectionChange={(rows) => setSelectedApprovalRequest(rows[0] ?? null)}
-                  emptyText={t('opportunityDetail.approvals.empty')}
-                  loading={loading}
-                  pageSize={10}
-                  pageSizeOptions={[5, 10, 20, 50]}
-                />
-              </CardContent>
-            </Card>
+            <ApprovalsTab
+              approvals={approvalRequests}
+              negotiations={opportunity?.negotiations ?? []}
+              loading={loading}
+              actionLoading={actionLoading}
+              t={t}
+              onApprove={async (item) => {
+                setSelectedApprovalRequest(item)
+                const result = await executeAction(() => opportunityService.approveRequest(item.id, {
+                  approvedByUserName: t('opportunityDetail.approvals.userFallback'),
+                  decisionNotes: t('opportunityDetail.approvals.decision.approved'),
+                }))
+                if (result !== null) {
+                  setSelectedApprovalRequest(null)
+                  await loadOpportunity()
+                }
+              }}
+              onReject={async (item) => {
+                setSelectedApprovalRequest(item)
+                const result = await executeAction(() => opportunityService.rejectRequest(item.id, {
+                  approvedByUserName: t('opportunityDetail.approvals.userFallback'),
+                  decisionNotes: t('opportunityDetail.approvals.decision.rejected'),
+                }))
+                if (result !== null) {
+                  setSelectedApprovalRequest(null)
+                  await loadOpportunity()
+                }
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="followups" className="mt-0">
@@ -1240,6 +1168,191 @@ function NegotiationCard({ negotiation, isFirstRound, actionLoading, onEdit, onD
             </Button>
           )}
         </div>
+      </div>
+    </div>
+  )
+}
+
+interface ApprovalsTabProps {
+  approvals: OpportunityApprovalRequest[]
+  negotiations: OpportunityNegotiation[]
+  loading: boolean
+  actionLoading: boolean
+  t: (key: string) => string
+  onApprove: (item: OpportunityApprovalRequest) => Promise<void> | void
+  onReject: (item: OpportunityApprovalRequest) => Promise<void> | void
+}
+
+const approvalTypeLabel: Record<number, string> = {
+  1: 'Exceção de desconto',
+  2: 'Exceção de margem',
+  3: 'Exceção de prazo',
+  4: 'Exceção (outra)',
+}
+
+function hoursSince(iso: string): number {
+  const diff = Date.now() - new Date(iso).getTime()
+  return Math.max(0, Math.floor(diff / (1000 * 60 * 60)))
+}
+
+function ApprovalsTab({ approvals, negotiations, loading, actionLoading, t: _t, onApprove, onReject }: ApprovalsTabProps) {
+  const pendingApprovals = useMemo(() => approvals.filter((a) => a.status === OpportunityApprovalStatus.Pending), [approvals])
+  const decidedApprovals = useMemo(() => approvals.filter((a) => a.status !== OpportunityApprovalStatus.Pending), [approvals])
+
+  const negotiationsById = useMemo(() => {
+    const map = new Map<number, OpportunityNegotiation>()
+    negotiations.forEach((n) => map.set(n.id, n))
+    return map
+  }, [negotiations])
+
+  const pendingTotal = pendingApprovals.length
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Aprovações internas</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">Solicitações de exceção (margem, prazo, desconto) ligadas à negociação que motivou.</p>
+        </div>
+      </div>
+
+      {pendingTotal > 0 && (
+        <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100 px-4 py-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500 text-white">
+            <Clock className="h-4 w-4" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-amber-900">{pendingTotal === 1 ? '1 aprovação esperando você' : `${pendingTotal} aprovações esperando você`}</p>
+            <p className="mt-0.5 text-xs text-amber-800">Negociaç{pendingTotal === 1 ? 'ão pausada' : 'ões pausadas'} até sua decisão.</p>
+          </div>
+        </div>
+      )}
+
+      {loading && approvals.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="flex items-center justify-center py-12 text-sm text-muted-foreground">Carregando…</CardContent>
+        </Card>
+      ) : approvals.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+            <CheckCircle className="mb-3 h-9 w-9 opacity-50" />
+            <p className="text-sm font-medium">Nenhuma aprovação solicitada</p>
+            <p className="mt-1 max-w-md text-xs">Aprovações são criadas quando uma negociação tem desvio de política. Para criar uma, abra a negociação em "Negociações" e clique em "Solicitar aprovação".</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {[...pendingApprovals, ...decidedApprovals].map((a) => (
+            <ApprovalCard
+              key={a.id}
+              approval={a}
+              negotiation={negotiationsById.get(a.opportunityNegotiationId) ?? null}
+              actionLoading={actionLoading}
+              onApprove={() => void onApprove(a)}
+              onReject={() => void onReject(a)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+interface ApprovalCardProps {
+  approval: OpportunityApprovalRequest
+  negotiation: OpportunityNegotiation | null
+  actionLoading: boolean
+  onApprove: () => void
+  onReject: () => void
+}
+
+function ApprovalCard({ approval, negotiation, actionLoading, onApprove, onReject }: ApprovalCardProps) {
+  const isPending = approval.status === OpportunityApprovalStatus.Pending
+  const isApproved = approval.status === OpportunityApprovalStatus.Approved
+  const isRejected = approval.status === OpportunityApprovalStatus.Rejected
+  const isCancelled = approval.status === OpportunityApprovalStatus.Cancelled
+
+  const config = isPending
+    ? { stripBg: 'bg-amber-50', stripBorder: 'border-amber-200', stripText: 'text-amber-800', accent: 'border-amber-300', commentBorder: 'border-l-amber-500', icon: <Clock className="h-3.5 w-3.5" />, label: 'Pendente' }
+    : isApproved
+      ? { stripBg: 'bg-emerald-50', stripBorder: 'border-emerald-200', stripText: 'text-emerald-800', accent: 'border-border', commentBorder: 'border-l-emerald-500', icon: <CheckCircle className="h-3.5 w-3.5" />, label: 'Aprovada' }
+      : isRejected
+        ? { stripBg: 'bg-rose-50', stripBorder: 'border-rose-200', stripText: 'text-rose-800', accent: 'border-border', commentBorder: 'border-l-rose-500', icon: <XCircle className="h-3.5 w-3.5" />, label: 'Rejeitada' }
+        : { stripBg: 'bg-muted', stripBorder: 'border-border', stripText: 'text-muted-foreground', accent: 'border-border', commentBorder: 'border-l-slate-400', icon: <XCircle className="h-3.5 w-3.5" />, label: 'Cancelada' }
+
+  const requestedHours = hoursSince(approval.requestedAt)
+
+  return (
+    <div className={`overflow-hidden rounded-xl border bg-card ${isPending ? 'border-amber-300 shadow-sm shadow-amber-100' : config.accent}`}>
+      <div className={`flex items-center gap-2 border-b ${config.stripBorder} ${config.stripBg} px-5 py-2 text-[11.5px] font-bold uppercase tracking-wider ${config.stripText}`}>
+        {config.icon}
+        {config.label}
+        <span className="ml-auto text-[11px] font-medium normal-case tracking-normal">
+          {isPending ? (
+            requestedHours < 1 ? 'aguardando há menos de 1h' : `aguardando há ${requestedHours}h`
+          ) : approval.decidedAt ? (
+            `decidida em ${formatDate(approval.decidedAt)}`
+          ) : null}
+        </span>
+      </div>
+
+      <div className="grid gap-5 px-5 py-4 md:grid-cols-[1fr_auto]">
+        <div className="min-w-0">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <strong className="text-base text-foreground">{approvalTypeLabel[approval.approvalType] ?? 'Exceção'}</strong>
+          </div>
+          {approval.reason && (
+            <p className="mb-3 text-sm leading-relaxed text-muted-foreground">{approval.reason}</p>
+          )}
+
+          {negotiation && (
+            <div className="mb-3 inline-flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-1.5 text-xs">
+              <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">Vinculada a</span>
+              <strong className="text-foreground">{negotiation.title}</strong>
+              <span className="text-muted-foreground">·</span>
+              <span className="font-mono font-semibold text-foreground">{formatCurrency(negotiation.amount)}</span>
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
+            <div>
+              <p className="font-bold uppercase tracking-wider text-muted-foreground">Solicitado por</p>
+              <p className="mt-0.5 text-foreground">{approval.requestedByUserName}</p>
+              <p className="text-[11px] text-muted-foreground">em {formatDate(approval.requestedAt)}</p>
+            </div>
+            {!isPending && approval.approvedByUserName && (
+              <div className="border-l border-border pl-6">
+                <p className="font-bold uppercase tracking-wider text-muted-foreground">
+                  {isApproved ? 'Aprovado por' : isRejected ? 'Rejeitado por' : 'Decidido por'}
+                </p>
+                <p className={`mt-0.5 font-semibold ${isApproved ? 'text-emerald-700' : isRejected ? 'text-rose-700' : 'text-foreground'}`}>
+                  {approval.approvedByUserName}
+                </p>
+                {approval.decidedAt && (
+                  <p className="text-[11px] text-muted-foreground">em {formatDate(approval.decidedAt)}</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {approval.decisionNotes && (
+            <div className={`mt-3 rounded-lg border border-l-4 ${config.commentBorder} bg-muted/30 px-3 py-2 text-sm italic text-foreground`}>
+              "{approval.decisionNotes}"
+            </div>
+          )}
+        </div>
+
+        {isPending && !isCancelled && (
+          <div className="flex flex-row gap-2 md:flex-col md:gap-2">
+            <Button size="sm" variant="outline-success" onClick={onApprove} disabled={actionLoading} className="justify-center md:w-44">
+              <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> Aprovar
+            </Button>
+            <Button size="sm" variant="outline-danger" onClick={onReject} disabled={actionLoading} className="justify-center md:w-44">
+              <ThumbsDown className="mr-1.5 h-3.5 w-3.5" /> Rejeitar
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )
