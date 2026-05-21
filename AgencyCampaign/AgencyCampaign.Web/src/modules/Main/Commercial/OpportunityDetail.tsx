@@ -544,7 +544,7 @@ export default function OpportunityDetail() {
                 </div>
 
                 <div>
-                  <h3 className="mb-3 text-base font-semibold text-foreground">O que está em jogo</h3>
+                  <h3 className="mb-3 text-base font-semibold text-foreground">Andamento</h3>
                   <div className="grid gap-3 md:grid-cols-3">
                     <SubflowCard
                       icon={<MessageSquare className="h-4 w-4" />}
