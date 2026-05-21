@@ -1,11 +1,8 @@
-using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
-using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
