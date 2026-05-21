@@ -15,28 +15,6 @@ import { resolveAssetUrl } from '../../../lib/assetUrl'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
 
-const proposalStatusKeys: Record<number, string> = {
-  1: 'proposal.status.draft',
-  2: 'proposal.status.sent',
-  3: 'proposal.status.viewed',
-  4: 'proposal.status.approved',
-  5: 'proposal.status.rejected',
-  6: 'proposal.status.converted',
-  7: 'proposal.status.expired',
-  8: 'proposal.status.cancelled',
-}
-
-const proposalStatusVariant: Record<number, 'default' | 'warning' | 'success' | 'destructive'> = {
-  1: 'default',
-  2: 'warning',
-  3: 'warning',
-  4: 'success',
-  5: 'destructive',
-  6: 'success',
-  7: 'destructive',
-  8: 'destructive',
-}
-
 const negotiationStatusKeys: Record<OpportunityNegotiationStatusValue, string> = {
   [OpportunityNegotiationStatus.Draft]: 'negotiation.status.draft',
   [OpportunityNegotiationStatus.PendingApproval]: 'negotiation.status.pendingApproval',
@@ -128,45 +106,6 @@ export default function OpportunityDetail() {
       },
     },
     { key: 'notes', title: t('common.field.notes'), dataIndex: 'notes', render: (value?: string) => value || '-' },
-  ]
-
-  const proposalColumns: DataTableColumn<NonNullable<Opportunity['proposals']>[number]>[] = [
-    {
-      key: 'name',
-      title: t('proposals.field.proposal'),
-      dataIndex: 'name',
-      render: (value: string) => <span className="font-medium">{value}</span>,
-    },
-    { key: 'totalValue', title: t('negotiation.field.amount'), dataIndex: 'totalValue', render: (value: number) => formatCurrency(value) },
-    {
-      key: 'status',
-      title: t('common.field.status'),
-      dataIndex: 'status',
-      render: (value: number) => (
-        <Badge variant={proposalStatusVariant[value] || 'default'}>
-          {proposalStatusKeys[value] ? t(proposalStatusKeys[value]) : '-'}
-        </Badge>
-      ),
-    },
-    { key: 'validityUntil', title: t('common.field.validity'), dataIndex: 'validityUntil', render: (value?: string) => formatDate(value) },
-    {
-      key: 'actions',
-      title: '',
-      dataIndex: 'id',
-      width: 110,
-      render: (_value: number, record: NonNullable<Opportunity['proposals']>[number]) => (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={(e) => {
-            e.stopPropagation()
-            navigate(`/comercial/propostas/${record.id}`)
-          }}
-        >
-          {t('common.action.open')} <FileText className="ml-1.5 h-3.5 w-3.5" />
-        </Button>
-      ),
-    },
   ]
 
   const handleChangeStage = async (stageId: number) => {
@@ -619,33 +558,13 @@ export default function OpportunityDetail() {
           </TabsContent>
 
           <TabsContent value="proposals" className="mt-0">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-muted-foreground" /> {t('opportunityDetail.proposals.title')}
-                  </CardTitle>
-                  <Button size="sm" onClick={() => setIsProposalFormOpen(true)}>
-                    <Plus className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.proposals.new')}
-                  </Button>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t('opportunityDetail.proposals.description')}
-                </p>
-              </CardHeader>
-              <CardContent>
-                <DataTable
-                  columns={proposalColumns}
-                  data={opportunity?.proposals || []}
-                  rowKey="id"
-                  emptyText={t('opportunityDetail.proposals.empty')}
-                  loading={loading}
-                  pageSize={10}
-                  pageSizeOptions={[5, 10, 20, 50]}
-                  onRowClick={(record) => navigate(`/comercial/propostas/${record.id}`)}
-                />
-              </CardContent>
-            </Card>
+            <ProposalsTab
+              proposals={opportunity?.proposals ?? []}
+              opportunityCreatedAt={opportunity?.createdAt}
+              loading={loading}
+              onNew={() => setIsProposalFormOpen(true)}
+              onOpen={(id) => navigate(`/comercial/propostas/${id}`)}
+            />
           </TabsContent>
 
           <TabsContent value="negotiations" className="mt-0">
@@ -1169,6 +1088,219 @@ function NegotiationCard({ negotiation, isFirstRound, actionLoading, onEdit, onD
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+type OpportunityProposalReference = NonNullable<Opportunity['proposals']>[number]
+
+interface ProposalsTabProps {
+  proposals: OpportunityProposalReference[]
+  opportunityCreatedAt?: string
+  loading: boolean
+  onNew: () => void
+  onOpen: (id: number) => void
+}
+
+const proposalStatusInline: Record<number, { label: string; bg: string; text: string; dot: string }> = {
+  1: { label: 'Rascunho', bg: 'bg-slate-200', text: 'text-slate-700', dot: 'bg-slate-400' },
+  2: { label: 'Enviada', bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500' },
+  3: { label: 'Visualizada', bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500' },
+  4: { label: 'Aprovada', bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500' },
+  5: { label: 'Rejeitada', bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500' },
+  6: { label: 'Convertida', bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500' },
+  7: { label: 'Expirada', bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500' },
+  8: { label: 'Cancelada', bg: 'bg-slate-200', text: 'text-slate-700', dot: 'bg-slate-400' },
+}
+
+function ProposalsTab({ proposals, opportunityCreatedAt, loading, onNew, onOpen }: ProposalsTabProps) {
+  const ordered = useMemo(() => [...proposals].sort((a, b) => a.id - b.id), [proposals])
+  const total = ordered.length
+  const currentProposal = ordered[ordered.length - 1] ?? null
+  const approved = ordered.filter((p) => p.status === 4 || p.status === 6).length
+  const sent = ordered.filter((p) => p.status === 2 || p.status === 3).length
+  const baselineValue = ordered[0]?.totalValue ?? 0
+  const lastValue = currentProposal?.totalValue ?? 0
+  const valueDelta = lastValue - baselineValue
+  const sortedDesc = useMemo(() => [...ordered].reverse(), [ordered])
+
+  if (loading && total === 0) {
+    return (
+      <Card className="border-dashed">
+        <CardContent className="flex items-center justify-center py-12 text-sm text-muted-foreground">Carregando…</CardContent>
+      </Card>
+    )
+  }
+
+  if (total === 0) {
+    return (
+      <Card className="border-dashed">
+        <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+          <TrendingUp className="mb-3 h-9 w-9 opacity-50" />
+          <p className="text-sm font-medium">Nenhuma proposta criada</p>
+          <p className="mt-1 max-w-md text-xs">Crie a primeira proposta pra começar o histórico. Cada nova versão entra como um nó da timeline.</p>
+          <Button size="sm" className="mt-4" onClick={onNew}>
+            <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Histórico de propostas</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {total} {total === 1 ? 'versão criada' : 'versões criadas'} · {approved} aprovada{approved === 1 ? '' : 's'} · {sent} aguardando cliente
+          </p>
+        </div>
+        <Button size="sm" onClick={onNew}>
+          <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-0 overflow-hidden rounded-xl border border-border bg-card md:grid-cols-4">
+        <ProposalSummaryCell label="Versões criadas" value={String(total)} sub={total === 1 ? 'só a inicial' : 'evolução de oferta'} />
+        <ProposalSummaryCell
+          label={`Diferencial v1 → v${total}`}
+          value={total > 1 ? (valueDelta >= 0 ? `+${formatCurrency(valueDelta)}` : formatCurrency(valueDelta)) : '—'}
+          sub={total > 1 ? 'comparado à primeira oferta' : 'apenas uma versão'}
+          valueColor={total > 1 ? (valueDelta > 0 ? 'text-emerald-700' : valueDelta < 0 ? 'text-rose-700' : 'text-foreground') : 'text-muted-foreground'}
+        />
+        <ProposalSummaryCell label="Valor da versão atual" value={formatCurrency(lastValue)} sub={currentProposal?.name} mono />
+        <ProposalSummaryCell
+          label="Status atual"
+          value={currentProposal ? (proposalStatusInline[currentProposal.status]?.label ?? '—') : '—'}
+          pillBg={currentProposal ? proposalStatusInline[currentProposal.status]?.bg : undefined}
+          pillText={currentProposal ? proposalStatusInline[currentProposal.status]?.text : undefined}
+          last
+        />
+      </div>
+
+      <div className="relative pt-2">
+        <div className="absolute bottom-3 left-[19px] top-3 w-0.5 bg-gradient-to-b from-primary/50 via-border to-border/40" aria-hidden />
+        <div className="space-y-4">
+          {sortedDesc.map((proposal, index) => {
+            const versionNumber = ordered.findIndex((p) => p.id === proposal.id) + 1
+            const isCurrent = proposal.id === currentProposal?.id
+            return (
+              <ProposalTimelineNode
+                key={proposal.id}
+                proposal={proposal}
+                versionNumber={versionNumber}
+                isCurrent={isCurrent}
+                isLast={index === sortedDesc.length - 1}
+                onOpen={() => onOpen(proposal.id)}
+              />
+            )
+          })}
+          {opportunityCreatedAt && (
+            <div className="relative flex items-center gap-4 pt-2">
+              <div className="z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/40 bg-card text-muted-foreground">
+                <Compass className="h-4 w-4" />
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <strong className="text-foreground">Oportunidade criada</strong> em {formatDate(opportunityCreatedAt)}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProposalSummaryCell({ label, value, sub, valueColor, pillBg, pillText, mono, last }: { label: string; value: string; sub?: string; valueColor?: string; pillBg?: string; pillText?: string; mono?: boolean; last?: boolean }) {
+  return (
+    <div className={`px-5 py-4 ${last ? '' : 'border-r border-border/60'}`}>
+      <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
+      {pillBg ? (
+        <div className="mt-1.5">
+          <span className={`inline-flex items-center rounded px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${pillBg} ${pillText}`}>{value}</span>
+        </div>
+      ) : (
+        <p className={`mt-1.5 truncate text-base font-semibold ${mono ? 'font-mono' : ''} ${valueColor ?? 'text-foreground'}`}>{value}</p>
+      )}
+      {sub && <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{sub}</p>}
+    </div>
+  )
+}
+
+interface ProposalTimelineNodeProps {
+  proposal: OpportunityProposalReference
+  versionNumber: number
+  isCurrent: boolean
+  isLast: boolean
+  onOpen: () => void
+}
+
+function ProposalTimelineNode({ proposal, versionNumber, isCurrent, onOpen }: ProposalTimelineNodeProps) {
+  const status = proposalStatusInline[proposal.status]
+  const isFinalApproved = proposal.status === 4 || proposal.status === 6
+
+  return (
+    <div className="relative flex gap-4">
+      <div
+        className={`z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${
+          isFinalApproved
+            ? 'border-emerald-500 bg-emerald-500 text-white shadow-[0_0_0_4px_rgba(16,185,129,0.15)]'
+            : isCurrent
+              ? 'border-primary bg-primary text-primary-foreground shadow-[0_0_0_4px_hsl(var(--primary)/0.15)]'
+              : 'border-border bg-card text-muted-foreground'
+        }`}
+      >
+        v{versionNumber}
+      </div>
+      <button
+        type="button"
+        onClick={onOpen}
+        className={`group flex-1 cursor-pointer rounded-xl border bg-card p-4 text-left transition-shadow hover:shadow-md ${
+          isFinalApproved
+            ? 'border-emerald-300 shadow-sm shadow-emerald-100'
+            : isCurrent
+              ? 'border-primary/40'
+              : 'border-border'
+        }`}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <strong className="text-base text-foreground">{proposal.name}</strong>
+              {status && (
+                <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider ${status.bg} ${status.text}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
+                  {status.label}
+                </span>
+              )}
+              {isCurrent && !isFinalApproved && (
+                <span className="inline-flex items-center rounded bg-primary/10 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-primary">
+                  Versão atual
+                </span>
+              )}
+            </div>
+            <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span className="font-mono text-lg font-bold text-foreground">{formatCurrency(proposal.totalValue)}</span>
+              {proposal.validityUntil && (
+                <>
+                  <span>·</span>
+                  <span>Validade {formatDate(proposal.validityUntil)}</span>
+                </>
+              )}
+              {proposal.campaignId && (
+                <>
+                  <span>·</span>
+                  <span className="inline-flex items-center gap-1 text-emerald-700">
+                    <CheckCircle className="h-3.5 w-3.5" /> Convertida em campanha
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-colors group-hover:text-primary" />
+        </div>
+      </button>
     </div>
   )
 }
