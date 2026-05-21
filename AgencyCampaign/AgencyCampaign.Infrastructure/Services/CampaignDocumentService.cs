@@ -5,16 +5,12 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using CampaignCreatorStatusEntity = AgencyCampaign.Domain.Entities.CampaignCreatorStatus;
 using AgencyCampaign.Infrastructure.Clients;
-using AgencyCampaign.Infrastructure.Options;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Options;
 using System.Globalization;
-using System.Net;
-using System.Net.Mail;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -24,13 +20,11 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private static readonly Regex PlaceholderRegex = new(@"\{\{\s*(\w+)\s*\}\}", RegexOptions.Compiled);
 
-        private readonly DocumentEmailOptions emailOptions;
         private readonly IntegrationPlatformClient integrationPlatformClient;
         private readonly IIntegrationCapabilityService integrationCapabilityService;
 
-        public CampaignDocumentService(DbContext dbContext, IOptions<DocumentEmailOptions> emailOptions, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService) : base(dbContext)
+        public CampaignDocumentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService) : base(dbContext)
         {
-            this.emailOptions = emailOptions.Value;
             this.integrationPlatformClient = integrationPlatformClient;
             this.integrationCapabilityService = integrationCapabilityService;
         }
@@ -182,27 +176,31 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            EnsureEmailConfigured();
+            ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(Application.Catalogs.IntegrationIntents.CampaignDocumentSendEmail, cancellationToken);
 
-            using SmtpClient smtpClient = new(emailOptions.Host, emailOptions.Port)
+            string payload = JsonSerializer.Serialize(new
             {
-                EnableSsl = emailOptions.EnableSsl,
-                Credentials = new NetworkCredential(emailOptions.Username, emailOptions.Password),
-            };
+                campaignDocumentId = document.Id,
+                title = document.Title,
+                to = new[] { request.RecipientEmail },
+                subject = request.Subject,
+                body = request.Body ?? string.Empty,
+                isHtml = true,
+            });
 
-            using MailMessage mailMessage = new()
+            try
             {
-                From = new MailAddress(emailOptions.FromEmail, emailOptions.FromName),
-                Subject = request.Subject,
-                Body = request.Body ?? string.Empty,
-                IsBodyHtml = true,
-            };
-            mailMessage.To.Add(request.RecipientEmail);
-
-            await smtpClient.SendMailAsync(mailMessage, cancellationToken);
+                await integrationPlatformClient.EnqueueServiceAsync(capability.ServiceContractIdentifier, capability.ConnectorId, payload, priority: 1, ct: cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                document.RegisterEvent(CampaignDocumentEventType.ProviderSyncError, ex.Message);
+                await Update(document, cancellationToken);
+                throw;
+            }
 
             document.MarkSent(request.RecipientEmail, request.Subject, request.Body, DateTimeOffset.UtcNow);
-            document.RegisterEvent(CampaignDocumentEventType.Sent, $"Enviado por email para {request.RecipientEmail}.");
+            document.RegisterEvent(CampaignDocumentEventType.Sent, $"Enviado por email para {request.RecipientEmail} via conector {capability.ConnectorId}.");
 
             CampaignDocument? result = await Update(document, cancellationToken);
             if (result is null)
@@ -530,14 +528,6 @@ namespace AgencyCampaign.Infrastructure.Services
             if (!campaignCreatorExists)
             {
                 throw new InvalidOperationException("record.notFound");
-            }
-        }
-
-        private void EnsureEmailConfigured()
-        {
-            if (string.IsNullOrWhiteSpace(emailOptions.Host) || string.IsNullOrWhiteSpace(emailOptions.FromEmail))
-            {
-                throw new InvalidOperationException("email.configuration.invalid");
             }
         }
 
