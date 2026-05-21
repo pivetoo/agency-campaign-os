@@ -268,17 +268,17 @@ export default function AgencyCampaignLayout() {
     }
 
     if (path.match(/^\/comercial\/propostas\/\d+$/)) {
-      const state = location.state as { from?: string; opportunityId?: number; opportunityName?: string; tab?: string } | null
+      const state = location.state as { from?: string; opportunityId?: number; opportunityName?: string; tab?: string; proposalName?: string } | null
       if (state?.from === 'opportunity' && state.opportunityId) {
         crumbs.push({ label: t('nav.item.pipeline'), onClick: () => navigate('/comercial/pipeline') })
         crumbs.push({
           label: state.opportunityName ?? t('nav.item.opportunities'),
           onClick: () => navigate(`/comercial/oportunidades/${state.opportunityId}${state.tab ? `?tab=${state.tab}` : ''}`),
         })
-        crumbs.push({ label: t('breadcrumb.details') })
+        crumbs.push({ label: state.proposalName ?? 'Proposta' })
       } else {
         crumbs.push({ label: t('nav.item.proposals'), onClick: () => navigate('/comercial/propostas') })
-        crumbs.push({ label: t('breadcrumb.details') })
+        crumbs.push({ label: state?.proposalName ?? t('breadcrumb.details') })
       }
     }
 

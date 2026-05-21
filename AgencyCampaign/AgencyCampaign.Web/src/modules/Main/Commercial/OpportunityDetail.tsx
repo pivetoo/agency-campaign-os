@@ -563,9 +563,9 @@ export default function OpportunityDetail() {
               opportunityCreatedAt={opportunity?.createdAt}
               loading={loading}
               onNew={() => setIsProposalFormOpen(true)}
-              onOpen={(id) => navigate(`/comercial/propostas/${id}`, {
+              onOpen={(id, name) => navigate(`/comercial/propostas/${id}`, {
                 state: opportunity
-                  ? { from: 'opportunity', opportunityId: opportunity.id, opportunityName: opportunity.name, tab: 'proposals' }
+                  ? { from: 'opportunity', opportunityId: opportunity.id, opportunityName: opportunity.name, tab: 'proposals', proposalName: name }
                   : undefined,
               })}
             />
@@ -1103,7 +1103,7 @@ interface ProposalsTabProps {
   opportunityCreatedAt?: string
   loading: boolean
   onNew: () => void
-  onOpen: (id: number) => void
+  onOpen: (id: number, name: string) => void
 }
 
 const proposalStatusInline: Record<number, { label: string; bg: string; text: string; dot: string }> = {
@@ -1196,7 +1196,7 @@ function ProposalsTab({ proposals, opportunityCreatedAt, loading, onNew, onOpen 
                 versionNumber={versionNumber}
                 isCurrent={isCurrent}
                 isLast={index === sortedDesc.length - 1}
-                onOpen={() => onOpen(proposal.id)}
+                onOpen={() => onOpen(proposal.id, proposal.name)}
               />
             )
           })}
