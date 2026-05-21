@@ -18,25 +18,19 @@ namespace AgencyCampaign.Application.Catalogs
 
         public const string PayableTransfer = "payable.transfer";
 
-        public const string FinancialEntryIssueNf = "financial-entry.issue-nf";
-
-        public const string BankAccountSync = "bank-account.sync";
-
         public const string CreatorPortalNotifyWhatsapp = "creator-portal.notify-whatsapp";
 
         public static readonly IReadOnlyList<IntegrationIntentDescriptor> All =
         [
             new(ProposalSendEmail, "Enviar proposta por email", "email", "email.send"),
-            new(ProposalSendWhatsapp, "Enviar proposta por WhatsApp", "messaging", "messaging.send"),
+            new(ProposalSendWhatsapp, "Enviar proposta por WhatsApp", "whatsapp", "whatsapp.send"),
             new(CampaignDocumentSendSignature, "Enviar documento para assinatura", "digital-signature", "signature.envelope.create"),
             new(CampaignDocumentSendEmail, "Enviar documento por email", "email", "email.send"),
-            new(CreatorPaymentSchedulePix, "Agendar pagamento PIX para creator", "payment", "payment.charge.create"),
+            new(CreatorPaymentSchedulePix, "Agendar pagamento PIX para creator", "contas-a-pagar", "payment.transfer.create"),
             new(NotificationSendTransactional, "Notificação transacional da plataforma", "email", "email.send"),
-            new(ReceivableIssueInvoice, "Emitir cobrança para cliente", "payment", "payment.charge.create"),
-            new(PayableTransfer, "Pagar fornecedor", "payment", "payment.charge.create"),
-            new(FinancialEntryIssueNf, "Emitir nota fiscal", "invoice", "invoice.issue"),
-            new(BankAccountSync, "Sincronizar conta bancária", "banking", "banking.account.sync"),
-            new(CreatorPortalNotifyWhatsapp, "Notificar creator por WhatsApp", "messaging", "messaging.send"),
+            new(ReceivableIssueInvoice, "Emitir cobrança para cliente", "contas-a-receber", "payment.charge.create"),
+            new(PayableTransfer, "Pagar fornecedor", "contas-a-pagar", "payment.transfer.create"),
+            new(CreatorPortalNotifyWhatsapp, "Notificar creator por WhatsApp", "whatsapp", "whatsapp.send"),
         ];
 
         public static IntegrationIntentDescriptor? Find(string intentKey)

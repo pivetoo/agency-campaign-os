@@ -69,8 +69,6 @@ export const IntegrationIntents = {
   NotificationSendTransactional: 'notification.send-transactional',
   ReceivableIssueInvoice: 'receivable.issue-invoice',
   PayableTransfer: 'payable.transfer',
-  FinancialEntryIssueNf: 'financial-entry.issue-nf',
-  BankAccountSync: 'bank-account.sync',
   CreatorPortalNotifyWhatsapp: 'creator-portal.notify-whatsapp',
 } as const
 
