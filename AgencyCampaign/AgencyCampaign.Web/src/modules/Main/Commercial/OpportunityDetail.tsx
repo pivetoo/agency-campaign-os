@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useI18n } from 'archon-ui'
+import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Activity, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, MapPin, MessageSquare, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
+import { Activity, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MessageSquare, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
 import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type OpportunityApprovalStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
@@ -61,12 +61,6 @@ const approvalStatusKeys: Record<OpportunityApprovalStatusValue, string> = {
   [OpportunityApprovalStatus.Cancelled]: 'approvals.status.cancelled',
 }
 
-function getStageBadgeVariant(finalBehavior?: number): 'default' | 'success' | 'destructive' | 'warning' {
-  if (finalBehavior === 1) return 'success'
-  if (finalBehavior === 2) return 'destructive'
-  return 'warning'
-}
-
 export default function OpportunityDetail() {
   const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
@@ -93,7 +87,7 @@ export default function OpportunityDetail() {
   }
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
-  const [stages, setStages] = useState<Array<{ id: number; name: string; finalBehavior: number }>>([])
+  const [stages, setStages] = useState<Array<{ id: number; name: string; finalBehavior: number; displayOrder?: number; color?: string }>>([])
   const [selectedNegotiation, setSelectedNegotiation] = useState<OpportunityNegotiation | null>(null)
   const [selectedApprovalRequest, setSelectedApprovalRequest] = useState<OpportunityApprovalRequest | null>(null)
   const [selectedFollowUp, setSelectedFollowUp] = useState<OpportunityFollowUp | null>(null)
@@ -102,7 +96,7 @@ export default function OpportunityDetail() {
   const [isApprovalRequestFormOpen, setIsApprovalRequestFormOpen] = useState(false)
   const [isFollowUpFormOpen, setIsFollowUpFormOpen] = useState(false)
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
-  const [selectedStage, setSelectedStage] = useState<string>('1')
+  const [, setSelectedStage] = useState<string>('1')
   const [pendingFinalStage, setPendingFinalStage] = useState<{ id: number; name: string; kind: 'won' | 'lost' } | null>(null)
   const [finalNotes, setFinalNotes] = useState('')
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
@@ -334,84 +328,124 @@ export default function OpportunityDetail() {
     }
   }
 
-  const stageBadgeVariant = getStageBadgeVariant(opportunity?.commercialPipelineStage?.finalBehavior)
-
   const pendingApprovalsCount = approvalRequests.filter((item) => item.status === OpportunityApprovalStatus.Pending).length
   const hasNegotiationPendingApproval = (opportunity?.negotiations ?? []).some((item) => item.status === OpportunityNegotiationStatus.PendingApproval)
+
+  const sortedStages = useMemo(() => [...stages].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)), [stages])
+  const currentStageIndex = useMemo(() => sortedStages.findIndex((stage) => stage.id === opportunity?.commercialPipelineStage?.id), [sortedStages, opportunity])
+  const nextStage = currentStageIndex >= 0 && currentStageIndex < sortedStages.length - 1 ? sortedStages[currentStageIndex + 1] : null
+  const createdMeta = opportunity?.createdAt ? `Criada em ${formatDate(opportunity.createdAt)}` : null
 
   return (
     <div className="space-y-6">
       <PageLayout
-        title={opportunity?.name || t('opportunityDetail.fallbackTitle')}
-        subtitle={opportunity?.brand?.name ? t('opportunityDetail.subtitleWithBrand').replace('{0}', opportunity.brand.name) : t('opportunityDetail.subtitle')}
+        title=""
+        subtitle=""
         onRefresh={() => void loadOpportunity()}
         showDefaultActions={false}
       >
         <div className="space-y-6">
-          <div className="space-y-3 rounded-lg border border-border bg-card px-5 py-4">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <Badge
-                variant={stageBadgeVariant}
-                className="rounded px-2.5 py-0.5 text-[11.5px] font-bold uppercase tracking-wider"
-                style={opportunity?.commercialPipelineStage?.color ? { backgroundColor: opportunity.commercialPipelineStage.color, color: '#fff', borderColor: 'transparent' } : undefined}
-              >
-                {opportunity?.commercialPipelineStage?.name || t('opportunityDetail.stage.none')}
-              </Badge>
-              <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                {opportunity?.brand?.logoUrl ? (
-                  <img
-                    src={resolveAssetUrl(opportunity.brand.logoUrl)}
-                    alt={opportunity.brand?.name ?? ''}
-                    className="h-6 w-6 rounded-md border bg-card object-contain p-0.5"
-                    onError={(e) => {
-                      const img = e.currentTarget as HTMLImageElement
-                      img.style.display = 'none'
-                      const fallback = img.nextElementSibling as HTMLElement | null
-                      if (fallback) fallback.style.display = 'inline-flex'
-                    }}
-                  />
-                ) : null}
-                <Building2
-                  className="h-3.5 w-3.5"
-                  style={{ display: opportunity?.brand?.logoUrl ? 'none' : 'inline-flex' }}
-                />
-                <strong className="text-foreground">{opportunity?.brand?.name || t('opportunityDetail.brand.unknown')}</strong>
-              </span>
-              {opportunity?.id ? (
-                <>
-                  <span className="text-border">·</span>
-                  <span className="text-sm text-muted-foreground">Oportunidade #{opportunity.id}</span>
-                </>
-              ) : null}
-              {opportunity?.commercialResponsible?.name ? (
-                <>
-                  <span className="text-border">·</span>
-                  <span className="text-sm text-muted-foreground">Responsável: <strong className="text-foreground">{opportunity.commercialResponsible.name}</strong></span>
-                </>
-              ) : null}
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-              <span className="text-xs text-muted-foreground">
-                Mude o estágio do funil ou edite os dados desta oportunidade.
-              </span>
-              <div className="flex flex-wrap items-center gap-2">
-                <Select value={selectedStage} onValueChange={(value) => void handleChangeStage(Number(value))}>
-                  <SelectTrigger className="w-full sm:w-[220px]">
-                    <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <SelectValue placeholder={t('opportunityDetail.stage.placeholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stages.map((stage) => (
-                      <SelectItem key={stage.id} value={String(stage.id)}>{stage.name}</SelectItem>
+          <header className="space-y-3 border-b border-border pb-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="text-3xl font-semibold tracking-tight text-foreground" style={{ letterSpacing: '-0.01em', lineHeight: 1.15 }}>
+                    {opportunity?.name || t('opportunityDetail.fallbackTitle')}
+                  </h1>
+                  <span
+                    className="inline-flex items-center rounded px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white"
+                    style={{ backgroundColor: opportunity?.commercialPipelineStage?.color || 'hsl(var(--primary))' }}
+                  >
+                    {opportunity?.commercialPipelineStage?.name || t('opportunityDetail.stage.none')}
+                  </span>
+                  {pendingApprovalsCount > 0 && (
+                    <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-800">
+                      <Clock className="h-3 w-3" /> {pendingApprovalsCount === 1 ? '1 aprovação pendente' : `${pendingApprovalsCount} aprovações pendentes`}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] text-muted-foreground">
+                  <span className="flex items-center gap-2">
+                    {opportunity?.brand?.logoUrl ? (
+                      <img
+                        src={resolveAssetUrl(opportunity.brand.logoUrl)}
+                        alt={opportunity.brand?.name ?? ''}
+                        className="h-5 w-5 rounded-sm border bg-card object-contain p-0.5"
+                        onError={(e) => {
+                          const img = e.currentTarget as HTMLImageElement
+                          img.style.display = 'none'
+                          const fallback = img.nextElementSibling as HTMLElement | null
+                          if (fallback) fallback.style.display = 'inline-flex'
+                        }}
+                      />
+                    ) : null}
+                    <Building2
+                      className="h-3.5 w-3.5"
+                      style={{ display: opportunity?.brand?.logoUrl ? 'none' : 'inline-flex' }}
+                    />
+                    <strong className="text-foreground">{opportunity?.brand?.name || t('opportunityDetail.brand.unknown')}</strong>
+                  </span>
+                  {opportunity?.id ? (
+                    <>
+                      <span className="text-muted-foreground/40">·</span>
+                      <span>Oportunidade #{opportunity.id}</span>
+                    </>
+                  ) : null}
+                  {createdMeta ? (
+                    <>
+                      <span className="text-muted-foreground/40">·</span>
+                      <span>{createdMeta}</span>
+                    </>
+                  ) : null}
+                  {opportunity?.commercialResponsible?.name ? (
+                    <>
+                      <span className="text-muted-foreground/40">·</span>
+                      <span>por <strong className="text-foreground">{opportunity.commercialResponsible.name}</strong></span>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+              <div className="flex flex-shrink-0 flex-wrap items-center gap-2">
+                <Dropdown>
+                  <DropdownTrigger asChild>
+                    <Button size="sm" variant="outline" className="px-2.5">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownContent align="end" className="w-56">
+                    <DropdownLabel>Mover para estágio</DropdownLabel>
+                    {sortedStages.map((stage) => (
+                      <DropdownItem
+                        key={stage.id}
+                        onSelect={() => void handleChangeStage(stage.id)}
+                        disabled={stage.id === opportunity?.commercialPipelineStage?.id}
+                      >
+                        <span
+                          className="mr-2 inline-block h-2 w-2 rounded-full"
+                          style={{ backgroundColor: stage.color || 'hsl(var(--muted-foreground))' }}
+                        />
+                        {stage.name}
+                        {stage.id === opportunity?.commercialPipelineStage?.id && <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">atual</span>}
+                      </DropdownItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                    <DropdownSeparator />
+                    <DropdownItem onSelect={() => void loadOpportunity()}>
+                      <History className="mr-2 h-3.5 w-3.5" /> Atualizar
+                    </DropdownItem>
+                  </DropdownContent>
+                </Dropdown>
                 <Button size="sm" variant="outline" onClick={() => setIsOpportunityFormOpen(true)}>
                   <Pencil className="mr-2 h-4 w-4" /> {t('common.action.edit')}
                 </Button>
+                {nextStage ? (
+                  <Button size="sm" onClick={() => void handleChangeStage(nextStage.id)}>
+                    Avançar para {nextStage.name}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                ) : null}
               </div>
             </div>
-          </div>
+          </header>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <Card className="border border-border/70 shadow-sm">
