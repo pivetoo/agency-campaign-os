@@ -264,7 +264,6 @@ export default function AgencyCampaignLayout() {
 
     if (path.match(/^\/comercial\/oportunidades\/\d+$/)) {
       crumbs.push({ label: t('nav.item.pipeline'), onClick: () => navigate('/comercial/pipeline') })
-      crumbs.push({ label: t('nav.item.opportunities'), onClick: () => navigate('/comercial/oportunidades') })
       crumbs.push({ label: t('breadcrumb.details') })
     }
 
