@@ -144,6 +144,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             DateTimeOffset reference = DateTimeOffset.UtcNow;
             int created = 0;
+            decimal addedTotal = 0m;
 
             foreach (ProposalTemplateItem templateItem in template.Items.OrderBy(item => item.DisplayOrder))
             {
@@ -161,8 +162,16 @@ namespace AgencyCampaign.Infrastructure.Services
                     templateItem.Observations);
 
                 dbContext.Set<ProposalItem>().Add(newItem);
+                addedTotal += templateItem.DefaultQuantity * templateItem.DefaultUnitPrice;
                 created++;
             }
+
+            decimal currentItemsTotal = await dbContext.Set<ProposalItem>()
+                .AsNoTracking()
+                .Where(item => item.ProposalId == proposalId)
+                .SumAsync(item => (decimal?)(item.Quantity * item.UnitPrice), cancellationToken) ?? 0m;
+
+            proposal.UpdateTotalValue(currentItemsTotal + addedTotal);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return created;
