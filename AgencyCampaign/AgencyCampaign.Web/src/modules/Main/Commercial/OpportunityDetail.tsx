@@ -336,6 +336,9 @@ export default function OpportunityDetail() {
 
   const stageBadgeVariant = getStageBadgeVariant(opportunity?.commercialPipelineStage?.finalBehavior)
 
+  const pendingApprovalsCount = approvalRequests.filter((item) => item.status === OpportunityApprovalStatus.Pending).length
+  const hasNegotiationPendingApproval = (opportunity?.negotiations ?? []).some((item) => item.status === OpportunityNegotiationStatus.PendingApproval)
+
   return (
     <div className="space-y-6">
       <PageLayout
@@ -345,17 +348,15 @@ export default function OpportunityDetail() {
         showDefaultActions={false}
       >
         <div className="space-y-6">
-          <div className="flex flex-col gap-3 rounded-md border border-border/70 bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-3">
-              <span
-                className="inline-flex h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: opportunity?.commercialPipelineStage?.color || 'hsl(var(--primary))' }}
-                aria-hidden
-              />
-              <Badge variant={stageBadgeVariant} className="px-2.5 py-0.5 text-xs">
+          <div className="space-y-3 rounded-lg border border-border bg-card px-5 py-4">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Badge
+                variant={stageBadgeVariant}
+                className="rounded px-2.5 py-0.5 text-[11.5px] font-bold uppercase tracking-wider"
+                style={opportunity?.commercialPipelineStage?.color ? { backgroundColor: opportunity.commercialPipelineStage.color, color: '#fff', borderColor: 'transparent' } : undefined}
+              >
                 {opportunity?.commercialPipelineStage?.name || t('opportunityDetail.stage.none')}
               </Badge>
-              <span className="hidden text-border sm:inline">·</span>
               <span className="flex items-center gap-2 text-sm text-muted-foreground">
                 {opportunity?.brand?.logoUrl ? (
                   <img
@@ -374,24 +375,41 @@ export default function OpportunityDetail() {
                   className="h-3.5 w-3.5"
                   style={{ display: opportunity?.brand?.logoUrl ? 'none' : 'inline-flex' }}
                 />
-                {opportunity?.brand?.name || t('opportunityDetail.brand.unknown')}
+                <strong className="text-foreground">{opportunity?.brand?.name || t('opportunityDetail.brand.unknown')}</strong>
               </span>
+              {opportunity?.id ? (
+                <>
+                  <span className="text-border">·</span>
+                  <span className="text-sm text-muted-foreground">Oportunidade #{opportunity.id}</span>
+                </>
+              ) : null}
+              {opportunity?.commercialResponsible?.name ? (
+                <>
+                  <span className="text-border">·</span>
+                  <span className="text-sm text-muted-foreground">Responsável: <strong className="text-foreground">{opportunity.commercialResponsible.name}</strong></span>
+                </>
+              ) : null}
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Select value={selectedStage} onValueChange={(value) => void handleChangeStage(Number(value))}>
-                <SelectTrigger className="w-full sm:w-[200px]">
-                  <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-                  <SelectValue placeholder={t('opportunityDetail.stage.placeholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {stages.map((stage) => (
-                    <SelectItem key={stage.id} value={String(stage.id)}>{stage.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button size="sm" variant="outline" onClick={() => setIsOpportunityFormOpen(true)}>
-                <Pencil className="mr-2 h-4 w-4" /> {t('common.action.edit')}
-              </Button>
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <span className="text-xs text-muted-foreground">
+                Mude o estágio do funil ou edite os dados desta oportunidade.
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <Select value={selectedStage} onValueChange={(value) => void handleChangeStage(Number(value))}>
+                  <SelectTrigger className="w-full sm:w-[220px]">
+                    <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <SelectValue placeholder={t('opportunityDetail.stage.placeholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {stages.map((stage) => (
+                      <SelectItem key={stage.id} value={String(stage.id)}>{stage.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button size="sm" variant="outline" onClick={() => setIsOpportunityFormOpen(true)}>
+                  <Pencil className="mr-2 h-4 w-4" /> {t('common.action.edit')}
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -453,6 +471,7 @@ export default function OpportunityDetail() {
                   {opportunity.negotiations.length}
                 </span>
               ) : null}
+              {hasNegotiationPendingApproval && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-label="Negociação pendente de aprovação" />}
             </TabsTrigger>
             <TabsTrigger value="approvals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <CheckCircle className="h-4 w-4" /> {t('opportunityDetail.tab.approvals')}
@@ -461,6 +480,7 @@ export default function OpportunityDetail() {
                   {approvalRequests.length}
                 </span>
               ) : null}
+              {pendingApprovalsCount > 0 && <span className="h-1.5 w-1.5 rounded-full bg-destructive" aria-label={`${pendingApprovalsCount} aprovações pendentes`} />}
             </TabsTrigger>
             <TabsTrigger value="proposals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <TrendingUp className="h-4 w-4" /> {t('opportunityDetail.tab.proposals')}
@@ -477,6 +497,7 @@ export default function OpportunityDetail() {
                   {opportunity.followUps.length}
                 </span>
               ) : null}
+              {overdueFollowUpsCount > 0 && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-label={`${overdueFollowUpsCount} follow-ups vencidos`} />}
             </TabsTrigger>
             <TabsTrigger value="activity" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Activity className="h-4 w-4" /> {t('opportunityDetail.tab.activity')}
