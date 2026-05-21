@@ -269,8 +269,18 @@ export default function AgencyCampaignLayout() {
     }
 
     if (path.match(/^\/comercial\/propostas\/\d+$/)) {
-      crumbs.push({ label: t('nav.item.proposals'), onClick: () => navigate('/comercial/propostas') })
-      crumbs.push({ label: t('breadcrumb.details') })
+      const state = location.state as { from?: string; opportunityId?: number; opportunityName?: string; tab?: string } | null
+      if (state?.from === 'opportunity' && state.opportunityId) {
+        crumbs.push({ label: t('nav.item.pipeline'), onClick: () => navigate('/comercial/pipeline') })
+        crumbs.push({
+          label: state.opportunityName ?? t('nav.item.opportunities'),
+          onClick: () => navigate(`/comercial/oportunidades/${state.opportunityId}${state.tab ? `?tab=${state.tab}` : ''}`),
+        })
+        crumbs.push({ label: t('breadcrumb.details') })
+      } else {
+        crumbs.push({ label: t('nav.item.proposals'), onClick: () => navigate('/comercial/propostas') })
+        crumbs.push({ label: t('breadcrumb.details') })
+      }
     }
 
     if (path.match(/^\/campanhas\/\d+$/)) {
@@ -296,7 +306,7 @@ export default function AgencyCampaignLayout() {
     }
 
     return crumbs
-  }, [location.pathname, navigate, homePathByModule, t])
+  }, [location.pathname, location.state, navigate, homePathByModule, t])
 
   return (
     <TourProvider>

@@ -563,7 +563,11 @@ export default function OpportunityDetail() {
               opportunityCreatedAt={opportunity?.createdAt}
               loading={loading}
               onNew={() => setIsProposalFormOpen(true)}
-              onOpen={(id) => navigate(`/comercial/propostas/${id}`)}
+              onOpen={(id) => navigate(`/comercial/propostas/${id}`, {
+                state: opportunity
+                  ? { from: 'opportunity', opportunityId: opportunity.id, opportunityName: opportunity.name, tab: 'proposals' }
+                  : undefined,
+              })}
             />
           </TabsContent>
 
