@@ -145,7 +145,6 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
               emailBinding={emailBinding}
               whatsappBinding={whatsappBinding}
               onSelect={setChannel}
-              onSelectDisabled={goToIntegrations}
             />
             <CaptionStatus binding={currentBinding} channel={channel} />
           </div>
@@ -242,10 +241,9 @@ interface SegmentedControlProps {
   emailBinding: ChannelBindingState
   whatsappBinding: ChannelBindingState
   onSelect: (channel: Channel) => void
-  onSelectDisabled: () => void
 }
 
-function SegmentedControl({ channel, emailBinding, whatsappBinding, onSelect, onSelectDisabled }: SegmentedControlProps) {
+function SegmentedControl({ channel, emailBinding, whatsappBinding, onSelect }: SegmentedControlProps) {
   return (
     <div className="inline-flex w-full gap-1 rounded-[10px] bg-muted p-1" role="tablist">
       <SegmentedButton
@@ -254,7 +252,6 @@ function SegmentedControl({ channel, emailBinding, whatsappBinding, onSelect, on
         icon={<Mail size={16} />}
         label="Email"
         binding={emailBinding}
-        onClickDisabled={onSelectDisabled}
       />
       <SegmentedButton
         active={channel === 'whatsapp'}
@@ -262,7 +259,6 @@ function SegmentedControl({ channel, emailBinding, whatsappBinding, onSelect, on
         icon={<MessageCircle size={16} />}
         label="WhatsApp"
         binding={whatsappBinding}
-        onClickDisabled={onSelectDisabled}
       />
     </div>
   )
@@ -274,11 +270,10 @@ interface SegmentedButtonProps {
   icon: React.ReactNode
   label: string
   binding: ChannelBindingState
-  onClickDisabled: () => void
 }
 
-function SegmentedButton({ active, onClick, icon, label, binding, onClickDisabled }: SegmentedButtonProps) {
-  const disabled = !binding.configured || !binding.isActive
+function SegmentedButton({ active, onClick, icon, label, binding }: SegmentedButtonProps) {
+  const unavailable = !binding.configured || !binding.isActive
   const badge = binding.loading
     ? null
     : !binding.configured
@@ -287,28 +282,19 @@ function SegmentedButton({ active, onClick, icon, label, binding, onClickDisable
         ? { label: 'Pausado', tone: 'amber' as const }
         : { label: 'Pronto', tone: 'green' as const }
 
-  const handleClick = () => {
-    if (disabled) {
-      onClickDisabled()
-      return
-    }
-    onClick()
-  }
-
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={onClick}
       role="tab"
       aria-selected={active}
-      aria-disabled={disabled}
-      title={disabled ? 'Configure a integração antes de usar este canal' : undefined}
+      title={unavailable ? 'Canal indisponível — clique para ver como configurar' : undefined}
       className={[
         'group relative flex flex-1 items-center justify-center gap-2 rounded-[7px] px-3 py-2.5 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
         active
           ? 'bg-card text-foreground shadow-[0_1px_2px_rgba(15,27,45,0.08),0_0_0_1px_rgba(15,27,45,0.04)]'
-          : disabled
-            ? 'cursor-not-allowed text-muted-foreground/70 opacity-75'
+          : unavailable
+            ? 'text-muted-foreground/70 hover:text-muted-foreground'
             : 'text-muted-foreground hover:text-foreground',
       ].join(' ')}
     >
