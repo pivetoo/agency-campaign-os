@@ -80,8 +80,7 @@ namespace AgencyCampaign.Infrastructure.Services
             switch (request.Status)
             {
                 case OpportunityNegotiationStatus.PendingApproval:
-                    negotiation.MarkPendingApproval();
-                    break;
+                    throw new InvalidOperationException("opportunityNegotiation.statusTransition.pendingApprovalRequiresRequest");
                 case OpportunityNegotiationStatus.Approved:
                     negotiation.Approve();
                     break;

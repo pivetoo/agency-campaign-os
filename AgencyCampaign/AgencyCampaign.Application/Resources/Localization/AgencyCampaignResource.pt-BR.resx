@@ -1484,4 +1484,5 @@
   <data name="integrationCallback.received.unhandled" xml:space="preserve"><value>Callback recebido, mas nenhum handler está registrado para este service.</value></data>
   <data name="integrationCallback.handled" xml:space="preserve"><value>Callback processado com sucesso.</value></data>
   <data name="campaignDocuments.sendWhatsapp.description" xml:space="preserve"><value>Permite enviar um documento de campanha por WhatsApp.</value></data>
+  <data name="opportunityNegotiation.statusTransition.pendingApprovalRequiresRequest" xml:space="preserve"><value>Para marcar a negociação como pendente de aprovação use "Solicitar aprovação", que cria a solicitação interna correspondente.</value></data>
 </root>
