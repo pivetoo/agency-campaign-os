@@ -147,15 +147,11 @@ export interface SendProposalEmailRequest {
   recipientEmail: string
   subject: string
   body: string
-  connectorId?: number
-  pipelineId?: number
 }
 
 export interface SendProposalWhatsappRequest {
   recipientPhone: string
   body: string
-  connectorId?: number
-  pipelineId?: number
 }
 
 export const proposalService = {
