@@ -15,7 +15,7 @@ import type { CampaignDocument } from '../../../../types/campaignDocument'
 import CampaignCreatorFormModal from '../../../../components/modals/CampaignCreatorFormModal'
 import CampaignDeliverableFormModal from '../../../../components/modals/CampaignDeliverableFormModal'
 import CampaignDocumentFormModal from '../../../../components/modals/CampaignDocumentFormModal'
-import CampaignDocumentEmailModal from '../../../../components/modals/CampaignDocumentEmailModal'
+import CampaignDocumentSendModal from '../../../../components/modals/CampaignDocumentSendModal'
 import CampaignDocumentGenerateFromTemplateModal from '../../../../components/modals/CampaignDocumentGenerateFromTemplateModal'
 import CampaignDocumentSendForSignatureModal from '../../../../components/modals/CampaignDocumentSendForSignatureModal'
 import CampaignDocumentDetailsModal from '../../../../components/modals/CampaignDocumentDetailsModal'
@@ -571,11 +571,10 @@ export default function CampaignDetail() {
         }}
       />
 
-      <CampaignDocumentEmailModal
+      <CampaignDocumentSendModal
         open={isDocumentEmailOpen}
         onOpenChange={setIsDocumentEmailOpen}
         document={selectedDocument}
-        campaignCreators={campaignCreators}
         onSuccess={() => {
           setIsDocumentEmailOpen(false)
           void loadDocuments()

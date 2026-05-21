@@ -65,6 +65,7 @@ export const IntegrationIntents = {
   ProposalSendWhatsapp: 'proposal.send-whatsapp',
   CampaignDocumentSendSignature: 'campaign-document.send-signature',
   CampaignDocumentSendEmail: 'campaign-document.send-email',
+  CampaignDocumentSendWhatsapp: 'campaign-document.send-whatsapp',
   CreatorPaymentSchedulePix: 'creator-payment.schedule-pix',
   NotificationSendTransactional: 'notification.send-transactional',
   ReceivableIssueInvoice: 'receivable.issue-invoice',

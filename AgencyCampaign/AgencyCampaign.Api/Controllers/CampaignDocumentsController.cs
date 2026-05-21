@@ -104,6 +104,20 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapDocument(document), Localizer["record.updated"]);
         }
 
+        [RequireAccess("campaignDocuments.sendWhatsapp.description")]
+        [PostEndpoint("{id:long}/send-whatsapp")]
+        public async Task<IActionResult> SendWhatsapp(long id, [FromBody] SendCampaignDocumentWhatsappRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            CampaignDocument document = await campaignDocumentService.SendDocumentWhatsapp(id, request, cancellationToken);
+            return Http200(MapDocument(document), Localizer["record.updated"]);
+        }
+
         [RequireAccess("campaignDocuments.markSigned.description")]
         [PostEndpoint("{id:long}/mark-signed")]
         public async Task<IActionResult> MarkSigned(long id, [FromBody] MarkCampaignDocumentSignedRequest request, CancellationToken cancellationToken)

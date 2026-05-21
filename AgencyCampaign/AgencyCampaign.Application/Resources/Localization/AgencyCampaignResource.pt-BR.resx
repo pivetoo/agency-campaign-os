@@ -1483,4 +1483,5 @@
   <data name="integrationCapability.notConfigured" xml:space="preserve"><value>Nenhum conector ativo foi configurado para esta ação. Configure a integração em Configurações → Integrações.</value></data>
   <data name="integrationCallback.received.unhandled" xml:space="preserve"><value>Callback recebido, mas nenhum handler está registrado para este service.</value></data>
   <data name="integrationCallback.handled" xml:space="preserve"><value>Callback processado com sucesso.</value></data>
+  <data name="campaignDocuments.sendWhatsapp.description" xml:space="preserve"><value>Permite enviar um documento de campanha por WhatsApp.</value></data>
 </root>

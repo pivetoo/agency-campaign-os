@@ -22,6 +22,11 @@ export interface SendCampaignDocumentEmailRequest {
   body?: string
 }
 
+export interface SendCampaignDocumentWhatsappRequest {
+  recipientPhone: string
+  body: string
+}
+
 export interface MarkCampaignDocumentSignedRequest {
   signedAt: string
 }
@@ -64,6 +69,10 @@ export const campaignDocumentService = {
 
   update(id: number, data: UpdateCampaignDocumentRequest) {
     return httpClient.put<CampaignDocument>(`${BASE_URL}/Update/${id}`, data)
+  },
+
+  sendWhatsapp(id: number, data: SendCampaignDocumentWhatsappRequest) {
+    return httpClient.post<CampaignDocument>(`${BASE_URL}/${id}/send-whatsapp`, data)
   },
 
   sendEmail(id: number, data: SendCampaignDocumentEmailRequest) {

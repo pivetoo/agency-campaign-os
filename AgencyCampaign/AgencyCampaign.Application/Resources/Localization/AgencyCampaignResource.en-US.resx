@@ -1483,4 +1483,5 @@
   <data name="integrationCapability.notConfigured" xml:space="preserve"><value>No active connector has been configured for this action. Set up the integration at Settings → Integrations.</value></data>
   <data name="integrationCallback.received.unhandled" xml:space="preserve"><value>Callback received but no handler is registered for this service.</value></data>
   <data name="integrationCallback.handled" xml:space="preserve"><value>Callback processed successfully.</value></data>
+  <data name="campaignDocuments.sendWhatsapp.description" xml:space="preserve"><value>Send a campaign document via WhatsApp.</value></data>
 </root>

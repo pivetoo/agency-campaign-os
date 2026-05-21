@@ -211,6 +211,51 @@ namespace AgencyCampaign.Infrastructure.Services
             return await GetDocumentById(result.Id, cancellationToken) ?? result;
         }
 
+        public async Task<CampaignDocument> SendDocumentWhatsapp(long id, SendCampaignDocumentWhatsappRequest request, CancellationToken cancellationToken = default)
+        {
+            CampaignDocument? document = await DbContext.Set<CampaignDocument>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (document is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(Application.Catalogs.IntegrationIntents.CampaignDocumentSendWhatsapp, cancellationToken);
+
+            string payload = JsonSerializer.Serialize(new
+            {
+                campaignDocumentId = document.Id,
+                title = document.Title,
+                to = request.RecipientPhone,
+                channel = "whatsapp",
+                body = request.Body,
+            });
+
+            try
+            {
+                await integrationPlatformClient.EnqueueServiceAsync(capability.ServiceContractIdentifier, capability.ConnectorId, payload, priority: 1, ct: cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                document.RegisterEvent(CampaignDocumentEventType.ProviderSyncError, ex.Message);
+                await Update(document, cancellationToken);
+                throw;
+            }
+
+            document.MarkSent(request.RecipientPhone, $"WhatsApp: {document.Title}", request.Body, DateTimeOffset.UtcNow);
+            document.RegisterEvent(CampaignDocumentEventType.Sent, $"Enviado por WhatsApp para {request.RecipientPhone} via conector {capability.ConnectorId}.");
+
+            CampaignDocument? result = await Update(document, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return await GetDocumentById(result.Id, cancellationToken) ?? result;
+        }
+
         public async Task<CampaignDocument> SendForSignature(long id, SendCampaignDocumentForSignatureRequest request, CancellationToken cancellationToken = default)
         {
             CampaignDocument? document = await DbContext.Set<CampaignDocument>()

@@ -10,6 +10,8 @@ namespace AgencyCampaign.Application.Catalogs
 
         public const string CampaignDocumentSendEmail = "campaign-document.send-email";
 
+        public const string CampaignDocumentSendWhatsapp = "campaign-document.send-whatsapp";
+
         public const string CreatorPaymentSchedulePix = "creator-payment.schedule-pix";
 
         public const string NotificationSendTransactional = "notification.send-transactional";
@@ -26,6 +28,7 @@ namespace AgencyCampaign.Application.Catalogs
             new(ProposalSendWhatsapp, "Enviar proposta por WhatsApp", "whatsapp", "whatsapp.send"),
             new(CampaignDocumentSendSignature, "Enviar documento para assinatura", "digital-signature", "signature.envelope.create"),
             new(CampaignDocumentSendEmail, "Enviar documento por email", "email", "email.send"),
+            new(CampaignDocumentSendWhatsapp, "Enviar documento por WhatsApp", "whatsapp", "whatsapp.send"),
             new(CreatorPaymentSchedulePix, "Agendar pagamento PIX para creator", "contas-a-pagar", "payment.transfer.create"),
             new(NotificationSendTransactional, "Notificação transacional da plataforma", "email", "email.send"),
             new(ReceivableIssueInvoice, "Emitir cobrança para cliente", "contas-a-receber", "payment.charge.create"),
