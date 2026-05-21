@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useI18n } from 'archon-ui'
-import { AlertTriangle, CheckCircle2, ExternalLink, Mail, MessageCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, ExternalLink, FileText, Mail, MessageCircle, Send } from 'lucide-react'
 import { campaignDocumentService, type SendCampaignDocumentEmailRequest, type SendCampaignDocumentWhatsappRequest } from '../../services/campaignDocumentService'
 import { integrationCapabilityService } from '../../services/integrationCapabilityService'
 import { IntegrationIntents } from '../../types/automation'
-import type { CampaignDocument } from '../../types/campaignDocument'
+import { campaignDocumentTypeLabels, type CampaignDocument } from '../../types/campaignDocument'
 import type { IntegrationCapabilitySummary } from '../../types/integrationCapability'
 
 interface Props {
@@ -76,6 +76,7 @@ export default function CampaignDocumentSendModal({ open, onOpenChange, document
   }
 
   const currentBinding = channel === 'email' ? emailBinding : whatsappBinding
+  const recipientPreview = channel === 'email' ? recipientEmail : recipientPhone
 
   const canSubmitEmail = emailBinding.configured && emailBinding.isActive && recipientEmail.trim().length > 0 && subject.trim().length >= 2 && emailBody.trim().length > 0
   const canSubmitWhatsapp = whatsappBinding.configured && whatsappBinding.isActive && recipientPhone.trim().length >= 8 && whatsappBody.trim().length > 0
@@ -106,88 +107,75 @@ export default function CampaignDocumentSendModal({ open, onOpenChange, document
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent size="full" style={{ maxWidth: '760px', width: '95vw' }}>
+      <ModalContent size="full" style={{ maxWidth: '580px', width: '95vw' }}>
         <ModalHeader>
           <ModalTitle>Enviar documento</ModalTitle>
-          <p className="mt-1 text-sm text-muted-foreground">Escolha o canal de envio. Você pode mandar por email ou WhatsApp.</p>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <ChannelCard
-              icon={<Mail className="h-5 w-5" />}
-              label="Email"
-              iconClass="bg-primary/10 text-primary"
-              selectedRingClass="ring-primary/30 border-primary bg-primary/5"
-              binding={emailBinding}
-              selected={channel === 'email'}
-              onSelect={() => setChannel('email')}
+          {document && <DocChip document={document} />}
+
+          <div>
+            <SegmentedControl
+              channel={channel}
+              emailBinding={emailBinding}
+              whatsappBinding={whatsappBinding}
+              onSelect={setChannel}
             />
-            <ChannelCard
-              icon={<MessageCircle className="h-5 w-5" />}
-              label="WhatsApp"
-              iconClass="bg-[#25D366]/15 text-[#128C7E]"
-              selectedRingClass="ring-[#25D366]/30 border-[#25D366] bg-[#25D366]/5"
-              binding={whatsappBinding}
-              selected={channel === 'whatsapp'}
-              onSelect={() => setChannel('whatsapp')}
-            />
+            <CaptionStatus binding={currentBinding} channel={channel} />
           </div>
 
-          {channel === 'email' && (
-            <div className="space-y-4">
-              {renderChannelHeader(emailBinding, goToIntegrations)}
-              {emailBinding.configured && emailBinding.isActive && (
-                <>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Destinatário</label>
-                    <Input type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Assunto</label>
-                    <Input value={subject} onChange={(e) => setSubject(e.target.value)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Mensagem</label>
-                    <textarea
-                      className="min-h-[180px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      value={emailBody}
-                      onChange={(e) => setEmailBody(e.target.value)}
-                      required
-                    />
-                  </div>
-                </>
-              )}
-            </div>
+          {currentBinding.configured && currentBinding.isActive ? (
+            channel === 'email' ? (
+              <div className="space-y-4">
+                <FieldRow label="Destinatário">
+                  <Input type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} required />
+                </FieldRow>
+                <FieldRow label="Assunto">
+                  <Input value={subject} onChange={(e) => setSubject(e.target.value)} required />
+                </FieldRow>
+                <FieldRow label="Mensagem" hint={document?.documentUrl ? 'O documento será anexado automaticamente' : undefined}>
+                  <textarea
+                    className="min-h-[160px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    value={emailBody}
+                    onChange={(e) => setEmailBody(e.target.value)}
+                    required
+                  />
+                </FieldRow>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <FieldRow label="Telefone do destinatário">
+                  <Input type="tel" placeholder="+55 11 99999-9999" value={recipientPhone} onChange={(e) => setRecipientPhone(e.target.value)} required />
+                </FieldRow>
+                <FieldRow label="Mensagem">
+                  <textarea
+                    className="min-h-[140px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    value={whatsappBody}
+                    onChange={(e) => setWhatsappBody(e.target.value)}
+                    required
+                  />
+                </FieldRow>
+              </div>
+            )
+          ) : (
+            <ChannelMissingNotice binding={currentBinding} goToIntegrations={goToIntegrations} />
           )}
 
-          {channel === 'whatsapp' && (
-            <div className="space-y-4">
-              {renderChannelHeader(whatsappBinding, goToIntegrations)}
-              {whatsappBinding.configured && whatsappBinding.isActive && (
-                <>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Telefone do destinatário</label>
-                    <Input type="tel" placeholder="+55 11 99999-9999" value={recipientPhone} onChange={(e) => setRecipientPhone(e.target.value)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Mensagem</label>
-                    <textarea
-                      className="min-h-[140px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      value={whatsappBody}
-                      onChange={(e) => setWhatsappBody(e.target.value)}
-                      required
-                    />
-                  </div>
-                </>
+          <ModalFooter className="flex w-full items-center justify-between gap-3 sm:flex-row">
+            <p className="hidden truncate text-xs text-muted-foreground sm:block">
+              {currentBinding.configured && currentBinding.isActive && recipientPreview ? (
+                <>Será enviado para <span className="font-semibold text-foreground">{recipientPreview}</span></>
+              ) : null}
+            </p>
+            <div className="flex flex-shrink-0 items-center gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
+              {currentBinding.configured && currentBinding.isActive && (
+                <Button type="submit" disabled={sending || !canSubmit}>
+                  <Send size={14} className="mr-1.5" />
+                  {sending ? t('common.action.sending') : channel === 'email' ? 'Enviar email' : 'Enviar WhatsApp'}
+                </Button>
               )}
             </div>
-          )}
-
-          <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
-            {currentBinding.configured && currentBinding.isActive && (
-              <Button type="submit" disabled={sending || !canSubmit}>{sending ? t('common.action.sending') : 'Enviar'}</Button>
-            )}
           </ModalFooter>
         </form>
       </ModalContent>
@@ -209,110 +197,173 @@ function buildBindingState(summary: IntegrationCapabilitySummary[], intentKey: s
   }
 }
 
-interface ChannelCardProps {
-  icon: React.ReactNode
-  label: string
-  iconClass: string
-  selectedRingClass: string
-  binding: ChannelBindingState
-  selected: boolean
-  onSelect: () => void
+function DocChip({ document }: { document: CampaignDocument }) {
+  const typeLabel = campaignDocumentTypeLabels[document.documentType] ?? 'Documento'
+  const meta = document.documentUrl ? `${typeLabel} · PDF anexado` : typeLabel
+  return (
+    <div className="flex items-center gap-3 rounded-[10px] border border-border bg-muted/30 px-3.5 py-2.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-rose-100 text-rose-700">
+        <FileText size={18} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-foreground">{document.title}</p>
+        <p className="truncate text-[11.5px] text-muted-foreground">{meta}</p>
+      </div>
+    </div>
+  )
 }
 
-function ChannelCard({ icon, label, iconClass, selectedRingClass, binding, selected, onSelect }: ChannelCardProps) {
-  const statusLabel = binding.loading
-    ? 'Verificando…'
-    : !binding.configured
-      ? 'Sem conta configurada'
-      : !binding.isActive
-        ? 'Ação pausada'
-        : binding.connectorName ?? 'Conectado'
+interface SegmentedControlProps {
+  channel: Channel
+  emailBinding: ChannelBindingState
+  whatsappBinding: ChannelBindingState
+  onSelect: (channel: Channel) => void
+}
 
-  const statusTone = binding.loading
-    ? 'text-muted-foreground'
-    : !binding.configured || !binding.isActive
-      ? 'text-amber-700'
-      : 'text-emerald-700'
+function SegmentedControl({ channel, emailBinding, whatsappBinding, onSelect }: SegmentedControlProps) {
+  return (
+    <div className="inline-flex w-full gap-1 rounded-[10px] bg-muted p-1" role="tablist">
+      <SegmentedButton
+        active={channel === 'email'}
+        onClick={() => onSelect('email')}
+        icon={<Mail size={16} />}
+        label="Email"
+        binding={emailBinding}
+      />
+      <SegmentedButton
+        active={channel === 'whatsapp'}
+        onClick={() => onSelect('whatsapp')}
+        icon={<MessageCircle size={16} />}
+        label="WhatsApp"
+        binding={whatsappBinding}
+      />
+    </div>
+  )
+}
+
+interface SegmentedButtonProps {
+  active: boolean
+  onClick: () => void
+  icon: React.ReactNode
+  label: string
+  binding: ChannelBindingState
+}
+
+function SegmentedButton({ active, onClick, icon, label, binding }: SegmentedButtonProps) {
+  const unavailable = !binding.configured || !binding.isActive
+  const badge = binding.loading
+    ? null
+    : !binding.configured
+      ? { label: 'Não configurado', tone: 'amber' as const }
+      : !binding.isActive
+        ? { label: 'Pausado', tone: 'amber' as const }
+        : { label: 'Pronto', tone: 'green' as const }
 
   return (
     <button
       type="button"
-      onClick={onSelect}
+      onClick={onClick}
+      role="tab"
+      aria-selected={active}
+      title={unavailable ? 'Canal indisponível — clique para ver como configurar' : undefined}
       className={[
-        'flex items-center gap-3 rounded-lg border bg-card p-4 text-left transition-all focus:outline-none',
-        selected ? `border-2 ring-1 ${selectedRingClass}` : 'border-border hover:border-primary/30 hover:bg-accent/30',
+        'group relative flex flex-1 items-center justify-center gap-2 rounded-[7px] px-3 py-2.5 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
+        active
+          ? 'bg-card text-foreground shadow-[0_1px_2px_rgba(15,27,45,0.08),0_0_0_1px_rgba(15,27,45,0.04)]'
+          : unavailable
+            ? 'text-muted-foreground/70 hover:text-muted-foreground'
+            : 'text-muted-foreground hover:text-foreground',
       ].join(' ')}
     >
-      <div className={['flex h-11 w-11 shrink-0 items-center justify-center rounded-lg', iconClass].join(' ')}>
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <span className="text-sm font-semibold">{label}</span>
-          {binding.configured && binding.isActive && (
-            <CheckCircle2 size={13} className="text-emerald-500" />
-          )}
-        </div>
-        <p className={['mt-0.5 truncate text-xs', statusTone].join(' ')}>
-          {statusLabel}
-        </p>
-      </div>
+      {icon}
+      <span>{label}</span>
+      {badge && (
+        <span
+          className={[
+            'ml-0.5 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider',
+            badge.tone === 'green'
+              ? active
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-muted-foreground/10 text-muted-foreground'
+              : active
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-muted-foreground/10 text-muted-foreground',
+          ].join(' ')}
+        >
+          {badge.label}
+        </span>
+      )}
     </button>
   )
 }
 
-function renderChannelHeader(binding: ChannelBindingState, goToIntegrations: () => void) {
+function CaptionStatus({ binding, channel }: { binding: ChannelBindingState; channel: Channel }) {
   if (binding.loading) {
-    return <div className="rounded-md border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">Verificando configuração…</div>
+    return <p className="mt-2 text-xs text-muted-foreground">Verificando configuração…</p>
   }
 
   if (!binding.configured) {
     return (
-      <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 p-4">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
-          <div className="space-y-1">
-            <div className="text-sm font-medium text-amber-900">Ação não configurada</div>
-            <p className="text-xs text-amber-800">
-              Você ainda não escolheu qual conta usar para esta ação. Configure em Configurações → Integrações → Ações.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 pl-8">
-          <Button type="button" size="sm" variant="outline" onClick={goToIntegrations}>
-            <ExternalLink className="mr-1 h-3.5 w-3.5" /> Configurar Integrações
-          </Button>
-        </div>
-      </div>
+      <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
+        <AlertTriangle size={13} />
+        {channel === 'email' ? 'Email' : 'WhatsApp'} sem conta configurada
+      </p>
     )
   }
 
   if (!binding.isActive) {
     return (
-      <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 p-4">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
-          <div className="space-y-1">
-            <div className="text-sm font-medium text-amber-900">Ação pausada</div>
-            <p className="text-xs text-amber-800">
-              A conta <span className="font-medium">{binding.connectorName}</span> está vinculada a esta ação, mas está pausada. Reative em Configurações → Integrações → Ações.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 pl-8">
-          <Button type="button" size="sm" variant="outline" onClick={goToIntegrations}>
-            <ExternalLink className="mr-1 h-3.5 w-3.5" /> Configurar Integrações
-          </Button>
-        </div>
-      </div>
+      <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
+        <AlertTriangle size={13} />
+        Conta <span className="font-semibold">{binding.connectorName}</span> está pausada
+      </p>
     )
   }
 
   return (
-    <div className="rounded-md border bg-muted/20 p-3">
-      <div className="space-y-1">
-        <div className="text-xs uppercase tracking-wide text-muted-foreground">Enviando via</div>
-        <div className="text-sm font-medium text-foreground">{binding.connectorName}</div>
+    <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+      <CheckCircle2 size={13} className="text-emerald-600" />
+      Enviando via <span className="font-semibold text-foreground">{binding.connectorName}</span>
+    </p>
+  )
+}
+
+function FieldRow({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-baseline justify-between">
+        <label className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</label>
+        {hint && <span className="text-[11px] text-muted-foreground/70">{hint}</span>}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+interface ChannelMissingNoticeProps {
+  binding: ChannelBindingState
+  goToIntegrations: () => void
+}
+
+function ChannelMissingNotice({ binding, goToIntegrations }: ChannelMissingNoticeProps) {
+  const title = !binding.configured ? 'Canal não configurado' : 'Canal pausado'
+  const description = !binding.configured
+    ? 'Configure uma conta em Configurações → Integrações → Ações para liberar este canal.'
+    : `A conta ${binding.connectorName} está vinculada mas pausada. Reative em Configurações → Integrações → Ações.`
+
+  return (
+    <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 p-4">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-amber-900">{title}</p>
+          <p className="text-xs text-amber-800">{description}</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 pl-8">
+        <Button type="button" size="sm" variant="outline" onClick={goToIntegrations}>
+          <ExternalLink className="mr-1 h-3.5 w-3.5" /> Configurar Integrações
+        </Button>
       </div>
     </div>
   )
