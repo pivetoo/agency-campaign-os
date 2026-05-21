@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Activity, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MessageSquare, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
@@ -338,13 +338,6 @@ export default function OpportunityDetail() {
 
   return (
     <div className="space-y-6">
-      <PageLayout
-        title=""
-        subtitle=""
-        onRefresh={() => void loadOpportunity()}
-        showDefaultActions={false}
-      >
-        <div className="space-y-6">
           <header className="space-y-3 border-b border-border pb-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0 flex-1 space-y-2">
@@ -790,8 +783,6 @@ export default function OpportunityDetail() {
             <OpportunityActivityTab opportunityId={opportunityId} currentUserId={authUser?.id ?? null} />
           </TabsContent>
         </Tabs>
-        </div>
-      </PageLayout>
 
       <OpportunityFormModal
         open={isOpportunityFormOpen}
