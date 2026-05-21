@@ -336,6 +336,21 @@ export default function OpportunityDetail() {
   const nextStage = currentStageIndex >= 0 && currentStageIndex < sortedStages.length - 1 ? sortedStages[currentStageIndex + 1] : null
   const createdMeta = opportunity?.createdAt ? `Criada em ${formatDate(opportunity.createdAt)}` : null
 
+  const nextFollowUp = useMemo(() => {
+    const pending = (opportunity?.followUps ?? []).filter((item) => !item.isCompleted)
+    if (pending.length === 0) return null
+    return [...pending].sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime())[0]
+  }, [opportunity])
+
+  const nextFollowUpDueDate = nextFollowUp ? new Date(nextFollowUp.dueAt) : null
+  const isNextFollowUpOverdue = nextFollowUpDueDate ? nextFollowUpDueDate.getTime() < Date.now() : false
+
+  const handleCompleteNextFollowUp = async () => {
+    if (!nextFollowUp) return
+    const result = await executeAction(() => opportunityService.completeFollowUp(nextFollowUp.id))
+    if (result !== null) await loadOpportunity()
+  }
+
   return (
     <div className="space-y-6">
           <header className="space-y-3 border-b border-border pb-5">
@@ -541,6 +556,48 @@ export default function OpportunityDetail() {
                     subTone="destructive"
                     last
                   />
+                </div>
+
+                <div>
+                  <h3 className="mb-3 text-base font-semibold text-foreground">Próximo passo prático</h3>
+                  {nextFollowUp ? (
+                    <div className={`flex items-center gap-4 rounded-xl border p-4 ${isNextFollowUpOverdue ? 'border-amber-300 bg-amber-50' : 'border-border bg-card'}`}>
+                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${isNextFollowUpOverdue ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
+                        <Calendar className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-foreground">{nextFollowUp.subject}</p>
+                        <p className={`mt-0.5 text-xs ${isNextFollowUpOverdue ? 'text-amber-800' : 'text-muted-foreground'}`}>
+                          {isNextFollowUpOverdue ? 'Venceu em ' : 'Agendado para '}
+                          <strong>{formatDate(nextFollowUp.dueAt)}</strong>
+                        </p>
+                        {nextFollowUp.notes && (
+                          <p className="mt-1 line-clamp-1 text-xs italic text-muted-foreground">"{nextFollowUp.notes}"</p>
+                        )}
+                      </div>
+                      <div className="flex flex-shrink-0 gap-1.5">
+                        <Button size="sm" variant="outline" onClick={() => { setSelectedFollowUp(nextFollowUp); setIsFollowUpFormOpen(true) }}>
+                          Reagendar
+                        </Button>
+                        <Button size="sm" onClick={() => void handleCompleteNextFollowUp()}>
+                          <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Concluir
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-4 rounded-xl border border-dashed border-border bg-muted/30 p-4">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                        <Calendar className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground">Sem follow-up agendado</p>
+                        <p className="text-xs text-muted-foreground">Defina quando você vai voltar a falar com o cliente.</p>
+                      </div>
+                      <Button size="sm" onClick={() => { setSelectedFollowUp(null); setIsFollowUpFormOpen(true) }}>
+                        <Plus className="mr-1.5 h-3.5 w-3.5" /> Agendar
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div>
