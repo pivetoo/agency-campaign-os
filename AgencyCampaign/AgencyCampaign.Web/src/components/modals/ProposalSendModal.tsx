@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Tabs, TabsContent, TabsList, TabsTrigger, useApi, useI18n } from 'archon-ui'
-import { AlertTriangle, ExternalLink, Mail, MessageCircle } from 'lucide-react'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useI18n } from 'archon-ui'
+import { AlertTriangle, CheckCircle2, ExternalLink, Mail, MessageCircle } from 'lucide-react'
 import { proposalService, type SendProposalEmailRequest, type SendProposalWhatsappRequest } from '../../services/proposalService'
 import { integrationCapabilityService } from '../../services/integrationCapabilityService'
 import { IntegrationIntents } from '../../types/automation'
@@ -133,20 +133,35 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '760px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>{t('modal.proposalSend.title')}</ModalTitle>
+          <ModalTitle>Enviar proposta</ModalTitle>
+          <p className="mt-1 text-sm text-muted-foreground">Escolha o canal de envio. Você pode mandar por email ou WhatsApp.</p>
         </ModalHeader>
-        <form onSubmit={submit} className="space-y-4">
-          <Tabs value={channel} onValueChange={(value) => setChannel(value as Channel)}>
-            <TabsList className="w-full">
-              <TabsTrigger value="email" className="flex-1 gap-2">
-                <Mail className="h-4 w-4" /> Email
-              </TabsTrigger>
-              <TabsTrigger value="whatsapp" className="flex-1 gap-2">
-                <MessageCircle className="h-4 w-4" /> WhatsApp
-              </TabsTrigger>
-            </TabsList>
+        <form onSubmit={submit} className="space-y-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <ChannelCard
+              channel="email"
+              icon={<Mail className="h-5 w-5" />}
+              label="Email"
+              iconClass="bg-primary/10 text-primary"
+              selectedRingClass="ring-primary/30 border-primary bg-primary/5"
+              binding={emailBinding}
+              selected={channel === 'email'}
+              onSelect={() => setChannel('email')}
+            />
+            <ChannelCard
+              channel="whatsapp"
+              icon={<MessageCircle className="h-5 w-5" />}
+              label="WhatsApp"
+              iconClass="bg-[#25D366]/15 text-[#128C7E]"
+              selectedRingClass="ring-[#25D366]/30 border-[#25D366] bg-[#25D366]/5"
+              binding={whatsappBinding}
+              selected={channel === 'whatsapp'}
+              onSelect={() => setChannel('whatsapp')}
+            />
+          </div>
 
-            <TabsContent value="email" className="mt-4 space-y-4">
+          {channel === 'email' && (
+            <div className="space-y-4">
               {renderChannelHeader(emailBinding, goToIntegrations, handleMarkAsSent, markingSent)}
               {emailBinding.configured && emailBinding.isActive && (
                 <>
@@ -169,9 +184,11 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
                   </div>
                 </>
               )}
-            </TabsContent>
+            </div>
+          )}
 
-            <TabsContent value="whatsapp" className="mt-4 space-y-4">
+          {channel === 'whatsapp' && (
+            <div className="space-y-4">
               {renderChannelHeader(whatsappBinding, goToIntegrations, handleMarkAsSent, markingSent)}
               {whatsappBinding.configured && whatsappBinding.isActive && (
                 <>
@@ -190,8 +207,8 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
                   </div>
                 </>
               )}
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
@@ -202,6 +219,59 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
         </form>
       </ModalContent>
     </Modal>
+  )
+}
+
+interface ChannelCardProps {
+  channel: Channel
+  icon: React.ReactNode
+  label: string
+  iconClass: string
+  selectedRingClass: string
+  binding: ChannelBindingState
+  selected: boolean
+  onSelect: () => void
+}
+
+function ChannelCard({ icon, label, iconClass, selectedRingClass, binding, selected, onSelect }: ChannelCardProps) {
+  const statusLabel = binding.loading
+    ? 'Verificando…'
+    : !binding.configured
+      ? 'Sem conta configurada'
+      : !binding.isActive
+        ? 'Ação pausada'
+        : binding.connectorName ?? 'Conectado'
+
+  const statusTone = binding.loading
+    ? 'text-muted-foreground'
+    : !binding.configured || !binding.isActive
+      ? 'text-amber-700'
+      : 'text-emerald-700'
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={[
+        'flex items-center gap-3 rounded-lg border bg-card p-4 text-left transition-all focus:outline-none',
+        selected ? `border-2 ring-1 ${selectedRingClass}` : 'border-border hover:border-primary/30 hover:bg-accent/30',
+      ].join(' ')}
+    >
+      <div className={['flex h-11 w-11 shrink-0 items-center justify-center rounded-lg', iconClass].join(' ')}>
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm font-semibold">{label}</span>
+          {binding.configured && binding.isActive && (
+            <CheckCircle2 size={13} className="text-emerald-500" />
+          )}
+        </div>
+        <p className={['mt-0.5 truncate text-xs', statusTone].join(' ')}>
+          {statusLabel}
+        </p>
+      </div>
+    </button>
   )
 }
 
