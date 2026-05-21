@@ -49,6 +49,7 @@ export default function CommercialProposalDetail() {
   const [isItemFormOpen, setIsItemFormOpen] = useState(false)
   const [isApplyTemplateOpen, setIsApplyTemplateOpen] = useState(false)
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
+  const [publicLinkUrl, setPublicLinkUrl] = useState<string | undefined>(undefined)
   const [campaignId, setCampaignId] = useState<string>('')
 
   const { execute: fetchProposal, loading } = useApi<Proposal | undefined>({ showErrorMessage: true })
@@ -76,6 +77,24 @@ export default function CommercialProposalDetail() {
     label: campaign.name,
   }))
 
+  const openSendModal = async () => {
+    setPublicLinkUrl(undefined)
+    try {
+      const links = await proposalService.getShareLinks(proposalId)
+      let active = links.find((link) => link.isActive)
+      if (!active) {
+        const created = await proposalService.createShareLink(proposalId, {})
+        active = created.data ?? undefined
+      }
+      if (active) {
+        setPublicLinkUrl(`${window.location.origin}/p/${active.token}`)
+      }
+    } catch {
+      // sem link público não inviabiliza envio
+    }
+    setIsSendModalOpen(true)
+  }
+
   const runProposalAction = async (action: () => Promise<unknown>) => {
     const result = await executeAction(action)
     if (result !== null) await loadProposal()
@@ -94,7 +113,7 @@ export default function CommercialProposalDetail() {
         icon: <Send className="h-4 w-4" />,
         variant: 'outline-primary',
         disabled: actionLoading,
-        onClick: () => setIsSendModalOpen(true),
+        onClick: () => { void openSendModal() },
       })
     }
     if (status === ProposalStatus.Sent) {
@@ -343,7 +362,7 @@ export default function CommercialProposalDetail() {
           agencyName={proposal.brand?.name}
           defaultRecipientEmail={proposal.opportunity?.contactEmail ?? proposal.brand?.contactEmail ?? undefined}
           defaultRecipientPhone={proposal.opportunity?.contactPhone ?? proposal.brand?.contactPhone ?? undefined}
-          publicLinkUrl={undefined}
+          publicLinkUrl={publicLinkUrl}
           onSuccess={() => {
             setIsSendModalOpen(false)
             void loadProposal()
