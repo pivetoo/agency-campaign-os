@@ -440,52 +440,6 @@ export default function OpportunityDetail() {
             </div>
           </header>
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <Card className="border border-border/70 shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                  <CircleDollarSign className="h-3.5 w-3.5 text-indigo-600" />
-                  {t('opportunityDetail.kpi.estimatedValue')}
-                </div>
-                <p className="mt-1.5 text-lg font-semibold text-foreground">{formatCurrency(opportunity?.estimatedValue ?? 0)}</p>
-              </CardContent>
-            </Card>
-            <Card className="border border-border/70 shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                  <Calendar className="h-3.5 w-3.5 text-violet-600" />
-                  {t('opportunityDetail.kpi.forecast')}
-                </div>
-                <p className="mt-1.5 text-lg font-semibold text-foreground">{formatDate(opportunity?.expectedCloseAt)}</p>
-              </CardContent>
-            </Card>
-            <Card className="border border-border/70 shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                  <UserCheck className="h-3.5 w-3.5 text-cyan-600" />
-                  {t('common.field.responsible')}
-                </div>
-                <p className="mt-1.5 truncate text-lg font-semibold text-foreground">{opportunity?.commercialResponsible?.name || '-'}</p>
-              </CardContent>
-            </Card>
-            <Card className="border border-border/70 shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5 text-amber-600" />
-                  {t('opportunityDetail.kpi.pendingFollowUps')}
-                </div>
-                <div className="mt-1.5 flex items-baseline gap-2">
-                  <p className="text-lg font-semibold text-foreground">{pendingFollowUpsCount}</p>
-                  {overdueFollowUpsCount > 0 ? (
-                    <span className="text-[11px] font-medium text-destructive">
-                      {(overdueFollowUpsCount === 1 ? t('opportunityDetail.overdueSingle') : t('opportunityDetail.overdueMany')).replace('{0}', String(overdueFollowUpsCount))}
-                    </span>
-                  ) : null}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
         <Tabs value={activeTab} onValueChange={handleTabChange} className="pt-2">
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger value="summary" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
@@ -532,86 +486,179 @@ export default function OpportunityDetail() {
           </TabsList>
 
           <TabsContent value="summary" className="mt-0">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-muted-foreground" /> {t('opportunityDetail.summary.title')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  <div className="space-y-1">
-                    <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <FileText className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.description')}
-                    </p>
-                    <p className="text-sm">{opportunity?.description || '-'}</p>
+            <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+              <div className="space-y-5">
+                {pendingApprovalsCount > 0 && (
+                  <div className="flex items-center gap-5 rounded-xl bg-gradient-to-br from-primary to-primary/80 p-6 text-primary-foreground shadow-lg shadow-primary/20">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/15">
+                      <ThumbsUp className="h-7 w-7" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[11px] font-bold uppercase tracking-widest opacity-80">Próximo passo</div>
+                      <div className="mt-1 text-lg font-bold leading-snug">
+                        {pendingApprovalsCount === 1
+                          ? 'Há uma aprovação esperando sua decisão'
+                          : `Há ${pendingApprovalsCount} aprovações esperando sua decisão`}
+                      </div>
+                      <p className="mt-0.5 text-sm opacity-90">
+                        Negociação{pendingApprovalsCount === 1 ? '' : 'ões'} pausada{pendingApprovalsCount === 1 ? '' : 's'} até você responder.
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/30 bg-white text-primary hover:bg-white/95"
+                      onClick={() => handleTabChange('approvals')}
+                    >
+                      Revisar agora <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                    </Button>
                   </div>
-                  <div className="space-y-1">
-                    <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <User className="h-3.5 w-3.5" /> {t('common.field.contact')}
-                    </p>
-                    <p className="text-sm">{opportunity?.contactName || '-'}</p>
+                )}
+
+                <div className="grid grid-cols-2 gap-0 overflow-hidden rounded-xl border border-border bg-card md:grid-cols-4">
+                  <KpiCell
+                    icon={<CircleDollarSign className="h-3.5 w-3.5 text-indigo-600" />}
+                    label={t('opportunityDetail.kpi.estimatedValue')}
+                    value={formatCurrency(opportunity?.estimatedValue ?? 0)}
+                  />
+                  <KpiCell
+                    icon={<Calendar className="h-3.5 w-3.5 text-violet-600" />}
+                    label={t('opportunityDetail.kpi.forecast')}
+                    value={formatDate(opportunity?.expectedCloseAt) || '—'}
+                  />
+                  <KpiCell
+                    icon={<UserCheck className="h-3.5 w-3.5 text-cyan-600" />}
+                    label={t('common.field.responsible')}
+                    value={opportunity?.commercialResponsible?.name || '—'}
+                  />
+                  <KpiCell
+                    icon={<Clock className="h-3.5 w-3.5 text-amber-600" />}
+                    label={t('opportunityDetail.kpi.pendingFollowUps')}
+                    value={String(pendingFollowUpsCount)}
+                    sub={overdueFollowUpsCount > 0
+                      ? (overdueFollowUpsCount === 1 ? t('opportunityDetail.overdueSingle') : t('opportunityDetail.overdueMany')).replace('{0}', String(overdueFollowUpsCount))
+                      : undefined}
+                    subTone="destructive"
+                    last
+                  />
+                </div>
+
+                <div>
+                  <h3 className="mb-3 text-base font-semibold text-foreground">O que está em jogo</h3>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <SubflowCard
+                      icon={<MessageSquare className="h-4 w-4" />}
+                      iconClassName="bg-purple-100 text-purple-700"
+                      label="Negociações"
+                      count={opportunity?.negotiations?.length ?? 0}
+                      statusLabel={hasNegotiationPendingApproval
+                        ? `${(opportunity?.negotiations ?? []).filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval).length} pendente${(opportunity?.negotiations ?? []).filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval).length === 1 ? '' : 's'} aprovação`
+                        : 'sem pendências'}
+                      statusTone={hasNegotiationPendingApproval ? 'amber' : 'muted'}
+                      onClick={() => handleTabChange('negotiations')}
+                    />
+                    <SubflowCard
+                      icon={<CheckCircle className="h-4 w-4" />}
+                      iconClassName="bg-emerald-100 text-emerald-700"
+                      label="Aprovações"
+                      count={approvalRequests.length}
+                      statusLabel={pendingApprovalsCount > 0
+                        ? `${pendingApprovalsCount} esperando você`
+                        : 'sem pendências'}
+                      statusTone={pendingApprovalsCount > 0 ? 'red' : 'muted'}
+                      onClick={() => handleTabChange('approvals')}
+                    />
+                    <SubflowCard
+                      icon={<TrendingUp className="h-4 w-4" />}
+                      iconClassName="bg-cyan-100 text-cyan-700"
+                      label="Propostas"
+                      count={opportunity?.proposals?.length ?? 0}
+                      statusLabel={(opportunity?.proposals ?? []).length > 0
+                        ? `${(opportunity?.proposals ?? []).length} versão${(opportunity?.proposals ?? []).length === 1 ? '' : 'ões'}`
+                        : 'nenhuma enviada'}
+                      statusTone="muted"
+                      onClick={() => handleTabChange('proposals')}
+                    />
                   </div>
-                  <div className="space-y-1">
-                    <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <Tag className="h-3.5 w-3.5" /> {t('common.field.notes')}
-                    </p>
-                    <p className="text-sm">{opportunity?.notes || '-'}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <Compass className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.source')}
-                    </p>
-                    {opportunity?.opportunitySource ? (
+                </div>
+
+                <div>
+                  <h3 className="mb-3 text-base font-semibold text-foreground">Detalhes</h3>
+                  <div className="grid gap-x-7 gap-y-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
+                    <DetailField icon={<FileText className="h-3.5 w-3.5" />} label={t('opportunityDetail.summary.description')} value={opportunity?.description} />
+                    <DetailField icon={<User className="h-3.5 w-3.5" />} label={t('common.field.contact')} value={opportunity?.contactName} />
+                    <DetailField icon={<Compass className="h-3.5 w-3.5" />} label={t('opportunityDetail.summary.source')} value={opportunity?.opportunitySource ? (
                       <span className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium" style={{ borderColor: opportunity.opportunitySource.color, color: opportunity.opportunitySource.color }}>
                         <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: opportunity.opportunitySource.color }} />
                         {opportunity.opportunitySource.name}
                       </span>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">{t('opportunityDetail.summary.empty')}</p>
+                    ) : null} />
+                    <DetailField icon={<Calendar className="h-3.5 w-3.5" />} label={t('opportunityDetail.summary.closedAt')} value={formatDate(opportunity?.closedAt)} />
+                    <DetailField icon={<Tag className="h-3.5 w-3.5" />} label={t('common.field.notes')} value={opportunity?.notes} />
+                    <DetailField icon={<Tags className="h-3.5 w-3.5" />} label={t('opportunityDetail.summary.tags')} value={
+                      opportunity?.tags && opportunity.tags.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {opportunity.tags.map((tag) => (
+                            <span key={tag.id} className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${tag.color}20`, color: tag.color, borderColor: tag.color, borderWidth: 1 }}>
+                              {tag.name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null
+                    } />
+                    {opportunity?.lossReason && (
+                      <DetailField icon={<XCircle className="h-3.5 w-3.5 text-destructive" />} label={t('opportunityDetail.summary.lossReason')} value={<span className="text-destructive">{opportunity.lossReason}</span>} />
+                    )}
+                    {opportunity?.wonNotes && (
+                      <DetailField icon={<CheckCircle className="h-3.5 w-3.5 text-emerald-600" />} label={t('opportunityDetail.summary.wonNotes')} value={<span className="text-emerald-700">{opportunity.wonNotes}</span>} />
                     )}
                   </div>
-                  <div className="space-y-1 md:col-span-2">
-                    <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <Tags className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.tags')}
-                    </p>
-                    {opportunity?.tags && opportunity.tags.length > 0 ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        {opportunity.tags.map((tag) => (
-                          <span key={tag.id} className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${tag.color}20`, color: tag.color, borderColor: tag.color, borderWidth: 1 }}>
-                            {tag.name}
-                          </span>
-                        ))}
+                </div>
+              </div>
+
+              <aside className="space-y-4">
+                <FunnelStagesCard stages={sortedStages} currentStageId={opportunity?.commercialPipelineStage?.id} />
+
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <User className="h-3.5 w-3.5" /> Responsável
+                  </div>
+                  {opportunity?.commercialResponsible?.name ? (
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-xs font-bold uppercase text-primary">
+                        {opportunity.commercialResponsible.name.split(' ').slice(0, 2).map((s) => s[0]).join('')}
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">{t('opportunityDetail.summary.empty')}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <Calendar className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.closedAt')}
-                    </p>
-                    <p className="text-sm">{formatDate(opportunity?.closedAt)}</p>
-                  </div>
-                  {opportunity?.lossReason && (
-                    <div className="space-y-1">
-                      <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                        <XCircle className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.lossReason')}
-                      </p>
-                      <p className="text-sm text-destructive">{opportunity.lossReason}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-foreground">{opportunity.commercialResponsible.name}</p>
+                        <p className="text-xs text-muted-foreground">Agência · Comercial</p>
+                      </div>
                     </div>
-                  )}
-                  {opportunity?.wonNotes && (
-                    <div className="space-y-1">
-                      <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                        <CheckCircle className="h-3.5 w-3.5" /> {t('opportunityDetail.summary.wonNotes')}
-                      </p>
-                      <p className="text-sm text-success">{opportunity.wonNotes}</p>
-                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Sem responsável atribuído.</p>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <Clock className="h-3.5 w-3.5" /> Follow-ups
+                    </div>
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setIsFollowUpFormOpen(true)}>
+                      <Plus className="mr-1 h-3 w-3" /> Novo
+                    </Button>
+                  </div>
+                  {pendingFollowUpsCount === 0 ? (
+                    <p className="text-xs text-muted-foreground">Sem follow-ups agendados. Bom momento para combinar o próximo passo.</p>
+                  ) : overdueFollowUpsCount > 0 ? (
+                    <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                      <strong>{overdueFollowUpsCount}</strong> follow-up{overdueFollowUpsCount === 1 ? '' : 's'} vencido{overdueFollowUpsCount === 1 ? '' : 's'} esperando ação.
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">{pendingFollowUpsCount} follow-up{pendingFollowUpsCount === 1 ? '' : 's'} agendado{pendingFollowUpsCount === 1 ? '' : 's'} no prazo.</p>
+                  )}
+                </div>
+              </aside>
+            </div>
           </TabsContent>
 
           <TabsContent value="proposals" className="mt-0">
@@ -911,6 +958,96 @@ export default function OpportunityDetail() {
           </ModalFooter>
         </ModalContent>
       </Modal>
+    </div>
+  )
+}
+
+function KpiCell({ icon, label, value, sub, subTone, last }: { icon: React.ReactNode; label: string; value: string; sub?: string; subTone?: 'destructive' | 'muted'; last?: boolean }) {
+  return (
+    <div className={`px-5 py-4 ${last ? '' : 'border-r border-border/60'}`}>
+      <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        {icon} {label}
+      </div>
+      <p className="mt-1.5 truncate text-base font-semibold text-foreground">{value}</p>
+      {sub && (
+        <p className={`mt-0.5 text-[11px] font-medium ${subTone === 'destructive' ? 'text-destructive' : 'text-muted-foreground'}`}>{sub}</p>
+      )}
+    </div>
+  )
+}
+
+function SubflowCard({ icon, iconClassName, label, count, statusLabel, statusTone, onClick }: { icon: React.ReactNode; iconClassName: string; label: string; count: number; statusLabel: string; statusTone: 'amber' | 'red' | 'muted'; onClick?: () => void }) {
+  const toneClasses: Record<typeof statusTone, string> = {
+    amber: 'text-amber-700',
+    red: 'text-destructive',
+    muted: 'text-muted-foreground',
+  }
+  return (
+    <button type="button" onClick={onClick} className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-accent/30">
+      <div className="flex items-center justify-between">
+        <span className={`flex h-8 w-8 items-center justify-center rounded-md ${iconClassName}`}>
+          {icon}
+        </span>
+        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 transition-colors group-hover:text-primary" />
+      </div>
+      <div>
+        <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className="mt-0.5 text-2xl font-bold leading-none text-foreground">{count}</div>
+        <div className={`mt-1 text-xs font-medium ${toneClasses[statusTone]}`}>{statusLabel}</div>
+      </div>
+    </button>
+  )
+}
+
+function DetailField({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
+  const isEmpty = value === null || value === undefined || value === '' || value === '-'
+  return (
+    <div className="space-y-1">
+      <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        {icon} {label}
+      </p>
+      {isEmpty ? (
+        <p className="text-sm text-muted-foreground/70">—</p>
+      ) : typeof value === 'string' ? (
+        <p className="text-sm text-foreground">{value}</p>
+      ) : (
+        <div className="text-sm text-foreground">{value}</div>
+      )}
+    </div>
+  )
+}
+
+function FunnelStagesCard({ stages, currentStageId }: { stages: Array<{ id: number; name: string; color?: string; displayOrder?: number }>; currentStageId?: number }) {
+  const currentIndex = stages.findIndex((s) => s.id === currentStageId)
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Estágio do funil</div>
+      <ol className="space-y-2">
+        {stages.map((stage, index) => {
+          const done = currentIndex >= 0 && index < currentIndex
+          const isNow = stage.id === currentStageId
+          return (
+            <li key={stage.id} className="flex items-center gap-2.5">
+              <span
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold ${
+                  done
+                    ? 'border-emerald-500 bg-emerald-500 text-white'
+                    : isNow
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border bg-card text-muted-foreground'
+                }`}
+                style={isNow && stage.color ? { borderColor: stage.color, backgroundColor: stage.color } : undefined}
+              >
+                {done ? '✓' : isNow ? '●' : ''}
+              </span>
+              <span className={`text-sm ${isNow ? 'font-semibold text-foreground' : done ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
+                {stage.name}
+              </span>
+              {isNow && <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-primary">aqui</span>}
+            </li>
+          )
+        })}
+      </ol>
     </div>
   )
 }
