@@ -178,6 +178,14 @@ namespace AgencyCampaign.Infrastructure.Services
 
             ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(Application.Catalogs.IntegrationIntents.CampaignDocumentSendEmail, cancellationToken);
 
+            string attachmentUrl = !string.IsNullOrWhiteSpace(document.SignedDocumentUrl)
+                ? document.SignedDocumentUrl!
+                : document.DocumentUrl ?? string.Empty;
+
+            object[] attachments = !string.IsNullOrWhiteSpace(attachmentUrl)
+                ? [new { filename = $"{document.Title}.pdf", url = attachmentUrl }]
+                : [];
+
             string payload = JsonSerializer.Serialize(new
             {
                 campaignDocumentId = document.Id,
@@ -186,6 +194,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 subject = request.Subject,
                 body = request.Body ?? string.Empty,
                 isHtml = true,
+                attachments,
             });
 
             try
