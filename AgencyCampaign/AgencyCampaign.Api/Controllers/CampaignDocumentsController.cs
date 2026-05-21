@@ -91,7 +91,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("campaignDocuments.sendEmail.description")]
-        [PostEndpoint("{id:long}/send-email")]
+        [HttpPost("{id:long}/send-email")]
         public async Task<IActionResult> SendEmail(long id, [FromBody] SendCampaignDocumentEmailRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -105,7 +105,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("campaignDocuments.sendWhatsapp.description")]
-        [PostEndpoint("{id:long}/send-whatsapp")]
+        [HttpPost("{id:long}/send-whatsapp")]
         public async Task<IActionResult> SendWhatsapp(long id, [FromBody] SendCampaignDocumentWhatsappRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -119,7 +119,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("campaignDocuments.markSigned.description")]
-        [PostEndpoint("{id:long}/mark-signed")]
+        [HttpPost("{id:long}/mark-signed")]
         public async Task<IActionResult> MarkSigned(long id, [FromBody] MarkCampaignDocumentSignedRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -147,7 +147,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("campaignDocuments.sendForSignature.description")]
-        [PostEndpoint("{id:long}/send-signature")]
+        [HttpPost("{id:long}/send-signature")]
         public async Task<IActionResult> SendForSignature(long id, [FromBody] SendCampaignDocumentForSignatureRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);

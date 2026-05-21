@@ -478,8 +478,8 @@ export default function CampaignDetail() {
                     Marcar assinado
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setIsDocumentEmailOpen(true)} disabled={!selectedDocument}>
-                    <Mail size={16} className="mr-2" />
-                    Enviar e-mail
+                    <Send size={16} className="mr-2" />
+                    Enviar
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => { setSelectedDocument(null); setIsDocumentGenerateOpen(true) }}>
                     <Sparkles size={16} className="mr-2" />
