@@ -4,6 +4,8 @@ import { Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, 
 import type { DataTableColumn } from 'archon-ui'
 import { Activity, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MessageSquare, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
+import { opportunityWinReasonService, opportunityLossReasonService } from '../../../services/opportunityOutcomeReasonService'
+import type { OpportunityWinReason, OpportunityLossReason } from '../../../types/opportunityOutcomeReason'
 import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import OpportunityNegotiationFormModal from '../../../components/modals/OpportunityNegotiationFormModal'
@@ -63,6 +65,9 @@ export default function OpportunityDetail() {
   const [, setSelectedStage] = useState<string>('1')
   const [pendingFinalStage, setPendingFinalStage] = useState<{ id: number; name: string; kind: 'won' | 'lost' } | null>(null)
   const [finalNotes, setFinalNotes] = useState('')
+  const [finalReasonId, setFinalReasonId] = useState<number | null>(null)
+  const [winReasons, setWinReasons] = useState<OpportunityWinReason[]>([])
+  const [lossReasons, setLossReasons] = useState<OpportunityLossReason[]>([])
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
   const [statusToSet, setStatusToSet] = useState<string>('')
 
@@ -115,12 +120,26 @@ export default function OpportunityDetail() {
     if (targetStage && targetStage.finalBehavior === 1) {
       setPendingFinalStage({ id: targetStage.id, name: targetStage.name, kind: 'won' })
       setFinalNotes('')
+      setFinalReasonId(null)
+      try {
+        const result = await opportunityWinReasonService.getAll({ pageSize: 200 })
+        setWinReasons(result.data ?? [])
+      } catch {
+        setWinReasons([])
+      }
       return
     }
 
     if (targetStage && targetStage.finalBehavior === 2) {
       setPendingFinalStage({ id: targetStage.id, name: targetStage.name, kind: 'lost' })
       setFinalNotes('')
+      setFinalReasonId(null)
+      try {
+        const result = await opportunityLossReasonService.getAll({ pageSize: 200 })
+        setLossReasons(result.data ?? [])
+      } catch {
+        setLossReasons([])
+      }
       return
     }
 
@@ -132,16 +151,17 @@ export default function OpportunityDetail() {
   const confirmFinalChange = async () => {
     if (!opportunity || !pendingFinalStage) return
     const trimmedNotes = finalNotes.trim()
-    if (pendingFinalStage.kind === 'lost' && trimmedNotes.length === 0) return
+    if (pendingFinalStage.kind === 'lost' && trimmedNotes.length === 0 && finalReasonId === null) return
 
     const result = await executeAction(() =>
       pendingFinalStage.kind === 'won'
-        ? opportunityService.closeAsWon(opportunity.id, trimmedNotes ? { wonNotes: trimmedNotes } : {})
-        : opportunityService.closeAsLost(opportunity.id, { lossReason: trimmedNotes }),
+        ? opportunityService.closeAsWon(opportunity.id, { wonNotes: trimmedNotes || undefined, winReasonId: finalReasonId ?? undefined })
+        : opportunityService.closeAsLost(opportunity.id, { lossReason: trimmedNotes || lossReasons.find((r) => r.id === finalReasonId)?.name || 'Sem motivo informado', lossReasonId: finalReasonId ?? undefined }),
     )
     if (result !== null) {
       setPendingFinalStage(null)
       setFinalNotes('')
+      setFinalReasonId(null)
       await loadOpportunity()
     }
   }
@@ -149,6 +169,7 @@ export default function OpportunityDetail() {
   const cancelFinalChange = () => {
     setPendingFinalStage(null)
     setFinalNotes('')
+    setFinalReasonId(null)
     if (opportunity) setSelectedStage(String(opportunity.commercialPipelineStageId))
   }
 
@@ -771,19 +792,71 @@ export default function OpportunityDetail() {
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
               Você está movendo a oportunidade para <strong>{pendingFinalStage?.name}</strong>.
-              {pendingFinalStage?.kind === 'lost' ? ' Informe o motivo da perda.' : ' Deixe uma observação se quiser.'}
+              {pendingFinalStage?.kind === 'lost' ? ' Selecione o motivo da perda.' : ' Selecione o motivo do ganho (opcional).'}
             </p>
+            {pendingFinalStage?.kind === 'won' ? (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Motivo do ganho</label>
+                {winReasons.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Nenhum motivo de ganho cadastrado.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {winReasons.map((reason) => {
+                      const selected = finalReasonId === reason.id
+                      return (
+                        <button
+                          key={reason.id}
+                          type="button"
+                          onClick={() => setFinalReasonId(selected ? null : reason.id)}
+                          className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
+                          style={selected ? { borderColor: reason.color, backgroundColor: `${reason.color}1a`, color: reason.color } : { borderColor: 'hsl(var(--border))', color: 'hsl(var(--muted-foreground))' }}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: reason.color }} />
+                          {reason.name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Motivo da perda
+                  <span className="text-destructive"> *</span>
+                </label>
+                {lossReasons.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Nenhum motivo de perda cadastrado.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {lossReasons.map((reason) => {
+                      const selected = finalReasonId === reason.id
+                      return (
+                        <button
+                          key={reason.id}
+                          type="button"
+                          onClick={() => setFinalReasonId(selected ? null : reason.id)}
+                          className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
+                          style={selected ? { borderColor: reason.color, backgroundColor: `${reason.color}1a`, color: reason.color } : { borderColor: 'hsl(var(--border))', color: 'hsl(var(--muted-foreground))' }}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: reason.color }} />
+                          {reason.name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                {pendingFinalStage?.kind === 'won' ? 'Notas de fechamento (opcional)' : 'Motivo da perda'}
-                {pendingFinalStage?.kind === 'lost' && <span className="text-destructive"> *</span>}
+                {pendingFinalStage?.kind === 'won' ? 'Observação (opcional)' : 'Detalhes adicionais (opcional)'}
               </label>
               <textarea
-                className="min-h-[100px] w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="min-h-[80px] w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 value={finalNotes}
                 onChange={(e) => setFinalNotes(e.target.value)}
-                placeholder={pendingFinalStage?.kind === 'won' ? 'Ex.: Cliente aprovou orçamento completo.' : 'Ex.: Cliente escolheu concorrente.'}
-                autoFocus
+                placeholder={pendingFinalStage?.kind === 'won' ? 'Ex.: Cliente aprovou orçamento completo.' : 'Ex.: Cliente escolheu concorrente Acme.'}
               />
             </div>
           </div>
@@ -793,7 +866,7 @@ export default function OpportunityDetail() {
               type="button"
               variant={pendingFinalStage?.kind === 'lost' ? 'danger' : 'primary'}
               onClick={() => void confirmFinalChange()}
-              disabled={actionLoading || (pendingFinalStage?.kind === 'lost' && finalNotes.trim().length === 0)}
+              disabled={actionLoading || (pendingFinalStage?.kind === 'lost' && finalNotes.trim().length === 0 && finalReasonId === null)}
             >
               {actionLoading ? 'Salvando...' : 'Confirmar'}
             </Button>

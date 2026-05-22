@@ -115,7 +115,9 @@ export interface Opportunity {
   notes?: string
   closedAt?: string
   lossReason?: string
+  lossReasonId?: number
   wonNotes?: string
+  winReasonId?: number
   brand?: {
     id: number
     name: string
@@ -265,10 +267,12 @@ export interface ChangeOpportunityStageRequest {
 
 export interface CloseOpportunityAsWonRequest {
   wonNotes?: string
+  winReasonId?: number | null
 }
 
 export interface CloseOpportunityAsLostRequest {
   lossReason: string
+  lossReasonId?: number | null
 }
 
 export interface CreateOpportunityNegotiationRequest {
