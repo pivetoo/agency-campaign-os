@@ -62,6 +62,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         contactEmail: opportunity.contactEmail || '',
         contactPhone: opportunity.contactPhone || '',
         notes: opportunity.notes || '',
+        probability: opportunity.probabilityIsManual ? opportunity.probability : undefined,
         opportunitySourceId: opportunity.opportunitySourceId,
         tagIds: opportunity.tags?.map((tag) => tag.id) ?? [],
       })
@@ -137,6 +138,12 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
             <div className="space-y-2">
               <label htmlFor="opportunity-expected-close-at" className="text-sm font-medium">{t('modal.opportunity.field.expectedClose')}</label>
               <Input id="opportunity-expected-close-at" type="date" value={isoToDateInput(formData.expectedCloseAt)} onChange={(e) => setFormData((prev) => ({ ...prev, expectedCloseAt: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="opportunity-probability" className="text-sm font-medium">Probabilidade %</label>
+              <Input id="opportunity-probability" type="number" min={0} max={100} step={1} placeholder="usar padrão do estágio" value={formData.probability ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, probability: e.target.value === '' ? undefined : Math.max(0, Math.min(100, Number(e.target.value))) }))} />
+              <p className="text-[11px] text-muted-foreground">Sobrescreve o padrão do estágio. Deixe vazio para herdar.</p>
             </div>
 
             <div className="space-y-2">

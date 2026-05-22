@@ -253,13 +253,13 @@ export interface CreateOpportunityRequest {
   contactEmail?: string
   contactPhone?: string
   notes?: string
+  probability?: number
   opportunitySourceId?: number
   tagIds?: number[]
 }
 
 export interface UpdateOpportunityRequest extends CreateOpportunityRequest {
   id: number
-  probability?: number
 }
 
 export interface ChangeOpportunityStageRequest {

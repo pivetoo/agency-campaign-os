@@ -173,6 +173,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 opportunity.SetSource(request.OpportunitySourceId);
             }
 
+            if (request.Probability.HasValue)
+            {
+                opportunity.SetProbability(request.Probability.Value);
+            }
+
             if (request.TagIds is not null && request.TagIds.Count > 0)
             {
                 opportunity.ReplaceTags(request.TagIds);
