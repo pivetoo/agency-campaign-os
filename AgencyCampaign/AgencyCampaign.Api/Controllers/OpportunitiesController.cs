@@ -83,6 +83,30 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await opportunityService.GetBoardScoped(restrictToCurrentUser: true, cancellationToken));
         }
 
+        [RequireAccess("opportunities.forecast.description")]
+        [GetEndpoint]
+        public async Task<IActionResult> Forecast([FromQuery] DateTimeOffset? periodStart, [FromQuery] DateTimeOffset? periodEnd, [FromQuery] long? userId, CancellationToken cancellationToken)
+        {
+            (DateTimeOffset start, DateTimeOffset end) = ResolveForecastPeriod(periodStart, periodEnd);
+            return Http200(await opportunityService.GetForecast(start, end, restrictToCurrentUser: false, userId, cancellationToken));
+        }
+
+        [RequireAccess("opportunities.forecastOwn.description")]
+        [GetEndpoint]
+        public async Task<IActionResult> ForecastMine([FromQuery] DateTimeOffset? periodStart, [FromQuery] DateTimeOffset? periodEnd, CancellationToken cancellationToken)
+        {
+            (DateTimeOffset start, DateTimeOffset end) = ResolveForecastPeriod(periodStart, periodEnd);
+            return Http200(await opportunityService.GetForecast(start, end, restrictToCurrentUser: true, userId: null, cancellationToken));
+        }
+
+        private static (DateTimeOffset start, DateTimeOffset end) ResolveForecastPeriod(DateTimeOffset? periodStart, DateTimeOffset? periodEnd)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset start = periodStart?.ToUniversalTime() ?? new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
+            DateTimeOffset end = periodEnd?.ToUniversalTime() ?? start.AddMonths(1);
+            return (start, end);
+        }
+
         [RequireAccess("opportunities.dashboard.description")]
         [GetEndpoint]
         public async Task<IActionResult> Dashboard(CancellationToken cancellationToken)

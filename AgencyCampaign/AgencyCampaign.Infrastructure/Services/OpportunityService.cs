@@ -394,6 +394,89 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ToArray();
         }
 
+        public async Task<CommercialForecastModel> GetForecast(DateTimeOffset periodStart, DateTimeOffset periodEnd, bool restrictToCurrentUser, long? userId, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset start = periodStart.ToUniversalTime();
+            DateTimeOffset end = periodEnd.ToUniversalTime();
+
+            long? scopeUserId = restrictToCurrentUser ? currentUser.UserId : userId;
+
+            IQueryable<Opportunity> query = DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Include(item => item.CommercialPipelineStage)
+                .Where(item => item.ExpectedCloseAt.HasValue && item.ExpectedCloseAt.Value >= start && item.ExpectedCloseAt.Value < end);
+
+            if (scopeUserId.HasValue)
+            {
+                long target = scopeUserId.Value;
+                query = query.Where(item => item.ResponsibleUserId == target);
+            }
+
+            List<Opportunity> all = await query.ToListAsync(cancellationToken);
+
+            decimal weightedTotal = 0m;
+            decimal unweightedTotal = 0m;
+            decimal wonTotal = 0m;
+            decimal lostTotal = 0m;
+            int openCount = 0;
+            int wonCount = 0;
+            int lostCount = 0;
+
+            foreach (Opportunity opportunity in all)
+            {
+                CommercialPipelineStageFinalBehavior behavior = opportunity.CommercialPipelineStage?.FinalBehavior ?? CommercialPipelineStageFinalBehavior.None;
+                if (behavior == CommercialPipelineStageFinalBehavior.Won)
+                {
+                    wonTotal += opportunity.EstimatedValue;
+                    wonCount++;
+                    continue;
+                }
+
+                if (behavior == CommercialPipelineStageFinalBehavior.Lost)
+                {
+                    lostTotal += opportunity.EstimatedValue;
+                    lostCount++;
+                    continue;
+                }
+
+                openCount++;
+                unweightedTotal += opportunity.EstimatedValue;
+                weightedTotal += opportunity.EstimatedValue * (opportunity.Probability / 100m);
+            }
+
+            CommercialForecastStageBreakdown[] byStage = all
+                .Where(item => item.CommercialPipelineStage != null
+                    && item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.None)
+                .GroupBy(item => item.CommercialPipelineStage!)
+                .OrderBy(group => group.Key.DisplayOrder)
+                .Select(group => new CommercialForecastStageBreakdown
+                {
+                    StageId = group.Key.Id,
+                    StageName = group.Key.Name,
+                    StageColor = group.Key.Color,
+                    Count = group.Count(),
+                    TotalValue = group.Sum(item => item.EstimatedValue),
+                    WeightedValue = group.Sum(item => item.EstimatedValue * (item.Probability / 100m)),
+                    AverageProbability = group.Average(item => item.Probability)
+                })
+                .ToArray();
+
+            return new CommercialForecastModel
+            {
+                PeriodStart = start,
+                PeriodEnd = end,
+                UserId = scopeUserId,
+                WeightedTotal = Math.Round(weightedTotal, 2),
+                UnweightedTotal = Math.Round(unweightedTotal, 2),
+                WonTotal = Math.Round(wonTotal, 2),
+                LostTotal = Math.Round(lostTotal, 2),
+                OpenCount = openCount,
+                WonCount = wonCount,
+                LostCount = lostCount,
+                ByStage = byStage
+            };
+        }
+
         public async Task<CommercialDashboardSummaryModel> GetDashboardSummary(CancellationToken cancellationToken = default)
         {
             List<Opportunity> opportunities = await DbContext.Set<Opportunity>()

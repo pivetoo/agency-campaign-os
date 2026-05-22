@@ -1401,6 +1401,8 @@
   <data name="opportunities.area" xml:space="preserve"><value>Opportunities</value></data>
   <data name="opportunities.board.description" xml:space="preserve"><value>Permite consultar o board comercial por estágio.</value></data>
   <data name="opportunities.boardOwn.description" xml:space="preserve"><value>Permite consultar el board comercial sólo de las oportunidades propias.</value></data>
+  <data name="opportunities.forecast.description" xml:space="preserve"><value>Permite consultar el pronóstico de cierre comercial.</value></data>
+  <data name="opportunities.forecastOwn.description" xml:space="preserve"><value>Permite consultar el pronóstico de las propias oportunidades.</value></data>
   <data name="opportunities.getOwn.description" xml:space="preserve"><value>Permite listar sólo las oportunidades del usuario.</value></data>
   <data name="opportunities.changeStage.description" xml:space="preserve"><value>Permite alterar o estágio de uma oportunidade comercial.</value></data>
   <data name="opportunities.changeStatus.description" xml:space="preserve"><value>Permite alterar o status de uma negociação.</value></data>

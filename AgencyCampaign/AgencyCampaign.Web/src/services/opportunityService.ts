@@ -1,6 +1,7 @@
 import { httpClient, buildPaginationQuery } from 'archon-ui'
 import type { ApiResponse } from 'archon-ui'
 import type { CommercialPipelineStage } from '../types/commercialPipelineStage'
+import type { CommercialForecast } from '../types/commercialForecast'
 
 const BASE_URL = '/Opportunities'
 
@@ -377,6 +378,25 @@ export const opportunityService = {
   async getBoardMine(): Promise<OpportunityBoardStage[]> {
     const response = await httpClient.get<OpportunityBoardStage[]>(`${BASE_URL}/BoardMine`)
     return response.data ?? []
+  },
+
+  async getForecast(params?: { periodStart?: string; periodEnd?: string; userId?: number }): Promise<CommercialForecast | null> {
+    const search = new URLSearchParams()
+    if (params?.periodStart) search.set('periodStart', params.periodStart)
+    if (params?.periodEnd) search.set('periodEnd', params.periodEnd)
+    if (params?.userId) search.set('userId', String(params.userId))
+    const query = search.toString()
+    const response = await httpClient.get<CommercialForecast>(query ? `${BASE_URL}/Forecast?${query}` : `${BASE_URL}/Forecast`)
+    return response.data ?? null
+  },
+
+  async getForecastMine(params?: { periodStart?: string; periodEnd?: string }): Promise<CommercialForecast | null> {
+    const search = new URLSearchParams()
+    if (params?.periodStart) search.set('periodStart', params.periodStart)
+    if (params?.periodEnd) search.set('periodEnd', params.periodEnd)
+    const query = search.toString()
+    const response = await httpClient.get<CommercialForecast>(query ? `${BASE_URL}/ForecastMine?${query}` : `${BASE_URL}/ForecastMine`)
+    return response.data ?? null
   },
 
   async getDashboard(): Promise<CommercialDashboardSummary | null> {

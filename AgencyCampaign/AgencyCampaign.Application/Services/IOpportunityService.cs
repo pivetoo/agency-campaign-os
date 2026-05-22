@@ -28,6 +28,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoardScoped(bool restrictToCurrentUser, CancellationToken cancellationToken = default);
 
+        Task<CommercialForecastModel> GetForecast(DateTimeOffset periodStart, DateTimeOffset periodEnd, bool restrictToCurrentUser, long? userId, CancellationToken cancellationToken = default);
+
         Task<CommercialDashboardSummaryModel> GetDashboardSummary(CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<CommercialAlertModel>> GetAlerts(CancellationToken cancellationToken = default);
