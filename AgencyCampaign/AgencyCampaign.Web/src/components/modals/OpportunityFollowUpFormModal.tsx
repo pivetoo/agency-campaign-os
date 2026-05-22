@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, useApi, useI18n } from 'archon-ui'
 import { opportunityService, type OpportunityFollowUp, type CreateOpportunityFollowUpRequest, type UpdateOpportunityFollowUpRequest } from '../../services/opportunityService'
-import { dateInputToIso, isoToDateInput } from '../../lib/format'
+import { dateInputToIso, isoToDateInput, todayDateInput } from '../../lib/format'
 
 interface OpportunityFollowUpFormModalProps {
   open: boolean
@@ -14,7 +14,7 @@ interface OpportunityFollowUpFormModalProps {
 const initialFormData: CreateOpportunityFollowUpRequest = {
   opportunityId: 0,
   subject: '',
-  dueAt: dateInputToIso(new Date().toISOString().split('T')[0]!),
+  dueAt: dateInputToIso(todayDateInput()),
   notes: '',
 }
 
@@ -35,7 +35,7 @@ export default function OpportunityFollowUpFormModal({ open, onOpenChange, oppor
       return
     }
 
-    setFormData({ ...initialFormData, opportunityId })
+    setFormData({ ...initialFormData, opportunityId, dueAt: dateInputToIso(todayDateInput()) })
   }, [followUp, opportunityId, open])
 
   const handleSubmit = async (event: React.FormEvent) => {

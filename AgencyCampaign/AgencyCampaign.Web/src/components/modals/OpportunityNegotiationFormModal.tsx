@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, useApi, useI18n } from 'archon-ui'
 import { opportunityService, type OpportunityNegotiation, type CreateOpportunityNegotiationRequest, type UpdateOpportunityNegotiationRequest } from '../../services/opportunityService'
-import { dateInputToIso, isoToDateInput } from '../../lib/format'
+import { dateInputToIso, isoToDateInput, todayDateInput } from '../../lib/format'
 
 interface OpportunityNegotiationFormModalProps {
   open: boolean
@@ -15,7 +15,7 @@ const initialFormData: CreateOpportunityNegotiationRequest = {
   opportunityId: 0,
   title: '',
   amount: 0,
-  negotiatedAt: dateInputToIso(new Date().toISOString().split('T')[0]!),
+  negotiatedAt: dateInputToIso(todayDateInput()),
   notes: '',
 }
 
@@ -37,7 +37,7 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
       return
     }
 
-    setFormData({ ...initialFormData, opportunityId })
+    setFormData({ ...initialFormData, opportunityId, negotiatedAt: dateInputToIso(todayDateInput()) })
   }, [negotiation, opportunityId, open])
 
   const handleSubmit = async (event: React.FormEvent) => {
