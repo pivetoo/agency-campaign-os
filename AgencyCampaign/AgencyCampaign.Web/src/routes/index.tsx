@@ -23,6 +23,7 @@ import CommercialProposals from '../modules/Main/Commercial/Proposals'
 import CommercialProposalDetail from '../modules/Main/Commercial/ProposalDetail'
 import CommercialFollowUps from '../modules/Main/Commercial/FollowUps'
 import CommercialApprovals from '../modules/Main/Commercial/Approvals'
+import CommercialAnalytics from '../modules/Main/Commercial/Analytics'
 import FinancialReceivables from '../modules/Main/Financial/Receivables'
 import FinancialPayables from '../modules/Main/Financial/Payables'
 import CreatorPayments from '../modules/Main/Financial/CreatorPayments'
@@ -104,6 +105,7 @@ function AppRoutes() {
           <Route path="comercial/propostas/:id" element={<CommercialProposalDetail />} />
           <Route path="comercial/negociacoes" element={<Navigate to="/comercial/oportunidades" replace />} />
           <Route path="comercial/aprovacoes" element={<CommercialApprovals />} />
+          <Route path="comercial/analytics" element={<CommercialAnalytics />} />
           <Route path="comercial/followups" element={<CommercialFollowUps />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />

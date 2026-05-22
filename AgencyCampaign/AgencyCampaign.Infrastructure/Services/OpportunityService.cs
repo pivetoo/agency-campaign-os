@@ -477,6 +477,383 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
+        public async Task<CommercialAnalyticsModel> GetAnalytics(DateTimeOffset periodStart, DateTimeOffset periodEnd, bool restrictToCurrentUser, long? userId, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset start = periodStart.ToUniversalTime();
+            DateTimeOffset end = periodEnd.ToUniversalTime();
+            long? scopeUserId = restrictToCurrentUser ? currentUser.UserId : userId;
+
+            List<CommercialPipelineStage> stages = await DbContext.Set<CommercialPipelineStage>()
+                .AsNoTracking()
+                .OrderBy(stage => stage.DisplayOrder)
+                .ToListAsync(cancellationToken);
+
+            Dictionary<long, CommercialPipelineStage> stagesById = stages.ToDictionary(stage => stage.Id);
+            long[] openStageIds = stages
+                .Where(stage => stage.FinalBehavior == CommercialPipelineStageFinalBehavior.None)
+                .Select(stage => stage.Id)
+                .ToArray();
+
+            IQueryable<Opportunity> closedQuery = DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Include(item => item.CommercialPipelineStage)
+                .Where(item => item.ClosedAt.HasValue && item.ClosedAt.Value >= start && item.ClosedAt.Value < end);
+
+            if (scopeUserId.HasValue)
+            {
+                long target = scopeUserId.Value;
+                closedQuery = closedQuery.Where(item => item.ResponsibleUserId == target);
+            }
+
+            List<Opportunity> closed = await closedQuery.ToListAsync(cancellationToken);
+            int wonCount = closed.Count(item => item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Won);
+            int lostCount = closed.Count(item => item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost);
+            int closedCount = closed.Count;
+            decimal winRate = closedCount > 0 ? Math.Round((decimal)wonCount / closedCount * 100m, 2) : 0m;
+
+            decimal averageCycleDays = 0m;
+            if (closed.Count > 0)
+            {
+                averageCycleDays = (decimal)closed
+                    .Select(item => (item.ClosedAt!.Value - item.CreatedAt).TotalDays)
+                    .DefaultIfEmpty(0)
+                    .Average();
+                averageCycleDays = Math.Round(averageCycleDays, 1);
+            }
+
+            long[] closedIds = closed.Select(item => item.Id).ToArray();
+            long[] currentOpenIds = await DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Where(item => !item.ClosedAt.HasValue
+                    && (!scopeUserId.HasValue || item.ResponsibleUserId == scopeUserId.Value))
+                .Select(item => item.Id)
+                .ToArrayAsync(cancellationToken);
+            long[] relevantOpportunityIds = closedIds.Concat(currentOpenIds).Distinct().ToArray();
+
+            List<OpportunityStageHistory> history = await DbContext.Set<OpportunityStageHistory>()
+                .AsNoTracking()
+                .Where(item => relevantOpportunityIds.Contains(item.OpportunityId))
+                .OrderBy(item => item.OpportunityId)
+                .ThenBy(item => item.ChangedAt)
+                .ToListAsync(cancellationToken);
+
+            List<Opportunity> openSnapshot = await DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Include(item => item.CommercialPipelineStage)
+                .Where(item => currentOpenIds.Contains(item.Id))
+                .ToListAsync(cancellationToken);
+            Dictionary<long, long> openCurrentStageById = openSnapshot.ToDictionary(item => item.Id, item => item.CommercialPipelineStageId);
+
+            StageConversionModel[] conversionByStage = BuildConversionByStage(stages, history, closed, openCurrentStageById);
+            StageTimeModel[] averageTimeInStage = BuildAverageTimeInStage(stages, history, closed, openCurrentStageById);
+
+            ReasonAggregateModel[] winReasons = await BuildWinReasons(closed, cancellationToken);
+            ReasonAggregateModel[] lossReasons = await BuildLossReasons(closed, cancellationToken);
+
+            PerformerModel[] topPerformers = await BuildTopPerformers(closed, cancellationToken);
+
+            return new CommercialAnalyticsModel
+            {
+                PeriodStart = start,
+                PeriodEnd = end,
+                UserId = scopeUserId,
+                ClosedCount = closedCount,
+                WonCount = wonCount,
+                LostCount = lostCount,
+                WinRate = winRate,
+                AverageCycleDays = averageCycleDays,
+                ConversionByStage = conversionByStage,
+                AverageTimeInStage = averageTimeInStage,
+                WinReasons = winReasons,
+                LossReasons = lossReasons,
+                TopPerformers = topPerformers
+            };
+        }
+
+        private static StageConversionModel[] BuildConversionByStage(
+            List<CommercialPipelineStage> stages,
+            List<OpportunityStageHistory> history,
+            List<Opportunity> closed,
+            Dictionary<long, long> openCurrentStageById)
+        {
+            List<CommercialPipelineStage> openStages = stages
+                .Where(stage => stage.FinalBehavior == CommercialPipelineStageFinalBehavior.None)
+                .OrderBy(stage => stage.DisplayOrder)
+                .ToList();
+
+            Dictionary<long, CommercialPipelineStageFinalBehavior> stageBehavior = stages.ToDictionary(stage => stage.Id, stage => stage.FinalBehavior);
+            Dictionary<long, int> stageOrder = stages.ToDictionary(stage => stage.Id, stage => stage.DisplayOrder);
+            HashSet<long> wonOpportunityIds = closed
+                .Where(opp => opp.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Won)
+                .Select(opp => opp.Id)
+                .ToHashSet();
+            HashSet<long> lostOpportunityIds = closed
+                .Where(opp => opp.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost)
+                .Select(opp => opp.Id)
+                .ToHashSet();
+
+            Dictionary<long, List<long>> stagesVisitedByOpportunity = history
+                .GroupBy(item => item.OpportunityId)
+                .ToDictionary(group => group.Key, group => group.Select(item => item.ToStageId).Distinct().ToList());
+
+            List<StageConversionModel> result = new(openStages.Count);
+            foreach (CommercialPipelineStage stage in openStages)
+            {
+                long stageId = stage.Id;
+                int stageDisplayOrder = stage.DisplayOrder;
+                List<long> enteredOpportunities = stagesVisitedByOpportunity
+                    .Where(pair => pair.Value.Contains(stageId))
+                    .Select(pair => pair.Key)
+                    .ToList();
+
+                int entered = enteredOpportunities.Count;
+                int advanced = 0;
+                int stuck = 0;
+                int lost = 0;
+
+                foreach (long opportunityId in enteredOpportunities)
+                {
+                    if (wonOpportunityIds.Contains(opportunityId))
+                    {
+                        advanced++;
+                        continue;
+                    }
+
+                    if (lostOpportunityIds.Contains(opportunityId))
+                    {
+                        lost++;
+                        continue;
+                    }
+
+                    if (openCurrentStageById.TryGetValue(opportunityId, out long currentStageId))
+                    {
+                        if (currentStageId == stageId)
+                        {
+                            stuck++;
+                            continue;
+                        }
+
+                        if (stageOrder.TryGetValue(currentStageId, out int currentOrder) && currentOrder > stageDisplayOrder)
+                        {
+                            advanced++;
+                            continue;
+                        }
+
+                        if (stageBehavior.TryGetValue(currentStageId, out CommercialPipelineStageFinalBehavior behavior))
+                        {
+                            if (behavior == CommercialPipelineStageFinalBehavior.Won)
+                            {
+                                advanced++;
+                                continue;
+                            }
+                            if (behavior == CommercialPipelineStageFinalBehavior.Lost)
+                            {
+                                lost++;
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                decimal conversionRate = entered > 0 ? Math.Round((decimal)advanced / entered * 100m, 2) : 0m;
+
+                result.Add(new StageConversionModel
+                {
+                    StageId = stage.Id,
+                    StageName = stage.Name,
+                    StageColor = stage.Color,
+                    DisplayOrder = stage.DisplayOrder,
+                    Entered = entered,
+                    Advanced = advanced,
+                    Stuck = stuck,
+                    Lost = lost,
+                    ConversionRate = conversionRate
+                });
+            }
+
+            return [.. result];
+        }
+
+        private static StageTimeModel[] BuildAverageTimeInStage(
+            List<CommercialPipelineStage> stages,
+            List<OpportunityStageHistory> history,
+            List<Opportunity> closed,
+            Dictionary<long, long> openCurrentStageById)
+        {
+            Dictionary<long, DateTimeOffset> closedAtByOpportunity = closed
+                .Where(item => item.ClosedAt.HasValue)
+                .ToDictionary(item => item.Id, item => item.ClosedAt!.Value);
+
+            Dictionary<long, List<(decimal days, long stageId)>> durationsByStage = stages.ToDictionary(stage => stage.Id, _ => new List<(decimal, long)>());
+
+            foreach (IGrouping<long, OpportunityStageHistory> group in history.GroupBy(item => item.OpportunityId))
+            {
+                List<OpportunityStageHistory> ordered = group.OrderBy(item => item.ChangedAt).ToList();
+                for (int index = 0; index < ordered.Count; index++)
+                {
+                    long stageId = ordered[index].ToStageId;
+                    DateTimeOffset enteredAt = ordered[index].ChangedAt;
+                    DateTimeOffset leftAt;
+                    if (index + 1 < ordered.Count)
+                    {
+                        leftAt = ordered[index + 1].ChangedAt;
+                    }
+                    else if (closedAtByOpportunity.TryGetValue(group.Key, out DateTimeOffset closedAt))
+                    {
+                        leftAt = closedAt;
+                    }
+                    else if (openCurrentStageById.TryGetValue(group.Key, out long currentStageId) && currentStageId == stageId)
+                    {
+                        leftAt = DateTimeOffset.UtcNow;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    decimal days = (decimal)(leftAt - enteredAt).TotalDays;
+                    if (days < 0)
+                    {
+                        days = 0;
+                    }
+
+                    if (durationsByStage.TryGetValue(stageId, out List<(decimal days, long stageId)>? bucket))
+                    {
+                        bucket.Add((days, stageId));
+                    }
+                }
+            }
+
+            return stages
+                .Where(stage => stage.FinalBehavior == CommercialPipelineStageFinalBehavior.None)
+                .OrderBy(stage => stage.DisplayOrder)
+                .Select(stage =>
+                {
+                    List<(decimal days, long stageId)> bucket = durationsByStage[stage.Id];
+                    decimal avg = bucket.Count > 0 ? Math.Round(bucket.Average(entry => entry.days), 1) : 0m;
+                    return new StageTimeModel
+                    {
+                        StageId = stage.Id,
+                        StageName = stage.Name,
+                        StageColor = stage.Color,
+                        DisplayOrder = stage.DisplayOrder,
+                        AverageDays = avg,
+                        Samples = bucket.Count
+                    };
+                })
+                .ToArray();
+        }
+
+        private async Task<ReasonAggregateModel[]> BuildWinReasons(List<Opportunity> closed, CancellationToken cancellationToken)
+        {
+            List<Opportunity> won = closed.Where(item => item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Won).ToList();
+            if (won.Count == 0)
+            {
+                return [];
+            }
+
+            Dictionary<long, OpportunityWinReason> reasonsById = await DbContext.Set<OpportunityWinReason>()
+                .AsNoTracking()
+                .ToDictionaryAsync(item => item.Id, cancellationToken);
+
+            return won
+                .GroupBy(item => item.WinReasonId)
+                .Select(group =>
+                {
+                    string name = group.Key.HasValue && reasonsById.TryGetValue(group.Key.Value, out OpportunityWinReason? reason)
+                        ? reason.Name
+                        : "Sem motivo";
+                    string? color = group.Key.HasValue && reasonsById.TryGetValue(group.Key.Value, out OpportunityWinReason? colorReason)
+                        ? colorReason.Color
+                        : null;
+                    return new ReasonAggregateModel
+                    {
+                        ReasonId = group.Key,
+                        ReasonName = name,
+                        ReasonColor = color,
+                        Count = group.Count(),
+                        TotalValue = Math.Round(group.Sum(item => item.EstimatedValue), 2)
+                    };
+                })
+                .OrderByDescending(item => item.Count)
+                .ToArray();
+        }
+
+        private async Task<ReasonAggregateModel[]> BuildLossReasons(List<Opportunity> closed, CancellationToken cancellationToken)
+        {
+            List<Opportunity> lost = closed.Where(item => item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost).ToList();
+            if (lost.Count == 0)
+            {
+                return [];
+            }
+
+            Dictionary<long, OpportunityLossReason> reasonsById = await DbContext.Set<OpportunityLossReason>()
+                .AsNoTracking()
+                .ToDictionaryAsync(item => item.Id, cancellationToken);
+
+            return lost
+                .GroupBy(item => item.LossReasonId)
+                .Select(group =>
+                {
+                    string name = group.Key.HasValue && reasonsById.TryGetValue(group.Key.Value, out OpportunityLossReason? reason)
+                        ? reason.Name
+                        : "Sem motivo";
+                    string? color = group.Key.HasValue && reasonsById.TryGetValue(group.Key.Value, out OpportunityLossReason? colorReason)
+                        ? colorReason.Color
+                        : null;
+                    return new ReasonAggregateModel
+                    {
+                        ReasonId = group.Key,
+                        ReasonName = name,
+                        ReasonColor = color,
+                        Count = group.Count(),
+                        TotalValue = Math.Round(group.Sum(item => item.EstimatedValue), 2)
+                    };
+                })
+                .OrderByDescending(item => item.Count)
+                .ToArray();
+        }
+
+        private async Task<PerformerModel[]> BuildTopPerformers(List<Opportunity> closed, CancellationToken cancellationToken)
+        {
+            List<Opportunity> won = closed.Where(item => item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Won).ToList();
+            if (won.Count == 0)
+            {
+                return [];
+            }
+
+            var groups = won
+                .GroupBy(item => item.ResponsibleUserId)
+                .Select(group => new
+                {
+                    UserId = group.Key,
+                    WonCount = group.Count(),
+                    WonTotal = Math.Round(group.Sum(item => item.EstimatedValue), 2)
+                })
+                .OrderByDescending(item => item.WonTotal)
+                .Take(10)
+                .ToArray();
+
+            List<PerformerModel> result = new(groups.Length);
+            foreach (var entry in groups)
+            {
+                string userName = "Sem responsável";
+                if (entry.UserId.HasValue)
+                {
+                    userName = await ResolveResponsibleUserName(entry.UserId, cancellationToken) ?? $"Usuário #{entry.UserId.Value}";
+                }
+                result.Add(new PerformerModel
+                {
+                    UserId = entry.UserId,
+                    UserName = userName,
+                    WonCount = entry.WonCount,
+                    WonTotal = entry.WonTotal
+                });
+            }
+
+            return [.. result];
+        }
+
         public async Task<CommercialDashboardSummaryModel> GetDashboardSummary(CancellationToken cancellationToken = default)
         {
             List<Opportunity> opportunities = await DbContext.Set<Opportunity>()

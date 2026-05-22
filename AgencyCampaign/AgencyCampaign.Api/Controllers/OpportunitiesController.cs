@@ -99,6 +99,22 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await opportunityService.GetForecast(start, end, restrictToCurrentUser: true, userId: null, cancellationToken));
         }
 
+        [RequireAccess("opportunities.analytics.description")]
+        [GetEndpoint]
+        public async Task<IActionResult> Analytics([FromQuery] DateTimeOffset? periodStart, [FromQuery] DateTimeOffset? periodEnd, [FromQuery] long? userId, CancellationToken cancellationToken)
+        {
+            (DateTimeOffset start, DateTimeOffset end) = ResolveForecastPeriod(periodStart, periodEnd);
+            return Http200(await opportunityService.GetAnalytics(start, end, restrictToCurrentUser: false, userId, cancellationToken));
+        }
+
+        [RequireAccess("opportunities.analyticsOwn.description")]
+        [GetEndpoint]
+        public async Task<IActionResult> AnalyticsMine([FromQuery] DateTimeOffset? periodStart, [FromQuery] DateTimeOffset? periodEnd, CancellationToken cancellationToken)
+        {
+            (DateTimeOffset start, DateTimeOffset end) = ResolveForecastPeriod(periodStart, periodEnd);
+            return Http200(await opportunityService.GetAnalytics(start, end, restrictToCurrentUser: true, userId: null, cancellationToken));
+        }
+
         private static (DateTimeOffset start, DateTimeOffset end) ResolveForecastPeriod(DateTimeOffset? periodStart, DateTimeOffset? periodEnd)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;

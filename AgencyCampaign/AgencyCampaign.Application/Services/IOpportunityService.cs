@@ -30,6 +30,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<CommercialForecastModel> GetForecast(DateTimeOffset periodStart, DateTimeOffset periodEnd, bool restrictToCurrentUser, long? userId, CancellationToken cancellationToken = default);
 
+        Task<CommercialAnalyticsModel> GetAnalytics(DateTimeOffset periodStart, DateTimeOffset periodEnd, bool restrictToCurrentUser, long? userId, CancellationToken cancellationToken = default);
+
         Task<CommercialDashboardSummaryModel> GetDashboardSummary(CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<CommercialAlertModel>> GetAlerts(CancellationToken cancellationToken = default);
