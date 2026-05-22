@@ -948,7 +948,7 @@ function NegotiationsTab({ negotiations, loading, actionLoading, onNew, onEdit, 
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {sorted.map((n) => (
             <NegotiationCard
               key={n.id}
@@ -973,15 +973,17 @@ function FilterChip({ label, count, active, dotColor, onClick }: { label: string
       type="button"
       onClick={onClick}
       className={[
-        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
-        active ? 'border-foreground bg-foreground text-background' : 'border-border bg-card text-foreground hover:border-foreground/40',
+        'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+        active
+          ? 'bg-primary/12 text-primary'
+          : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground',
       ].join(' ')}
     >
       {dotColor && (
-        <span className={`h-1.5 w-1.5 rounded-full ${dotColor === 'amber' ? 'bg-amber-500' : dotColor === 'green' ? 'bg-emerald-500' : 'bg-muted-foreground'}`} />
+        <span className={`h-1.5 w-1.5 rounded-full ${dotColor === 'amber' ? 'bg-amber-500' : dotColor === 'green' ? 'bg-emerald-500' : 'bg-muted-foreground/60'}`} />
       )}
       {label}
-      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${active ? 'bg-white/20 text-background' : 'bg-muted text-muted-foreground'}`}>
+      <span className={`text-[11px] font-semibold ${active ? 'text-primary/80' : 'text-muted-foreground/70'}`}>
         {count}
       </span>
     </button>
@@ -1008,89 +1010,65 @@ function NegotiationCard({ negotiation, isFirstRound, actionLoading, onEdit, onD
   const isCancelled = negotiation.status === OpportunityNegotiationStatus.Cancelled
 
   const statusStyle = (() => {
-    if (isPending) return { bg: 'bg-amber-500', text: 'text-white', label: 'Pendente aprovação' }
-    if (isApproved) return { bg: 'bg-emerald-600', text: 'text-white', label: 'Aprovada' }
-    if (isDraft) return { bg: 'bg-muted', text: 'text-muted-foreground', label: 'Rascunho' }
-    if (isSent) return { bg: 'bg-blue-600', text: 'text-white', label: 'Enviada ao cliente' }
-    if (isAccepted) return { bg: 'bg-emerald-700', text: 'text-white', label: 'Aceita pelo cliente' }
-    if (isRejected) return { bg: 'bg-rose-600', text: 'text-white', label: 'Rejeitada' }
-    if (isCancelled) return { bg: 'bg-slate-400', text: 'text-white', label: 'Cancelada' }
-    return { bg: 'bg-slate-400', text: 'text-white', label: 'Outro' }
+    if (isPending) return { bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500', label: 'Pendente' }
+    if (isApproved) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500', label: 'Aprovada' }
+    if (isDraft) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Rascunho' }
+    if (isSent) return { bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500', label: 'Enviada' }
+    if (isAccepted) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-600', label: 'Aceita' }
+    if (isRejected) return { bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500', label: 'Rejeitada' }
+    if (isCancelled) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Cancelada' }
+    return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Outro' }
   })()
 
   return (
-    <div className={`relative overflow-hidden rounded-xl border bg-card ${isPending ? 'border-amber-300 shadow-sm shadow-amber-100' : 'border-border'}`}>
-      {isPending && <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-amber-500 to-amber-300" />}
-      <div className="px-5 py-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="mb-1.5 flex flex-wrap items-center gap-2">
-              <strong className="text-base text-foreground">{negotiation.title}</strong>
-              <span className={`inline-flex items-center rounded px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider ${statusStyle.bg} ${statusStyle.text}`}>
-                {statusStyle.label}
-              </span>
-              {isFirstRound && (
-                <span className="inline-flex items-center rounded bg-muted px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Primeira
-                </span>
-              )}
-            </div>
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-mono text-2xl font-bold tracking-tight text-foreground">{formatCurrency(negotiation.amount)}</span>
-              <span className="text-xs text-muted-foreground">· {formatDate(negotiation.negotiatedAt)}</span>
-            </div>
-            {negotiation.notes && (
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{negotiation.notes}</p>
-            )}
-          </div>
+    <div className={`group rounded-lg border bg-card px-4 py-3 transition-colors hover:border-primary/30 ${isPending ? 'border-amber-200' : 'border-border'}`}>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <strong className="truncate text-[14px] text-foreground">{negotiation.title}</strong>
+          <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusStyle.bg} ${statusStyle.text}`}>
+            <span className={`h-1 w-1 rounded-full ${statusStyle.dot}`} />
+            {statusStyle.label}
+          </span>
+          {isFirstRound && (
+            <span className="hidden rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:inline-flex">
+              1ª
+            </span>
+          )}
         </div>
+        <span className="font-mono text-[15px] font-semibold text-foreground">{formatCurrency(negotiation.amount)}</span>
+      </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
-          {isPending && (
-            <>
-              <span className="mr-auto flex items-center gap-1.5 text-xs font-semibold text-amber-700">
-                <Clock className="h-3.5 w-3.5" /> Aguardando aprovação interna
-              </span>
-              <Button size="sm" variant="outline" onClick={onChangeStatus} disabled={actionLoading}>
-                <Activity className="mr-1.5 h-3.5 w-3.5" /> Alterar status
-              </Button>
-            </>
-          )}
-          {isDraft && (
-            <>
-              <span className="mr-auto text-xs text-muted-foreground">Rascunho — não enviada</span>
-              <Button size="sm" variant="outline" onClick={onEdit}>
-                <Pencil className="mr-1.5 h-3.5 w-3.5" /> Editar
-              </Button>
-              <Button size="sm" onClick={onRequestApproval}>
-                <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Solicitar aprovação
-              </Button>
-            </>
-          )}
-          {isApproved && (
-            <>
-              <span className="mr-auto flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
-                <CheckCircle className="h-3.5 w-3.5" /> Aprovada internamente
-              </span>
-              <Button size="sm" variant="outline" onClick={onChangeStatus} disabled={actionLoading}>
-                <Activity className="mr-1.5 h-3.5 w-3.5" /> Alterar status
-              </Button>
-            </>
-          )}
-          {(isSent || isAccepted || isRejected || isCancelled) && (
-            <>
-              <span className="mr-auto text-xs text-muted-foreground">{statusStyle.label}</span>
-              <Button size="sm" variant="outline" onClick={onChangeStatus} disabled={actionLoading}>
-                <Activity className="mr-1.5 h-3.5 w-3.5" /> Alterar status
-              </Button>
-            </>
-          )}
-          {(isDraft || isCancelled) && (
-            <Button size="sm" variant="ghost" onClick={onDelete} disabled={actionLoading} className="text-muted-foreground hover:text-destructive">
-              <Trash2 className="h-3.5 w-3.5" />
+      <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[11.5px] text-muted-foreground">
+        <span>{formatDate(negotiation.negotiatedAt)}</span>
+        {negotiation.notes && (
+          <>
+            <span>·</span>
+            <span className="line-clamp-1 italic">{negotiation.notes}</span>
+          </>
+        )}
+      </div>
+
+      <div className="mt-2.5 flex flex-wrap items-center justify-end gap-1.5">
+        {isDraft && (
+          <>
+            <Button size="sm" variant="ghost" onClick={onEdit} className="h-7 px-2 text-xs">
+              <Pencil className="mr-1 h-3 w-3" /> Editar
             </Button>
-          )}
-        </div>
+            <Button size="sm" onClick={onRequestApproval} className="h-7 px-3 text-xs">
+              Solicitar aprovação
+            </Button>
+          </>
+        )}
+        {!isDraft && (
+          <Button size="sm" variant="ghost" onClick={onChangeStatus} disabled={actionLoading} className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground">
+            <Activity className="mr-1 h-3 w-3" /> Alterar status
+          </Button>
+        )}
+        {(isDraft || isCancelled) && (
+          <Button size="sm" variant="ghost" onClick={onDelete} disabled={actionLoading} className="h-7 w-7 px-0 text-muted-foreground hover:text-destructive">
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        )}
       </div>
     </div>
   )
