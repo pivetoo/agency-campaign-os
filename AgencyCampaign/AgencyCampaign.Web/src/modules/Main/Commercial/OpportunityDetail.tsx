@@ -894,10 +894,10 @@ function NegotiationsTab({ negotiations, loading, actionLoading, onNew, onEdit, 
     return negotiations.filter((n) => n.status === OpportunityNegotiationStatus.AcceptedByClient || n.status === OpportunityNegotiationStatus.Rejected || n.status === OpportunityNegotiationStatus.Cancelled)
   }, [negotiations, filter])
 
-  const sorted = useMemo(() => [...filtered].sort((a, b) => new Date(b.negotiatedAt).getTime() - new Date(a.negotiatedAt).getTime()), [filtered])
+  const sorted = useMemo(() => [...filtered].sort((a, b) => b.id - a.id), [filtered])
   const firstNegotiationId = useMemo(() => {
     if (negotiations.length === 0) return null
-    return [...negotiations].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0]?.id ?? null
+    return [...negotiations].sort((a, b) => a.id - b.id)[0]?.id ?? null
   }, [negotiations])
 
   const pendingTopBanner = counts.pendingApproval > 0
