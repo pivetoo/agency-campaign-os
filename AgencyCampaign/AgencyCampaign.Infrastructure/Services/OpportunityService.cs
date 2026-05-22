@@ -41,8 +41,24 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<PagedResult<Opportunity>> GetOpportunities(PagedRequest request, OpportunityListFilters filters, CancellationToken cancellationToken = default)
         {
+            return await GetOpportunitiesScoped(request, filters, restrictToCurrentUser: false, cancellationToken);
+        }
+
+        public async Task<PagedResult<Opportunity>> GetOpportunitiesScoped(PagedRequest request, OpportunityListFilters filters, bool restrictToCurrentUser, CancellationToken cancellationToken = default)
+        {
             IQueryable<Opportunity> query = QueryWithDetails();
             query = ApplyOpportunityFilters(query, filters);
+
+            if (restrictToCurrentUser)
+            {
+                long? userId = currentUser.UserId;
+                if (!userId.HasValue)
+                {
+                    return new PagedResult<Opportunity> { Items = [] };
+                }
+
+                query = query.Where(item => item.ResponsibleUserId == userId.Value);
+            }
 
             return await query
                 .OrderBy(item => item.ClosedAt.HasValue)
@@ -256,9 +272,26 @@ namespace AgencyCampaign.Infrastructure.Services
             return await SaveAndReturn(opportunity, cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoard(CancellationToken cancellationToken = default)
+        public Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoard(CancellationToken cancellationToken = default)
         {
-            List<Opportunity> opportunities = await QueryWithDetails()
+            return GetBoardScoped(restrictToCurrentUser: false, cancellationToken);
+        }
+
+        public async Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoardScoped(bool restrictToCurrentUser, CancellationToken cancellationToken = default)
+        {
+            IQueryable<Opportunity> opportunitiesQuery = QueryWithDetails();
+            if (restrictToCurrentUser)
+            {
+                long? userId = currentUser.UserId;
+                if (!userId.HasValue)
+                {
+                    return [];
+                }
+
+                opportunitiesQuery = opportunitiesQuery.Where(item => item.ResponsibleUserId == userId.Value);
+            }
+
+            List<Opportunity> opportunities = await opportunitiesQuery
                 .OrderBy(item => item.CommercialPipelineStage != null ? item.CommercialPipelineStage.DisplayOrder : int.MaxValue)
                 .ThenByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);

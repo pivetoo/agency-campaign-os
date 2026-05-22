@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, useApi, useI18n } from 'archon-ui'
+import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, useApi, useI18n, usePermissions } from 'archon-ui'
 import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
@@ -133,9 +133,11 @@ export default function CommercialPipeline() {
   const [finalNotes, setFinalNotes] = useState('')
   const { execute: fetchBoard, loading } = useApi<OpportunityBoardStage[]>({ showErrorMessage: true })
   const { execute: runFinalClose, loading: closing } = useApi({ showSuccessMessage: true, showErrorMessage: true })
+  const { hasAnyPermission } = usePermissions()
+  const canSeeAllBoard = hasAnyPermission(['opportunities.board'])
 
   const loadBoard = async () => {
-    const result = await fetchBoard(() => opportunityService.getBoard())
+    const result = await fetchBoard(() => (canSeeAllBoard ? opportunityService.getBoard() : opportunityService.getBoardMine()))
     if (result) {
       setBoard(result)
     }

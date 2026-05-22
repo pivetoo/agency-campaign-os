@@ -49,6 +49,18 @@ namespace AgencyCampaign.Api.Controllers
             });
         }
 
+        [RequireAccess("opportunities.getOwn.description")]
+        [GetEndpoint]
+        public async Task<IActionResult> GetMine([FromQuery] PagedRequest request, [FromQuery] OpportunityListFilters filters, CancellationToken cancellationToken)
+        {
+            PagedResult<Opportunity> result = await opportunityService.GetOpportunitiesScoped(request, filters, restrictToCurrentUser: true, cancellationToken);
+            return Http200(new PagedResult<OpportunityContract>
+            {
+                Items = result.Items.Select(MapOpportunity).ToArray(),
+                Pagination = result.Pagination
+            });
+        }
+
         [RequireAccess("opportunities.getById.description")]
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
@@ -62,6 +74,13 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> Board(CancellationToken cancellationToken)
         {
             return Http200(await opportunityService.GetBoard(cancellationToken));
+        }
+
+        [RequireAccess("opportunities.boardOwn.description")]
+        [GetEndpoint]
+        public async Task<IActionResult> BoardMine(CancellationToken cancellationToken)
+        {
+            return Http200(await opportunityService.GetBoardScoped(restrictToCurrentUser: true, cancellationToken));
         }
 
         [RequireAccess("opportunities.dashboard.description")]

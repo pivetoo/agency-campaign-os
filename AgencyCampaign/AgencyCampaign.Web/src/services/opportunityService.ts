@@ -335,23 +335,32 @@ export interface OpportunityListFilters {
   opportunityTagId?: number
 }
 
+function buildListQuery(params?: { page?: number; pageSize?: number } & OpportunityListFilters): string {
+  const searchParams = new URLSearchParams()
+  if (params?.page) searchParams.set('page', params.page.toString())
+  if (params?.pageSize) searchParams.set('pageSize', params.pageSize.toString())
+  if (params?.search) searchParams.set('search', params.search)
+  if (params?.brandId) searchParams.set('brandId', params.brandId.toString())
+  if (params?.commercialPipelineStageId) searchParams.set('commercialPipelineStageId', params.commercialPipelineStageId.toString())
+  if (params?.responsibleUserId) searchParams.set('responsibleUserId', params.responsibleUserId.toString())
+  if (params?.status) searchParams.set('status', params.status)
+  if (params?.minValue !== undefined) searchParams.set('minValue', params.minValue.toString())
+  if (params?.maxValue !== undefined) searchParams.set('maxValue', params.maxValue.toString())
+  if (params?.opportunitySourceId) searchParams.set('opportunitySourceId', params.opportunitySourceId.toString())
+  if (params?.opportunityTagId) searchParams.set('opportunityTagId', params.opportunityTagId.toString())
+  return searchParams.toString()
+}
+
 export const opportunityService = {
   getAll(params?: { page?: number; pageSize?: number } & OpportunityListFilters): Promise<ApiResponse<Opportunity[]>> {
-    const searchParams = new URLSearchParams()
-    if (params?.page) searchParams.set('page', params.page.toString())
-    if (params?.pageSize) searchParams.set('pageSize', params.pageSize.toString())
-    if (params?.search) searchParams.set('search', params.search)
-    if (params?.brandId) searchParams.set('brandId', params.brandId.toString())
-    if (params?.commercialPipelineStageId) searchParams.set('commercialPipelineStageId', params.commercialPipelineStageId.toString())
-    if (params?.responsibleUserId) searchParams.set('responsibleUserId', params.responsibleUserId.toString())
-    if (params?.status) searchParams.set('status', params.status)
-    if (params?.minValue !== undefined) searchParams.set('minValue', params.minValue.toString())
-    if (params?.maxValue !== undefined) searchParams.set('maxValue', params.maxValue.toString())
-    if (params?.opportunitySourceId) searchParams.set('opportunitySourceId', params.opportunitySourceId.toString())
-    if (params?.opportunityTagId) searchParams.set('opportunityTagId', params.opportunityTagId.toString())
-
-    const query = searchParams.toString()
+    const query = buildListQuery(params)
     const url = query ? `${BASE_URL}/Get?${query}` : `${BASE_URL}/Get`
+    return httpClient.get<Opportunity[]>(url)
+  },
+
+  getAllMine(params?: { page?: number; pageSize?: number } & OpportunityListFilters): Promise<ApiResponse<Opportunity[]>> {
+    const query = buildListQuery(params)
+    const url = query ? `${BASE_URL}/GetMine?${query}` : `${BASE_URL}/GetMine`
     return httpClient.get<Opportunity[]>(url)
   },
 
@@ -362,6 +371,11 @@ export const opportunityService = {
 
   async getBoard(): Promise<OpportunityBoardStage[]> {
     const response = await httpClient.get<OpportunityBoardStage[]>(`${BASE_URL}/Board`)
+    return response.data ?? []
+  },
+
+  async getBoardMine(): Promise<OpportunityBoardStage[]> {
+    const response = await httpClient.get<OpportunityBoardStage[]>(`${BASE_URL}/BoardMine`)
     return response.data ?? []
   },
 

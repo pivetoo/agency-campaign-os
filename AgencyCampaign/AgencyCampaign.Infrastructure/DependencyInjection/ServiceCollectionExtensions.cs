@@ -1,6 +1,8 @@
+using AgencyCampaign.Application.Abstractions;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Infrastructure.Clients;
 using AgencyCampaign.Infrastructure.Options;
+using AgencyCampaign.Infrastructure.Security;
 using AgencyCampaign.Infrastructure.Services;
 using Archon.Infrastructure.DependencyInjection;
 using Archon.Infrastructure.Migrations;
@@ -28,6 +30,8 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddScoped<IAutomationDispatcher, AutomationDispatcher>();
             services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();
             services.AddScoped<IImageUploadStorage, ImageUploadStorage>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<IPermissionChecker, PermissionChecker>();
 
             return services;
         }

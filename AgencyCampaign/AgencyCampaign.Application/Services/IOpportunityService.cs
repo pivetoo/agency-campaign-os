@@ -10,6 +10,8 @@ namespace AgencyCampaign.Application.Services
     {
         Task<PagedResult<Opportunity>> GetOpportunities(PagedRequest request, OpportunityListFilters filters, CancellationToken cancellationToken = default);
 
+        Task<PagedResult<Opportunity>> GetOpportunitiesScoped(PagedRequest request, OpportunityListFilters filters, bool restrictToCurrentUser, CancellationToken cancellationToken = default);
+
         Task<Opportunity?> GetOpportunityById(long id, CancellationToken cancellationToken = default);
 
         Task<Opportunity> CreateOpportunity(CreateOpportunityRequest request, CancellationToken cancellationToken = default);
@@ -23,6 +25,8 @@ namespace AgencyCampaign.Application.Services
         Task<Opportunity> CloseAsLost(long id, CloseOpportunityAsLostRequest request, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoard(CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoardScoped(bool restrictToCurrentUser, CancellationToken cancellationToken = default);
 
         Task<CommercialDashboardSummaryModel> GetDashboardSummary(CancellationToken cancellationToken = default);
 

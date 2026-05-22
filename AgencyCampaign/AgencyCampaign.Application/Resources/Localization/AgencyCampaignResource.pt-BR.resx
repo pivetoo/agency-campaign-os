@@ -1394,6 +1394,8 @@
   <data name="opportunities.alerts.description" xml:space="preserve"><value>Permite consultar os alertas comerciais.</value></data>
   <data name="opportunities.area" xml:space="preserve"><value>Opportunities</value></data>
   <data name="opportunities.board.description" xml:space="preserve"><value>Permite consultar o board comercial por estágio.</value></data>
+  <data name="opportunities.boardOwn.description" xml:space="preserve"><value>Permite consultar o board comercial apenas das próprias oportunidades.</value></data>
+  <data name="opportunities.getOwn.description" xml:space="preserve"><value>Permite listar apenas as oportunidades em que o usuário é responsável.</value></data>
   <data name="opportunities.changeStage.description" xml:space="preserve"><value>Permite alterar o estágio de uma oportunidade comercial.</value></data>
   <data name="opportunities.changeStatus.description" xml:space="preserve"><value>Permite alterar o status de uma negociação.</value></data>
   <data name="opportunities.closeAsLost.description" xml:space="preserve"><value>Permite encerrar uma oportunidade como perdida.</value></data>
