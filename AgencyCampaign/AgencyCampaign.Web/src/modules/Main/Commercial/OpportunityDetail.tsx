@@ -874,6 +874,7 @@ interface NegotiationsTabProps {
 
 function NegotiationsTab({ negotiations, loading, actionLoading, onNew, onEdit, onDelete, onChangeStatus, onRequestApproval }: NegotiationsTabProps) {
   const [filter, setFilter] = useState<NegotiationFilter>('all')
+  const [selectedId, setSelectedId] = useState<number | null>(null)
 
   const counts = useMemo(() => ({
     all: negotiations.length,
@@ -948,19 +949,34 @@ function NegotiationsTab({ negotiations, loading, actionLoading, onNew, onEdit, 
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-2">
-          {sorted.map((n) => (
-            <NegotiationCard
-              key={n.id}
-              negotiation={n}
-              isFirstRound={n.id === firstNegotiationId}
-              actionLoading={actionLoading}
-              onEdit={() => onEdit(n)}
-              onDelete={() => void onDelete(n)}
-              onChangeStatus={() => onChangeStatus(n)}
-              onRequestApproval={() => onRequestApproval(n)}
-            />
-          ))}
+        <div className={`grid gap-4 ${selectedId ? 'lg:grid-cols-[1fr_360px]' : 'grid-cols-1'}`}>
+          <div className="space-y-2">
+            {sorted.map((n) => (
+              <NegotiationCard
+                key={n.id}
+                negotiation={n}
+                isFirstRound={n.id === firstNegotiationId}
+                selected={selectedId === n.id}
+                onClick={() => setSelectedId((current) => current === n.id ? null : n.id)}
+              />
+            ))}
+          </div>
+          {selectedId && (() => {
+            const sel = negotiations.find((n) => n.id === selectedId)
+            if (!sel) return null
+            return (
+              <NegotiationDetailPanel
+                negotiation={sel}
+                isFirstRound={sel.id === firstNegotiationId}
+                actionLoading={actionLoading}
+                onClose={() => setSelectedId(null)}
+                onEdit={() => onEdit(sel)}
+                onDelete={() => void onDelete(sel)}
+                onChangeStatus={() => onChangeStatus(sel)}
+                onRequestApproval={() => onRequestApproval(sel)}
+              />
+            )
+          })()}
         </div>
       )}
     </div>
@@ -993,38 +1009,41 @@ function FilterChip({ label, count, active, dotColor, onClick }: { label: string
 interface NegotiationCardProps {
   negotiation: OpportunityNegotiation
   isFirstRound: boolean
-  actionLoading: boolean
-  onEdit: () => void
-  onDelete: () => void
-  onChangeStatus: () => void
-  onRequestApproval: () => void
+  selected: boolean
+  onClick: () => void
 }
 
-function NegotiationCard({ negotiation, isFirstRound, actionLoading, onEdit, onDelete, onChangeStatus, onRequestApproval }: NegotiationCardProps) {
-  const isPending = negotiation.status === OpportunityNegotiationStatus.PendingApproval
-  const isDraft = negotiation.status === OpportunityNegotiationStatus.Draft
-  const isApproved = negotiation.status === OpportunityNegotiationStatus.Approved
-  const isSent = negotiation.status === OpportunityNegotiationStatus.SentToClient
-  const isRejected = negotiation.status === OpportunityNegotiationStatus.Rejected
-  const isAccepted = negotiation.status === OpportunityNegotiationStatus.AcceptedByClient
-  const isCancelled = negotiation.status === OpportunityNegotiationStatus.Cancelled
+const negotiationStatusStyle = (status: OpportunityNegotiationStatusValue) => {
+  if (status === OpportunityNegotiationStatus.PendingApproval) return { bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500', label: 'Pendente' }
+  if (status === OpportunityNegotiationStatus.Approved) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500', label: 'Aprovada' }
+  if (status === OpportunityNegotiationStatus.Draft) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Rascunho' }
+  if (status === OpportunityNegotiationStatus.SentToClient) return { bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500', label: 'Enviada' }
+  if (status === OpportunityNegotiationStatus.AcceptedByClient) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-600', label: 'Aceita' }
+  if (status === OpportunityNegotiationStatus.Rejected) return { bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500', label: 'Rejeitada' }
+  if (status === OpportunityNegotiationStatus.Cancelled) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Cancelada' }
+  return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Outro' }
+}
 
-  const statusStyle = (() => {
-    if (isPending) return { bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500', label: 'Pendente' }
-    if (isApproved) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500', label: 'Aprovada' }
-    if (isDraft) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Rascunho' }
-    if (isSent) return { bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500', label: 'Enviada' }
-    if (isAccepted) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-600', label: 'Aceita' }
-    if (isRejected) return { bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500', label: 'Rejeitada' }
-    if (isCancelled) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Cancelada' }
-    return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Outro' }
-  })()
+function NegotiationCard({ negotiation, isFirstRound, selected, onClick }: NegotiationCardProps) {
+  const isPending = negotiation.status === OpportunityNegotiationStatus.PendingApproval
+  const statusStyle = negotiationStatusStyle(negotiation.status)
 
   return (
-    <div className={`group rounded-lg border bg-card px-4 py-3 transition-colors hover:border-primary/30 ${isPending ? 'border-amber-200' : 'border-border'}`}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        'group w-full rounded-lg border bg-card px-4 py-3 text-left transition-all',
+        selected
+          ? 'border-primary ring-1 ring-primary/20'
+          : isPending
+            ? 'border-amber-200 hover:border-amber-300'
+            : 'border-border hover:border-primary/30',
+      ].join(' ')}
+    >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <strong className="truncate text-[14px] text-foreground">{negotiation.title}</strong>
+          <strong className={`truncate text-[14px] ${selected ? 'text-primary' : 'text-foreground'}`}>{negotiation.title}</strong>
           <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusStyle.bg} ${statusStyle.text}`}>
             <span className={`h-1 w-1 rounded-full ${statusStyle.dot}`} />
             {statusStyle.label}
@@ -1047,30 +1066,124 @@ function NegotiationCard({ negotiation, isFirstRound, actionLoading, onEdit, onD
           </>
         )}
       </div>
+    </button>
+  )
+}
 
-      <div className="mt-2.5 flex flex-wrap items-center justify-end gap-1.5">
+interface NegotiationDetailPanelProps {
+  negotiation: OpportunityNegotiation
+  isFirstRound: boolean
+  actionLoading: boolean
+  onClose: () => void
+  onEdit: () => void
+  onDelete: () => void
+  onChangeStatus: () => void
+  onRequestApproval: () => void
+}
+
+function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onClose, onEdit, onDelete, onChangeStatus, onRequestApproval }: NegotiationDetailPanelProps) {
+  const isDraft = negotiation.status === OpportunityNegotiationStatus.Draft
+  const isCancelled = negotiation.status === OpportunityNegotiationStatus.Cancelled
+  const statusStyle = negotiationStatusStyle(negotiation.status)
+  const approvals = negotiation.approvalRequests ?? []
+
+  return (
+    <aside className="sticky top-4 self-start overflow-hidden rounded-xl border border-border bg-card">
+      <div className="flex items-start justify-between gap-2 border-b border-border/60 px-4 py-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusStyle.bg} ${statusStyle.text}`}>
+              <span className={`h-1 w-1 rounded-full ${statusStyle.dot}`} />
+              {statusStyle.label}
+            </span>
+            {isFirstRound && (
+              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">1ª negociação</span>
+            )}
+          </div>
+          <h3 className="mt-1.5 truncate text-base font-semibold text-foreground">{negotiation.title}</h3>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          aria-label="Fechar painel"
+        >
+          <XCircle className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="space-y-4 px-4 py-4">
+        <div>
+          <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Valor</p>
+          <p className="mt-0.5 font-mono text-2xl font-bold tracking-tight text-foreground">{formatCurrency(negotiation.amount)}</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Data</p>
+            <p className="mt-0.5 text-sm text-foreground">{formatDate(negotiation.negotiatedAt)}</p>
+          </div>
+          <div>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Criada</p>
+            <p className="mt-0.5 text-sm text-foreground">{formatDate(negotiation.createdAt)}</p>
+          </div>
+        </div>
+
+        {negotiation.notes && (
+          <div>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Notas</p>
+            <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{negotiation.notes}</p>
+          </div>
+        )}
+
+        {approvals.length > 0 && (
+          <div>
+            <p className="mb-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Aprovações vinculadas</p>
+            <div className="space-y-1.5">
+              {approvals.map((approval) => {
+                const isPending = approval.status === OpportunityApprovalStatus.Pending
+                const isApproved = approval.status === OpportunityApprovalStatus.Approved
+                const isRejected = approval.status === OpportunityApprovalStatus.Rejected
+                const label = isPending ? 'Pendente' : isApproved ? 'Aprovada' : isRejected ? 'Rejeitada' : 'Cancelada'
+                const tone = isPending ? 'bg-amber-100 text-amber-800' : isApproved ? 'bg-emerald-100 text-emerald-800' : isRejected ? 'bg-rose-100 text-rose-800' : 'bg-muted text-muted-foreground'
+                return (
+                  <div key={approval.id} className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-muted/30 px-2.5 py-2 text-xs">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-foreground">{approval.reason || 'Solicitação de aprovação'}</p>
+                      <p className="text-[11px] text-muted-foreground">{approval.requestedByUserName} · {formatDate(approval.requestedAt)}</p>
+                    </div>
+                    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tone}`}>{label}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-1.5 border-t border-border/60 bg-muted/20 px-4 py-3">
         {isDraft && (
           <>
-            <Button size="sm" variant="ghost" onClick={onEdit} className="h-7 px-2 text-xs">
-              <Pencil className="mr-1 h-3 w-3" /> Editar
+            <Button size="sm" onClick={onRequestApproval} disabled={actionLoading} className="justify-center">
+              <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Solicitar aprovação
             </Button>
-            <Button size="sm" onClick={onRequestApproval} className="h-7 px-3 text-xs">
-              Solicitar aprovação
+            <Button size="sm" variant="outline" onClick={onEdit} disabled={actionLoading} className="justify-center">
+              <Pencil className="mr-1.5 h-3.5 w-3.5" /> Editar
             </Button>
           </>
         )}
         {!isDraft && (
-          <Button size="sm" variant="ghost" onClick={onChangeStatus} disabled={actionLoading} className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground">
-            <Activity className="mr-1 h-3 w-3" /> Alterar status
+          <Button size="sm" variant="outline" onClick={onChangeStatus} disabled={actionLoading} className="justify-center">
+            <Activity className="mr-1.5 h-3.5 w-3.5" /> Alterar status
           </Button>
         )}
         {(isDraft || isCancelled) && (
-          <Button size="sm" variant="ghost" onClick={onDelete} disabled={actionLoading} className="h-7 w-7 px-0 text-muted-foreground hover:text-destructive">
-            <Trash2 className="h-3 w-3" />
+          <Button size="sm" variant="ghost" onClick={onDelete} disabled={actionLoading} className="justify-center text-muted-foreground hover:text-destructive">
+            <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Excluir negociação
           </Button>
         )}
       </div>
-    </div>
+    </aside>
   )
 }
 
