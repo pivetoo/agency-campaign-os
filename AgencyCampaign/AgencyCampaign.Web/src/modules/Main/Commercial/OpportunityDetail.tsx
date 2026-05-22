@@ -949,7 +949,7 @@ function NegotiationsTab({ negotiations, loading, actionLoading, onNew, onEdit, 
           </CardContent>
         </Card>
       ) : (
-        <div className={`grid gap-4 ${selectedId ? 'lg:grid-cols-[1fr_360px]' : 'grid-cols-1'}`}>
+        <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             {sorted.map((n) => (
               <NegotiationCard
@@ -961,22 +961,32 @@ function NegotiationsTab({ negotiations, loading, actionLoading, onNew, onEdit, 
               />
             ))}
           </div>
-          {selectedId && (() => {
-            const sel = negotiations.find((n) => n.id === selectedId)
-            if (!sel) return null
-            return (
-              <NegotiationDetailPanel
-                negotiation={sel}
-                isFirstRound={sel.id === firstNegotiationId}
-                actionLoading={actionLoading}
-                onClose={() => setSelectedId(null)}
-                onEdit={() => onEdit(sel)}
-                onDelete={() => void onDelete(sel)}
-                onChangeStatus={() => onChangeStatus(sel)}
-                onRequestApproval={() => onRequestApproval(sel)}
-              />
-            )
-          })()}
+          <div className="hidden md:block">
+            {(() => {
+              const sel = negotiations.find((n) => n.id === selectedId)
+              if (!sel) {
+                return (
+                  <div className="sticky top-4 flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center text-sm text-muted-foreground">
+                    <MessageSquare className="mb-2 h-6 w-6 opacity-40" />
+                    <p className="font-medium">Selecione uma negociação</p>
+                    <p className="mt-1 text-xs">Clique num card à esquerda para ver detalhes, aprovações vinculadas e ações.</p>
+                  </div>
+                )
+              }
+              return (
+                <NegotiationDetailPanel
+                  negotiation={sel}
+                  isFirstRound={sel.id === firstNegotiationId}
+                  actionLoading={actionLoading}
+                  onClose={() => setSelectedId(null)}
+                  onEdit={() => onEdit(sel)}
+                  onDelete={() => void onDelete(sel)}
+                  onChangeStatus={() => onChangeStatus(sel)}
+                  onRequestApproval={() => onRequestApproval(sel)}
+                />
+              )
+            })()}
+          </div>
         </div>
       )}
     </div>
