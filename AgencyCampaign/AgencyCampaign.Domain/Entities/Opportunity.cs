@@ -53,7 +53,11 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? LossReason { get; private set; }
 
+        public long? LossReasonId { get; private set; }
+
         public string? WonNotes { get; private set; }
+
+        public long? WinReasonId { get; private set; }
 
         public IReadOnlyCollection<OpportunityNegotiation> Negotiations => negotiations.AsReadOnly();
 
@@ -217,7 +221,7 @@ namespace AgencyCampaign.Domain.Entities
             }
         }
 
-        public void CloseAsWon(CommercialPipelineStage stage, string? wonNotes, long? changedByUserId = null, string? changedByUserName = null)
+        public void CloseAsWon(CommercialPipelineStage stage, string? wonNotes, long? winReasonId = null, long? changedByUserId = null, string? changedByUserName = null)
         {
             ArgumentNullException.ThrowIfNull(stage);
 
@@ -230,7 +234,9 @@ namespace AgencyCampaign.Domain.Entities
 
             CommercialPipelineStageId = stage.Id;
             WonNotes = Normalize(wonNotes);
+            WinReasonId = winReasonId;
             LossReason = null;
+            LossReasonId = null;
             ClosedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
 
@@ -238,7 +244,7 @@ namespace AgencyCampaign.Domain.Entities
                 Id, fromStageId, stage.Id, changedByUserId, changedByUserName, WonNotes ?? "Fechada como ganha"));
         }
 
-        public void CloseAsLost(CommercialPipelineStage stage, string lossReason, long? changedByUserId = null, string? changedByUserName = null)
+        public void CloseAsLost(CommercialPipelineStage stage, string lossReason, long? lossReasonId = null, long? changedByUserId = null, string? changedByUserName = null)
         {
             ArgumentNullException.ThrowIfNull(stage);
 
@@ -253,7 +259,9 @@ namespace AgencyCampaign.Domain.Entities
 
             CommercialPipelineStageId = stage.Id;
             LossReason = lossReason.Trim();
+            LossReasonId = lossReasonId;
             WonNotes = null;
+            WinReasonId = null;
             ClosedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
 

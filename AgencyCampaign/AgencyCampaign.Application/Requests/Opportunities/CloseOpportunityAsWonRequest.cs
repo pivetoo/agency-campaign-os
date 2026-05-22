@@ -6,5 +6,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
     {
         [StringLength(1000)]
         public string? WonNotes { get; set; }
+
+        public long? WinReasonId { get; set; }
     }
 }

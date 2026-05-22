@@ -41,6 +41,20 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.WonNotes)
                 .HasMaxLength(1000);
 
+            builder.Property(entity => entity.LossReasonId);
+
+            builder.Property(entity => entity.WinReasonId);
+
+            builder.HasOne<OpportunityLossReason>()
+                .WithMany()
+                .HasForeignKey(entity => entity.LossReasonId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne<OpportunityWinReason>()
+                .WithMany()
+                .HasForeignKey(entity => entity.WinReasonId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             builder.HasOne(entity => entity.CommercialPipelineStage)
                 .WithMany()
                 .HasForeignKey(entity => entity.CommercialPipelineStageId)

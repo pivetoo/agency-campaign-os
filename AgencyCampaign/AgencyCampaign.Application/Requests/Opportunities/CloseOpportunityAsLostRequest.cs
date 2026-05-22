@@ -7,5 +7,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         [Required]
         [StringLength(1000, MinimumLength = 2)]
         public string LossReason { get; set; } = string.Empty;
+
+        public long? LossReasonId { get; set; }
     }
 }

@@ -242,7 +242,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
             CommercialPipelineStage wonStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Won, cancellationToken);
-            opportunity.CloseAsWon(wonStage, request.WonNotes, currentUser.UserId, currentUser.UserName);
+            opportunity.CloseAsWon(wonStage, request.WonNotes, request.WinReasonId, currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -251,7 +251,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
             CommercialPipelineStage lostStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Lost, cancellationToken);
-            opportunity.CloseAsLost(lostStage, request.LossReason, currentUser.UserId, currentUser.UserName);
+            opportunity.CloseAsLost(lostStage, request.LossReason, request.LossReasonId, currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }

@@ -1427,6 +1427,16 @@
   <data name="opportunityApprovals.getByNegotiation.description" xml:space="preserve"><value>Permite listar as aprovações de uma negociação comercial.</value></data>
   <data name="opportunityApprovals.reject.description" xml:space="preserve"><value>Permite rejeitar uma solicitação comercial.</value></data>
   <data name="opportunityApprovals.summary.description" xml:space="preserve"><value>Permite consultar o resumo de aprovações comerciais.</value></data>
+  <data name="opportunityWinReasons.area" xml:space="preserve"><value>Motivos de ganho</value></data>
+  <data name="opportunityWinReasons.create.description" xml:space="preserve"><value>Permite cadastrar um motivo de ganho de oportunidade.</value></data>
+  <data name="opportunityWinReasons.delete.description" xml:space="preserve"><value>Permite excluir um motivo de ganho de oportunidade.</value></data>
+  <data name="opportunityWinReasons.get.description" xml:space="preserve"><value>Permite listar os motivos de ganho cadastrados.</value></data>
+  <data name="opportunityWinReasons.update.description" xml:space="preserve"><value>Permite atualizar um motivo de ganho de oportunidade.</value></data>
+  <data name="opportunityLossReasons.area" xml:space="preserve"><value>Motivos de perda</value></data>
+  <data name="opportunityLossReasons.create.description" xml:space="preserve"><value>Permite cadastrar um motivo de perda de oportunidade.</value></data>
+  <data name="opportunityLossReasons.delete.description" xml:space="preserve"><value>Permite excluir um motivo de perda de oportunidade.</value></data>
+  <data name="opportunityLossReasons.get.description" xml:space="preserve"><value>Permite listar os motivos de perda cadastrados.</value></data>
+  <data name="opportunityLossReasons.update.description" xml:space="preserve"><value>Permite atualizar um motivo de perda de oportunidade.</value></data>
   <data name="opportunitySources.area" xml:space="preserve"><value>Opportunity sources</value></data>
   <data name="opportunitySources.create.description" xml:space="preserve"><value>Permite cadastrar uma tag de oportunidade.</value></data>
   <data name="opportunitySources.delete.description" xml:space="preserve"><value>Permite excluir uma tag de oportunidade.</value></data>
