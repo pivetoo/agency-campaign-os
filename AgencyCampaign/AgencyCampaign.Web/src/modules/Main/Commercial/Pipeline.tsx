@@ -4,6 +4,7 @@ import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Page
 import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
+import CommercialGoalsWidget from './CommercialGoalsWidget'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
@@ -279,6 +280,7 @@ export default function CommercialPipeline() {
       onRefresh={() => void loadBoard()}
     >
       <div className="space-y-6">
+        <CommercialGoalsWidget scope={canSeeAllBoard ? 'all' : 'mine'} onEmptyManage={() => navigate('/comercial/metas')} />
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border bg-card px-4 py-2.5 text-sm">
           <div className="flex items-center gap-2">
             <UserRound className="h-4 w-4 text-muted-foreground" />

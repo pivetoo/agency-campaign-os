@@ -1275,6 +1275,12 @@
   <data name="campaignDocumentTemplates.preview.description" xml:space="preserve"><value>Permite pre-visualizar o body do template com dados de exemplo.</value></data>
   <data name="campaignDocumentTemplates.update.description" xml:space="preserve"><value>Permite atualizar um template de documento.</value></data>
   <data name="campaignDocumentTemplates.variables.description" xml:space="preserve"><value>Permite listar as variaveis disponiveis por tipo de documento.</value></data>
+  <data name="commercialGoals.area" xml:space="preserve"><value>Metas comerciales</value></data>
+  <data name="commercialGoals.create.description" xml:space="preserve"><value>Permite crear una meta comercial.</value></data>
+  <data name="commercialGoals.delete.description" xml:space="preserve"><value>Permite eliminar una meta comercial.</value></data>
+  <data name="commercialGoals.get.description" xml:space="preserve"><value>Permite listar las metas comerciales.</value></data>
+  <data name="commercialGoals.progress.description" xml:space="preserve"><value>Permite consultar el progreso de las metas comerciales.</value></data>
+  <data name="commercialGoals.update.description" xml:space="preserve"><value>Permite actualizar una meta comercial.</value></data>
   <data name="campaignDocuments.area" xml:space="preserve"><value>Campaign documents</value></data>
   <data name="campaignDocuments.create.description" xml:space="preserve"><value>Permite cadastrar um documento.</value></data>
   <data name="campaignDocuments.generateFromTemplate.description" xml:space="preserve"><value>Permite gerar um documento a partir de um template.</value></data>
