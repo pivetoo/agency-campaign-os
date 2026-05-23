@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, useApi, useI18n, usePermissions } from 'archon-ui'
-import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, UserRound } from 'lucide-react'
+import { AlertTriangle, CalendarClock, ChevronDown, ChevronRight, DollarSign, List, Plus, RefreshCcw, Target, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import CommercialGoalsWidget from './CommercialGoalsWidget'
@@ -127,6 +127,7 @@ export default function CommercialPipeline() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const [board, setBoard] = useState<OpportunityBoardStage[]>([])
+  const [insightsOpen, setInsightsOpen] = useState<boolean>(() => localStorage.getItem('pipeline.insights.open') === 'true')
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [draggedItem, setDraggedItem] = useState<OpportunityBoardItem | null>(null)
   const [dragOverStage, setDragOverStage] = useState<number | null>(null)
@@ -281,9 +282,30 @@ export default function CommercialPipeline() {
       onRefresh={() => void loadBoard()}
     >
       <div className="space-y-6">
-        <div className="grid gap-3 lg:grid-cols-[1fr_360px]">
-          <CommercialGoalsWidget scope={canSeeAllBoard ? 'all' : 'mine'} onEmptyManage={() => navigate('/comercial/metas')} />
-          <CommercialForecastWidget scope={canSeeAllBoard ? 'all' : 'mine'} />
+        <div className="rounded-lg border border-border bg-card">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !insightsOpen
+              setInsightsOpen(next)
+              localStorage.setItem('pipeline.insights.open', String(next))
+            }}
+            className="flex w-full items-center justify-between gap-2 px-4 py-2.5 text-left text-sm font-semibold text-foreground transition-colors hover:bg-muted/40"
+            aria-expanded={insightsOpen}
+          >
+            <span className="flex items-center gap-2">
+              {insightsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              <Target className="h-4 w-4 text-muted-foreground" />
+              Metas e previsão
+            </span>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{insightsOpen ? 'Recolher' : 'Expandir'}</span>
+          </button>
+          {insightsOpen && (
+            <div className="grid gap-3 border-t border-border/60 p-3 lg:grid-cols-[1fr_360px]">
+              <CommercialGoalsWidget scope={canSeeAllBoard ? 'all' : 'mine'} onEmptyManage={() => navigate('/comercial/metas')} />
+              <CommercialForecastWidget scope={canSeeAllBoard ? 'all' : 'mine'} />
+            </div>
+          )}
         </div>
         {summary.overdueFollowUps > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
