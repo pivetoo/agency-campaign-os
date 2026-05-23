@@ -658,7 +658,7 @@ namespace AgencyCampaign.Infrastructure.Services
             Dictionary<long, long> openCurrentStageById)
         {
             List<CommercialPipelineStage> openStages = stages
-                .Where(stage => stage.FinalBehavior == CommercialPipelineStageFinalBehavior.None)
+                .Where(stage => stage.FinalBehavior == CommercialPipelineStageFinalBehavior.None && stage.IsActive)
                 .OrderBy(stage => stage.DisplayOrder)
                 .ToList();
 
@@ -806,7 +806,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return stages
-                .Where(stage => stage.FinalBehavior == CommercialPipelineStageFinalBehavior.None)
+                .Where(stage => stage.FinalBehavior == CommercialPipelineStageFinalBehavior.None && stage.IsActive)
                 .OrderBy(stage => stage.DisplayOrder)
                 .Select(stage =>
                 {
