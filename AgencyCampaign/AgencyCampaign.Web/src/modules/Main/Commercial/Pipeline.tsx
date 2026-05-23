@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions } from 'archon-ui'
-import { AlertTriangle, CalendarClock, ChevronLeft, DollarSign, List, Plus, RefreshCcw, Target, UserRound } from 'lucide-react'
+import { AlertTriangle, CalendarClock, DollarSign, List, Plus, RefreshCcw, Target, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import CommercialGoalsWidget from './CommercialGoalsWidget'
@@ -290,14 +290,11 @@ export default function CommercialPipeline() {
           <SheetTrigger asChild>
             <button
               type="button"
-              aria-label="Abrir metas e previsão"
-              className="group fixed right-0 top-1/2 z-30 flex -translate-y-1/2 items-center gap-2 rounded-l-lg border border-r-0 border-border bg-card px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground shadow-md transition-all hover:bg-muted hover:pr-4 hover:text-foreground"
+              aria-label="Abrir insights do funil"
+              title="Insights do funil"
+              className="group fixed right-0 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-l-lg border border-r-0 border-border bg-card text-primary shadow-md transition-all hover:bg-muted hover:text-primary"
             >
-              <ChevronLeft className="h-4 w-4 text-primary transition-transform group-hover:-translate-x-0.5" />
-              <span className="flex items-center gap-1.5">
-                <Target className="h-3.5 w-3.5 text-primary" />
-                Insights
-              </span>
+              <Target className="h-5 w-5" />
               {summary.overdueFollowUps > 0 && (
                 <span className="absolute -top-1.5 -left-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
                   {summary.overdueFollowUps}
