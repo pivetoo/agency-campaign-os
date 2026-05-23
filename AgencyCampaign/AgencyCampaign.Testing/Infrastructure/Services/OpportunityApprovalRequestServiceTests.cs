@@ -1,5 +1,7 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Opportunities;
+using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
@@ -25,7 +27,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             notifications = new Mock<INotificationService>();
-            service = new OpportunityApprovalRequestService(db, notifications.Object);
+            Mock<IPolicyEvaluator> policyEvaluator = new();
+            policyEvaluator
+                .Setup(p => p.EvaluateNegotiationAsync(It.IsAny<OpportunityNegotiation>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new PolicyEvaluationModel { HasDeviations = false });
+            service = new OpportunityApprovalRequestService(db, notifications.Object, policyEvaluator.Object);
         }
 
         [TearDown]

@@ -17,10 +17,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class OpportunityApprovalRequestService : CrudService<OpportunityApprovalRequest>, IOpportunityApprovalRequestService
     {
         private readonly INotificationService notificationService;
+        private readonly IPolicyEvaluator policyEvaluator;
 
-        public OpportunityApprovalRequestService(DbContext dbContext, INotificationService notificationService) : base(dbContext)
+        public OpportunityApprovalRequestService(DbContext dbContext, INotificationService notificationService, IPolicyEvaluator policyEvaluator) : base(dbContext)
         {
             this.notificationService = notificationService;
+            this.policyEvaluator = policyEvaluator;
         }
 
         public async Task<OpportunityApprovalRequest?> GetOpportunityApprovalRequestById(long id, CancellationToken cancellationToken = default)
@@ -50,6 +52,8 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 throw new InvalidOperationException(GetErrorMessages());
             }
+
+            await AutoPopulateFromPolicyAsync(approvalRequest, negotiation, cancellationToken);
 
             (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
 
@@ -227,6 +231,48 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return negotiation;
+        }
+
+        private async Task AutoPopulateFromPolicyAsync(OpportunityApprovalRequest approval, OpportunityNegotiation negotiation, CancellationToken cancellationToken)
+        {
+            try
+            {
+                PolicyEvaluationModel evaluation = await policyEvaluator.EvaluateNegotiationAsync(negotiation, cancellationToken);
+                if (!evaluation.HasDeviations)
+                {
+                    return;
+                }
+
+                int index = 0;
+                foreach (PolicyDeviationModel deviation in evaluation.Deviations)
+                {
+                    DbContext.Set<OpportunityApprovalDiff>().Add(new OpportunityApprovalDiff(
+                        approval.Id,
+                        deviation.Field,
+                        deviation.PolicyValue,
+                        deviation.RequestedValue,
+                        (OpportunityApprovalDiffKind)deviation.Kind,
+                        deviation.Delta,
+                        index++));
+                }
+
+                int impactIndex = 0;
+                foreach (PolicyImpactModel impact in evaluation.Impacts)
+                {
+                    DbContext.Set<OpportunityApprovalImpact>().Add(new OpportunityApprovalImpact(
+                        approval.Id,
+                        impact.Label,
+                        impact.Value,
+                        impact.IsGood,
+                        impactIndex++));
+                }
+
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch
+            {
+                // auto-populate é best-effort; falha aqui não invalida criação da aprovação
+            }
         }
 
         private IQueryable<OpportunityApprovalRequest> QueryWithDetails()

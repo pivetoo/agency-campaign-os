@@ -1460,6 +1460,7 @@
   <data name="opportunityApprovals.getImpacts.description" xml:space="preserve"><value>Permite listar os impactos financeiros de uma solicitação.</value></data>
   <data name="opportunityApprovals.addImpact.description" xml:space="preserve"><value>Permite adicionar um impacto financeiro a uma solicitação.</value></data>
   <data name="opportunityApprovals.removeImpact.description" xml:space="preserve"><value>Permite remover um impacto financeiro de uma solicitação.</value></data>
+  <data name="opportunityApprovals.evaluatePolicy.description" xml:space="preserve"><value>Permite consultar o desvio de uma negociação em relação à política comercial.</value></data>
   <data name="opportunityApprovals.summary.description" xml:space="preserve"><value>Permite consultar o resumo de aprovações comerciais.</value></data>
   <data name="opportunityWinReasons.area" xml:space="preserve"><value>Motivos de ganho</value></data>
   <data name="opportunityWinReasons.create.description" xml:space="preserve"><value>Permite cadastrar um motivo de ganho de oportunidade.</value></data>

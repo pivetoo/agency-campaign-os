@@ -19,15 +19,17 @@ namespace AgencyCampaign.Api.Controllers
         private readonly IOpportunityApprovalReviewerService reviewerService;
         private readonly IOpportunityApprovalDiffService diffService;
         private readonly IOpportunityApprovalImpactService impactService;
+        private readonly IPolicyEvaluator policyEvaluator;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
 
-        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IOpportunityApprovalCommentService commentService, IOpportunityApprovalReviewerService reviewerService, IOpportunityApprovalDiffService diffService, IOpportunityApprovalImpactService impactService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IOpportunityApprovalCommentService commentService, IOpportunityApprovalReviewerService reviewerService, IOpportunityApprovalDiffService diffService, IOpportunityApprovalImpactService impactService, IPolicyEvaluator policyEvaluator, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.approvalRequestService = approvalRequestService;
             this.commentService = commentService;
             this.reviewerService = reviewerService;
             this.diffService = diffService;
             this.impactService = impactService;
+            this.policyEvaluator = policyEvaluator;
             Localizer = localizer;
         }
 
@@ -272,6 +274,13 @@ namespace AgencyCampaign.Api.Controllers
         {
             await impactService.Remove(impactId, cancellationToken);
             return Http204();
+        }
+
+        [RequireAccess("opportunityApprovals.evaluatePolicy.description")]
+        [HttpGet("evaluate-policy/{negotiationId:long}")]
+        public async Task<IActionResult> EvaluatePolicy(long negotiationId, CancellationToken cancellationToken)
+        {
+            return Http200(await policyEvaluator.EvaluateNegotiationByIdAsync(negotiationId, cancellationToken));
         }
     }
 
