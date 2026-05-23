@@ -16,12 +16,14 @@ namespace AgencyCampaign.Api.Controllers
     {
         private readonly IOpportunityApprovalRequestService approvalRequestService;
         private readonly IOpportunityApprovalCommentService commentService;
+        private readonly IOpportunityApprovalReviewerService reviewerService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
 
-        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IOpportunityApprovalCommentService commentService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IOpportunityApprovalCommentService commentService, IOpportunityApprovalReviewerService reviewerService, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.approvalRequestService = approvalRequestService;
             this.commentService = commentService;
+            this.reviewerService = reviewerService;
             Localizer = localizer;
         }
 
@@ -178,6 +180,35 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> DeleteComment(long commentId, CancellationToken cancellationToken)
         {
             await commentService.Delete(commentId, cancellationToken);
+            return Http204();
+        }
+
+        [RequireAccess("opportunityApprovals.getReviewers.description")]
+        [HttpGet("{id:long}/Reviewers")]
+        public async Task<IActionResult> GetReviewers(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await reviewerService.GetByApprovalId(id, cancellationToken));
+        }
+
+        [RequireAccess("opportunityApprovals.addReviewer.description")]
+        [HttpPost("{id:long}/Reviewers")]
+        public async Task<IActionResult> AddReviewer(long id, [FromBody] AddOpportunityApprovalReviewerRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await reviewerService.Add(id, request, cancellationToken);
+            return Http201(result, Localizer["record.created"]);
+        }
+
+        [RequireAccess("opportunityApprovals.removeReviewer.description")]
+        [HttpDelete("Reviewers/{reviewerId:long}")]
+        public async Task<IActionResult> RemoveReviewer(long reviewerId, CancellationToken cancellationToken)
+        {
+            await reviewerService.Remove(reviewerId, cancellationToken);
             return Http204();
         }
     }

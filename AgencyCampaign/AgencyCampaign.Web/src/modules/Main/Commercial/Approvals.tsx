@@ -4,6 +4,7 @@ import { Button, PageLayout, useApi, useAuth, useI18n } from 'archon-ui'
 import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
+import type { OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
 import { formatDate } from '../../../lib/format'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 
@@ -423,33 +424,7 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, onApprove, o
             isMerged={isMerged}
           />
 
-          <SidebarBlock title="Aprovadores" icon={<Users className="h-3.5 w-3.5" />} action={(
-            <button type="button" title="Adicionar" className="flex h-5 w-5 items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted">
-              <Plus className="h-3 w-3" />
-            </button>
-          )}>
-            <ReviewerRow
-              name={approval.requestedByUserName}
-              role="Solicitante"
-              status="comentou"
-            />
-            {approval.approvedByUserName ? (
-              <ReviewerRow
-                name={approval.approvedByUserName}
-                role="Aprovador"
-                status={isApproved ? 'aprovou' : isRejected ? 'rejeitou' : 'pendente'}
-                decidedAt={approval.decidedAt ? formatDate(approval.decidedAt) : undefined}
-                required
-              />
-            ) : (
-              <ReviewerRow
-                name="Aprovador"
-                role="Aguardando designação"
-                status="pendente"
-                required
-              />
-            )}
-          </SidebarBlock>
+          <ReviewersPanel approvalId={approval.id} requesterName={approval.requestedByUserName} currentUserName={currentUserName} />
 
           <SidebarBlock title="Vinculado a" icon={<ShieldCheck className="h-3.5 w-3.5" />}>
             <LinkRow icon={<MessageSquare className="h-3 w-3" />} label="Negociação" value={approval.negotiationTitle || 'Sem título'} tone="purple" />
@@ -593,6 +568,35 @@ function SidebarBlock({ title, icon, action, children }: { title: string; icon?:
   )
 }
 
+function ReviewerRowFromEntity({ reviewer, canRemove, onRemove }: { reviewer: OpportunityApprovalReviewer; canRemove: boolean; onRemove: () => void }) {
+  const statusMap: Record<number, 'pendente' | 'aprovou' | 'rejeitou' | 'comentou'> = {
+    1: 'pendente',
+    2: 'aprovou',
+    3: 'rejeitou',
+    4: 'comentou',
+  }
+  return (
+    <div className="group/reviewer">
+      <ReviewerRow
+        name={reviewer.userName}
+        role={reviewer.role ?? 'Aprovador'}
+        status={statusMap[reviewer.status] ?? 'pendente'}
+        decidedAt={reviewer.decidedAt ? formatDate(reviewer.decidedAt) : undefined}
+        required={reviewer.required}
+      />
+      {canRemove && (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="mt-0.5 pl-10 text-[10px] font-semibold text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover/reviewer:opacity-100"
+        >
+          Remover
+        </button>
+      )}
+    </div>
+  )
+}
+
 function ReviewerRow({ name, role, status, decidedAt, required }: { name: string; role: string; status: 'pendente' | 'aprovou' | 'rejeitou' | 'comentou'; decidedAt?: string; required?: boolean }) {
   const config = {
     pendente: { color: 'text-amber-700', label: 'aguardando' },
@@ -654,6 +658,111 @@ function LinkRow({ icon, label, value, tone, onClick, brandLogoUrl }: { icon?: R
       </div>
       {onClick && <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground" />}
     </Wrap>
+  )
+}
+
+interface ReviewersPanelProps {
+  approvalId: number
+  requesterName: string
+  currentUserName: string
+}
+
+function ReviewersPanel({ approvalId, requesterName, currentUserName }: ReviewersPanelProps) {
+  const [reviewers, setReviewers] = useState<OpportunityApprovalReviewer[]>([])
+  const [loading, setLoading] = useState(true)
+  const [adding, setAdding] = useState(false)
+  const [draftName, setDraftName] = useState('')
+  const [draftRole, setDraftRole] = useState('')
+  const [draftRequired, setDraftRequired] = useState(false)
+  const [posting, setPosting] = useState(false)
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const data = await opportunityService.getApprovalReviewers(approvalId)
+      setReviewers(data)
+    } catch {
+      setReviewers([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void load()
+    setAdding(false)
+    setDraftName('')
+    setDraftRole('')
+    setDraftRequired(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [approvalId])
+
+  const submit = async () => {
+    const name = draftName.trim()
+    if (!name || posting) return
+    setPosting(true)
+    try {
+      await opportunityService.addApprovalReviewer(approvalId, { userName: name, role: draftRole.trim() || undefined, required: draftRequired })
+      setAdding(false)
+      setDraftName('')
+      setDraftRole('')
+      setDraftRequired(false)
+      await load()
+    } finally {
+      setPosting(false)
+    }
+  }
+
+  const handleRemove = async (id: number) => {
+    if (!window.confirm('Remover este aprovador?')) return
+    await opportunityService.removeApprovalReviewer(id)
+    await load()
+  }
+
+  return (
+    <SidebarBlock title="Aprovadores" icon={<Users className="h-3.5 w-3.5" />} action={(
+      <button type="button" title={adding ? 'Cancelar' : 'Adicionar'} onClick={() => setAdding((v) => !v)} className="flex h-5 w-5 items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted">
+        <Plus className={`h-3 w-3 transition-transform ${adding ? 'rotate-45' : ''}`} />
+      </button>
+    )}>
+      <div className="space-y-2">
+        <ReviewerRow name={requesterName} role="Solicitante" status="comentou" />
+        {loading ? (
+          <p className="text-[11px] text-muted-foreground">Carregando…</p>
+        ) : (
+          reviewers.map((r) => (
+            <ReviewerRowFromEntity key={r.id} reviewer={r} canRemove={r.userName === currentUserName || r.status === 1} onRemove={() => void handleRemove(r.id)} />
+          ))
+        )}
+        {reviewers.length === 0 && !loading && (
+          <p className="text-[11px] text-muted-foreground">Nenhum aprovador adicionado.</p>
+        )}
+
+        {adding && (
+          <div className="space-y-1.5 rounded-md border border-dashed border-border bg-muted/20 p-2">
+            <input
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              placeholder="Nome do aprovador"
+              className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+            <input
+              value={draftRole}
+              onChange={(e) => setDraftRole(e.target.value)}
+              placeholder="Papel (ex.: Diretor Financeiro)"
+              className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+            <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <input type="checkbox" checked={draftRequired} onChange={(e) => setDraftRequired(e.target.checked)} />
+              Aprovação obrigatória
+            </label>
+            <Button size="sm" variant="primary" fullWidth disabled={!draftName.trim() || posting} onClick={() => void submit()}>
+              {posting ? 'Adicionando…' : 'Adicionar aprovador'}
+            </Button>
+          </div>
+        )}
+      </div>
+    </SidebarBlock>
   )
 }
 

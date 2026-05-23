@@ -1448,6 +1448,9 @@
   <data name="opportunityApprovals.createComment.description" xml:space="preserve"><value>Permite comentar en una aprobación.</value></data>
   <data name="opportunityApprovals.updateComment.description" xml:space="preserve"><value>Permite editar un comentario de aprobación.</value></data>
   <data name="opportunityApprovals.deleteComment.description" xml:space="preserve"><value>Permite eliminar un comentario de aprobación.</value></data>
+  <data name="opportunityApprovals.getReviewers.description" xml:space="preserve"><value>Permite listar los aprobadores de una solicitud.</value></data>
+  <data name="opportunityApprovals.addReviewer.description" xml:space="preserve"><value>Permite agregar un aprobador a una solicitud.</value></data>
+  <data name="opportunityApprovals.removeReviewer.description" xml:space="preserve"><value>Permite quitar un aprobador de una solicitud.</value></data>
   <data name="opportunityApprovals.summary.description" xml:space="preserve"><value>Permite consultar o resumo de aprovações comerciais.</value></data>
   <data name="opportunityWinReasons.area" xml:space="preserve"><value>Motivos de ganancia</value></data>
   <data name="opportunityWinReasons.create.description" xml:space="preserve"><value>Permite crear un motivo de ganancia de oportunidad.</value></data>
