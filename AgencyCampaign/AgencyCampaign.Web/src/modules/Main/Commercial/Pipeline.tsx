@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, useApi, useI18n, usePermissions } from 'archon-ui'
-import { AlertTriangle, CalendarClock, ChevronDown, ChevronRight, DollarSign, List, Plus, RefreshCcw, Target, UserRound } from 'lucide-react'
+import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions } from 'archon-ui'
+import { AlertTriangle, CalendarClock, ChevronLeft, DollarSign, List, Plus, RefreshCcw, Target, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import CommercialGoalsWidget from './CommercialGoalsWidget'
@@ -282,31 +282,37 @@ export default function CommercialPipeline() {
       onRefresh={() => void loadBoard()}
     >
       <div className="space-y-6">
-        <div className="rounded-lg border border-border bg-card">
-          <button
-            type="button"
-            onClick={() => {
-              const next = !insightsOpen
-              setInsightsOpen(next)
-              localStorage.setItem('pipeline.insights.open', String(next))
-            }}
-            className="flex w-full items-center justify-between gap-2 px-4 py-2.5 text-left text-sm font-semibold text-foreground transition-colors hover:bg-muted/40"
-            aria-expanded={insightsOpen}
-          >
-            <span className="flex items-center gap-2">
-              {insightsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-              <Target className="h-4 w-4 text-muted-foreground" />
-              Metas e previsão
-            </span>
-            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{insightsOpen ? 'Recolher' : 'Expandir'}</span>
-          </button>
-          {insightsOpen && (
-            <div className="grid gap-3 border-t border-border/60 p-3 lg:grid-cols-[1fr_360px]">
-              <CommercialGoalsWidget scope={canSeeAllBoard ? 'all' : 'mine'} onEmptyManage={() => navigate('/comercial/metas')} />
+        <Sheet open={insightsOpen} onOpenChange={(open) => {
+          setInsightsOpen(open)
+          localStorage.setItem('pipeline.insights.open', String(open))
+        }}>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              aria-label="Abrir metas e previsão"
+              className="group fixed right-0 top-1/2 z-30 flex -translate-y-1/2 items-center gap-2 rounded-l-lg border border-r-0 border-border bg-card px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground shadow-md transition-all hover:bg-muted hover:pr-4 hover:text-foreground"
+            >
+              <ChevronLeft className="h-4 w-4 text-primary transition-transform group-hover:-translate-x-0.5" />
+              <span className="flex items-center gap-1.5">
+                <Target className="h-3.5 w-3.5 text-primary" />
+                Metas
+              </span>
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[min(560px,95vw)] overflow-y-auto p-5 sm:max-w-none">
+            <div className="mb-4">
+              <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
+                <Target className="h-4 w-4 text-primary" />
+                Metas e previsão
+              </h2>
+              <p className="mt-0.5 text-xs text-muted-foreground">Acompanhamento do período corrente.</p>
+            </div>
+            <div className="space-y-4">
+              <CommercialGoalsWidget scope={canSeeAllBoard ? 'all' : 'mine'} onEmptyManage={() => { setInsightsOpen(false); navigate('/comercial/metas') }} />
               <CommercialForecastWidget scope={canSeeAllBoard ? 'all' : 'mine'} />
             </div>
-          )}
-        </div>
+          </SheetContent>
+        </Sheet>
         {summary.overdueFollowUps > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             <AlertTriangle className="h-4 w-4" />
