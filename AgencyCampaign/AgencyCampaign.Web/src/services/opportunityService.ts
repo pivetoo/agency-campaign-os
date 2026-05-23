@@ -8,6 +8,7 @@ import type { OpportunityApprovalComment } from '../types/opportunityApprovalCom
 import type { OpportunityApprovalReviewer } from '../types/opportunityApprovalReviewer'
 import type { OpportunityApprovalDiff } from '../types/opportunityApprovalDiff'
 import type { OpportunityApprovalImpact } from '../types/opportunityApprovalImpact'
+import type { PolicyEvaluation } from '../types/policyEvaluation'
 
 const BASE_URL = '/Opportunities'
 
@@ -614,6 +615,11 @@ export const opportunityService = {
 
   removeApprovalImpact(impactId: number) {
     return httpClient.delete(`/OpportunityApprovals/Impacts/${impactId}`)
+  },
+
+  async evaluateNegotiationPolicy(negotiationId: number): Promise<PolicyEvaluation | null> {
+    const response = await httpClient.get<PolicyEvaluation>(`/OpportunityApprovals/evaluate-policy/${negotiationId}`)
+    return response.data ?? null
   },
 
   getAllApprovals(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<OpportunityApprovalRequest[]>> {

@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Activity, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MessageSquare, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
+import { Activity, AlertTriangle, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MessageSquare, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
 import { opportunityWinReasonService, opportunityLossReasonService } from '../../../services/opportunityOutcomeReasonService'
 import type { OpportunityWinReason, OpportunityLossReason } from '../../../types/opportunityOutcomeReason'
+import type { PolicyEvaluation } from '../../../types/policyEvaluation'
 import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import OpportunityNegotiationFormModal from '../../../components/modals/OpportunityNegotiationFormModal'
@@ -1169,6 +1170,17 @@ function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onCl
   const isCancelled = negotiation.status === OpportunityNegotiationStatus.Cancelled
   const statusStyle = negotiationStatusStyle(negotiation.status)
   const approvals = negotiation.approvalRequests ?? []
+  const [evaluation, setEvaluation] = useState<PolicyEvaluation | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    opportunityService.evaluateNegotiationPolicy(negotiation.id)
+      .then((data) => { if (!cancelled) setEvaluation(data) })
+      .catch(() => { if (!cancelled) setEvaluation(null) })
+    return () => { cancelled = true }
+  }, [negotiation.id])
+
+  const showPolicyBanner = isDraft && evaluation?.hasDeviations
 
   return (
     <aside className="sticky top-4 self-start overflow-hidden rounded-xl border border-border bg-card">
@@ -1196,6 +1208,24 @@ function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onCl
       </div>
 
       <div className="space-y-4 px-4 py-4">
+        {showPolicyBanner && (
+          <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-800">
+              <AlertTriangle className="h-3 w-3" /> Fora da política comercial
+            </div>
+            <ul className="space-y-0.5 text-[11.5px] text-amber-900">
+              {evaluation!.deviations.map((d) => (
+                <li key={d.field}>
+                  <strong>{d.field}</strong>: {d.requestedValue} (padrão {d.policyValue} · {d.delta})
+                </li>
+              ))}
+            </ul>
+            <Button size="sm" variant="primary" onClick={onRequestApproval} className="w-full justify-center">
+              <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Abrir aprovação com diff pré-populado
+            </Button>
+          </div>
+        )}
+
         <div>
           <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Valor</p>
           <p className="mt-0.5 font-mono text-2xl font-bold tracking-tight text-foreground">{formatCurrency(negotiation.amount)}</p>
