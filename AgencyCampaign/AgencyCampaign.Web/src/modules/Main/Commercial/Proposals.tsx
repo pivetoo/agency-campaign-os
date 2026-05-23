@@ -328,7 +328,7 @@ function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkVi
       <Button size="sm" variant="ghost" onClick={onEdit} disabled={!canEdit}>
         <Pencil className="mr-1.5 h-3.5 w-3.5" /> {t('common.action.edit')}
       </Button>
-      <Button size="sm" onClick={onNew}>
+      <Button size="sm" variant="secondary" onClick={onNew}>
         <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
       </Button>
     </div>
