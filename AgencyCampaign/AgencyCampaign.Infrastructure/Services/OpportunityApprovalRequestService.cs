@@ -174,6 +174,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .Include(item => item.OpportunityNegotiation)
                     .ThenInclude(n => n!.Opportunity)
+                        .ThenInclude(o => o!.Brand)
                 .OrderByDescending(item => item.RequestedAt)
                 .ThenByDescending(item => item.Id)
                 .ToPagedResultAsync(request, cancellationToken);
@@ -232,7 +233,9 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             return DbContext.Set<OpportunityApprovalRequest>()
                 .AsNoTracking()
-                .Include(item => item.OpportunityNegotiation);
+                .Include(item => item.OpportunityNegotiation)
+                    .ThenInclude(n => n!.Opportunity)
+                        .ThenInclude(o => o!.Brand);
         }
     }
 }

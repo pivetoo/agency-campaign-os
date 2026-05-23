@@ -61,7 +61,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             OpportunityApprovalRequest approval = await approvalRequestService.CreateOpportunityApprovalRequest(request, cancellationToken);
-            return Http201(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.created"]);
+            return Http201(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.created"]);
         }
 
         [RequireAccess("opportunityApprovals.approve.description")]
@@ -75,7 +75,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             OpportunityApprovalRequest approval = await approvalRequestService.Approve(id, request, cancellationToken);
-            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
         }
 
         [RequireAccess("opportunityApprovals.reject.description")]
@@ -89,7 +89,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             OpportunityApprovalRequest approval = await approvalRequestService.Reject(id, request, cancellationToken);
-            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
         }
 
         [RequireAccess("opportunityApprovals.markInReview.description")]
@@ -97,7 +97,7 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> MarkInReview(long id, CancellationToken cancellationToken)
         {
             OpportunityApprovalRequest approval = await approvalRequestService.MarkInReview(id, cancellationToken);
-            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
         }
 
         [RequireAccess("opportunityApprovals.requestChanges.description")]
@@ -111,7 +111,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             OpportunityApprovalRequest approval = await approvalRequestService.RequestChanges(id, request, cancellationToken);
-            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
         }
 
         [RequireAccess("opportunityApprovals.resubmit.description")]
@@ -125,7 +125,7 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             OpportunityApprovalRequest approval = await approvalRequestService.Resubmit(id, request, cancellationToken);
-            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
         }
 
         [RequireAccess("opportunityApprovals.markMerged.description")]
@@ -133,7 +133,7 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> MarkMerged(long id, CancellationToken cancellationToken)
         {
             OpportunityApprovalRequest approval = await approvalRequestService.MarkMerged(id, cancellationToken);
-            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
         }
     }
 
@@ -181,6 +181,10 @@ namespace AgencyCampaign.Api.Controllers
                 OpportunityId = approval.OpportunityNegotiation?.OpportunityId,
                 OpportunityName = approval.OpportunityNegotiation?.Opportunity?.Name,
                 NegotiationTitle = approval.OpportunityNegotiation?.Title,
+                NegotiationAmount = approval.OpportunityNegotiation?.Amount,
+                BrandId = approval.OpportunityNegotiation?.Opportunity?.BrandId,
+                BrandName = approval.OpportunityNegotiation?.Opportunity?.Brand?.Name,
+                BrandLogoUrl = approval.OpportunityNegotiation?.Opportunity?.Brand?.LogoUrl,
             };
         }
     }

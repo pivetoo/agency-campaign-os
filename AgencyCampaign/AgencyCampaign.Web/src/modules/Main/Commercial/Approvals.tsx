@@ -4,6 +4,7 @@ import { Button, PageLayout, useApi, useAuth, useI18n } from 'archon-ui'
 import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import { formatDate } from '../../../lib/format'
+import { resolveAssetUrl } from '../../../lib/assetUrl'
 
 const approvalTypeKeys: Record<number, string> = {
   1: 'approvals.type.discount',
@@ -461,6 +462,9 @@ function ApprovalDetail({ approval, actionLoading, onApprove, onReject, onReques
           <SidebarBlock title="Vinculado a" icon={<ShieldCheck className="h-3.5 w-3.5" />}>
             <LinkRow icon={<MessageSquare className="h-3 w-3" />} label="Negociação" value={approval.negotiationTitle || 'Sem título'} tone="purple" />
             <LinkRow icon={<ArrowUpRight className="h-3 w-3" />} label="Oportunidade" value={approval.opportunityName || `#${approval.opportunityNegotiationId}`} tone="primary" onClick={onOpenOpportunity} />
+            {approval.brandName && (
+              <LinkRow label="Marca" value={approval.brandName} brandLogoUrl={approval.brandLogoUrl} />
+            )}
           </SidebarBlock>
         </aside>
       </div>
@@ -632,16 +636,26 @@ function ReviewerRow({ name, role, status, decidedAt, required }: { name: string
   )
 }
 
-function LinkRow({ icon, label, value, tone, onClick }: { icon: React.ReactNode; label: string; value: string; tone?: 'primary' | 'purple'; onClick?: () => void }) {
+function LinkRow({ icon, label, value, tone, onClick, brandLogoUrl }: { icon?: React.ReactNode; label: string; value: string; tone?: 'primary' | 'purple'; onClick?: () => void; brandLogoUrl?: string }) {
   const toneBg = tone === 'purple' ? 'bg-purple-100 text-purple-700' : 'bg-primary/10 text-primary'
   const Wrap = onClick ? 'button' : 'div'
+  const initials = value.split(' ').slice(0, 2).map((part) => part[0]).join('').toUpperCase()
   return (
     <Wrap
       type={onClick ? 'button' : undefined}
       onClick={onClick}
       className={`flex w-full items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-2 py-1.5 text-left transition-colors ${onClick ? 'cursor-pointer hover:border-primary/40 hover:bg-muted/40' : ''}`}
     >
-      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded ${toneBg}`}>{icon}</span>
+      {brandLogoUrl ? (
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded border border-border bg-white">
+          <img src={resolveAssetUrl(brandLogoUrl)} alt={value} className="h-full w-full object-contain" onError={(e) => { const target = e.currentTarget as HTMLImageElement; target.style.display = 'none'; (target.nextElementSibling as HTMLElement | null)?.style.setProperty('display', 'inline-flex') }} />
+          <span className="hidden h-6 w-6 items-center justify-center rounded bg-muted text-[10px] font-bold text-muted-foreground">{initials}</span>
+        </span>
+      ) : icon ? (
+        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded ${toneBg}`}>{icon}</span>
+      ) : (
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-muted text-[10px] font-bold text-muted-foreground">{initials}</span>
+      )}
       <div className="min-w-0 flex-1">
         <p className="text-[9.5px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
         <p className="truncate text-[12px] font-semibold text-foreground">{value}</p>

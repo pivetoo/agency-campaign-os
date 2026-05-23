@@ -280,6 +280,14 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
         public string? OpportunityName { get; init; }
 
         public string? NegotiationTitle { get; init; }
+
+        public decimal? NegotiationAmount { get; init; }
+
+        public long? BrandId { get; init; }
+
+        public string? BrandName { get; init; }
+
+        public string? BrandLogoUrl { get; init; }
     }
 
     public sealed class OpportunityFollowUpContract

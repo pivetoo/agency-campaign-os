@@ -69,6 +69,10 @@ export interface OpportunityApprovalRequest {
   opportunityId?: number
   opportunityName?: string
   negotiationTitle?: string
+  negotiationAmount?: number
+  brandId?: number
+  brandName?: string
+  brandLogoUrl?: string
 }
 
 export interface ApprovalSummary {
