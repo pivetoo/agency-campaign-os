@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, Button, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { CheckCircle, Clock, Eye, Send, XCircle } from 'lucide-react'
+import { CheckCircle, Clock, Eye, Pencil, Plus, Send, XCircle } from 'lucide-react'
 import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValue, type ProposalListFilters } from '../../../services/proposalService'
 import { commercialResponsibleService } from '../../../services/commercialResponsibleService'
 import type { CommercialResponsible } from '../../../types/commercialResponsible'
@@ -224,54 +224,22 @@ export default function CommercialProposals() {
       <PageLayout
         title={t('proposals.title')}
         subtitle={t('proposals.subtitle')}
-        actionsSlot={<AuditUtilityBar entityName="Proposal" entityLabel="Proposta" entityId={selectedProposal?.id ?? null} />}
-        onAdd={() => { setSelectedProposal(null); setIsFormOpen(true) }}
-        onEdit={() => selectedProposal && setIsFormOpen(true)}
+        showDefaultActions={false}
         onRefresh={() => void loadProposals()}
-        addLabel="Nova proposta"
-        selectedRowsCount={selectedProposal ? 1 : 0}
-        actions={[
-          {
-            key: 'send',
-            label: t('proposals.action.send'),
-            icon: <Send className="h-4 w-4" />,
-            variant: 'outline-primary',
-            disabled: !selectedProposal || actionLoading || selectedProposal.status !== ProposalStatus.Draft,
-            onClick: () => selectedProposal && navigate(`/comercial/propostas/${selectedProposal.id}`),
-          },
-          {
-            key: 'viewed',
-            label: t('proposals.action.markViewed'),
-            icon: <Eye className="h-4 w-4" />,
-            variant: 'outline',
-            disabled: !selectedProposal || actionLoading || selectedProposal.status !== ProposalStatus.Sent,
-            onClick: () => selectedProposal && void runProposalAction(() => proposalService.markAsViewed(selectedProposal.id)),
-          },
-          {
-            key: 'approve',
-            label: t('proposals.action.approve'),
-            icon: <CheckCircle className="h-4 w-4" />,
-            variant: 'outline-success',
-            disabled: !selectedProposal || actionLoading || selectedProposal.status !== ProposalStatus.Viewed,
-            onClick: () => selectedProposal && void runProposalAction(() => proposalService.approve(selectedProposal.id)),
-          },
-          {
-            key: 'reject',
-            label: t('proposals.action.reject'),
-            icon: <XCircle className="h-4 w-4" />,
-            variant: 'outline-danger',
-            disabled: !selectedProposal || actionLoading || (selectedProposal.status !== ProposalStatus.Sent && selectedProposal.status !== ProposalStatus.Viewed),
-            onClick: () => selectedProposal && void runProposalAction(() => proposalService.reject(selectedProposal.id)),
-          },
-          {
-            key: 'cancel',
-            label: t('proposals.action.cancel'),
-            icon: <Clock className="h-4 w-4" />,
-            variant: 'outline-danger',
-            disabled: !selectedProposal || actionLoading || selectedProposal.status === ProposalStatus.Cancelled || selectedProposal.status === ProposalStatus.Converted,
-            onClick: () => selectedProposal && void runProposalAction(() => proposalService.cancel(selectedProposal.id)),
-          },
-        ]}
+        actionsSlot={(
+          <ProposalsToolbar
+            selected={selectedProposal}
+            actionLoading={actionLoading}
+            t={t}
+            onEdit={() => selectedProposal && setIsFormOpen(true)}
+            onSend={() => selectedProposal && navigate(`/comercial/propostas/${selectedProposal.id}`)}
+            onMarkViewed={() => selectedProposal && void runProposalAction(() => proposalService.markAsViewed(selectedProposal.id))}
+            onApprove={() => selectedProposal && void runProposalAction(() => proposalService.approve(selectedProposal.id))}
+            onReject={() => selectedProposal && void runProposalAction(() => proposalService.reject(selectedProposal.id))}
+            onCancel={() => selectedProposal && void runProposalAction(() => proposalService.cancel(selectedProposal.id))}
+            onNew={() => { setSelectedProposal(null); setIsFormOpen(true) }}
+          />
+        )}
       >
         <TableToolbar
           searchValue={searchInput}
@@ -313,5 +281,90 @@ export default function CommercialProposals() {
         }}
       />
     </>
+  )
+}
+
+interface ProposalsToolbarProps {
+  selected: Proposal | null
+  actionLoading: boolean
+  t: (key: string) => string
+  onEdit: () => void
+  onSend: () => void
+  onMarkViewed: () => void
+  onApprove: () => void
+  onReject: () => void
+  onCancel: () => void
+  onNew: () => void
+}
+
+function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkViewed, onApprove, onReject, onCancel, onNew }: ProposalsToolbarProps) {
+  const status = selected?.status
+  const isDraft = status === ProposalStatus.Draft
+  const isSent = status === ProposalStatus.Sent
+  const isViewed = status === ProposalStatus.Viewed
+  const isTerminal = status === ProposalStatus.Approved || status === ProposalStatus.Rejected || status === ProposalStatus.Converted || status === ProposalStatus.Cancelled
+
+  const canSend = !!selected && !actionLoading && isDraft
+  const canMarkViewed = !!selected && !actionLoading && isSent
+  const canApprove = !!selected && !actionLoading && isViewed
+  const canReject = !!selected && !actionLoading && (isSent || isViewed)
+  const canCancel = !!selected && !actionLoading && !isTerminal
+  const canEdit = !!selected && !actionLoading && !isTerminal
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <AuditUtilityBar entityName="Proposal" entityLabel="Proposta" entityId={selected?.id ?? null} />
+      <span aria-hidden className="hidden h-6 w-px bg-border sm:inline-block" />
+
+      <div className="inline-flex overflow-hidden rounded-md border border-border bg-card">
+        <SegmentedAction icon={<Send className="h-3.5 w-3.5" />} label={t('proposals.action.send')} active={canSend} disabled={!canSend} onClick={onSend} />
+        <SegmentedAction icon={<Eye className="h-3.5 w-3.5" />} label={t('proposals.action.markViewed')} active={canMarkViewed} disabled={!canMarkViewed} onClick={onMarkViewed} />
+        <SegmentedAction icon={<CheckCircle className="h-3.5 w-3.5" />} label={t('proposals.action.approve')} active={canApprove} tone="emerald" disabled={!canApprove} onClick={onApprove} />
+        <SegmentedAction icon={<XCircle className="h-3.5 w-3.5" />} label={t('proposals.action.reject')} tone="rose" disabled={!canReject} onClick={onReject} />
+        <SegmentedAction icon={<Clock className="h-3.5 w-3.5" />} label={t('proposals.action.cancel')} tone="amber" disabled={!canCancel} onClick={onCancel} last />
+      </div>
+
+      <span aria-hidden className="hidden h-6 w-px bg-border sm:inline-block" />
+
+      <Button size="sm" variant="ghost" onClick={onEdit} disabled={!canEdit}>
+        <Pencil className="mr-1.5 h-3.5 w-3.5" /> {t('common.action.edit')}
+      </Button>
+      <Button size="sm" onClick={onNew}>
+        <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
+      </Button>
+    </div>
+  )
+}
+
+interface SegmentedActionProps {
+  icon: React.ReactNode
+  label: string
+  active?: boolean
+  disabled?: boolean
+  tone?: 'emerald' | 'rose' | 'amber'
+  last?: boolean
+  onClick: () => void
+}
+
+function SegmentedAction({ icon, label, active, disabled, tone, last, onClick }: SegmentedActionProps) {
+  const toneColor = tone === 'emerald' ? 'text-emerald-700' : tone === 'rose' ? 'text-rose-700' : tone === 'amber' ? 'text-amber-700' : 'text-foreground'
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={[
+        'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-colors',
+        last ? '' : 'border-r border-border',
+        disabled
+          ? 'cursor-not-allowed text-muted-foreground/60'
+          : active
+            ? 'bg-primary/12 text-primary'
+            : `${toneColor} hover:bg-muted/60`,
+      ].join(' ')}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
   )
 }
