@@ -1276,6 +1276,9 @@
   <data name="campaignDocumentTemplates.update.description" xml:space="preserve"><value>Permite atualizar um template de documento.</value></data>
   <data name="campaignDocumentTemplates.variables.description" xml:space="preserve"><value>Permite listar as variaveis disponiveis por tipo de documento.</value></data>
   <data name="commercialGoals.area" xml:space="preserve"><value>Commercial goals</value></data>
+  <data name="commercialPolicy.area" xml:space="preserve"><value>Commercial policy</value></data>
+  <data name="commercialPolicy.get.description" xml:space="preserve"><value>Allows reading the agency's commercial policy.</value></data>
+  <data name="commercialPolicy.upsert.description" xml:space="preserve"><value>Allows creating or updating the commercial policy.</value></data>
   <data name="commercialGoals.create.description" xml:space="preserve"><value>Allows creating a commercial goal.</value></data>
   <data name="commercialGoals.delete.description" xml:space="preserve"><value>Allows deleting a commercial goal.</value></data>
   <data name="commercialGoals.get.description" xml:space="preserve"><value>Allows listing commercial goals.</value></data>

@@ -26,6 +26,7 @@ import CommercialApprovals from '../modules/Main/Commercial/Approvals'
 import CommercialAnalytics from '../modules/Main/Commercial/Analytics'
 import CommercialGoals from '../modules/Main/Commercial/Goals'
 import OpportunityOutcomeReasons from '../modules/Configuration/OpportunityOutcomeReasons'
+import CommercialPolicyAdmin from '../modules/Configuration/CommercialPolicy'
 import FinancialReceivables from '../modules/Main/Financial/Receivables'
 import FinancialPayables from '../modules/Main/Financial/Payables'
 import CreatorPayments from '../modules/Main/Financial/CreatorPayments'
@@ -125,6 +126,7 @@ function AppRoutes() {
           <Route path="configuracao/tags-oportunidade" element={<OpportunityTags />} />
           <Route path="configuracao/motivos-ganho" element={<OpportunityOutcomeReasons kind="win" />} />
           <Route path="configuracao/motivos-perda" element={<OpportunityOutcomeReasons kind="loss" />} />
+          <Route path="configuracao/politica-comercial" element={<CommercialPolicyAdmin />} />
           <Route path="configuracao/modelos-contrato" element={<CampaignDocumentTemplates />} />
           <Route path="configuracao/modelos-contrato/:id" element={<DocumentTemplateEditor />} />
           <Route path="financeiro/contas" element={<FinancialAccounts />} />
