@@ -6,7 +6,7 @@ import { opportunityService, type OpportunityBoardItem, type OpportunityBoardSta
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import CommercialGoalsWidget from './CommercialGoalsWidget'
 import CommercialForecastWidget from './CommercialForecastWidget'
-import CommercialKpiStrip from './CommercialKpiStrip'
+import CommercialInsightsLists from './CommercialInsightsLists'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
@@ -296,27 +296,30 @@ export default function CommercialPipeline() {
               <ChevronLeft className="h-4 w-4 text-primary transition-transform group-hover:-translate-x-0.5" />
               <span className="flex items-center gap-1.5">
                 <Target className="h-3.5 w-3.5 text-primary" />
-                Metas
+                Insights
               </span>
+              {summary.overdueFollowUps > 0 && (
+                <span className="absolute -top-1.5 -left-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
+                  {summary.overdueFollowUps}
+                </span>
+              )}
             </button>
           </SheetTrigger>
           <SheetContent side="right" className="w-[min(560px,95vw)] overflow-y-auto p-5 sm:max-w-none">
             <div className="mb-4">
               <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
                 <Target className="h-4 w-4 text-primary" />
-                Metas e previsão
+                Insights do funil
               </h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">Acompanhamento do período corrente.</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                <strong className="text-foreground">{summary.count}</strong> oportunidade{summary.count === 1 ? '' : 's'} em aberto · <span className="font-mono">{formatCurrency(summary.value)}</span>
+                {summary.overdueFollowUps > 0 && <span className="ml-2 inline-flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-destructive">{summary.overdueFollowUps} atrasado{summary.overdueFollowUps === 1 ? '' : 's'}</span>}
+              </p>
             </div>
             <div className="space-y-4">
-              <CommercialKpiStrip
-                scope={canSeeAllBoard ? 'all' : 'mine'}
-                openCount={summary.count}
-                openValue={summary.value}
-                overdueFollowUps={summary.overdueFollowUps}
-              />
               <CommercialGoalsWidget scope={canSeeAllBoard ? 'all' : 'mine'} onEmptyManage={() => { setInsightsOpen(false); navigate('/comercial/metas') }} />
               <CommercialForecastWidget scope={canSeeAllBoard ? 'all' : 'mine'} />
+              <CommercialInsightsLists scope={canSeeAllBoard ? 'all' : 'mine'} onNavigate={() => setInsightsOpen(false)} />
             </div>
           </SheetContent>
         </Sheet>

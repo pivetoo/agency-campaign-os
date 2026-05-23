@@ -115,6 +115,20 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await opportunityService.GetAnalytics(start, end, restrictToCurrentUser: true, userId: null, cancellationToken));
         }
 
+        [RequireAccess("opportunities.insights.description")]
+        [GetEndpoint]
+        public async Task<IActionResult> Insights([FromQuery] int? agingThresholdDays, [FromQuery] int? take, CancellationToken cancellationToken)
+        {
+            return Http200(await opportunityService.GetInsights(agingThresholdDays ?? 14, take ?? 5, restrictToCurrentUser: false, cancellationToken));
+        }
+
+        [RequireAccess("opportunities.insightsOwn.description")]
+        [GetEndpoint]
+        public async Task<IActionResult> InsightsMine([FromQuery] int? agingThresholdDays, [FromQuery] int? take, CancellationToken cancellationToken)
+        {
+            return Http200(await opportunityService.GetInsights(agingThresholdDays ?? 14, take ?? 5, restrictToCurrentUser: true, cancellationToken));
+        }
+
         private static (DateTimeOffset start, DateTimeOffset end) ResolveForecastPeriod(DateTimeOffset? periodStart, DateTimeOffset? periodEnd)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;

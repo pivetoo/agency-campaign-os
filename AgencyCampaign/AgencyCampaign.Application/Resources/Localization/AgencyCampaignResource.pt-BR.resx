@@ -1402,6 +1402,8 @@
   <data name="opportunities.board.description" xml:space="preserve"><value>Permite consultar o board comercial por estágio.</value></data>
   <data name="opportunities.boardOwn.description" xml:space="preserve"><value>Permite consultar o board comercial apenas das próprias oportunidades.</value></data>
   <data name="opportunities.analytics.description" xml:space="preserve"><value>Permite consultar as análises do funil comercial.</value></data>
+  <data name="opportunities.insights.description" xml:space="preserve"><value>Permite consultar insights operacionais (próximos fechamentos e oportunidades em risco).</value></data>
+  <data name="opportunities.insightsOwn.description" xml:space="preserve"><value>Permite consultar insights operacionais das próprias oportunidades.</value></data>
   <data name="opportunities.analyticsOwn.description" xml:space="preserve"><value>Permite consultar as análises do funil das próprias oportunidades.</value></data>
   <data name="opportunities.forecast.description" xml:space="preserve"><value>Permite consultar a previsão de fechamento comercial.</value></data>
   <data name="opportunities.forecastOwn.description" xml:space="preserve"><value>Permite consultar a previsão das próprias oportunidades.</value></data>

@@ -3,6 +3,7 @@ import type { ApiResponse } from 'archon-ui'
 import type { CommercialPipelineStage } from '../types/commercialPipelineStage'
 import type { CommercialForecast } from '../types/commercialForecast'
 import type { CommercialAnalytics } from '../types/commercialAnalytics'
+import type { CommercialOpportunityInsights } from '../types/commercialInsights'
 
 const BASE_URL = '/Opportunities'
 
@@ -416,6 +417,16 @@ export const opportunityService = {
     if (params?.periodEnd) search.set('periodEnd', params.periodEnd)
     const query = search.toString()
     const response = await httpClient.get<CommercialAnalytics>(query ? `${BASE_URL}/AnalyticsMine?${query}` : `${BASE_URL}/AnalyticsMine`)
+    return response.data ?? null
+  },
+
+  async getInsights(scope: 'all' | 'mine', params?: { agingThresholdDays?: number; take?: number }): Promise<CommercialOpportunityInsights | null> {
+    const endpoint = scope === 'mine' ? 'InsightsMine' : 'Insights'
+    const search = new URLSearchParams()
+    if (params?.agingThresholdDays !== undefined) search.set('agingThresholdDays', String(params.agingThresholdDays))
+    if (params?.take !== undefined) search.set('take', String(params.take))
+    const query = search.toString()
+    const response = await httpClient.get<CommercialOpportunityInsights>(query ? `${BASE_URL}/${endpoint}?${query}` : `${BASE_URL}/${endpoint}`)
     return response.data ?? null
   },
 

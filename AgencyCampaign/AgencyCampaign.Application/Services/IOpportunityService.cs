@@ -32,6 +32,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<CommercialAnalyticsModel> GetAnalytics(DateTimeOffset periodStart, DateTimeOffset periodEnd, bool restrictToCurrentUser, long? userId, CancellationToken cancellationToken = default);
 
+        Task<CommercialOpportunityInsightsModel> GetInsights(int agingThresholdDays, int take, bool restrictToCurrentUser, CancellationToken cancellationToken = default);
+
         Task<CommercialDashboardSummaryModel> GetDashboardSummary(CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<CommercialAlertModel>> GetAlerts(CancellationToken cancellationToken = default);

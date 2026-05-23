@@ -1402,6 +1402,8 @@
   <data name="opportunities.board.description" xml:space="preserve"><value>Permite consultar o board comercial por estágio.</value></data>
   <data name="opportunities.boardOwn.description" xml:space="preserve"><value>Allows reading the commercial board limited to opportunities owned by the user.</value></data>
   <data name="opportunities.analytics.description" xml:space="preserve"><value>Allows reading commercial funnel analytics.</value></data>
+  <data name="opportunities.insights.description" xml:space="preserve"><value>Allows reading operational insights (upcoming closings and at-risk opportunities).</value></data>
+  <data name="opportunities.insightsOwn.description" xml:space="preserve"><value>Allows reading operational insights for the user's own opportunities.</value></data>
   <data name="opportunities.analyticsOwn.description" xml:space="preserve"><value>Allows reading commercial funnel analytics for the user's own opportunities.</value></data>
   <data name="opportunities.forecast.description" xml:space="preserve"><value>Allows reading the commercial sales forecast.</value></data>
   <data name="opportunities.forecastOwn.description" xml:space="preserve"><value>Allows reading the sales forecast for the user's own opportunities.</value></data>

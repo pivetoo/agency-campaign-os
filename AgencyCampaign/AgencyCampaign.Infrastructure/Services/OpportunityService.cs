@@ -482,6 +482,82 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
+        public async Task<CommercialOpportunityInsightsModel> GetInsights(int agingThresholdDays, int take, bool restrictToCurrentUser, CancellationToken cancellationToken = default)
+        {
+            long? scopeUserId = restrictToCurrentUser ? currentUser.UserId : null;
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            int safeTake = take <= 0 ? 5 : Math.Min(take, 20);
+
+            IQueryable<Opportunity> baseQuery = DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Include(item => item.Brand)
+                .Include(item => item.CommercialPipelineStage)
+                .Where(item => !item.ClosedAt.HasValue
+                    && item.CommercialPipelineStage != null
+                    && item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.None);
+
+            if (scopeUserId.HasValue)
+            {
+                long target = scopeUserId.Value;
+                baseQuery = baseQuery.Where(item => item.ResponsibleUserId == target);
+            }
+
+            List<Opportunity> openOpportunities = await baseQuery.ToListAsync(cancellationToken);
+
+            UpcomingClosingItemModel[] upcomingClosings = openOpportunities
+                .Where(item => item.ExpectedCloseAt.HasValue && item.ExpectedCloseAt.Value >= now.Date)
+                .OrderBy(item => item.ExpectedCloseAt!.Value)
+                .Take(safeTake)
+                .Select(item => new UpcomingClosingItemModel
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    BrandName = item.Brand?.Name,
+                    EstimatedValue = item.EstimatedValue,
+                    Probability = item.Probability,
+                    ExpectedCloseAt = item.ExpectedCloseAt!.Value,
+                    DaysUntilClose = (int)Math.Floor((item.ExpectedCloseAt!.Value - now).TotalDays),
+                    StageName = item.CommercialPipelineStage?.Name ?? string.Empty,
+                    StageColor = item.CommercialPipelineStage?.Color
+                })
+                .ToArray();
+
+            long[] openIds = openOpportunities.Select(item => item.Id).ToArray();
+            Dictionary<long, DateTimeOffset> stageEnteredAt = await DbContext.Set<OpportunityStageHistory>()
+                .AsNoTracking()
+                .Where(item => openIds.Contains(item.OpportunityId))
+                .GroupBy(item => item.OpportunityId)
+                .Select(group => new { OpportunityId = group.Key, LastChangedAt = group.Max(history => history.ChangedAt) })
+                .ToDictionaryAsync(item => item.OpportunityId, item => item.LastChangedAt, cancellationToken);
+
+            AtRiskItemModel[] atRisk = openOpportunities
+                .Select(item =>
+                {
+                    DateTimeOffset enteredAt = stageEnteredAt.TryGetValue(item.Id, out DateTimeOffset value) ? value : item.CreatedAt;
+                    int days = (int)Math.Floor((now - enteredAt).TotalDays);
+                    return new AtRiskItemModel
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        BrandName = item.Brand?.Name,
+                        EstimatedValue = item.EstimatedValue,
+                        StageName = item.CommercialPipelineStage?.Name ?? string.Empty,
+                        StageColor = item.CommercialPipelineStage?.Color,
+                        DaysInStage = days
+                    };
+                })
+                .Where(item => item.DaysInStage >= agingThresholdDays)
+                .OrderByDescending(item => item.DaysInStage)
+                .Take(safeTake)
+                .ToArray();
+
+            return new CommercialOpportunityInsightsModel
+            {
+                UpcomingClosings = upcomingClosings,
+                AtRisk = atRisk
+            };
+        }
+
         public async Task<CommercialAnalyticsModel> GetAnalytics(DateTimeOffset periodStart, DateTimeOffset periodEnd, bool restrictToCurrentUser, long? userId, CancellationToken cancellationToken = default)
         {
             DateTimeOffset start = periodStart.ToUniversalTime();
