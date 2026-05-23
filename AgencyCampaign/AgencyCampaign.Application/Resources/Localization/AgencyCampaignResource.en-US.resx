@@ -1454,6 +1454,9 @@
   <data name="opportunityApprovals.getDiffs.description" xml:space="preserve"><value>Allows listing diffs of an approval.</value></data>
   <data name="opportunityApprovals.addDiff.description" xml:space="preserve"><value>Allows adding a diff item to an approval.</value></data>
   <data name="opportunityApprovals.removeDiff.description" xml:space="preserve"><value>Allows removing a diff item from an approval.</value></data>
+  <data name="opportunityApprovals.getImpacts.description" xml:space="preserve"><value>Allows listing financial impacts of an approval.</value></data>
+  <data name="opportunityApprovals.addImpact.description" xml:space="preserve"><value>Allows adding a financial impact to an approval.</value></data>
+  <data name="opportunityApprovals.removeImpact.description" xml:space="preserve"><value>Allows removing a financial impact from an approval.</value></data>
   <data name="opportunityApprovals.summary.description" xml:space="preserve"><value>Permite consultar o resumo de aprovações comerciais.</value></data>
   <data name="opportunityWinReasons.area" xml:space="preserve"><value>Win reasons</value></data>
   <data name="opportunityWinReasons.create.description" xml:space="preserve"><value>Allows creating an opportunity win reason.</value></data>

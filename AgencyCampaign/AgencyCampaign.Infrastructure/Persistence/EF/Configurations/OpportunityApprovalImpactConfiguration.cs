@@ -1,0 +1,30 @@
+using AgencyCampaign.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
+{
+    public sealed class OpportunityApprovalImpactConfiguration : IEntityTypeConfiguration<OpportunityApprovalImpact>
+    {
+        public void Configure(EntityTypeBuilder<OpportunityApprovalImpact> builder)
+        {
+            builder.ToTable("opportunityapprovalimpact");
+
+            builder.Property(entity => entity.Label)
+                .IsRequired()
+                .HasMaxLength(60);
+
+            builder.Property(entity => entity.Value)
+                .IsRequired()
+                .HasMaxLength(80);
+
+            builder.HasOne(entity => entity.OpportunityApprovalRequest)
+                .WithMany()
+                .HasForeignKey(entity => entity.OpportunityApprovalRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasIndex(entity => new { entity.OpportunityApprovalRequestId, entity.DisplayOrder })
+                .HasDatabaseName("ixopportunityapprovalimpactrequestorder");
+        }
+    }
+}

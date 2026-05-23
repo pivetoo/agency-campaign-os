@@ -1,0 +1,37 @@
+using Archon.Core.Entities;
+
+namespace AgencyCampaign.Domain.Entities
+{
+    public sealed class OpportunityApprovalImpact : Entity
+    {
+        public long OpportunityApprovalRequestId { get; private set; }
+
+        public OpportunityApprovalRequest? OpportunityApprovalRequest { get; private set; }
+
+        public string Label { get; private set; } = string.Empty;
+
+        public string Value { get; private set; } = string.Empty;
+
+        public bool IsGood { get; private set; }
+
+        public int DisplayOrder { get; private set; }
+
+        private OpportunityApprovalImpact()
+        {
+        }
+
+        public OpportunityApprovalImpact(long opportunityApprovalRequestId, string label, string value, bool isGood, int displayOrder = 0)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityApprovalRequestId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(label);
+
+            OpportunityApprovalRequestId = opportunityApprovalRequestId;
+            Label = label.Trim();
+            Value = (value ?? string.Empty).Trim();
+            IsGood = isGood;
+            DisplayOrder = displayOrder;
+            CreatedAt = DateTimeOffset.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+    }
+}

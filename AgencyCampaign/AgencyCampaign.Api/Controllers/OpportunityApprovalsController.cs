@@ -18,14 +18,16 @@ namespace AgencyCampaign.Api.Controllers
         private readonly IOpportunityApprovalCommentService commentService;
         private readonly IOpportunityApprovalReviewerService reviewerService;
         private readonly IOpportunityApprovalDiffService diffService;
+        private readonly IOpportunityApprovalImpactService impactService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
 
-        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IOpportunityApprovalCommentService commentService, IOpportunityApprovalReviewerService reviewerService, IOpportunityApprovalDiffService diffService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IOpportunityApprovalCommentService commentService, IOpportunityApprovalReviewerService reviewerService, IOpportunityApprovalDiffService diffService, IOpportunityApprovalImpactService impactService, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.approvalRequestService = approvalRequestService;
             this.commentService = commentService;
             this.reviewerService = reviewerService;
             this.diffService = diffService;
+            this.impactService = impactService;
             Localizer = localizer;
         }
 
@@ -240,6 +242,35 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> RemoveDiff(long diffId, CancellationToken cancellationToken)
         {
             await diffService.Remove(diffId, cancellationToken);
+            return Http204();
+        }
+
+        [RequireAccess("opportunityApprovals.getImpacts.description")]
+        [HttpGet("{id:long}/Impacts")]
+        public async Task<IActionResult> GetImpacts(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await impactService.GetByApprovalId(id, cancellationToken));
+        }
+
+        [RequireAccess("opportunityApprovals.addImpact.description")]
+        [HttpPost("{id:long}/Impacts")]
+        public async Task<IActionResult> AddImpact(long id, [FromBody] AddOpportunityApprovalImpactRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await impactService.Add(id, request, cancellationToken);
+            return Http201(result, Localizer["record.created"]);
+        }
+
+        [RequireAccess("opportunityApprovals.removeImpact.description")]
+        [HttpDelete("Impacts/{impactId:long}")]
+        public async Task<IActionResult> RemoveImpact(long impactId, CancellationToken cancellationToken)
+        {
+            await impactService.Remove(impactId, cancellationToken);
             return Http204();
         }
     }

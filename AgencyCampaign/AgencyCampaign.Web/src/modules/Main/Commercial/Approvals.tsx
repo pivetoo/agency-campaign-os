@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, PageLayout, useApi, useAuth, useI18n } from 'archon-ui'
-import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
+import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, TrendingDown, TrendingUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
 import type { OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
 import type { OpportunityApprovalDiff } from '../../../types/opportunityApprovalDiff'
+import type { OpportunityApprovalImpact } from '../../../types/opportunityApprovalImpact'
 import { formatDate } from '../../../lib/format'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 
@@ -376,6 +377,8 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, onApprove, o
         <div className="space-y-4 min-w-0">
           <DiffPanel approvalId={approval.id} editable={isOpen} />
 
+          <ImpactStrip approvalId={approval.id} editable={isOpen} />
+
           <Panel title="Justificativa" accent="primary">
             <div className="flex gap-3">
               <Avatar name={approval.requestedByUserName} size={32} />
@@ -544,8 +547,8 @@ function ActionPanel({ approval, actionLoading, canDecide, isChangesRequested, i
   )
 }
 
-function Panel({ title, accent, children }: { title: string; accent?: 'primary' | 'emerald' | 'rose' | 'blue'; children: React.ReactNode }) {
-  const accentClass = accent === 'emerald' ? 'bg-emerald-500' : accent === 'rose' ? 'bg-rose-500' : accent === 'blue' ? 'bg-blue-500' : accent === 'primary' ? 'bg-primary' : 'bg-muted-foreground'
+function Panel({ title, accent, children }: { title: string; accent?: 'primary' | 'emerald' | 'rose' | 'blue' | 'amber'; children: React.ReactNode }) {
+  const accentClass = accent === 'emerald' ? 'bg-emerald-500' : accent === 'rose' ? 'bg-rose-500' : accent === 'blue' ? 'bg-blue-500' : accent === 'amber' ? 'bg-amber-500' : accent === 'primary' ? 'bg-primary' : 'bg-muted-foreground'
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-card">
       <header className="flex items-center gap-2 border-b border-border/60 bg-muted/20 px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground">
@@ -806,6 +809,124 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
             </div>
           ) : (
             <Button size="sm" variant="outline" onClick={() => setAdding(true)} icon={<Plus />}>Adicionar alteração</Button>
+          )}
+        </div>
+      )}
+    </Panel>
+  )
+}
+
+function ImpactStrip({ approvalId, editable }: { approvalId: number; editable: boolean }) {
+  const [impacts, setImpacts] = useState<OpportunityApprovalImpact[]>([])
+  const [loading, setLoading] = useState(true)
+  const [adding, setAdding] = useState(false)
+  const [draftLabel, setDraftLabel] = useState('')
+  const [draftValue, setDraftValue] = useState('')
+  const [draftIsGood, setDraftIsGood] = useState(true)
+  const [posting, setPosting] = useState(false)
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const data = await opportunityService.getApprovalImpacts(approvalId)
+      setImpacts(data)
+    } catch {
+      setImpacts([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void load()
+    setAdding(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [approvalId])
+
+  const submit = async () => {
+    const label = draftLabel.trim()
+    const value = draftValue.trim()
+    if (!label || !value || posting) return
+    setPosting(true)
+    try {
+      await opportunityService.addApprovalImpact(approvalId, { label, value, isGood: draftIsGood, displayOrder: impacts.length })
+      setDraftLabel('')
+      setDraftValue('')
+      setDraftIsGood(true)
+      setAdding(false)
+      await load()
+    } finally {
+      setPosting(false)
+    }
+  }
+
+  const handleRemove = async (id: number) => {
+    if (!window.confirm('Remover este impacto?')) return
+    await opportunityService.removeApprovalImpact(id)
+    await load()
+  }
+
+  if (loading) {
+    return <Panel title="Impacto financeiro estimado" accent="amber"><p className="text-xs text-muted-foreground">Carregando…</p></Panel>
+  }
+
+  if (impacts.length === 0 && !editable) {
+    return null
+  }
+
+  return (
+    <Panel title="Impacto financeiro estimado" accent="amber">
+      {impacts.length > 0 && (
+        <div className="grid gap-2 sm:grid-cols-3">
+          {impacts.map((m) => (
+            <div
+              key={m.id}
+              className={`relative rounded-lg border p-3 ${m.isGood ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50'}`}
+            >
+              <div className={`text-[10.5px] font-bold uppercase tracking-wider ${m.isGood ? 'text-emerald-700' : 'text-rose-700'}`}>{m.label}</div>
+              <div className={`mt-1 flex items-center gap-1.5 font-mono text-base font-bold ${m.isGood ? 'text-emerald-700' : 'text-rose-700'}`}>
+                {m.isGood ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                {m.value}
+              </div>
+              {editable && (
+                <button
+                  type="button"
+                  onClick={() => void handleRemove(m.id)}
+                  className="absolute right-1.5 top-1.5 text-[12px] font-semibold text-muted-foreground hover:text-destructive"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {impacts.length === 0 && (
+        <p className="text-xs text-muted-foreground">Sem impactos registrados.</p>
+      )}
+
+      {editable && (
+        <div className="mt-3">
+          {adding ? (
+            <div className="space-y-1.5 rounded-md border border-dashed border-border bg-muted/20 p-2">
+              <div className="grid grid-cols-2 gap-1.5">
+                <input value={draftLabel} onChange={(e) => setDraftLabel(e.target.value)} placeholder="Métrica (ex.: Receita)" className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+                <input value={draftValue} onChange={(e) => setDraftValue(e.target.value)} placeholder="Valor (ex.: +R$ 2.000)" className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+              </div>
+              <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <input type="checkbox" checked={draftIsGood} onChange={(e) => setDraftIsGood(e.target.checked)} />
+                Impacto positivo (verde) — desmarcar para negativo (vermelho)
+              </label>
+              <div className="flex gap-1.5">
+                <Button size="sm" variant="primary" fullWidth disabled={!draftLabel.trim() || !draftValue.trim() || posting} onClick={() => void submit()}>
+                  {posting ? 'Adicionando…' : 'Adicionar'}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { setAdding(false); setDraftLabel(''); setDraftValue('') }}>Cancelar</Button>
+              </div>
+            </div>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => setAdding(true)} icon={<Plus />}>Adicionar impacto</Button>
           )}
         </div>
       )}
