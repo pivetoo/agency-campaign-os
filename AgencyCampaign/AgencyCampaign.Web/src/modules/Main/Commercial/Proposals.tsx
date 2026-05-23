@@ -314,7 +314,6 @@ function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkVi
   return (
     <div className="flex flex-wrap items-center gap-2">
       <AuditUtilityBar entityName="Proposal" entityLabel="Proposta" entityId={selected?.id ?? null} />
-      <span aria-hidden className="hidden h-6 w-px bg-border sm:inline-block" />
 
       <div className="inline-flex overflow-hidden rounded-md border border-border bg-card">
         <SegmentedAction icon={<Send className="h-3.5 w-3.5" />} label={t('proposals.action.send')} active={canSend} disabled={!canSend} onClick={onSend} />
