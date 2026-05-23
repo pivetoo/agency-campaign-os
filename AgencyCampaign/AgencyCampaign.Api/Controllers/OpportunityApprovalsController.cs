@@ -15,11 +15,13 @@ namespace AgencyCampaign.Api.Controllers
     public sealed class OpportunityApprovalsController : ApiControllerBase
     {
         private readonly IOpportunityApprovalRequestService approvalRequestService;
+        private readonly IOpportunityApprovalCommentService commentService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
 
-        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IOpportunityApprovalCommentService commentService, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.approvalRequestService = approvalRequestService;
+            this.commentService = commentService;
             Localizer = localizer;
         }
 
@@ -134,6 +136,49 @@ namespace AgencyCampaign.Api.Controllers
         {
             OpportunityApprovalRequest approval = await approvalRequestService.MarkMerged(id, cancellationToken);
             return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
+        }
+
+        [RequireAccess("opportunityApprovals.getComments.description")]
+        [HttpGet("{id:long}/Comments")]
+        public async Task<IActionResult> GetComments(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await commentService.GetByApprovalId(id, cancellationToken));
+        }
+
+        [RequireAccess("opportunityApprovals.createComment.description")]
+        [HttpPost("{id:long}/Comments")]
+        public async Task<IActionResult> CreateComment(long id, [FromBody] CreateOpportunityApprovalCommentRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await commentService.Create(id, request, cancellationToken);
+            return Http201(result, Localizer["record.created"]);
+        }
+
+        [RequireAccess("opportunityApprovals.updateComment.description")]
+        [HttpPut("Comments/{commentId:long}")]
+        public async Task<IActionResult> UpdateComment(long commentId, [FromBody] UpdateOpportunityApprovalCommentRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await commentService.Update(commentId, request, cancellationToken);
+            return Http200(result, Localizer["record.updated"]);
+        }
+
+        [RequireAccess("opportunityApprovals.deleteComment.description")]
+        [HttpDelete("Comments/{commentId:long}")]
+        public async Task<IActionResult> DeleteComment(long commentId, CancellationToken cancellationToken)
+        {
+            await commentService.Delete(commentId, cancellationToken);
+            return Http204();
         }
     }
 

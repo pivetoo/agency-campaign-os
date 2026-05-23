@@ -1444,6 +1444,10 @@
   <data name="opportunityApprovals.requestChanges.description" xml:space="preserve"><value>Permite pedir ajustes ao solicitante de uma aprovação.</value></data>
   <data name="opportunityApprovals.resubmit.description" xml:space="preserve"><value>Permite reenviar uma aprovação após ajustes.</value></data>
   <data name="opportunityApprovals.markMerged.description" xml:space="preserve"><value>Permite marcar uma aprovação como aplicada na negociação.</value></data>
+  <data name="opportunityApprovals.getComments.description" xml:space="preserve"><value>Permite listar os comentários de uma aprovação.</value></data>
+  <data name="opportunityApprovals.createComment.description" xml:space="preserve"><value>Permite comentar em uma aprovação.</value></data>
+  <data name="opportunityApprovals.updateComment.description" xml:space="preserve"><value>Permite editar um comentário de aprovação.</value></data>
+  <data name="opportunityApprovals.deleteComment.description" xml:space="preserve"><value>Permite excluir um comentário de aprovação.</value></data>
   <data name="opportunityApprovals.summary.description" xml:space="preserve"><value>Permite consultar o resumo de aprovações comerciais.</value></data>
   <data name="opportunityWinReasons.area" xml:space="preserve"><value>Motivos de ganho</value></data>
   <data name="opportunityWinReasons.create.description" xml:space="preserve"><value>Permite cadastrar um motivo de ganho de oportunidade.</value></data>

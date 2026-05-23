@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button, PageLayout, useApi, useAuth, useI18n } from 'archon-ui'
 import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
+import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
 import { formatDate } from '../../../lib/format'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 
@@ -168,6 +169,7 @@ export default function CommercialApprovals() {
               <ApprovalDetail
                 approval={selected}
                 actionLoading={actionLoading}
+                currentUserName={user?.name || t('approvals.user.fallback')}
                 onApprove={() => void decideApproval('approve')}
                 onReject={() => void decideApproval('reject')}
                 onRequestChanges={() => void requestChanges()}
@@ -309,6 +311,7 @@ function InboxRow({ approval, selected, onClick, t }: { approval: OpportunityApp
 interface DetailProps {
   approval: OpportunityApprovalRequest
   actionLoading: boolean
+  currentUserName: string
   onApprove: () => void
   onReject: () => void
   onRequestChanges: () => void
@@ -318,7 +321,7 @@ interface DetailProps {
   t: (key: string) => string
 }
 
-function ApprovalDetail({ approval, actionLoading, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged, onOpenOpportunity, t }: DetailProps) {
+function ApprovalDetail({ approval, actionLoading, currentUserName, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged, onOpenOpportunity, t }: DetailProps) {
   const isApproved = approval.status === OpportunityApprovalStatus.Approved
   const isRejected = approval.status === OpportunityApprovalStatus.Rejected
   const isMerged = approval.status === OpportunityApprovalStatus.Merged
@@ -383,35 +386,24 @@ function ApprovalDetail({ approval, actionLoading, onApprove, onReject, onReques
             </div>
           </Panel>
 
-          <Panel title={`Conversa · ${approval.decisionNotes ? '1 comentário' : '0 comentários'}`} accent="blue">
-            {approval.decisionNotes ? (
+          <ConversationPanel approvalId={approval.id} currentUserName={currentUserName} />
+
+          {(approval.decisionNotes && (isApproved || isRejected)) && (
+            <Panel title="Decisão" accent={isApproved ? 'emerald' : 'rose'}>
               <div className="flex gap-2.5">
                 <Avatar name={approval.approvedByUserName || 'Aprovador'} size={32} tone={isApproved ? 'emerald' : 'rose'} />
-                <div className="min-w-0 flex-1 overflow-hidden rounded-lg border border-border bg-card">
-                  <div className="flex items-center gap-2 border-b border-border/60 bg-muted/30 px-3.5 py-2 text-xs">
-                    <strong className="text-foreground">{approval.approvedByUserName || 'Aprovador'}</strong>
-                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${isApproved ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>aprovador</span>
-                    <span className="text-muted-foreground">comentou {approval.decidedAt ? `em ${formatDate(approval.decidedAt)}` : ''}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs text-muted-foreground">
+                    <strong className={isApproved ? 'text-emerald-700' : 'text-rose-700'}>{approval.approvedByUserName || 'Aprovador'}</strong>
+                    {approval.decidedAt && <span> · {formatDate(approval.decidedAt)}</span>}
                   </div>
-                  <div className="px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
-                    {approval.decisionNotes}
-                  </div>
-                  {isApproved && (
-                    <div className="flex items-center gap-1.5 border-t border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-800">
-                      <CheckCircle2 className="h-3.5 w-3.5" /> Aprovou esta solicitação
-                    </div>
-                  )}
-                  {isRejected && (
-                    <div className="flex items-center gap-1.5 border-t border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-semibold text-rose-800">
-                      <XCircle className="h-3.5 w-3.5" /> Rejeitou esta solicitação
-                    </div>
-                  )}
+                  <p className={`mt-1.5 whitespace-pre-wrap rounded-md border-l-2 ${isApproved ? 'border-emerald-500' : 'border-rose-500'} bg-muted/30 px-3 py-2 text-sm italic text-foreground`}>
+                    "{approval.decisionNotes}"
+                  </p>
                 </div>
               </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">Sem comentários nesta solicitação.</p>
-            )}
-          </Panel>
+            </Panel>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -662,6 +654,113 @@ function LinkRow({ icon, label, value, tone, onClick, brandLogoUrl }: { icon?: R
       </div>
       {onClick && <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground" />}
     </Wrap>
+  )
+}
+
+interface ConversationPanelProps {
+  approvalId: number
+  currentUserName: string
+}
+
+function ConversationPanel({ approvalId, currentUserName }: ConversationPanelProps) {
+  const [comments, setComments] = useState<OpportunityApprovalComment[]>([])
+  const [draft, setDraft] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [posting, setPosting] = useState(false)
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const data = await opportunityService.getApprovalComments(approvalId)
+      setComments(data)
+    } catch {
+      setComments([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [approvalId])
+
+  const submit = async () => {
+    const body = draft.trim()
+    if (!body || posting) return
+    setPosting(true)
+    try {
+      await opportunityService.createApprovalComment(approvalId, { userName: currentUserName, body, role: 'observador' })
+      setDraft('')
+      await load()
+    } finally {
+      setPosting(false)
+    }
+  }
+
+  const handleDelete = async (commentId: number) => {
+    if (!window.confirm('Excluir este comentário?')) return
+    await opportunityService.deleteApprovalComment(commentId)
+    await load()
+  }
+
+  return (
+    <Panel title={`Conversa · ${loading ? '…' : `${comments.length} ${comments.length === 1 ? 'comentário' : 'comentários'}`}`} accent="blue">
+      <div className="space-y-3">
+        {loading && comments.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Carregando…</p>
+        ) : comments.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Sem comentários nesta solicitação. Seja o primeiro.</p>
+        ) : (
+          comments.map((c) => <CommentRow key={c.id} comment={c} canDelete={c.userName === currentUserName} onDelete={() => void handleDelete(c.id)} />)
+        )}
+
+        <div className="flex gap-2.5 pt-2">
+          <Avatar name={currentUserName} size={28} />
+          <div className="min-w-0 flex-1">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Deixe um comentário…"
+              className="min-h-[64px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+            <div className="mt-2 flex items-center justify-end gap-2">
+              <Button size="sm" variant="primary" disabled={posting || draft.trim().length === 0} onClick={() => void submit()}>
+                {posting ? 'Enviando…' : 'Comentar'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Panel>
+  )
+}
+
+function CommentRow({ comment, canDelete, onDelete }: { comment: OpportunityApprovalComment; canDelete: boolean; onDelete: () => void }) {
+  const roleStyle: Record<string, { bg: string; text: string }> = {
+    aprovador: { bg: 'bg-emerald-100', text: 'text-emerald-800' },
+    solicitante: { bg: 'bg-blue-100', text: 'text-blue-800' },
+    observador: { bg: 'bg-muted', text: 'text-muted-foreground' },
+  }
+  const style = roleStyle[comment.role] ?? roleStyle.observador
+
+  return (
+    <div className="flex gap-2.5">
+      <Avatar name={comment.userName} size={28} />
+      <div className="min-w-0 flex-1 overflow-hidden rounded-lg border border-border bg-card">
+        <div className="flex items-center gap-2 border-b border-border/60 bg-muted/30 px-3 py-1.5 text-[11.5px]">
+          <strong className="text-foreground">{comment.userName}</strong>
+          <span className={`rounded px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider ${style.bg} ${style.text}`}>{comment.role}</span>
+          <span className="text-muted-foreground">comentou em {formatDate(comment.createdAt)}</span>
+          {canDelete && (
+            <button type="button" onClick={onDelete} className="ml-auto text-[10px] font-semibold text-muted-foreground hover:text-destructive">
+              Excluir
+            </button>
+          )}
+        </div>
+        <div className="whitespace-pre-wrap px-3 py-2 text-sm leading-relaxed text-foreground">{comment.body}</div>
+      </div>
+    </div>
   )
 }
 

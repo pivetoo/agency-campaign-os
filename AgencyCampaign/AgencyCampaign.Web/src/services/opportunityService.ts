@@ -4,6 +4,7 @@ import type { CommercialPipelineStage } from '../types/commercialPipelineStage'
 import type { CommercialForecast } from '../types/commercialForecast'
 import type { CommercialAnalytics } from '../types/commercialAnalytics'
 import type { CommercialOpportunityInsights } from '../types/commercialInsights'
+import type { OpportunityApprovalComment } from '../types/opportunityApprovalComment'
 
 const BASE_URL = '/Opportunities'
 
@@ -545,6 +546,23 @@ export const opportunityService = {
 
   markApprovalMerged(id: number) {
     return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/MarkMerged`, {})
+  },
+
+  async getApprovalComments(approvalId: number): Promise<OpportunityApprovalComment[]> {
+    const response = await httpClient.get<OpportunityApprovalComment[]>(`/OpportunityApprovals/${approvalId}/Comments`)
+    return response.data ?? []
+  },
+
+  createApprovalComment(approvalId: number, data: { userName: string; userId?: number; role?: string; body: string }) {
+    return httpClient.post<OpportunityApprovalComment>(`/OpportunityApprovals/${approvalId}/Comments`, data)
+  },
+
+  updateApprovalComment(commentId: number, body: string) {
+    return httpClient.put<OpportunityApprovalComment>(`/OpportunityApprovals/Comments/${commentId}`, { id: commentId, body })
+  },
+
+  deleteApprovalComment(commentId: number) {
+    return httpClient.delete(`/OpportunityApprovals/Comments/${commentId}`)
   },
 
   getAllApprovals(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<OpportunityApprovalRequest[]>> {
