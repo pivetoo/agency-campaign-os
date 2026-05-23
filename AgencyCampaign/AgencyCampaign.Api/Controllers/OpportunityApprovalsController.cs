@@ -282,6 +282,14 @@ namespace AgencyCampaign.Api.Controllers
         {
             return Http200(await policyEvaluator.EvaluateNegotiationByIdAsync(negotiationId, cancellationToken));
         }
+
+        [RequireAccess("opportunityApprovals.populateFromPolicy.description")]
+        [HttpPost("{id:long}/PopulateFromPolicy")]
+        public async Task<IActionResult> PopulateFromPolicy(long id, CancellationToken cancellationToken)
+        {
+            await approvalRequestService.PopulateFromPolicy(id, cancellationToken);
+            return Http200(new { Ok = true });
+        }
     }
 
     internal static class OpportunityContractExtensions

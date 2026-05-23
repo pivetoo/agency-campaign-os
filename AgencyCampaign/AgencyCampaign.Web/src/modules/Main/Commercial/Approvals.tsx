@@ -375,9 +375,7 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, onApprove, o
       <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_280px]">
         {/* Main column */}
         <div className="space-y-4 min-w-0">
-          <DiffPanel approvalId={approval.id} editable={isOpen} />
-
-          <ImpactStrip approvalId={approval.id} editable={isOpen} />
+          <DiffImpactPair approvalId={approval.id} editable={isOpen} />
 
           <Panel title="Justificativa" accent="primary">
             <div className="flex gap-3">
@@ -667,9 +665,20 @@ function LinkRow({ icon, label, value, tone, onClick, brandLogoUrl }: { icon?: R
   )
 }
 
-function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boolean }) {
+function DiffImpactPair({ approvalId, editable }: { approvalId: number; editable: boolean }) {
+  const [revalKey, setRevalKey] = useState(0)
+  return (
+    <>
+      <DiffPanel approvalId={approvalId} editable={editable} revalKey={revalKey} onAutoPopulated={() => setRevalKey((k) => k + 1)} />
+      <ImpactStrip approvalId={approvalId} editable={editable} revalKey={revalKey} />
+    </>
+  )
+}
+
+function DiffPanel({ approvalId, editable, revalKey = 0, onAutoPopulated }: { approvalId: number; editable: boolean; revalKey?: number; onAutoPopulated?: () => void }) {
   const [diffs, setDiffs] = useState<OpportunityApprovalDiff[]>([])
   const [loading, setLoading] = useState(true)
+  const [autoLoading, setAutoLoading] = useState(false)
   const [adding, setAdding] = useState(false)
   const [draftField, setDraftField] = useState('')
   const [draftPolicy, setDraftPolicy] = useState('')
@@ -694,7 +703,7 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
     void load()
     setAdding(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [approvalId])
+  }, [approvalId, revalKey])
 
   const reset = () => {
     setDraftField('')
@@ -729,6 +738,17 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
     if (!window.confirm('Remover esta alteração?')) return
     await opportunityService.removeApprovalDiff(id)
     await load()
+  }
+
+  const handleAutoPopulate = async () => {
+    if (autoLoading) return
+    setAutoLoading(true)
+    try {
+      await opportunityService.populateApprovalFromPolicy(approvalId)
+      await load()
+    } finally {
+      setAutoLoading(false)
+    }
   }
 
   const counts = {
@@ -785,7 +805,21 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
           </div>
         </>
       ) : (
-        <p className="text-xs text-muted-foreground">Sem alterações registradas.</p>
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">Sem alterações registradas.</p>
+          {editable && (
+            <div className="rounded-md border border-dashed border-border bg-muted/20 p-3 text-[11.5px] text-muted-foreground">
+              <p className="mb-2">Para detectar automaticamente, é necessário:</p>
+              <ul className="ml-4 list-disc space-y-0.5">
+                <li>Política comercial cadastrada em <strong>Configurações</strong></li>
+                <li>Negociação com <strong>Desconto / Margem / Prazo</strong> preenchidos</li>
+              </ul>
+              <Button size="sm" variant="outline" className="mt-2.5" disabled={autoLoading} onClick={() => void handleAutoPopulate()}>
+                {autoLoading ? 'Detectando…' : 'Detectar pela política agora'}
+              </Button>
+            </div>
+          )}
+        </div>
       )}
 
       {editable && (
@@ -913,7 +947,7 @@ function ImpactStrip({ approvalId, editable }: { approvalId: number; editable: b
       )}
 
       {impacts.length === 0 && (
-        <p className="text-xs text-muted-foreground">Sem impactos registrados.</p>
+        <p className="text-xs text-muted-foreground">Sem impactos registrados. Use <strong>"Detectar pela política"</strong> no painel Diff acima para calcular automaticamente.</p>
       )}
 
       {editable && (

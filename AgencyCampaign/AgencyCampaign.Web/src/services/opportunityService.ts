@@ -622,6 +622,10 @@ export const opportunityService = {
     return response.data ?? null
   },
 
+  populateApprovalFromPolicy(approvalId: number) {
+    return httpClient.post<{ ok: boolean }>(`/OpportunityApprovals/${approvalId}/PopulateFromPolicy`, {})
+  },
+
   getAllApprovals(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<OpportunityApprovalRequest[]>> {
     const query = buildPaginationQuery(params)
     return httpClient.get<OpportunityApprovalRequest[]>(`/OpportunityApprovals/Get${query}`)
