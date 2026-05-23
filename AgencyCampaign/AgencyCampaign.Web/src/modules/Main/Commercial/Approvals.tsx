@@ -218,7 +218,7 @@ function InboxColumn({ counts, filter, onFilterChange, search, onSearchChange, i
           <h2 className="text-base font-semibold text-foreground">Inbox</h2>
           <span className="text-xs text-muted-foreground">{counts.all} total</span>
         </div>
-        <div className="flex flex-wrap items-center gap-1">
+        <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 [scrollbar-width:thin]">
           <InboxTab label="Pendentes" count={counts.pending} active={filter === 'pending'} tone="amber" onClick={() => onFilterChange('pending')} />
           <InboxTab label="Aprovadas" count={counts.approved} active={filter === 'approved'} tone="emerald" onClick={() => onFilterChange('approved')} />
           <InboxTab label="Rejeitadas" count={counts.rejected} active={filter === 'rejected'} tone="rose" onClick={() => onFilterChange('rejected')} />
@@ -260,7 +260,7 @@ function InboxTab({ label, count, active, tone, onClick }: { label: string; coun
       type="button"
       onClick={onClick}
       className={[
-        'inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[12px] font-semibold transition-colors',
+        'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-1 text-[12px] font-semibold transition-colors',
         active ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
       ].join(' ')}
     >
