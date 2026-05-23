@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Sparkles, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush, Landmark } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
@@ -121,7 +121,7 @@ export default function AgencyCampaignLayout() {
         { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },
         { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} />, requires: ['opportunityApprovals.get'] },
         { key: 'comercial-analytics', label: 'Analytics', path: '/comercial/analytics', icon: <TrendingUp size={20} />, requires: ['opportunities.analytics', 'opportunities.analyticsOwn'] },
-        { key: 'comercial-metas', label: 'Metas', path: '/comercial/metas', icon: <Sparkles size={20} />, requires: ['commercialGoals.get'] },
+        { key: 'comercial-metas', label: 'Metas', path: '/comercial/metas', icon: <Target size={20} />, requires: ['commercialGoals.get'] },
       ],
     },
     {
@@ -158,10 +158,10 @@ export default function AgencyCampaignLayout() {
       label: t('nav.group.commercial'),
       items: [
         { key: 'configuracao-pipeline-comercial', label: t('nav.item.commercialFunnel'), path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} />, requires: ['commercialPipelineStages.get'] },
-        { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Sparkles size={20} />, requires: ['opportunitySources.get'] },
+        { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Compass size={20} />, requires: ['opportunitySources.get'] },
         { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} />, requires: ['opportunityTags.get'] },
-        { key: 'configuracao-motivos-ganho', label: 'Motivos de ganho', path: '/configuracao/motivos-ganho', icon: <Sparkles size={20} />, requires: ['opportunityWinReasons.get'] },
-        { key: 'configuracao-motivos-perda', label: 'Motivos de perda', path: '/configuracao/motivos-perda', icon: <Sparkles size={20} />, requires: ['opportunityLossReasons.get'] },
+        { key: 'configuracao-motivos-ganho', label: 'Motivos de ganho', path: '/configuracao/motivos-ganho', icon: <Trophy size={20} />, requires: ['opportunityWinReasons.get'] },
+        { key: 'configuracao-motivos-perda', label: 'Motivos de perda', path: '/configuracao/motivos-perda', icon: <ThumbsDown size={20} />, requires: ['opportunityLossReasons.get'] },
         { key: 'configuracao-itens-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/itens-proposta', icon: <FileSignature size={20} />, requires: ['proposalTemplates.get'] },
         { key: 'configuracao-layouts-proposta', label: 'Layouts da proposta', path: '/configuracao/layouts-proposta', icon: <Paintbrush size={20} />, requires: ['agencySettings.getProposalTemplateVersions'] },
       ],
