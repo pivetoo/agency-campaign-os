@@ -6,6 +6,7 @@ import type { CommercialAnalytics } from '../types/commercialAnalytics'
 import type { CommercialOpportunityInsights } from '../types/commercialInsights'
 import type { OpportunityApprovalComment } from '../types/opportunityApprovalComment'
 import type { OpportunityApprovalReviewer } from '../types/opportunityApprovalReviewer'
+import type { OpportunityApprovalDiff } from '../types/opportunityApprovalDiff'
 
 const BASE_URL = '/Opportunities'
 
@@ -577,6 +578,19 @@ export const opportunityService = {
 
   removeApprovalReviewer(reviewerId: number) {
     return httpClient.delete(`/OpportunityApprovals/Reviewers/${reviewerId}`)
+  },
+
+  async getApprovalDiffs(approvalId: number): Promise<OpportunityApprovalDiff[]> {
+    const response = await httpClient.get<OpportunityApprovalDiff[]>(`/OpportunityApprovals/${approvalId}/Diffs`)
+    return response.data ?? []
+  },
+
+  addApprovalDiff(approvalId: number, data: { field: string; policyValue?: string; requestedValue?: string; delta?: string; kind?: number; displayOrder?: number }) {
+    return httpClient.post<OpportunityApprovalDiff>(`/OpportunityApprovals/${approvalId}/Diffs`, data)
+  },
+
+  removeApprovalDiff(diffId: number) {
+    return httpClient.delete(`/OpportunityApprovals/Diffs/${diffId}`)
   },
 
   getAllApprovals(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<OpportunityApprovalRequest[]>> {

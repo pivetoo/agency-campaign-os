@@ -17,13 +17,15 @@ namespace AgencyCampaign.Api.Controllers
         private readonly IOpportunityApprovalRequestService approvalRequestService;
         private readonly IOpportunityApprovalCommentService commentService;
         private readonly IOpportunityApprovalReviewerService reviewerService;
+        private readonly IOpportunityApprovalDiffService diffService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
 
-        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IOpportunityApprovalCommentService commentService, IOpportunityApprovalReviewerService reviewerService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public OpportunityApprovalsController(IOpportunityApprovalRequestService approvalRequestService, IOpportunityApprovalCommentService commentService, IOpportunityApprovalReviewerService reviewerService, IOpportunityApprovalDiffService diffService, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.approvalRequestService = approvalRequestService;
             this.commentService = commentService;
             this.reviewerService = reviewerService;
+            this.diffService = diffService;
             Localizer = localizer;
         }
 
@@ -209,6 +211,35 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> RemoveReviewer(long reviewerId, CancellationToken cancellationToken)
         {
             await reviewerService.Remove(reviewerId, cancellationToken);
+            return Http204();
+        }
+
+        [RequireAccess("opportunityApprovals.getDiffs.description")]
+        [HttpGet("{id:long}/Diffs")]
+        public async Task<IActionResult> GetDiffs(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await diffService.GetByApprovalId(id, cancellationToken));
+        }
+
+        [RequireAccess("opportunityApprovals.addDiff.description")]
+        [HttpPost("{id:long}/Diffs")]
+        public async Task<IActionResult> AddDiff(long id, [FromBody] AddOpportunityApprovalDiffRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await diffService.Add(id, request, cancellationToken);
+            return Http201(result, Localizer["record.created"]);
+        }
+
+        [RequireAccess("opportunityApprovals.removeDiff.description")]
+        [HttpDelete("Diffs/{diffId:long}")]
+        public async Task<IActionResult> RemoveDiff(long diffId, CancellationToken cancellationToken)
+        {
+            await diffService.Remove(diffId, cancellationToken);
             return Http204();
         }
     }

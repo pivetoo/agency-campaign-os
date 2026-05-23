@@ -1,0 +1,21 @@
+namespace AgencyCampaign.Application.Models.Commercial
+{
+    public sealed class OpportunityApprovalDiffModel
+    {
+        public long Id { get; init; }
+
+        public long OpportunityApprovalRequestId { get; init; }
+
+        public string Field { get; init; } = string.Empty;
+
+        public string PolicyValue { get; init; } = string.Empty;
+
+        public string RequestedValue { get; init; } = string.Empty;
+
+        public string? Delta { get; init; }
+
+        public int Kind { get; init; }
+
+        public int DisplayOrder { get; init; }
+    }
+}

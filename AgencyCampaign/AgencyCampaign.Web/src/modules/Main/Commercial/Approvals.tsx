@@ -5,6 +5,7 @@ import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, His
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
 import type { OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
+import type { OpportunityApprovalDiff } from '../../../types/opportunityApprovalDiff'
 import { formatDate } from '../../../lib/format'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 
@@ -373,6 +374,8 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, onApprove, o
       <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_280px]">
         {/* Main column */}
         <div className="space-y-4 min-w-0">
+          <DiffPanel approvalId={approval.id} editable={isOpen} />
+
           <Panel title="Justificativa" accent="primary">
             <div className="flex gap-3">
               <Avatar name={approval.requestedByUserName} size={32} />
@@ -658,6 +661,155 @@ function LinkRow({ icon, label, value, tone, onClick, brandLogoUrl }: { icon?: R
       </div>
       {onClick && <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground" />}
     </Wrap>
+  )
+}
+
+function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boolean }) {
+  const [diffs, setDiffs] = useState<OpportunityApprovalDiff[]>([])
+  const [loading, setLoading] = useState(true)
+  const [adding, setAdding] = useState(false)
+  const [draftField, setDraftField] = useState('')
+  const [draftPolicy, setDraftPolicy] = useState('')
+  const [draftRequested, setDraftRequested] = useState('')
+  const [draftDelta, setDraftDelta] = useState('')
+  const [draftKind, setDraftKind] = useState<1 | 2 | 3>(1)
+  const [posting, setPosting] = useState(false)
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const data = await opportunityService.getApprovalDiffs(approvalId)
+      setDiffs(data)
+    } catch {
+      setDiffs([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void load()
+    setAdding(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [approvalId])
+
+  const reset = () => {
+    setDraftField('')
+    setDraftPolicy('')
+    setDraftRequested('')
+    setDraftDelta('')
+    setDraftKind(1)
+  }
+
+  const submit = async () => {
+    const field = draftField.trim()
+    if (!field || posting) return
+    setPosting(true)
+    try {
+      await opportunityService.addApprovalDiff(approvalId, {
+        field,
+        policyValue: draftPolicy.trim() || undefined,
+        requestedValue: draftRequested.trim() || undefined,
+        delta: draftDelta.trim() || undefined,
+        kind: draftKind,
+        displayOrder: diffs.length,
+      })
+      reset()
+      setAdding(false)
+      await load()
+    } finally {
+      setPosting(false)
+    }
+  }
+
+  const handleRemove = async (id: number) => {
+    if (!window.confirm('Remover esta alteração?')) return
+    await opportunityService.removeApprovalDiff(id)
+    await load()
+  }
+
+  const counts = {
+    add: diffs.filter((d) => d.kind === 2).length,
+    remove: diffs.filter((d) => d.kind === 3).length,
+    change: diffs.filter((d) => d.kind === 1).length,
+  }
+
+  if (loading) {
+    return <Panel title="Diff · O que muda" accent="primary"><p className="text-xs text-muted-foreground">Carregando…</p></Panel>
+  }
+
+  if (diffs.length === 0 && !editable) {
+    return null
+  }
+
+  return (
+    <Panel
+      title="Diff · O que muda"
+      accent="primary"
+    >
+      {diffs.length > 0 ? (
+        <>
+          <div className="mb-2 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
+            <span className="text-rose-700">−{counts.remove}</span>
+            <span className="text-emerald-700">+{counts.add}</span>
+            <span>~{counts.change}</span>
+            <span>{diffs.length} campo{diffs.length === 1 ? '' : 's'} alterado{diffs.length === 1 ? '' : 's'}</span>
+          </div>
+          <div className="overflow-hidden rounded-md border border-border">
+            <div className="grid grid-cols-[1fr_1fr_1fr_80px_auto] gap-2 border-b border-border bg-muted/30 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <div>Campo</div>
+              <div>Política padrão</div>
+              <div>Solicitado</div>
+              <div className="text-right">Δ</div>
+              <div />
+            </div>
+            {diffs.map((d) => (
+              <div key={d.id} className="grid grid-cols-[1fr_1fr_1fr_80px_auto] items-center gap-2 border-b border-border/60 px-3 py-2 text-sm last:border-b-0">
+                <div className="truncate font-semibold text-foreground">{d.field}</div>
+                <div className="font-mono text-xs rounded bg-rose-50 px-2 py-1 text-rose-700">− {d.policyValue || '—'}</div>
+                <div className="font-mono text-xs rounded bg-emerald-50 px-2 py-1 text-emerald-700">+ {d.requestedValue || '—'}</div>
+                <div className={`text-right font-mono text-xs font-bold ${d.kind === 2 ? 'text-emerald-700' : d.kind === 3 ? 'text-rose-700' : 'text-foreground'}`}>{d.delta || '—'}</div>
+                {editable ? (
+                  <button type="button" onClick={() => void handleRemove(d.id)} className="text-[10px] font-semibold text-muted-foreground hover:text-destructive">×</button>
+                ) : <div />}
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p className="text-xs text-muted-foreground">Sem alterações registradas.</p>
+      )}
+
+      {editable && (
+        <div className="mt-3">
+          {adding ? (
+            <div className="space-y-1.5 rounded-md border border-dashed border-border bg-muted/20 p-2">
+              <div className="grid grid-cols-2 gap-1.5">
+                <input value={draftField} onChange={(e) => setDraftField(e.target.value)} placeholder="Campo (ex.: Desconto)" className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+                <select value={draftKind} onChange={(e) => setDraftKind(Number(e.target.value) as 1 | 2 | 3)} className="rounded-md border border-input bg-background px-2 py-1 text-xs">
+                  <option value={1}>~ Mudança</option>
+                  <option value={2}>+ Adicionado</option>
+                  <option value={3}>− Removido</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                <input value={draftPolicy} onChange={(e) => setDraftPolicy(e.target.value)} placeholder="Política padrão" className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+                <input value={draftRequested} onChange={(e) => setDraftRequested(e.target.value)} placeholder="Solicitado" className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+              </div>
+              <input value={draftDelta} onChange={(e) => setDraftDelta(e.target.value)} placeholder="Δ delta (ex.: +5pp, -30d)" className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+              <div className="flex gap-1.5">
+                <Button size="sm" variant="primary" fullWidth disabled={!draftField.trim() || posting} onClick={() => void submit()}>
+                  {posting ? 'Adicionando…' : 'Adicionar'}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { setAdding(false); reset() }}>Cancelar</Button>
+              </div>
+            </div>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => setAdding(true)} icon={<Plus />}>Adicionar alteração</Button>
+          )}
+        </div>
+      )}
+    </Panel>
   )
 }
 
