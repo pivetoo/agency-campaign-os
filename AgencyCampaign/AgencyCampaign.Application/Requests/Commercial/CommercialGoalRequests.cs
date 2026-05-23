@@ -14,7 +14,7 @@ namespace AgencyCampaign.Application.Requests.Commercial
         public DateTimeOffset PeriodStart { get; set; }
 
         [Required]
-        [Range(typeof(decimal), "0", "999999999.99")]
+        [Range(0, double.MaxValue)]
         public decimal TargetAmount { get; set; }
 
         [StringLength(1000)]
@@ -36,7 +36,7 @@ namespace AgencyCampaign.Application.Requests.Commercial
         public DateTimeOffset PeriodStart { get; set; }
 
         [Required]
-        [Range(typeof(decimal), "0", "999999999.99")]
+        [Range(0, double.MaxValue)]
         public decimal TargetAmount { get; set; }
 
         [StringLength(1000)]
