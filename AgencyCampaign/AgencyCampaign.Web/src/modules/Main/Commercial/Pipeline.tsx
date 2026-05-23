@@ -6,6 +6,7 @@ import { opportunityService, type OpportunityBoardItem, type OpportunityBoardSta
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import CommercialGoalsWidget from './CommercialGoalsWidget'
 import CommercialForecastWidget from './CommercialForecastWidget'
+import CommercialKpiStrip from './CommercialKpiStrip'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
@@ -308,6 +309,12 @@ export default function CommercialPipeline() {
               <p className="mt-0.5 text-xs text-muted-foreground">Acompanhamento do período corrente.</p>
             </div>
             <div className="space-y-4">
+              <CommercialKpiStrip
+                scope={canSeeAllBoard ? 'all' : 'mine'}
+                openCount={summary.count}
+                openValue={summary.value}
+                overdueFollowUps={summary.overdueFollowUps}
+              />
               <CommercialGoalsWidget scope={canSeeAllBoard ? 'all' : 'mine'} onEmptyManage={() => { setInsightsOpen(false); navigate('/comercial/metas') }} />
               <CommercialForecastWidget scope={canSeeAllBoard ? 'all' : 'mine'} />
             </div>
