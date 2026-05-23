@@ -447,11 +447,11 @@ function ActionPanel({ approval, actionLoading, isPending, isApproved, isRejecte
           Sua aprovação é necessária pra essa exceção avançar.
         </p>
         <div className="mt-3 flex flex-col gap-2">
-          <Button size="sm" disabled={actionLoading} onClick={onApprove} className="w-full justify-center !bg-emerald-600 !border-emerald-600 hover:!bg-emerald-700">
-            <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> Aprovar
+          <Button size="sm" variant="success" fullWidth disabled={actionLoading} onClick={onApprove} icon={<ThumbsUp />}>
+            Aprovar
           </Button>
-          <Button size="sm" variant="outline-danger" disabled={actionLoading} onClick={onReject} className="w-full justify-center">
-            <ThumbsDown className="mr-1.5 h-3.5 w-3.5" /> Rejeitar
+          <Button size="sm" variant="outline-danger" fullWidth disabled={actionLoading} onClick={onReject} icon={<ThumbsDown />}>
+            Rejeitar
           </Button>
         </div>
         <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
