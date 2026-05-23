@@ -285,32 +285,6 @@ export default function CommercialPipeline() {
           <CommercialGoalsWidget scope={canSeeAllBoard ? 'all' : 'mine'} onEmptyManage={() => navigate('/comercial/metas')} />
           <CommercialForecastWidget scope={canSeeAllBoard ? 'all' : 'mine'} />
         </div>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border bg-card px-4 py-2.5 text-sm">
-          <div className="flex items-center gap-2">
-            <UserRound className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">{t('pipeline.summary.opportunities')}</span>
-            <span className="font-semibold text-foreground">{summary.count}</span>
-          </div>
-          <div className="hidden h-4 w-px bg-border sm:block" />
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">{t('pipeline.summary.value')}</span>
-            <span className="font-semibold text-foreground">{formatCurrency(summary.value)}</span>
-          </div>
-          <div className="hidden h-4 w-px bg-border sm:block" />
-          <div className="flex items-center gap-2">
-            <CalendarClock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">{t('pipeline.summary.pendingFollowUps')}</span>
-            <span className="font-semibold text-foreground">{summary.pendingFollowUps}</span>
-          </div>
-          <div className="hidden h-4 w-px bg-border sm:block" />
-          <div className="flex items-center gap-2">
-            <AlertTriangle className={`h-4 w-4 ${summary.overdueFollowUps > 0 ? 'text-destructive' : 'text-muted-foreground'}`} />
-            <span className="text-muted-foreground">{t('pipeline.summary.overdue')}</span>
-            <span className={`font-semibold ${summary.overdueFollowUps > 0 ? 'text-destructive' : 'text-foreground'}`}>{summary.overdueFollowUps}</span>
-          </div>
-        </div>
-
         {summary.overdueFollowUps > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             <AlertTriangle className="h-4 w-4" />
