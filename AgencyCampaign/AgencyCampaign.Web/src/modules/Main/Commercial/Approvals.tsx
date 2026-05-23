@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, PageLayout, useApi, useAuth, useI18n } from 'archon-ui'
-import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, MessageSquare, Search, ShieldCheck, ThumbsDown, ThumbsUp, XCircle } from 'lucide-react'
-import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest, type ApprovalSummary } from '../../../services/opportunityService'
+import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
+import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import { formatDate } from '../../../lib/format'
 
 const approvalTypeKeys: Record<number, string> = {
@@ -29,7 +29,6 @@ export default function CommercialApprovals() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [approvals, setApprovals] = useState<OpportunityApprovalRequest[]>([])
-  const [summary, setSummary] = useState<ApprovalSummary | null>(null)
   const [filter, setFilter] = useState<FilterTab>('pending')
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -39,8 +38,6 @@ export default function CommercialApprovals() {
   const loadData = async () => {
     const result = await fetchApprovals(() => opportunityService.getAllApprovals({ page: 1, pageSize: 200 }))
     if (result) setApprovals(result)
-    const summaryResult = await opportunityService.getApprovalsSummary()
-    setSummary(summaryResult)
   }
 
   useEffect(() => {
@@ -111,14 +108,8 @@ export default function CommercialApprovals() {
       onRefresh={() => void loadData()}
       showDefaultActions={false}
     >
-      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-        <KpiCard label={t('approvals.kpi.pending')} value={summary?.pending ?? 0} tone="amber" icon={<Clock className="h-3.5 w-3.5" />} />
-        <KpiCard label={t('approvals.kpi.approved')} value={summary?.approved ?? 0} tone="emerald" icon={<CheckCircle2 className="h-3.5 w-3.5" />} />
-        <KpiCard label={t('approvals.kpi.rejected')} value={summary?.rejected ?? 0} tone="rose" icon={<XCircle className="h-3.5 w-3.5" />} />
-      </div>
-
       <div className="overflow-hidden rounded-xl border border-border bg-card">
-        <div className="grid h-[calc(100vh-260px)] min-h-[520px] grid-cols-1 md:grid-cols-[360px_1fr]">
+        <div className="grid h-[calc(100vh-200px)] min-h-[600px] grid-cols-1 md:grid-cols-[360px_1fr]">
           <InboxColumn
             counts={counts}
             filter={filter}
@@ -158,16 +149,6 @@ export default function CommercialApprovals() {
   )
 }
 
-function KpiCard({ label, value, tone, icon }: { label: string; value: number; tone: 'amber' | 'emerald' | 'rose'; icon: React.ReactNode }) {
-  const toneText = tone === 'emerald' ? 'text-emerald-700' : tone === 'rose' ? 'text-rose-700' : 'text-amber-700'
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider ${toneText}`}>{icon} {label}</div>
-      <div className="mt-1 text-2xl font-bold text-foreground">{value}</div>
-    </div>
-  )
-}
-
 interface InboxColumnProps {
   counts: { pending: number; approved: number; rejected: number; all: number }
   filter: FilterTab
@@ -183,7 +164,7 @@ interface InboxColumnProps {
 
 function InboxColumn({ counts, filter, onFilterChange, search, onSearchChange, items, selectedId, onSelect, loading, t }: InboxColumnProps) {
   return (
-    <aside className="flex flex-col border-r border-border bg-card">
+    <aside className="flex min-h-0 flex-col border-r border-border bg-card">
       <div className="space-y-3 border-b border-border/60 p-4">
         <div className="flex items-baseline justify-between">
           <h2 className="text-base font-semibold text-foreground">Inbox</h2>
@@ -304,111 +285,254 @@ function ApprovalDetail({ approval, actionLoading, onApprove, onReject, onOpenOp
   const isApproved = approval.status === OpportunityApprovalStatus.Approved
   const isRejected = approval.status === OpportunityApprovalStatus.Rejected
   const hours = hoursSince(approval.requestedAt)
+  const typeLabel = approvalTypeKeys[approval.approvalType] ? t(approvalTypeKeys[approval.approvalType]) : 'Solicitação'
   const statusBadge = isPending
-    ? { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Pendente de decisão' }
+    ? { bg: 'bg-amber-100', text: 'text-amber-800', icon: <Clock className="h-3 w-3" />, label: 'Aguardando' }
     : isApproved
-      ? { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Aprovada' }
+      ? { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: <CheckCircle2 className="h-3 w-3" />, label: 'Aprovada' }
       : isRejected
-        ? { bg: 'bg-rose-100', text: 'text-rose-800', label: 'Rejeitada' }
-        : { bg: 'bg-muted', text: 'text-muted-foreground', label: 'Cancelada' }
+        ? { bg: 'bg-rose-100', text: 'text-rose-800', icon: <XCircle className="h-3 w-3" />, label: 'Rejeitada' }
+        : { bg: 'bg-muted', text: 'text-muted-foreground', icon: <XCircle className="h-3 w-3" />, label: 'Cancelada' }
 
   return (
-    <div className="space-y-5 px-6 py-5">
-      <div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-mono font-semibold">#{approval.id}</span>
-          <span>·</span>
-          <span className="rounded bg-muted px-1.5 py-0.5 font-bold uppercase tracking-wider text-foreground">{approvalTypeKeys[approval.approvalType] ? t(approvalTypeKeys[approval.approvalType]) : 'Solicitação'}</span>
-        </div>
-        <h1 className="mt-2 text-xl font-semibold leading-tight text-foreground">
-          {approvalTypeKeys[approval.approvalType] ? t(approvalTypeKeys[approval.approvalType]) : 'Solicitação de aprovação'}
-          {approval.opportunityName && (
-            <span className="text-muted-foreground"> · {approval.opportunityName}</span>
-          )}
-        </h1>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-          <span className={`inline-flex items-center rounded px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider ${statusBadge.bg} ${statusBadge.text}`}>{statusBadge.label}</span>
-          {isPending && hours >= 24 && (
-            <span className="inline-flex items-center gap-1 rounded bg-rose-100 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-rose-800">
-              <Clock className="h-3 w-3" /> {Math.round(hours / 24)}d aguardando
-            </span>
-          )}
-          <span className="flex items-center gap-2">
-            <Avatar name={approval.requestedByUserName} />
-            <span><strong className="text-foreground">{approval.requestedByUserName}</strong> abriu em {formatDate(approval.requestedAt)}</span>
-          </span>
+    <div className="px-7 py-6">
+      {/* PR-style header */}
+      <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+        <span className="font-mono font-semibold">#{approval.id}</span>
+        <span>·</span>
+        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground">{typeLabel}</span>
+        <div className="ml-auto flex items-center gap-1">
+          <button type="button" title="Histórico" className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted">
+            <History className="h-3.5 w-3.5" />
+          </button>
+          <button type="button" title="Mais" className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted">
+            <MoreHorizontal className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
+      <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-foreground">
+        {typeLabel}
+        {approval.opportunityName && <span className="text-muted-foreground"> · {approval.opportunityName}</span>}
+      </h1>
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-[13px] text-muted-foreground">
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-bold ${statusBadge.bg} ${statusBadge.text}`}>
+          {statusBadge.icon} {statusBadge.label}
+        </span>
+        {isPending && hours >= 24 && (
+          <span className="inline-flex items-center gap-1 rounded bg-rose-100 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-rose-800">
+            <Zap className="h-3 w-3" /> URGENTE · há {Math.round(hours / 24)}d
+          </span>
+        )}
+        <span className="flex items-center gap-2">
+          <Avatar name={approval.requestedByUserName} size={22} />
+          <span><strong className="text-foreground">{approval.requestedByUserName}</strong> abriu esta solicitação em {formatDate(approval.requestedAt)}</span>
+        </span>
+      </div>
 
-      <Panel title="Justificativa" accent="primary">
-        <div className="flex gap-3">
-          <Avatar name={approval.requestedByUserName} />
-          <div className="min-w-0 flex-1">
-            <div className="text-xs text-muted-foreground"><strong className="text-foreground">{approval.requestedByUserName}</strong> · Solicitante</div>
-            <p className="mt-1.5 whitespace-pre-wrap rounded-md border-l-2 border-primary bg-muted/30 px-3 py-2 text-sm text-foreground">
-              {approval.reason || 'Sem justificativa fornecida.'}
-            </p>
-          </div>
-        </div>
-      </Panel>
-
-      {!isPending && approval.decisionNotes && (
-        <Panel title="Decisão" accent={isApproved ? 'emerald' : 'rose'}>
-          <div className="flex gap-3">
-            <Avatar name={approval.approvedByUserName || 'Aprovador'} tone={isApproved ? 'emerald' : 'rose'} />
-            <div className="min-w-0 flex-1">
-              <div className="text-xs text-muted-foreground">
-                <strong className={isApproved ? 'text-emerald-700' : 'text-rose-700'}>{approval.approvedByUserName || 'Aprovador'}</strong> · {isApproved ? 'aprovou' : 'rejeitou'}
-                {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>}
+      {/* Grid principal + sidebar */}
+      <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_280px]">
+        {/* Main column */}
+        <div className="space-y-4 min-w-0">
+          <Panel title="Justificativa" accent="primary">
+            <div className="flex gap-3">
+              <Avatar name={approval.requestedByUserName} size={32} />
+              <div className="min-w-0 flex-1">
+                <div className="text-xs text-muted-foreground">
+                  <strong className="text-foreground">{approval.requestedByUserName}</strong> · Solicitante
+                </div>
+                <div className="mt-1.5 whitespace-pre-wrap rounded-md border-l-[3px] border-primary bg-muted/30 px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
+                  {approval.reason || 'Sem justificativa fornecida.'}
+                </div>
               </div>
-              <p className={`mt-1.5 whitespace-pre-wrap rounded-md border-l-2 ${isApproved ? 'border-emerald-500' : 'border-rose-500'} bg-muted/30 px-3 py-2 text-sm italic text-foreground`}>
-                "{approval.decisionNotes}"
-              </p>
             </div>
-          </div>
-        </Panel>
-      )}
+          </Panel>
 
-      <Panel title="Vinculado a">
-        <div className="space-y-1.5">
-          <LinkRow icon={<MessageSquare className="h-3.5 w-3.5" />} label="Negociação" value={approval.negotiationTitle || 'Sem título'} tone="purple" />
-          <LinkRow icon={<ArrowUpRight className="h-3.5 w-3.5" />} label="Oportunidade" value={approval.opportunityName || `#${approval.opportunityNegotiationId}`} tone="primary" onClick={onOpenOpportunity} />
+          <Panel title={`Conversa · ${approval.decisionNotes ? '1 comentário' : '0 comentários'}`} accent="blue">
+            {approval.decisionNotes ? (
+              <div className="flex gap-2.5">
+                <Avatar name={approval.approvedByUserName || 'Aprovador'} size={32} tone={isApproved ? 'emerald' : 'rose'} />
+                <div className="min-w-0 flex-1 overflow-hidden rounded-lg border border-border bg-card">
+                  <div className="flex items-center gap-2 border-b border-border/60 bg-muted/30 px-3.5 py-2 text-xs">
+                    <strong className="text-foreground">{approval.approvedByUserName || 'Aprovador'}</strong>
+                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${isApproved ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>aprovador</span>
+                    <span className="text-muted-foreground">comentou {approval.decidedAt ? `em ${formatDate(approval.decidedAt)}` : ''}</span>
+                  </div>
+                  <div className="px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
+                    {approval.decisionNotes}
+                  </div>
+                  {isApproved && (
+                    <div className="flex items-center gap-1.5 border-t border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-800">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Aprovou esta solicitação
+                    </div>
+                  )}
+                  {isRejected && (
+                    <div className="flex items-center gap-1.5 border-t border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-semibold text-rose-800">
+                      <XCircle className="h-3.5 w-3.5" /> Rejeitou esta solicitação
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Sem comentários nesta solicitação.</p>
+            )}
+          </Panel>
         </div>
-      </Panel>
 
-      {isPending && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-amber-800">
-            <ShieldCheck className="h-3.5 w-3.5" /> Sua decisão
-          </div>
-          <p className="mb-3 text-xs text-amber-800">A negociação fica pausada até você responder.</p>
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant="primary" disabled={actionLoading} onClick={onApprove} className="!bg-emerald-600 !border-emerald-600 hover:!bg-emerald-700">
-              <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> Aprovar
-            </Button>
-            <Button size="sm" variant="outline-danger" disabled={actionLoading} onClick={onReject}>
-              <ThumbsDown className="mr-1.5 h-3.5 w-3.5" /> Rejeitar
-            </Button>
-            <Button size="sm" variant="outline" onClick={onOpenOpportunity} className="ml-auto">
-              <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Abrir oportunidade
-            </Button>
-          </div>
-        </div>
-      )}
+        {/* Sidebar */}
+        <aside className="space-y-3.5">
+          <ActionPanel
+            approval={approval}
+            actionLoading={actionLoading}
+            onApprove={onApprove}
+            onReject={onReject}
+            isApproved={isApproved}
+            isRejected={isRejected}
+            isPending={isPending}
+          />
+
+          <SidebarBlock title="Aprovadores" icon={<Users className="h-3.5 w-3.5" />} action={(
+            <button type="button" title="Adicionar" className="flex h-5 w-5 items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted">
+              <Plus className="h-3 w-3" />
+            </button>
+          )}>
+            <ReviewerRow
+              name={approval.requestedByUserName}
+              role="Solicitante"
+              status="comentou"
+            />
+            {approval.approvedByUserName ? (
+              <ReviewerRow
+                name={approval.approvedByUserName}
+                role="Aprovador"
+                status={isApproved ? 'aprovou' : isRejected ? 'rejeitou' : 'pendente'}
+                decidedAt={approval.decidedAt ? formatDate(approval.decidedAt) : undefined}
+                required
+              />
+            ) : (
+              <ReviewerRow
+                name="Aprovador"
+                role="Aguardando designação"
+                status="pendente"
+                required
+              />
+            )}
+          </SidebarBlock>
+
+          <SidebarBlock title="Vinculado a" icon={<ShieldCheck className="h-3.5 w-3.5" />}>
+            <LinkRow icon={<MessageSquare className="h-3 w-3" />} label="Negociação" value={approval.negotiationTitle || 'Sem título'} tone="purple" />
+            <LinkRow icon={<ArrowUpRight className="h-3 w-3" />} label="Oportunidade" value={approval.opportunityName || `#${approval.opportunityNegotiationId}`} tone="primary" onClick={onOpenOpportunity} />
+          </SidebarBlock>
+        </aside>
+      </div>
     </div>
   )
 }
 
-function Panel({ title, accent, children }: { title: string; accent?: 'primary' | 'emerald' | 'rose'; children: React.ReactNode }) {
-  const accentClass = accent === 'emerald' ? 'bg-emerald-500' : accent === 'rose' ? 'bg-rose-500' : accent === 'primary' ? 'bg-primary' : 'bg-muted-foreground'
+interface ActionPanelProps {
+  approval: OpportunityApprovalRequest
+  actionLoading: boolean
+  isPending: boolean
+  isApproved: boolean
+  isRejected: boolean
+  onApprove: () => void
+  onReject: () => void
+}
+
+function ActionPanel({ approval, actionLoading, isPending, isApproved, isRejected, onApprove, onReject }: ActionPanelProps) {
+  if (isPending) {
+    return (
+      <div className="rounded-xl border-2 border-primary bg-card p-4 shadow-[0_4px_14px_rgba(11,165,164,0.08)]">
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Sua decisão</div>
+        <p className="mt-1.5 text-xs leading-relaxed text-foreground">
+          Sua aprovação é necessária pra essa exceção avançar.
+        </p>
+        <div className="mt-3 flex flex-col gap-2">
+          <Button size="sm" disabled={actionLoading} onClick={onApprove} className="w-full justify-center !bg-emerald-600 !border-emerald-600 hover:!bg-emerald-700">
+            <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> Aprovar
+          </Button>
+          <Button size="sm" variant="outline-danger" disabled={actionLoading} onClick={onReject} className="w-full justify-center">
+            <ThumbsDown className="mr-1.5 h-3.5 w-3.5" /> Rejeitar
+          </Button>
+        </div>
+        <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
+          <Eye className="mt-0.5 h-3 w-3 shrink-0" />
+          Sua decisão é registrada com timestamp e fica no histórico da oportunidade.
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Decisão final</div>
+      <p className="mt-2 text-xs text-foreground">
+        {isApproved ? <strong className="text-emerald-700">Aprovada</strong> : isRejected ? <strong className="text-rose-700">Rejeitada</strong> : <strong>Encerrada</strong>}
+        {approval.approvedByUserName && <span> por <strong className="text-foreground">{approval.approvedByUserName}</strong></span>}
+        {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>}
+      </p>
+    </div>
+  )
+}
+
+function Panel({ title, accent, children }: { title: string; accent?: 'primary' | 'emerald' | 'rose' | 'blue'; children: React.ReactNode }) {
+  const accentClass = accent === 'emerald' ? 'bg-emerald-500' : accent === 'rose' ? 'bg-rose-500' : accent === 'blue' ? 'bg-blue-500' : accent === 'primary' ? 'bg-primary' : 'bg-muted-foreground'
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-card">
-      <header className="flex items-center gap-2 border-b border-border/60 bg-muted/20 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-foreground">
-        {accent && <span className={`inline-block h-3.5 w-1 rounded ${accentClass}`} />}
+      <header className="flex items-center gap-2 border-b border-border/60 bg-muted/20 px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground">
+        {accent && <span className={`inline-block h-4 w-1 rounded ${accentClass}`} />}
         {title}
       </header>
-      <div className="px-4 py-3">{children}</div>
+      <div className="px-4 py-3.5">{children}</div>
     </section>
+  )
+}
+
+function SidebarBlock({ title, icon, action, children }: { title: string; icon?: React.ReactNode; action?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-3.5">
+      <div className="mb-2.5 flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-foreground">
+          {icon} {title}
+        </span>
+        {action}
+      </div>
+      <div className="space-y-2">{children}</div>
+    </div>
+  )
+}
+
+function ReviewerRow({ name, role, status, decidedAt, required }: { name: string; role: string; status: 'pendente' | 'aprovou' | 'rejeitou' | 'comentou'; decidedAt?: string; required?: boolean }) {
+  const config = {
+    pendente: { color: 'text-amber-700', label: 'aguardando' },
+    aprovou: { color: 'text-emerald-700', label: 'aprovou' },
+    rejeitou: { color: 'text-rose-700', label: 'rejeitou' },
+    comentou: { color: 'text-blue-700', label: 'comentou' },
+  }[status]
+
+  const tone = status === 'aprovou' ? 'emerald' : status === 'rejeitou' ? 'rose' : status === 'comentou' ? 'blue' : 'amber'
+
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="relative">
+        <Avatar name={name} size={30} />
+        <span className={`absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-card ${tone === 'emerald' ? 'bg-emerald-500' : tone === 'rose' ? 'bg-rose-500' : tone === 'blue' ? 'bg-blue-500' : 'bg-amber-500'}`}>
+          {status === 'aprovou' && <CheckCircle2 className="h-2.5 w-2.5 text-white" />}
+          {status === 'rejeitou' && <XCircle className="h-2.5 w-2.5 text-white" />}
+          {status === 'comentou' && <MessageSquare className="h-2 w-2 text-white" />}
+          {status === 'pendente' && <Clock className="h-2 w-2 text-white" />}
+        </span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+          {name}
+          {required && <span className="rounded bg-rose-100 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wider text-rose-700">Obrig.</span>}
+        </div>
+        <div className="text-[11px] text-muted-foreground">
+          {role} · <span className={`font-semibold ${config.color}`}>{config.label}</span>
+          {decidedAt && <span> em {decidedAt}</span>}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -419,22 +543,27 @@ function LinkRow({ icon, label, value, tone, onClick }: { icon: React.ReactNode;
     <Wrap
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`flex w-full items-center gap-2.5 rounded-md border border-border/60 bg-muted/20 px-2.5 py-1.5 text-left transition-colors ${onClick ? 'cursor-pointer hover:border-primary/40 hover:bg-muted/40' : ''}`}
+      className={`flex w-full items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-2 py-1.5 text-left transition-colors ${onClick ? 'cursor-pointer hover:border-primary/40 hover:bg-muted/40' : ''}`}
     >
-      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${toneBg}`}>{icon}</span>
+      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded ${toneBg}`}>{icon}</span>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-        <p className="truncate text-xs font-semibold text-foreground">{value}</p>
+        <p className="text-[9.5px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="truncate text-[12px] font-semibold text-foreground">{value}</p>
       </div>
       {onClick && <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground" />}
     </Wrap>
   )
 }
 
-function Avatar({ name, tone }: { name: string; tone?: 'emerald' | 'rose' }) {
+function Avatar({ name, size = 28, tone }: { name: string; size?: number; tone?: 'emerald' | 'rose' }) {
   const initials = name.split(' ').slice(0, 2).map((part) => part[0]).join('').toUpperCase()
   const bg = tone === 'emerald' ? 'bg-emerald-100 text-emerald-700' : tone === 'rose' ? 'bg-rose-100 text-rose-700' : 'bg-primary/10 text-primary'
   return (
-    <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10.5px] font-bold ${bg}`}>{initials}</span>
+    <span
+      className={`inline-flex shrink-0 items-center justify-center rounded-full font-bold ${bg}`}
+      style={{ width: size, height: size, fontSize: size * 0.38 }}
+    >
+      {initials}
+    </span>
   )
 }
