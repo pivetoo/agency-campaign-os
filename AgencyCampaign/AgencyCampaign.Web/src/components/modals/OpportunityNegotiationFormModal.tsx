@@ -17,6 +17,9 @@ const initialFormData: CreateOpportunityNegotiationRequest = {
   amount: 0,
   negotiatedAt: dateInputToIso(todayDateInput()),
   notes: '',
+  discountPercent: null,
+  marginPercent: null,
+  paymentTermDays: null,
 }
 
 export default function OpportunityNegotiationFormModal({ open, onOpenChange, opportunityId, negotiation, onSuccess }: OpportunityNegotiationFormModalProps) {
@@ -33,6 +36,9 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
         amount: negotiation.amount,
         negotiatedAt: negotiation.negotiatedAt,
         notes: negotiation.notes || '',
+        discountPercent: negotiation.discountPercent ?? null,
+        marginPercent: negotiation.marginPercent ?? null,
+        paymentTermDays: negotiation.paymentTermDays ?? null,
       })
       return
     }
@@ -50,6 +56,9 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
             amount: formData.amount,
             negotiatedAt: formData.negotiatedAt,
             notes: formData.notes,
+            discountPercent: formData.discountPercent,
+            marginPercent: formData.marginPercent,
+            paymentTermDays: formData.paymentTermDays,
           } satisfies UpdateOpportunityNegotiationRequest)
         : opportunityService.createNegotiation(opportunityId, formData)
     ))
@@ -79,6 +88,18 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.date')}</label>
               <Input type="date" value={isoToDateInput(formData.negotiatedAt)} onChange={(e) => setFormData((prev) => ({ ...prev, negotiatedAt: dateInputToIso(e.target.value) }))} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Desconto %</label>
+              <Input type="number" min={0} max={100} step="0.1" placeholder="ex.: 10" value={formData.discountPercent ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, discountPercent: e.target.value === '' ? null : Number(e.target.value) }))} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Margem %</label>
+              <Input type="number" min={0} max={100} step="0.1" placeholder="ex.: 22" value={formData.marginPercent ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, marginPercent: e.target.value === '' ? null : Number(e.target.value) }))} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Prazo de pagamento (dias)</label>
+              <Input type="number" min={0} max={3650} step="1" placeholder="ex.: 30" value={formData.paymentTermDays ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, paymentTermDays: e.target.value === '' ? null : Number(e.target.value) }))} />
             </div>
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
               <label className="text-sm font-medium">{t('common.field.notes')}</label>

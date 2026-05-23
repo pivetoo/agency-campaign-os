@@ -50,6 +50,9 @@ export interface OpportunityNegotiation {
   status: OpportunityNegotiationStatusValue
   negotiatedAt: string
   notes?: string
+  discountPercent?: number
+  marginPercent?: number
+  paymentTermDays?: number
   approvalRequests: OpportunityApprovalRequest[]
   createdAt: string
   updatedAt?: string
@@ -295,6 +298,9 @@ export interface CreateOpportunityNegotiationRequest {
   amount: number
   negotiatedAt: string
   notes?: string
+  discountPercent?: number | null
+  marginPercent?: number | null
+  paymentTermDays?: number | null
 }
 
 export interface UpdateOpportunityNegotiationRequest {
@@ -303,6 +309,9 @@ export interface UpdateOpportunityNegotiationRequest {
   status?: number
   negotiatedAt: string
   notes?: string
+  discountPercent?: number | null
+  marginPercent?: number | null
+  paymentTermDays?: number | null
 }
 
 export interface ChangeOpportunityNegotiationStatusRequest {

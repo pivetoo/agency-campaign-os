@@ -23,6 +23,14 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Notes)
                 .HasMaxLength(1000);
 
+            builder.Property(entity => entity.DiscountPercent)
+                .HasPrecision(5, 2);
+
+            builder.Property(entity => entity.MarginPercent)
+                .HasPrecision(5, 2);
+
+            builder.Property(entity => entity.PaymentTermDays);
+
             builder.HasOne(entity => entity.Opportunity)
                 .WithMany(entity => entity.Negotiations)
                 .HasForeignKey(entity => entity.OpportunityId)

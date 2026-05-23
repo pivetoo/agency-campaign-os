@@ -33,7 +33,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Title,
                 request.Amount,
                 request.NegotiatedAt,
-                request.Notes);
+                request.Notes,
+                request.DiscountPercent,
+                request.MarginPercent,
+                request.PaymentTermDays);
 
             bool success = await Insert(cancellationToken, negotiation);
             if (!success)
@@ -55,7 +58,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            negotiation.Update(request.Title, request.Amount, request.NegotiatedAt, request.Notes);
+            negotiation.Update(request.Title, request.Amount, request.NegotiatedAt, request.Notes, request.DiscountPercent, request.MarginPercent, request.PaymentTermDays);
 
             OpportunityNegotiation? result = await Update(negotiation, cancellationToken);
             if (result is null)
