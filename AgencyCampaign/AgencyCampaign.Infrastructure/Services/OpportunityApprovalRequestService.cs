@@ -104,6 +104,38 @@ namespace AgencyCampaign.Infrastructure.Services
             return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
         }
 
+        public async Task<OpportunityApprovalRequest> MarkInReview(long id, CancellationToken cancellationToken = default)
+        {
+            OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
+            approvalRequest.MarkInReview();
+            await DbContext.SaveChangesAsync(cancellationToken);
+            return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
+        }
+
+        public async Task<OpportunityApprovalRequest> RequestChanges(long id, DecideOpportunityApprovalRequest request, CancellationToken cancellationToken = default)
+        {
+            OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
+            approvalRequest.RequestChanges(request.ApprovedByUserName, request.DecisionNotes, request.ApprovedByUserId);
+            await DbContext.SaveChangesAsync(cancellationToken);
+            return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
+        }
+
+        public async Task<OpportunityApprovalRequest> Resubmit(long id, ResubmitOpportunityApprovalRequest request, CancellationToken cancellationToken = default)
+        {
+            OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
+            approvalRequest.Resubmit(request.RequestedByUserName, request.Reason, request.RequestedByUserId);
+            await DbContext.SaveChangesAsync(cancellationToken);
+            return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
+        }
+
+        public async Task<OpportunityApprovalRequest> MarkMerged(long id, CancellationToken cancellationToken = default)
+        {
+            OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
+            approvalRequest.MarkMerged();
+            await DbContext.SaveChangesAsync(cancellationToken);
+            return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
+        }
+
         private async Task<(long? opportunityId, string opportunityName)> ResolveOpportunityFromNegotiationAsync(long negotiationId, CancellationToken cancellationToken)
         {
             var info = await DbContext.Set<OpportunityNegotiation>()

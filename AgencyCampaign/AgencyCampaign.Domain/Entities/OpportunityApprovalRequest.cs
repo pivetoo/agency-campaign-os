@@ -73,6 +73,68 @@ namespace AgencyCampaign.Domain.Entities
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
+        public void MarkInReview()
+        {
+            if (Status != OpportunityApprovalStatus.Pending && Status != OpportunityApprovalStatus.ChangesRequested)
+            {
+                throw new InvalidOperationException("opportunityApproval.transition.inReview.invalid");
+            }
+
+            Status = OpportunityApprovalStatus.InReview;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        public void RequestChanges(string requestedByUserName, string? notes = null, long? requestedByUserId = null)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(requestedByUserName);
+
+            if (Status == OpportunityApprovalStatus.Approved || Status == OpportunityApprovalStatus.Rejected || Status == OpportunityApprovalStatus.Cancelled || Status == OpportunityApprovalStatus.Merged)
+            {
+                throw new InvalidOperationException("opportunityApproval.transition.changesRequested.invalid");
+            }
+
+            Status = OpportunityApprovalStatus.ChangesRequested;
+            ApprovedByUserId = requestedByUserId;
+            ApprovedByUserName = requestedByUserName.Trim();
+            DecisionNotes = Normalize(notes);
+            DecidedAt = DateTimeOffset.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        public void Resubmit(string requestedByUserName, string? newReason = null, long? requestedByUserId = null)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(requestedByUserName);
+
+            if (Status != OpportunityApprovalStatus.ChangesRequested)
+            {
+                throw new InvalidOperationException("opportunityApproval.transition.resubmit.invalid");
+            }
+
+            Status = OpportunityApprovalStatus.Pending;
+            RequestedByUserId = requestedByUserId ?? RequestedByUserId;
+            RequestedByUserName = requestedByUserName.Trim();
+            if (!string.IsNullOrWhiteSpace(newReason))
+            {
+                Reason = newReason.Trim();
+            }
+            DecidedAt = null;
+            DecisionNotes = null;
+            ApprovedByUserId = null;
+            ApprovedByUserName = null;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        public void MarkMerged()
+        {
+            if (Status != OpportunityApprovalStatus.Approved)
+            {
+                throw new InvalidOperationException("opportunityApproval.transition.merged.invalid");
+            }
+
+            Status = OpportunityApprovalStatus.Merged;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
         private static string? Normalize(string? value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();

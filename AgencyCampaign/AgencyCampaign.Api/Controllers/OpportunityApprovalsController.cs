@@ -91,6 +91,50 @@ namespace AgencyCampaign.Api.Controllers
             OpportunityApprovalRequest approval = await approvalRequestService.Reject(id, request, cancellationToken);
             return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
         }
+
+        [RequireAccess("opportunityApprovals.markInReview.description")]
+        [HttpPost("{id:long}/MarkInReview")]
+        public async Task<IActionResult> MarkInReview(long id, CancellationToken cancellationToken)
+        {
+            OpportunityApprovalRequest approval = await approvalRequestService.MarkInReview(id, cancellationToken);
+            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+        }
+
+        [RequireAccess("opportunityApprovals.requestChanges.description")]
+        [HttpPost("{id:long}/RequestChanges")]
+        public async Task<IActionResult> RequestChanges(long id, [FromBody] DecideOpportunityApprovalRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            OpportunityApprovalRequest approval = await approvalRequestService.RequestChanges(id, request, cancellationToken);
+            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+        }
+
+        [RequireAccess("opportunityApprovals.resubmit.description")]
+        [HttpPost("{id:long}/Resubmit")]
+        public async Task<IActionResult> Resubmit(long id, [FromBody] ResubmitOpportunityApprovalRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            OpportunityApprovalRequest approval = await approvalRequestService.Resubmit(id, request, cancellationToken);
+            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+        }
+
+        [RequireAccess("opportunityApprovals.markMerged.description")]
+        [HttpPost("{id:long}/MarkMerged")]
+        public async Task<IActionResult> MarkMerged(long id, CancellationToken cancellationToken)
+        {
+            OpportunityApprovalRequest approval = await approvalRequestService.MarkMerged(id, cancellationToken);
+            return Http200(OpportunityContractExtensions.MapApprovalRequest(approval), Localizer["record.updated"]);
+        }
     }
 
     internal static class OpportunityContractExtensions

@@ -23,6 +23,9 @@ export const OpportunityApprovalStatus = {
   Approved: 2,
   Rejected: 3,
   Cancelled: 4,
+  InReview: 5,
+  ChangesRequested: 6,
+  Merged: 7,
 } as const
 export type OpportunityApprovalStatusValue = (typeof OpportunityApprovalStatus)[keyof typeof OpportunityApprovalStatus]
 
@@ -522,6 +525,22 @@ export const opportunityService = {
 
   rejectRequest(id: number, data: DecideOpportunityApprovalRequest) {
     return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/Reject`, data)
+  },
+
+  markApprovalInReview(id: number) {
+    return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/MarkInReview`, {})
+  },
+
+  requestApprovalChanges(id: number, data: DecideOpportunityApprovalRequest) {
+    return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/RequestChanges`, data)
+  },
+
+  resubmitApproval(id: number, data: { requestedByUserName: string; requestedByUserId?: number; reason?: string }) {
+    return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/Resubmit`, data)
+  },
+
+  markApprovalMerged(id: number) {
+    return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/MarkMerged`, {})
   },
 
   getAllApprovals(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<OpportunityApprovalRequest[]>> {

@@ -16,6 +16,14 @@ namespace AgencyCampaign.Application.Services
 
         Task<OpportunityApprovalRequest> Reject(long id, DecideOpportunityApprovalRequest request, CancellationToken cancellationToken = default);
 
+        Task<OpportunityApprovalRequest> MarkInReview(long id, CancellationToken cancellationToken = default);
+
+        Task<OpportunityApprovalRequest> RequestChanges(long id, DecideOpportunityApprovalRequest request, CancellationToken cancellationToken = default);
+
+        Task<OpportunityApprovalRequest> Resubmit(long id, ResubmitOpportunityApprovalRequest request, CancellationToken cancellationToken = default);
+
+        Task<OpportunityApprovalRequest> MarkMerged(long id, CancellationToken cancellationToken = default);
+
         Task<IReadOnlyCollection<OpportunityApprovalRequest>> GetApprovalsByNegotiationId(long opportunityNegotiationId, CancellationToken cancellationToken = default);
 
         Task<PagedResult<OpportunityApprovalRequest>> GetAllApprovals(PagedRequest request, CancellationToken cancellationToken = default);

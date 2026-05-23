@@ -24,6 +24,20 @@ function ageLabel(hours: number): string {
   return `${Math.round(hours / 24)}d`
 }
 
+function statusBadgeConfig(status: number): { bg: string; text: string; label: string } {
+  if (status === OpportunityApprovalStatus.Pending) return { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Pendente' }
+  if (status === OpportunityApprovalStatus.InReview) return { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Em revisão' }
+  if (status === OpportunityApprovalStatus.ChangesRequested) return { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Ajustes pedidos' }
+  if (status === OpportunityApprovalStatus.Approved) return { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Aprovada' }
+  if (status === OpportunityApprovalStatus.Merged) return { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Mesclada' }
+  if (status === OpportunityApprovalStatus.Rejected) return { bg: 'bg-rose-100', text: 'text-rose-800', label: 'Rejeitada' }
+  return { bg: 'bg-muted', text: 'text-muted-foreground', label: 'Cancelada' }
+}
+
+function isPendingDecision(status: number): boolean {
+  return status === OpportunityApprovalStatus.Pending || status === OpportunityApprovalStatus.InReview || status === OpportunityApprovalStatus.ChangesRequested
+}
+
 export default function CommercialApprovals() {
   const { t } = useI18n()
   const navigate = useNavigate()
@@ -101,6 +115,31 @@ export default function CommercialApprovals() {
     if (result !== null) await loadData()
   }
 
+  const requestChanges = async () => {
+    if (!selected) return
+    const notes = window.prompt('O que precisa ser ajustado?')
+    if (notes === null) return
+    const result = await executeAction(() => opportunityService.requestApprovalChanges(selected.id, {
+      approvedByUserName: user?.name || t('approvals.user.fallback'),
+      decisionNotes: notes.trim() || 'Por favor, ajuste a solicitação.',
+    }))
+    if (result !== null) await loadData()
+  }
+
+  const resubmitApproval = async () => {
+    if (!selected) return
+    const result = await executeAction(() => opportunityService.resubmitApproval(selected.id, {
+      requestedByUserName: user?.name || t('approvals.user.fallback'),
+    }))
+    if (result !== null) await loadData()
+  }
+
+  const markMerged = async () => {
+    if (!selected) return
+    const result = await executeAction(() => opportunityService.markApprovalMerged(selected.id))
+    if (result !== null) await loadData()
+  }
+
   return (
     <PageLayout
       title={t('approvals.title')}
@@ -130,6 +169,9 @@ export default function CommercialApprovals() {
                 actionLoading={actionLoading}
                 onApprove={() => void decideApproval('approve')}
                 onReject={() => void decideApproval('reject')}
+                onRequestChanges={() => void requestChanges()}
+                onResubmit={() => void resubmitApproval()}
+                onMarkMerged={() => void markMerged()}
                 onOpenOpportunity={() => selected.opportunityId && navigate(`/comercial/oportunidades/${selected.opportunityId}?tab=approvals`)}
                 t={t}
               />
@@ -224,18 +266,10 @@ function InboxTab({ label, count, active, tone, onClick }: { label: string; coun
 }
 
 function InboxRow({ approval, selected, onClick, t }: { approval: OpportunityApprovalRequest; selected: boolean; onClick: () => void; t: (key: string) => string }) {
-  const isPending = approval.status === OpportunityApprovalStatus.Pending
-  const isApproved = approval.status === OpportunityApprovalStatus.Approved
-  const isRejected = approval.status === OpportunityApprovalStatus.Rejected
+  const isOpen = isPendingDecision(approval.status)
   const hours = hoursSince(approval.requestedAt)
   const ageTone = hours >= 24 ? 'text-rose-700' : hours >= 2 ? 'text-amber-700' : 'text-muted-foreground'
-  const statusBadge = isPending
-    ? { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Pendente' }
-    : isApproved
-      ? { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Aprovada' }
-      : isRejected
-        ? { bg: 'bg-rose-100', text: 'text-rose-800', label: 'Rejeitada' }
-        : { bg: 'bg-muted', text: 'text-muted-foreground', label: 'Cancelada' }
+  const statusBadge = statusBadgeConfig(approval.status)
 
   return (
     <button
@@ -248,7 +282,7 @@ function InboxRow({ approval, selected, onClick, t }: { approval: OpportunityApp
     >
       <div className="flex items-center justify-between">
         <span className="font-mono text-[11px] font-semibold text-muted-foreground">#{approval.id}</span>
-        {isPending && (
+        {isOpen && (
           <span className={`inline-flex items-center gap-1 text-[10px] font-bold ${ageTone}`}>
             <Clock className="h-2.5 w-2.5" /> {ageLabel(hours)}
           </span>
@@ -276,23 +310,24 @@ interface DetailProps {
   actionLoading: boolean
   onApprove: () => void
   onReject: () => void
+  onRequestChanges: () => void
+  onResubmit: () => void
+  onMarkMerged: () => void
   onOpenOpportunity: () => void
   t: (key: string) => string
 }
 
-function ApprovalDetail({ approval, actionLoading, onApprove, onReject, onOpenOpportunity, t }: DetailProps) {
-  const isPending = approval.status === OpportunityApprovalStatus.Pending
+function ApprovalDetail({ approval, actionLoading, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged, onOpenOpportunity, t }: DetailProps) {
   const isApproved = approval.status === OpportunityApprovalStatus.Approved
   const isRejected = approval.status === OpportunityApprovalStatus.Rejected
+  const isMerged = approval.status === OpportunityApprovalStatus.Merged
+  const isChangesRequested = approval.status === OpportunityApprovalStatus.ChangesRequested
+  const canDecide = approval.status === OpportunityApprovalStatus.Pending || approval.status === OpportunityApprovalStatus.InReview
   const hours = hoursSince(approval.requestedAt)
   const typeLabel = approvalTypeKeys[approval.approvalType] ? t(approvalTypeKeys[approval.approvalType]) : 'Solicitação'
-  const statusBadge = isPending
-    ? { bg: 'bg-amber-100', text: 'text-amber-800', icon: <Clock className="h-3 w-3" />, label: 'Aguardando' }
-    : isApproved
-      ? { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: <CheckCircle2 className="h-3 w-3" />, label: 'Aprovada' }
-      : isRejected
-        ? { bg: 'bg-rose-100', text: 'text-rose-800', icon: <XCircle className="h-3 w-3" />, label: 'Rejeitada' }
-        : { bg: 'bg-muted', text: 'text-muted-foreground', icon: <XCircle className="h-3 w-3" />, label: 'Cancelada' }
+  const statusInfo = statusBadgeConfig(approval.status)
+  const statusIcon = isApproved || isMerged ? <CheckCircle2 className="h-3 w-3" /> : isRejected ? <XCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />
+  const isOpen = isPendingDecision(approval.status)
 
   return (
     <div className="px-7 py-6">
@@ -315,10 +350,10 @@ function ApprovalDetail({ approval, actionLoading, onApprove, onReject, onOpenOp
         {approval.opportunityName && <span className="text-muted-foreground"> · {approval.opportunityName}</span>}
       </h1>
       <div className="mt-3 flex flex-wrap items-center gap-3 text-[13px] text-muted-foreground">
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-bold ${statusBadge.bg} ${statusBadge.text}`}>
-          {statusBadge.icon} {statusBadge.label}
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-bold ${statusInfo.bg} ${statusInfo.text}`}>
+          {statusIcon} {statusInfo.label}
         </span>
-        {isPending && hours >= 24 && (
+        {isOpen && hours >= 24 && (
           <span className="inline-flex items-center gap-1 rounded bg-rose-100 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-rose-800">
             <Zap className="h-3 w-3" /> URGENTE · há {Math.round(hours / 24)}d
           </span>
@@ -385,9 +420,14 @@ function ApprovalDetail({ approval, actionLoading, onApprove, onReject, onOpenOp
             actionLoading={actionLoading}
             onApprove={onApprove}
             onReject={onReject}
+            onRequestChanges={onRequestChanges}
+            onResubmit={onResubmit}
+            onMarkMerged={onMarkMerged}
+            canDecide={canDecide}
+            isChangesRequested={isChangesRequested}
             isApproved={isApproved}
             isRejected={isRejected}
-            isPending={isPending}
+            isMerged={isMerged}
           />
 
           <SidebarBlock title="Aprovadores" icon={<Users className="h-3.5 w-3.5" />} action={(
@@ -431,15 +471,20 @@ function ApprovalDetail({ approval, actionLoading, onApprove, onReject, onOpenOp
 interface ActionPanelProps {
   approval: OpportunityApprovalRequest
   actionLoading: boolean
-  isPending: boolean
+  canDecide: boolean
+  isChangesRequested: boolean
   isApproved: boolean
   isRejected: boolean
+  isMerged: boolean
   onApprove: () => void
   onReject: () => void
+  onRequestChanges: () => void
+  onResubmit: () => void
+  onMarkMerged: () => void
 }
 
-function ActionPanel({ approval, actionLoading, isPending, isApproved, isRejected, onApprove, onReject }: ActionPanelProps) {
-  if (isPending) {
+function ActionPanel({ approval, actionLoading, canDecide, isChangesRequested, isApproved, isRejected, isMerged, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged }: ActionPanelProps) {
+  if (canDecide) {
     return (
       <div className="rounded-xl border-2 border-primary bg-card p-4 shadow-[0_4px_14px_rgba(11,165,164,0.08)]">
         <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Sua decisão</div>
@@ -449,6 +494,9 @@ function ActionPanel({ approval, actionLoading, isPending, isApproved, isRejecte
         <div className="mt-3 flex flex-col gap-2">
           <Button size="sm" variant="success" fullWidth disabled={actionLoading} onClick={onApprove} icon={<ThumbsUp />}>
             Aprovar
+          </Button>
+          <Button size="sm" variant="outline-warning" fullWidth disabled={actionLoading} onClick={onRequestChanges} icon={<MessageSquare />}>
+            Pedir ajustes
           </Button>
           <Button size="sm" variant="outline-danger" fullWidth disabled={actionLoading} onClick={onReject} icon={<ThumbsDown />}>
             Rejeitar
@@ -462,11 +510,59 @@ function ActionPanel({ approval, actionLoading, isPending, isApproved, isRejecte
     )
   }
 
+  if (isChangesRequested) {
+    return (
+      <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4">
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-amber-800">Ajustes pedidos</div>
+        <p className="mt-1.5 text-xs leading-relaxed text-amber-800">
+          {approval.approvedByUserName ? <><strong>{approval.approvedByUserName}</strong> pediu ajustes</> : 'Aguardando ajustes do solicitante'}
+          {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>}.
+        </p>
+        {approval.decisionNotes && (
+          <p className="mt-2 rounded-md border-l-2 border-amber-500 bg-card/50 px-2.5 py-1.5 text-xs italic text-amber-900">
+            "{approval.decisionNotes}"
+          </p>
+        )}
+        <Button size="sm" variant="primary" fullWidth disabled={actionLoading} onClick={onResubmit} icon={<ThumbsUp />} className="mt-3">
+          Reenviar para aprovação
+        </Button>
+      </div>
+    )
+  }
+
+  if (isApproved) {
+    return (
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-emerald-800">Aprovada</div>
+        <p className="mt-2 text-xs text-emerald-900">
+          Por <strong>{approval.approvedByUserName}</strong>
+          {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>}.
+        </p>
+        <Button size="sm" variant="outline-success" fullWidth disabled={actionLoading} onClick={onMarkMerged} icon={<CheckCircle2 />} className="mt-3">
+          Marcar como aplicada
+        </Button>
+        <p className="mt-2 text-[10.5px] text-emerald-700">Use quando a exceção for refletida na negociação real.</p>
+      </div>
+    )
+  }
+
+  if (isMerged) {
+    return (
+      <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-purple-800">Mesclada</div>
+        <p className="mt-2 text-xs text-purple-900">
+          Aprovada por <strong>{approval.approvedByUserName}</strong>
+          {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>} e aplicada na negociação.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Decisão final</div>
       <p className="mt-2 text-xs text-foreground">
-        {isApproved ? <strong className="text-emerald-700">Aprovada</strong> : isRejected ? <strong className="text-rose-700">Rejeitada</strong> : <strong>Encerrada</strong>}
+        {isRejected ? <strong className="text-rose-700">Rejeitada</strong> : <strong>Encerrada</strong>}
         {approval.approvedByUserName && <span> por <strong className="text-foreground">{approval.approvedByUserName}</strong></span>}
         {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>}
       </p>
