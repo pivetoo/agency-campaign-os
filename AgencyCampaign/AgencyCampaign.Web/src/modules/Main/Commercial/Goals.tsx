@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Button, ConfirmModal, DataTable, PageLayout, useApi } from 'archon-ui'
+import { ConfirmModal, DataTable, PageLayout, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Plus, Trash2 } from 'lucide-react'
 import { commercialGoalService } from '../../../services/commercialGoalService'
 import { commercialGoalPeriodTypeLabels, type CommercialGoal } from '../../../types/commercialGoal'
 import { formatCurrency, formatDate } from '../../../lib/format'
@@ -85,23 +84,12 @@ export default function CommercialGoals() {
       <PageLayout
         title="Metas comerciais"
         subtitle="Defina a meta financeira por vendedor ou pela agência inteira."
-        showDefaultActions={false}
-        actionsSlot={(
-          <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" variant="outline" onClick={() => { setSelected(null); setIsFormOpen(true) }}>
-              <Plus className="mr-1.5 h-4 w-4" /> Nova meta
-            </Button>
-            {selected && (
-              <>
-                <Button size="sm" variant="outline" onClick={() => setIsFormOpen(true)}>Editar</Button>
-                <Button size="sm" variant="ghost" disabled={deleting} onClick={() => setIsConfirmOpen(true)} className="text-muted-foreground hover:text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-          </div>
-        )}
+        onAdd={() => { setSelected(null); setIsFormOpen(true) }}
+        onEdit={() => selected && setIsFormOpen(true)}
+        onDelete={() => selected && setIsConfirmOpen(true)}
+        addLabel="Nova meta"
         onRefresh={() => void load()}
+        selectedRowsCount={selected ? 1 : 0}
       >
         <DataTable
           columns={columns}
