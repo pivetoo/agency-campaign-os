@@ -746,6 +746,7 @@ function DiffPanel({ approvalId, editable, revalKey = 0, onAutoPopulated }: { ap
     try {
       await opportunityService.populateApprovalFromPolicy(approvalId)
       await load()
+      onAutoPopulated?.()
     } finally {
       setAutoLoading(false)
     }
@@ -855,7 +856,7 @@ function DiffPanel({ approvalId, editable, revalKey = 0, onAutoPopulated }: { ap
   )
 }
 
-function ImpactStrip({ approvalId, editable }: { approvalId: number; editable: boolean }) {
+function ImpactStrip({ approvalId, editable, revalKey = 0 }: { approvalId: number; editable: boolean; revalKey?: number }) {
   const [impacts, setImpacts] = useState<OpportunityApprovalImpact[]>([])
   const [loading, setLoading] = useState(true)
   const [adding, setAdding] = useState(false)
@@ -880,7 +881,7 @@ function ImpactStrip({ approvalId, editable }: { approvalId: number; editable: b
     void load()
     setAdding(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [approvalId])
+  }, [approvalId, revalKey])
 
   const submit = async () => {
     const label = draftLabel.trim()
