@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions } from 'archon-ui'
-import { AlertTriangle, BarChart3, CalendarClock, DollarSign, List, Plus, RefreshCcw, Target, UserRound } from 'lucide-react'
+import { AlertTriangle, BarChart3, CalendarClock, DollarSign, Plus, RefreshCcw, Target, UserRound } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
+import CommercialViewToggle from '../../../components/buttons/CommercialViewToggle'
 import CommercialGoalsWidget from './CommercialGoalsWidget'
 import CommercialForecastWidget from './CommercialForecastWidget'
 import CommercialInsightsLists from './CommercialInsightsLists'
@@ -264,14 +265,8 @@ export default function CommercialPipeline() {
     <PageLayout
       title={t('pipeline.title')}
       subtitle={t('pipeline.subtitle')}
+      actionsSlot={<CommercialViewToggle active="kanban" />}
       actions={[
-        {
-          key: 'list-view',
-          label: t('pipeline.action.viewList'),
-          icon: <List className="h-4 w-4" />,
-          variant: 'outline',
-          onClick: () => navigate('/comercial/oportunidades'),
-        },
         {
           key: 'new-lead',
           label: t('pipeline.action.newLead'),

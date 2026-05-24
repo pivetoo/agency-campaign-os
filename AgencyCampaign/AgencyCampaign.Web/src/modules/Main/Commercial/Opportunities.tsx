@@ -10,6 +10,7 @@ import type { CommercialPipelineStage } from '../../../types/commercialPipelineS
 import type { CommercialResponsible } from '../../../types/commercialResponsible'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
+import CommercialViewToggle from '../../../components/buttons/CommercialViewToggle'
 
 const STATUS_ALL = ''
 
@@ -164,7 +165,7 @@ export default function CommercialOpportunities() {
       <PageLayout
         title={t('opportunities.title')}
         subtitle={t('opportunities.subtitle')}
-        actionsSlot={<AuditUtilityBar entityName="Opportunity" entityLabel="Oportunidade" entityId={selectedOpportunity?.id ?? null} />}
+        actionsSlot={<><CommercialViewToggle active="list" /><AuditUtilityBar entityName="Opportunity" entityLabel="Oportunidade" entityId={selectedOpportunity?.id ?? null} /></>}
         onAdd={() => { setSelectedOpportunity(null); setIsFormOpen(true) }}
         onEdit={() => selectedOpportunity && setIsFormOpen(true)}
         onRefresh={reload}
