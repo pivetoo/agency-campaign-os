@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, useApi, useI18n } from 'archon-ui'
 import { opportunityService, type OpportunityNegotiation, type CreateOpportunityNegotiationRequest, type UpdateOpportunityNegotiationRequest } from '../../services/opportunityService'
 import { commercialPolicyService } from '../../services/commercialPolicyService'
+import CurrencyInput from '../inputs/CurrencyInput'
 import { dateInputToIso, isoToDateInput, todayDateInput } from '../../lib/format'
 
 interface OpportunityNegotiationFormModalProps {
@@ -108,7 +109,7 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.amount')}</label>
-              <Input type="number" value={formData.amount === 0 ? '' : formData.amount} onChange={(e) => setFormData((prev) => ({ ...prev, amount: e.target.value === '' ? 0 : Number(e.target.value) }))} />
+              <CurrencyInput value={formData.amount} onChange={(amount) => setFormData((prev) => ({ ...prev, amount }))} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.date')}</label>
