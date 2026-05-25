@@ -709,6 +709,7 @@ export default function OpportunityDetail() {
         open={isNegotiationFormOpen}
         onOpenChange={setIsNegotiationFormOpen}
         opportunityId={opportunityId}
+        estimatedValue={opportunity?.estimatedValue ?? 0}
         negotiation={selectedNegotiation}
         onSuccess={() => {
           setIsNegotiationFormOpen(false)

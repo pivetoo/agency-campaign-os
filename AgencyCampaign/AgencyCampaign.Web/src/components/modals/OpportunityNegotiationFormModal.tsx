@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, useApi, useI18n } from 'archon-ui'
 import { opportunityService, type OpportunityNegotiation, type CreateOpportunityNegotiationRequest, type UpdateOpportunityNegotiationRequest } from '../../services/opportunityService'
+import { commercialPolicyService } from '../../services/commercialPolicyService'
 import { dateInputToIso, isoToDateInput, todayDateInput } from '../../lib/format'
 
 interface OpportunityNegotiationFormModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   opportunityId: number
+  estimatedValue?: number
   negotiation: OpportunityNegotiation | null
   onSuccess: () => void
 }
@@ -22,7 +24,7 @@ const initialFormData: CreateOpportunityNegotiationRequest = {
   paymentTermDays: null,
 }
 
-export default function OpportunityNegotiationFormModal({ open, onOpenChange, opportunityId, negotiation, onSuccess }: OpportunityNegotiationFormModalProps) {
+export default function OpportunityNegotiationFormModal({ open, onOpenChange, opportunityId, estimatedValue = 0, negotiation, onSuccess }: OpportunityNegotiationFormModalProps) {
   const { t } = useI18n()
   const isEditing = !!negotiation
   const [formData, setFormData] = useState<CreateOpportunityNegotiationRequest>(initialFormData)
@@ -45,6 +47,29 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
 
     setFormData({ ...initialFormData, opportunityId, negotiatedAt: dateInputToIso(todayDateInput()) })
   }, [negotiation, opportunityId, open])
+
+  // Desconto calculado automaticamente: (valor estimado - valor negociado) / valor estimado
+  useEffect(() => {
+    const computed = estimatedValue > 0 && formData.amount > 0
+      ? Math.max(0, Math.round(((estimatedValue - formData.amount) / estimatedValue) * 1000) / 10)
+      : null
+    setFormData((prev) => (prev.discountPercent === computed ? prev : { ...prev, discountPercent: computed }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.amount, estimatedValue])
+
+  // Prazo de pagamento ja vem do padrao da politica em novas negociacoes
+  useEffect(() => {
+    if (!open || isEditing) {
+      return
+    }
+    let cancelled = false
+    void commercialPolicyService.get().then((policy) => {
+      if (!cancelled && policy?.defaultPaymentTermDays != null) {
+        setFormData((prev) => (prev.paymentTermDays == null ? { ...prev, paymentTermDays: policy.defaultPaymentTermDays! } : prev))
+      }
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [open, isEditing])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -89,17 +114,24 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
               <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.date')}</label>
               <Input type="date" value={isoToDateInput(formData.negotiatedAt)} onChange={(e) => setFormData((prev) => ({ ...prev, negotiatedAt: dateInputToIso(e.target.value) }))} />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Desconto %</label>
-              <Input type="number" min={0} max={100} step="0.1" placeholder="ex.: 10" value={formData.discountPercent ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, discountPercent: e.target.value === '' ? null : Number(e.target.value) }))} />
+            <div style={{ gridColumn: '1 / -1' }} className="mt-1 border-t border-border pt-3">
+              <div className="text-sm font-semibold text-foreground">Verificação de política comercial</div>
+              <p className="mt-0.5 text-xs text-muted-foreground">Usado para detectar automaticamente desvios da política e montar o diff da aprovação. O desconto é calculado do valor e o prazo já vem do padrão da política.</p>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Margem %</label>
-              <Input type="number" min={0} max={100} step="0.1" placeholder="ex.: 22" value={formData.marginPercent ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, marginPercent: e.target.value === '' ? null : Number(e.target.value) }))} />
+              <label className="text-sm font-medium">Desconto %</label>
+              <div className="flex h-9 items-center rounded-md border border-input bg-muted/40 px-3 text-sm text-foreground">
+                {formData.discountPercent != null ? `${formData.discountPercent}%` : '—'}
+              </div>
+              <p className="text-[11px] text-muted-foreground">{estimatedValue > 0 ? 'Calculado do valor estimado vs negociado.' : 'Defina o valor estimado da oportunidade para calcular.'}</p>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Prazo de pagamento (dias)</label>
               <Input type="number" min={0} max={3650} step="1" placeholder="ex.: 30" value={formData.paymentTermDays ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, paymentTermDays: e.target.value === '' ? null : Number(e.target.value) }))} />
+            </div>
+            <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
+              <label className="text-sm font-medium">Margem % <span className="font-normal text-muted-foreground">· opcional</span></label>
+              <Input type="number" min={0} max={100} step="0.1" placeholder="Preencha apenas se controla a margem (custo)" value={formData.marginPercent ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, marginPercent: e.target.value === '' ? null : Number(e.target.value) }))} />
             </div>
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
               <label className="text-sm font-medium">{t('common.field.notes')}</label>
