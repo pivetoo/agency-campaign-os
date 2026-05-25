@@ -41,96 +41,96 @@ namespace AgencyCampaign.Infrastructure.Services
                 return new PolicyEvaluationModel { HasDeviations = false, PolicyMissing = true };
             }
 
-            List<PolicyDeviationModel> deviations = [];
+            // Sempre emite as linhas de comparacao (dentro = Kind 1; violacao = Kind 2/3),
+            // para o aprovador ver todos os termos negociados, nao so os que estouram a politica.
+            List<PolicyDeviationModel> comparisons = [];
             List<PolicyImpactModel> impacts = [];
 
-            if (policy.MaxDiscountPercent.HasValue && negotiation.DiscountPercent.HasValue && negotiation.DiscountPercent.Value > policy.MaxDiscountPercent.Value)
+            if (policy.MaxDiscountPercent.HasValue && negotiation.DiscountPercent.HasValue)
             {
-                decimal extraPp = negotiation.DiscountPercent.Value - policy.MaxDiscountPercent.Value;
-                deviations.Add(new PolicyDeviationModel
+                decimal requested = negotiation.DiscountPercent.Value;
+                decimal max = policy.MaxDiscountPercent.Value;
+                bool violates = requested > max;
+                comparisons.Add(new PolicyDeviationModel
                 {
                     Field = "Desconto",
-                    PolicyValue = FormatPercent(policy.MaxDiscountPercent.Value),
-                    RequestedValue = FormatPercent(negotiation.DiscountPercent.Value),
-                    Delta = $"+{FormatPercentPoints(extraPp)}",
-                    Kind = 2,
+                    PolicyValue = $"máx {FormatPercent(max)}",
+                    RequestedValue = FormatPercent(requested),
+                    Delta = violates ? $"+{FormatPercentPoints(requested - max)}" : "dentro",
+                    Kind = violates ? 2 : 1,
+                    IsViolation = violates,
                 });
 
-                decimal lostRevenue = negotiation.Amount * (extraPp / 100m);
-                impacts.Add(new PolicyImpactModel
+                if (violates)
                 {
-                    Label = "Receita",
-                    Value = $"-{FormatBrl(lostRevenue)}",
-                    IsGood = false,
-                });
+                    decimal lostRevenue = negotiation.Amount * ((requested - max) / 100m);
+                    impacts.Add(new PolicyImpactModel { Label = "Receita", Value = $"-{FormatBrl(lostRevenue)}", IsGood = false });
+                }
             }
 
-            if (policy.MinMarginPercent.HasValue && negotiation.MarginPercent.HasValue && negotiation.MarginPercent.Value < policy.MinMarginPercent.Value)
+            if (policy.MinMarginPercent.HasValue && negotiation.MarginPercent.HasValue)
             {
-                decimal lostPp = policy.MinMarginPercent.Value - negotiation.MarginPercent.Value;
-                deviations.Add(new PolicyDeviationModel
+                decimal requested = negotiation.MarginPercent.Value;
+                decimal min = policy.MinMarginPercent.Value;
+                bool violates = requested < min;
+                comparisons.Add(new PolicyDeviationModel
                 {
                     Field = "Margem",
-                    PolicyValue = FormatPercent(policy.MinMarginPercent.Value),
-                    RequestedValue = FormatPercent(negotiation.MarginPercent.Value),
-                    Delta = $"-{FormatPercentPoints(lostPp)}",
-                    Kind = 3,
+                    PolicyValue = $"mín {FormatPercent(min)}",
+                    RequestedValue = FormatPercent(requested),
+                    Delta = violates ? $"-{FormatPercentPoints(min - requested)}" : "dentro",
+                    Kind = violates ? 3 : 1,
+                    IsViolation = violates,
                 });
 
-                decimal lostMargin = negotiation.Amount * (lostPp / 100m);
-                impacts.Add(new PolicyImpactModel
+                if (violates)
                 {
-                    Label = "Margem",
-                    Value = $"-{FormatBrl(lostMargin)}",
-                    IsGood = false,
-                });
+                    decimal lostMargin = negotiation.Amount * ((min - requested) / 100m);
+                    impacts.Add(new PolicyImpactModel { Label = "Margem", Value = $"-{FormatBrl(lostMargin)}", IsGood = false });
+                }
             }
 
-            if (policy.MaxPaymentTermDays.HasValue && negotiation.PaymentTermDays.HasValue && negotiation.PaymentTermDays.Value > policy.MaxPaymentTermDays.Value)
+            if (policy.MaxPaymentTermDays.HasValue && negotiation.PaymentTermDays.HasValue)
             {
-                int extraDays = negotiation.PaymentTermDays.Value - policy.MaxPaymentTermDays.Value;
-                int policyDays = policy.MaxPaymentTermDays.Value;
-                deviations.Add(new PolicyDeviationModel
+                int requested = negotiation.PaymentTermDays.Value;
+                int max = policy.MaxPaymentTermDays.Value;
+                bool violates = requested > max;
+                comparisons.Add(new PolicyDeviationModel
                 {
                     Field = "Prazo de pagamento",
-                    PolicyValue = $"{policyDays} dias",
-                    RequestedValue = $"{negotiation.PaymentTermDays.Value} dias",
-                    Delta = $"+{extraDays}d",
-                    Kind = 2,
+                    PolicyValue = $"máx {max} dias",
+                    RequestedValue = $"{requested} dias",
+                    Delta = violates ? $"+{requested - max}d" : "dentro",
+                    Kind = violates ? 2 : 1,
+                    IsViolation = violates,
                 });
 
-                impacts.Add(new PolicyImpactModel
+                if (violates)
                 {
-                    Label = "Cashflow",
-                    Value = $"-{extraDays} dias",
-                    IsGood = false,
-                });
+                    impacts.Add(new PolicyImpactModel { Label = "Cashflow", Value = $"-{requested - max} dias", IsGood = false });
+                }
             }
 
             string? suggestedType = null;
-            if (deviations.Any(d => d.Field == "Desconto"))
+            if (comparisons.Any(d => d.IsViolation && d.Field == "Desconto"))
             {
                 suggestedType = "discount";
             }
-            else if (deviations.Any(d => d.Field == "Margem"))
+            else if (comparisons.Any(d => d.IsViolation && d.Field == "Margem"))
             {
                 suggestedType = "margin";
             }
-            else if (deviations.Any(d => d.Field == "Prazo de pagamento"))
+            else if (comparisons.Any(d => d.IsViolation && d.Field == "Prazo de pagamento"))
             {
                 suggestedType = "deadline";
-            }
-            else if (deviations.Count > 0)
-            {
-                suggestedType = "exception";
             }
 
             return new PolicyEvaluationModel
             {
-                HasDeviations = deviations.Count > 0,
+                HasDeviations = comparisons.Any(d => d.IsViolation),
                 PolicyMissing = false,
                 SuggestedApprovalType = suggestedType,
-                Deviations = deviations,
+                Deviations = comparisons,
                 Impacts = impacts,
             };
         }

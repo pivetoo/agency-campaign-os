@@ -24,6 +24,8 @@ namespace AgencyCampaign.Application.Models.Commercial
         public string Delta { get; init; } = string.Empty;
 
         public int Kind { get; init; }
+
+        public bool IsViolation { get; init; }
     }
 
     public sealed class PolicyImpactModel

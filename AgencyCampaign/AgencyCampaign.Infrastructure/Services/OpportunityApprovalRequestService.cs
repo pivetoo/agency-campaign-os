@@ -255,7 +255,7 @@ namespace AgencyCampaign.Infrastructure.Services
             try
             {
                 PolicyEvaluationModel evaluation = await policyEvaluator.EvaluateNegotiationAsync(negotiation, cancellationToken);
-                if (!evaluation.HasDeviations)
+                if (evaluation.Deviations.Count == 0)
                 {
                     return;
                 }
