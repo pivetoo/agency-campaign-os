@@ -53,7 +53,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
-            await AutoPopulateFromPolicyAsync(approvalRequest, negotiation, cancellationToken);
+            // Re-busca approval e negociacao frescos: o Insert limpa o ChangeTracker e destacaria
+            // a negociacao em memoria, fazendo o SaveChanges do auto-populate falhar silenciosamente.
+            await PopulateFromPolicy(approvalRequest.Id, cancellationToken);
 
             (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
 
