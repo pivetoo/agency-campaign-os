@@ -445,7 +445,7 @@ export default function CommercialPipeline() {
 
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
-            <span className="text-muted-foreground">{t('pipeline.summary.value')} <strong className="font-mono text-foreground">{formatCurrency(visibleSummary.value)}</strong></span>
+            <span className="inline-flex items-baseline gap-2 text-muted-foreground">{t('pipeline.summary.value')}<strong className="font-semibold tracking-tight text-foreground">{formatCurrency(visibleSummary.value)}</strong></span>
             <span className="text-muted-foreground"><strong className="text-foreground">{visibleSummary.count}</strong> {t('pipeline.summary.opportunities').toLowerCase()}</span>
             {visibleSummary.overdueOpps > 0 && (
               <span className="font-semibold text-destructive">{visibleSummary.overdueOpps} {t('pipeline.summary.overdue').toLowerCase()}</span>
