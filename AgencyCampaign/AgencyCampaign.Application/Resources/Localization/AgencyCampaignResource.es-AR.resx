@@ -420,6 +420,7 @@
   <data name="proposals.field.opportunity" xml:space="preserve"><value>Oportunidad</value></data>
   <data name="proposals.field.campaign" xml:space="preserve"><value>Campaña</value></data>
   <data name="proposals.action.send" xml:space="preserve"><value>Enviar</value></data>
+  <data name="proposals.action.openToSend" xml:space="preserve"><value>Revisar y enviar</value></data>
   <data name="proposals.action.resend" xml:space="preserve"><value>Reenviar</value></data>
   <data name="modal.proposalSend.title" xml:space="preserve"><value>Enviar propuesta por email</value></data>
   <data name="modal.proposalSend.field.recipient" xml:space="preserve"><value>Destinatario</value></data>

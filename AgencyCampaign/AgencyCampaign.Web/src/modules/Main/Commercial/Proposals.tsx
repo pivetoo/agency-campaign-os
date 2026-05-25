@@ -316,7 +316,7 @@ function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkVi
       <AuditUtilityBar entityName="Proposal" entityLabel="Proposta" entityId={selected?.id ?? null} />
 
       <div className="inline-flex overflow-hidden rounded-md border border-border bg-card">
-        <SegmentedAction icon={<Send className="h-3.5 w-3.5" />} label={t('proposals.action.send')} active={canSend} disabled={!canSend} onClick={onSend} />
+        <SegmentedAction icon={<Send className="h-3.5 w-3.5" />} label={t('proposals.action.openToSend')} active={canSend} disabled={!canSend} onClick={onSend} />
         <SegmentedAction icon={<Eye className="h-3.5 w-3.5" />} label={t('proposals.action.markViewed')} active={canMarkViewed} disabled={!canMarkViewed} onClick={onMarkViewed} />
         <SegmentedAction icon={<CheckCircle className="h-3.5 w-3.5" />} label={t('proposals.action.approve')} active={canApprove} tone="emerald" disabled={!canApprove} onClick={onApprove} />
         <SegmentedAction icon={<XCircle className="h-3.5 w-3.5" />} label={t('proposals.action.reject')} tone="rose" disabled={!canReject} onClick={onReject} />
