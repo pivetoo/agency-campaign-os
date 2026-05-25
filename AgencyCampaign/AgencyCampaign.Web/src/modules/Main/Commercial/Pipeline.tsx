@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions } from 'archon-ui'
-import { AlertTriangle, BarChart3, CalendarClock, DollarSign, Plus, RefreshCcw, Target, UserRound } from 'lucide-react'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions } from 'archon-ui'
+import { AlertTriangle, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, RefreshCcw, Rows3, Search, Target, UserRound, X } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import CommercialViewToggle from '../../../components/buttons/CommercialViewToggle'
@@ -11,6 +11,8 @@ import CommercialInsightsLists from './CommercialInsightsLists'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
+
+const ALL_SENTINEL = '__all'
 
 interface PendingFinalMove {
   item: OpportunityBoardItem
@@ -32,9 +34,10 @@ function getContrastColor(hexColor: string) {
   return luminance > 186 ? '#111827' : '#ffffff'
 }
 
-function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: OpportunityBoardItem; isDragging: boolean; onDragStart: () => void; onDragEnd: () => void }) {
+function OpportunityCard({ item, isDragging, density = 'comfortable', onDragStart, onDragEnd }: { item: OpportunityBoardItem; isDragging: boolean; density?: 'comfortable' | 'compact'; onDragStart: () => void; onDragEnd: () => void }) {
   const navigate = useNavigate()
   const { t } = useI18n()
+  const compact = density === 'compact'
 
   const slaClass =
     item.slaStatus === 'breached'
@@ -56,7 +59,7 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
       }}
       onDragEnd={onDragEnd}
       onClick={() => navigate(`/comercial/oportunidades/${item.id}`)}
-      className={`w-full cursor-grab rounded-xl border p-4 text-left shadow-sm transition active:cursor-grabbing hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md ${slaClass} ${isDragging ? 'scale-[0.98] opacity-50 ring-2 ring-primary/30' : ''}`}
+      className={`w-full cursor-grab rounded-xl border text-left shadow-sm transition active:cursor-grabbing hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md ${compact ? 'p-2.5' : 'p-4'} ${slaClass} ${isDragging ? 'scale-[0.98] opacity-50 ring-2 ring-primary/30' : ''}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2.5">
@@ -64,18 +67,18 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
             <img
               src={resolveAssetUrl(item.brandLogoUrl)}
               alt=""
-              className="h-7 w-7 shrink-0 rounded-md border bg-card object-contain p-0.5"
+              className={`${compact ? 'h-6 w-6' : 'h-7 w-7'} shrink-0 rounded-md border bg-card object-contain p-0.5`}
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
             />
           )}
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-foreground">{item.name}</div>
-            <div className="mt-1 truncate text-xs text-muted-foreground">{item.brandName}</div>
+            <div className={`truncate font-semibold text-foreground ${compact ? 'text-[13px] leading-tight' : 'text-sm'}`}>{item.name}</div>
+            <div className={`truncate text-xs text-muted-foreground ${compact ? '' : 'mt-1'}`}>{item.brandName}</div>
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {item.overdueFollowUpsCount > 0 && (
-            <span className="rounded-full bg-destructive px-2 py-1 text-[11px] font-semibold text-destructive-foreground">{t('pipeline.card.overdueBadge')}</span>
+            <span className="rounded-full bg-destructive px-2 py-0.5 text-[11px] font-semibold text-destructive-foreground">{t('pipeline.card.overdueBadge')}</span>
           )}
           {item.slaStatus === 'breached' && item.daysInStage != null && item.stageSlaInDays != null && (
             <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[11px] font-semibold text-destructive">
@@ -90,38 +93,59 @@ function OpportunityCard({ item, isDragging, onDragStart, onDragEnd }: { item: O
         </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-foreground">
-        <DollarSign className="h-4 w-4 text-emerald-500" />
+      <div className={`flex items-center gap-2 font-semibold text-foreground ${compact ? 'mt-2 text-[13px]' : 'mt-4 text-sm'}`}>
+        <DollarSign className={compact ? 'h-3.5 w-3.5 text-emerald-500' : 'h-4 w-4 text-emerald-500'} />
         {formatCurrency(item.estimatedValue)}
       </div>
 
-      <div className="mt-3 space-y-2 text-xs text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <CalendarClock className="h-3.5 w-3.5" />
-          <span>{formatDate(item.expectedCloseAt, t('pipeline.card.noForecast'))}</span>
-        </div>
+      {!compact && (
+        <>
+          <div className="mt-3 space-y-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <CalendarClock className="h-3.5 w-3.5" />
+              <span>{formatDate(item.expectedCloseAt, t('pipeline.card.noForecast'))}</span>
+            </div>
 
-        <div className="flex items-center gap-2">
-          <UserRound className="h-3.5 w-3.5" />
-          <span className="truncate">{item.commercialResponsibleName || t('pipeline.card.noOwner')}</span>
-        </div>
-      </div>
+            <div className="flex items-center gap-2">
+              <UserRound className="h-3.5 w-3.5" />
+              <span className="truncate">{item.commercialResponsibleName || t('pipeline.card.noOwner')}</span>
+            </div>
+          </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
-        <div className="rounded-lg bg-muted px-2 py-2">
-          <div className="font-semibold text-foreground">{item.proposalCount}</div>
-          <div className="text-muted-foreground">{t('pipeline.card.proposals')}</div>
-        </div>
-        <div className="rounded-lg bg-muted px-2 py-2">
-          <div className="font-semibold text-foreground">{item.pendingFollowUpsCount}</div>
-          <div className="text-muted-foreground">{t('pipeline.card.pending')}</div>
-        </div>
-        <div className="rounded-lg bg-muted px-2 py-2">
-          <div className={item.overdueFollowUpsCount > 0 ? 'font-semibold text-destructive' : 'font-semibold text-foreground'}>{item.overdueFollowUpsCount}</div>
-          <div className="text-muted-foreground">{t('pipeline.card.overdue')}</div>
-        </div>
-      </div>
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="rounded-lg bg-muted px-2 py-2">
+              <div className="font-semibold text-foreground">{item.proposalCount}</div>
+              <div className="text-muted-foreground">{t('pipeline.card.proposals')}</div>
+            </div>
+            <div className="rounded-lg bg-muted px-2 py-2">
+              <div className="font-semibold text-foreground">{item.pendingFollowUpsCount}</div>
+              <div className="text-muted-foreground">{t('pipeline.card.pending')}</div>
+            </div>
+            <div className="rounded-lg bg-muted px-2 py-2">
+              <div className={item.overdueFollowUpsCount > 0 ? 'font-semibold text-destructive' : 'font-semibold text-foreground'}>{item.overdueFollowUpsCount}</div>
+              <div className="text-muted-foreground">{t('pipeline.card.overdue')}</div>
+            </div>
+          </div>
+        </>
+      )}
     </button>
+  )
+}
+
+function DensityToggle({ value, onChange }: { value: 'comfortable' | 'compact'; onChange: (v: 'comfortable' | 'compact') => void }) {
+  const { t } = useI18n()
+  const base = 'inline-flex items-center justify-center rounded-full p-1.5 transition-colors'
+  const active = 'bg-background text-foreground shadow-sm'
+  const idle = 'bg-transparent text-muted-foreground hover:text-foreground'
+  return (
+    <div className="inline-flex rounded-full bg-muted p-[3px]">
+      <button type="button" title={t('pipeline.toolbar.densityComfortable')} onClick={() => onChange('comfortable')} className={`${base} ${value === 'comfortable' ? active : idle}`}>
+        <LayoutGrid className="h-4 w-4" />
+      </button>
+      <button type="button" title={t('pipeline.toolbar.densityCompact')} onClick={() => onChange('compact')} className={`${base} ${value === 'compact' ? active : idle}`}>
+        <Rows3 className="h-4 w-4" />
+      </button>
+    </div>
   )
 }
 
@@ -136,6 +160,12 @@ export default function CommercialPipeline() {
   const [movingOpportunityId, setMovingOpportunityId] = useState<number | null>(null)
   const [pendingFinal, setPendingFinal] = useState<PendingFinalMove | null>(null)
   const [finalNotes, setFinalNotes] = useState('')
+  const [density, setDensity] = useState<'comfortable' | 'compact'>(() => (localStorage.getItem('pipeline.density') === 'compact' ? 'compact' : 'comfortable'))
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const [responsibleFilter, setResponsibleFilter] = useState('')
+  const [brandFilter, setBrandFilter] = useState('')
+  const [riskOnly, setRiskOnly] = useState(false)
   const { execute: fetchBoard, loading } = useApi<OpportunityBoardStage[]>({ showErrorMessage: true })
   const { execute: runFinalClose, loading: closing } = useApi({ showSuccessMessage: true, showErrorMessage: true })
   const { hasAnyPermission } = usePermissions()
@@ -168,6 +198,97 @@ export default function CommercialPipeline() {
       { count: 0, value: 0, pendingFollowUps: 0, overdueFollowUps: 0 }
     )
   }, [stages])
+
+  const changeDensity = (next: 'comfortable' | 'compact') => {
+    setDensity(next)
+    localStorage.setItem('pipeline.density', next)
+  }
+
+  const filterOptions = useMemo(() => {
+    const responsibles = new Set<string>()
+    const brands = new Set<string>()
+    stages.forEach((stage) => stage.items.forEach((item) => {
+      if (item.commercialResponsibleName) {
+        responsibles.add(item.commercialResponsibleName)
+      }
+      if (item.brandName) {
+        brands.add(item.brandName)
+      }
+    }))
+    return {
+      responsibles: [...responsibles].sort((a, b) => a.localeCompare(b)).map((name) => ({ value: name, label: name })),
+      brands: [...brands].sort((a, b) => a.localeCompare(b)).map((name) => ({ value: name, label: name })),
+    }
+  }, [stages])
+
+  const activeFilterCount = (searchText.trim() ? 1 : 0) + (responsibleFilter ? 1 : 0) + (brandFilter ? 1 : 0) + (riskOnly ? 1 : 0)
+
+  const matchesFilters = (item: OpportunityBoardItem) => {
+    const term = searchText.trim().toLowerCase()
+    if (term) {
+      const haystack = `${item.name} ${item.brandName} ${item.commercialResponsibleName ?? ''}`.toLowerCase()
+      if (!haystack.includes(term)) {
+        return false
+      }
+    }
+    if (responsibleFilter && item.commercialResponsibleName !== responsibleFilter) {
+      return false
+    }
+    if (brandFilter && item.brandName !== brandFilter) {
+      return false
+    }
+    if (riskOnly && !(item.slaStatus === 'breached' || item.slaStatus === 'warning' || item.overdueFollowUpsCount > 0)) {
+      return false
+    }
+    return true
+  }
+
+  const displayStages = useMemo(() => {
+    if (activeFilterCount === 0) {
+      return stages
+    }
+    return stages.map((stage) => {
+      const items = stage.items.filter(matchesFilters)
+      return {
+        ...stage,
+        items,
+        opportunitiesCount: items.length,
+        estimatedValueTotal: items.reduce((total, item) => total + item.estimatedValue, 0),
+      }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stages, searchText, responsibleFilter, brandFilter, riskOnly, activeFilterCount])
+
+  const visibleSummary = useMemo(() => {
+    return displayStages.reduce(
+      (acc, stage) => {
+        acc.count += stage.opportunitiesCount
+        acc.value += stage.estimatedValueTotal
+        stage.items.forEach((item) => {
+          acc.pendingFollowUps += item.pendingFollowUpsCount
+          if (item.overdueFollowUpsCount > 0) {
+            acc.overdueOpps += 1
+          }
+        })
+        return acc
+      },
+      { count: 0, value: 0, pendingFollowUps: 0, overdueOpps: 0 }
+    )
+  }, [displayStages])
+
+  const clearFilters = () => {
+    setSearchText('')
+    setResponsibleFilter('')
+    setBrandFilter('')
+    setRiskOnly(false)
+  }
+
+  const openFilters = (focus: boolean) => {
+    setFiltersOpen(true)
+    if (focus) {
+      window.setTimeout(() => document.getElementById('pipeline-filter-search')?.focus(), 0)
+    }
+  }
 
   const moveOpportunity = async (targetStage: number) => {
     if (!draggedItem || draggedItem.commercialPipelineStageId === targetStage || movingOpportunityId) {
@@ -265,7 +386,12 @@ export default function CommercialPipeline() {
     <PageLayout
       title={t('pipeline.title')}
       subtitle={t('pipeline.subtitle')}
-      actionsSlot={<CommercialViewToggle active="kanban" />}
+      actionsSlot={(
+        <div className="flex flex-wrap items-center gap-2">
+          <CommercialViewToggle active="kanban" />
+          <DensityToggle value={density} onChange={changeDensity} />
+        </div>
+      )}
       actions={[
         {
           key: 'new-lead',
@@ -322,9 +448,95 @@ export default function CommercialPipeline() {
           </div>
         )}
 
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+            <span className="text-muted-foreground">{t('pipeline.summary.value')} <strong className="font-mono text-foreground">{formatCurrency(visibleSummary.value)}</strong></span>
+            <span className="text-muted-foreground"><strong className="text-foreground">{visibleSummary.count}</strong> {t('pipeline.summary.opportunities').toLowerCase()}</span>
+            {visibleSummary.overdueOpps > 0 && (
+              <span className="font-semibold text-destructive">{visibleSummary.overdueOpps} {t('pipeline.summary.overdue').toLowerCase()}</span>
+            )}
+            {visibleSummary.pendingFollowUps > 0 && (
+              <span className="font-semibold text-amber-600">{visibleSummary.pendingFollowUps} {t('pipeline.summary.pendingFollowUps').toLowerCase()}</span>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              title={t('common.action.search')}
+              onClick={() => (filtersOpen ? document.getElementById('pipeline-filter-search')?.focus() : openFilters(true))}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              title={t('pipeline.toolbar.filters')}
+              onClick={() => setFiltersOpen((open) => !open)}
+              className={`relative inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${filtersOpen || activeFilterCount > 0 ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+            >
+              <Filter className="h-4 w-4" />
+              {activeFilterCount > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{activeFilterCount}</span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {filtersOpen && (
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5">
+            <div className="relative min-w-[220px] flex-1">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="pipeline-filter-search"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder={t('pipeline.filter.searchPlaceholder')}
+                className="h-9 pl-8"
+              />
+            </div>
+            <div className="w-48">
+              <SearchableSelect
+                value={responsibleFilter || ALL_SENTINEL}
+                onValueChange={(value) => setResponsibleFilter(value === ALL_SENTINEL ? '' : value)}
+                options={[{ value: ALL_SENTINEL, label: t('pipeline.filter.all') }, ...filterOptions.responsibles]}
+                placeholder={t('pipeline.filter.responsible')}
+                searchPlaceholder={t('pipeline.filter.responsible')}
+              />
+            </div>
+            <div className="w-48">
+              <SearchableSelect
+                value={brandFilter || ALL_SENTINEL}
+                onValueChange={(value) => setBrandFilter(value === ALL_SENTINEL ? '' : value)}
+                options={[{ value: ALL_SENTINEL, label: t('pipeline.filter.all') }, ...filterOptions.brands]}
+                placeholder={t('pipeline.filter.brand')}
+                searchPlaceholder={t('pipeline.filter.brand')}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setRiskOnly((value) => !value)}
+              className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3 text-[13px] font-semibold transition-colors ${riskOnly ? 'border-destructive bg-destructive/10 text-destructive' : 'border-border bg-background text-muted-foreground hover:text-foreground'}`}
+            >
+              <AlertTriangle className="h-3.5 w-3.5" />
+              {t('pipeline.filter.riskOnly')}
+            </button>
+            <div className="ml-auto flex items-center gap-3 text-xs text-muted-foreground">
+              {activeFilterCount > 0 && (
+                <span>{t('pipeline.filter.activeLabel')}: <strong className="text-foreground">{activeFilterCount}</strong></span>
+              )}
+              <button type="button" onClick={clearFilters} disabled={activeFilterCount === 0} className="font-semibold text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:text-muted-foreground/50">
+                {t('pipeline.filter.clear')}
+              </button>
+              <button type="button" onClick={() => setFiltersOpen(false)} title={t('pipeline.toolbar.filters')} className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="overflow-x-auto pb-4">
-          <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.max(stages.length, 1)}, minmax(220px, 1fr))` }}>
-            {stages.map((stage) => (
+          <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.max(displayStages.length, 1)}, minmax(220px, 1fr))` }}>
+            {displayStages.map((stage) => (
               <section
                 key={stage.commercialPipelineStageId}
                 data-testid="opportunity-stage-column"
@@ -366,11 +578,12 @@ export default function CommercialPipeline() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className={density === 'compact' ? 'space-y-2' : 'space-y-3'}>
                   {stage.items.map((item) => (
                     <OpportunityCard
                       key={item.id}
                       item={item}
+                      density={density}
                       isDragging={draggedItem?.id === item.id || movingOpportunityId === item.id}
                       onDragStart={() => setDraggedItem(item)}
                       onDragEnd={() => {
@@ -382,7 +595,7 @@ export default function CommercialPipeline() {
 
                   {!loading && stage.items.length === 0 && (
                     <div className="rounded-xl border border-dashed border-border px-3 py-8 text-center text-xs text-muted-foreground">
-                      {t('pipeline.stage.empty')}
+                      {activeFilterCount > 0 ? t('pipeline.filter.empty') : t('pipeline.stage.empty')}
                     </div>
                   )}
                 </div>

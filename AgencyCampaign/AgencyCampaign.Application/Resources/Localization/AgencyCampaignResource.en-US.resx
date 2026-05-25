@@ -374,6 +374,17 @@
   <data name="pipeline.action.viewList" xml:space="preserve"><value>View list</value></data>
   <data name="pipeline.action.newLead" xml:space="preserve"><value>New Lead</value></data>
   <data name="pipeline.action.registerLead" xml:space="preserve"><value>Register lead</value></data>
+  <data name="pipeline.toolbar.densityComfortable" xml:space="preserve"><value>Comfortable</value></data>
+  <data name="pipeline.toolbar.densityCompact" xml:space="preserve"><value>Compact</value></data>
+  <data name="pipeline.toolbar.filters" xml:space="preserve"><value>Filters</value></data>
+  <data name="pipeline.filter.searchPlaceholder" xml:space="preserve"><value>Search opportunity, brand or owner…</value></data>
+  <data name="pipeline.filter.responsible" xml:space="preserve"><value>Owner</value></data>
+  <data name="pipeline.filter.brand" xml:space="preserve"><value>Brand</value></data>
+  <data name="pipeline.filter.all" xml:space="preserve"><value>All</value></data>
+  <data name="pipeline.filter.riskOnly" xml:space="preserve"><value>At risk only</value></data>
+  <data name="pipeline.filter.activeLabel" xml:space="preserve"><value>Active filters</value></data>
+  <data name="pipeline.filter.clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="pipeline.filter.empty" xml:space="preserve"><value>None match the filters</value></data>
   <data name="pipeline.summary.opportunities" xml:space="preserve"><value>Opportunities</value></data>
   <data name="pipeline.summary.value" xml:space="preserve"><value>Value in funnel</value></data>
   <data name="pipeline.summary.pendingFollowUps" xml:space="preserve"><value>Pending follow-ups</value></data>

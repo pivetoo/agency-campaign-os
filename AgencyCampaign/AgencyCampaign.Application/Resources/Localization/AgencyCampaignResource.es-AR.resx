@@ -374,6 +374,17 @@
   <data name="pipeline.action.viewList" xml:space="preserve"><value>Ver lista</value></data>
   <data name="pipeline.action.newLead" xml:space="preserve"><value>Nuevo Lead</value></data>
   <data name="pipeline.action.registerLead" xml:space="preserve"><value>Registrar lead</value></data>
+  <data name="pipeline.toolbar.densityComfortable" xml:space="preserve"><value>Cómodo</value></data>
+  <data name="pipeline.toolbar.densityCompact" xml:space="preserve"><value>Compacto</value></data>
+  <data name="pipeline.toolbar.filters" xml:space="preserve"><value>Filtros</value></data>
+  <data name="pipeline.filter.searchPlaceholder" xml:space="preserve"><value>Buscar oportunidad, marca o responsable…</value></data>
+  <data name="pipeline.filter.responsible" xml:space="preserve"><value>Responsable</value></data>
+  <data name="pipeline.filter.brand" xml:space="preserve"><value>Marca</value></data>
+  <data name="pipeline.filter.all" xml:space="preserve"><value>Todos</value></data>
+  <data name="pipeline.filter.riskOnly" xml:space="preserve"><value>Solo en riesgo</value></data>
+  <data name="pipeline.filter.activeLabel" xml:space="preserve"><value>Filtros activos</value></data>
+  <data name="pipeline.filter.clear" xml:space="preserve"><value>Limpiar</value></data>
+  <data name="pipeline.filter.empty" xml:space="preserve"><value>Ninguna coincide con los filtros</value></data>
   <data name="pipeline.summary.opportunities" xml:space="preserve"><value>Oportunidades</value></data>
   <data name="pipeline.summary.value" xml:space="preserve"><value>Valor en funnel</value></data>
   <data name="pipeline.summary.pendingFollowUps" xml:space="preserve"><value>Follow-ups pendientes</value></data>
