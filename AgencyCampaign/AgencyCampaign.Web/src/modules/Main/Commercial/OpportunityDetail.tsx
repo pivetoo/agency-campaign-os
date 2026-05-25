@@ -748,7 +748,11 @@ export default function OpportunityDetail() {
           setIsProposalFormOpen(false)
           void loadOpportunity()
           if (created?.id) {
-            navigate(`/comercial/propostas/${created.id}`)
+            navigate(`/comercial/propostas/${created.id}`, {
+              state: opportunity
+                ? { from: 'opportunity', opportunityId: opportunity.id, opportunityName: opportunity.name, tab: 'proposals' }
+                : undefined,
+            })
           }
         }}
       />
