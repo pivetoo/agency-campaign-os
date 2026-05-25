@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions } from 'archon-ui'
-import { AlertTriangle, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, RefreshCcw, Rows3, Search, Target, UserRound, X } from 'lucide-react'
+import { AlertTriangle, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, Rows3, Search, Target, UserRound, X } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import CommercialViewToggle from '../../../components/buttons/CommercialViewToggle'
@@ -599,13 +599,6 @@ export default function CommercialPipeline() {
             ))}
           </div>
         </div>
-
-        {loading && (
-          <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-6 text-sm text-muted-foreground">
-            <RefreshCcw className="h-4 w-4 animate-spin" />
-            {t('pipeline.loading')}
-          </div>
-        )}
 
         {!loading && summary.count === 0 && (
           <div className="flex flex-col items-center justify-center gap-3 py-10 text-center text-muted-foreground">

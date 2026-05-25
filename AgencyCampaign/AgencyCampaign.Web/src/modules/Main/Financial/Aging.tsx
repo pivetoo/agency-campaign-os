@@ -6,7 +6,7 @@ import { formatCurrency } from '../../../lib/format'
 export default function Aging() {
   const { t } = useI18n()
   const [report, setReport] = useState<AgingReport | null>(null)
-  const { execute, loading } = useApi<AgingReport | null>({ showErrorMessage: true })
+  const { execute } = useApi<AgingReport | null>({ showErrorMessage: true })
 
   const load = async () => {
     const result = await execute(() => financialReportService.getAging())
@@ -50,9 +50,7 @@ export default function Aging() {
 
       <Card>
         <CardContent className="pt-4">
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Carregando aging...</p>
-          ) : !report ? (
+          {!report ? (
             <p className="text-sm text-muted-foreground">Sem dados.</p>
           ) : (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-5" data-tour="aging-buckets">

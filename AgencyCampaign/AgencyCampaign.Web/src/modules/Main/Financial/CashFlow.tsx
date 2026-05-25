@@ -28,7 +28,7 @@ export default function CashFlow() {
   const [granularity, setGranularity] = useState<CashFlowGranularityValue>(CashFlowGranularity.Month)
   const [range, setRange] = useState(defaultRange(CashFlowGranularity.Month))
   const [data, setData] = useState<CashFlowSeries | null>(null)
-  const { execute, loading } = useApi<CashFlowSeries | null>({ showErrorMessage: true })
+  const { execute } = useApi<CashFlowSeries | null>({ showErrorMessage: true })
 
   const load = async () => {
     const result = await execute(() =>
@@ -156,9 +156,7 @@ export default function CashFlow() {
           </div>
 
           <div style={{ height: 360 }} data-tour="cashflow-chart">
-            {loading ? (
-              <p className="flex h-full items-center justify-center text-sm text-muted-foreground">Carregando fluxo de caixa...</p>
-            ) : chartData.length === 0 || chartData[0].data.length === 0 ? (
+            {chartData.length === 0 || chartData[0].data.length === 0 ? (
               <p className="flex h-full items-center justify-center text-sm text-muted-foreground">Nenhum dado no período selecionado.</p>
             ) : (
               <ResponsiveLine

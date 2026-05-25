@@ -54,10 +54,6 @@ export default function CommercialAnalytics() {
           </label>
         </div>
 
-        {loading && !analytics && (
-          <div className="rounded-lg border border-dashed border-border bg-muted/20 px-6 py-12 text-center text-sm text-muted-foreground">Carregando…</div>
-        )}
-
         {!loading && analytics && analytics.closedCount === 0 && analytics.conversionByStage.every((s) => s.entered === 0) && (
           <div className="rounded-lg border border-dashed border-border bg-muted/20 px-6 py-12 text-center text-sm text-muted-foreground">Sem dados para o período selecionado.</div>
         )}

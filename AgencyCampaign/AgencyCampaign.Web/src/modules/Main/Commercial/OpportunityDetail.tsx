@@ -583,7 +583,6 @@ export default function OpportunityDetail() {
             <ProposalsTab
               proposals={opportunity?.proposals ?? []}
               opportunityCreatedAt={opportunity?.createdAt}
-              loading={loading}
               onNew={() => setIsProposalFormOpen(true)}
               onOpen={(id, name) => navigate(`/comercial/propostas/${id}`, {
                 state: opportunity
@@ -596,7 +595,6 @@ export default function OpportunityDetail() {
           <TabsContent value="negotiations" className="mt-0">
             <NegotiationsTab
               negotiations={opportunity?.negotiations ?? []}
-              loading={loading}
               actionLoading={actionLoading}
               onNew={() => { setSelectedNegotiation(null); setIsNegotiationFormOpen(true) }}
               onEdit={(item) => { setSelectedNegotiation(item); setIsNegotiationFormOpen(true) }}
@@ -620,7 +618,6 @@ export default function OpportunityDetail() {
             <ApprovalsTab
               approvals={approvalRequests}
               negotiations={opportunity?.negotiations ?? []}
-              loading={loading}
               actionLoading={actionLoading}
               t={t}
               onApprove={async (item) => {
@@ -942,7 +939,6 @@ type NegotiationFilter = 'all' | 'pendingApproval' | 'approved' | 'draft' | 'sen
 
 interface NegotiationsTabProps {
   negotiations: OpportunityNegotiation[]
-  loading: boolean
   actionLoading: boolean
   onNew: () => void
   onEdit: (item: OpportunityNegotiation) => void
@@ -951,7 +947,7 @@ interface NegotiationsTabProps {
   onRequestApproval: (item: OpportunityNegotiation) => void
 }
 
-function NegotiationsTab({ negotiations, loading, actionLoading, onNew, onEdit, onDelete, onChangeStatus, onRequestApproval }: NegotiationsTabProps) {
+function NegotiationsTab({ negotiations, actionLoading, onNew, onEdit, onDelete, onChangeStatus, onRequestApproval }: NegotiationsTabProps) {
   const [filter, setFilter] = useState<NegotiationFilter>('all')
   const [selectedId, setSelectedId] = useState<number | null>(null)
 
@@ -1011,11 +1007,7 @@ function NegotiationsTab({ negotiations, loading, actionLoading, onNew, onEdit, 
         </div>
       )}
 
-      {loading && negotiations.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex items-center justify-center py-12 text-sm text-muted-foreground">Carregando…</CardContent>
-        </Card>
-      ) : sorted.length === 0 ? (
+      {sorted.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
             <MessageSquare className="mb-3 h-9 w-9 opacity-50" />
@@ -1310,7 +1302,6 @@ type OpportunityProposalReference = NonNullable<Opportunity['proposals']>[number
 interface ProposalsTabProps {
   proposals: OpportunityProposalReference[]
   opportunityCreatedAt?: string
-  loading: boolean
   onNew: () => void
   onOpen: (id: number, name: string) => void
 }
@@ -1326,7 +1317,7 @@ const proposalStatusInline: Record<number, { label: string; bg: string; text: st
   8: { label: 'Cancelada', bg: 'bg-slate-200', text: 'text-slate-700', dot: 'bg-slate-400' },
 }
 
-function ProposalsTab({ proposals, opportunityCreatedAt, loading, onNew, onOpen }: ProposalsTabProps) {
+function ProposalsTab({ proposals, opportunityCreatedAt, onNew, onOpen }: ProposalsTabProps) {
   const ordered = useMemo(() => [...proposals].sort((a, b) => a.id - b.id), [proposals])
   const total = ordered.length
   const currentProposal = ordered[ordered.length - 1] ?? null
@@ -1336,14 +1327,6 @@ function ProposalsTab({ proposals, opportunityCreatedAt, loading, onNew, onOpen 
   const lastValue = currentProposal?.totalValue ?? 0
   const valueDelta = lastValue - baselineValue
   const sortedDesc = useMemo(() => [...ordered].reverse(), [ordered])
-
-  if (loading && total === 0) {
-    return (
-      <Card className="border-dashed">
-        <CardContent className="flex items-center justify-center py-12 text-sm text-muted-foreground">Carregando…</CardContent>
-      </Card>
-    )
-  }
 
   if (total === 0) {
     return (
@@ -1521,7 +1504,6 @@ function ProposalTimelineNode({ proposal, versionNumber, isCurrent, onOpen }: Pr
 interface ApprovalsTabProps {
   approvals: OpportunityApprovalRequest[]
   negotiations: OpportunityNegotiation[]
-  loading: boolean
   actionLoading: boolean
   t: (key: string) => string
   onApprove: (item: OpportunityApprovalRequest) => Promise<void> | void
@@ -1540,7 +1522,7 @@ function hoursSince(iso: string): number {
   return Math.max(0, Math.floor(diff / (1000 * 60 * 60)))
 }
 
-function ApprovalsTab({ approvals, negotiations, loading, actionLoading, t: _t, onApprove, onReject }: ApprovalsTabProps) {
+function ApprovalsTab({ approvals, negotiations, actionLoading, t: _t, onApprove, onReject }: ApprovalsTabProps) {
   const pendingApprovals = useMemo(() => approvals.filter((a) => a.status === OpportunityApprovalStatus.Pending), [approvals])
   const decidedApprovals = useMemo(() => approvals.filter((a) => a.status !== OpportunityApprovalStatus.Pending), [approvals])
 
@@ -1573,11 +1555,7 @@ function ApprovalsTab({ approvals, negotiations, loading, actionLoading, t: _t, 
         </div>
       )}
 
-      {loading && approvals.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex items-center justify-center py-12 text-sm text-muted-foreground">Carregando…</CardContent>
-        </Card>
-      ) : approvals.length === 0 ? (
+      {approvals.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
             <CheckCircle className="mb-3 h-9 w-9 opacity-50" />
