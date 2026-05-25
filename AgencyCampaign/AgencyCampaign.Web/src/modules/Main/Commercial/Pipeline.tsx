@@ -397,8 +397,7 @@ export default function CommercialPipeline() {
       ]}
       onRefresh={() => void loadBoard()}
     >
-      <div className="space-y-6">
-        <Sheet open={insightsOpen} onOpenChange={(open) => {
+      <Sheet open={insightsOpen} onOpenChange={(open) => {
           setInsightsOpen(open)
           localStorage.setItem('pipeline.insights.open', String(open))
         }}>
@@ -435,6 +434,8 @@ export default function CommercialPipeline() {
             </div>
           </SheetContent>
         </Sheet>
+
+      <div className="space-y-6">
         {summary.overdueFollowUps > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             <AlertTriangle className="h-4 w-4" />
