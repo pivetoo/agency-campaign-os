@@ -221,7 +221,8 @@ export default function CommercialPipeline() {
     }
   }, [stages])
 
-  const activeFilterCount = (searchText.trim() ? 1 : 0) + (responsibleFilter ? 1 : 0) + (brandFilter ? 1 : 0) + (riskOnly ? 1 : 0)
+  const structuredFilterCount = (responsibleFilter ? 1 : 0) + (brandFilter ? 1 : 0) + (riskOnly ? 1 : 0)
+  const activeFilterCount = (searchText.trim() ? 1 : 0) + structuredFilterCount
 
   const matchesFilters = (item: OpportunityBoardItem) => {
     const term = searchText.trim().toLowerCase()
@@ -281,13 +282,6 @@ export default function CommercialPipeline() {
     setResponsibleFilter('')
     setBrandFilter('')
     setRiskOnly(false)
-  }
-
-  const openFilters = (focus: boolean) => {
-    setFiltersOpen(true)
-    if (focus) {
-      window.setTimeout(() => document.getElementById('pipeline-filter-search')?.focus(), 0)
-    }
   }
 
   const moveOpportunity = async (targetStage: number) => {
@@ -460,23 +454,34 @@ export default function CommercialPipeline() {
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              title={t('common.action.search')}
-              onClick={() => (filtersOpen ? document.getElementById('pipeline-filter-search')?.focus() : openFilters(true))}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <Search className="h-4 w-4" />
-            </button>
+            <div className="relative w-56">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder={t('pipeline.filter.searchPlaceholder')}
+                className="h-8 pl-8 pr-8"
+              />
+              {searchText && (
+                <button
+                  type="button"
+                  title={t('pipeline.filter.clear')}
+                  onClick={() => setSearchText('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
             <button
               type="button"
               title={t('pipeline.toolbar.filters')}
               onClick={() => setFiltersOpen((open) => !open)}
-              className={`relative inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${filtersOpen || activeFilterCount > 0 ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+              className={`relative inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${filtersOpen || structuredFilterCount > 0 ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'}`}
             >
               <Filter className="h-4 w-4" />
-              {activeFilterCount > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{activeFilterCount}</span>
+              {structuredFilterCount > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{structuredFilterCount}</span>
               )}
             </button>
           </div>
@@ -484,16 +489,6 @@ export default function CommercialPipeline() {
 
         {filtersOpen && (
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5">
-            <div className="relative min-w-[220px] flex-1">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="pipeline-filter-search"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder={t('pipeline.filter.searchPlaceholder')}
-                className="h-9 pl-8"
-              />
-            </div>
             <div className="w-48">
               <SearchableSelect
                 value={responsibleFilter || ALL_SENTINEL}
@@ -521,8 +516,8 @@ export default function CommercialPipeline() {
               {t('pipeline.filter.riskOnly')}
             </button>
             <div className="ml-auto flex items-center gap-3 text-xs text-muted-foreground">
-              {activeFilterCount > 0 && (
-                <span>{t('pipeline.filter.activeLabel')}: <strong className="text-foreground">{activeFilterCount}</strong></span>
+              {structuredFilterCount > 0 && (
+                <span>{t('pipeline.filter.activeLabel')}: <strong className="text-foreground">{structuredFilterCount}</strong></span>
               )}
               <button type="button" onClick={clearFilters} disabled={activeFilterCount === 0} className="font-semibold text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:text-muted-foreground/50">
                 {t('pipeline.filter.clear')}
