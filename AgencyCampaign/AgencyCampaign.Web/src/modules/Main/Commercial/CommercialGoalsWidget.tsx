@@ -47,7 +47,7 @@ export default function CommercialGoalsWidget({ scope = 'all', userId, onEmptyMa
   }
 
   return (
-    <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-2 sm:grid-cols-2">
       {items.map((goal) => (
         <GoalCard key={goal.id} goal={goal} />
       ))}
@@ -75,9 +75,9 @@ function GoalCard({ goal }: { goal: CommercialGoalProgress }) {
           {commercialGoalPeriodTypeLabels[goal.periodType as 1 | 2 | 3] ?? 'Período'} · {formatDate(goal.periodStart)}
         </span>
       </div>
-      <div className="mt-2 flex items-baseline justify-between gap-2">
-        <span className="font-mono text-base font-semibold text-foreground">{formatCurrency(goal.achievedAmount)}</span>
-        <span className="text-xs text-muted-foreground">de <span className="font-mono">{formatCurrency(goal.targetAmount)}</span></span>
+      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <span className="text-base font-semibold tracking-tight text-foreground">{formatCurrency(goal.achievedAmount)}</span>
+        <span className="text-xs text-muted-foreground">de {formatCurrency(goal.targetAmount)}</span>
       </div>
       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
         <div className={`h-full ${toneClasses[tone].bar} transition-all`} style={{ width: `${percent}%` }} />
