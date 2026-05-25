@@ -276,7 +276,13 @@ export default function CommercialProposals() {
           void loadProposals()
 
           if (!selectedProposal && savedProposal) {
-            navigate(`/comercial/propostas/${savedProposal.id}`)
+            navigate(`/comercial/propostas/${savedProposal.id}`, {
+              state: {
+                from: 'opportunity',
+                opportunityId: savedProposal.opportunityId,
+                opportunityName: savedProposal.opportunity?.name,
+              },
+            })
           }
         }}
       />
