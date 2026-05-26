@@ -3,6 +3,7 @@ using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using Archon.Core.Pagination;
@@ -99,6 +100,18 @@ namespace AgencyCampaign.Api.Controllers
             }
 
             OpportunityApprovalRequest approval = await approvalRequestService.Reject(id, request, cancellationToken);
+            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
+        }
+
+        [RequireAccess("opportunityApprovals.approve.description")]
+        [HttpPost("{id:long}/Reviewers/Decision")]
+        public async Task<IActionResult> RecordReviewerDecision(long id, [FromBody] RecordReviewerDecisionRequest request, CancellationToken cancellationToken)
+        {
+            OpportunityApprovalReviewerStatus decision = request.Approved
+                ? OpportunityApprovalReviewerStatus.Approved
+                : OpportunityApprovalReviewerStatus.Rejected;
+
+            OpportunityApprovalRequest approval = await approvalRequestService.RecordReviewerDecision(id, decision, request.Notes, cancellationToken);
             return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
         }
 

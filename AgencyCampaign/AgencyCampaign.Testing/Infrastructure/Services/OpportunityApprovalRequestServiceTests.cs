@@ -20,6 +20,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     {
         private TestDbContext db = null!;
         private Mock<INotificationService> notifications = null!;
+        private Mock<IPolicyEvaluator> policyEvaluator = null!;
         private OpportunityApprovalRequestService service = null!;
 
         [SetUp]
@@ -27,11 +28,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             notifications = new Mock<INotificationService>();
-            Mock<IPolicyEvaluator> policyEvaluator = new();
+            policyEvaluator = new();
             policyEvaluator
                 .Setup(p => p.EvaluateNegotiationAsync(It.IsAny<OpportunityNegotiation>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new PolicyEvaluationModel { HasDeviations = false });
-            service = new OpportunityApprovalRequestService(db, notifications.Object, policyEvaluator.Object);
+            service = new OpportunityApprovalRequestService(db, notifications.Object, policyEvaluator.Object, CurrentUserMock.Create());
         }
 
         [TearDown]
@@ -276,6 +277,71 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             summary.Pending.Should().Be(1);
             summary.Approved.Should().Be(1);
             summary.Rejected.Should().Be(1);
+        }
+
+        [Test]
+        public async Task RecordReviewerDecision_should_keep_request_pending_until_all_required_reviewers_approve()
+        {
+            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            negotiation.MarkPendingApproval();
+            await db.SaveChangesAsync();
+
+            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            approval.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            approval.AddReviewer("Bruno", "CFO", required: true, userId: 20);
+            db.Add(approval);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            OpportunityApprovalRequestService ana = new(db, notifications.Object, policyEvaluator.Object, CurrentUserMock.Create(userId: 10, userName: "Ana"));
+            OpportunityApprovalRequest result = await ana.RecordReviewerDecision(approval.Id, OpportunityApprovalReviewerStatus.Approved);
+
+            result.Status.Should().Be(OpportunityApprovalStatus.Pending);
+        }
+
+        [Test]
+        public async Task RecordReviewerDecision_should_approve_request_and_negotiation_when_all_required_approve()
+        {
+            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            negotiation.MarkPendingApproval();
+            await db.SaveChangesAsync();
+
+            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            approval.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            approval.AddReviewer("Bruno", "CFO", required: true, userId: 20);
+            db.Add(approval);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            OpportunityApprovalRequestService ana = new(db, notifications.Object, policyEvaluator.Object, CurrentUserMock.Create(userId: 10, userName: "Ana"));
+            await ana.RecordReviewerDecision(approval.Id, OpportunityApprovalReviewerStatus.Approved);
+            db.ChangeTracker.Clear();
+
+            OpportunityApprovalRequestService bruno = new(db, notifications.Object, policyEvaluator.Object, CurrentUserMock.Create(userId: 20, userName: "Bruno"));
+            OpportunityApprovalRequest result = await bruno.RecordReviewerDecision(approval.Id, OpportunityApprovalReviewerStatus.Approved, "ok");
+
+            result.Status.Should().Be(OpportunityApprovalStatus.Approved);
+            db.ChangeTracker.Clear();
+            (await db.Set<OpportunityNegotiation>().AsNoTracking().SingleAsync()).Status.Should().Be(OpportunityNegotiationStatus.Approved);
+        }
+
+        [Test]
+        public async Task RecordReviewerDecision_should_throw_when_current_user_is_not_a_reviewer()
+        {
+            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            negotiation.MarkPendingApproval();
+            await db.SaveChangesAsync();
+
+            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            approval.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            db.Add(approval);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            OpportunityApprovalRequestService stranger = new(db, notifications.Object, policyEvaluator.Object, CurrentUserMock.Create(userId: 999, userName: "Estranho"));
+            Func<Task> act = () => stranger.RecordReviewerDecision(approval.Id, OpportunityApprovalReviewerStatus.Approved);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
         }
 
         [Test]

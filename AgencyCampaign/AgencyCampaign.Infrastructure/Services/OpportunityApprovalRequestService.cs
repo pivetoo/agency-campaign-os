@@ -5,6 +5,7 @@ using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Application.Abstractions;
 using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
@@ -18,11 +19,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly INotificationService notificationService;
         private readonly IPolicyEvaluator policyEvaluator;
+        private readonly ICurrentUser currentUser;
 
-        public OpportunityApprovalRequestService(DbContext dbContext, INotificationService notificationService, IPolicyEvaluator policyEvaluator) : base(dbContext)
+        public OpportunityApprovalRequestService(DbContext dbContext, INotificationService notificationService, IPolicyEvaluator policyEvaluator, ICurrentUser currentUser) : base(dbContext)
         {
             this.notificationService = notificationService;
             this.policyEvaluator = policyEvaluator;
+            this.currentUser = currentUser;
         }
 
         public async Task<OpportunityApprovalRequest?> GetOpportunityApprovalRequestById(long id, CancellationToken cancellationToken = default)
@@ -106,6 +109,49 @@ namespace AgencyCampaign.Infrastructure.Services
 
             (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
             await TryNotify(KanvasNotifications.OpportunityApprovalDecided(approvalRequest, opportunityId, opportunityName, approved: false), cancellationToken);
+
+            return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
+        }
+
+        public async Task<OpportunityApprovalRequest> RecordReviewerDecision(long id, OpportunityApprovalReviewerStatus decision, string? notes = null, CancellationToken cancellationToken = default)
+        {
+            if (currentUser.UserId is null)
+            {
+                throw new InvalidOperationException("opportunityApproval.reviewer.notPending");
+            }
+
+            OpportunityApprovalRequest approvalRequest = await DbContext.Set<OpportunityApprovalRequest>()
+                .AsTracking()
+                .Include(item => item.Reviewers)
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken)
+                ?? throw new InvalidOperationException("record.notFound");
+
+            OpportunityApprovalStatus previousStatus = approvalRequest.Status;
+            approvalRequest.RegisterReviewerDecision(currentUser.UserId.Value, decision, notes);
+
+            bool resolvedNow = previousStatus != approvalRequest.Status
+                && (approvalRequest.Status == OpportunityApprovalStatus.Approved || approvalRequest.Status == OpportunityApprovalStatus.Rejected);
+
+            if (resolvedNow)
+            {
+                OpportunityNegotiation negotiation = await GetTrackedNegotiation(approvalRequest.OpportunityNegotiationId, cancellationToken);
+                if (approvalRequest.Status == OpportunityApprovalStatus.Approved)
+                {
+                    negotiation.Approve();
+                }
+                else
+                {
+                    negotiation.Reject();
+                }
+            }
+
+            await DbContext.SaveChangesAsync(cancellationToken);
+
+            if (resolvedNow)
+            {
+                (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(approvalRequest.OpportunityNegotiationId, cancellationToken);
+                await TryNotify(KanvasNotifications.OpportunityApprovalDecided(approvalRequest, opportunityId, opportunityName, approved: approvalRequest.Status == OpportunityApprovalStatus.Approved), cancellationToken);
+            }
 
             return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
         }

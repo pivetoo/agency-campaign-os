@@ -1,6 +1,7 @@
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Services;
 using Archon.Core.Pagination;
 
@@ -15,6 +16,8 @@ namespace AgencyCampaign.Application.Services
         Task<OpportunityApprovalRequest> Approve(long id, DecideOpportunityApprovalRequest request, CancellationToken cancellationToken = default);
 
         Task<OpportunityApprovalRequest> Reject(long id, DecideOpportunityApprovalRequest request, CancellationToken cancellationToken = default);
+
+        Task<OpportunityApprovalRequest> RecordReviewerDecision(long id, OpportunityApprovalReviewerStatus decision, string? notes = null, CancellationToken cancellationToken = default);
 
         Task<OpportunityApprovalRequest> MarkInReview(long id, CancellationToken cancellationToken = default);
 
