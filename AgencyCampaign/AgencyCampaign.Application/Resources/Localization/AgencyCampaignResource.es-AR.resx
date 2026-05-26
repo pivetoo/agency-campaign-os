@@ -1761,4 +1761,20 @@
   <data name="proposalDetail.convert.confirmNewCampaign" xml:space="preserve"><value>¿Crear una nueva campaña a partir de esta propuesta? Heredará la marca, el nombre y el valor de la propuesta.</value></data>
   <data name="proposalDetail.convert.newCampaignButton" xml:space="preserve"><value>Crear nueva campaña</value></data>
   <data name="proposalDetail.convert.orLinkExisting" xml:space="preserve"><value>o vincular a una existente</value></data>
+  <data name="pipeline.insights.openAria" xml:space="preserve"><value>Abrir insights del pipeline</value></data>
+  <data name="pipeline.insights.title" xml:space="preserve"><value>Insights del pipeline</value></data>
+  <data name="pipeline.insights.openCount.one" xml:space="preserve"><value>oportunidad abierta</value></data>
+  <data name="pipeline.insights.openCount.many" xml:space="preserve"><value>oportunidades abiertas</value></data>
+  <data name="pipeline.insights.overdueBadge.one" xml:space="preserve"><value>atrasada</value></data>
+  <data name="pipeline.insights.overdueBadge.many" xml:space="preserve"><value>atrasadas</value></data>
+  <data name="pipeline.finalMove.wonTitle" xml:space="preserve"><value>Cerrar como ganada</value></data>
+  <data name="pipeline.finalMove.lostTitle" xml:space="preserve"><value>Cerrar como perdida</value></data>
+  <data name="pipeline.finalMove.movingPrefix" xml:space="preserve"><value>Estás moviendo </value></data>
+  <data name="pipeline.finalMove.movingTo" xml:space="preserve"><value> a </value></data>
+  <data name="pipeline.finalMove.lostHint" xml:space="preserve"><value> Indica el motivo de la pérdida.</value></data>
+  <data name="pipeline.finalMove.wonHint" xml:space="preserve"><value> Deja una observación si querés.</value></data>
+  <data name="pipeline.finalMove.wonNotesLabel" xml:space="preserve"><value>Notas de cierre (opcional)</value></data>
+  <data name="pipeline.finalMove.lostReasonLabel" xml:space="preserve"><value>Motivo de la pérdida</value></data>
+  <data name="pipeline.finalMove.wonPlaceholder" xml:space="preserve"><value>Ej.: El cliente aprobó el presupuesto completo.</value></data>
+  <data name="pipeline.finalMove.lostPlaceholder" xml:space="preserve"><value>Ej.: El cliente eligió a un competidor.</value></data>
 </root>

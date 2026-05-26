@@ -1761,4 +1761,20 @@
   <data name="proposalDetail.convert.confirmNewCampaign" xml:space="preserve"><value>Create a new campaign from this proposal? It will inherit the brand, name and value of the proposal.</value></data>
   <data name="proposalDetail.convert.newCampaignButton" xml:space="preserve"><value>Create new campaign</value></data>
   <data name="proposalDetail.convert.orLinkExisting" xml:space="preserve"><value>or link to an existing one</value></data>
+  <data name="pipeline.insights.openAria" xml:space="preserve"><value>Open pipeline insights</value></data>
+  <data name="pipeline.insights.title" xml:space="preserve"><value>Pipeline insights</value></data>
+  <data name="pipeline.insights.openCount.one" xml:space="preserve"><value>open opportunity</value></data>
+  <data name="pipeline.insights.openCount.many" xml:space="preserve"><value>open opportunities</value></data>
+  <data name="pipeline.insights.overdueBadge.one" xml:space="preserve"><value>overdue</value></data>
+  <data name="pipeline.insights.overdueBadge.many" xml:space="preserve"><value>overdue</value></data>
+  <data name="pipeline.finalMove.wonTitle" xml:space="preserve"><value>Close as won</value></data>
+  <data name="pipeline.finalMove.lostTitle" xml:space="preserve"><value>Close as lost</value></data>
+  <data name="pipeline.finalMove.movingPrefix" xml:space="preserve"><value>You are moving </value></data>
+  <data name="pipeline.finalMove.movingTo" xml:space="preserve"><value> to </value></data>
+  <data name="pipeline.finalMove.lostHint" xml:space="preserve"><value> Provide the loss reason.</value></data>
+  <data name="pipeline.finalMove.wonHint" xml:space="preserve"><value> Leave a note if you want.</value></data>
+  <data name="pipeline.finalMove.wonNotesLabel" xml:space="preserve"><value>Closing notes (optional)</value></data>
+  <data name="pipeline.finalMove.lostReasonLabel" xml:space="preserve"><value>Loss reason</value></data>
+  <data name="pipeline.finalMove.wonPlaceholder" xml:space="preserve"><value>E.g.: Client approved the full budget.</value></data>
+  <data name="pipeline.finalMove.lostPlaceholder" xml:space="preserve"><value>E.g.: Client chose a competitor.</value></data>
 </root>

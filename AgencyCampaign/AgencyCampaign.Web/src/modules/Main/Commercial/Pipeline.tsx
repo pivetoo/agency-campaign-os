@@ -404,8 +404,8 @@ export default function CommercialPipeline() {
           <SheetTrigger asChild>
             <button
               type="button"
-              aria-label="Abrir insights do funil"
-              title="Insights do funil"
+              aria-label={t('pipeline.insights.openAria')}
+              title={t('pipeline.insights.title')}
               className="group fixed right-0 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-l-lg border border-r-0 border-border bg-card text-primary shadow-md transition-all hover:bg-muted hover:text-primary"
             >
               <BarChart3 className="h-5 w-5" />
@@ -420,11 +420,11 @@ export default function CommercialPipeline() {
             <div className="mb-4">
               <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
                 <Target className="h-4 w-4 text-primary" />
-                Insights do funil
+                {t('pipeline.insights.title')}
               </h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                <strong className="text-foreground">{summary.count}</strong> oportunidade{summary.count === 1 ? '' : 's'} em aberto · <span className="font-mono">{formatCurrency(summary.value)}</span>
-                {summary.overdueFollowUps > 0 && <span className="ml-2 inline-flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-destructive">{summary.overdueFollowUps} atrasado{summary.overdueFollowUps === 1 ? '' : 's'}</span>}
+                <strong className="text-foreground">{summary.count}</strong> {summary.count === 1 ? t('pipeline.insights.openCount.one') : t('pipeline.insights.openCount.many')} · <span className="font-mono">{formatCurrency(summary.value)}</span>
+                {summary.overdueFollowUps > 0 && <span className="ml-2 inline-flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-destructive">{summary.overdueFollowUps} {summary.overdueFollowUps === 1 ? t('pipeline.insights.overdueBadge.one') : t('pipeline.insights.overdueBadge.many')}</span>}
               </p>
             </div>
             <div className="space-y-4">
@@ -624,37 +624,37 @@ export default function CommercialPipeline() {
         <ModalContent size="form">
           <ModalHeader>
             <ModalTitle>
-              {pendingFinal?.kind === 'won' ? 'Encerrar como ganha' : 'Encerrar como perdida'}
+              {pendingFinal?.kind === 'won' ? t('pipeline.finalMove.wonTitle') : t('pipeline.finalMove.lostTitle')}
             </ModalTitle>
           </ModalHeader>
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Você está movendo <strong>{pendingFinal?.item.name}</strong> para <strong>{pendingFinal?.targetStage.name}</strong>.
-              {pendingFinal?.kind === 'lost' ? ' Informe o motivo da perda.' : ' Deixe uma observação se quiser.'}
+              {t('pipeline.finalMove.movingPrefix')}<strong>{pendingFinal?.item.name}</strong>{t('pipeline.finalMove.movingTo')}<strong>{pendingFinal?.targetStage.name}</strong>.
+              {pendingFinal?.kind === 'lost' ? t('pipeline.finalMove.lostHint') : t('pipeline.finalMove.wonHint')}
             </p>
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                {pendingFinal?.kind === 'won' ? 'Notas de fechamento (opcional)' : 'Motivo da perda'}
+                {pendingFinal?.kind === 'won' ? t('pipeline.finalMove.wonNotesLabel') : t('pipeline.finalMove.lostReasonLabel')}
                 {pendingFinal?.kind === 'lost' && <span className="text-destructive"> *</span>}
               </label>
               <textarea
                 className="min-h-[100px] w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 value={finalNotes}
                 onChange={(e) => setFinalNotes(e.target.value)}
-                placeholder={pendingFinal?.kind === 'won' ? 'Ex.: Cliente aprovou orçamento completo.' : 'Ex.: Cliente escolheu concorrente.'}
+                placeholder={pendingFinal?.kind === 'won' ? t('pipeline.finalMove.wonPlaceholder') : t('pipeline.finalMove.lostPlaceholder')}
                 autoFocus
               />
             </div>
           </div>
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={cancelFinalMove} disabled={closing}>Cancelar</Button>
+            <Button type="button" variant="outline" onClick={cancelFinalMove} disabled={closing}>{t('common.action.cancel')}</Button>
             <Button
               type="button"
               variant={pendingFinal?.kind === 'lost' ? 'danger' : 'primary'}
               onClick={() => void confirmFinalMove()}
               disabled={closing || (pendingFinal?.kind === 'lost' && finalNotes.trim().length === 0)}
             >
-              {closing ? 'Salvando...' : 'Confirmar'}
+              {closing ? t('common.action.saving') : t('common.action.confirm')}
             </Button>
           </ModalFooter>
         </ModalContent>
