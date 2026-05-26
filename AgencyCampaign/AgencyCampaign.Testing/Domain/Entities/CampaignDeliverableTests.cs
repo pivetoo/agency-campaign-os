@@ -162,5 +162,35 @@ namespace AgencyCampaign.Testing.Domain.Entities
 
             act.Should().Throw<ArgumentOutOfRangeException>();
         }
+
+        [Test]
+        public void RegisterCreatorInsights_should_set_insights_preserving_public_metrics()
+        {
+            CampaignDeliverable subject = BuildDefault();
+            subject.RegisterMetrics(100, 20, 5000, null, null, null, 10, DeliverableMetricsSource.Manual);
+
+            subject.RegisterCreatorInsights(reach: 4000, impressions: 6000, saves: 30);
+
+            subject.Likes.Should().Be(100);
+            subject.Comments.Should().Be(20);
+            subject.Views.Should().Be(5000);
+            subject.Shares.Should().Be(10);
+            subject.Reach.Should().Be(4000);
+            subject.Impressions.Should().Be(6000);
+            subject.Saves.Should().Be(30);
+            // interacoes = 100+20+10+30 = 160; reach 4000 -> 4,00%
+            subject.EngagementRate.Should().Be(4.00m);
+        }
+
+        [Test]
+        public void RegisterCreatorInsights_should_mark_mixed_when_public_was_auto()
+        {
+            CampaignDeliverable subject = BuildDefault();
+            subject.RegisterMetrics(100, 20, 5000, null, null, null, 10, DeliverableMetricsSource.Auto);
+
+            subject.RegisterCreatorInsights(4000, 6000, 30);
+
+            subject.MetricsSource.Should().Be(DeliverableMetricsSource.Mixed);
+        }
     }
 }

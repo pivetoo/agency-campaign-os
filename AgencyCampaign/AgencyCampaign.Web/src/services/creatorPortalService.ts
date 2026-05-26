@@ -1,6 +1,7 @@
 import { httpClient } from 'archon-ui'
 import type { CampaignDocument } from '../types/campaignDocument'
 import type { CreatorPayment, PixKeyTypeValue } from '../types/creatorPayment'
+import type { CampaignDeliverable } from '../types/campaignDeliverable'
 
 const BASE = '/CreatorPortal'
 
@@ -52,6 +53,12 @@ export interface UploadInvoicePayload {
   issuedAt?: string
 }
 
+export interface SubmitInsightsPayload {
+  reach?: number | null
+  impressions?: number | null
+  saves?: number | null
+}
+
 export const creatorPortalService = {
   async me(token: string): Promise<PortalSession | null> {
     const response = await httpClient.get<PortalSession>(`${BASE}/${token}/me`)
@@ -74,5 +81,12 @@ export const creatorPortalService = {
   },
   uploadInvoice(token: string, payload: UploadInvoicePayload) {
     return httpClient.post<CreatorPayment>(`${BASE}/${token}/invoice`, payload)
+  },
+  async getDeliverables(token: string): Promise<CampaignDeliverable[]> {
+    const response = await httpClient.get<CampaignDeliverable[]>(`${BASE}/${token}/deliverables`)
+    return response.data ?? []
+  },
+  submitInsights(token: string, deliverableId: number, payload: SubmitInsightsPayload) {
+    return httpClient.post<CampaignDeliverable>(`${BASE}/${token}/deliverables/${deliverableId}/insights`, payload)
   },
 }

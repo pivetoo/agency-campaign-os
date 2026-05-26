@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
-import { Calendar, FileText, Home, Receipt, User } from 'lucide-react'
+import { BarChart3, Calendar, FileText, Home, Receipt, User } from 'lucide-react'
 import { useI18n } from 'archon-ui'
 import { creatorPortalService, type PortalSession } from '../../services/creatorPortalService'
 
@@ -79,6 +79,7 @@ export default function CreatorPortalLayout() {
         <div className="mx-auto flex max-w-3xl items-stretch justify-around">
           <PortalNavItem to={`/portal/${token}`} end icon={<Home size={18} />} label={t('creatorPortal.layout.nav.home')} />
           <PortalNavItem to={`/portal/${token}/campanhas`} testId="portal-tab-campanhas" icon={<Calendar size={18} />} label={t('creatorPortal.layout.nav.campaigns')} />
+          <PortalNavItem to={`/portal/${token}/resultados`} testId="portal-tab-resultados" icon={<BarChart3 size={18} />} label={t('creatorPortal.layout.nav.results')} />
           <PortalNavItem to={`/portal/${token}/contratos`} testId="portal-tab-contratos" icon={<FileText size={18} />} label={t('creatorPortal.layout.nav.contracts')} />
           <PortalNavItem to={`/portal/${token}/pagamentos`} testId="portal-tab-pagamentos" icon={<Receipt size={18} />} label={t('creatorPortal.layout.nav.payments')} />
           <PortalNavItem to={`/portal/${token}/perfil`} testId="portal-tab-perfil" icon={<User size={18} />} label={t('creatorPortal.layout.nav.profile')} />

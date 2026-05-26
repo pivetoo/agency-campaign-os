@@ -748,6 +748,15 @@
   <data name="creatorPortal.layout.title" xml:space="preserve"><value>Portal do influenciador</value></data>
   <data name="creatorPortal.layout.nav.home" xml:space="preserve"><value>Início</value></data>
   <data name="creatorPortal.layout.nav.campaigns" xml:space="preserve"><value>Campanhas</value></data>
+  <data name="creatorPortal.layout.nav.results" xml:space="preserve"><value>Resultados</value></data>
+  <data name="creatorPortal.results.title" xml:space="preserve"><value>Resultados das entregas</value></data>
+  <data name="creatorPortal.results.hint" xml:space="preserve"><value>Informe as métricas das suas entregas publicadas (alcance, impressões e salvamentos).</value></data>
+  <data name="creatorPortal.results.loading" xml:space="preserve"><value>Carregando...</value></data>
+  <data name="creatorPortal.results.empty" xml:space="preserve"><value>Nenhuma entrega publicada ainda.</value></data>
+  <data name="creatorPortal.results.saved" xml:space="preserve"><value>Salvo!</value></data>
+  <data name="creatorPortal.results.field.reach" xml:space="preserve"><value>Alcance</value></data>
+  <data name="creatorPortal.results.field.impressions" xml:space="preserve"><value>Impressões</value></data>
+  <data name="creatorPortal.results.field.saves" xml:space="preserve"><value>Salvamentos</value></data>
   <data name="creatorPortal.layout.nav.contracts" xml:space="preserve"><value>Contratos</value></data>
   <data name="creatorPortal.layout.nav.payments" xml:space="preserve"><value>Pagamentos</value></data>
   <data name="creatorPortal.layout.nav.profile" xml:space="preserve"><value>Perfil</value></data>

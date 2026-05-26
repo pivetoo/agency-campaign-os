@@ -748,6 +748,15 @@
   <data name="creatorPortal.layout.title" xml:space="preserve"><value>Creator portal</value></data>
   <data name="creatorPortal.layout.nav.home" xml:space="preserve"><value>Home</value></data>
   <data name="creatorPortal.layout.nav.campaigns" xml:space="preserve"><value>Campaigns</value></data>
+  <data name="creatorPortal.layout.nav.results" xml:space="preserve"><value>Results</value></data>
+  <data name="creatorPortal.results.title" xml:space="preserve"><value>Deliverable results</value></data>
+  <data name="creatorPortal.results.hint" xml:space="preserve"><value>Enter the metrics of your published deliverables (reach, impressions and saves).</value></data>
+  <data name="creatorPortal.results.loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="creatorPortal.results.empty" xml:space="preserve"><value>No published deliverables yet.</value></data>
+  <data name="creatorPortal.results.saved" xml:space="preserve"><value>Saved!</value></data>
+  <data name="creatorPortal.results.field.reach" xml:space="preserve"><value>Reach</value></data>
+  <data name="creatorPortal.results.field.impressions" xml:space="preserve"><value>Impressions</value></data>
+  <data name="creatorPortal.results.field.saves" xml:space="preserve"><value>Saves</value></data>
   <data name="creatorPortal.layout.nav.contracts" xml:space="preserve"><value>Contracts</value></data>
   <data name="creatorPortal.layout.nav.payments" xml:space="preserve"><value>Payments</value></data>
   <data name="creatorPortal.layout.nav.profile" xml:space="preserve"><value>Profile</value></data>

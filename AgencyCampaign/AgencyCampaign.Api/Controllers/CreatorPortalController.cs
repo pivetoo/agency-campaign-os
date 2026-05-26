@@ -1,3 +1,4 @@
+using AgencyCampaign.Api.Contracts.CampaignDeliverables;
 using AgencyCampaign.Api.Contracts.CampaignDocuments;
 using AgencyCampaign.Api.Contracts.CreatorPayments;
 using AgencyCampaign.Application.Localization;
@@ -19,6 +20,7 @@ namespace AgencyCampaign.Api.Controllers
         private new IStringLocalizer<AgencyCampaignResource> Localizer { get; }
         private static readonly Func<CampaignDocument, CampaignDocumentContract> MapDocument = CampaignDocumentContract.Projection.Compile();
         private static readonly Func<CreatorPayment, CreatorPaymentContract> MapPayment = CreatorPaymentContract.Projection.Compile();
+        private static readonly Func<CampaignDeliverable, CampaignDeliverableContract> MapDeliverable = CampaignDeliverableContract.Projection.Compile();
 
         public CreatorPortalController(ICreatorPortalService portalService, IStringLocalizer<AgencyCampaignResource> localizer)
         {
@@ -96,6 +98,43 @@ namespace AgencyCampaign.Api.Controllers
                 CreatorPortalContext ctx = await portalService.ResolveContext(token, cancellationToken);
                 List<CampaignDocument> documents = await portalService.GetDocuments(ctx.Creator.Id, cancellationToken);
                 return Http200(documents.Select(MapDocument).ToList());
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Http401(Localizer[ex.Message]);
+            }
+        }
+
+        [HttpGet("{token}/deliverables")]
+        public async Task<IActionResult> Deliverables(string token, CancellationToken cancellationToken)
+        {
+            try
+            {
+                CreatorPortalContext ctx = await portalService.ResolveContext(token, cancellationToken);
+                List<CampaignDeliverable> deliverables = await portalService.GetDeliverables(ctx.Creator.Id, cancellationToken);
+                return Http200(deliverables.Select(MapDeliverable).ToList());
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Http401(Localizer[ex.Message]);
+            }
+        }
+
+        [HttpPost("{token}/deliverables/{deliverableId:long}/insights")]
+        public async Task<IActionResult> SubmitInsights(string token, long deliverableId, [FromBody] SubmitDeliverableInsightsRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                CreatorPortalContext ctx = await portalService.ResolveContext(token, cancellationToken);
+
+                IActionResult? validationResult = ValidateBody(request);
+                if (validationResult is not null)
+                {
+                    return validationResult;
+                }
+
+                CampaignDeliverable deliverable = await portalService.SubmitInsights(ctx.Creator.Id, deliverableId, request, cancellationToken);
+                return Http200(MapDeliverable(deliverable), Localizer["record.updated"]);
             }
             catch (InvalidOperationException ex)
             {

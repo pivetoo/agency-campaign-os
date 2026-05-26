@@ -53,6 +53,35 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<CampaignDeliverable>> GetDeliverables(long creatorId, CancellationToken cancellationToken = default)
+        {
+            return await dbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .Include(item => item.Platform)
+                .Include(item => item.Campaign)
+                .Include(item => item.CampaignCreator)
+                .Where(item => item.CampaignCreator != null && item.CampaignCreator.CreatorId == creatorId)
+                .OrderByDescending(item => item.Id)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<CampaignDeliverable> SubmitInsights(long creatorId, long deliverableId, SubmitDeliverableInsightsRequest request, CancellationToken cancellationToken = default)
+        {
+            CampaignDeliverable? deliverable = await dbContext.Set<CampaignDeliverable>()
+                .AsTracking()
+                .Include(item => item.CampaignCreator)
+                .FirstOrDefaultAsync(item => item.Id == deliverableId, cancellationToken);
+
+            if (deliverable is null || deliverable.CampaignCreator is null || deliverable.CampaignCreator.CreatorId != creatorId)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            deliverable.RegisterCreatorInsights(request.Reach, request.Impressions, request.Saves);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return deliverable;
+        }
+
         public async Task<List<CreatorPayment>> GetPayments(long creatorId, CancellationToken cancellationToken = default)
         {
             return await dbContext.Set<CreatorPayment>()

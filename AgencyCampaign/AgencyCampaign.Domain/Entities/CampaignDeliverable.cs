@@ -196,6 +196,22 @@ namespace AgencyCampaign.Domain.Entities
             MetricsSource = source;
         }
 
+        public void RegisterCreatorInsights(long? reach, long? impressions, int? saves)
+        {
+            EnsureNonNegative(reach);
+            EnsureNonNegative(impressions);
+            EnsureNonNegative(saves);
+
+            Reach = reach;
+            Impressions = impressions;
+            Saves = saves;
+            EngagementRate = ComputeEngagementRate();
+            MetricsCollectedAt = DateTimeOffset.UtcNow;
+            MetricsSource = MetricsSource == DeliverableMetricsSource.None || MetricsSource == DeliverableMetricsSource.Manual
+                ? DeliverableMetricsSource.Manual
+                : DeliverableMetricsSource.Mixed;
+        }
+
         private decimal? ComputeEngagementRate()
         {
             long? denominator = Reach ?? Impressions;

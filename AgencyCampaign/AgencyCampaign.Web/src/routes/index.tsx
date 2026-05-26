@@ -14,6 +14,7 @@ import PublicCampaignReport from '../modules/Public/CampaignReport'
 import CreatorPortalLayout from '../modules/CreatorPortal/Layout'
 import CreatorPortalDashboard from '../modules/CreatorPortal/Dashboard'
 import CreatorPortalCampaigns from '../modules/CreatorPortal/Campaigns'
+import CreatorPortalResults from '../modules/CreatorPortal/Results'
 import CreatorPortalDocuments from '../modules/CreatorPortal/Documents'
 import CreatorPortalPayments from '../modules/CreatorPortal/Payments'
 import CreatorPortalProfile from '../modules/CreatorPortal/Profile'
@@ -77,6 +78,7 @@ function AppRoutes() {
         <Route path="/portal/:token" element={<CreatorPortalLayout />}>
           <Route index element={<CreatorPortalDashboard />} />
           <Route path="campanhas" element={<CreatorPortalCampaigns />} />
+          <Route path="resultados" element={<CreatorPortalResults />} />
           <Route path="contratos" element={<CreatorPortalDocuments />} />
           <Route path="pagamentos" element={<CreatorPortalPayments />} />
           <Route path="perfil" element={<CreatorPortalProfile />} />
