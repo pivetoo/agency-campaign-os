@@ -320,7 +320,7 @@ function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkVi
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <AuditUtilityBar entityName="Proposal" entityLabel="Proposta" entityId={selected?.id ?? null} />
+      <AuditUtilityBar entityName="Proposal" entityLabel={t('proposals.audit.entityLabel')} entityId={selected?.id ?? null} />
 
       <div className="inline-flex overflow-hidden rounded-md border border-border bg-card">
         <SegmentedAction icon={<Send className="h-3.5 w-3.5" />} label={t('proposals.action.openToSend')} active={canSend} disabled={!canSend} onClick={onSend} />
@@ -336,7 +336,7 @@ function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkVi
         <Pencil className="mr-1.5 h-3.5 w-3.5" /> {t('common.action.edit')}
       </Button>
       <Button size="sm" variant="secondary" onClick={onNew}>
-        <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
+        <Plus className="mr-1.5 h-4 w-4" /> {t('proposals.action.new')}
       </Button>
     </div>
   )

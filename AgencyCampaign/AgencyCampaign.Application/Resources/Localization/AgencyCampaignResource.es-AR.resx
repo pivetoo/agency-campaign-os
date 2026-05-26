@@ -447,6 +447,7 @@
   <data name="opportunities.empty.filtered" xml:space="preserve"><value>No se encontraron oportunidades con los filtros actuales</value></data>
   <data name="opportunities.search.placeholder" xml:space="preserve"><value>Buscar por nombre, marca, contacto o email...</value></data>
   <data name="opportunities.filter.allStages" xml:space="preserve"><value>Todas las etapas</value></data>
+  <data name="opportunities.filter.stage" xml:space="preserve"><value>Etapa</value></data>
   <data name="opportunities.filter.searchStage" xml:space="preserve"><value>Buscar etapa...</value></data>
   <data name="opportunities.field.opportunity" xml:space="preserve"><value>Oportunidad</value></data>
   <data name="opportunities.field.estimatedValue" xml:space="preserve"><value>Valor estimado</value></data>
@@ -1753,4 +1754,11 @@
   <data name="commercialInsights.atRiskTitle" xml:space="preserve"><value>En riesgo</value></data>
   <data name="commercialInsights.atRiskSubtitle" xml:space="preserve"><value>detenidas &gt; 14 días</value></data>
   <data name="commercialInsights.atRiskEmpty" xml:space="preserve"><value>Ninguna oportunidad detenida más allá del límite.</value></data>
+  <data name="opportunities.audit.entityLabel" xml:space="preserve"><value>Oportunidad</value></data>
+  <data name="opportunities.add" xml:space="preserve"><value>Nueva oportunidad</value></data>
+  <data name="proposals.audit.entityLabel" xml:space="preserve"><value>Propuesta</value></data>
+  <data name="proposals.action.new" xml:space="preserve"><value>Nueva propuesta</value></data>
+  <data name="proposalDetail.convert.confirmNewCampaign" xml:space="preserve"><value>¿Crear una nueva campaña a partir de esta propuesta? Heredará la marca, el nombre y el valor de la propuesta.</value></data>
+  <data name="proposalDetail.convert.newCampaignButton" xml:space="preserve"><value>Crear nueva campaña</value></data>
+  <data name="proposalDetail.convert.orLinkExisting" xml:space="preserve"><value>o vincular a una existente</value></data>
 </root>

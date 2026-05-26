@@ -447,6 +447,7 @@
   <data name="opportunities.empty.filtered" xml:space="preserve"><value>No opportunities found with current filters</value></data>
   <data name="opportunities.search.placeholder" xml:space="preserve"><value>Search by name, brand, contact or email...</value></data>
   <data name="opportunities.filter.allStages" xml:space="preserve"><value>All stages</value></data>
+  <data name="opportunities.filter.stage" xml:space="preserve"><value>Stage</value></data>
   <data name="opportunities.filter.searchStage" xml:space="preserve"><value>Search stage...</value></data>
   <data name="opportunities.field.opportunity" xml:space="preserve"><value>Opportunity</value></data>
   <data name="opportunities.field.estimatedValue" xml:space="preserve"><value>Estimated value</value></data>
@@ -1753,4 +1754,11 @@
   <data name="commercialInsights.atRiskTitle" xml:space="preserve"><value>At risk</value></data>
   <data name="commercialInsights.atRiskSubtitle" xml:space="preserve"><value>stalled &gt; 14 days</value></data>
   <data name="commercialInsights.atRiskEmpty" xml:space="preserve"><value>No opportunity stalled beyond the limit.</value></data>
+  <data name="opportunities.audit.entityLabel" xml:space="preserve"><value>Opportunity</value></data>
+  <data name="opportunities.add" xml:space="preserve"><value>New opportunity</value></data>
+  <data name="proposals.audit.entityLabel" xml:space="preserve"><value>Proposal</value></data>
+  <data name="proposals.action.new" xml:space="preserve"><value>New proposal</value></data>
+  <data name="proposalDetail.convert.confirmNewCampaign" xml:space="preserve"><value>Create a new campaign from this proposal? It will inherit the brand, name and value of the proposal.</value></data>
+  <data name="proposalDetail.convert.newCampaignButton" xml:space="preserve"><value>Create new campaign</value></data>
+  <data name="proposalDetail.convert.orLinkExisting" xml:space="preserve"><value>or link to an existing one</value></data>
 </root>

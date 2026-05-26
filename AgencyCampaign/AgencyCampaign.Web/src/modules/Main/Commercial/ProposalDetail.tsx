@@ -293,14 +293,14 @@ export default function CommercialProposalDetail() {
                     <Button
                       disabled={actionLoading}
                       onClick={() => {
-                        if (!window.confirm('Criar uma nova campanha a partir desta proposta? Ela herdara a marca, o nome e o valor da proposta.')) return
+                        if (!window.confirm(t('proposalDetail.convert.confirmNewCampaign'))) return
                         void runProposalAction(() => proposalService.convertToNewCampaign(proposalId))
                       }}
                     >
-                      <FileCheck className="mr-2 h-4 w-4" /> Criar nova campanha
+                      <FileCheck className="mr-2 h-4 w-4" /> {t('proposalDetail.convert.newCampaignButton')}
                     </Button>
                     <div className="my-4 flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-                      <span className="h-px flex-1 bg-border" /> ou vincular a uma existente <span className="h-px flex-1 bg-border" />
+                      <span className="h-px flex-1 bg-border" /> {t('proposalDetail.convert.orLinkExisting')} <span className="h-px flex-1 bg-border" />
                     </div>
                     <div className="flex flex-col gap-3 md:flex-row md:items-end">
                       <div className="w-full md:max-w-md">

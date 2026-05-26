@@ -166,11 +166,11 @@ export default function CommercialOpportunities() {
       <PageLayout
         title={t('opportunities.title')}
         subtitle={t('opportunities.subtitle')}
-        actionsSlot={<><CommercialViewToggle active="list" /><AuditUtilityBar entityName="Opportunity" entityLabel="Oportunidade" entityId={selectedOpportunity?.id ?? null} /></>}
+        actionsSlot={<><CommercialViewToggle active="list" /><AuditUtilityBar entityName="Opportunity" entityLabel={t('opportunities.audit.entityLabel')} entityId={selectedOpportunity?.id ?? null} /></>}
         onAdd={() => { setSelectedOpportunity(null); setIsFormOpen(true) }}
         onEdit={() => selectedOpportunity && setIsFormOpen(true)}
         onRefresh={reload}
-        addLabel="Nova oportunidade"
+        addLabel={t('opportunities.add')}
         selectedRowsCount={selectedOpportunity ? 1 : 0}
       ><TableToolbar
           searchValue={searchInput}
