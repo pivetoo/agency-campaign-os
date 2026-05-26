@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, ConfirmModal, PageLayout, SearchableSelect, useApi, useAuth, useI18n } from 'archon-ui'
+import { Button, ConfirmModal, PageLayout, SearchableSelect, UsersManagementService, useApi, useAuth, useI18n } from 'archon-ui'
 import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
 import { OpportunityApprovalReviewerStatus, type OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
 import type { OpportunityApprovalDiff } from '../../../types/opportunityApprovalDiff'
 import { commercialResponsibleService } from '../../../services/commercialResponsibleService'
+import CommentInputWithMentions, { type MentionableUser } from '../../../components/comments/CommentInputWithMentions'
 import { formatDate } from '../../../lib/format'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 
@@ -41,6 +42,33 @@ function statusBadgeConfig(status: number): { bg: string; text: string; label: s
 
 function isPendingDecision(status: number): boolean {
   return status === OpportunityApprovalStatus.Pending || status === OpportunityApprovalStatus.InReview || status === OpportunityApprovalStatus.ChangesRequested
+}
+
+function renderBodyWithMentions(body: string, users: MentionableUser[]): Array<string | ReactElement> {
+  const sorted = [...users].sort((a, b) => b.name.length - a.name.length)
+  const parts: Array<string | ReactElement> = []
+  let cursor = 0
+  let nodeIndex = 0
+  while (cursor < body.length) {
+    const atIdx = body.indexOf('@', cursor)
+    if (atIdx === -1) {
+      parts.push(body.slice(cursor))
+      break
+    }
+    if (atIdx > cursor) {
+      parts.push(body.slice(cursor, atIdx))
+    }
+    const remaining = body.slice(atIdx + 1)
+    const found = sorted.find((item) => item.name && remaining.startsWith(item.name))
+    if (found) {
+      parts.push(<span key={`m-${nodeIndex++}`} className="rounded bg-primary/15 px-1 font-medium text-primary">@{found.name}</span>)
+      cursor = atIdx + 1 + found.name.length
+    } else {
+      parts.push('@')
+      cursor = atIdx + 1
+    }
+  }
+  return parts
 }
 
 export default function CommercialApprovals() {
@@ -1051,6 +1079,8 @@ function ConversationPanel({ approvalId, currentUserName }: ConversationPanelPro
   const [posting, setPosting] = useState(false)
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [users, setUsers] = useState<MentionableUser[]>([])
+  const [mentionedUserIds, setMentionedUserIds] = useState<number[]>([])
 
   const load = async () => {
     setLoading(true)
@@ -1069,6 +1099,12 @@ function ConversationPanel({ approvalId, currentUserName }: ConversationPanelPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [approvalId])
 
+  useEffect(() => {
+    void UsersManagementService.listInCurrentContract().then((list) => {
+      setUsers(list.filter((item) => item.isActive).map((item) => ({ userId: item.userId, name: item.name, email: item.email })))
+    })
+  }, [])
+
   const submit = async () => {
     const body = draft.trim()
     if (!body || posting) return
@@ -1076,6 +1112,7 @@ function ConversationPanel({ approvalId, currentUserName }: ConversationPanelPro
     try {
       await opportunityService.createApprovalComment(approvalId, { userName: currentUserName, body, role: 'observador' })
       setDraft('')
+      setMentionedUserIds([])
       await load()
     } finally {
       setPosting(false)
@@ -1103,17 +1140,21 @@ function ConversationPanel({ approvalId, currentUserName }: ConversationPanelPro
         ) : comments.length === 0 ? (
           <p className="text-xs text-muted-foreground">Sem comentários nesta solicitação. Seja o primeiro.</p>
         ) : (
-          comments.map((c) => <CommentRow key={c.id} comment={c} canDelete={c.userName === currentUserName} onDelete={() => setDeleteTargetId(c.id)} />)
+          comments.map((c) => <CommentRow key={c.id} comment={c} users={users} canDelete={c.userName === currentUserName} onDelete={() => setDeleteTargetId(c.id)} />)
         )}
 
         <div className="flex gap-2.5 pt-2">
           <Avatar name={currentUserName} size={28} />
           <div className="min-w-0 flex-1">
-            <textarea
+            <CommentInputWithMentions
               value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Deixe um comentário…"
-              className="min-h-[64px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              onChange={setDraft}
+              onMentionsChange={setMentionedUserIds}
+              mentionedUserIds={mentionedUserIds}
+              users={users}
+              placeholder="Deixe um comentário… use @ para mencionar"
+              rows={2}
+              disabled={posting}
             />
             <div className="mt-2 flex items-center justify-end gap-2">
               <Button size="sm" variant="primary" disabled={posting || draft.trim().length === 0} onClick={() => void submit()}>
@@ -1136,7 +1177,7 @@ function ConversationPanel({ approvalId, currentUserName }: ConversationPanelPro
   )
 }
 
-function CommentRow({ comment, canDelete, onDelete }: { comment: OpportunityApprovalComment; canDelete: boolean; onDelete: () => void }) {
+function CommentRow({ comment, users, canDelete, onDelete }: { comment: OpportunityApprovalComment; users: MentionableUser[]; canDelete: boolean; onDelete: () => void }) {
   const roleStyle: Record<string, { bg: string; text: string }> = {
     aprovador: { bg: 'bg-emerald-100', text: 'text-emerald-800' },
     solicitante: { bg: 'bg-blue-100', text: 'text-blue-800' },
@@ -1158,7 +1199,7 @@ function CommentRow({ comment, canDelete, onDelete }: { comment: OpportunityAppr
             </button>
           )}
         </div>
-        <div className="whitespace-pre-wrap px-3 py-2 text-sm leading-relaxed text-foreground">{comment.body}</div>
+        <div className="whitespace-pre-wrap px-3 py-2 text-sm leading-relaxed text-foreground">{renderBodyWithMentions(comment.body, users)}</div>
       </div>
     </div>
   )
