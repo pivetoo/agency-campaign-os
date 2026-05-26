@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useI18n } from 'archon-ui'
 import { Target, TrendingUp, Users } from 'lucide-react'
 import { commercialGoalService } from '../../../services/commercialGoalService'
 import { commercialGoalPeriodTypeLabels, type CommercialGoalProgress } from '../../../types/commercialGoal'
@@ -11,6 +12,7 @@ interface CommercialGoalsWidgetProps {
 }
 
 export default function CommercialGoalsWidget({ scope = 'all', userId, onEmptyManage }: CommercialGoalsWidgetProps) {
+  const { t } = useI18n()
   const [items, setItems] = useState<CommercialGoalProgress[] | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -27,7 +29,7 @@ export default function CommercialGoalsWidget({ scope = 'all', userId, onEmptyMa
   if (loading) {
     return (
       <div className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
-        Carregando metas…
+        {t('commercialGoalsWidget.loading')}
       </div>
     )
   }
@@ -36,10 +38,10 @@ export default function CommercialGoalsWidget({ scope = 'all', userId, onEmptyMa
     return (
       <div className="flex flex-wrap items-center gap-3 rounded-lg border border-dashed border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
         <Target className="h-4 w-4" />
-        <span>Sem meta para o período atual.</span>
+        <span>{t('commercialGoalsWidget.empty')}</span>
         {onEmptyManage && (
           <button type="button" onClick={onEmptyManage} className="ml-auto text-xs font-semibold text-primary hover:underline">
-            Definir meta →
+            {t('commercialGoalsWidget.defineGoal')}
           </button>
         )}
       </div>
@@ -56,6 +58,7 @@ export default function CommercialGoalsWidget({ scope = 'all', userId, onEmptyMa
 }
 
 function GoalCard({ goal }: { goal: CommercialGoalProgress }) {
+  const { t } = useI18n()
   const percent = Math.min(goal.percentAchieved, 100)
   const overshoot = goal.percentAchieved > 100
   const isAgencyGoal = !goal.userId
@@ -70,21 +73,21 @@ function GoalCard({ goal }: { goal: CommercialGoalProgress }) {
     <div className="rounded-lg border border-border bg-card p-3">
       <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
         {isAgencyGoal ? <Users className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
-        {isAgencyGoal ? 'Agência' : goal.userName ?? 'Vendedor'}
+        {isAgencyGoal ? t('commercialGoalsWidget.agency') : goal.userName ?? t('commercialGoalsWidget.seller')}
         <span className="ml-auto font-medium normal-case tracking-normal text-muted-foreground">
-          {commercialGoalPeriodTypeLabels[goal.periodType as 1 | 2 | 3] ?? 'Período'} · {formatDate(goal.periodStart)}
+          {commercialGoalPeriodTypeLabels[goal.periodType as 1 | 2 | 3] ?? t('commercialGoalsWidget.period')} · {formatDate(goal.periodStart)}
         </span>
       </div>
       <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
         <span className="text-base font-semibold tracking-tight text-foreground">{formatCurrency(goal.achievedAmount)}</span>
-        <span className="text-xs text-muted-foreground">de {formatCurrency(goal.targetAmount)}</span>
+        <span className="text-xs text-muted-foreground">{t('commercialGoalsWidget.ofTarget').replace('{0}', formatCurrency(goal.targetAmount))}</span>
       </div>
       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
         <div className={`h-full ${toneClasses[tone].bar} transition-all`} style={{ width: `${percent}%` }} />
       </div>
       <div className="mt-1.5 flex items-center justify-between text-[11px]">
         <span className={`font-semibold ${toneClasses[tone].text}`}>{goal.percentAchieved.toFixed(0)}%</span>
-        <span className="text-muted-foreground">{goal.achievedDealsCount} negócio{goal.achievedDealsCount === 1 ? '' : 's'}{overshoot ? ' · meta batida' : ''}</span>
+        <span className="text-muted-foreground">{goal.achievedDealsCount === 1 ? t('commercialGoalsWidget.deals.one') : t('commercialGoalsWidget.deals.many').replace('{0}', String(goal.achievedDealsCount))}{overshoot ? ` · ${t('commercialGoalsWidget.goalReached')}` : ''}</span>
       </div>
     </div>
   )

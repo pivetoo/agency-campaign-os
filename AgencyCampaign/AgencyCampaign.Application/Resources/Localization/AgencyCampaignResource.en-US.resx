@@ -1671,4 +1671,86 @@
   <data name="opportunityApprovalReviewer.duplicate" xml:space="preserve"><value>This user is already an approver for this request.</value></data>
   <data name="opportunityApproval.reviewer.notPending" xml:space="preserve"><value>You are not a pending approver for this request.</value></data>
   <data name="proposal.convert.alreadyConverted" xml:space="preserve"><value>This proposal has already been converted into a campaign.</value></data>
+  <data name="commercialAnalytics.title" xml:space="preserve"><value>Funnel analytics</value></data>
+  <data name="commercialAnalytics.subtitle" xml:space="preserve"><value>Conversion by stage, sales cycle and win/loss reasons for the period</value></data>
+  <data name="commercialAnalytics.from" xml:space="preserve"><value>From</value></data>
+  <data name="commercialAnalytics.to" xml:space="preserve"><value>To</value></data>
+  <data name="commercialAnalytics.emptyPeriod" xml:space="preserve"><value>No data for the selected period.</value></data>
+  <data name="commercialAnalytics.kpiClosed" xml:space="preserve"><value>Closed in period</value></data>
+  <data name="commercialAnalytics.kpiClosedSub" xml:space="preserve"><value>{0} won · {1} lost</value></data>
+  <data name="commercialAnalytics.kpiWinRate" xml:space="preserve"><value>Win rate</value></data>
+  <data name="commercialAnalytics.kpiWinRateNone" xml:space="preserve"><value>no closings</value></data>
+  <data name="commercialAnalytics.kpiWinRateSub" xml:space="preserve"><value>won / closed</value></data>
+  <data name="commercialAnalytics.kpiCycle" xml:space="preserve"><value>Average cycle</value></data>
+  <data name="commercialAnalytics.kpiCycleSub" xml:space="preserve"><value>creation → closing</value></data>
+  <data name="commercialAnalytics.kpiInProgress" xml:space="preserve"><value>In progress</value></data>
+  <data name="commercialAnalytics.kpiInProgressSub" xml:space="preserve"><value>stalled in funnel</value></data>
+  <data name="commercialAnalytics.daysValue" xml:space="preserve"><value>{0} days</value></data>
+  <data name="commercialAnalytics.conversionByStage" xml:space="preserve"><value>Conversion by stage</value></data>
+  <data name="commercialAnalytics.avgTimeByStage" xml:space="preserve"><value>Average time by stage</value></data>
+  <data name="commercialAnalytics.topPerformers" xml:space="preserve"><value>Top performers</value></data>
+  <data name="commercialAnalytics.winReasons" xml:space="preserve"><value>Win reasons</value></data>
+  <data name="commercialAnalytics.lossReasons" xml:space="preserve"><value>Loss reasons</value></data>
+  <data name="commercialAnalytics.noWins" xml:space="preserve"><value>No wins in the period</value></data>
+  <data name="commercialAnalytics.noLosses" xml:space="preserve"><value>No losses in the period</value></data>
+  <data name="commercialAnalytics.noData" xml:space="preserve"><value>No data.</value></data>
+  <data name="commercialAnalytics.entered" xml:space="preserve"><value>{0} entered</value></data>
+  <data name="commercialAnalytics.advancedSuffix" xml:space="preserve"><value>advanced</value></data>
+  <data name="commercialAnalytics.advancedCount" xml:space="preserve"><value>advanced {0} ({1}%)</value></data>
+  <data name="commercialAnalytics.stuckCount" xml:space="preserve"><value>stalled {0} ({1}%)</value></data>
+  <data name="commercialAnalytics.lostCount" xml:space="preserve"><value>lost {0} ({1}%)</value></data>
+  <data name="commercialAnalytics.daysSamples.one" xml:space="preserve"><value>days · 1 sample</value></data>
+  <data name="commercialAnalytics.daysSamples.many" xml:space="preserve"><value>days · {0} samples</value></data>
+  <data name="commercialAnalytics.deals.one" xml:space="preserve"><value>1 deal</value></data>
+  <data name="commercialAnalytics.deals.many" xml:space="preserve"><value>{0} deals</value></data>
+  <data name="commercialAnalytics.shareOfValue" xml:space="preserve"><value>{0}% of value</value></data>
+  <data name="commercialGoals.colScope" xml:space="preserve"><value>Scope</value></data>
+  <data name="commercialGoals.colPeriod" xml:space="preserve"><value>Period</value></data>
+  <data name="commercialGoals.colStart" xml:space="preserve"><value>Start</value></data>
+  <data name="commercialGoals.colEnd" xml:space="preserve"><value>End</value></data>
+  <data name="commercialGoals.colTarget" xml:space="preserve"><value>Target</value></data>
+  <data name="commercialGoals.colStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="commercialGoals.userFallback" xml:space="preserve"><value>User #{0}</value></data>
+  <data name="commercialGoals.agency" xml:space="preserve"><value>Agency</value></data>
+  <data name="commercialGoals.active" xml:space="preserve"><value>Active</value></data>
+  <data name="commercialGoals.inactive" xml:space="preserve"><value>Inactive</value></data>
+  <data name="commercialGoals.title" xml:space="preserve"><value>Sales goals</value></data>
+  <data name="commercialGoals.subtitle" xml:space="preserve"><value>Set the financial goal per salesperson or for the whole agency.</value></data>
+  <data name="commercialGoals.addLabel" xml:space="preserve"><value>New goal</value></data>
+  <data name="commercialGoals.empty" xml:space="preserve"><value>No goals registered. Create an agency or per-salesperson goal to track progress in the Pipeline.</value></data>
+  <data name="commercialGoals.deleteConfirm" xml:space="preserve"><value>Delete the goal for {0} ({1} · {2})?</value></data>
+  <data name="commercialGoals.sellerFallback" xml:space="preserve"><value>salesperson #{0}</value></data>
+  <data name="commercialForecast.loading" xml:space="preserve"><value>Loading forecast…</value></data>
+  <data name="commercialForecast.header" xml:space="preserve"><value>Forecast · {0}</value></data>
+  <data name="commercialForecast.openCount.one" xml:space="preserve"><value>1 open</value></data>
+  <data name="commercialForecast.openCount.many" xml:space="preserve"><value>{0} open</value></data>
+  <data name="commercialForecast.wonCount.one" xml:space="preserve"><value>1 closed</value></data>
+  <data name="commercialForecast.wonCount.many" xml:space="preserve"><value>{0} closed</value></data>
+  <data name="commercialForecast.weightedTotal" xml:space="preserve"><value>total weighted forecast</value></data>
+  <data name="commercialForecast.wonTitle" xml:space="preserve"><value>Won: {0}</value></data>
+  <data name="commercialForecast.projectedTitle" xml:space="preserve"><value>Open (weighted): {0}</value></data>
+  <data name="commercialForecast.statWon" xml:space="preserve"><value>Won</value></data>
+  <data name="commercialForecast.statWeighted" xml:space="preserve"><value>Weighted</value></data>
+  <data name="commercialForecast.statWeightedHint" xml:space="preserve"><value>{0} without prob.</value></data>
+  <data name="commercialForecast.statLost" xml:space="preserve"><value>Lost</value></data>
+  <data name="commercialGoalsWidget.loading" xml:space="preserve"><value>Loading goals…</value></data>
+  <data name="commercialGoalsWidget.empty" xml:space="preserve"><value>No goal for the current period.</value></data>
+  <data name="commercialGoalsWidget.defineGoal" xml:space="preserve"><value>Set goal →</value></data>
+  <data name="commercialGoalsWidget.agency" xml:space="preserve"><value>Agency</value></data>
+  <data name="commercialGoalsWidget.seller" xml:space="preserve"><value>Salesperson</value></data>
+  <data name="commercialGoalsWidget.period" xml:space="preserve"><value>Period</value></data>
+  <data name="commercialGoalsWidget.ofTarget" xml:space="preserve"><value>of {0}</value></data>
+  <data name="commercialGoalsWidget.deals.one" xml:space="preserve"><value>1 deal</value></data>
+  <data name="commercialGoalsWidget.deals.many" xml:space="preserve"><value>{0} deals</value></data>
+  <data name="commercialGoalsWidget.goalReached" xml:space="preserve"><value>goal reached</value></data>
+  <data name="commercialInsights.loading" xml:space="preserve"><value>Loading insights…</value></data>
+  <data name="commercialInsights.upcomingTitle" xml:space="preserve"><value>Upcoming closings</value></data>
+  <data name="commercialInsights.top" xml:space="preserve"><value>top {0}</value></data>
+  <data name="commercialInsights.upcomingEmpty" xml:space="preserve"><value>No opportunity with an expected closing date.</value></data>
+  <data name="commercialInsights.dayUnit" xml:space="preserve"><value>day</value></data>
+  <data name="commercialInsights.daysUnit" xml:space="preserve"><value>days</value></data>
+  <data name="commercialInsights.noBrand" xml:space="preserve"><value>No brand</value></data>
+  <data name="commercialInsights.atRiskTitle" xml:space="preserve"><value>At risk</value></data>
+  <data name="commercialInsights.atRiskSubtitle" xml:space="preserve"><value>stalled &gt; 14 days</value></data>
+  <data name="commercialInsights.atRiskEmpty" xml:space="preserve"><value>No opportunity stalled beyond the limit.</value></data>
 </root>

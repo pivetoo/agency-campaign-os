@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useI18n } from 'archon-ui'
 import { TrendingUp, CheckCircle2, XCircle, Hourglass } from 'lucide-react'
 import { opportunityService } from '../../../services/opportunityService'
 import type { CommercialForecast } from '../../../types/commercialForecast'
@@ -9,6 +10,7 @@ interface CommercialForecastWidgetProps {
 }
 
 export default function CommercialForecastWidget({ scope = 'all' }: CommercialForecastWidgetProps) {
+  const { t } = useI18n()
   const [forecast, setForecast] = useState<CommercialForecast | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -26,7 +28,7 @@ export default function CommercialForecastWidget({ scope = 'all' }: CommercialFo
   if (loading) {
     return (
       <div className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
-        Carregando previsão…
+        {t('commercialForecast.loading')}
       </div>
     )
   }
@@ -47,25 +49,25 @@ export default function CommercialForecastWidget({ scope = 'all' }: CommercialFo
     <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          <TrendingUp className="h-3 w-3" /> Previsão · {monthLabel}
+          <TrendingUp className="h-3 w-3" /> {t('commercialForecast.header').replace('{0}', monthLabel)}
         </div>
-        <span className="text-xs text-muted-foreground">{forecast.openCount} aberta{forecast.openCount === 1 ? '' : 's'} · {forecast.wonCount} fechada{forecast.wonCount === 1 ? '' : 's'}</span>
+        <span className="text-xs text-muted-foreground">{(forecast.openCount === 1 ? t('commercialForecast.openCount.one') : t('commercialForecast.openCount.many').replace('{0}', String(forecast.openCount)))} · {(forecast.wonCount === 1 ? t('commercialForecast.wonCount.one') : t('commercialForecast.wonCount.many').replace('{0}', String(forecast.wonCount)))}</span>
       </div>
 
       <div className="mt-2 flex items-baseline gap-3">
         <span className="font-mono text-xl font-bold text-foreground">{formatCurrency(won + projected)}</span>
-        <span className="text-xs text-muted-foreground">previsão ponderada total</span>
+        <span className="text-xs text-muted-foreground">{t('commercialForecast.weightedTotal')}</span>
       </div>
 
       <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-muted">
-        <div className="h-full bg-emerald-500" style={{ width: `${wonShare}%` }} title={`Ganho: ${formatCurrency(won)}`} />
-        <div className="h-full bg-primary/70" style={{ width: `${projectedShare}%` }} title={`Em aberto (ponderado): ${formatCurrency(projected)}`} />
+        <div className="h-full bg-emerald-500" style={{ width: `${wonShare}%` }} title={t('commercialForecast.wonTitle').replace('{0}', formatCurrency(won))} />
+        <div className="h-full bg-primary/70" style={{ width: `${projectedShare}%` }} title={t('commercialForecast.projectedTitle').replace('{0}', formatCurrency(projected))} />
       </div>
 
       <div className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
-        <Stat label="Ganho" value={formatCurrency(won)} tone="emerald" icon={<CheckCircle2 className="h-3 w-3" />} />
-        <Stat label="Ponderado" value={formatCurrency(projected)} tone="primary" icon={<Hourglass className="h-3 w-3" />} hint={`${formatCurrency(forecast.unweightedTotal)} sem prob.`} />
-        <Stat label="Perdido" value={formatCurrency(lost)} tone="rose" icon={<XCircle className="h-3 w-3" />} />
+        <Stat label={t('commercialForecast.statWon')} value={formatCurrency(won)} tone="emerald" icon={<CheckCircle2 className="h-3 w-3" />} />
+        <Stat label={t('commercialForecast.statWeighted')} value={formatCurrency(projected)} tone="primary" icon={<Hourglass className="h-3 w-3" />} hint={t('commercialForecast.statWeightedHint').replace('{0}', formatCurrency(forecast.unweightedTotal))} />
+        <Stat label={t('commercialForecast.statLost')} value={formatCurrency(lost)} tone="rose" icon={<XCircle className="h-3 w-3" />} />
       </div>
     </div>
   )
