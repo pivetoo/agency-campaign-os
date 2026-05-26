@@ -24,20 +24,20 @@ function hoursSince(iso: string): number {
   return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 3600_000))
 }
 
-function ageLabel(hours: number): string {
-  if (hours < 1) return 'agora'
-  if (hours < 24) return `${hours}h`
-  return `${Math.round(hours / 24)}d`
+function ageLabel(hours: number, t: (key: string) => string): string {
+  if (hours < 1) return t('commercialApprovals.age.now')
+  if (hours < 24) return t('commercialApprovals.age.hours').replace('{0}', String(hours))
+  return t('commercialApprovals.age.days').replace('{0}', String(Math.round(hours / 24)))
 }
 
-function statusBadgeConfig(status: number): { bg: string; text: string; label: string } {
-  if (status === OpportunityApprovalStatus.Pending) return { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Pendente' }
-  if (status === OpportunityApprovalStatus.InReview) return { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Em revisão' }
-  if (status === OpportunityApprovalStatus.ChangesRequested) return { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Ajustes pedidos' }
-  if (status === OpportunityApprovalStatus.Approved) return { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Aprovada' }
-  if (status === OpportunityApprovalStatus.Merged) return { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Mesclada' }
-  if (status === OpportunityApprovalStatus.Rejected) return { bg: 'bg-rose-100', text: 'text-rose-800', label: 'Rejeitada' }
-  return { bg: 'bg-muted', text: 'text-muted-foreground', label: 'Cancelada' }
+function statusBadgeConfig(status: number, t: (key: string) => string): { bg: string; text: string; label: string } {
+  if (status === OpportunityApprovalStatus.Pending) return { bg: 'bg-amber-100', text: 'text-amber-800', label: t('commercialApprovals.status.pending') }
+  if (status === OpportunityApprovalStatus.InReview) return { bg: 'bg-blue-100', text: 'text-blue-800', label: t('commercialApprovals.status.inReview') }
+  if (status === OpportunityApprovalStatus.ChangesRequested) return { bg: 'bg-amber-100', text: 'text-amber-800', label: t('commercialApprovals.status.changesRequested') }
+  if (status === OpportunityApprovalStatus.Approved) return { bg: 'bg-emerald-100', text: 'text-emerald-800', label: t('commercialApprovals.status.approved') }
+  if (status === OpportunityApprovalStatus.Merged) return { bg: 'bg-purple-100', text: 'text-purple-800', label: t('commercialApprovals.status.merged') }
+  if (status === OpportunityApprovalStatus.Rejected) return { bg: 'bg-rose-100', text: 'text-rose-800', label: t('commercialApprovals.status.rejected') }
+  return { bg: 'bg-muted', text: 'text-muted-foreground', label: t('commercialApprovals.status.cancelled') }
 }
 
 function isPendingDecision(status: number): boolean {
@@ -174,7 +174,7 @@ export default function CommercialApprovals() {
     if (!selected) return
     const result = await executeAction(() => opportunityService.requestApprovalChanges(selected.id, {
       approvedByUserName: user?.name || t('approvals.user.fallback'),
-      decisionNotes: requestChangesNotes.trim() || 'Por favor, ajuste a solicitação.',
+      decisionNotes: requestChangesNotes.trim() || t('commercialApprovals.requestChanges.defaultNote'),
     }))
     if (result !== null) {
       setRequestChangesOpen(false)
@@ -238,8 +238,8 @@ export default function CommercialApprovals() {
               <div className="flex h-full items-center justify-center px-8 text-center">
                 <div className="max-w-xs text-muted-foreground">
                   <ShieldCheck className="mx-auto mb-2 h-8 w-8 opacity-40" />
-                  <p className="text-sm font-medium">Nenhuma solicitação aberta</p>
-                  <p className="mt-1 text-xs">Selecione um item da lista para revisar a solicitação de aprovação.</p>
+                  <p className="text-sm font-medium">{t('commercialApprovals.empty.noneOpenTitle')}</p>
+                  <p className="mt-1 text-xs">{t('commercialApprovals.empty.noneOpenHint')}</p>
                 </div>
               </div>
             )}
@@ -250,22 +250,22 @@ export default function CommercialApprovals() {
       <Modal open={requestChangesOpen} onOpenChange={setRequestChangesOpen}>
         <ModalContent>
           <ModalHeader>
-            <ModalTitle>Pedir ajustes</ModalTitle>
+            <ModalTitle>{t('commercialApprovals.requestChanges.title')}</ModalTitle>
           </ModalHeader>
           <div className="space-y-2 px-1 py-2">
-            <label className="text-sm font-medium text-foreground">O que precisa ser ajustado?</label>
+            <label className="text-sm font-medium text-foreground">{t('commercialApprovals.requestChanges.label')}</label>
             <textarea
               value={requestChangesNotes}
               onChange={(e) => setRequestChangesNotes(e.target.value)}
               rows={4}
-              placeholder="Descreva o ajuste necessário para o solicitante…"
+              placeholder={t('commercialApprovals.requestChanges.placeholder')}
               className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
           <ModalFooter>
-            <Button variant="outline" onClick={() => setRequestChangesOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setRequestChangesOpen(false)}>{t('commercialApprovals.action.cancel')}</Button>
             <Button variant="outline-warning" disabled={actionLoading} onClick={() => void confirmRequestChanges()}>
-              {actionLoading ? 'Enviando…' : 'Pedir ajustes'}
+              {actionLoading ? t('commercialApprovals.action.sending') : t('commercialApprovals.requestChanges.title')}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -292,30 +292,30 @@ function InboxColumn({ counts, filter, onFilterChange, search, onSearchChange, i
     <aside className="flex min-h-0 flex-col border-r border-border bg-card">
       <div className="space-y-3 border-b border-border/60 p-4">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-base font-semibold text-foreground">Inbox</h2>
-          <span className="text-xs text-muted-foreground">{counts.all} total</span>
+          <h2 className="text-base font-semibold text-foreground">{t('commercialApprovals.inbox.title')}</h2>
+          <span className="text-xs text-muted-foreground">{t('commercialApprovals.inbox.total').replace('{0}', String(counts.all))}</span>
         </div>
         <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 [scrollbar-width:thin]">
-          <InboxTab label="Pendentes" count={counts.pending} active={filter === 'pending'} tone="amber" onClick={() => onFilterChange('pending')} />
-          <InboxTab label="Aprovadas" count={counts.approved} active={filter === 'approved'} tone="emerald" onClick={() => onFilterChange('approved')} />
-          <InboxTab label="Rejeitadas" count={counts.rejected} active={filter === 'rejected'} tone="rose" onClick={() => onFilterChange('rejected')} />
-          <InboxTab label="Todas" count={counts.all} active={filter === 'all'} onClick={() => onFilterChange('all')} />
+          <InboxTab label={t('commercialApprovals.filter.pending')} count={counts.pending} active={filter === 'pending'} tone="amber" onClick={() => onFilterChange('pending')} />
+          <InboxTab label={t('commercialApprovals.filter.approved')} count={counts.approved} active={filter === 'approved'} tone="emerald" onClick={() => onFilterChange('approved')} />
+          <InboxTab label={t('commercialApprovals.filter.rejected')} count={counts.rejected} active={filter === 'rejected'} tone="rose" onClick={() => onFilterChange('rejected')} />
+          <InboxTab label={t('commercialApprovals.filter.all')} count={counts.all} active={filter === 'all'} onClick={() => onFilterChange('all')} />
         </div>
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Buscar tipo, oportunidade…"
+            placeholder={t('commercialApprovals.inbox.searchPlaceholder')}
             className="w-full rounded-md border border-input bg-background py-1.5 pl-8 pr-3 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
         </div>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         {loading && items.length === 0 ? (
-          <p className="px-4 py-6 text-center text-xs text-muted-foreground">Carregando…</p>
+          <p className="px-4 py-6 text-center text-xs text-muted-foreground">{t('commercialApprovals.common.loading')}</p>
         ) : items.length === 0 ? (
-          <p className="px-4 py-8 text-center text-xs text-muted-foreground">Nenhuma solicitação neste filtro.</p>
+          <p className="px-4 py-8 text-center text-xs text-muted-foreground">{t('commercialApprovals.inbox.emptyFilter')}</p>
         ) : (
           <ul>
             {items.map((item) => (
@@ -352,7 +352,7 @@ function InboxRow({ approval, selected, onClick, t }: { approval: OpportunityApp
   const isOpen = isPendingDecision(approval.status)
   const hours = hoursSince(approval.requestedAt)
   const ageTone = hours >= 24 ? 'text-rose-700' : hours >= 2 ? 'text-amber-700' : 'text-muted-foreground'
-  const statusBadge = statusBadgeConfig(approval.status)
+  const statusBadge = statusBadgeConfig(approval.status, t)
 
   return (
     <button
@@ -367,18 +367,18 @@ function InboxRow({ approval, selected, onClick, t }: { approval: OpportunityApp
         <span className="font-mono text-[11px] font-semibold text-muted-foreground">#{approval.id}</span>
         {isOpen && (
           <span className={`inline-flex items-center gap-1 text-[10px] font-bold ${ageTone}`}>
-            <Clock className="h-2.5 w-2.5" /> {ageLabel(hours)}
+            <Clock className="h-2.5 w-2.5" /> {ageLabel(hours, t)}
           </span>
         )}
       </div>
       <p className="line-clamp-2 text-[13px] font-semibold leading-tight text-foreground">
-        {approvalTypeKeys[approval.approvalType] ? t(approvalTypeKeys[approval.approvalType]) : 'Solicitação'}
+        {approvalTypeKeys[approval.approvalType] ? t(approvalTypeKeys[approval.approvalType]) : t('commercialApprovals.request.fallbackTitle')}
         {approval.opportunityName && (
           <span className="font-normal text-muted-foreground"> · {approval.opportunityName}</span>
         )}
       </p>
       <p className="line-clamp-1 text-[11px] text-muted-foreground">
-        {approval.negotiationTitle || 'Sem negociação vinculada'} · por {approval.requestedByUserName}
+        {approval.negotiationTitle || t('commercialApprovals.request.noNegotiation')} · {t('commercialApprovals.request.byUser').replace('{0}', approval.requestedByUserName)}
       </p>
       <div className="flex items-center justify-between pt-0.5">
         <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusBadge.bg} ${statusBadge.text}`}>{statusBadge.label}</span>
@@ -423,8 +423,8 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserI
   const canDecide = isOpenPending && isMyPendingReview
   const pendingReviewerNames = detailReviewers.filter((item) => item.required && item.status === OpportunityApprovalReviewerStatus.Pending).map((item) => item.userName)
   const hours = hoursSince(approval.requestedAt)
-  const typeLabel = approvalTypeKeys[approval.approvalType] ? t(approvalTypeKeys[approval.approvalType]) : 'Solicitação'
-  const statusInfo = statusBadgeConfig(approval.status)
+  const typeLabel = approvalTypeKeys[approval.approvalType] ? t(approvalTypeKeys[approval.approvalType]) : t('commercialApprovals.request.fallbackTitle')
+  const statusInfo = statusBadgeConfig(approval.status, t)
   const statusIcon = isApproved || isMerged ? <CheckCircle2 className="h-3 w-3" /> : isRejected ? <XCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />
   const isOpen = isPendingDecision(approval.status)
 
@@ -446,12 +446,12 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserI
         </span>
         {isOpen && hours >= 24 && (
           <span className="inline-flex items-center gap-1 rounded bg-rose-100 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-rose-800">
-            <Zap className="h-3 w-3" /> URGENTE · há {Math.round(hours / 24)}d
+            <Zap className="h-3 w-3" /> {t('commercialApprovals.urgent.label')} · {t('commercialApprovals.urgent.daysAgo').replace('{0}', String(Math.round(hours / 24)))}
           </span>
         )}
         <span className="flex items-center gap-2">
           <Avatar name={approval.requestedByUserName} size={22} />
-          <span><strong className="text-foreground">{approval.requestedByUserName}</strong> abriu esta solicitação em {formatDate(approval.requestedAt)}</span>
+          <span><strong className="text-foreground">{approval.requestedByUserName}</strong> {t('commercialApprovals.detail.openedAt').replace('{0}', formatDate(approval.requestedAt))}</span>
         </span>
       </div>
 
@@ -461,15 +461,15 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserI
         <div className="space-y-4 min-w-0">
           <DiffPanel approvalId={approval.id} editable={isOpen} />
 
-          <Panel title="Justificativa" accent="primary">
+          <Panel title={t('commercialApprovals.panel.justification')} accent="primary">
             <div className="flex gap-3">
               <Avatar name={approval.requestedByUserName} size={32} />
               <div className="min-w-0 flex-1">
                 <div className="text-xs text-muted-foreground">
-                  <strong className="text-foreground">{approval.requestedByUserName}</strong> · Solicitante
+                  <strong className="text-foreground">{approval.requestedByUserName}</strong> · {t('commercialApprovals.role.requester')}
                 </div>
                 <div className="mt-1.5 whitespace-pre-wrap rounded-md border-l-[3px] border-primary bg-muted/30 px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
-                  {approval.reason || 'Sem justificativa fornecida.'}
+                  {approval.reason || t('commercialApprovals.justification.empty')}
                 </div>
               </div>
             </div>
@@ -478,12 +478,12 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserI
           <ConversationPanel approvalId={approval.id} currentUserName={currentUserName} />
 
           {(approval.decisionNotes && (isApproved || isRejected)) && (
-            <Panel title="Decisão" accent={isApproved ? 'emerald' : 'rose'}>
+            <Panel title={t('commercialApprovals.panel.decision')} accent={isApproved ? 'emerald' : 'rose'}>
               <div className="flex gap-2.5">
-                <Avatar name={approval.approvedByUserName || 'Aprovador'} size={32} tone={isApproved ? 'emerald' : 'rose'} />
+                <Avatar name={approval.approvedByUserName || t('commercialApprovals.role.approver')} size={32} tone={isApproved ? 'emerald' : 'rose'} />
                 <div className="min-w-0 flex-1">
                   <div className="text-xs text-muted-foreground">
-                    <strong className={isApproved ? 'text-emerald-700' : 'text-rose-700'}>{approval.approvedByUserName || 'Aprovador'}</strong>
+                    <strong className={isApproved ? 'text-emerald-700' : 'text-rose-700'}>{approval.approvedByUserName || t('commercialApprovals.role.approver')}</strong>
                     {approval.decidedAt && <span> · {formatDate(approval.decidedAt)}</span>}
                   </div>
                   <p className={`mt-1.5 whitespace-pre-wrap rounded-md border-l-2 ${isApproved ? 'border-emerald-500' : 'border-rose-500'} bg-muted/30 px-3 py-2 text-sm italic text-foreground`}>
@@ -516,11 +516,11 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserI
 
           <ReviewersPanel approvalId={approval.id} requesterName={approval.requestedByUserName} currentUserName={currentUserName} currentUserId={currentUserId} refreshKey={reviewerRefreshKey} />
 
-          <SidebarBlock title="Vinculado a" icon={<ShieldCheck className="h-3.5 w-3.5" />}>
-            <LinkRow icon={<MessageSquare className="h-3 w-3" />} label="Negociação" value={approval.negotiationTitle || 'Sem título'} tone="purple" />
-            <LinkRow icon={<ArrowUpRight className="h-3 w-3" />} label="Oportunidade" value={approval.opportunityName || `#${approval.opportunityNegotiationId}`} tone="primary" onClick={onOpenOpportunity} />
+          <SidebarBlock title={t('commercialApprovals.linked.title')} icon={<ShieldCheck className="h-3.5 w-3.5" />}>
+            <LinkRow icon={<MessageSquare className="h-3 w-3" />} label={t('commercialApprovals.linked.negotiation')} value={approval.negotiationTitle || t('commercialApprovals.linked.noTitle')} tone="purple" />
+            <LinkRow icon={<ArrowUpRight className="h-3 w-3" />} label={t('commercialApprovals.linked.opportunity')} value={approval.opportunityName || `#${approval.opportunityNegotiationId}`} tone="primary" onClick={onOpenOpportunity} />
             {approval.brandName && (
-              <LinkRow label="Marca" value={approval.brandName} brandLogoUrl={approval.brandLogoUrl} />
+              <LinkRow label={t('commercialApprovals.linked.brand')} value={approval.brandName} brandLogoUrl={approval.brandLogoUrl} />
             )}
           </SidebarBlock>
         </aside>
@@ -547,27 +547,28 @@ interface ActionPanelProps {
 }
 
 function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendingReviewerNames, isChangesRequested, isApproved, isRejected, isMerged, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged }: ActionPanelProps) {
+  const { t } = useI18n()
   if (canDecide) {
     return (
       <div className="rounded-xl border-2 border-primary bg-card p-4 shadow-[0_4px_14px_rgba(11,165,164,0.08)]">
-        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Sua decisão</div>
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t('commercialApprovals.action.yourDecision')}</div>
         <p className="mt-1.5 text-xs leading-relaxed text-foreground">
-          Sua aprovação é necessária pra essa exceção avançar.
+          {t('commercialApprovals.action.yourApprovalNeeded')}
         </p>
         <div className="mt-3 flex flex-col gap-2">
           <Button size="sm" variant="success" fullWidth disabled={actionLoading} onClick={onApprove} icon={<ThumbsUp />}>
-            Aprovar
+            {t('commercialApprovals.action.approve')}
           </Button>
           <Button size="sm" variant="outline-warning" fullWidth disabled={actionLoading} onClick={onRequestChanges} icon={<MessageSquare />}>
-            Pedir ajustes
+            {t('commercialApprovals.requestChanges.title')}
           </Button>
           <Button size="sm" variant="outline-danger" fullWidth disabled={actionLoading} onClick={onReject} icon={<ThumbsDown />}>
-            Rejeitar
+            {t('commercialApprovals.action.reject')}
           </Button>
         </div>
         <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
           <Eye className="mt-0.5 h-3 w-3 shrink-0" />
-          Sua decisão fica registrada no histórico da oportunidade, com data e hora.
+          {t('commercialApprovals.action.decisionRecordedNote')}
         </div>
       </div>
     )
@@ -576,11 +577,11 @@ function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendin
   if (isOpenPending) {
     return (
       <div className="rounded-xl border border-border bg-card p-4">
-        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Aguardando aprovação</div>
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t('commercialApprovals.waiting.title')}</div>
         <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
           {pendingReviewerNames.length > 0
-            ? <>Aguardando decisão de <strong className="text-foreground">{pendingReviewerNames.join(', ')}</strong>.</>
-            : 'Nenhum aprovador obrigatório definido. Adicione aprovadores ao lado para registrar a decisão.'}
+            ? <>{t('commercialApprovals.waiting.decisionFrom')} <strong className="text-foreground">{pendingReviewerNames.join(', ')}</strong>.</>
+            : t('commercialApprovals.waiting.noRequiredReviewer')}
         </p>
       </div>
     )
@@ -589,10 +590,10 @@ function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendin
   if (isChangesRequested) {
     return (
       <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4">
-        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-amber-800">Ajustes pedidos</div>
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-amber-800">{t('commercialApprovals.status.changesRequested')}</div>
         <p className="mt-1.5 text-xs leading-relaxed text-amber-800">
-          {approval.approvedByUserName ? <><strong>{approval.approvedByUserName}</strong> pediu ajustes</> : 'Aguardando ajustes do solicitante'}
-          {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>}.
+          {approval.approvedByUserName ? <><strong>{approval.approvedByUserName}</strong> {t('commercialApprovals.changes.requestedSuffix')}</> : t('commercialApprovals.changes.awaitingRequester')}
+          {approval.decidedAt && <span> {t('commercialApprovals.detail.onDate').replace('{0}', formatDate(approval.decidedAt))}</span>}.
         </p>
         {approval.decisionNotes && (
           <p className="mt-2 rounded-md border-l-2 border-amber-500 bg-card/50 px-2.5 py-1.5 text-xs italic text-amber-900">
@@ -600,7 +601,7 @@ function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendin
           </p>
         )}
         <Button size="sm" variant="primary" fullWidth disabled={actionLoading} onClick={onResubmit} icon={<ThumbsUp />} className="mt-3">
-          Reenviar para aprovação
+          {t('commercialApprovals.action.resubmit')}
         </Button>
       </div>
     )
@@ -609,15 +610,15 @@ function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendin
   if (isApproved) {
     return (
       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-emerald-800">Aprovada</div>
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-emerald-800">{t('commercialApprovals.status.approved')}</div>
         <p className="mt-2 text-xs text-emerald-900">
-          Por <strong>{approval.approvedByUserName}</strong>
-          {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>}.
+          {t('commercialApprovals.detail.byPrefix')} <strong>{approval.approvedByUserName}</strong>
+          {approval.decidedAt && <span> {t('commercialApprovals.detail.onDate').replace('{0}', formatDate(approval.decidedAt))}</span>}.
         </p>
         <Button size="sm" variant="outline-success" fullWidth disabled={actionLoading} onClick={onMarkMerged} icon={<CheckCircle2 />} className="mt-3">
-          Marcar como aplicada
+          {t('commercialApprovals.action.markApplied')}
         </Button>
-        <p className="mt-2 text-[10.5px] text-emerald-700">Use quando a exceção for refletida na negociação real.</p>
+        <p className="mt-2 text-[10.5px] text-emerald-700">{t('commercialApprovals.action.markAppliedHint')}</p>
       </div>
     )
   }
@@ -625,10 +626,10 @@ function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendin
   if (isMerged) {
     return (
       <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
-        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-purple-800">Mesclada</div>
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-purple-800">{t('commercialApprovals.status.merged')}</div>
         <p className="mt-2 text-xs text-purple-900">
-          Aprovada por <strong>{approval.approvedByUserName}</strong>
-          {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>} e aplicada na negociação.
+          {t('commercialApprovals.merged.approvedByPrefix')} <strong>{approval.approvedByUserName}</strong>
+          {approval.decidedAt && <span> {t('commercialApprovals.detail.onDate').replace('{0}', formatDate(approval.decidedAt))}</span>} {t('commercialApprovals.merged.appliedSuffix')}
         </p>
       </div>
     )
@@ -636,11 +637,11 @@ function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendin
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Decisão final</div>
+      <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t('commercialApprovals.finalDecision.title')}</div>
       <p className="mt-2 text-xs text-foreground">
-        {isRejected ? <strong className="text-rose-700">Rejeitada</strong> : <strong>Encerrada</strong>}
-        {approval.approvedByUserName && <span> por <strong className="text-foreground">{approval.approvedByUserName}</strong></span>}
-        {approval.decidedAt && <span> em {formatDate(approval.decidedAt)}</span>}
+        {isRejected ? <strong className="text-rose-700">{t('commercialApprovals.status.rejected')}</strong> : <strong>{t('commercialApprovals.finalDecision.closed')}</strong>}
+        {approval.approvedByUserName && <span> {t('commercialApprovals.detail.byPrefix')} <strong className="text-foreground">{approval.approvedByUserName}</strong></span>}
+        {approval.decidedAt && <span> {t('commercialApprovals.detail.onDate').replace('{0}', formatDate(approval.decidedAt))}</span>}
       </p>
     </div>
   )
@@ -674,6 +675,7 @@ function SidebarBlock({ title, icon, action, children }: { title: string; icon?:
 }
 
 function ReviewerRowFromEntity({ reviewer, canRemove, onRemove }: { reviewer: OpportunityApprovalReviewer; canRemove: boolean; onRemove: () => void }) {
+  const { t } = useI18n()
   const statusMap: Record<number, 'pendente' | 'aprovou' | 'rejeitou' | 'comentou'> = {
     1: 'pendente',
     2: 'aprovou',
@@ -684,7 +686,7 @@ function ReviewerRowFromEntity({ reviewer, canRemove, onRemove }: { reviewer: Op
     <div className="group/reviewer">
       <ReviewerRow
         name={reviewer.userName}
-        role={reviewer.role ?? 'Aprovador'}
+        role={reviewer.role ?? t('commercialApprovals.role.approver')}
         status={statusMap[reviewer.status] ?? 'pendente'}
         decidedAt={reviewer.decidedAt ? formatDate(reviewer.decidedAt) : undefined}
         required={reviewer.required}
@@ -695,7 +697,7 @@ function ReviewerRowFromEntity({ reviewer, canRemove, onRemove }: { reviewer: Op
           onClick={onRemove}
           className="mt-0.5 pl-10 text-[10px] font-semibold text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover/reviewer:opacity-100"
         >
-          Remover
+          {t('commercialApprovals.action.remove')}
         </button>
       )}
     </div>
@@ -703,11 +705,12 @@ function ReviewerRowFromEntity({ reviewer, canRemove, onRemove }: { reviewer: Op
 }
 
 function ReviewerRow({ name, role, status, decidedAt, required }: { name: string; role: string; status: 'pendente' | 'aprovou' | 'rejeitou' | 'comentou'; decidedAt?: string; required?: boolean }) {
+  const { t } = useI18n()
   const config = {
-    pendente: { color: 'text-amber-700', label: 'aguardando' },
-    aprovou: { color: 'text-emerald-700', label: 'aprovou' },
-    rejeitou: { color: 'text-rose-700', label: 'rejeitou' },
-    comentou: { color: 'text-blue-700', label: 'comentou' },
+    pendente: { color: 'text-amber-700', label: t('commercialApprovals.reviewerStatus.waiting') },
+    aprovou: { color: 'text-emerald-700', label: t('commercialApprovals.reviewerStatus.approved') },
+    rejeitou: { color: 'text-rose-700', label: t('commercialApprovals.reviewerStatus.rejected') },
+    comentou: { color: 'text-blue-700', label: t('commercialApprovals.reviewerStatus.commented') },
   }[status]
 
   const tone = status === 'aprovou' ? 'emerald' : status === 'rejeitou' ? 'rose' : status === 'comentou' ? 'blue' : 'amber'
@@ -726,11 +729,11 @@ function ReviewerRow({ name, role, status, decidedAt, required }: { name: string
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
           {name}
-          {required && <span className="rounded bg-rose-100 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wider text-rose-700">Obrig.</span>}
+          {required && <span className="rounded bg-rose-100 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wider text-rose-700">{t('commercialApprovals.reviewer.requiredShort')}</span>}
         </div>
         <div className="text-[11px] text-muted-foreground">
           {role} · <span className={`font-semibold ${config.color}`}>{config.label}</span>
-          {decidedAt && <span> em {decidedAt}</span>}
+          {decidedAt && <span> {t('commercialApprovals.detail.onDate').replace('{0}', decidedAt)}</span>}
         </div>
       </div>
     </div>
@@ -767,6 +770,7 @@ function LinkRow({ icon, label, value, tone, onClick, brandLogoUrl }: { icon?: R
 }
 
 function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boolean }) {
+  const { t } = useI18n()
   const [diffs, setDiffs] = useState<OpportunityApprovalDiff[]>([])
   const [loading, setLoading] = useState(true)
   const [autoLoading, setAutoLoading] = useState(false)
@@ -853,7 +857,7 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
   const violations = diffs.filter((d) => d.isAutoGenerated && d.kind !== 1).length
 
   if (loading) {
-    return <Panel title="Diff · O que muda" accent="primary"><p className="text-xs text-muted-foreground">Carregando…</p></Panel>
+    return <Panel title={t('commercialApprovals.diff.title')} accent="primary"><p className="text-xs text-muted-foreground">{t('commercialApprovals.common.loading')}</p></Panel>
   }
 
   if (diffs.length === 0 && !editable) {
@@ -863,25 +867,25 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
   return (
     <>
     <Panel
-      title="Diff · O que muda"
+      title={t('commercialApprovals.diff.title')}
       accent="primary"
     >
       {diffs.length > 0 ? (
         <>
           <div className="mb-2 flex items-center gap-3 text-[11px] font-semibold">
             {violations > 0 ? (
-              <span className="text-rose-700">{violations} {violations === 1 ? 'termo excede' : 'termos excedem'} a política</span>
+              <span className="text-rose-700">{violations === 1 ? t('commercialApprovals.diff.violations.one').replace('{0}', String(violations)) : t('commercialApprovals.diff.violations.many').replace('{0}', String(violations))}</span>
             ) : (
-              <span className="text-emerald-700">Tudo dentro da política</span>
+              <span className="text-emerald-700">{t('commercialApprovals.diff.withinPolicy')}</span>
             )}
-            <span className="text-muted-foreground">{diffs.length} termo{diffs.length === 1 ? '' : 's'}</span>
+            <span className="text-muted-foreground">{diffs.length === 1 ? t('commercialApprovals.diff.terms.one').replace('{0}', String(diffs.length)) : t('commercialApprovals.diff.terms.many').replace('{0}', String(diffs.length))}</span>
           </div>
           <div className="overflow-hidden rounded-md border border-border">
             <div className="grid grid-cols-[1fr_1fr_1fr_90px_auto] gap-2 border-b border-border bg-muted/30 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              <div>Campo</div>
-              <div>Política</div>
-              <div>Negociado</div>
-              <div className="text-right">Status</div>
+              <div>{t('commercialApprovals.diff.column.field')}</div>
+              <div>{t('commercialApprovals.diff.column.policy')}</div>
+              <div>{t('commercialApprovals.diff.column.negotiated')}</div>
+              <div className="text-right">{t('commercialApprovals.diff.column.status')}</div>
               <div />
             </div>
             {diffs.map((d) => {
@@ -892,12 +896,12 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
                   <div className="flex items-center gap-1.5 truncate font-semibold text-foreground">
                     {d.field}
                     {d.isAutoGenerated && (
-                      <span title="Detectado automaticamente pela política comercial" className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">Auto</span>
+                      <span title={t('commercialApprovals.diff.autoDetectedTooltip')} className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">{t('commercialApprovals.diff.autoBadge')}</span>
                     )}
                   </div>
                   <div className="rounded bg-muted/50 px-2 py-1 font-mono text-xs text-muted-foreground">{d.policyValue || '—'}</div>
                   <div className={`rounded px-2 py-1 font-mono text-xs font-semibold ${isViolation ? 'bg-rose-50 text-rose-700' : isWithin ? 'bg-emerald-50 text-emerald-700' : 'bg-muted/50 text-foreground'}`}>{d.requestedValue || '—'}</div>
-                  <div className={`text-right font-mono text-xs font-bold ${isViolation ? 'text-rose-700' : isWithin ? 'text-emerald-700' : 'text-foreground'}`}>{isWithin ? '✓ dentro' : (d.delta || '—')}</div>
+                  <div className={`text-right font-mono text-xs font-bold ${isViolation ? 'text-rose-700' : isWithin ? 'text-emerald-700' : 'text-foreground'}`}>{isWithin ? t('commercialApprovals.diff.within') : (d.delta || '—')}</div>
                   {editable && !d.isAutoGenerated ? (
                     <button type="button" onClick={() => setRemoveTargetId(d.id)} className="text-[10px] font-semibold text-muted-foreground hover:text-destructive">×</button>
                   ) : <div />}
@@ -908,16 +912,16 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
         </>
       ) : (
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">Sem alterações registradas.</p>
+          <p className="text-xs text-muted-foreground">{t('commercialApprovals.diff.emptyChanges')}</p>
           {editable && (
             <div className="rounded-md border border-dashed border-border bg-muted/20 p-3 text-[11.5px] text-muted-foreground">
-              <p className="mb-2">Para detectar automaticamente, é necessário:</p>
+              <p className="mb-2">{t('commercialApprovals.diff.autoRequirements')}</p>
               <ul className="ml-4 list-disc space-y-0.5">
-                <li>Política comercial cadastrada em <strong>Configurações</strong></li>
-                <li>Negociação com <strong>Desconto / Margem / Prazo</strong> preenchidos</li>
+                <li>{t('commercialApprovals.diff.requirementPolicyPrefix')} <strong>{t('commercialApprovals.diff.requirementPolicySettings')}</strong></li>
+                <li>{t('commercialApprovals.diff.requirementNegotiationPrefix')} <strong>{t('commercialApprovals.diff.requirementNegotiationFields')}</strong> {t('commercialApprovals.diff.requirementNegotiationSuffix')}</li>
               </ul>
               <Button size="sm" variant="outline" className="mt-2.5" disabled={autoLoading} onClick={() => void handleAutoPopulate()}>
-                {autoLoading ? 'Detectando…' : 'Detectar pela política agora'}
+                {autoLoading ? t('commercialApprovals.diff.detecting') : t('commercialApprovals.diff.detectNow')}
               </Button>
             </div>
           )}
@@ -929,27 +933,27 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
           {adding ? (
             <div className="space-y-1.5 rounded-md border border-dashed border-border bg-muted/20 p-2">
               <div className="grid grid-cols-2 gap-1.5">
-                <input value={draftField} onChange={(e) => setDraftField(e.target.value)} placeholder="Campo (ex.: Desconto)" className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+                <input value={draftField} onChange={(e) => setDraftField(e.target.value)} placeholder={t('commercialApprovals.diff.fieldPlaceholder')} className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
                 <select value={draftKind} onChange={(e) => setDraftKind(Number(e.target.value) as 1 | 2 | 3)} className="rounded-md border border-input bg-background px-2 py-1 text-xs">
-                  <option value={1}>~ Mudança</option>
-                  <option value={2}>+ Adicionado</option>
-                  <option value={3}>− Removido</option>
+                  <option value={1}>{t('commercialApprovals.diff.kind.changed')}</option>
+                  <option value={2}>{t('commercialApprovals.diff.kind.added')}</option>
+                  <option value={3}>{t('commercialApprovals.diff.kind.removed')}</option>
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
-                <input value={draftPolicy} onChange={(e) => setDraftPolicy(e.target.value)} placeholder="Política padrão" className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
-                <input value={draftRequested} onChange={(e) => setDraftRequested(e.target.value)} placeholder="Solicitado" className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+                <input value={draftPolicy} onChange={(e) => setDraftPolicy(e.target.value)} placeholder={t('commercialApprovals.diff.policyPlaceholder')} className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+                <input value={draftRequested} onChange={(e) => setDraftRequested(e.target.value)} placeholder={t('commercialApprovals.diff.requestedPlaceholder')} className="rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
               </div>
-              <input value={draftDelta} onChange={(e) => setDraftDelta(e.target.value)} placeholder="Δ delta (ex.: +5pp, -30d)" className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+              <input value={draftDelta} onChange={(e) => setDraftDelta(e.target.value)} placeholder={t('commercialApprovals.diff.deltaPlaceholder')} className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
               <div className="flex gap-1.5">
                 <Button size="sm" variant="primary" fullWidth disabled={!draftField.trim() || posting} onClick={() => void submit()}>
-                  {posting ? 'Adicionando…' : 'Adicionar'}
+                  {posting ? t('commercialApprovals.action.adding') : t('commercialApprovals.action.add')}
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => { setAdding(false); reset() }}>Cancelar</Button>
+                <Button size="sm" variant="outline" onClick={() => { setAdding(false); reset() }}>{t('commercialApprovals.action.cancel')}</Button>
               </div>
             </div>
           ) : (
-            <Button size="sm" variant="outline" onClick={() => setAdding(true)} icon={<Plus />}>Adicionar alteração</Button>
+            <Button size="sm" variant="outline" onClick={() => setAdding(true)} icon={<Plus />}>{t('commercialApprovals.diff.addChange')}</Button>
           )}
         </div>
       )}
@@ -957,7 +961,7 @@ function DiffPanel({ approvalId, editable }: { approvalId: number; editable: boo
     <ConfirmModal
       open={removeTargetId !== null}
       onOpenChange={(open) => { if (!open) setRemoveTargetId(null) }}
-      description="Remover esta alteração?"
+      description={t('commercialApprovals.diff.removeConfirm')}
       variant="danger"
       onConfirm={() => void confirmRemove()}
       loading={removing}
@@ -975,6 +979,7 @@ interface ReviewersPanelProps {
 }
 
 function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUserId, refreshKey }: ReviewersPanelProps) {
+  const { t } = useI18n()
   const [reviewers, setReviewers] = useState<OpportunityApprovalReviewer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -1055,8 +1060,8 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
 
   return (
     <>
-    <SidebarBlock title="Aprovadores" icon={<Users className="h-3.5 w-3.5" />} action={(
-      <button type="button" title={adding ? 'Cancelar' : 'Adicionar'} onClick={() => setAdding((v) => !v)} className="flex h-5 w-5 items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted">
+    <SidebarBlock title={t('commercialApprovals.reviewers.title')} icon={<Users className="h-3.5 w-3.5" />} action={(
+      <button type="button" title={adding ? t('commercialApprovals.action.cancel') : t('commercialApprovals.action.add')} onClick={() => setAdding((v) => !v)} className="flex h-5 w-5 items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted">
         <Plus className={`h-3 w-3 transition-transform ${adding ? 'rotate-45' : ''}`} />
       </button>
     )}>
@@ -1065,27 +1070,29 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
           <div className="space-y-1 rounded-md bg-muted/30 px-2.5 py-2">
             <div className="flex items-center justify-between text-[11px] font-semibold">
               <span className={allRequiredApproved ? 'text-emerald-700' : 'text-foreground'}>
-                {approvedRequiredCount} de {requiredTotal} {requiredTotal === 1 ? 'aprovador obrigatório aprovou' : 'aprovadores obrigatórios aprovaram'}
+                {requiredTotal === 1
+                  ? t('commercialApprovals.reviewers.progress.one').replace('{0}', String(approvedRequiredCount)).replace('{1}', String(requiredTotal))
+                  : t('commercialApprovals.reviewers.progress.many').replace('{0}', String(approvedRequiredCount)).replace('{1}', String(requiredTotal))}
               </span>
-              {allRequiredApproved && <span className="text-emerald-700">concluído</span>}
+              {allRequiredApproved && <span className="text-emerald-700">{t('commercialApprovals.reviewers.done')}</span>}
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-border">
               <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${Math.round((approvedRequiredCount / requiredTotal) * 100)}%` }} />
             </div>
           </div>
         )}
-        <ReviewerRow name={requesterName} role="Solicitante" status="comentou" />
+        <ReviewerRow name={requesterName} role={t('commercialApprovals.role.requester')} status="comentou" />
         {loading ? (
-          <p className="text-[11px] text-muted-foreground">Carregando…</p>
+          <p className="text-[11px] text-muted-foreground">{t('commercialApprovals.common.loading')}</p>
         ) : error ? (
-          <button type="button" onClick={() => void load()} className="text-[11px] font-semibold text-destructive hover:underline">Erro ao carregar aprovadores. Tentar novamente</button>
+          <button type="button" onClick={() => void load()} className="text-[11px] font-semibold text-destructive hover:underline">{t('commercialApprovals.reviewers.loadError')}</button>
         ) : (
           reviewers.map((r) => (
             <ReviewerRowFromEntity key={r.id} reviewer={r} canRemove={(currentUserId != null && r.userId === currentUserId) || (r.userId == null && r.userName === currentUserName) || r.status === OpportunityApprovalReviewerStatus.Pending} onRemove={() => setRemoveTargetId(r.id)} />
           ))
         )}
         {reviewers.length === 0 && !loading && !error && (
-          <p className="text-[11px] text-muted-foreground">Nenhum aprovador obrigatório. Adicione ao menos um para a decisão poder ser registrada.</p>
+          <p className="text-[11px] text-muted-foreground">{t('commercialApprovals.reviewers.empty')}</p>
         )}
 
         {adding && (
@@ -1094,20 +1101,20 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
               value={draftUserId}
               onValueChange={setDraftUserId}
               options={users.filter((user) => !reviewers.some((reviewer) => reviewer.userId === user.userId)).map((item) => ({ value: String(item.userId), label: item.name }))}
-              placeholder="Selecione o aprovador"
+              placeholder={t('commercialApprovals.reviewers.selectPlaceholder')}
             />
             <input
               value={draftRole}
               onChange={(e) => setDraftRole(e.target.value)}
-              placeholder="Papel (ex.: Diretor Financeiro)"
+              placeholder={t('commercialApprovals.reviewers.rolePlaceholder')}
               className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
             <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <input type="checkbox" checked={draftRequired} onChange={(e) => setDraftRequired(e.target.checked)} />
-              Aprovação obrigatória
+              {t('commercialApprovals.reviewers.requiredApproval')}
             </label>
             <Button size="sm" variant="primary" fullWidth disabled={!draftUserId || posting} onClick={() => void submit()}>
-              {posting ? 'Adicionando…' : 'Adicionar aprovador'}
+              {posting ? t('commercialApprovals.action.adding') : t('commercialApprovals.reviewers.addReviewer')}
             </Button>
           </div>
         )}
@@ -1116,7 +1123,7 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
     <ConfirmModal
       open={removeTargetId !== null}
       onOpenChange={(open) => { if (!open) setRemoveTargetId(null) }}
-      description="Remover este aprovador da solicitação?"
+      description={t('commercialApprovals.reviewers.removeConfirm')}
       variant="danger"
       onConfirm={() => void confirmRemove()}
       loading={removing}
@@ -1131,6 +1138,7 @@ interface ConversationPanelProps {
 }
 
 function ConversationPanel({ approvalId, currentUserName }: ConversationPanelProps) {
+  const { t } = useI18n()
   const [comments, setComments] = useState<OpportunityApprovalComment[]>([])
   const [draft, setDraft] = useState('')
   const [loading, setLoading] = useState(true)
@@ -1191,12 +1199,12 @@ function ConversationPanel({ approvalId, currentUserName }: ConversationPanelPro
 
   return (
     <>
-    <Panel title={`Conversa · ${loading ? '…' : `${comments.length} ${comments.length === 1 ? 'comentário' : 'comentários'}`}`} accent="blue">
+    <Panel title={loading ? t('commercialApprovals.conversation.titleLoading') : (comments.length === 1 ? t('commercialApprovals.conversation.title.one').replace('{0}', String(comments.length)) : t('commercialApprovals.conversation.title.many').replace('{0}', String(comments.length)))} accent="blue">
       <div className="space-y-3">
         {loading && comments.length === 0 ? (
-          <p className="text-xs text-muted-foreground">Carregando…</p>
+          <p className="text-xs text-muted-foreground">{t('commercialApprovals.common.loading')}</p>
         ) : comments.length === 0 ? (
-          <p className="text-xs text-muted-foreground">Sem comentários nesta solicitação. Seja o primeiro.</p>
+          <p className="text-xs text-muted-foreground">{t('commercialApprovals.conversation.empty')}</p>
         ) : (
           comments.map((c) => <CommentRow key={c.id} comment={c} users={users} canDelete={c.userName === currentUserName} onDelete={() => setDeleteTargetId(c.id)} />)
         )}
@@ -1210,13 +1218,13 @@ function ConversationPanel({ approvalId, currentUserName }: ConversationPanelPro
               onMentionsChange={setMentionedUserIds}
               mentionedUserIds={mentionedUserIds}
               users={users}
-              placeholder="Deixe um comentário… use @ para mencionar"
+              placeholder={t('commercialApprovals.conversation.placeholder')}
               rows={2}
               disabled={posting}
             />
             <div className="mt-2 flex items-center justify-end gap-2">
               <Button size="sm" variant="primary" disabled={posting || draft.trim().length === 0} onClick={() => void submit()}>
-                {posting ? 'Enviando…' : 'Comentar'}
+                {posting ? t('commercialApprovals.action.sending') : t('commercialApprovals.conversation.comment')}
               </Button>
             </div>
           </div>
@@ -1226,7 +1234,7 @@ function ConversationPanel({ approvalId, currentUserName }: ConversationPanelPro
     <ConfirmModal
       open={deleteTargetId !== null}
       onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}
-      description="Excluir este comentário?"
+      description={t('commercialApprovals.conversation.deleteConfirm')}
       variant="danger"
       onConfirm={() => void confirmDelete()}
       loading={deleting}
@@ -1236,6 +1244,7 @@ function ConversationPanel({ approvalId, currentUserName }: ConversationPanelPro
 }
 
 function CommentRow({ comment, users, canDelete, onDelete }: { comment: OpportunityApprovalComment; users: MentionableUser[]; canDelete: boolean; onDelete: () => void }) {
+  const { t } = useI18n()
   const roleStyle: Record<string, { bg: string; text: string }> = {
     aprovador: { bg: 'bg-emerald-100', text: 'text-emerald-800' },
     solicitante: { bg: 'bg-blue-100', text: 'text-blue-800' },
@@ -1250,10 +1259,10 @@ function CommentRow({ comment, users, canDelete, onDelete }: { comment: Opportun
         <div className="flex items-center gap-2 border-b border-border/60 bg-muted/30 px-3 py-1.5 text-[11.5px]">
           <strong className="text-foreground">{comment.userName}</strong>
           <span className={`rounded px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider ${style.bg} ${style.text}`}>{comment.role}</span>
-          <span className="text-muted-foreground">comentou em {formatDate(comment.createdAt)}</span>
+          <span className="text-muted-foreground">{t('commercialApprovals.conversation.commentedAt').replace('{0}', formatDate(comment.createdAt))}</span>
           {canDelete && (
             <button type="button" onClick={onDelete} className="ml-auto text-[10px] font-semibold text-muted-foreground hover:text-destructive">
-              Excluir
+              {t('commercialApprovals.action.delete')}
             </button>
           )}
         </div>

@@ -1547,4 +1547,128 @@
   <data name="opportunityApproval.resolved.approved" xml:space="preserve"><value>Aprovação concluída — todos os aprovadores obrigatórios aprovaram.</value></data>
   <data name="opportunityApproval.resolved.rejected" xml:space="preserve"><value>Aprovação reprovada.</value></data>
   <data name="opportunityApproval.voteRegistered" xml:space="preserve"><value>Seu voto foi registrado. Aguardando os demais aprovadores.</value></data>
+  <data name="commercialApprovals.action.add" xml:space="preserve"><value>Adicionar</value></data>
+  <data name="commercialApprovals.action.adding" xml:space="preserve"><value>Adicionando…</value></data>
+  <data name="commercialApprovals.action.approve" xml:space="preserve"><value>Aprovar</value></data>
+  <data name="commercialApprovals.action.cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="commercialApprovals.action.decisionRecordedNote" xml:space="preserve"><value>Sua decisão fica registrada no histórico da oportunidade, com data e hora.</value></data>
+  <data name="commercialApprovals.action.delete" xml:space="preserve"><value>Excluir</value></data>
+  <data name="commercialApprovals.action.markApplied" xml:space="preserve"><value>Marcar como aplicada</value></data>
+  <data name="commercialApprovals.action.markAppliedHint" xml:space="preserve"><value>Use quando a exceção for refletida na negociação real.</value></data>
+  <data name="commercialApprovals.action.reject" xml:space="preserve"><value>Rejeitar</value></data>
+  <data name="commercialApprovals.action.remove" xml:space="preserve"><value>Remover</value></data>
+  <data name="commercialApprovals.action.resubmit" xml:space="preserve"><value>Reenviar para aprovação</value></data>
+  <data name="commercialApprovals.action.sending" xml:space="preserve"><value>Enviando…</value></data>
+  <data name="commercialApprovals.action.yourApprovalNeeded" xml:space="preserve"><value>Sua aprovação é necessária pra essa exceção avançar.</value></data>
+  <data name="commercialApprovals.action.yourDecision" xml:space="preserve"><value>Sua decisão</value></data>
+  <data name="commercialApprovals.age.days" xml:space="preserve"><value>{0}d</value></data>
+  <data name="commercialApprovals.age.hours" xml:space="preserve"><value>{0}h</value></data>
+  <data name="commercialApprovals.age.now" xml:space="preserve"><value>agora</value></data>
+  <data name="commercialApprovals.changes.awaitingRequester" xml:space="preserve"><value>Aguardando ajustes do solicitante</value></data>
+  <data name="commercialApprovals.changes.requestedSuffix" xml:space="preserve"><value>pediu ajustes</value></data>
+  <data name="commercialApprovals.common.loading" xml:space="preserve"><value>Carregando…</value></data>
+  <data name="commercialApprovals.conversation.comment" xml:space="preserve"><value>Comentar</value></data>
+  <data name="commercialApprovals.conversation.commentedAt" xml:space="preserve"><value>comentou em {0}</value></data>
+  <data name="commercialApprovals.conversation.deleteConfirm" xml:space="preserve"><value>Excluir este comentário?</value></data>
+  <data name="commercialApprovals.conversation.empty" xml:space="preserve"><value>Sem comentários nesta solicitação. Seja o primeiro.</value></data>
+  <data name="commercialApprovals.conversation.placeholder" xml:space="preserve"><value>Deixe um comentário… use @ para mencionar</value></data>
+  <data name="commercialApprovals.conversation.title.many" xml:space="preserve"><value>Conversa · {0} comentários</value></data>
+  <data name="commercialApprovals.conversation.title.one" xml:space="preserve"><value>Conversa · {0} comentário</value></data>
+  <data name="commercialApprovals.conversation.titleLoading" xml:space="preserve"><value>Conversa · …</value></data>
+  <data name="commercialApprovals.detail.byPrefix" xml:space="preserve"><value>por</value></data>
+  <data name="commercialApprovals.detail.onDate" xml:space="preserve"><value>em {0}</value></data>
+  <data name="commercialApprovals.detail.openedAt" xml:space="preserve"><value>abriu esta solicitação em {0}</value></data>
+  <data name="commercialApprovals.diff.addChange" xml:space="preserve"><value>Adicionar alteração</value></data>
+  <data name="commercialApprovals.diff.autoBadge" xml:space="preserve"><value>Auto</value></data>
+  <data name="commercialApprovals.diff.autoDetectedTooltip" xml:space="preserve"><value>Detectado automaticamente pela política comercial</value></data>
+  <data name="commercialApprovals.diff.autoRequirements" xml:space="preserve"><value>Para detectar automaticamente, é necessário:</value></data>
+  <data name="commercialApprovals.diff.column.field" xml:space="preserve"><value>Campo</value></data>
+  <data name="commercialApprovals.diff.column.negotiated" xml:space="preserve"><value>Negociado</value></data>
+  <data name="commercialApprovals.diff.column.policy" xml:space="preserve"><value>Política</value></data>
+  <data name="commercialApprovals.diff.column.status" xml:space="preserve"><value>Status</value></data>
+  <data name="commercialApprovals.diff.deltaPlaceholder" xml:space="preserve"><value>Δ delta (ex.: +5pp, -30d)</value></data>
+  <data name="commercialApprovals.diff.detectNow" xml:space="preserve"><value>Detectar pela política agora</value></data>
+  <data name="commercialApprovals.diff.detecting" xml:space="preserve"><value>Detectando…</value></data>
+  <data name="commercialApprovals.diff.emptyChanges" xml:space="preserve"><value>Sem alterações registradas.</value></data>
+  <data name="commercialApprovals.diff.fieldPlaceholder" xml:space="preserve"><value>Campo (ex.: Desconto)</value></data>
+  <data name="commercialApprovals.diff.kind.added" xml:space="preserve"><value>+ Adicionado</value></data>
+  <data name="commercialApprovals.diff.kind.changed" xml:space="preserve"><value>~ Mudança</value></data>
+  <data name="commercialApprovals.diff.kind.removed" xml:space="preserve"><value>− Removido</value></data>
+  <data name="commercialApprovals.diff.policyPlaceholder" xml:space="preserve"><value>Política padrão</value></data>
+  <data name="commercialApprovals.diff.removeConfirm" xml:space="preserve"><value>Remover esta alteração?</value></data>
+  <data name="commercialApprovals.diff.requestedPlaceholder" xml:space="preserve"><value>Solicitado</value></data>
+  <data name="commercialApprovals.diff.requirementNegotiationFields" xml:space="preserve"><value>Desconto / Margem / Prazo</value></data>
+  <data name="commercialApprovals.diff.requirementNegotiationPrefix" xml:space="preserve"><value>Negociação com</value></data>
+  <data name="commercialApprovals.diff.requirementNegotiationSuffix" xml:space="preserve"><value>preenchidos</value></data>
+  <data name="commercialApprovals.diff.requirementPolicyPrefix" xml:space="preserve"><value>Política comercial cadastrada em</value></data>
+  <data name="commercialApprovals.diff.requirementPolicySettings" xml:space="preserve"><value>Configurações</value></data>
+  <data name="commercialApprovals.diff.terms.many" xml:space="preserve"><value>{0} termos</value></data>
+  <data name="commercialApprovals.diff.terms.one" xml:space="preserve"><value>{0} termo</value></data>
+  <data name="commercialApprovals.diff.title" xml:space="preserve"><value>Diff · O que muda</value></data>
+  <data name="commercialApprovals.diff.violations.many" xml:space="preserve"><value>{0} termos excedem a política</value></data>
+  <data name="commercialApprovals.diff.violations.one" xml:space="preserve"><value>{0} termo excede a política</value></data>
+  <data name="commercialApprovals.diff.within" xml:space="preserve"><value>✓ dentro</value></data>
+  <data name="commercialApprovals.diff.withinPolicy" xml:space="preserve"><value>Tudo dentro da política</value></data>
+  <data name="commercialApprovals.empty.noneOpenHint" xml:space="preserve"><value>Selecione um item da lista para revisar a solicitação de aprovação.</value></data>
+  <data name="commercialApprovals.empty.noneOpenTitle" xml:space="preserve"><value>Nenhuma solicitação aberta</value></data>
+  <data name="commercialApprovals.filter.all" xml:space="preserve"><value>Todas</value></data>
+  <data name="commercialApprovals.filter.approved" xml:space="preserve"><value>Aprovadas</value></data>
+  <data name="commercialApprovals.filter.pending" xml:space="preserve"><value>Pendentes</value></data>
+  <data name="commercialApprovals.filter.rejected" xml:space="preserve"><value>Rejeitadas</value></data>
+  <data name="commercialApprovals.finalDecision.closed" xml:space="preserve"><value>Encerrada</value></data>
+  <data name="commercialApprovals.finalDecision.title" xml:space="preserve"><value>Decisão final</value></data>
+  <data name="commercialApprovals.inbox.emptyFilter" xml:space="preserve"><value>Nenhuma solicitação neste filtro.</value></data>
+  <data name="commercialApprovals.inbox.searchPlaceholder" xml:space="preserve"><value>Buscar tipo, oportunidade…</value></data>
+  <data name="commercialApprovals.inbox.title" xml:space="preserve"><value>Inbox</value></data>
+  <data name="commercialApprovals.inbox.total" xml:space="preserve"><value>{0} total</value></data>
+  <data name="commercialApprovals.justification.empty" xml:space="preserve"><value>Sem justificativa fornecida.</value></data>
+  <data name="commercialApprovals.linked.brand" xml:space="preserve"><value>Marca</value></data>
+  <data name="commercialApprovals.linked.negotiation" xml:space="preserve"><value>Negociação</value></data>
+  <data name="commercialApprovals.linked.noTitle" xml:space="preserve"><value>Sem título</value></data>
+  <data name="commercialApprovals.linked.opportunity" xml:space="preserve"><value>Oportunidade</value></data>
+  <data name="commercialApprovals.linked.title" xml:space="preserve"><value>Vinculado a</value></data>
+  <data name="commercialApprovals.merged.appliedSuffix" xml:space="preserve"><value>e aplicada na negociação.</value></data>
+  <data name="commercialApprovals.merged.approvedByPrefix" xml:space="preserve"><value>Aprovada por</value></data>
+  <data name="commercialApprovals.panel.decision" xml:space="preserve"><value>Decisão</value></data>
+  <data name="commercialApprovals.panel.justification" xml:space="preserve"><value>Justificativa</value></data>
+  <data name="commercialApprovals.request.byUser" xml:space="preserve"><value>por {0}</value></data>
+  <data name="commercialApprovals.request.fallbackTitle" xml:space="preserve"><value>Solicitação</value></data>
+  <data name="commercialApprovals.request.noNegotiation" xml:space="preserve"><value>Sem negociação vinculada</value></data>
+  <data name="commercialApprovals.requestChanges.defaultNote" xml:space="preserve"><value>Por favor, ajuste a solicitação.</value></data>
+  <data name="commercialApprovals.requestChanges.label" xml:space="preserve"><value>O que precisa ser ajustado?</value></data>
+  <data name="commercialApprovals.requestChanges.placeholder" xml:space="preserve"><value>Descreva o ajuste necessário para o solicitante…</value></data>
+  <data name="commercialApprovals.requestChanges.title" xml:space="preserve"><value>Pedir ajustes</value></data>
+  <data name="commercialApprovals.reviewer.requiredShort" xml:space="preserve"><value>Obrig.</value></data>
+  <data name="commercialApprovals.reviewerStatus.approved" xml:space="preserve"><value>aprovou</value></data>
+  <data name="commercialApprovals.reviewerStatus.commented" xml:space="preserve"><value>comentou</value></data>
+  <data name="commercialApprovals.reviewerStatus.rejected" xml:space="preserve"><value>rejeitou</value></data>
+  <data name="commercialApprovals.reviewerStatus.waiting" xml:space="preserve"><value>aguardando</value></data>
+  <data name="commercialApprovals.reviewers.addReviewer" xml:space="preserve"><value>Adicionar aprovador</value></data>
+  <data name="commercialApprovals.reviewers.done" xml:space="preserve"><value>concluído</value></data>
+  <data name="commercialApprovals.reviewers.empty" xml:space="preserve"><value>Nenhum aprovador obrigatório. Adicione ao menos um para a decisão poder ser registrada.</value></data>
+  <data name="commercialApprovals.reviewers.loadError" xml:space="preserve"><value>Erro ao carregar aprovadores. Tentar novamente</value></data>
+  <data name="commercialApprovals.reviewers.progress.many" xml:space="preserve"><value>{0} de {1} aprovadores obrigatórios aprovaram</value></data>
+  <data name="commercialApprovals.reviewers.progress.one" xml:space="preserve"><value>{0} de {1} aprovador obrigatório aprovou</value></data>
+  <data name="commercialApprovals.reviewers.removeConfirm" xml:space="preserve"><value>Remover este aprovador da solicitação?</value></data>
+  <data name="commercialApprovals.reviewers.requiredApproval" xml:space="preserve"><value>Aprovação obrigatória</value></data>
+  <data name="commercialApprovals.reviewers.rolePlaceholder" xml:space="preserve"><value>Papel (ex.: Diretor Financeiro)</value></data>
+  <data name="commercialApprovals.reviewers.selectPlaceholder" xml:space="preserve"><value>Selecione o aprovador</value></data>
+  <data name="commercialApprovals.reviewers.title" xml:space="preserve"><value>Aprovadores</value></data>
+  <data name="commercialApprovals.role.approver" xml:space="preserve"><value>Aprovador</value></data>
+  <data name="commercialApprovals.role.requester" xml:space="preserve"><value>Solicitante</value></data>
+  <data name="commercialApprovals.status.approved" xml:space="preserve"><value>Aprovada</value></data>
+  <data name="commercialApprovals.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="commercialApprovals.status.changesRequested" xml:space="preserve"><value>Ajustes pedidos</value></data>
+  <data name="commercialApprovals.status.inReview" xml:space="preserve"><value>Em revisão</value></data>
+  <data name="commercialApprovals.status.merged" xml:space="preserve"><value>Mesclada</value></data>
+  <data name="commercialApprovals.status.pending" xml:space="preserve"><value>Pendente</value></data>
+  <data name="commercialApprovals.status.rejected" xml:space="preserve"><value>Rejeitada</value></data>
+  <data name="commercialApprovals.urgent.daysAgo" xml:space="preserve"><value>há {0}d</value></data>
+  <data name="commercialApprovals.urgent.label" xml:space="preserve"><value>URGENTE</value></data>
+  <data name="commercialApprovals.waiting.decisionFrom" xml:space="preserve"><value>Aguardando decisão de</value></data>
+  <data name="commercialApprovals.waiting.noRequiredReviewer" xml:space="preserve"><value>Nenhum aprovador obrigatório definido. Adicione aprovadores ao lado para registrar a decisão.</value></data>
+  <data name="commercialApprovals.waiting.title" xml:space="preserve"><value>Aguardando aprovação</value></data>
+  <data name="opportunityApprovalReviewer.duplicate" xml:space="preserve"><value>Este usuário já é um aprovador desta solicitação.</value></data>
+  <data name="opportunityApproval.reviewer.notPending" xml:space="preserve"><value>Você não é um aprovador pendente desta solicitação.</value></data>
+  <data name="proposal.convert.alreadyConverted" xml:space="preserve"><value>Esta proposta já foi convertida em campanha.</value></data>
 </root>
