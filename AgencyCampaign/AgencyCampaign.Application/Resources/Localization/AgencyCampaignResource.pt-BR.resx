@@ -1636,7 +1636,7 @@
   <data name="commercialApprovals.finalDecision.title" xml:space="preserve"><value>Decisão final</value></data>
   <data name="commercialApprovals.inbox.emptyFilter" xml:space="preserve"><value>Nenhuma solicitação neste filtro.</value></data>
   <data name="commercialApprovals.inbox.searchPlaceholder" xml:space="preserve"><value>Buscar tipo, oportunidade…</value></data>
-  <data name="commercialApprovals.inbox.title" xml:space="preserve"><value>Inbox</value></data>
+  <data name="commercialApprovals.inbox.title" xml:space="preserve"><value>Solicitações</value></data>
   <data name="commercialApprovals.inbox.total" xml:space="preserve"><value>{0} total</value></data>
   <data name="commercialApprovals.justification.empty" xml:space="preserve"><value>Sem justificativa fornecida.</value></data>
   <data name="commercialApprovals.linked.brand" xml:space="preserve"><value>Marca</value></data>
