@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, PageLayout, SearchableSelect, useApi, useAuth, useI18n } from 'archon-ui'
+import { Button, ConfirmModal, PageLayout, SearchableSelect, useApi, useAuth, useI18n } from 'archon-ui'
 import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
@@ -898,6 +898,8 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
   const [draftRole, setDraftRole] = useState('')
   const [draftRequired, setDraftRequired] = useState(true)
   const [posting, setPosting] = useState(false)
+  const [removeTargetId, setRemoveTargetId] = useState<number | null>(null)
+  const [removing, setRemoving] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -948,13 +950,20 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
     }
   }
 
-  const handleRemove = async (id: number) => {
-    if (!window.confirm('Remover este aprovador?')) return
-    await opportunityService.removeApprovalReviewer(id)
-    await load()
+  const confirmRemove = async () => {
+    if (removeTargetId == null || removing) return
+    setRemoving(true)
+    try {
+      await opportunityService.removeApprovalReviewer(removeTargetId)
+      setRemoveTargetId(null)
+      await load()
+    } finally {
+      setRemoving(false)
+    }
   }
 
   return (
+    <>
     <SidebarBlock title="Aprovadores" icon={<Users className="h-3.5 w-3.5" />} action={(
       <button type="button" title={adding ? 'Cancelar' : 'Adicionar'} onClick={() => setAdding((v) => !v)} className="flex h-5 w-5 items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted">
         <Plus className={`h-3 w-3 transition-transform ${adding ? 'rotate-45' : ''}`} />
@@ -968,7 +977,7 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
           <button type="button" onClick={() => void load()} className="text-[11px] font-semibold text-destructive hover:underline">Erro ao carregar aprovadores. Tentar novamente</button>
         ) : (
           reviewers.map((r) => (
-            <ReviewerRowFromEntity key={r.id} reviewer={r} canRemove={(currentUserId != null && r.userId === currentUserId) || (r.userId == null && r.userName === currentUserName) || r.status === OpportunityApprovalReviewerStatus.Pending} onRemove={() => void handleRemove(r.id)} />
+            <ReviewerRowFromEntity key={r.id} reviewer={r} canRemove={(currentUserId != null && r.userId === currentUserId) || (r.userId == null && r.userName === currentUserName) || r.status === OpportunityApprovalReviewerStatus.Pending} onRemove={() => setRemoveTargetId(r.id)} />
           ))
         )}
         {reviewers.length === 0 && !loading && !error && (
@@ -980,7 +989,7 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
             <SearchableSelect
               value={draftUserId}
               onValueChange={setDraftUserId}
-              options={users.map((item) => ({ value: String(item.userId), label: item.name }))}
+              options={users.filter((user) => !reviewers.some((reviewer) => reviewer.userId === user.userId)).map((item) => ({ value: String(item.userId), label: item.name }))}
               placeholder="Selecione o aprovador"
             />
             <input
@@ -1000,6 +1009,15 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
         )}
       </div>
     </SidebarBlock>
+    <ConfirmModal
+      open={removeTargetId !== null}
+      onOpenChange={(open) => { if (!open) setRemoveTargetId(null) }}
+      description="Remover este aprovador da solicitação?"
+      variant="danger"
+      onConfirm={() => void confirmRemove()}
+      loading={removing}
+    />
+    </>
   )
 }
 

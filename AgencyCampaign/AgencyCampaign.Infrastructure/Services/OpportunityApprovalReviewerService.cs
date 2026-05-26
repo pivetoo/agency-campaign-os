@@ -28,6 +28,18 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<OpportunityApprovalReviewerModel> Add(long approvalId, AddOpportunityApprovalReviewerRequest request, CancellationToken cancellationToken = default)
         {
+            if (request.UserId is long userId)
+            {
+                bool alreadyReviewer = await dbContext.Set<OpportunityApprovalReviewer>()
+                    .AsNoTracking()
+                    .AnyAsync(item => item.OpportunityApprovalRequestId == approvalId && item.UserId == userId, cancellationToken);
+
+                if (alreadyReviewer)
+                {
+                    throw new InvalidOperationException("opportunityApprovalReviewer.duplicate");
+                }
+            }
+
             OpportunityApprovalReviewer reviewer = new(approvalId, request.UserName, request.Role, request.Required, request.UserId);
             dbContext.Set<OpportunityApprovalReviewer>().Add(reviewer);
             await dbContext.SaveChangesAsync(cancellationToken);
