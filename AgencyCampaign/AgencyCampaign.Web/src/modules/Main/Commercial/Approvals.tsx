@@ -76,7 +76,6 @@ function useIsMobile() {
   useEffect(() => {
     const query = window.matchMedia('(max-width: 767px)')
     const handler = (event: MediaQueryListEvent) => setIsMobile(event.matches)
-    setIsMobile(query.matches)
     query.addEventListener('change', handler)
     return () => query.removeEventListener('change', handler)
   }, [])
@@ -260,6 +259,31 @@ export default function CommercialApprovals() {
           </div>
         </div>
       </div>
+
+      {/* Mobile: detalhe da aprovacao abre como bottom-sheet ao tocar na linha */}
+      <Sheet open={isMobile && mobileDetailOpen && !!selected} onOpenChange={setMobileDetailOpen}>
+        <SheetContent side="right" className="w-full p-0 sm:max-w-none">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Detalhe da aprovação</SheetTitle>
+          </SheetHeader>
+          {selected && (
+            <ApprovalDetail
+              approval={selected}
+              actionLoading={actionLoading}
+              currentUserName={user?.name || t('approvals.user.fallback')}
+              currentUserId={user?.id}
+              reviewerRefreshKey={reviewerRefreshKey}
+              onApprove={() => void decideApproval('approve')}
+              onReject={() => void decideApproval('reject')}
+              onRequestChanges={openRequestChanges}
+              onResubmit={() => void resubmitApproval()}
+              onMarkMerged={() => void markMerged()}
+              onOpenOpportunity={() => selected.opportunityId && navigate(`/comercial/oportunidades/${selected.opportunityId}?tab=approvals`)}
+              t={t}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
 
       <Modal open={requestChangesOpen} onOpenChange={setRequestChangesOpen}>
         <ModalContent>
