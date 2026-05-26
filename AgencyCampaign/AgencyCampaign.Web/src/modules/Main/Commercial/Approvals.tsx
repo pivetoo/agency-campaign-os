@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, ConfirmModal, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, UsersManagementService, useApi, useAuth, useI18n } from 'archon-ui'
-import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
+import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, MessageSquare, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
 import { OpportunityApprovalReviewerStatus, type OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
@@ -435,14 +435,6 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserI
         <span className="font-mono font-semibold">#{approval.id}</span>
         <span>·</span>
         <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground">{typeLabel}</span>
-        <div className="ml-auto flex items-center gap-1">
-          <button type="button" title="Histórico" className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted">
-            <History className="h-3.5 w-3.5" />
-          </button>
-          <button type="button" title="Mais" className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted">
-            <MoreHorizontal className="h-3.5 w-3.5" />
-          </button>
-        </div>
       </div>
       <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-foreground">
         {typeLabel}
