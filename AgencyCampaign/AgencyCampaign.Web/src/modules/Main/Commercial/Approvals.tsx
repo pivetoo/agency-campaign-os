@@ -499,7 +499,7 @@ function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendin
         </div>
         <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
           <Eye className="mt-0.5 h-3 w-3 shrink-0" />
-          Sua decisão é registrada com timestamp e fica no histórico da oportunidade.
+          Sua decisão fica registrada no histórico da oportunidade, com data e hora.
         </div>
       </div>
     )
