@@ -2077,4 +2077,63 @@
   <data name="configuration.proposalLayout.variables.itemsTotals.totalFormatted" xml:space="preserve"><value>Formatted total amount (R$)</value></data>
   <data name="configuration.proposalLayout.variables.itemsTotals.validityHtml" xml:space="preserve"><value>Validity in &lt;p&gt; or empty</value></data>
   <data name="configuration.proposalLayout.variables.itemsTotals.notesHtml" xml:space="preserve"><value>Notes or empty</value></data>
+  <data name="common.action.import" xml:space="preserve"><value>Import</value></data>
+  <data name="common.action.export" xml:space="preserve"><value>Export</value></data>
+  <data name="common.action.excelImportExport" xml:space="preserve"><value>Excel import/export</value></data>
+  <data name="common.action.viewDetails" xml:space="preserve"><value>View details</value></data>
+  <data name="common.filter.activeOnlyFemale" xml:space="preserve"><value>Active only</value></data>
+  <data name="common.field.url" xml:space="preserve"><value>URL</value></data>
+  <data name="common.field.period" xml:space="preserve"><value>Period</value></data>
+  <data name="common.field.deliverable" xml:space="preserve"><value>Deliverable</value></data>
+  <data name="common.label.to" xml:space="preserve"><value>to</value></data>
+  <data name="brands.action.new" xml:space="preserve"><value>New brand</value></data>
+  <data name="campaigns.action.new" xml:space="preserve"><value>New campaign</value></data>
+  <data name="creators.action.new" xml:space="preserve"><value>New creator</value></data>
+  <data name="creators.action.portalLinksTooltip" xml:space="preserve"><value>Select a creator to generate the links</value></data>
+  <data name="creators.detail.field.handle" xml:space="preserve"><value>Handle</value></data>
+  <data name="creators.detail.field.followers" xml:space="preserve"><value>Followers</value></data>
+  <data name="creators.detail.field.engagement" xml:space="preserve"><value>Engagement</value></data>
+  <data name="creators.detail.field.link" xml:space="preserve"><value>Link</value></data>
+  <data name="creators.detail.field.agreed" xml:space="preserve"><value>Agreed amount</value></data>
+  <data name="creators.detail.field.fee" xml:space="preserve"><value>Fee</value></data>
+  <data name="creators.detail.field.confirmed" xml:space="preserve"><value>Confirmed on</value></data>
+  <data name="creators.detail.field.deliverables" xml:space="preserve"><value>Deliverables</value></data>
+  <data name="creators.detail.field.published" xml:space="preserve"><value>Published</value></data>
+  <data name="creators.detail.field.revenue" xml:space="preserve"><value>Revenue</value></data>
+  <data name="creators.detail.kpi.campaignsBreakdown" xml:space="preserve"><value>{0} confirmed · {1} cancelled</value></data>
+  <data name="creators.detail.kpi.overdue" xml:space="preserve"><value>{0} overdue</value></data>
+  <data name="creators.detail.kpi.grossRevenue" xml:space="preserve"><value>Gross revenue</value></data>
+  <data name="creators.detail.kpi.fee" xml:space="preserve"><value>Fee: {0}</value></data>
+  <data name="creators.detail.kpi.onTimeDelivery" xml:space="preserve"><value>On-time delivery</value></data>
+  <data name="creators.detail.kpi.onTimeDeliveryHint" xml:space="preserve"><value>% published on time</value></data>
+  <data name="creators.detail.tab.socialNetworks" xml:space="preserve"><value>Social networks</value></data>
+  <data name="creators.detail.tab.platformPerformance" xml:space="preserve"><value>Performance by platform</value></data>
+  <data name="creators.detail.action.newHandle" xml:space="preserve"><value>Add social network</value></data>
+  <data name="campaign.detail.operations" xml:space="preserve"><value>Campaign operations</value></data>
+  <data name="campaign.detail.field.agreedAmount" xml:space="preserve"><value>Agreed amount</value></data>
+  <data name="campaign.detail.field.agencyFee" xml:space="preserve"><value>Agency fee</value></data>
+  <data name="campaign.detail.field.confirmedAt" xml:space="preserve"><value>Confirmed on</value></data>
+  <data name="campaign.detail.field.grossAmount" xml:space="preserve"><value>Gross amount</value></data>
+  <data name="campaign.detail.field.sentAt" xml:space="preserve"><value>Sent on</value></data>
+  <data name="campaign.detail.field.signedAt" xml:space="preserve"><value>Signed on</value></data>
+  <data name="campaign.detail.deliverable.overdueDays" xml:space="preserve"><value>{0}d overdue</value></data>
+  <data name="campaign.detail.deliverable.dueInDays" xml:space="preserve"><value>In {0}d</value></data>
+  <data name="campaign.detail.action.sendForSignature" xml:space="preserve"><value>Send for signature</value></data>
+  <data name="campaign.detail.action.markSigned" xml:space="preserve"><value>Mark as signed</value></data>
+  <data name="campaign.detail.action.generateFromTemplate" xml:space="preserve"><value>Generate from template</value></data>
+  <data name="campaign.detail.action.newDocument" xml:space="preserve"><value>New document</value></data>
+  <data name="campaign.detail.action.newDeliverable" xml:space="preserve"><value>New deliverable</value></data>
+  <data name="campaign.detail.empty.documents" xml:space="preserve"><value>No documents registered</value></data>
+  <data name="campaign.detail.empty.deliverables" xml:space="preserve"><value>No deliverables registered</value></data>
+  <data name="operations.approvals.field.registered" xml:space="preserve"><value>Registered approvals</value></data>
+  <data name="operations.approvals.field.defaultReviewer" xml:space="preserve"><value>Default reviewer name:</value></data>
+  <data name="operations.approvals.type.internal" xml:space="preserve"><value>Internal</value></data>
+  <data name="operations.approvals.type.brand" xml:space="preserve"><value>Brand</value></data>
+  <data name="operations.approvals.brandFallback" xml:space="preserve"><value>Brand</value></data>
+  <data name="operations.approvals.action.newLink" xml:space="preserve"><value>New link</value></data>
+  <data name="operations.approvals.action.generateLink" xml:space="preserve"><value>Generate link</value></data>
+  <data name="operations.approvals.info" xml:space="preserve"><value>Every deliverable can only be published after brand approval. Use the button below to generate a public link where the brand records the decision.</value></data>
+  <data name="operations.approvals.linkCopied" xml:space="preserve"><value>Link copied to clipboard:
+
+{0}</value></data>
 </root>
