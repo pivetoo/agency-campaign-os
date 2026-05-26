@@ -159,7 +159,7 @@ export default function OpportunityDetail() {
     const result = await executeAction(() =>
       pendingFinalStage.kind === 'won'
         ? opportunityService.closeAsWon(opportunity.id, { wonNotes: trimmedNotes || undefined, winReasonId: finalReasonId ?? undefined })
-        : opportunityService.closeAsLost(opportunity.id, { lossReason: trimmedNotes || lossReasons.find((r) => r.id === finalReasonId)?.name || 'Sem motivo informado', lossReasonId: finalReasonId ?? undefined }),
+        : opportunityService.closeAsLost(opportunity.id, { lossReason: trimmedNotes || lossReasons.find((r) => r.id === finalReasonId)?.name || t('opportunityDetail.close.defaultLossReason'), lossReasonId: finalReasonId ?? undefined }),
     )
     if (result !== null) {
       setPendingFinalStage(null)
@@ -228,7 +228,7 @@ export default function OpportunityDetail() {
   const sortedStages = useMemo(() => [...stages].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)), [stages])
   const currentStageIndex = useMemo(() => sortedStages.findIndex((stage) => stage.id === opportunity?.commercialPipelineStage?.id), [sortedStages, opportunity])
   const nextStage = currentStageIndex >= 0 && currentStageIndex < sortedStages.length - 1 ? sortedStages[currentStageIndex + 1] : null
-  const createdMeta = opportunity?.createdAt ? `Criada em ${formatDate(opportunity.createdAt)}` : null
+  const createdMeta = opportunity?.createdAt ? t('opportunityDetail.createdAt').replace('{0}', formatDate(opportunity.createdAt)) : null
 
   const nextFollowUp = useMemo(() => {
     const pending = (opportunity?.followUps ?? []).filter((item) => !item.isCompleted)
@@ -267,7 +267,7 @@ export default function OpportunityDetail() {
                   </span>
                   {pendingApprovalsCount > 0 && (
                     <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-800">
-                      <Clock className="h-3 w-3" /> {pendingApprovalsCount === 1 ? '1 aprovação pendente' : `${pendingApprovalsCount} aprovações pendentes`}
+                      <Clock className="h-3 w-3" /> {pendingApprovalsCount === 1 ? t('opportunityDetail.pendingApprovals.one') : t('opportunityDetail.pendingApprovals.many').replace('{0}', String(pendingApprovalsCount))}
                     </span>
                   )}
                 </div>
@@ -295,7 +295,7 @@ export default function OpportunityDetail() {
                   {opportunity?.id ? (
                     <>
                       <span className="text-muted-foreground/40">·</span>
-                      <span>Oportunidade #{opportunity.id}</span>
+                      <span>{t('opportunityDetail.opportunityNumber').replace('{0}', String(opportunity.id))}</span>
                     </>
                   ) : null}
                   {createdMeta ? (
@@ -307,7 +307,7 @@ export default function OpportunityDetail() {
                   {opportunity?.commercialResponsible?.name ? (
                     <>
                       <span className="text-muted-foreground/40">·</span>
-                      <span>por <strong className="text-foreground">{opportunity.commercialResponsible.name}</strong></span>
+                      <span>{t('opportunityDetail.byResponsiblePrefix')} <strong className="text-foreground">{opportunity.commercialResponsible.name}</strong></span>
                     </>
                   ) : null}
                 </div>
@@ -320,7 +320,7 @@ export default function OpportunityDetail() {
                     </Button>
                   </DropdownTrigger>
                   <DropdownContent align="end" className="w-56">
-                    <DropdownLabel>Mover para estágio</DropdownLabel>
+                    <DropdownLabel>{t('opportunityDetail.moveToStage')}</DropdownLabel>
                     {sortedStages.map((stage) => (
                       <DropdownItem
                         key={stage.id}
@@ -332,12 +332,12 @@ export default function OpportunityDetail() {
                           style={{ backgroundColor: stage.color || 'hsl(var(--muted-foreground))' }}
                         />
                         {stage.name}
-                        {stage.id === opportunity?.commercialPipelineStage?.id && <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">atual</span>}
+                        {stage.id === opportunity?.commercialPipelineStage?.id && <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.stage.current')}</span>}
                       </DropdownItem>
                     ))}
                     <DropdownSeparator />
                     <DropdownItem onSelect={() => void loadOpportunity()}>
-                      <History className="mr-2 h-3.5 w-3.5" /> Atualizar
+                      <History className="mr-2 h-3.5 w-3.5" /> {t('opportunityDetail.action.refresh')}
                     </DropdownItem>
                   </DropdownContent>
                 </Dropdown>
@@ -346,7 +346,7 @@ export default function OpportunityDetail() {
                 </Button>
                 {nextStage ? (
                   <Button size="sm" onClick={() => void handleChangeStage(nextStage.id)}>
-                    Avançar para {nextStage.name}
+                    {t('opportunityDetail.action.advanceTo').replace('{0}', nextStage.name)}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : null}
@@ -366,7 +366,7 @@ export default function OpportunityDetail() {
                   {opportunity.negotiations.length}
                 </span>
               ) : null}
-              {hasNegotiationPendingApproval && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-label="Negociação pendente de aprovação" />}
+              {hasNegotiationPendingApproval && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-label={t('opportunityDetail.negotiation.pendingApprovalAria')} />}
             </TabsTrigger>
             <TabsTrigger value="approvals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <CheckCircle className="h-4 w-4" /> {t('opportunityDetail.tab.approvals')}
@@ -375,7 +375,7 @@ export default function OpportunityDetail() {
                   {approvalRequests.length}
                 </span>
               ) : null}
-              {pendingForMe > 0 && <span className="h-1.5 w-1.5 rounded-full bg-destructive" aria-label={`${pendingForMe} aprovações esperando você`} />}
+              {pendingForMe > 0 && <span className="h-1.5 w-1.5 rounded-full bg-destructive" aria-label={t('opportunityDetail.approval.waitingForYouAria').replace('{0}', String(pendingForMe))} />}
             </TabsTrigger>
             <TabsTrigger value="proposals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <TrendingUp className="h-4 w-4" /> {t('opportunityDetail.tab.proposals')}
@@ -392,7 +392,7 @@ export default function OpportunityDetail() {
                   {opportunity.followUps.length}
                 </span>
               ) : null}
-              {overdueFollowUpsCount > 0 && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-label={`${overdueFollowUpsCount} follow-ups vencidos`} />}
+              {overdueFollowUpsCount > 0 && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-label={t('opportunityDetail.followups.overdueAria').replace('{0}', String(overdueFollowUpsCount))} />}
             </TabsTrigger>
             <TabsTrigger value="activity" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Activity className="h-4 w-4" /> {t('opportunityDetail.tab.activity')}
@@ -408,14 +408,14 @@ export default function OpportunityDetail() {
                       <ThumbsUp className="h-7 w-7" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-[11px] font-bold uppercase tracking-widest opacity-80">Próximo passo</div>
+                      <div className="text-[11px] font-bold uppercase tracking-widest opacity-80">{t('opportunityDetail.summary.nextStep')}</div>
                       <div className="mt-1 text-lg font-bold leading-snug">
                         {pendingForMe === 1
-                          ? 'Há uma aprovação esperando a sua decisão'
-                          : `Há ${pendingForMe} aprovações esperando a sua decisão`}
+                          ? t('opportunityDetail.summary.banner.one')
+                          : t('opportunityDetail.summary.banner.many').replace('{0}', String(pendingForMe))}
                       </div>
                       <p className="mt-0.5 text-sm opacity-90">
-                        Sua aprovação é necessária para a negociação avançar.
+                        {t('opportunityDetail.summary.banner.subtitle')}
                       </p>
                     </div>
                     <Button
@@ -424,7 +424,7 @@ export default function OpportunityDetail() {
                       className="border-white/30 bg-white text-primary hover:bg-white/95"
                       onClick={() => handleTabChange('approvals')}
                     >
-                      Revisar agora <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                      {t('opportunityDetail.summary.banner.review')} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                     </Button>
                   </div>
                 )}
@@ -459,7 +459,7 @@ export default function OpportunityDetail() {
 
                 {nextFollowUp && (
                   <div>
-                    <h3 className="mb-3 text-base font-semibold text-foreground">Próximo passo</h3>
+                    <h3 className="mb-3 text-base font-semibold text-foreground">{t('opportunityDetail.summary.nextStep')}</h3>
                     <div className={`flex items-center gap-4 rounded-xl border p-4 ${isNextFollowUpOverdue ? 'border-amber-300 bg-amber-50' : 'border-border bg-card'}`}>
                       <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${isNextFollowUpOverdue ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
                         <Calendar className="h-5 w-5" />
@@ -467,7 +467,7 @@ export default function OpportunityDetail() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-foreground">{nextFollowUp.subject}</p>
                         <p className={`mt-0.5 text-xs ${isNextFollowUpOverdue ? 'text-amber-800' : 'text-muted-foreground'}`}>
-                          {isNextFollowUpOverdue ? 'Venceu em ' : 'Agendado para '}
+                          {isNextFollowUpOverdue ? t('opportunityDetail.nextFollowUp.overduePrefix') : t('opportunityDetail.nextFollowUp.scheduledPrefix')}
                           <strong>{formatDate(nextFollowUp.dueAt)}</strong>
                         </p>
                         {nextFollowUp.notes && (
@@ -476,10 +476,10 @@ export default function OpportunityDetail() {
                       </div>
                       <div className="flex flex-shrink-0 gap-1.5">
                         <Button size="sm" variant="outline" onClick={() => { setSelectedFollowUp(nextFollowUp); setIsFollowUpFormOpen(true) }}>
-                          Reagendar
+                          {t('opportunityDetail.nextFollowUp.reschedule')}
                         </Button>
                         <Button size="sm" onClick={() => void handleCompleteNextFollowUp()}>
-                          <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Concluir
+                          <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.nextFollowUp.complete')}
                         </Button>
                       </div>
                     </div>
@@ -487,40 +487,42 @@ export default function OpportunityDetail() {
                 )}
 
                 <div>
-                  <h3 className="mb-3 text-base font-semibold text-foreground">Andamento</h3>
+                  <h3 className="mb-3 text-base font-semibold text-foreground">{t('opportunityDetail.progress.title')}</h3>
                   <div className="grid gap-3 md:grid-cols-3">
                     <SubflowCard
                       icon={<MessageSquare className="h-4 w-4" />}
                       iconClassName="bg-purple-100 text-purple-700"
-                      label="Negociações"
+                      label={t('opportunityDetail.progress.negotiations')}
                       count={opportunity?.negotiations?.length ?? 0}
                       statusLabel={hasNegotiationPendingApproval
-                        ? `${(opportunity?.negotiations ?? []).filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval).length} pendente${(opportunity?.negotiations ?? []).filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval).length === 1 ? '' : 's'} aprovação`
-                        : 'sem pendências'}
+                        ? ((opportunity?.negotiations ?? []).filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval).length === 1
+                          ? t('opportunityDetail.progress.pendingApproval.one')
+                          : t('opportunityDetail.progress.pendingApproval.many')).replace('{0}', String((opportunity?.negotiations ?? []).filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval).length))
+                        : t('opportunityDetail.progress.noPending')}
                       statusTone={hasNegotiationPendingApproval ? 'amber' : 'muted'}
                       onClick={() => handleTabChange('negotiations')}
                     />
                     <SubflowCard
                       icon={<CheckCircle className="h-4 w-4" />}
                       iconClassName="bg-emerald-100 text-emerald-700"
-                      label="Aprovações"
+                      label={t('opportunityDetail.progress.approvals')}
                       count={approvalRequests.length}
                       statusLabel={pendingForMe > 0
-                        ? `${pendingForMe} esperando você`
+                        ? t('opportunityDetail.progress.waitingForYou').replace('{0}', String(pendingForMe))
                         : pendingApprovalsCount > 0
-                          ? `${pendingApprovalsCount} pendente${pendingApprovalsCount === 1 ? '' : 's'}`
-                          : 'sem pendências'}
+                          ? (pendingApprovalsCount === 1 ? t('opportunityDetail.progress.pending.one') : t('opportunityDetail.progress.pending.many')).replace('{0}', String(pendingApprovalsCount))
+                          : t('opportunityDetail.progress.noPending')}
                       statusTone={pendingForMe > 0 ? 'red' : pendingApprovalsCount > 0 ? 'amber' : 'muted'}
                       onClick={() => handleTabChange('approvals')}
                     />
                     <SubflowCard
                       icon={<TrendingUp className="h-4 w-4" />}
                       iconClassName="bg-cyan-100 text-cyan-700"
-                      label="Propostas"
+                      label={t('opportunityDetail.progress.proposals')}
                       count={opportunity?.proposals?.length ?? 0}
                       statusLabel={(opportunity?.proposals ?? []).length > 0
-                        ? `${(opportunity?.proposals ?? []).length} versão${(opportunity?.proposals ?? []).length === 1 ? '' : 'ões'}`
-                        : 'nenhuma enviada'}
+                        ? ((opportunity?.proposals ?? []).length === 1 ? t('opportunityDetail.progress.versions.one') : t('opportunityDetail.progress.versions.many')).replace('{0}', String((opportunity?.proposals ?? []).length))
+                        : t('opportunityDetail.progress.noneSent')}
                       statusTone="muted"
                       onClick={() => handleTabChange('proposals')}
                     />
@@ -528,7 +530,7 @@ export default function OpportunityDetail() {
                 </div>
 
                 <div>
-                  <h3 className="mb-3 text-base font-semibold text-foreground">Detalhes</h3>
+                  <h3 className="mb-3 text-base font-semibold text-foreground">{t('opportunityDetail.details.title')}</h3>
                   <div className="grid gap-x-7 gap-y-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
                     <DetailField icon={<FileText className="h-3.5 w-3.5" />} label={t('opportunityDetail.summary.description')} value={opportunity?.description} />
                     <DetailField icon={<User className="h-3.5 w-3.5" />} label={t('common.field.contact')} value={opportunity?.contactName} />
@@ -566,7 +568,7 @@ export default function OpportunityDetail() {
 
                 <div className="rounded-xl border border-border bg-card p-4">
                   <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <User className="h-3.5 w-3.5" /> Responsável
+                    <User className="h-3.5 w-3.5" /> {t('opportunityDetail.responsible.title')}
                   </div>
                   {opportunity?.commercialResponsible?.name ? (
                     <div className="flex items-center gap-3">
@@ -575,31 +577,31 @@ export default function OpportunityDetail() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-foreground">{opportunity.commercialResponsible.name}</p>
-                        <p className="text-xs text-muted-foreground">Agência · Comercial</p>
+                        <p className="text-xs text-muted-foreground">{t('opportunityDetail.responsible.role')}</p>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground">Sem responsável atribuído.</p>
+                    <p className="text-xs text-muted-foreground">{t('opportunityDetail.responsible.none')}</p>
                   )}
                 </div>
 
                 <div className="rounded-xl border border-border bg-card p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                      <Clock className="h-3.5 w-3.5" /> Follow-ups
+                      <Clock className="h-3.5 w-3.5" /> {t('opportunityDetail.followups.sidebarTitle')}
                     </div>
                     <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setIsFollowUpFormOpen(true)}>
-                      <Plus className="mr-1 h-3 w-3" /> Novo
+                      <Plus className="mr-1 h-3 w-3" /> {t('opportunityDetail.followups.newShort')}
                     </Button>
                   </div>
                   {pendingFollowUpsCount === 0 ? (
-                    <p className="text-xs text-muted-foreground">Sem follow-ups agendados. Bom momento para combinar o próximo passo.</p>
+                    <p className="text-xs text-muted-foreground">{t('opportunityDetail.followups.sidebarEmpty')}</p>
                   ) : overdueFollowUpsCount > 0 ? (
                     <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                      <strong>{overdueFollowUpsCount}</strong> follow-up{overdueFollowUpsCount === 1 ? '' : 's'} vencido{overdueFollowUpsCount === 1 ? '' : 's'} esperando ação.
+                      <strong>{overdueFollowUpsCount}</strong> {overdueFollowUpsCount === 1 ? t('opportunityDetail.followups.overdueWaiting.one') : t('opportunityDetail.followups.overdueWaiting.many')}
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground">{pendingFollowUpsCount} follow-up{pendingFollowUpsCount === 1 ? '' : 's'} agendado{pendingFollowUpsCount === 1 ? '' : 's'} no prazo.</p>
+                    <p className="text-xs text-muted-foreground">{(pendingFollowUpsCount === 1 ? t('opportunityDetail.followups.scheduledOnTime.one') : t('opportunityDetail.followups.scheduledOnTime.many')).replace('{0}', String(pendingFollowUpsCount))}</p>
                   )}
                 </div>
               </aside>
@@ -817,19 +819,19 @@ export default function OpportunityDetail() {
         <ModalContent size="form">
           <ModalHeader>
             <ModalTitle>
-              {pendingFinalStage?.kind === 'won' ? 'Encerrar como ganha' : 'Encerrar como perdida'}
+              {pendingFinalStage?.kind === 'won' ? t('opportunityDetail.close.wonTitle') : t('opportunityDetail.close.lostTitle')}
             </ModalTitle>
           </ModalHeader>
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Você está movendo a oportunidade para <strong>{pendingFinalStage?.name}</strong>.
-              {pendingFinalStage?.kind === 'lost' ? ' Selecione o motivo da perda.' : ' Selecione o motivo do ganho (opcional).'}
+              {t('opportunityDetail.close.movingPrefix')}<strong>{pendingFinalStage?.name}</strong>.
+              {pendingFinalStage?.kind === 'lost' ? t('opportunityDetail.close.lostSuffix') : t('opportunityDetail.close.wonSuffix')}
             </p>
             {pendingFinalStage?.kind === 'won' ? (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Motivo do ganho</label>
+                <label className="text-sm font-medium">{t('opportunityDetail.close.wonReasonLabel')}</label>
                 {winReasons.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">Nenhum motivo de ganho cadastrado.</p>
+                  <p className="text-xs text-muted-foreground">{t('opportunityDetail.close.wonReasonEmpty')}</p>
                 ) : (
                   <div className="flex flex-wrap gap-1.5">
                     {winReasons.map((reason) => {
@@ -853,11 +855,11 @@ export default function OpportunityDetail() {
             ) : (
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  Motivo da perda
+                  {t('opportunityDetail.close.lostReasonLabel')}
                   <span className="text-destructive"> *</span>
                 </label>
                 {lossReasons.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">Nenhum motivo de perda cadastrado.</p>
+                  <p className="text-xs text-muted-foreground">{t('opportunityDetail.close.lostReasonEmpty')}</p>
                 ) : (
                   <div className="flex flex-wrap gap-1.5">
                     {lossReasons.map((reason) => {
@@ -881,25 +883,25 @@ export default function OpportunityDetail() {
             )}
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                {pendingFinalStage?.kind === 'won' ? 'Observação (opcional)' : 'Detalhes adicionais (opcional)'}
+                {pendingFinalStage?.kind === 'won' ? t('opportunityDetail.close.wonNotesLabel') : t('opportunityDetail.close.lostNotesLabel')}
               </label>
               <textarea
                 className="min-h-[80px] w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 value={finalNotes}
                 onChange={(e) => setFinalNotes(e.target.value)}
-                placeholder={pendingFinalStage?.kind === 'won' ? 'Ex.: Cliente aprovou orçamento completo.' : 'Ex.: Cliente escolheu concorrente Acme.'}
+                placeholder={pendingFinalStage?.kind === 'won' ? t('opportunityDetail.close.wonPlaceholder') : t('opportunityDetail.close.lostPlaceholder')}
               />
             </div>
           </div>
           <ModalFooter>
-            <Button type="button" variant="outline" onClick={cancelFinalChange} disabled={actionLoading}>Cancelar</Button>
+            <Button type="button" variant="outline" onClick={cancelFinalChange} disabled={actionLoading}>{t('common.action.cancel')}</Button>
             <Button
               type="button"
               variant={pendingFinalStage?.kind === 'lost' ? 'danger' : 'primary'}
               onClick={() => void confirmFinalChange()}
               disabled={actionLoading || (pendingFinalStage?.kind === 'lost' && finalNotes.trim().length === 0 && finalReasonId === null)}
             >
-              {actionLoading ? 'Salvando...' : 'Confirmar'}
+              {actionLoading ? t('common.action.saving') : t('opportunityDetail.close.confirm')}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -976,6 +978,7 @@ interface NegotiationsTabProps {
 }
 
 function NegotiationsTab({ negotiations, actionLoading, onNew, onEdit, onDelete, onChangeStatus, onRequestApproval }: NegotiationsTabProps) {
+  const { t } = useI18n()
   const [filter, setFilter] = useState<NegotiationFilter>('all')
   const [selectedId, setSelectedId] = useState<number | null>(null)
 
@@ -1009,28 +1012,28 @@ function NegotiationsTab({ negotiations, actionLoading, onNew, onEdit, onDelete,
     <div className="space-y-4">
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Negociações</h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">Cada negociação com valor, motivo e desfecho. {counts.all} {counts.all === 1 ? 'registrada' : 'registradas'}.</p>
+          <h2 className="text-xl font-semibold text-foreground">{t('opportunityDetail.negotiation.heading')}</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">{(counts.all === 1 ? t('opportunityDetail.negotiation.subtitle.one') : t('opportunityDetail.negotiation.subtitle.many')).replace('{0}', String(counts.all))}</p>
         </div>
         <Button size="sm" onClick={onNew}>
-          <Plus className="mr-1.5 h-4 w-4" /> Nova negociação
+          <Plus className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.negotiation.newButton')}
         </Button>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <FilterChip label="Todas" count={counts.all} active={filter === 'all'} onClick={() => setFilter('all')} />
-        <FilterChip label="Pendente aprovação" count={counts.pendingApproval} active={filter === 'pendingApproval'} dotColor="amber" onClick={() => setFilter('pendingApproval')} />
-        <FilterChip label="Aprovadas" count={counts.approved} active={filter === 'approved'} onClick={() => setFilter('approved')} />
-        <FilterChip label="Rascunhos" count={counts.draft} active={filter === 'draft'} onClick={() => setFilter('draft')} />
-        <FilterChip label="Enviadas" count={counts.sent} active={filter === 'sent'} onClick={() => setFilter('sent')} />
-        <FilterChip label="Fechadas" count={counts.closed} active={filter === 'closed'} onClick={() => setFilter('closed')} />
+        <FilterChip label={t('opportunityDetail.negotiation.filter.all')} count={counts.all} active={filter === 'all'} onClick={() => setFilter('all')} />
+        <FilterChip label={t('opportunityDetail.negotiation.filter.pendingApproval')} count={counts.pendingApproval} active={filter === 'pendingApproval'} dotColor="amber" onClick={() => setFilter('pendingApproval')} />
+        <FilterChip label={t('opportunityDetail.negotiation.filter.approved')} count={counts.approved} active={filter === 'approved'} onClick={() => setFilter('approved')} />
+        <FilterChip label={t('opportunityDetail.negotiation.filter.draft')} count={counts.draft} active={filter === 'draft'} onClick={() => setFilter('draft')} />
+        <FilterChip label={t('opportunityDetail.negotiation.filter.sent')} count={counts.sent} active={filter === 'sent'} onClick={() => setFilter('sent')} />
+        <FilterChip label={t('opportunityDetail.negotiation.filter.closed')} count={counts.closed} active={filter === 'closed'} onClick={() => setFilter('closed')} />
       </div>
 
       {pendingTopBanner && (
         <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
           <Clock className="h-4 w-4 shrink-0" />
           <span className="flex-1">
-            <strong>{counts.pendingApproval}</strong> negociaç{counts.pendingApproval === 1 ? 'ão esperando' : 'ões esperando'} aprovação interna.
+            <strong>{counts.pendingApproval}</strong> {counts.pendingApproval === 1 ? t('opportunityDetail.negotiation.banner.one') : t('opportunityDetail.negotiation.banner.many')}
           </span>
         </div>
       )}
@@ -1039,10 +1042,10 @@ function NegotiationsTab({ negotiations, actionLoading, onNew, onEdit, onDelete,
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
             <MessageSquare className="mb-3 h-9 w-9 opacity-50" />
-            <p className="text-sm font-medium">{filter === 'all' ? 'Nenhuma negociação registrada' : 'Nenhuma negociação neste filtro'}</p>
+            <p className="text-sm font-medium">{filter === 'all' ? t('opportunityDetail.negotiation.emptyAll') : t('opportunityDetail.negotiation.emptyFilter')}</p>
             {filter === 'all' && (
               <Button size="sm" variant="outline" className="mt-3" onClick={onNew}>
-                <Plus className="mr-1.5 h-4 w-4" /> Registrar primeira negociação
+                <Plus className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.negotiation.registerFirst')}
               </Button>
             )}
           </CardContent>
@@ -1067,8 +1070,8 @@ function NegotiationsTab({ negotiations, actionLoading, onNew, onEdit, onDelete,
                 return (
                   <div className="sticky top-4 flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center text-sm text-muted-foreground">
                     <MessageSquare className="mb-2 h-6 w-6 opacity-40" />
-                    <p className="font-medium">Selecione uma negociação</p>
-                    <p className="mt-1 text-xs">Clique num card à esquerda para ver detalhes, aprovações vinculadas e ações.</p>
+                    <p className="font-medium">{t('opportunityDetail.negotiation.selectPrompt')}</p>
+                    <p className="mt-1 text-xs">{t('opportunityDetail.negotiation.selectHint')}</p>
                   </div>
                 )
               }
@@ -1123,17 +1126,18 @@ interface NegotiationCardProps {
 }
 
 const negotiationStatusStyle = (status: OpportunityNegotiationStatusValue) => {
-  if (status === OpportunityNegotiationStatus.PendingApproval) return { bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500', label: 'Pendente' }
-  if (status === OpportunityNegotiationStatus.Approved) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500', label: 'Aprovada' }
-  if (status === OpportunityNegotiationStatus.Draft) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Rascunho' }
-  if (status === OpportunityNegotiationStatus.SentToClient) return { bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500', label: 'Enviada' }
-  if (status === OpportunityNegotiationStatus.AcceptedByClient) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-600', label: 'Aceita' }
-  if (status === OpportunityNegotiationStatus.Rejected) return { bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500', label: 'Rejeitada' }
-  if (status === OpportunityNegotiationStatus.Cancelled) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Cancelada' }
-  return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', label: 'Outro' }
+  if (status === OpportunityNegotiationStatus.PendingApproval) return { bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500', labelKey: 'opportunityDetail.negotiation.statusShort.pending' }
+  if (status === OpportunityNegotiationStatus.Approved) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500', labelKey: 'opportunityDetail.negotiation.statusShort.approved' }
+  if (status === OpportunityNegotiationStatus.Draft) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', labelKey: 'opportunityDetail.negotiation.statusShort.draft' }
+  if (status === OpportunityNegotiationStatus.SentToClient) return { bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500', labelKey: 'opportunityDetail.negotiation.statusShort.sent' }
+  if (status === OpportunityNegotiationStatus.AcceptedByClient) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-600', labelKey: 'opportunityDetail.negotiation.statusShort.accepted' }
+  if (status === OpportunityNegotiationStatus.Rejected) return { bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500', labelKey: 'opportunityDetail.negotiation.statusShort.rejected' }
+  if (status === OpportunityNegotiationStatus.Cancelled) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', labelKey: 'opportunityDetail.negotiation.statusShort.cancelled' }
+  return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', labelKey: 'opportunityDetail.negotiation.statusShort.other' }
 }
 
 function NegotiationCard({ negotiation, isFirstRound, selected, onClick }: NegotiationCardProps) {
+  const { t } = useI18n()
   const isPending = negotiation.status === OpportunityNegotiationStatus.PendingApproval
   const statusStyle = negotiationStatusStyle(negotiation.status)
 
@@ -1155,11 +1159,11 @@ function NegotiationCard({ negotiation, isFirstRound, selected, onClick }: Negot
           <strong className={`truncate text-[14px] ${selected ? 'text-primary' : 'text-foreground'}`}>{negotiation.title}</strong>
           <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusStyle.bg} ${statusStyle.text}`}>
             <span className={`h-1 w-1 rounded-full ${statusStyle.dot}`} />
-            {statusStyle.label}
+            {t(statusStyle.labelKey)}
           </span>
           {isFirstRound && (
             <span className="hidden rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:inline-flex">
-              1ª
+              {t('opportunityDetail.negotiation.firstShort')}
             </span>
           )}
         </div>
@@ -1191,6 +1195,7 @@ interface NegotiationDetailPanelProps {
 }
 
 function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onClose, onEdit, onDelete, onChangeStatus, onRequestApproval }: NegotiationDetailPanelProps) {
+  const { t } = useI18n()
   const isDraft = negotiation.status === OpportunityNegotiationStatus.Draft
   const isCancelled = negotiation.status === OpportunityNegotiationStatus.Cancelled
   const statusStyle = negotiationStatusStyle(negotiation.status)
@@ -1214,10 +1219,10 @@ function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onCl
           <div className="flex flex-wrap items-center gap-2">
             <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusStyle.bg} ${statusStyle.text}`}>
               <span className={`h-1 w-1 rounded-full ${statusStyle.dot}`} />
-              {statusStyle.label}
+              {t(statusStyle.labelKey)}
             </span>
             {isFirstRound && (
-              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">1ª negociação</span>
+              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.firstRound')}</span>
             )}
           </div>
           <h3 className="mt-1.5 truncate text-base font-semibold text-foreground">{negotiation.title}</h3>
@@ -1226,7 +1231,7 @@ function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onCl
           type="button"
           onClick={onClose}
           className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          aria-label="Fechar painel"
+          aria-label={t('opportunityDetail.negotiation.closePanelAria')}
         >
           <XCircle className="h-4 w-4" />
         </button>
@@ -1236,58 +1241,58 @@ function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onCl
         {showPolicyBanner && (
           <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3">
             <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-800">
-              <AlertTriangle className="h-3 w-3" /> Fora da política comercial
+              <AlertTriangle className="h-3 w-3" /> {t('opportunityDetail.negotiation.policyTitle')}
             </div>
             <ul className="space-y-0.5 text-[11.5px] text-amber-900">
               {evaluation!.deviations.map((d) => (
                 <li key={d.field}>
-                  <strong>{d.field}</strong>: {d.requestedValue} (padrão {d.policyValue} · {d.delta})
+                  <strong>{d.field}</strong>: {d.requestedValue} {t('opportunityDetail.negotiation.policyDeviation').replace('{0}', String(d.policyValue)).replace('{1}', String(d.delta))}
                 </li>
               ))}
             </ul>
             <Button size="sm" variant="primary" onClick={onRequestApproval} className="w-full justify-center">
-              <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Abrir aprovação com diff pré-populado
+              <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiation.openApprovalDiff')}
             </Button>
           </div>
         )}
 
         <div>
-          <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Valor</p>
+          <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.field.value')}</p>
           <p className="mt-0.5 font-mono text-2xl font-bold tracking-tight text-foreground">{formatCurrency(negotiation.amount)}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Data</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.field.date')}</p>
             <p className="mt-0.5 text-sm text-foreground">{formatDate(negotiation.negotiatedAt)}</p>
           </div>
           <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Criada</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.field.created')}</p>
             <p className="mt-0.5 text-sm text-foreground">{formatDate(negotiation.createdAt)}</p>
           </div>
         </div>
 
         {negotiation.notes && (
           <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Notas</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.field.notes')}</p>
             <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{negotiation.notes}</p>
           </div>
         )}
 
         {approvals.length > 0 && (
           <div>
-            <p className="mb-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Aprovações vinculadas</p>
+            <p className="mb-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.linkedApprovals')}</p>
             <div className="space-y-1.5">
               {approvals.map((approval) => {
                 const isPending = approval.status === OpportunityApprovalStatus.Pending
                 const isApproved = approval.status === OpportunityApprovalStatus.Approved
                 const isRejected = approval.status === OpportunityApprovalStatus.Rejected
-                const label = isPending ? 'Pendente' : isApproved ? 'Aprovada' : isRejected ? 'Rejeitada' : 'Cancelada'
+                const label = isPending ? t('opportunityDetail.approval.statusShort.pending') : isApproved ? t('opportunityDetail.approval.statusShort.approved') : isRejected ? t('opportunityDetail.approval.statusShort.rejected') : t('opportunityDetail.approval.statusShort.cancelled')
                 const tone = isPending ? 'bg-amber-100 text-amber-800' : isApproved ? 'bg-emerald-100 text-emerald-800' : isRejected ? 'bg-rose-100 text-rose-800' : 'bg-muted text-muted-foreground'
                 return (
                   <div key={approval.id} className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-muted/30 px-2.5 py-2 text-xs">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-foreground">{approval.reason || 'Solicitação de aprovação'}</p>
+                      <p className="truncate text-foreground">{approval.reason || t('opportunityDetail.negotiation.approvalFallback')}</p>
                       <p className="text-[11px] text-muted-foreground">{approval.requestedByUserName} · {formatDate(approval.requestedAt)}</p>
                     </div>
                     <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tone}`}>{label}</span>
@@ -1303,21 +1308,21 @@ function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onCl
         {isDraft && (
           <>
             <Button size="sm" onClick={onRequestApproval} disabled={actionLoading} className="justify-center">
-              <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> Solicitar aprovação
+              <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiations.requestApproval')}
             </Button>
             <Button size="sm" variant="outline" onClick={onEdit} disabled={actionLoading} className="justify-center">
-              <Pencil className="mr-1.5 h-3.5 w-3.5" /> Editar
+              <Pencil className="mr-1.5 h-3.5 w-3.5" /> {t('common.action.edit')}
             </Button>
           </>
         )}
         {!isDraft && (
           <Button size="sm" variant="outline" onClick={onChangeStatus} disabled={actionLoading} className="justify-center">
-            <Activity className="mr-1.5 h-3.5 w-3.5" /> Alterar status
+            <Activity className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiations.changeStatus')}
           </Button>
         )}
         {(isDraft || isCancelled) && (
           <Button size="sm" variant="ghost" onClick={onDelete} disabled={actionLoading} className="justify-center text-muted-foreground hover:text-destructive">
-            <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Excluir negociação
+            <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiation.deleteButton')}
           </Button>
         )}
       </div>
@@ -1334,18 +1339,19 @@ interface ProposalsTabProps {
   onOpen: (id: number, name: string) => void
 }
 
-const proposalStatusInline: Record<number, { label: string; bg: string; text: string; dot: string }> = {
-  1: { label: 'Rascunho', bg: 'bg-slate-200', text: 'text-slate-700', dot: 'bg-slate-400' },
-  2: { label: 'Enviada', bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500' },
-  3: { label: 'Visualizada', bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500' },
-  4: { label: 'Aprovada', bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500' },
-  5: { label: 'Rejeitada', bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500' },
-  6: { label: 'Convertida', bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500' },
-  7: { label: 'Expirada', bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500' },
-  8: { label: 'Cancelada', bg: 'bg-slate-200', text: 'text-slate-700', dot: 'bg-slate-400' },
+const proposalStatusInline: Record<number, { labelKey: string; bg: string; text: string; dot: string }> = {
+  1: { labelKey: 'opportunityDetail.proposal.statusShort.draft', bg: 'bg-slate-200', text: 'text-slate-700', dot: 'bg-slate-400' },
+  2: { labelKey: 'opportunityDetail.proposal.statusShort.sent', bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500' },
+  3: { labelKey: 'opportunityDetail.proposal.statusShort.viewed', bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500' },
+  4: { labelKey: 'opportunityDetail.proposal.statusShort.approved', bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500' },
+  5: { labelKey: 'opportunityDetail.proposal.statusShort.rejected', bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500' },
+  6: { labelKey: 'opportunityDetail.proposal.statusShort.converted', bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500' },
+  7: { labelKey: 'opportunityDetail.proposal.statusShort.expired', bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500' },
+  8: { labelKey: 'opportunityDetail.proposal.statusShort.cancelled', bg: 'bg-slate-200', text: 'text-slate-700', dot: 'bg-slate-400' },
 }
 
 function ProposalsTab({ proposals, opportunityCreatedAt, onNew, onOpen }: ProposalsTabProps) {
+  const { t } = useI18n()
   const ordered = useMemo(() => [...proposals].sort((a, b) => a.id - b.id), [proposals])
   const total = ordered.length
   const currentProposal = ordered[ordered.length - 1] ?? null
@@ -1361,10 +1367,10 @@ function ProposalsTab({ proposals, opportunityCreatedAt, onNew, onOpen }: Propos
       <Card className="border-dashed">
         <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
           <TrendingUp className="mb-3 h-9 w-9 opacity-50" />
-          <p className="text-sm font-medium">Nenhuma proposta criada</p>
-          <p className="mt-1 max-w-md text-xs">Crie a primeira proposta pra começar o histórico. Cada nova versão entra como um nó da timeline.</p>
+          <p className="text-sm font-medium">{t('opportunityDetail.proposal.emptyTitle')}</p>
+          <p className="mt-1 max-w-md text-xs">{t('opportunityDetail.proposal.emptyHint')}</p>
           <Button size="sm" className="mt-4" onClick={onNew}>
-            <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
+            <Plus className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.proposals.new')}
           </Button>
         </CardContent>
       </Card>
@@ -1375,28 +1381,28 @@ function ProposalsTab({ proposals, opportunityCreatedAt, onNew, onOpen }: Propos
     <div className="space-y-5">
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Histórico de propostas</h2>
+          <h2 className="text-xl font-semibold text-foreground">{t('opportunityDetail.proposal.historyTitle')}</h2>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            {total} {total === 1 ? 'versão criada' : 'versões criadas'} · {approved} aprovada{approved === 1 ? '' : 's'} · {sent} aguardando cliente
+            {(total === 1 ? t('opportunityDetail.proposal.versionsCreated.one') : t('opportunityDetail.proposal.versionsCreated.many')).replace('{0}', String(total))} · {(approved === 1 ? t('opportunityDetail.proposal.approvedCount.one') : t('opportunityDetail.proposal.approvedCount.many')).replace('{0}', String(approved))} · {t('opportunityDetail.proposal.awaitingClient').replace('{0}', String(sent))}
           </p>
         </div>
         <Button size="sm" onClick={onNew}>
-          <Plus className="mr-1.5 h-4 w-4" /> Nova proposta
+          <Plus className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.proposals.new')}
         </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-0 overflow-hidden rounded-xl border border-border bg-card md:grid-cols-4">
-        <ProposalSummaryCell label="Versões criadas" value={String(total)} sub={total === 1 ? 'só a inicial' : 'evolução de oferta'} />
+        <ProposalSummaryCell label={t('opportunityDetail.proposal.cell.versionsCreated')} value={String(total)} sub={total === 1 ? t('opportunityDetail.proposal.cell.onlyInitial') : t('opportunityDetail.proposal.cell.offerEvolution')} />
         <ProposalSummaryCell
-          label={`Diferencial v1 → v${total}`}
+          label={t('opportunityDetail.proposal.cell.diff').replace('{0}', String(total))}
           value={total > 1 ? (valueDelta >= 0 ? `+${formatCurrency(valueDelta)}` : formatCurrency(valueDelta)) : '—'}
-          sub={total > 1 ? 'comparado à primeira oferta' : 'apenas uma versão'}
+          sub={total > 1 ? t('opportunityDetail.proposal.cell.diffSub') : t('opportunityDetail.proposal.cell.onlyOneVersion')}
           valueColor={total > 1 ? (valueDelta > 0 ? 'text-emerald-700' : valueDelta < 0 ? 'text-rose-700' : 'text-foreground') : 'text-muted-foreground'}
         />
-        <ProposalSummaryCell label="Valor da versão atual" value={formatCurrency(lastValue)} sub={currentProposal?.name} mono />
+        <ProposalSummaryCell label={t('opportunityDetail.proposal.cell.currentValue')} value={formatCurrency(lastValue)} sub={currentProposal?.name} mono />
         <ProposalSummaryCell
-          label="Status atual"
-          value={currentProposal ? (proposalStatusInline[currentProposal.status]?.label ?? '—') : '—'}
+          label={t('opportunityDetail.proposal.cell.currentStatus')}
+          value={currentProposal ? (proposalStatusInline[currentProposal.status]?.labelKey ? t(proposalStatusInline[currentProposal.status].labelKey) : '—') : '—'}
           pillBg={currentProposal ? proposalStatusInline[currentProposal.status]?.bg : undefined}
           pillText={currentProposal ? proposalStatusInline[currentProposal.status]?.text : undefined}
           last
@@ -1426,7 +1432,7 @@ function ProposalsTab({ proposals, opportunityCreatedAt, onNew, onOpen }: Propos
                 <Compass className="h-4 w-4" />
               </div>
               <div className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Oportunidade criada</strong> em {formatDate(opportunityCreatedAt)}
+                <strong className="text-foreground">{t('opportunityDetail.proposal.opportunityCreated')}</strong> {t('opportunityDetail.proposal.createdOn').replace('{0}', formatDate(opportunityCreatedAt))}
               </div>
             </div>
           )}
@@ -1461,6 +1467,7 @@ interface ProposalTimelineNodeProps {
 }
 
 function ProposalTimelineNode({ proposal, versionNumber, isCurrent, onOpen }: ProposalTimelineNodeProps) {
+  const { t } = useI18n()
   const status = proposalStatusInline[proposal.status]
   const isFinalApproved = proposal.status === 4 || proposal.status === 6
 
@@ -1495,12 +1502,12 @@ function ProposalTimelineNode({ proposal, versionNumber, isCurrent, onOpen }: Pr
               {status && (
                 <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider ${status.bg} ${status.text}`}>
                   <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
-                  {status.label}
+                  {t(status.labelKey)}
                 </span>
               )}
               {isCurrent && !isFinalApproved && (
                 <span className="inline-flex items-center rounded bg-primary/10 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-primary">
-                  Versão atual
+                  {t('opportunityDetail.proposal.currentVersion')}
                 </span>
               )}
             </div>
@@ -1509,14 +1516,14 @@ function ProposalTimelineNode({ proposal, versionNumber, isCurrent, onOpen }: Pr
               {proposal.validityUntil && (
                 <>
                   <span>·</span>
-                  <span>Validade {formatDate(proposal.validityUntil)}</span>
+                  <span>{t('opportunityDetail.proposal.validity').replace('{0}', formatDate(proposal.validityUntil))}</span>
                 </>
               )}
               {proposal.campaignId && (
                 <>
                   <span>·</span>
                   <span className="inline-flex items-center gap-1 text-emerald-700">
-                    <CheckCircle className="h-3.5 w-3.5" /> Convertida em campanha
+                    <CheckCircle className="h-3.5 w-3.5" /> {t('opportunityDetail.proposal.convertedToCampaign')}
                   </span>
                 </>
               )}
@@ -1539,11 +1546,11 @@ interface ApprovalsTabProps {
   onReject: (item: OpportunityApprovalRequest) => Promise<void> | void
 }
 
-const approvalTypeLabel: Record<number, string> = {
-  1: 'Exceção de desconto',
-  2: 'Exceção de margem',
-  3: 'Exceção de prazo',
-  4: 'Exceção (outra)',
+const approvalTypeLabelKey: Record<number, string> = {
+  1: 'opportunityDetail.approval.type.discount',
+  2: 'opportunityDetail.approval.type.margin',
+  3: 'opportunityDetail.approval.type.deadline',
+  4: 'opportunityDetail.approval.type.other',
 }
 
 function hoursSince(iso: string): number {
@@ -1551,7 +1558,7 @@ function hoursSince(iso: string): number {
   return Math.max(0, Math.floor(diff / (1000 * 60 * 60)))
 }
 
-function ApprovalsTab({ approvals, negotiations, actionLoading, t: _t, canDecide, onApprove, onReject }: ApprovalsTabProps) {
+function ApprovalsTab({ approvals, negotiations, actionLoading, t, canDecide, onApprove, onReject }: ApprovalsTabProps) {
   const pendingApprovals = useMemo(() => approvals.filter((a) => a.status === OpportunityApprovalStatus.Pending), [approvals])
   const decidedApprovals = useMemo(() => approvals.filter((a) => a.status !== OpportunityApprovalStatus.Pending), [approvals])
 
@@ -1567,8 +1574,8 @@ function ApprovalsTab({ approvals, negotiations, actionLoading, t: _t, canDecide
     <div className="space-y-4">
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Aprovações internas</h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">Solicitações de exceção (margem, prazo, desconto) ligadas à negociação que motivou.</p>
+          <h2 className="text-xl font-semibold text-foreground">{t('opportunityDetail.approval.heading')}</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">{t('opportunityDetail.approval.subtitle')}</p>
         </div>
       </div>
 
@@ -1578,8 +1585,8 @@ function ApprovalsTab({ approvals, negotiations, actionLoading, t: _t, canDecide
             <Clock className="h-4 w-4" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-bold text-amber-900">{pendingTotal === 1 ? '1 aprovação esperando você' : `${pendingTotal} aprovações esperando você`}</p>
-            <p className="mt-0.5 text-xs text-amber-800">Negociaç{pendingTotal === 1 ? 'ão pausada' : 'ões pausadas'} até sua decisão.</p>
+            <p className="text-sm font-bold text-amber-900">{pendingTotal === 1 ? t('opportunityDetail.approval.waitingBanner.one') : t('opportunityDetail.approval.waitingBanner.many').replace('{0}', String(pendingTotal))}</p>
+            <p className="mt-0.5 text-xs text-amber-800">{pendingTotal === 1 ? t('opportunityDetail.approval.waitingBannerSub.one') : t('opportunityDetail.approval.waitingBannerSub.many')}</p>
           </div>
         </div>
       )}
@@ -1588,8 +1595,8 @@ function ApprovalsTab({ approvals, negotiations, actionLoading, t: _t, canDecide
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
             <CheckCircle className="mb-3 h-9 w-9 opacity-50" />
-            <p className="text-sm font-medium">Nenhuma aprovação solicitada</p>
-            <p className="mt-1 max-w-md text-xs">Aprovações são criadas quando uma negociação tem desvio de política. Para criar uma, abra a negociação em "Negociações" e clique em "Solicitar aprovação".</p>
+            <p className="text-sm font-medium">{t('opportunityDetail.approval.emptyTitle')}</p>
+            <p className="mt-1 max-w-md text-xs">{t('opportunityDetail.approval.emptyHint')}</p>
           </CardContent>
         </Card>
       ) : (
@@ -1621,18 +1628,19 @@ interface ApprovalCardProps {
 }
 
 function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onApprove, onReject }: ApprovalCardProps) {
+  const { t } = useI18n()
   const isPending = approval.status === OpportunityApprovalStatus.Pending
   const isApproved = approval.status === OpportunityApprovalStatus.Approved
   const isRejected = approval.status === OpportunityApprovalStatus.Rejected
   const isCancelled = approval.status === OpportunityApprovalStatus.Cancelled
 
   const config = isPending
-    ? { stripBg: 'bg-amber-50', stripBorder: 'border-amber-200', stripText: 'text-amber-800', accent: 'border-amber-300', commentBorder: 'border-l-amber-500', icon: <Clock className="h-3.5 w-3.5" />, label: 'Pendente' }
+    ? { stripBg: 'bg-amber-50', stripBorder: 'border-amber-200', stripText: 'text-amber-800', accent: 'border-amber-300', commentBorder: 'border-l-amber-500', icon: <Clock className="h-3.5 w-3.5" />, labelKey: 'opportunityDetail.approval.statusShort.pending' }
     : isApproved
-      ? { stripBg: 'bg-emerald-50', stripBorder: 'border-emerald-200', stripText: 'text-emerald-800', accent: 'border-border', commentBorder: 'border-l-emerald-500', icon: <CheckCircle className="h-3.5 w-3.5" />, label: 'Aprovada' }
+      ? { stripBg: 'bg-emerald-50', stripBorder: 'border-emerald-200', stripText: 'text-emerald-800', accent: 'border-border', commentBorder: 'border-l-emerald-500', icon: <CheckCircle className="h-3.5 w-3.5" />, labelKey: 'opportunityDetail.approval.statusShort.approved' }
       : isRejected
-        ? { stripBg: 'bg-rose-50', stripBorder: 'border-rose-200', stripText: 'text-rose-800', accent: 'border-border', commentBorder: 'border-l-rose-500', icon: <XCircle className="h-3.5 w-3.5" />, label: 'Rejeitada' }
-        : { stripBg: 'bg-muted', stripBorder: 'border-border', stripText: 'text-muted-foreground', accent: 'border-border', commentBorder: 'border-l-slate-400', icon: <XCircle className="h-3.5 w-3.5" />, label: 'Cancelada' }
+        ? { stripBg: 'bg-rose-50', stripBorder: 'border-rose-200', stripText: 'text-rose-800', accent: 'border-border', commentBorder: 'border-l-rose-500', icon: <XCircle className="h-3.5 w-3.5" />, labelKey: 'opportunityDetail.approval.statusShort.rejected' }
+        : { stripBg: 'bg-muted', stripBorder: 'border-border', stripText: 'text-muted-foreground', accent: 'border-border', commentBorder: 'border-l-slate-400', icon: <XCircle className="h-3.5 w-3.5" />, labelKey: 'opportunityDetail.approval.statusShort.cancelled' }
 
   const requestedHours = hoursSince(approval.requestedAt)
 
@@ -1640,12 +1648,12 @@ function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onAppro
     <div className={`overflow-hidden rounded-xl border bg-card ${isPending ? 'border-amber-300 shadow-sm shadow-amber-100' : config.accent}`}>
       <div className={`flex items-center gap-2 border-b ${config.stripBorder} ${config.stripBg} px-5 py-2 text-[11.5px] font-bold uppercase tracking-wider ${config.stripText}`}>
         {config.icon}
-        {config.label}
+        {t(config.labelKey)}
         <span className="ml-auto text-[11px] font-medium normal-case tracking-normal">
           {isPending ? (
-            requestedHours < 1 ? 'aguardando há menos de 1h' : `aguardando há ${requestedHours}h`
+            requestedHours < 1 ? t('opportunityDetail.approval.waitingLessThanHour') : t('opportunityDetail.approval.waitingHours').replace('{0}', String(requestedHours))
           ) : approval.decidedAt ? (
-            `decidida em ${formatDate(approval.decidedAt)}`
+            t('opportunityDetail.approval.decidedOn').replace('{0}', formatDate(approval.decidedAt))
           ) : null}
         </span>
       </div>
@@ -1653,7 +1661,7 @@ function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onAppro
       <div className="grid gap-5 px-5 py-4 md:grid-cols-[1fr_auto]">
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            <strong className="text-base text-foreground">{approvalTypeLabel[approval.approvalType] ?? 'Exceção'}</strong>
+            <strong className="text-base text-foreground">{approvalTypeLabelKey[approval.approvalType] ? t(approvalTypeLabelKey[approval.approvalType]) : t('opportunityDetail.approval.type.fallback')}</strong>
           </div>
           {approval.reason && (
             <p className="mb-3 text-sm leading-relaxed text-muted-foreground">{approval.reason}</p>
@@ -1662,7 +1670,7 @@ function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onAppro
           {negotiation && (
             <div className="mb-3 inline-flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-1.5 text-xs">
               <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-muted-foreground">Vinculada a</span>
+              <span className="text-muted-foreground">{t('opportunityDetail.approval.linkedTo')}</span>
               <strong className="text-foreground">{negotiation.title}</strong>
               <span className="text-muted-foreground">·</span>
               <span className="font-mono font-semibold text-foreground">{formatCurrency(negotiation.amount)}</span>
@@ -1671,20 +1679,20 @@ function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onAppro
 
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
             <div>
-              <p className="font-bold uppercase tracking-wider text-muted-foreground">Solicitado por</p>
+              <p className="font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.approval.requestedBy')}</p>
               <p className="mt-0.5 text-foreground">{approval.requestedByUserName}</p>
-              <p className="text-[11px] text-muted-foreground">em {formatDate(approval.requestedAt)}</p>
+              <p className="text-[11px] text-muted-foreground">{t('opportunityDetail.approval.onDate').replace('{0}', formatDate(approval.requestedAt))}</p>
             </div>
             {!isPending && approval.approvedByUserName && (
               <div className="border-l border-border pl-6">
                 <p className="font-bold uppercase tracking-wider text-muted-foreground">
-                  {isApproved ? 'Aprovado por' : isRejected ? 'Rejeitado por' : 'Decidido por'}
+                  {isApproved ? t('opportunityDetail.approval.approvedBy') : isRejected ? t('opportunityDetail.approval.rejectedBy') : t('opportunityDetail.approval.decidedBy')}
                 </p>
                 <p className={`mt-0.5 font-semibold ${isApproved ? 'text-emerald-700' : isRejected ? 'text-rose-700' : 'text-foreground'}`}>
                   {approval.approvedByUserName}
                 </p>
                 {approval.decidedAt && (
-                  <p className="text-[11px] text-muted-foreground">em {formatDate(approval.decidedAt)}</p>
+                  <p className="text-[11px] text-muted-foreground">{t('opportunityDetail.approval.onDate').replace('{0}', formatDate(approval.decidedAt))}</p>
                 )}
               </div>
             )}
@@ -1700,10 +1708,10 @@ function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onAppro
         {isPending && !isCancelled && canDecide && (
           <div className="flex flex-row gap-2 md:flex-col md:gap-2">
             <Button size="sm" variant="outline-success" onClick={onApprove} disabled={actionLoading} className="justify-center md:w-44">
-              <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> Aprovar
+              <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.approval.approveButton')}
             </Button>
             <Button size="sm" variant="outline-danger" onClick={onReject} disabled={actionLoading} className="justify-center md:w-44">
-              <ThumbsDown className="mr-1.5 h-3.5 w-3.5" /> Rejeitar
+              <ThumbsDown className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.approval.rejectButton')}
             </Button>
           </div>
         )}
@@ -1713,10 +1721,11 @@ function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onAppro
 }
 
 function FunnelStagesCard({ stages, currentStageId }: { stages: Array<{ id: number; name: string; color?: string; displayOrder?: number }>; currentStageId?: number }) {
+  const { t } = useI18n()
   const currentIndex = stages.findIndex((s) => s.id === currentStageId)
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Estágio do funil</div>
+      <div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.funnel.title')}</div>
       <ol className="space-y-2">
         {stages.map((stage, index) => {
           const done = currentIndex >= 0 && index < currentIndex
@@ -1738,7 +1747,7 @@ function FunnelStagesCard({ stages, currentStageId }: { stages: Array<{ id: numb
               <span className={`text-sm ${isNow ? 'font-semibold text-foreground' : done ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
                 {stage.name}
               </span>
-              {isNow && <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-primary">aqui</span>}
+              {isNow && <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-primary">{t('opportunityDetail.funnel.here')}</span>}
             </li>
           )
         })}
