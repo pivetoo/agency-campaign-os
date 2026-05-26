@@ -34,6 +34,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public bool IsActive { get; private set; } = true;
 
+        public long? OpportunityId { get; private set; }
+
+        public long? SourceProposalId { get; private set; }
+
         public IReadOnlyCollection<CampaignCreator> CampaignCreators => campaignCreators.AsReadOnly();
 
         public IReadOnlyCollection<CampaignDeliverable> Deliverables => deliverables.AsReadOnly();
@@ -88,6 +92,16 @@ namespace AgencyCampaign.Domain.Entities
             {
                 IsActive = false;
             }
+        }
+
+        public void AttachOrigin(long opportunityId, long sourceProposalId)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sourceProposalId);
+
+            OpportunityId = opportunityId;
+            SourceProposalId = sourceProposalId;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
 
         private static string? Normalize(string? value)
