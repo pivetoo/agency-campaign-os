@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, ConfirmModal, PageLayout, SearchableSelect, UsersManagementService, useApi, useAuth, useI18n } from 'archon-ui'
+import { Button, ConfirmModal, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, UsersManagementService, useApi, useAuth, useI18n } from 'archon-ui'
 import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
@@ -80,6 +80,8 @@ export default function CommercialApprovals() {
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [reviewerRefreshKey, setReviewerRefreshKey] = useState(0)
+  const [requestChangesOpen, setRequestChangesOpen] = useState(false)
+  const [requestChangesNotes, setRequestChangesNotes] = useState('')
   const { execute: fetchApprovals, loading } = useApi<OpportunityApprovalRequest[]>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
@@ -147,15 +149,22 @@ export default function CommercialApprovals() {
     }
   }
 
-  const requestChanges = async () => {
+  const openRequestChanges = () => {
     if (!selected) return
-    const notes = window.prompt('O que precisa ser ajustado?')
-    if (notes === null) return
+    setRequestChangesNotes('')
+    setRequestChangesOpen(true)
+  }
+
+  const confirmRequestChanges = async () => {
+    if (!selected) return
     const result = await executeAction(() => opportunityService.requestApprovalChanges(selected.id, {
       approvedByUserName: user?.name || t('approvals.user.fallback'),
-      decisionNotes: notes.trim() || 'Por favor, ajuste a solicitação.',
+      decisionNotes: requestChangesNotes.trim() || 'Por favor, ajuste a solicitação.',
     }))
-    if (result !== null) await loadData()
+    if (result !== null) {
+      setRequestChangesOpen(false)
+      await loadData()
+    }
   }
 
   const resubmitApproval = async () => {
@@ -204,7 +213,7 @@ export default function CommercialApprovals() {
                 reviewerRefreshKey={reviewerRefreshKey}
                 onApprove={() => void decideApproval('approve')}
                 onReject={() => void decideApproval('reject')}
-                onRequestChanges={() => void requestChanges()}
+                onRequestChanges={openRequestChanges}
                 onResubmit={() => void resubmitApproval()}
                 onMarkMerged={() => void markMerged()}
                 onOpenOpportunity={() => selected.opportunityId && navigate(`/comercial/oportunidades/${selected.opportunityId}?tab=approvals`)}
@@ -222,6 +231,30 @@ export default function CommercialApprovals() {
           </div>
         </div>
       </div>
+
+      <Modal open={requestChangesOpen} onOpenChange={setRequestChangesOpen}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>Pedir ajustes</ModalTitle>
+          </ModalHeader>
+          <div className="space-y-2 px-1 py-2">
+            <label className="text-sm font-medium text-foreground">O que precisa ser ajustado?</label>
+            <textarea
+              value={requestChangesNotes}
+              onChange={(e) => setRequestChangesNotes(e.target.value)}
+              rows={4}
+              placeholder="Descreva o ajuste necessário para o solicitante…"
+              className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+          </div>
+          <ModalFooter>
+            <Button variant="outline" onClick={() => setRequestChangesOpen(false)}>Cancelar</Button>
+            <Button variant="outline-warning" disabled={actionLoading} onClick={() => void confirmRequestChanges()}>
+              {actionLoading ? 'Enviando…' : 'Pedir ajustes'}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </PageLayout>
   )
 }
