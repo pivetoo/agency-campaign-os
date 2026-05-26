@@ -116,6 +116,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Notes);
 
             ApplyPublishing(deliverable, request.Status, request.PublishedUrl, request.EvidenceUrl);
+            ApplyMetrics(deliverable, request);
 
             CampaignDeliverable? result = await Update(deliverable, cancellationToken);
             if (result is null)
@@ -129,6 +130,32 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return await GetDeliverableById(result.Id, cancellationToken) ?? result;
+        }
+
+        private static void ApplyMetrics(CampaignDeliverable deliverable, UpdateCampaignDeliverableRequest request)
+        {
+            bool hasAny = request.Likes.HasValue
+                || request.Comments.HasValue
+                || request.Views.HasValue
+                || request.Reach.HasValue
+                || request.Impressions.HasValue
+                || request.Saves.HasValue
+                || request.Shares.HasValue;
+
+            if (!hasAny)
+            {
+                return;
+            }
+
+            deliverable.RegisterMetrics(
+                request.Likes,
+                request.Comments,
+                request.Views,
+                request.Reach,
+                request.Impressions,
+                request.Saves,
+                request.Shares,
+                DeliverableMetricsSource.Manual);
         }
 
         private async Task TryGenerateCreatorPayout(CampaignDeliverable deliverable, CancellationToken cancellationToken)

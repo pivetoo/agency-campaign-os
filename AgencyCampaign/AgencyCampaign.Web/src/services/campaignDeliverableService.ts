@@ -34,6 +34,13 @@ export interface UpdateCampaignDeliverableRequest {
   grossAmount: number
   creatorAmount: number
   agencyFeeAmount: number
+  likes?: number
+  comments?: number
+  views?: number
+  reach?: number
+  impressions?: number
+  saves?: number
+  shares?: number
 }
 
 export const campaignDeliverableService = {

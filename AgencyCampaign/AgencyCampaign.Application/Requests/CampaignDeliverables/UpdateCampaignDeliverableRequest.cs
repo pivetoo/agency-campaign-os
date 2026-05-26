@@ -46,5 +46,26 @@ namespace AgencyCampaign.Application.Requests.CampaignDeliverables
 
         [Range(0, double.MaxValue)]
         public decimal AgencyFeeAmount { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int? Likes { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int? Comments { get; set; }
+
+        [Range(0, long.MaxValue)]
+        public long? Views { get; set; }
+
+        [Range(0, long.MaxValue)]
+        public long? Reach { get; set; }
+
+        [Range(0, long.MaxValue)]
+        public long? Impressions { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int? Saves { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int? Shares { get; set; }
     }
 }

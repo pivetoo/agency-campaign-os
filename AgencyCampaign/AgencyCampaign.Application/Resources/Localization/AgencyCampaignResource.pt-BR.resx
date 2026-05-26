@@ -915,6 +915,15 @@
   <data name="modal.deliverable.field.grossAmount" xml:space="preserve"><value>Valor bruto</value></data>
   <data name="modal.deliverable.field.creatorAmount" xml:space="preserve"><value>Repasse influenciador</value></data>
   <data name="modal.deliverable.field.agencyFee" xml:space="preserve"><value>Fee agência</value></data>
+  <data name="modal.deliverable.metrics.section" xml:space="preserve"><value>Resultados</value></data>
+  <data name="modal.deliverable.metrics.hint" xml:space="preserve"><value>Métricas do post publicado (preencha após a publicação)</value></data>
+  <data name="modal.deliverable.metrics.likes" xml:space="preserve"><value>Curtidas</value></data>
+  <data name="modal.deliverable.metrics.comments" xml:space="preserve"><value>Comentários</value></data>
+  <data name="modal.deliverable.metrics.views" xml:space="preserve"><value>Visualizações</value></data>
+  <data name="modal.deliverable.metrics.reach" xml:space="preserve"><value>Alcance</value></data>
+  <data name="modal.deliverable.metrics.impressions" xml:space="preserve"><value>Impressões</value></data>
+  <data name="modal.deliverable.metrics.saves" xml:space="preserve"><value>Salvamentos</value></data>
+  <data name="modal.deliverable.metrics.shares" xml:space="preserve"><value>Compartilhamentos</value></data>
   <data name="modal.document.title.details" xml:space="preserve"><value>Detalhes do documento</value></data>
   <data name="modal.document.title.edit" xml:space="preserve"><value>Editar documento</value></data>
   <data name="modal.document.title.new" xml:space="preserve"><value>Novo documento</value></data>

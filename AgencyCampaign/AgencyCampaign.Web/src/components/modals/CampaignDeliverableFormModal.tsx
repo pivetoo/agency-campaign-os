@@ -34,10 +34,14 @@ const initialFormData: CreateCampaignDeliverableRequest = {
   agencyFeeAmount: 0,
 }
 
+const emptyMetrics = { likes: '', comments: '', views: '', reach: '', impressions: '', saves: '', shares: '' }
+const metricFields = [['likes', 'modal.deliverable.metrics.likes'], ['comments', 'modal.deliverable.metrics.comments'], ['views', 'modal.deliverable.metrics.views'], ['reach', 'modal.deliverable.metrics.reach'], ['impressions', 'modal.deliverable.metrics.impressions'], ['saves', 'modal.deliverable.metrics.saves'], ['shares', 'modal.deliverable.metrics.shares']] as const
+
 export default function CampaignDeliverableFormModal({ open, onOpenChange, campaignId, deliverable, onSuccess }: CampaignDeliverableFormModalProps) {
   const { t } = useI18n()
   const isEditing = !!deliverable
   const [formData, setFormData] = useState<CreateCampaignDeliverableRequest>(initialFormData)
+  const [metrics, setMetrics] = useState<Record<string, string>>(emptyMetrics)
   const [campaignCreators, setCampaignCreators] = useState<CampaignCreator[]>([])
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [deliverableKinds, setDeliverableKinds] = useState<DeliverableKind[]>([])
@@ -86,10 +90,20 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
         creatorAmount: deliverable.creatorAmount,
         agencyFeeAmount: deliverable.agencyFeeAmount,
       })
+      setMetrics({
+        likes: deliverable.likes?.toString() ?? '',
+        comments: deliverable.comments?.toString() ?? '',
+        views: deliverable.views?.toString() ?? '',
+        reach: deliverable.reach?.toString() ?? '',
+        impressions: deliverable.impressions?.toString() ?? '',
+        saves: deliverable.saves?.toString() ?? '',
+        shares: deliverable.shares?.toString() ?? '',
+      })
       return
     }
 
     setFormData({ ...initialFormData, campaignId })
+    setMetrics(emptyMetrics)
   }, [deliverable, campaignId, open])
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -98,6 +112,8 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
     if (!formData.campaignCreatorId || !formData.deliverableKindId || !formData.platformId) {
       return
     }
+
+    const toMetric = (value: string) => (value.trim() === '' ? undefined : Number(value))
 
     const payload = {
       ...formData,
@@ -123,6 +139,13 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
             grossAmount: payload.grossAmount,
             creatorAmount: payload.creatorAmount,
             agencyFeeAmount: payload.agencyFeeAmount,
+            likes: toMetric(metrics.likes),
+            comments: toMetric(metrics.comments),
+            views: toMetric(metrics.views),
+            reach: toMetric(metrics.reach),
+            impressions: toMetric(metrics.impressions),
+            saves: toMetric(metrics.saves),
+            shares: toMetric(metrics.shares),
           } satisfies UpdateCampaignDeliverableRequest)
         : campaignDeliverableService.create(payload),
     )
@@ -157,11 +180,11 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
               <Select value={String(formData.status)} onValueChange={(value) => setFormData((prev) => ({ ...prev, status: Number(value) }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">Pendente</SelectItem>
-                  <SelectItem value="2">Em revisão</SelectItem>
-                  <SelectItem value="3">Aprovada</SelectItem>
-                  <SelectItem value="4">Publicada</SelectItem>
-                  <SelectItem value="5">Cancelada</SelectItem>
+                  <SelectItem value="1">{t('deliverable.status.pending')}</SelectItem>
+                  <SelectItem value="2">{t('deliverable.status.reviewing')}</SelectItem>
+                  <SelectItem value="3">{t('deliverable.status.approved')}</SelectItem>
+                  <SelectItem value="4">{t('deliverable.status.published')}</SelectItem>
+                  <SelectItem value="5">{t('deliverable.status.cancelled')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -235,6 +258,23 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
               <Input type="number" value={formData.agencyFeeAmount} onChange={(e) => setFormData((prev) => ({ ...prev, agencyFeeAmount: Number(e.target.value) }))} required />
             </div>
           </div>
+
+          {isEditing && (
+            <div className="space-y-3 rounded-lg border border-border/60 bg-muted/20 p-4">
+              <div>
+                <p className="text-sm font-semibold">{t('modal.deliverable.metrics.section')}</p>
+                <p className="text-xs text-muted-foreground">{t('modal.deliverable.metrics.hint')}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {metricFields.map(([key, labelKey]) => (
+                  <div key={key} className="space-y-2">
+                    <label className="text-sm font-medium">{t(labelKey)}</label>
+                    <Input type="number" min={0} value={metrics[key]} onChange={(e) => setMetrics((prev) => ({ ...prev, [key]: e.target.value }))} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>

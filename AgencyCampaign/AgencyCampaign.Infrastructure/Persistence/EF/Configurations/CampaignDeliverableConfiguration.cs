@@ -35,6 +35,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.AgencyFeeAmount)
                 .HasPrecision(18, 2);
 
+            builder.Property(entity => entity.EngagementRate)
+                .HasPrecision(7, 2);
+
             builder.HasOne(entity => entity.Campaign)
                 .WithMany(entity => entity.Deliverables)
                 .HasForeignKey(entity => entity.CampaignId)

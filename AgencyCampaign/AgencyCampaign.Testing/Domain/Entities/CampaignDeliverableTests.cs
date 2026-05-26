@@ -102,5 +102,65 @@ namespace AgencyCampaign.Testing.Domain.Entities
             CampaignDeliverable subject = BuildDefault(dueAt: DateTimeOffset.UtcNow.AddDays(30));
             subject.SlaStatus.Should().Be(DeliverableSlaStatus.Ok);
         }
+
+        [Test]
+        public void RegisterMetrics_should_store_values_source_and_timestamp()
+        {
+            CampaignDeliverable subject = BuildDefault();
+
+            subject.RegisterMetrics(likes: 100, comments: 20, views: 5000, reach: 4000, impressions: 6000, saves: 30, shares: 10, source: DeliverableMetricsSource.Manual);
+
+            subject.Likes.Should().Be(100);
+            subject.Comments.Should().Be(20);
+            subject.Views.Should().Be(5000);
+            subject.Reach.Should().Be(4000);
+            subject.Impressions.Should().Be(6000);
+            subject.Saves.Should().Be(30);
+            subject.Shares.Should().Be(10);
+            subject.MetricsSource.Should().Be(DeliverableMetricsSource.Manual);
+            subject.MetricsCollectedAt.Should().NotBeNull();
+        }
+
+        [Test]
+        public void RegisterMetrics_should_compute_engagement_rate_over_reach()
+        {
+            CampaignDeliverable subject = BuildDefault();
+
+            // interacoes = 100+20+10+30 = 160; reach 4000 -> 4,00%
+            subject.RegisterMetrics(100, 20, null, 4000, 6000, 30, 10, DeliverableMetricsSource.Manual);
+
+            subject.EngagementRate.Should().Be(4.00m);
+        }
+
+        [Test]
+        public void RegisterMetrics_should_fall_back_to_impressions_when_reach_missing()
+        {
+            CampaignDeliverable subject = BuildDefault();
+
+            // interacoes = 100+20 = 120; impressions 6000 -> 2,00%
+            subject.RegisterMetrics(100, 20, null, null, 6000, null, null, DeliverableMetricsSource.Manual);
+
+            subject.EngagementRate.Should().Be(2.00m);
+        }
+
+        [Test]
+        public void RegisterMetrics_should_leave_engagement_rate_null_without_denominator()
+        {
+            CampaignDeliverable subject = BuildDefault();
+
+            subject.RegisterMetrics(100, 20, 5000, null, null, 30, 10, DeliverableMetricsSource.Manual);
+
+            subject.EngagementRate.Should().BeNull();
+        }
+
+        [Test]
+        public void RegisterMetrics_should_reject_negative_values()
+        {
+            CampaignDeliverable subject = BuildDefault();
+
+            Action act = () => subject.RegisterMetrics(-1, null, null, null, null, null, null, DeliverableMetricsSource.Manual);
+
+            act.Should().Throw<ArgumentOutOfRangeException>();
+        }
     }
 }

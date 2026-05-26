@@ -22,6 +22,16 @@ namespace AgencyCampaign.Api.Contracts.CampaignDeliverables
         public decimal CreatorAmount { get; init; }
         public decimal AgencyFeeAmount { get; init; }
         public string? Notes { get; init; }
+        public int? Likes { get; init; }
+        public int? Comments { get; init; }
+        public long? Views { get; init; }
+        public long? Reach { get; init; }
+        public long? Impressions { get; init; }
+        public int? Saves { get; init; }
+        public int? Shares { get; init; }
+        public decimal? EngagementRate { get; init; }
+        public DateTimeOffset? MetricsCollectedAt { get; init; }
+        public DeliverableMetricsSource MetricsSource { get; init; }
         public CampaignReferenceContract? Campaign { get; init; }
         public CampaignCreatorReferenceContract? CampaignCreator { get; init; }
         public DeliverableKindReferenceContract? DeliverableKind { get; init; }
@@ -47,6 +57,16 @@ namespace AgencyCampaign.Api.Contracts.CampaignDeliverables
             CreatorAmount = item.CreatorAmount,
             AgencyFeeAmount = item.AgencyFeeAmount,
             Notes = item.Notes,
+            Likes = item.Likes,
+            Comments = item.Comments,
+            Views = item.Views,
+            Reach = item.Reach,
+            Impressions = item.Impressions,
+            Saves = item.Saves,
+            Shares = item.Shares,
+            EngagementRate = item.EngagementRate,
+            MetricsCollectedAt = item.MetricsCollectedAt,
+            MetricsSource = item.MetricsSource,
             Campaign = item.Campaign == null ? null : new CampaignReferenceContract
             {
                 Id = item.Campaign.Id,

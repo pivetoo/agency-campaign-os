@@ -15,6 +15,16 @@ export interface CampaignDeliverable {
   creatorAmount: number
   agencyFeeAmount: number
   notes?: string
+  likes?: number
+  comments?: number
+  views?: number
+  reach?: number
+  impressions?: number
+  saves?: number
+  shares?: number
+  engagementRate?: number
+  metricsCollectedAt?: string
+  metricsSource?: number
   daysUntilDue?: number
   slaStatus?: number
   campaign?: {

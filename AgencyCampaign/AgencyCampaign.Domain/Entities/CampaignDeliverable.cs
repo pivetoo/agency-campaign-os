@@ -76,6 +76,26 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? Notes { get; private set; }
 
+        public int? Likes { get; private set; }
+
+        public int? Comments { get; private set; }
+
+        public long? Views { get; private set; }
+
+        public long? Reach { get; private set; }
+
+        public long? Impressions { get; private set; }
+
+        public int? Saves { get; private set; }
+
+        public int? Shares { get; private set; }
+
+        public decimal? EngagementRate { get; private set; }
+
+        public DateTimeOffset? MetricsCollectedAt { get; private set; }
+
+        public DeliverableMetricsSource MetricsSource { get; private set; } = DeliverableMetricsSource.None;
+
         public IReadOnlyCollection<DeliverableApproval> Approvals => approvals.AsReadOnly();
 
         private CampaignDeliverable()
@@ -151,6 +171,56 @@ namespace AgencyCampaign.Domain.Entities
             {
                 PublishedAt = null;
                 PublishedUrl = null;
+            }
+        }
+
+        public void RegisterMetrics(int? likes, int? comments, long? views, long? reach, long? impressions, int? saves, int? shares, DeliverableMetricsSource source)
+        {
+            EnsureNonNegative(likes);
+            EnsureNonNegative(comments);
+            EnsureNonNegative(views);
+            EnsureNonNegative(reach);
+            EnsureNonNegative(impressions);
+            EnsureNonNegative(saves);
+            EnsureNonNegative(shares);
+
+            Likes = likes;
+            Comments = comments;
+            Views = views;
+            Reach = reach;
+            Impressions = impressions;
+            Saves = saves;
+            Shares = shares;
+            EngagementRate = ComputeEngagementRate();
+            MetricsCollectedAt = DateTimeOffset.UtcNow;
+            MetricsSource = source;
+        }
+
+        private decimal? ComputeEngagementRate()
+        {
+            long? denominator = Reach ?? Impressions;
+            if (!denominator.HasValue || denominator.Value <= 0)
+            {
+                return null;
+            }
+
+            long interactions = (Likes ?? 0) + (Comments ?? 0) + (Shares ?? 0) + (Saves ?? 0);
+            return Math.Round((decimal)interactions / denominator.Value * 100m, 2);
+        }
+
+        private static void EnsureNonNegative(int? value)
+        {
+            if (value.HasValue)
+            {
+                ArgumentOutOfRangeException.ThrowIfNegative(value.Value);
+            }
+        }
+
+        private static void EnsureNonNegative(long? value)
+        {
+            if (value.HasValue)
+            {
+                ArgumentOutOfRangeException.ThrowIfNegative(value.Value);
             }
         }
 
