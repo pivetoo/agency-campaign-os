@@ -208,20 +208,26 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task CreateOpportunityApprovalRequest_should_notify_each_approver_when_user_ids_provided()
+        public async Task CreateOpportunityApprovalRequest_should_create_reviewers_and_notify_each_approver()
         {
             OpportunityNegotiation negotiation = await SeedNegotiationAsync();
 
-            await service.CreateOpportunityApprovalRequest(new CreateOpportunityApprovalRequest
+            OpportunityApprovalRequest created = await service.CreateOpportunityApprovalRequest(new CreateOpportunityApprovalRequest
             {
                 OpportunityNegotiationId = negotiation.Id,
                 ApprovalType = OpportunityApprovalType.DiscountApproval,
                 Reason = "alta",
                 RequestedByUserName = "Tester",
                 RequestedByUserId = 1,
-                ApproverUserIds = new List<long> { 10, 20, 30 }
+                Approvers = new List<ApproverRequest>
+                {
+                    new() { UserId = 10, UserName = "Ana" },
+                    new() { UserId = 20, UserName = "Bruno" },
+                    new() { UserId = 30, UserName = "Carla" },
+                }
             });
 
+            (await db.Set<OpportunityApprovalReviewer>().CountAsync(item => item.OpportunityApprovalRequestId == created.Id)).Should().Be(3);
             notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
         }
 

@@ -23,6 +23,13 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         [StringLength(150, MinimumLength = 2)]
         public string RequestedByUserName { get; set; } = string.Empty;
 
-        public List<long>? ApproverUserIds { get; set; }
+        public List<ApproverRequest>? Approvers { get; set; }
+    }
+
+    public sealed class ApproverRequest
+    {
+        public long UserId { get; set; }
+
+        public string UserName { get; set; } = string.Empty;
     }
 }

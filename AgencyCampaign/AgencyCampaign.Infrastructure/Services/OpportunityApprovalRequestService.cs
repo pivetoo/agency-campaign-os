@@ -50,6 +50,17 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.RequestedByUserName,
                 request.RequestedByUserId);
 
+            List<ApproverRequest> approvers = (request.Approvers ?? [])
+                .Where(item => item.UserId > 0 && item.UserId != request.RequestedByUserId && !string.IsNullOrWhiteSpace(item.UserName))
+                .GroupBy(item => item.UserId)
+                .Select(group => group.First())
+                .ToList();
+
+            foreach (ApproverRequest approver in approvers)
+            {
+                approvalRequest.AddReviewer(approver.UserName, null, required: true, approver.UserId);
+            }
+
             bool success = await Insert(cancellationToken, approvalRequest);
             if (!success)
             {
@@ -62,19 +73,15 @@ namespace AgencyCampaign.Infrastructure.Services
 
             (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
 
-            HashSet<long> approvers = (request.ApproverUserIds ?? [])
-                .Where(userId => userId > 0 && userId != request.RequestedByUserId)
-                .ToHashSet();
-
             if (approvers.Count == 0)
             {
                 await TryNotify(KanvasNotifications.OpportunityApprovalRequested(approvalRequest, opportunityId, opportunityName), cancellationToken);
             }
             else
             {
-                foreach (long approverUserId in approvers)
+                foreach (ApproverRequest approver in approvers)
                 {
-                    await TryNotify(KanvasNotifications.OpportunityApprovalRequested(approvalRequest, opportunityId, opportunityName, approverUserId), cancellationToken);
+                    await TryNotify(KanvasNotifications.OpportunityApprovalRequested(approvalRequest, opportunityId, opportunityName, approver.UserId), cancellationToken);
                 }
             }
 

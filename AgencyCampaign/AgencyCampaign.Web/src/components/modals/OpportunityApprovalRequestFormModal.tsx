@@ -82,7 +82,7 @@ export default function OpportunityApprovalRequestFormModal({ open, onOpenChange
 
     const payload: CreateOpportunityApprovalRequest = {
       ...formData,
-      approverUserIds: selectedApprovers.map((item) => item.userId),
+      approvers: selectedApprovers.map((item) => ({ userId: item.userId, userName: item.name })),
     }
 
     const result = await execute(() => opportunityService.createApprovalRequest(payload))

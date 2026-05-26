@@ -325,7 +325,7 @@ export interface CreateOpportunityApprovalRequest {
   reason: string
   requestedByUserId?: number
   requestedByUserName: string
-  approverUserIds?: number[]
+  approvers?: { userId: number; userName: string }[]
 }
 
 export interface DecideOpportunityApprovalRequest {
