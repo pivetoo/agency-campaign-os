@@ -55,9 +55,9 @@ export default function Creators() {
       value: includeInactiveFilter,
       onChange: setIncludeInactiveFilter,
       options: [
-        { value: 'all', label: 'Incluir inativos' },
+        { value: 'all', label: t('common.filter.includeInactive') },
       ],
-      allLabel: 'Somente ativos',
+      allLabel: t('common.filter.activeOnly'),
     },
   ], [includeInactiveFilter, t])
 
@@ -128,7 +128,7 @@ export default function Creators() {
         <DropdownTrigger asChild>
           <button
             type="button"
-            title="Importar ou exportar Excel"
+            title={t('common.action.excelImportExport')}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-[#1d6f42]"
           >
             <FileSpreadsheet size={16} />
@@ -137,17 +137,17 @@ export default function Creators() {
         <DropdownContent align="end" className="w-40">
           <DropdownItem className="gap-2 cursor-pointer" onSelect={() => setIsImportOpen(true)}>
             <Upload size={14} />
-            Importar
+            {t('common.action.import')}
           </DropdownItem>
           <DropdownSeparator />
           <DropdownItem className="gap-2 cursor-pointer" onSelect={() => void handleExport()}>
             <Download size={14} />
-            Exportar
+            {t('common.action.export')}
           </DropdownItem>
         </DropdownContent>
       </Dropdown>
 
-      <AuditIconButton entityName="Creator" entityLabel="Influenciador" entityId={selectedCreator?.id ?? null} />
+      <AuditIconButton entityName="Creator" entityLabel={t('creators.singular')} entityId={selectedCreator?.id ?? null} />
 
       <span className="mx-1 h-5 w-px bg-border" aria-hidden />
     </div>
@@ -162,7 +162,7 @@ export default function Creators() {
         onAdd={() => { setSelectedCreator(null); setIsFormOpen(true) }}
         onEdit={() => selectedCreator && setIsFormOpen(true)}
         onRefresh={() => void loadCreators()}
-        addLabel="Novo influenciador"
+        addLabel={t('creators.action.new')}
         selectedRowsCount={selectedCreator ? 1 : 0}
         actions={[
           {
@@ -171,7 +171,7 @@ export default function Creators() {
             icon: <LinkIcon className="h-4 w-4" />,
             variant: 'ghost',
             disabled: !selectedCreator,
-            tooltip: selectedCreator ? undefined : 'Selecione um influenciador para gerar links do portal',
+            tooltip: selectedCreator ? undefined : t('creators.action.portalLinksTooltip'),
             onClick: () => selectedCreator && setIsTokensOpen(true),
           },
         ]}

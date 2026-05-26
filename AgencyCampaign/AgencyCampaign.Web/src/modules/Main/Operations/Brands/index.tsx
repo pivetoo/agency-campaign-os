@@ -51,9 +51,9 @@ export default function Brands() {
       value: includeInactiveFilter,
       onChange: setIncludeInactiveFilter,
       options: [
-        { value: 'all', label: 'Incluir inativos' },
+        { value: 'all', label: t('common.filter.includeInactive') },
       ],
-      allLabel: 'Somente ativas',
+      allLabel: t('common.filter.activeOnlyFemale'),
     },
   ], [includeInactiveFilter, t])
 
@@ -112,7 +112,7 @@ export default function Brands() {
         <DropdownTrigger asChild>
           <button
             type="button"
-            title="Importar ou exportar Excel"
+            title={t('common.action.excelImportExport')}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-[#1d6f42]"
           >
             <FileSpreadsheet size={16} />
@@ -121,17 +121,17 @@ export default function Brands() {
         <DropdownContent align="end" className="w-40">
           <DropdownItem className="gap-2 cursor-pointer" onSelect={() => setIsImportOpen(true)}>
             <Upload size={14} />
-            Importar
+            {t('common.action.import')}
           </DropdownItem>
           <DropdownSeparator />
           <DropdownItem className="gap-2 cursor-pointer" onSelect={() => void handleExport()}>
             <Download size={14} />
-            Exportar
+            {t('common.action.export')}
           </DropdownItem>
         </DropdownContent>
       </Dropdown>
 
-      <AuditIconButton entityName="Brand" entityLabel="Marca" entityId={selectedBrand?.id ?? null} />
+      <AuditIconButton entityName="Brand" entityLabel={t('common.field.brand')} entityId={selectedBrand?.id ?? null} />
 
       <span className="mx-1 h-5 w-px bg-border" aria-hidden />
     </div>
@@ -145,7 +145,7 @@ export default function Brands() {
         actionsSlot={utilityBar}
         onAdd={() => { setSelectedBrand(null); setIsFormOpen(true) }}
         onEdit={() => selectedBrand && setIsFormOpen(true)}
-        addLabel="Nova marca"
+        addLabel={t('brands.action.new')}
         onRefresh={() => void loadBrands()}
         selectedRowsCount={selectedBrand ? 1 : 0}
       >

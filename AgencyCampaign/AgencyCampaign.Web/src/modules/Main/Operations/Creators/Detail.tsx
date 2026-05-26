@@ -73,32 +73,32 @@ export default function CreatorDetail() {
   const handleColumns: DataTableColumn<CreatorSocialHandle>[] = [
     {
       key: 'platformName',
-      title: 'Plataforma',
+      title: t('common.field.platform'),
       dataIndex: 'platformName',
       render: (value: string, record) => (
         <span className="inline-flex items-center gap-2">
           <span className="font-medium">{value}</span>
-          {record.isPrimary && <Badge variant="success">Principal</Badge>}
+          {record.isPrimary && <Badge variant="success">{t('creators.detail.mainBadge')}</Badge>}
         </span>
       ),
     },
-    { key: 'handle', title: 'Handle', dataIndex: 'handle' },
-    { key: 'followers', title: 'Seguidores', dataIndex: 'followers', render: (value?: number | null) => formatNumber(value) },
-    { key: 'engagementRate', title: 'Engajamento', dataIndex: 'engagementRate', render: (value?: number | null) => formatPercent(value) },
+    { key: 'handle', title: t('creators.detail.field.handle'), dataIndex: 'handle' },
+    { key: 'followers', title: t('creators.detail.field.followers'), dataIndex: 'followers', render: (value?: number | null) => formatNumber(value) },
+    { key: 'engagementRate', title: t('creators.detail.field.engagement'), dataIndex: 'engagementRate', render: (value?: number | null) => formatPercent(value) },
     {
       key: 'profileUrl',
-      title: 'Link',
+      title: t('creators.detail.field.link'),
       dataIndex: 'profileUrl',
       render: (value?: string) =>
         value ? (
           <a href={value} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
-            Abrir <ExternalLink size={12} />
+            {t('common.action.open')} <ExternalLink size={12} />
           </a>
         ) : '-',
     },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.active') : t('common.status.inactive')}</Badge>,
     },
@@ -122,7 +122,7 @@ export default function CreatorDetail() {
   const campaignColumns: DataTableColumn<CreatorCampaignEntry>[] = [
     {
       key: 'campaignName',
-      title: 'Campanha',
+      title: t('common.field.campaign'),
       dataIndex: 'campaignName',
       render: (value, record) => (
         <button
@@ -133,10 +133,10 @@ export default function CreatorDetail() {
         </button>
       ),
     },
-    { key: 'brandName', title: 'Marca', dataIndex: 'brandName', render: (value?: string | null) => value || '-' },
+    { key: 'brandName', title: t('common.field.brand'), dataIndex: 'brandName', render: (value?: string | null) => value || '-' },
     {
       key: 'statusName',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'statusName',
       render: (value, record) =>
         value ? (
@@ -148,21 +148,21 @@ export default function CreatorDetail() {
           </span>
         ) : '-',
     },
-    { key: 'agreedAmount', title: 'Combinado', dataIndex: 'agreedAmount', render: (value: number) => formatCurrency(value) },
-    { key: 'agencyFeeAmount', title: 'Fee', dataIndex: 'agencyFeeAmount', render: (value: number) => formatCurrency(value) },
+    { key: 'agreedAmount', title: t('creators.detail.field.agreed'), dataIndex: 'agreedAmount', render: (value: number) => formatCurrency(value) },
+    { key: 'agencyFeeAmount', title: t('creators.detail.field.fee'), dataIndex: 'agencyFeeAmount', render: (value: number) => formatCurrency(value) },
     {
       key: 'confirmedAt',
-      title: 'Confirmado',
+      title: t('creators.detail.field.confirmed'),
       dataIndex: 'confirmedAt',
       render: (value?: string | null) => (value ? new Date(value).toLocaleDateString('pt-BR') : '-'),
     },
   ]
 
   const platformColumns: DataTableColumn<CreatorSummary['performanceByPlatform'][number]>[] = [
-    { key: 'platformName', title: 'Plataforma', dataIndex: 'platformName' },
-    { key: 'deliverables', title: 'Entregas', dataIndex: 'deliverables' },
-    { key: 'published', title: 'Publicadas', dataIndex: 'published' },
-    { key: 'grossAmount', title: 'Faturamento', dataIndex: 'grossAmount', render: (value: number) => formatCurrency(value) },
+    { key: 'platformName', title: t('common.field.platform'), dataIndex: 'platformName' },
+    { key: 'deliverables', title: t('creators.detail.field.deliverables'), dataIndex: 'deliverables' },
+    { key: 'published', title: t('creators.detail.field.published'), dataIndex: 'published' },
+    { key: 'grossAmount', title: t('creators.detail.field.revenue'), dataIndex: 'grossAmount', render: (value: number) => formatCurrency(value) },
   ]
 
   return (
@@ -215,24 +215,24 @@ export default function CreatorDetail() {
         <Card>
           <CardContent className="grid gap-3 md:grid-cols-2 lg:grid-cols-4 pt-5 pb-5">
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Campanhas</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('creators.detail.campaigns')}</p>
               <p className="text-lg font-semibold mt-1">{summary?.totalCampaigns ?? 0}</p>
-              <p className="text-[10px] text-muted-foreground">{summary?.confirmedCampaigns ?? 0} confirmadas · {summary?.cancelledCampaigns ?? 0} canceladas</p>
+              <p className="text-[10px] text-muted-foreground">{t('creators.detail.kpi.campaignsBreakdown').replace('{0}', String(summary?.confirmedCampaigns ?? 0)).replace('{1}', String(summary?.cancelledCampaigns ?? 0))}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Entregas publicadas</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('creators.detail.publishedDeliverables')}</p>
               <p className="text-lg font-semibold mt-1">{summary?.publishedDeliverables ?? 0}/{summary?.totalDeliverables ?? 0}</p>
-              <p className="text-[10px] text-muted-foreground">{summary?.overdueDeliverables ?? 0} atrasadas</p>
+              <p className="text-[10px] text-muted-foreground">{t('creators.detail.kpi.overdue').replace('{0}', String(summary?.overdueDeliverables ?? 0))}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Faturamento (bruto)</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('creators.detail.kpi.grossRevenue')}</p>
               <p className="text-lg font-semibold mt-1">{formatCurrency(summary?.totalGrossAmount ?? 0)}</p>
-              <p className="text-[10px] text-muted-foreground">{t('creators.detail.finance').replace('{0}', formatCurrency(summary?.totalCreatorAmount ?? 0))} · Fee: {formatCurrency(summary?.totalAgencyFeeAmount ?? 0)}</p>
+              <p className="text-[10px] text-muted-foreground">{t('creators.detail.finance').replace('{0}', formatCurrency(summary?.totalCreatorAmount ?? 0))} · {t('creators.detail.kpi.fee').replace('{0}', formatCurrency(summary?.totalAgencyFeeAmount ?? 0))}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">On-time delivery</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('creators.detail.kpi.onTimeDelivery')}</p>
               <p className="text-lg font-semibold mt-1">{(summary?.onTimeDeliveryRate ?? 0).toFixed(1)}%</p>
-              <p className="text-[10px] text-muted-foreground">de entregas publicadas</p>
+              <p className="text-[10px] text-muted-foreground">{t('creators.detail.kpi.onTimeDeliveryHint')}</p>
             </div>
           </CardContent>
         </Card>
@@ -241,21 +241,21 @@ export default function CreatorDetail() {
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger value="handles" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Users size={14} />
-              Redes sociais
+              {t('creators.detail.tab.socialNetworks')}
               {handles.length > 0 && (
                 <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">{handles.length}</span>
               )}
             </TabsTrigger>
             <TabsTrigger value="campaigns" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Megaphone size={14} />
-              Campanhas
+              {t('creators.detail.campaigns')}
               {campaigns.length > 0 && (
                 <span className="ml-0.5 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-medium group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">{campaigns.length}</span>
               )}
             </TabsTrigger>
             <TabsTrigger value="performance" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Activity size={14} />
-              Performance por plataforma
+              {t('creators.detail.tab.platformPerformance')}
             </TabsTrigger>
           </TabsList>
 
@@ -265,7 +265,7 @@ export default function CreatorDetail() {
                 <div className="mb-3 flex justify-end">
                   <Button size="sm" data-testid="creator-add-handle-button" onClick={() => { setSelectedHandle(null); setIsHandleFormOpen(true) }}>
                     <Plus size={14} className="mr-1.5" />
-                    Novo handle
+                    {t('creators.detail.action.newHandle')}
                   </Button>
                 </div>
                 <DataTable
