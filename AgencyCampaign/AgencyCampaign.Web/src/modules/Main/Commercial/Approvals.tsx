@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, ConfirmModal, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, UsersManagementService, useApi, useAuth, useI18n } from 'archon-ui'
+import { Button, ConfirmModal, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetHeader, SheetTitle, UsersManagementService, useApi, useAuth, useI18n } from 'archon-ui'
 import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, MessageSquare, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
@@ -71,6 +71,18 @@ function renderBodyWithMentions(body: string, users: MentionableUser[]): Array<s
   return parts
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches)
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)')
+    const handler = (event: MediaQueryListEvent) => setIsMobile(event.matches)
+    setIsMobile(query.matches)
+    query.addEventListener('change', handler)
+    return () => query.removeEventListener('change', handler)
+  }, [])
+  return isMobile
+}
+
 export default function CommercialApprovals() {
   const { t } = useI18n()
   const navigate = useNavigate()
@@ -79,6 +91,8 @@ export default function CommercialApprovals() {
   const [filter, setFilter] = useState<FilterTab>('pending')
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
+  const isMobile = useIsMobile()
   const [reviewerRefreshKey, setReviewerRefreshKey] = useState(0)
   const [requestChangesOpen, setRequestChangesOpen] = useState(false)
   const [requestChangesNotes, setRequestChangesNotes] = useState('')
@@ -213,7 +227,7 @@ export default function CommercialApprovals() {
             onSearchChange={setSearch}
             items={filtered}
             selectedId={selectedId}
-            onSelect={setSelectedId}
+            onSelect={(id) => { setSelectedId(id); setMobileDetailOpen(true) }}
             loading={loading}
             t={t}
           />
