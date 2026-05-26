@@ -7,27 +7,27 @@ import { deliverableApprovalsService, deliverableShareLinkService } from '../../
 import { DeliverableApprovalStatus } from '../../../types/deliverableShareLink'
 import type { PendingApproval } from '../../../types/deliverableShareLink'
 
-const deliverableStatusLabels: Record<number, string> = {
-  1: 'Pendente',
-  2: 'Em revisão',
-  3: 'Aprovada',
-  4: 'Publicada',
-  5: 'Cancelada',
-}
-
-const approvalStatusLabels: Record<number, string> = {
-  1: 'Pendente',
-  2: 'Aprovada',
-  3: 'Rejeitada',
-}
-
-const approvalTypeLabels: Record<number, string> = {
-  1: 'Interna',
-  2: 'Marca',
-}
-
 export default function OperationsApprovals() {
   const { t } = useI18n()
+
+  const deliverableStatusLabels: Record<number, string> = {
+    1: t('deliverable.status.pending'),
+    2: t('deliverable.status.reviewing'),
+    3: t('deliverable.status.approved'),
+    4: t('deliverable.status.published'),
+    5: t('deliverable.status.cancelled'),
+  }
+
+  const approvalStatusLabels: Record<number, string> = {
+    1: t('approvals.status.pending'),
+    2: t('approvals.status.approved'),
+    3: t('approvals.status.rejected'),
+  }
+
+  const approvalTypeLabels: Record<number, string> = {
+    1: t('operations.approvals.type.internal'),
+    2: t('operations.approvals.type.brand'),
+  }
   const navigate = useNavigate()
   const [items, setItems] = useState<PendingApproval[]>([])
   const [reviewerName, setReviewerName] = useState('')
@@ -45,7 +45,7 @@ export default function OperationsApprovals() {
   }, [])
 
   const handleGenerateLink = async (deliverableId: number) => {
-    const name = reviewerName.trim() || 'Marca'
+    const name = reviewerName.trim() || t('operations.approvals.brandFallback')
     const result = await createShareLink(() =>
       deliverableShareLinkService.create({ campaignDeliverableId: deliverableId, reviewerName: name }),
     )
@@ -57,14 +57,14 @@ export default function OperationsApprovals() {
         // ignore clipboard failure
       }
       await load()
-      window.alert(`Link copiado para área de transferência:\n\n${url}`)
+      window.alert(t('operations.approvals.linkCopied').replace('{0}', url))
     }
   }
 
   const columns: DataTableColumn<PendingApproval>[] = [
     {
       key: 'deliverableTitle',
-      title: 'Entrega',
+      title: t('common.field.deliverable'),
       dataIndex: 'deliverableTitle',
       render: (value: string, record) => (
         <div className="flex flex-col">
@@ -83,19 +83,19 @@ export default function OperationsApprovals() {
     },
     {
       key: 'dueAt',
-      title: 'Prazo',
+      title: t('common.field.dueDate'),
       dataIndex: 'dueAt',
       render: (value: string) => new Date(value).toLocaleDateString('pt-BR'),
     },
     {
       key: 'deliverableStatus',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'deliverableStatus',
       render: (value: number) => <Badge variant="warning">{deliverableStatusLabels[value] || '-'}</Badge>,
     },
     {
       key: 'approvals',
-      title: 'Aprovações registradas',
+      title: t('operations.approvals.field.registered'),
       dataIndex: 'approvals',
       render: (_value, record) =>
         record.approvals.length === 0 ? (
@@ -121,7 +121,7 @@ export default function OperationsApprovals() {
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={() => void handleGenerateLink(record.deliverableId)} disabled={creatingShareLink}>
             <LinkIcon size={14} className="mr-1.5" />
-            {record.hasActiveShareLink ? 'Novo link' : 'Gerar link'}
+            {record.hasActiveShareLink ? t('operations.approvals.action.newLink') : t('operations.approvals.action.generateLink')}
           </Button>
           <Button size="sm" variant="outline" onClick={() => navigate(`/campanhas`)}>
             <ExternalLink size={14} />
@@ -143,11 +143,11 @@ export default function OperationsApprovals() {
           <div className="flex items-center gap-3 rounded-md border bg-muted/40 px-3 py-2">
             <ShieldCheck size={16} className="text-primary" />
             <p className="text-xs text-muted-foreground">
-              Toda entrega só pode ser publicada após aprovação da marca. Use o botão abaixo para gerar um link público em que a marca registra a decisão.
+              {t('operations.approvals.info')}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-xs text-muted-foreground">Nome do revisor padrão:</label>
+            <label className="text-xs text-muted-foreground">{t('operations.approvals.field.defaultReviewer')}</label>
             <input
               className="rounded-md border bg-background px-2 py-1 text-sm"
               value={reviewerName}

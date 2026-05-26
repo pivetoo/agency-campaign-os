@@ -7,6 +7,7 @@ import { campaignService } from '../../../../services/campaignService'
 import type { Campaign } from '../../../../types/campaign'
 import CampaignFormModal from '../../../../components/modals/CampaignFormModal'
 import AuditUtilityBar from '../../../../components/buttons/AuditUtilityBar'
+import { formatCurrency } from '../../../../lib/format'
 
 const campaignStatusKeys: Record<number, string> = {
   1: 'campaign.status.draft',
@@ -58,9 +59,9 @@ export default function Campaigns() {
       value: includeInactiveFilter,
       onChange: setIncludeInactiveFilter,
       options: [
-        { value: 'all', label: 'Incluir inativas' },
+        { value: 'all', label: t('common.filter.includeInactive') },
       ],
-      allLabel: 'Somente ativas',
+      allLabel: t('common.filter.activeOnlyFemale'),
     },
   ], [includeInactiveFilter, t])
 
@@ -73,7 +74,7 @@ export default function Campaigns() {
     { key: 'name', title: t('campaign.field.campaign'), dataIndex: 'name' },
     { key: 'brand', title: t('campaign.field.brand'), dataIndex: 'brand', render: (value: Campaign['brand']) => value?.name || '-' },
     { key: 'objective', title: t('campaign.field.objective'), dataIndex: 'objective', hiddenBelow: 'md', render: (value?: string) => value || '-' },
-    { key: 'budget', title: t('campaign.field.budget'), dataIndex: 'budget', hiddenBelow: 'md', render: (value: number) => `R$ ${value.toFixed(2)}` },
+    { key: 'budget', title: t('campaign.field.budget'), dataIndex: 'budget', hiddenBelow: 'md', render: (value: number) => formatCurrency(value) },
     { key: 'startsAt', title: t('common.field.startDate'), dataIndex: 'startsAt', hiddenBelow: 'lg', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
     {
       key: 'status',
@@ -106,11 +107,11 @@ export default function Campaigns() {
       <PageLayout
         title={t('campaigns.title')}
         subtitle={t('campaigns.subtitle')}
-        actionsSlot={<AuditUtilityBar entityName="Campaign" entityLabel="Campanha" entityId={selectedCampaign?.id ?? null} />}
+        actionsSlot={<AuditUtilityBar entityName="Campaign" entityLabel={t('campaign.field.campaign')} entityId={selectedCampaign?.id ?? null} />}
         onAdd={() => { setSelectedCampaign(null); setIsFormOpen(true) }}
         onEdit={() => selectedCampaign && setIsFormOpen(true)}
         onRefresh={() => void loadCampaigns()}
-        addLabel="Nova campanha"
+        addLabel={t('campaigns.action.new')}
         selectedRowsCount={selectedCampaign ? 1 : 0}
       >
         <TableToolbar

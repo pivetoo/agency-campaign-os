@@ -19,6 +19,7 @@ import CampaignDocumentSendModal from '../../../../components/modals/CampaignDoc
 import CampaignDocumentGenerateFromTemplateModal from '../../../../components/modals/CampaignDocumentGenerateFromTemplateModal'
 import CampaignDocumentSendForSignatureModal from '../../../../components/modals/CampaignDocumentSendForSignatureModal'
 import CampaignDocumentDetailsModal from '../../../../components/modals/CampaignDocumentDetailsModal'
+import { formatCurrency } from '../../../../lib/format'
 
 
 function getContrastColor(hexColor: string): string {
@@ -139,7 +140,7 @@ export default function CampaignDetail() {
     },
     {
       key: 'campaignCreatorStatus',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'campaignCreatorStatus',
       width: 140,
       render: (value: CampaignCreator['campaignCreatorStatus']) => (
@@ -153,19 +154,19 @@ export default function CampaignDetail() {
     },
     {
       key: 'agreedAmount',
-      title: 'Valor combinado',
+      title: t('campaign.detail.field.agreedAmount'),
       dataIndex: 'agreedAmount',
-      render: (value: number) => `R$ ${value.toFixed(2)}`,
+      render: (value: number) => formatCurrency(value),
     },
     {
       key: 'agencyFeeAmount',
-      title: 'Fee agência',
+      title: t('campaign.detail.field.agencyFee'),
       dataIndex: 'agencyFeeAmount',
-      render: (_value: number, record: CampaignCreator) => `R$ ${record.agencyFeeAmount.toFixed(2)} (${record.agencyFeePercent.toFixed(2)}%)`,
+      render: (_value: number, record: CampaignCreator) => `${formatCurrency(record.agencyFeeAmount)} (${record.agencyFeePercent.toFixed(2)}%)`,
     },
     {
       key: 'confirmedAt',
-      title: 'Confirmado em',
+      title: t('campaign.detail.field.confirmedAt'),
       dataIndex: 'confirmedAt',
       render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
     },
@@ -185,7 +186,7 @@ export default function CampaignDetail() {
   ]
 
   const deliverableColumns: DataTableColumn<CampaignDeliverable>[] = [
-    { key: 'title', title: 'Entrega', dataIndex: 'title' },
+    { key: 'title', title: t('common.field.deliverable'), dataIndex: 'title' },
     {
       key: 'campaignCreator',
       title: t('creators.singular'),
@@ -194,19 +195,19 @@ export default function CampaignDetail() {
     },
     {
       key: 'deliverableKind',
-      title: 'Tipo',
+      title: t('common.field.type'),
       dataIndex: 'deliverableKind',
       render: (value: CampaignDeliverable['deliverableKind']) => value?.name || '-',
     },
     {
       key: 'platform',
-      title: 'Plataforma',
+      title: t('common.field.platform'),
       dataIndex: 'platform',
       render: (value: CampaignDeliverable['platform']) => value?.name || '-',
     },
     {
       key: 'status',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'status',
       width: 120,
       render: (value: number) => {
@@ -216,7 +217,7 @@ export default function CampaignDetail() {
     },
     {
       key: 'dueAt',
-      title: 'Prazo',
+      title: t('common.field.dueDate'),
       dataIndex: 'dueAt',
       render: (value: string, record: CampaignDeliverable) => {
         const formatted = new Date(value).toLocaleDateString('pt-BR')
@@ -227,7 +228,7 @@ export default function CampaignDetail() {
           return (
             <span className="inline-flex flex-col gap-0.5">
               <span>{formatted}</span>
-              <span className="text-[10px] font-semibold text-destructive">Atrasado {Math.abs(days)}d</span>
+              <span className="text-[10px] font-semibold text-destructive">{t('campaign.detail.deliverable.overdueDays').replace('{0}', String(Math.abs(days)))}</span>
             </span>
           )
         }
@@ -235,7 +236,7 @@ export default function CampaignDetail() {
           return (
             <span className="inline-flex flex-col gap-0.5">
               <span>{formatted}</span>
-              <span className="text-[10px] font-semibold text-amber-600">Em {days}d</span>
+              <span className="text-[10px] font-semibold text-amber-600">{t('campaign.detail.deliverable.dueInDays').replace('{0}', String(days))}</span>
             </span>
           )
         }
@@ -244,13 +245,13 @@ export default function CampaignDetail() {
     },
     {
       key: 'grossAmount',
-      title: 'Valor bruto',
+      title: t('campaign.detail.field.grossAmount'),
       dataIndex: 'grossAmount',
-      render: (value: number) => `R$ ${value.toFixed(2)}`,
+      render: (value: number) => formatCurrency(value),
     },
     {
       key: 'publishedUrl',
-      title: 'URL',
+      title: t('common.field.url'),
       dataIndex: 'publishedUrl',
       render: (value?: string) =>
         value ? (
@@ -275,10 +276,10 @@ export default function CampaignDetail() {
   ]
 
   const documentColumns: DataTableColumn<CampaignDocument>[] = [
-    { key: 'title', title: 'Documento', dataIndex: 'title' },
+    { key: 'title', title: t('common.field.document'), dataIndex: 'title' },
     {
       key: 'documentType',
-      title: 'Tipo',
+      title: t('common.field.type'),
       dataIndex: 'documentType',
       render: (value: number) => documentTypeLabels[value] || '-',
     },
@@ -293,7 +294,7 @@ export default function CampaignDetail() {
     },
     {
       key: 'status',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'status',
       width: 140,
       render: (value: number) => {
@@ -303,13 +304,13 @@ export default function CampaignDetail() {
     },
     {
       key: 'sentAt',
-      title: 'Enviado em',
+      title: t('campaign.detail.field.sentAt'),
       dataIndex: 'sentAt',
       render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
     },
     {
       key: 'signedAt',
-      title: 'Assinado em',
+      title: t('campaign.detail.field.signedAt'),
       dataIndex: 'signedAt',
       render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
     },
@@ -322,14 +323,14 @@ export default function CampaignDetail() {
           <button
             className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
             onClick={() => { setSelectedDocument(record); setIsDocumentDetailsOpen(true) }}
-            title="Ver detalhes"
+            title={t('common.action.viewDetails')}
           >
             <Eye size={14} />
           </button>
           <button
             className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
             onClick={() => { setSelectedDocument(record); setIsDocumentFormOpen(true) }}
-            title="Editar"
+            title={t('common.action.edit')}
           >
             <Pencil size={14} />
           </button>
@@ -356,8 +357,8 @@ export default function CampaignDetail() {
   return (
     <div className="space-y-4">
       <PageLayout
-        title={campaign?.name || 'Campanha'}
-        subtitle={campaign ? `${t('common.field.code')} ${campaign.id}${campaign.brand?.name ? ` · ${campaign.brand.name}` : ''} · operação da campanha` : 'Operação da campanha'}
+        title={campaign?.name || t('campaign.field.campaign')}
+        subtitle={campaign ? `${t('common.field.code')} ${campaign.id}${campaign.brand?.name ? ` · ${campaign.brand.name}` : ''} · ${t('campaign.detail.operations')}` : t('campaign.detail.operations')}
         onRefresh={() => {
           void loadCampaign()
           void loadCampaignCreators()
@@ -369,7 +370,7 @@ export default function CampaignDetail() {
         <Card>
           <CardContent className="grid gap-3 md:grid-cols-2 lg:grid-cols-4 pt-5 pb-5">
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Status</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('common.field.status')}</p>
               <div className="mt-1">
                 <Badge className="px-2 py-0.5 text-xs" variant={campaign?.status === CampaignStatus.Completed ? 'success' : campaign?.status === CampaignStatus.Cancelled ? 'destructive' : 'warning'}>
                   {campaign ? campaignStatusLabels[campaign.status] : '-'}
@@ -378,8 +379,8 @@ export default function CampaignDetail() {
             </div>
 
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Budget</p>
-              <p className="text-sm font-medium mt-1">R$ {(campaign?.budget ?? 0).toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('campaign.field.budget')}</p>
+              <p className="text-sm font-medium mt-1">{formatCurrency(campaign?.budget ?? 0)}</p>
             </div>
 
             <div>
@@ -388,21 +389,21 @@ export default function CampaignDetail() {
             </div>
 
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Entregas</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('campaign.detail.deliverablesTab')}</p>
               <p className="text-sm font-medium mt-1">{deliverables.length}</p>
             </div>
 
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Período</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('common.field.period')}</p>
               <p className="text-sm font-medium mt-1">
                 {campaign?.startsAt ? new Date(campaign.startsAt).toLocaleDateString('pt-BR') : '-'}
-                {' até '}
+                {` ${t('common.label.to')} `}
                 {campaign?.endsAt ? new Date(campaign.endsAt).toLocaleDateString('pt-BR') : '-'}
               </p>
             </div>
 
             <div className="lg:col-span-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Objetivo</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('campaign.field.objective')}</p>
               <p className="text-sm font-medium mt-1">{campaign?.objective || '-'}</p>
             </div>
           </CardContent>
@@ -467,27 +468,27 @@ export default function CampaignDetail() {
           <TabsContent value="documents" className="mt-0">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
-                <CardTitle className="text-base">Documentos</CardTitle>
+                <CardTitle className="text-base">{t('campaign.detail.documentsTab')}</CardTitle>
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" onClick={() => setIsDocumentSignatureOpen(true)} disabled={!selectedDocument}>
                     <Send size={16} className="mr-2" />
-                    Enviar para assinatura
+                    {t('campaign.detail.action.sendForSignature')}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => void handleMarkDocumentAsSigned()} disabled={!selectedDocument || signingDocument}>
                     <Signature size={16} className="mr-2" />
-                    Marcar assinado
+                    {t('campaign.detail.action.markSigned')}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setIsDocumentEmailOpen(true)} disabled={!selectedDocument}>
                     <Send size={16} className="mr-2" />
-                    Enviar
+                    {t('common.action.send')}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => { setSelectedDocument(null); setIsDocumentGenerateOpen(true) }}>
                     <Sparkles size={16} className="mr-2" />
-                    Gerar de template
+                    {t('campaign.detail.action.generateFromTemplate')}
                   </Button>
                   <Button size="sm" onClick={() => { setSelectedDocument(null); setIsDocumentFormOpen(true) }}>
                     <Plus size={16} className="mr-2" />
-                    Novo documento
+                    {t('campaign.detail.action.newDocument')}
                   </Button>
                 </div>
               </CardHeader>
@@ -498,7 +499,7 @@ export default function CampaignDetail() {
                   rowKey="id"
                   selectedRows={selectedDocument ? [selectedDocument] : []}
                   onSelectionChange={(rows) => setSelectedDocument(rows[0] ?? null)}
-                  emptyText="Nenhum documento cadastrado"
+                  emptyText={t('campaign.detail.empty.documents')}
                   loading={documentsLoading}
                   pageSize={10}
                   pageSizeOptions={[5, 10, 20, 50]}
@@ -510,10 +511,10 @@ export default function CampaignDetail() {
           <TabsContent value="deliverables" className="mt-0">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
-                <CardTitle className="text-base">Entregas</CardTitle>
+                <CardTitle className="text-base">{t('campaign.detail.deliverablesTab')}</CardTitle>
                 <Button size="sm" onClick={() => { setSelectedDeliverable(null); setIsDeliverableFormOpen(true) }}>
                   <Plus size={16} className="mr-2" />
-                  Nova entrega
+                  {t('campaign.detail.action.newDeliverable')}
                 </Button>
               </CardHeader>
               <CardContent className="pt-0">
@@ -523,7 +524,7 @@ export default function CampaignDetail() {
                   rowKey="id"
                   selectedRows={selectedDeliverable ? [selectedDeliverable] : []}
                   onSelectionChange={(rows) => setSelectedDeliverable(rows[0] ?? null)}
-                  emptyText="Nenhuma entrega cadastrada"
+                  emptyText={t('campaign.detail.empty.deliverables')}
                   loading={deliverablesLoading}
                   pageSize={10}
                   pageSizeOptions={[5, 10, 20, 50]}
