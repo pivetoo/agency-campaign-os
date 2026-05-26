@@ -8,6 +8,7 @@ import { opportunityWinReasonService, opportunityLossReasonService } from '../..
 import type { OpportunityWinReason, OpportunityLossReason } from '../../../types/opportunityOutcomeReason'
 import type { PolicyEvaluation } from '../../../types/policyEvaluation'
 import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../../services/opportunityService'
+import { OpportunityApprovalReviewerStatus, type OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import OpportunityNegotiationFormModal from '../../../components/modals/OpportunityNegotiationFormModal'
 import OpportunityFollowUpFormModal from '../../../components/modals/OpportunityFollowUpFormModal'
@@ -57,6 +58,7 @@ export default function OpportunityDetail() {
   const [stages, setStages] = useState<Array<{ id: number; name: string; finalBehavior: number; displayOrder?: number; color?: string }>>([])
   const [selectedNegotiation, setSelectedNegotiation] = useState<OpportunityNegotiation | null>(null)
   const [, setSelectedApprovalRequest] = useState<OpportunityApprovalRequest | null>(null)
+  const [reviewersByApproval, setReviewersByApproval] = useState<Record<number, OpportunityApprovalReviewer[]>>({})
   const [selectedFollowUp, setSelectedFollowUp] = useState<OpportunityFollowUp | null>(null)
   const [isOpportunityFormOpen, setIsOpportunityFormOpen] = useState(false)
   const [isNegotiationFormOpen, setIsNegotiationFormOpen] = useState(false)
@@ -204,6 +206,24 @@ export default function OpportunityDetail() {
 
   const pendingApprovalsCount = approvalRequests.filter((item) => item.status === OpportunityApprovalStatus.Pending).length
   const hasNegotiationPendingApproval = (opportunity?.negotiations ?? []).some((item) => item.status === OpportunityNegotiationStatus.PendingApproval)
+
+  const pendingApprovalIds = useMemo(() => approvalRequests.filter((item) => item.status === OpportunityApprovalStatus.Pending).map((item) => item.id).join(','), [approvalRequests])
+
+  useEffect(() => {
+    const ids = pendingApprovalIds ? pendingApprovalIds.split(',').map(Number) : []
+    if (ids.length === 0) {
+      setReviewersByApproval({})
+      return
+    }
+    let active = true
+    void Promise.all(ids.map(async (id) => [id, await opportunityService.getApprovalReviewers(id).catch(() => [])] as const))
+      .then((entries) => { if (active) setReviewersByApproval(Object.fromEntries(entries)) })
+    return () => { active = false }
+  }, [pendingApprovalIds])
+
+  const isMyPendingApproval = (approvalId: number): boolean => (reviewersByApproval[approvalId] ?? []).some((reviewer) => reviewer.status === OpportunityApprovalReviewerStatus.Pending && ((authUser?.id != null && reviewer.userId === authUser.id) || (reviewer.userId == null && reviewer.userName === authUser?.name)))
+
+  const pendingForMe = approvalRequests.filter((item) => item.status === OpportunityApprovalStatus.Pending && isMyPendingApproval(item.id)).length
 
   const sortedStages = useMemo(() => [...stages].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)), [stages])
   const currentStageIndex = useMemo(() => sortedStages.findIndex((stage) => stage.id === opportunity?.commercialPipelineStage?.id), [sortedStages, opportunity])
@@ -382,7 +402,7 @@ export default function OpportunityDetail() {
           <TabsContent value="summary" className="mt-0">
             <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
               <div className="space-y-5">
-                {pendingApprovalsCount > 0 && (
+                {pendingForMe > 0 && (
                   <div className="flex items-center gap-5 rounded-xl bg-gradient-to-br from-primary to-primary/80 p-6 text-primary-foreground shadow-lg shadow-primary/20">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/15">
                       <ThumbsUp className="h-7 w-7" />
@@ -390,12 +410,12 @@ export default function OpportunityDetail() {
                     <div className="flex-1">
                       <div className="text-[11px] font-bold uppercase tracking-widest opacity-80">Próximo passo</div>
                       <div className="mt-1 text-lg font-bold leading-snug">
-                        {pendingApprovalsCount === 1
-                          ? 'Há uma aprovação esperando sua decisão'
-                          : `Há ${pendingApprovalsCount} aprovações esperando sua decisão`}
+                        {pendingForMe === 1
+                          ? 'Há uma aprovação esperando a sua decisão'
+                          : `Há ${pendingForMe} aprovações esperando a sua decisão`}
                       </div>
                       <p className="mt-0.5 text-sm opacity-90">
-                        Negociação{pendingApprovalsCount === 1 ? '' : 'ões'} pausada{pendingApprovalsCount === 1 ? '' : 's'} até você responder.
+                        Sua aprovação é necessária para a negociação avançar.
                       </p>
                     </div>
                     <Button
@@ -625,11 +645,12 @@ export default function OpportunityDetail() {
               negotiations={opportunity?.negotiations ?? []}
               actionLoading={actionLoading}
               t={t}
+              canDecide={(item) => isMyPendingApproval(item.id)}
               onApprove={async (item) => {
                 setSelectedApprovalRequest(item)
-                const result = await executeAction(() => opportunityService.approveRequest(item.id, {
-                  approvedByUserName: t('opportunityDetail.approvals.userFallback'),
-                  decisionNotes: t('opportunityDetail.approvals.decision.approved'),
+                const result = await executeAction(() => opportunityService.recordReviewerDecision(item.id, {
+                  approved: true,
+                  notes: t('opportunityDetail.approvals.decision.approved'),
                 }))
                 if (result !== null) {
                   setSelectedApprovalRequest(null)
@@ -638,9 +659,9 @@ export default function OpportunityDetail() {
               }}
               onReject={async (item) => {
                 setSelectedApprovalRequest(item)
-                const result = await executeAction(() => opportunityService.rejectRequest(item.id, {
-                  approvedByUserName: t('opportunityDetail.approvals.userFallback'),
-                  decisionNotes: t('opportunityDetail.approvals.decision.rejected'),
+                const result = await executeAction(() => opportunityService.recordReviewerDecision(item.id, {
+                  approved: false,
+                  notes: t('opportunityDetail.approvals.decision.rejected'),
                 }))
                 if (result !== null) {
                   setSelectedApprovalRequest(null)
@@ -1511,6 +1532,7 @@ interface ApprovalsTabProps {
   negotiations: OpportunityNegotiation[]
   actionLoading: boolean
   t: (key: string) => string
+  canDecide: (approval: OpportunityApprovalRequest) => boolean
   onApprove: (item: OpportunityApprovalRequest) => Promise<void> | void
   onReject: (item: OpportunityApprovalRequest) => Promise<void> | void
 }
@@ -1527,7 +1549,7 @@ function hoursSince(iso: string): number {
   return Math.max(0, Math.floor(diff / (1000 * 60 * 60)))
 }
 
-function ApprovalsTab({ approvals, negotiations, actionLoading, t: _t, onApprove, onReject }: ApprovalsTabProps) {
+function ApprovalsTab({ approvals, negotiations, actionLoading, t: _t, canDecide, onApprove, onReject }: ApprovalsTabProps) {
   const pendingApprovals = useMemo(() => approvals.filter((a) => a.status === OpportunityApprovalStatus.Pending), [approvals])
   const decidedApprovals = useMemo(() => approvals.filter((a) => a.status !== OpportunityApprovalStatus.Pending), [approvals])
 
@@ -1576,6 +1598,7 @@ function ApprovalsTab({ approvals, negotiations, actionLoading, t: _t, onApprove
               approval={a}
               negotiation={negotiationsById.get(a.opportunityNegotiationId) ?? null}
               actionLoading={actionLoading}
+              canDecide={canDecide(a)}
               onApprove={() => void onApprove(a)}
               onReject={() => void onReject(a)}
             />
@@ -1590,11 +1613,12 @@ interface ApprovalCardProps {
   approval: OpportunityApprovalRequest
   negotiation: OpportunityNegotiation | null
   actionLoading: boolean
+  canDecide: boolean
   onApprove: () => void
   onReject: () => void
 }
 
-function ApprovalCard({ approval, negotiation, actionLoading, onApprove, onReject }: ApprovalCardProps) {
+function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onApprove, onReject }: ApprovalCardProps) {
   const isPending = approval.status === OpportunityApprovalStatus.Pending
   const isApproved = approval.status === OpportunityApprovalStatus.Approved
   const isRejected = approval.status === OpportunityApprovalStatus.Rejected
@@ -1671,7 +1695,7 @@ function ApprovalCard({ approval, negotiation, actionLoading, onApprove, onRejec
           )}
         </div>
 
-        {isPending && !isCancelled && (
+        {isPending && !isCancelled && canDecide && (
           <div className="flex flex-row gap-2 md:flex-col md:gap-2">
             <Button size="sm" variant="outline-success" onClick={onApprove} disabled={actionLoading} className="justify-center md:w-44">
               <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> Aprovar
