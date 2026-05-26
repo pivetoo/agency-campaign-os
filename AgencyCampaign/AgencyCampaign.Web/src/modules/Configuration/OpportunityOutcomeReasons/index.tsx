@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, ConfirmModal, DataTable, PageLayout, useApi } from 'archon-ui'
+import { Button, ConfirmModal, DataTable, PageLayout, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Plus, Trash2 } from 'lucide-react'
 import { opportunityWinReasonService, opportunityLossReasonService } from '../../../services/opportunityOutcomeReasonService'
@@ -13,12 +13,12 @@ interface Props {
   kind: Kind
 }
 
-const config: Record<Kind, { title: string; subtitle: string; addLabel: string }> = {
-  win: { title: 'Motivos de ganho', subtitle: 'Por que ganhamos esta oportunidade? Cadastre as categorias.', addLabel: 'Novo motivo de ganho' },
-  loss: { title: 'Motivos de perda', subtitle: 'Por que perdemos esta oportunidade? Cadastre as categorias.', addLabel: 'Novo motivo de perda' },
-}
-
 export default function OpportunityOutcomeReasons({ kind }: Props) {
+  const { t } = useI18n()
+  const config: Record<Kind, { title: string; subtitle: string; addLabel: string }> = {
+    win: { title: t('configuration.opportunityOutcomeReasons.win.title'), subtitle: t('configuration.opportunityOutcomeReasons.win.subtitle'), addLabel: t('configuration.opportunityOutcomeReasons.win.addLabel') },
+    loss: { title: t('configuration.opportunityOutcomeReasons.loss.title'), subtitle: t('configuration.opportunityOutcomeReasons.loss.subtitle'), addLabel: t('configuration.opportunityOutcomeReasons.loss.addLabel') },
+  }
   const cfg = config[kind]
   const service = kind === 'win' ? opportunityWinReasonService : opportunityLossReasonService
   const [items, setItems] = useState<AnyReason[]>([])
@@ -57,7 +57,7 @@ export default function OpportunityOutcomeReasons({ kind }: Props) {
   const columns: DataTableColumn<AnyReason>[] = [
     {
       key: 'name',
-      title: 'Motivo',
+      title: t('configuration.opportunityOutcomeReasons.field.reason'),
       dataIndex: 'name',
       render: (value: string, record) => (
         <span className="flex items-center gap-2">
@@ -66,14 +66,14 @@ export default function OpportunityOutcomeReasons({ kind }: Props) {
         </span>
       ),
     },
-    { key: 'displayOrder', title: 'Ordem', dataIndex: 'displayOrder' },
+    { key: 'displayOrder', title: t('common.field.order'), dataIndex: 'displayOrder' },
     {
       key: 'isActive',
-      title: 'Status',
+      title: t('common.field.status'),
       dataIndex: 'isActive',
       render: (value: boolean) => value
-        ? <span className="inline-flex items-center rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-800">Ativo</span>
-        : <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Inativo</span>,
+        ? <span className="inline-flex items-center rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-800">{t('common.status.active')}</span>
+        : <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('common.status.inactive')}</span>,
     },
   ]
 
@@ -90,7 +90,7 @@ export default function OpportunityOutcomeReasons({ kind }: Props) {
             </Button>
             {selected && (
               <>
-                <Button size="sm" variant="outline" onClick={() => setIsFormOpen(true)}>Editar</Button>
+                <Button size="sm" variant="outline" onClick={() => setIsFormOpen(true)}>{t('common.action.edit')}</Button>
                 <Button size="sm" variant="ghost" disabled={deleting} onClick={() => setIsConfirmOpen(true)} className="text-muted-foreground hover:text-destructive">
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -106,7 +106,7 @@ export default function OpportunityOutcomeReasons({ kind }: Props) {
           rowKey="id"
           selectedRows={selected ? [selected] : []}
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
-          emptyText="Nenhum motivo cadastrado."
+          emptyText={t('configuration.opportunityOutcomeReasons.empty')}
           loading={loading}
           pageSize={pageSize}
           pageSizeOptions={[5, 10, 20, 50]}
@@ -120,7 +120,7 @@ export default function OpportunityOutcomeReasons({ kind }: Props) {
       <ConfirmModal
         open={isConfirmOpen}
         onOpenChange={setIsConfirmOpen}
-        description={`Excluir o motivo "${selected?.name}"?`}
+        description={t('configuration.opportunityOutcomeReasons.confirm.delete').replace('{0}', selected?.name ?? '')}
         variant="danger"
         onConfirm={() => void handleDelete()}
         loading={deleting}

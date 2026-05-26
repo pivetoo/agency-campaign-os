@@ -6,14 +6,13 @@ import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
 import type { CommercialPipelineStage } from '../../../types/commercialPipelineStage'
 
-const finalBehaviorLabels: Record<number, string> = {
-  0: 'Aberto',
-  1: 'Ganha',
-  2: 'Perdida',
-}
-
 export default function CommercialPipelineStages() {
   const { t } = useI18n()
+  const finalBehaviorLabels: Record<number, string> = {
+    0: t('configuration.commercialFunnel.finalBehavior.open'),
+    1: t('configuration.commercialFunnel.finalBehavior.won'),
+    2: t('configuration.commercialFunnel.finalBehavior.lost'),
+  }
   const [stages, setStages] = useState<CommercialPipelineStage[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -52,9 +51,9 @@ export default function CommercialPipelineStages() {
       value: includeInactiveFilter,
       onChange: setIncludeInactiveFilter,
       options: [
-        { value: 'all', label: 'Incluir inativos' },
+        { value: 'all', label: t('common.filter.includeInactive') },
       ],
-      allLabel: 'Somente ativos',
+      allLabel: t('common.filter.activeOnly'),
     },
   ], [includeInactiveFilter, t])
 
@@ -66,7 +65,7 @@ export default function CommercialPipelineStages() {
     { key: 'name', title: t('configuration.commercialFunnel.field.stage'), dataIndex: 'name' },
     { key: 'displayOrder', title: t('common.field.order'), dataIndex: 'displayOrder' },
     { key: 'color', title: t('common.field.color'), dataIndex: 'color', render: (value: string) => <div className="flex items-center gap-2"><span className="h-4 w-4 rounded-full border" style={{ backgroundColor: value }} /><span>{value}</span></div> },
-    { key: 'finalBehavior', title: t('configuration.commercialFunnel.field.closing'), dataIndex: 'finalBehavior', render: (value: number) => finalBehaviorLabels[value] || 'Aberto' },
+    { key: 'finalBehavior', title: t('configuration.commercialFunnel.field.closing'), dataIndex: 'finalBehavior', render: (value: number) => finalBehaviorLabels[value] || t('configuration.commercialFunnel.finalBehavior.open') },
     { key: 'isInitial', title: t('configuration.commercialFunnel.field.initial'), dataIndex: 'isInitial', render: (value: boolean) => <Badge variant={value ? 'success' : 'outline'}>{value ? t('common.status.yes') : t('common.status.no')}</Badge> },
     { key: 'isActive', title: t('common.field.status'), dataIndex: 'isActive', render: (value: boolean) => <Badge variant={value ? 'success' : 'destructive'}>{value ? t('common.status.active') : t('common.status.inactive')}</Badge> },
   ]
@@ -79,8 +78,8 @@ export default function CommercialPipelineStages() {
         onAdd={() => { setSelectedStage(null); setIsFormOpen(true) }}
         onEdit={() => selectedStage && setIsFormOpen(true)}
         onRefresh={() => void loadStages()}
-        actionsSlot={<AuditUtilityBar entityName="CommercialPipelineStage" entityLabel="Etapa do pipeline" entityId={selectedStage?.id ?? null} />}
-        addLabel="Nova etapa"
+        actionsSlot={<AuditUtilityBar entityName="CommercialPipelineStage" entityLabel={t('configuration.commercialFunnel.entityLabel')} entityId={selectedStage?.id ?? null} />}
+        addLabel={t('configuration.commercialFunnel.addLabel')}
         selectedRowsCount={selectedStage ? 1 : 0}
       >
         <TableToolbar

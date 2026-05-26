@@ -409,6 +409,8 @@
   <data name="common.field.validity" xml:space="preserve"><value>Validity</value></data>
   <data name="common.field.items" xml:space="preserve"><value>Items</value></data>
   <data name="common.filter.allStatuses" xml:space="preserve"><value>All statuses</value></data>
+  <data name="common.filter.includeInactive" xml:space="preserve"><value>Include inactive</value></data>
+  <data name="common.filter.activeOnly" xml:space="preserve"><value>Active only</value></data>
   <data name="proposals.title" xml:space="preserve"><value>Proposals</value></data>
   <data name="proposals.subtitle" xml:space="preserve"><value>Manage proposals, links to opportunities and conversion to campaigns</value></data>
   <data name="proposals.empty" xml:space="preserve"><value>No proposals registered</value></data>
@@ -1995,4 +1997,22 @@
   <data name="modal.proposalTemplate.field.unitPrice" xml:space="preserve"><value>Unit (R$)</value></data>
   <data name="modal.proposalTemplate.field.deliveryDays" xml:space="preserve"><value>Lead time (days)</value></data>
   <data name="modal.proposalTemplate.placeholder.itemObservations" xml:space="preserve"><value>Optional</value></data>
+  <data name="configuration.commercialFunnel.finalBehavior.open" xml:space="preserve"><value>Open</value></data>
+  <data name="configuration.commercialFunnel.finalBehavior.won" xml:space="preserve"><value>Won</value></data>
+  <data name="configuration.commercialFunnel.finalBehavior.lost" xml:space="preserve"><value>Lost</value></data>
+  <data name="configuration.commercialFunnel.entityLabel" xml:space="preserve"><value>Pipeline stage</value></data>
+  <data name="configuration.commercialFunnel.addLabel" xml:space="preserve"><value>New stage</value></data>
+  <data name="configuration.opportunitySources.entityLabel" xml:space="preserve"><value>Opportunity source</value></data>
+  <data name="configuration.opportunitySources.addLabel" xml:space="preserve"><value>New source</value></data>
+  <data name="configuration.opportunityTags.entityLabel" xml:space="preserve"><value>Tag</value></data>
+  <data name="configuration.opportunityTags.addLabel" xml:space="preserve"><value>New tag</value></data>
+  <data name="configuration.opportunityOutcomeReasons.win.title" xml:space="preserve"><value>Win reasons</value></data>
+  <data name="configuration.opportunityOutcomeReasons.win.subtitle" xml:space="preserve"><value>Why did we win this opportunity? Register the categories.</value></data>
+  <data name="configuration.opportunityOutcomeReasons.win.addLabel" xml:space="preserve"><value>New win reason</value></data>
+  <data name="configuration.opportunityOutcomeReasons.loss.title" xml:space="preserve"><value>Loss reasons</value></data>
+  <data name="configuration.opportunityOutcomeReasons.loss.subtitle" xml:space="preserve"><value>Why did we lose this opportunity? Register the categories.</value></data>
+  <data name="configuration.opportunityOutcomeReasons.loss.addLabel" xml:space="preserve"><value>New loss reason</value></data>
+  <data name="configuration.opportunityOutcomeReasons.field.reason" xml:space="preserve"><value>Reason</value></data>
+  <data name="configuration.opportunityOutcomeReasons.empty" xml:space="preserve"><value>No reasons registered.</value></data>
+  <data name="configuration.opportunityOutcomeReasons.confirm.delete" xml:space="preserve"><value>Delete reason "{0}"?</value></data>
 </root>

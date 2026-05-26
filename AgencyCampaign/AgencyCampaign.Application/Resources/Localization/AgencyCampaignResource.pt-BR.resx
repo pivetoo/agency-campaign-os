@@ -409,6 +409,8 @@
   <data name="common.field.validity" xml:space="preserve"><value>Validade</value></data>
   <data name="common.field.items" xml:space="preserve"><value>Itens</value></data>
   <data name="common.filter.allStatuses" xml:space="preserve"><value>Todos os status</value></data>
+  <data name="common.filter.includeInactive" xml:space="preserve"><value>Incluir inativos</value></data>
+  <data name="common.filter.activeOnly" xml:space="preserve"><value>Somente ativos</value></data>
   <data name="proposals.title" xml:space="preserve"><value>Propostas</value></data>
   <data name="proposals.subtitle" xml:space="preserve"><value>Gerencie propostas, vínculos com oportunidades e conversão para campanhas</value></data>
   <data name="proposals.empty" xml:space="preserve"><value>Nenhuma proposta cadastrada</value></data>
@@ -1995,4 +1997,22 @@
   <data name="modal.proposalTemplate.field.unitPrice" xml:space="preserve"><value>Unitário (R$)</value></data>
   <data name="modal.proposalTemplate.field.deliveryDays" xml:space="preserve"><value>Prazo (dias)</value></data>
   <data name="modal.proposalTemplate.placeholder.itemObservations" xml:space="preserve"><value>Opcional</value></data>
+  <data name="configuration.commercialFunnel.finalBehavior.open" xml:space="preserve"><value>Aberto</value></data>
+  <data name="configuration.commercialFunnel.finalBehavior.won" xml:space="preserve"><value>Ganha</value></data>
+  <data name="configuration.commercialFunnel.finalBehavior.lost" xml:space="preserve"><value>Perdida</value></data>
+  <data name="configuration.commercialFunnel.entityLabel" xml:space="preserve"><value>Etapa do pipeline</value></data>
+  <data name="configuration.commercialFunnel.addLabel" xml:space="preserve"><value>Nova etapa</value></data>
+  <data name="configuration.opportunitySources.entityLabel" xml:space="preserve"><value>Origem de oportunidade</value></data>
+  <data name="configuration.opportunitySources.addLabel" xml:space="preserve"><value>Nova origem</value></data>
+  <data name="configuration.opportunityTags.entityLabel" xml:space="preserve"><value>Tag</value></data>
+  <data name="configuration.opportunityTags.addLabel" xml:space="preserve"><value>Nova tag</value></data>
+  <data name="configuration.opportunityOutcomeReasons.win.title" xml:space="preserve"><value>Motivos de ganho</value></data>
+  <data name="configuration.opportunityOutcomeReasons.win.subtitle" xml:space="preserve"><value>Por que ganhamos esta oportunidade? Cadastre as categorias.</value></data>
+  <data name="configuration.opportunityOutcomeReasons.win.addLabel" xml:space="preserve"><value>Novo motivo de ganho</value></data>
+  <data name="configuration.opportunityOutcomeReasons.loss.title" xml:space="preserve"><value>Motivos de perda</value></data>
+  <data name="configuration.opportunityOutcomeReasons.loss.subtitle" xml:space="preserve"><value>Por que perdemos esta oportunidade? Cadastre as categorias.</value></data>
+  <data name="configuration.opportunityOutcomeReasons.loss.addLabel" xml:space="preserve"><value>Novo motivo de perda</value></data>
+  <data name="configuration.opportunityOutcomeReasons.field.reason" xml:space="preserve"><value>Motivo</value></data>
+  <data name="configuration.opportunityOutcomeReasons.empty" xml:space="preserve"><value>Nenhum motivo cadastrado.</value></data>
+  <data name="configuration.opportunityOutcomeReasons.confirm.delete" xml:space="preserve"><value>Excluir o motivo "{0}"?</value></data>
 </root>

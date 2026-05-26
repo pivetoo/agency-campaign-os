@@ -47,9 +47,9 @@ export default function OpportunityTags() {
       value: includeInactiveFilter,
       onChange: setIncludeInactiveFilter,
       options: [
-        { value: 'all', label: 'Incluir inativos' },
+        { value: 'all', label: t('common.filter.includeInactive') },
       ],
-      allLabel: 'Somente ativos',
+      allLabel: t('common.filter.activeOnly'),
     },
   ], [includeInactiveFilter, t])
 
@@ -99,8 +99,8 @@ export default function OpportunityTags() {
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}
-        actionsSlot={<AuditUtilityBar entityName="OpportunityTag" entityLabel="Tag" entityId={selected?.id ?? null} />}
-        addLabel="Nova tag"
+        actionsSlot={<AuditUtilityBar entityName="OpportunityTag" entityLabel={t('configuration.opportunityTags.entityLabel')} entityId={selected?.id ?? null} />}
+        addLabel={t('configuration.opportunityTags.addLabel')}
         selectedRowsCount={selected ? 1 : 0}
         actions={[
           {
