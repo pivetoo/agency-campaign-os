@@ -12,9 +12,11 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class OpportunityNegotiationService : CrudService<OpportunityNegotiation>, IOpportunityNegotiationService
     {
+        private readonly IPolicyEvaluator policyEvaluator;
 
-        public OpportunityNegotiationService(DbContext dbContext) : base(dbContext)
+        public OpportunityNegotiationService(DbContext dbContext, IPolicyEvaluator policyEvaluator) : base(dbContext)
         {
+            this.policyEvaluator = policyEvaluator;
         }
 
         public async Task<OpportunityNegotiation?> GetOpportunityNegotiationById(long id, CancellationToken cancellationToken = default)
@@ -85,6 +87,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 case OpportunityNegotiationStatus.PendingApproval:
                     throw new InvalidOperationException("opportunityNegotiation.statusTransition.pendingApprovalRequiresRequest");
                 case OpportunityNegotiationStatus.Approved:
+                    await EnsureDirectApprovalAllowed(negotiation, cancellationToken);
                     negotiation.Approve();
                     break;
                 case OpportunityNegotiationStatus.Rejected:
@@ -131,6 +134,15 @@ namespace AgencyCampaign.Infrastructure.Services
                 .OrderByDescending(item => item.NegotiatedAt)
                 .ThenByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
+        }
+
+        private async Task EnsureDirectApprovalAllowed(OpportunityNegotiation negotiation, CancellationToken cancellationToken)
+        {
+            bool hasDeviations = (await policyEvaluator.EvaluateNegotiationAsync(negotiation, cancellationToken)).HasDeviations;
+            if (hasDeviations)
+            {
+                throw new InvalidOperationException("opportunityNegotiation.approve.requiresReview");
+            }
         }
 
         private async Task EnsureOpportunityExists(long opportunityId, CancellationToken cancellationToken)

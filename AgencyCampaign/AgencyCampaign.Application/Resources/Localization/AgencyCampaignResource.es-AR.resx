@@ -184,6 +184,7 @@
   <data name="opportunityNegotiation.approved.cannotReturnToPending" xml:space="preserve"><value>Las negociaciones aprobadas no pueden volver a aprobación pendiente.</value></data>
   <data name="opportunityNegotiation.sendToClient.notApproved" xml:space="preserve"><value>Solo las negociaciones aprobadas pueden enviarse al cliente.</value></data>
   <data name="opportunityNegotiation.clientAcceptance.notApproved" xml:space="preserve"><value>La negociación debe estar aprobada antes de la aceptación del cliente.</value></data>
+  <data name="opportunityNegotiation.approve.requiresReview" xml:space="preserve"><value>Esta negociación excede la política comercial y requiere aprobación de un revisor. Usá "Solicitar aprobación".</value></data>
   <data name="opportunityFollowUp.alreadyCompleted" xml:space="preserve"><value>Esta actividad ya está completada.</value></data>
   <data name="opportunityComment.onlyAuthorCanEdit" xml:space="preserve"><value>Solo el autor del comentario puede editarlo.</value></data>
   <data name="campaignDeliverable.amountsExceedGross" xml:space="preserve"><value>El monto del creator más la comisión de la agencia no puede superar el monto bruto de la entrega.</value></data>
@@ -632,6 +633,7 @@
   <data name="opportunityDetail.negotiations.new" xml:space="preserve"><value>Nueva negociación</value></data>
   <data name="opportunityDetail.negotiations.description" xml:space="preserve"><value>Cada negociación registra una ronda de oferta con valor y motivo (propuesta inicial, contrapropuesta, ajuste de descuento). Seleccione una para editar o solicitar aprobación interna.</value></data>
   <data name="opportunityDetail.negotiations.requestApproval" xml:space="preserve"><value>Solicitar aprobación</value></data>
+  <data name="opportunityDetail.negotiations.approve" xml:space="preserve"><value>Aprobar</value></data>
   <data name="opportunityDetail.negotiations.changeStatus" xml:space="preserve"><value>Cambiar estado</value></data>
   <data name="opportunityDetail.negotiations.changeStatus.description" xml:space="preserve"><value>Seleccioná el nuevo estado de la negociación. Los cambios no se propagan a la pestaña de Aprobaciones.</value></data>
   <data name="opportunityDetail.negotiations.empty" xml:space="preserve"><value>No hay negociaciones registradas</value></data>

@@ -22,7 +22,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new OpportunityNegotiationService(db);
+            service = new OpportunityNegotiationService(db, new PolicyEvaluatorService(db));
         }
 
         [TearDown]
@@ -204,6 +204,60 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             IReadOnlyCollection<OpportunityNegotiation> result = await service.GetNegotiationsByOpportunityId(opportunity.Id);
 
             result.Select(item => item.Title).Should().Equal("v3", "v2", "v1");
+        }
+
+        [Test]
+        public async Task ChangeStatus_to_Approved_should_throw_when_policy_is_breached()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            OpportunityNegotiation negotiation = new(opportunity.Id, "v1", 1000m, DateTimeOffset.UtcNow, null, discountPercent: 25m);
+            db.Add(negotiation);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.ChangeStatus(negotiation.Id, new ChangeOpportunityNegotiationStatusRequest
+            {
+                Status = OpportunityNegotiationStatus.Approved
+            });
+
+            await act.Should().ThrowAsync<InvalidOperationException>()
+                .WithMessage("opportunityNegotiation.approve.requiresReview");
+        }
+
+        [Test]
+        public async Task ChangeStatus_to_Approved_should_succeed_when_within_policy()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            db.Add(new CommercialPolicy(maxDiscountPercent: 30m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            OpportunityNegotiation negotiation = new(opportunity.Id, "v1", 1000m, DateTimeOffset.UtcNow, null, discountPercent: 10m);
+            db.Add(negotiation);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            OpportunityNegotiation result = await service.ChangeStatus(negotiation.Id, new ChangeOpportunityNegotiationStatusRequest
+            {
+                Status = OpportunityNegotiationStatus.Approved
+            });
+
+            result.Status.Should().Be(OpportunityNegotiationStatus.Approved);
+        }
+
+        [Test]
+        public async Task ChangeStatus_to_Approved_should_succeed_when_no_policy_registered()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            OpportunityNegotiation negotiation = new(opportunity.Id, "v1", 1000m, DateTimeOffset.UtcNow, null, discountPercent: 99m);
+            db.Add(negotiation);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            OpportunityNegotiation result = await service.ChangeStatus(negotiation.Id, new ChangeOpportunityNegotiationStatusRequest
+            {
+                Status = OpportunityNegotiationStatus.Approved
+            });
+
+            result.Status.Should().Be(OpportunityNegotiationStatus.Approved);
         }
     }
 }

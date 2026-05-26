@@ -640,6 +640,13 @@ export default function OpportunityDetail() {
                 setIsStatusModalOpen(true)
               }}
               onRequestApproval={(item) => { setSelectedNegotiation(item); setIsApprovalRequestFormOpen(true) }}
+              onApprove={async (item) => {
+                setSelectedNegotiation(item)
+                const result = await executeAction(() => opportunityService.changeNegotiationStatus(item.id, { status: OpportunityNegotiationStatus.Approved }))
+                if (result !== null) {
+                  await loadOpportunity()
+                }
+              }}
             />
           </TabsContent>
 
@@ -975,9 +982,10 @@ interface NegotiationsTabProps {
   onDelete: (item: OpportunityNegotiation) => Promise<void> | void
   onChangeStatus: (item: OpportunityNegotiation) => void
   onRequestApproval: (item: OpportunityNegotiation) => void
+  onApprove: (item: OpportunityNegotiation) => Promise<void> | void
 }
 
-function NegotiationsTab({ negotiations, actionLoading, onNew, onEdit, onDelete, onChangeStatus, onRequestApproval }: NegotiationsTabProps) {
+function NegotiationsTab({ negotiations, actionLoading, onNew, onEdit, onDelete, onChangeStatus, onRequestApproval, onApprove }: NegotiationsTabProps) {
   const { t } = useI18n()
   const [filter, setFilter] = useState<NegotiationFilter>('all')
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -1085,6 +1093,7 @@ function NegotiationsTab({ negotiations, actionLoading, onNew, onEdit, onDelete,
                   onDelete={() => void onDelete(sel)}
                   onChangeStatus={() => onChangeStatus(sel)}
                   onRequestApproval={() => onRequestApproval(sel)}
+                  onApprove={() => onApprove(sel)}
                 />
               )
             })()}
@@ -1192,9 +1201,10 @@ interface NegotiationDetailPanelProps {
   onDelete: () => void
   onChangeStatus: () => void
   onRequestApproval: () => void
+  onApprove: () => void
 }
 
-function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onClose, onEdit, onDelete, onChangeStatus, onRequestApproval }: NegotiationDetailPanelProps) {
+function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onClose, onEdit, onDelete, onChangeStatus, onRequestApproval, onApprove }: NegotiationDetailPanelProps) {
   const { t } = useI18n()
   const isDraft = negotiation.status === OpportunityNegotiationStatus.Draft
   const isCancelled = negotiation.status === OpportunityNegotiationStatus.Cancelled
@@ -1211,6 +1221,7 @@ function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onCl
   }, [negotiation.id])
 
   const showPolicyBanner = isDraft && evaluation?.hasDeviations
+  const requiresReview = evaluation?.hasDeviations === true
 
   return (
     <aside className="sticky top-4 self-start overflow-hidden rounded-xl border border-border bg-card">
@@ -1307,8 +1318,13 @@ function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onCl
       <div className="flex flex-col gap-1.5 border-t border-border/60 bg-muted/20 px-4 py-3">
         {isDraft && (
           <>
-            <Button size="sm" onClick={onRequestApproval} disabled={actionLoading} className="justify-center">
-              <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiations.requestApproval')}
+            {!requiresReview && (
+              <Button size="sm" onClick={onApprove} disabled={actionLoading} className="justify-center">
+                <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiations.approve')}
+              </Button>
+            )}
+            <Button size="sm" variant={requiresReview ? 'primary' : 'outline'} onClick={onRequestApproval} disabled={actionLoading} className="justify-center">
+              <UserCheck className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiations.requestApproval')}
             </Button>
             <Button size="sm" variant="outline" onClick={onEdit} disabled={actionLoading} className="justify-center">
               <Pencil className="mr-1.5 h-3.5 w-3.5" /> {t('common.action.edit')}

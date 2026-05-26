@@ -184,6 +184,7 @@
   <data name="opportunityNegotiation.approved.cannotReturnToPending" xml:space="preserve"><value>Approved negotiations cannot return to pending approval.</value></data>
   <data name="opportunityNegotiation.sendToClient.notApproved" xml:space="preserve"><value>Only approved negotiations can be sent to the client.</value></data>
   <data name="opportunityNegotiation.clientAcceptance.notApproved" xml:space="preserve"><value>The negotiation must be approved before client acceptance.</value></data>
+  <data name="opportunityNegotiation.approve.requiresReview" xml:space="preserve"><value>This negotiation exceeds the commercial policy and requires reviewer approval. Use "Request approval".</value></data>
   <data name="opportunityFollowUp.alreadyCompleted" xml:space="preserve"><value>This follow-up is already completed.</value></data>
   <data name="opportunityComment.onlyAuthorCanEdit" xml:space="preserve"><value>Only the comment author can edit it.</value></data>
   <data name="campaignDeliverable.amountsExceedGross" xml:space="preserve"><value>Creator amount plus agency fee cannot exceed the deliverable gross amount.</value></data>
@@ -632,6 +633,7 @@
   <data name="opportunityDetail.negotiations.new" xml:space="preserve"><value>New negotiation</value></data>
   <data name="opportunityDetail.negotiations.description" xml:space="preserve"><value>Each negotiation records a round of offer with value and reason (initial proposal, counter offer, discount adjustment). Select one to edit or request internal approval.</value></data>
   <data name="opportunityDetail.negotiations.requestApproval" xml:space="preserve"><value>Request approval</value></data>
+  <data name="opportunityDetail.negotiations.approve" xml:space="preserve"><value>Approve</value></data>
   <data name="opportunityDetail.negotiations.changeStatus" xml:space="preserve"><value>Change status</value></data>
   <data name="opportunityDetail.negotiations.changeStatus.description" xml:space="preserve"><value>Select the new status of the negotiation. Changes are not propagated to the Approvals tab.</value></data>
   <data name="opportunityDetail.negotiations.empty" xml:space="preserve"><value>No negotiations registered</value></data>
