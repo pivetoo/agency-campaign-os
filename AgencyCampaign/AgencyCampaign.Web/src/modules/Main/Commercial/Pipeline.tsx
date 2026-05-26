@@ -424,7 +424,7 @@ export default function CommercialPipeline() {
               )}
             </button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[min(560px,95vw)] overflow-y-auto p-5 sm:max-w-none">
+          <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:w-[min(560px,95vw)] sm:max-w-none">
             <div className="mb-4">
               <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
                 <Target className="h-4 w-4 text-primary" />
