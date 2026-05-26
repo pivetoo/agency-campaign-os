@@ -42,6 +42,19 @@ namespace AgencyCampaign.Domain.Entities
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
+        internal OpportunityApprovalReviewer(string userName, string? role, bool required, long? userId)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(userName);
+
+            UserId = userId;
+            UserName = userName.Trim();
+            Role = string.IsNullOrWhiteSpace(role) ? null : role.Trim();
+            Required = required;
+            Status = OpportunityApprovalReviewerStatus.Pending;
+            CreatedAt = DateTimeOffset.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
         public void RecordDecision(OpportunityApprovalReviewerStatus status, string? notes = null)
         {
             if (status == OpportunityApprovalReviewerStatus.Pending)

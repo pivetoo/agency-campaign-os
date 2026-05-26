@@ -5,6 +5,8 @@ namespace AgencyCampaign.Domain.Entities
 {
     public sealed class OpportunityApprovalRequest : Entity
     {
+        private readonly List<OpportunityApprovalReviewer> reviewers = [];
+
         public long OpportunityNegotiationId { get; private set; }
 
         public OpportunityNegotiation? OpportunityNegotiation { get; private set; }
@@ -28,6 +30,8 @@ namespace AgencyCampaign.Domain.Entities
         public DateTimeOffset? DecidedAt { get; private set; }
 
         public string? DecisionNotes { get; private set; }
+
+        public IReadOnlyCollection<OpportunityApprovalReviewer> Reviewers => reviewers.AsReadOnly();
 
         private OpportunityApprovalRequest()
         {
@@ -132,6 +136,66 @@ namespace AgencyCampaign.Domain.Entities
             }
 
             Status = OpportunityApprovalStatus.Merged;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        public OpportunityApprovalReviewer AddReviewer(string userName, string? role, bool required, long? userId = null)
+        {
+            OpportunityApprovalReviewer reviewer = new(userName, role, required, userId);
+            reviewers.Add(reviewer);
+            return reviewer;
+        }
+
+        public void RegisterReviewerDecision(long decidingUserId, OpportunityApprovalReviewerStatus decision, string? notes = null)
+        {
+            if (Status != OpportunityApprovalStatus.Pending && Status != OpportunityApprovalStatus.InReview)
+            {
+                throw new InvalidOperationException("opportunityApproval.notPending");
+            }
+
+            OpportunityApprovalReviewer? reviewer = reviewers
+                .FirstOrDefault(item => item.UserId == decidingUserId && item.Status == OpportunityApprovalReviewerStatus.Pending);
+
+            if (reviewer is null)
+            {
+                throw new InvalidOperationException("opportunityApproval.reviewer.notPending");
+            }
+
+            reviewer.RecordDecision(decision, notes);
+            RecomputeStatusFromReviewers(reviewer);
+        }
+
+        private void RecomputeStatusFromReviewers(OpportunityApprovalReviewer lastDecider)
+        {
+            List<OpportunityApprovalReviewer> required = reviewers
+                .Where(item => item.Required)
+                .ToList();
+
+            bool anyRequiredRejected = required
+                .Any(item => item.Status == OpportunityApprovalReviewerStatus.Rejected);
+
+            if (anyRequiredRejected)
+            {
+                ApplyDerivedDecision(OpportunityApprovalStatus.Rejected, lastDecider);
+                return;
+            }
+
+            bool allRequiredApproved = required.Count > 0
+                && required.All(item => item.Status == OpportunityApprovalReviewerStatus.Approved);
+
+            if (allRequiredApproved)
+            {
+                ApplyDerivedDecision(OpportunityApprovalStatus.Approved, lastDecider);
+            }
+        }
+
+        private void ApplyDerivedDecision(OpportunityApprovalStatus status, OpportunityApprovalReviewer decider)
+        {
+            Status = status;
+            ApprovedByUserId = decider.UserId;
+            ApprovedByUserName = decider.UserName;
+            DecisionNotes = decider.DecisionNotes;
+            DecidedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 

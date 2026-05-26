@@ -73,5 +73,79 @@ namespace AgencyCampaign.Testing.Domain.Entities
             approve.Should().Throw<ArgumentException>();
             reject.Should().Throw<ArgumentException>();
         }
+
+        [Test]
+        public void AddReviewer_should_add_pending_reviewer()
+        {
+            OpportunityApprovalRequest subject = BuildDefault();
+
+            subject.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+
+            subject.Reviewers.Should().ContainSingle(item => item.UserName == "Ana" && item.Required && item.Status == OpportunityApprovalReviewerStatus.Pending);
+        }
+
+        [Test]
+        public void RegisterReviewerDecision_should_keep_pending_until_all_required_approve()
+        {
+            OpportunityApprovalRequest subject = BuildDefault();
+            subject.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            subject.AddReviewer("Bruno", "CFO", required: true, userId: 20);
+
+            subject.RegisterReviewerDecision(10, OpportunityApprovalReviewerStatus.Approved);
+
+            subject.Status.Should().Be(OpportunityApprovalStatus.Pending);
+        }
+
+        [Test]
+        public void RegisterReviewerDecision_should_approve_when_all_required_approved()
+        {
+            OpportunityApprovalRequest subject = BuildDefault();
+            subject.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            subject.AddReviewer("Bruno", "CFO", required: true, userId: 20);
+
+            subject.RegisterReviewerDecision(10, OpportunityApprovalReviewerStatus.Approved);
+            subject.RegisterReviewerDecision(20, OpportunityApprovalReviewerStatus.Approved, "ok");
+
+            subject.Status.Should().Be(OpportunityApprovalStatus.Approved);
+            subject.ApprovedByUserId.Should().Be(20);
+            subject.DecidedAt.Should().NotBeNull();
+        }
+
+        [Test]
+        public void RegisterReviewerDecision_should_reject_when_any_required_rejects()
+        {
+            OpportunityApprovalRequest subject = BuildDefault();
+            subject.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            subject.AddReviewer("Bruno", "CFO", required: true, userId: 20);
+
+            subject.RegisterReviewerDecision(10, OpportunityApprovalReviewerStatus.Approved);
+            subject.RegisterReviewerDecision(20, OpportunityApprovalReviewerStatus.Rejected, "fora da alcada");
+
+            subject.Status.Should().Be(OpportunityApprovalStatus.Rejected);
+            subject.ApprovedByUserId.Should().Be(20);
+        }
+
+        [Test]
+        public void RegisterReviewerDecision_should_ignore_optional_reviewers_for_quorum()
+        {
+            OpportunityApprovalRequest subject = BuildDefault();
+            subject.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            subject.AddReviewer("Carla", "Consultora", required: false, userId: 30);
+
+            subject.RegisterReviewerDecision(10, OpportunityApprovalReviewerStatus.Approved);
+
+            subject.Status.Should().Be(OpportunityApprovalStatus.Approved);
+        }
+
+        [Test]
+        public void RegisterReviewerDecision_should_throw_when_user_is_not_a_pending_reviewer()
+        {
+            OpportunityApprovalRequest subject = BuildDefault();
+            subject.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+
+            Action act = () => subject.RegisterReviewerDecision(999, OpportunityApprovalReviewerStatus.Approved);
+
+            act.Should().Throw<InvalidOperationException>();
+        }
     }
 }

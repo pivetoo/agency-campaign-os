@@ -25,7 +25,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .HasMaxLength(1000);
 
             builder.HasOne(entity => entity.OpportunityApprovalRequest)
-                .WithMany()
+                .WithMany(entity => entity.Reviewers)
                 .HasForeignKey(entity => entity.OpportunityApprovalRequestId)
                 .OnDelete(DeleteBehavior.Cascade);
 
