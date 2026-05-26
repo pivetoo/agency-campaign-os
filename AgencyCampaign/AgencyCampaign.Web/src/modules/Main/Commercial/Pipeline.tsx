@@ -166,6 +166,7 @@ export default function CommercialPipeline() {
   const [responsibleFilter, setResponsibleFilter] = useState('')
   const [brandFilter, setBrandFilter] = useState('')
   const [riskOnly, setRiskOnly] = useState(false)
+  const [mobileStageId, setMobileStageId] = useState<number | null>(null)
   const { execute: fetchBoard, loading } = useApi<OpportunityBoardStage[]>({ showErrorMessage: true })
   const { execute: runFinalClose, loading: closing } = useApi({ showSuccessMessage: true, showErrorMessage: true })
   const { hasAnyPermission } = usePermissions()
@@ -283,6 +284,13 @@ export default function CommercialPipeline() {
     setBrandFilter('')
     setRiskOnly(false)
   }
+
+  const activeMobileStage = useMemo(() => {
+    if (displayStages.length === 0) {
+      return null
+    }
+    return displayStages.find((stage) => stage.commercialPipelineStageId === mobileStageId) ?? displayStages[0]
+  }, [displayStages, mobileStageId])
 
   const moveOpportunity = async (targetStage: number) => {
     if (!draggedItem || draggedItem.commercialPipelineStageId === targetStage || movingOpportunityId) {
@@ -530,7 +538,57 @@ export default function CommercialPipeline() {
           </div>
         )}
 
-        <div className="overflow-x-auto pb-4">
+        {/* Mobile: Kanban nao funciona no toque (colunas horizontais + drag). Seletor de etapa + lista vertical. */}
+        <div className="md:hidden">
+          {displayStages.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {displayStages.map((stage) => {
+                const isActive = activeMobileStage?.commercialPipelineStageId === stage.commercialPipelineStageId
+                return (
+                  <button
+                    key={stage.commercialPipelineStageId}
+                    type="button"
+                    onClick={() => setMobileStageId(stage.commercialPipelineStageId)}
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-colors ${isActive ? 'border-transparent' : 'border-border bg-card text-muted-foreground'}`}
+                    style={isActive ? { backgroundColor: stage.color, color: getContrastColor(stage.color) } : undefined}
+                  >
+                    {!isActive && <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: stage.color }} />}
+                    {stage.name}
+                    <span className={`rounded-full px-1.5 text-[11px] ${isActive ? 'bg-black/15' : 'bg-muted'}`}>{stage.opportunitiesCount}</span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {activeMobileStage && (
+            <div className="mt-3 space-y-3">
+              <div className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm">
+                <span className="font-semibold text-foreground">{formatCurrency(activeMobileStage.estimatedValueTotal)}</span>
+                <span className="text-muted-foreground"><strong className="text-foreground">{activeMobileStage.opportunitiesCount}</strong> {t('pipeline.summary.opportunities').toLowerCase()}</span>
+              </div>
+
+              {activeMobileStage.items.map((item) => (
+                <OpportunityCard
+                  key={item.id}
+                  item={item}
+                  density="comfortable"
+                  isDragging={false}
+                  onDragStart={() => {}}
+                  onDragEnd={() => {}}
+                />
+              ))}
+
+              {!loading && activeMobileStage.items.length === 0 && (
+                <div className="rounded-xl border border-dashed border-border px-3 py-10 text-center text-xs text-muted-foreground">
+                  {activeFilterCount > 0 ? t('pipeline.filter.empty') : t('pipeline.stage.empty')}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="hidden overflow-x-auto pb-4 md:block">
           <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.max(displayStages.length, 1)}, minmax(220px, 1fr))` }}>
             {displayStages.map((stage) => (
               <section
