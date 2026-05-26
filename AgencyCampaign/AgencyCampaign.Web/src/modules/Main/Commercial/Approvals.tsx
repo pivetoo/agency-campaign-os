@@ -369,25 +369,19 @@ function InboxColumn({ counts, filter, onFilterChange, search, onSearchChange, i
 }
 
 function InboxTab({ label, count, active, tone, onClick }: { label: string; count: number; active: boolean; tone?: 'amber' | 'emerald' | 'rose'; onClick: () => void }) {
-  const styles = {
-    amber: { active: 'bg-amber-500/15 text-amber-700 dark:text-amber-400', dot: 'bg-amber-500', badge: 'bg-amber-500/25 text-amber-800 dark:text-amber-300' },
-    emerald: { active: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400', dot: 'bg-emerald-500', badge: 'bg-emerald-500/25 text-emerald-800 dark:text-emerald-300' },
-    rose: { active: 'bg-rose-500/15 text-rose-700 dark:text-rose-400', dot: 'bg-rose-500', badge: 'bg-rose-500/25 text-rose-800 dark:text-rose-300' },
-    neutral: { active: 'bg-primary/12 text-primary', dot: '', badge: 'bg-primary/20 text-primary' },
-  }
-  const style = tone ? styles[tone] : styles.neutral
+  const dot = tone === 'amber' ? 'bg-amber-500' : tone === 'emerald' ? 'bg-emerald-500' : tone === 'rose' ? 'bg-rose-500' : ''
   return (
     <button
       type="button"
       onClick={onClick}
       className={[
         'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors',
-        active ? style.active : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+        active ? 'bg-primary/12 text-primary' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
       ].join(' ')}
     >
-      {tone && <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />}
+      {tone && <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />}
       {label}
-      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${active ? style.badge : 'bg-muted text-muted-foreground'}`}>{count}</span>
+      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${active ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>{count}</span>
     </button>
   )
 }
