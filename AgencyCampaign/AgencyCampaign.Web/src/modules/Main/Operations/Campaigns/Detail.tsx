@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package } from 'lucide-react'
+import { Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3 } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
 import { campaignCreatorService } from '../../../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../../../services/campaignDeliverableService'
 import { campaignDocumentService } from '../../../../services/campaignDocumentService'
+import { campaignReportService } from '../../../../services/campaignReportService'
 import { CampaignStatus } from '../../../../types/campaign'
 import type { Campaign, CampaignStatusValue } from '../../../../types/campaign'
 import type { CampaignCreator } from '../../../../types/campaignCreator'
@@ -91,6 +92,7 @@ export default function CampaignDetail() {
   const { execute: fetchDeliverables, loading: deliverablesLoading } = useApi<CampaignDeliverable[]>({ showErrorMessage: true })
   const { execute: fetchDocuments, loading: documentsLoading } = useApi<CampaignDocument[]>({ showErrorMessage: true })
   const { execute: markSigned, loading: signingDocument } = useApi({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: createReportLink, loading: reportLinkLoading } = useApi({ showErrorMessage: true })
 
   const loadCampaign = async () => {
     const result = await fetchCampaign(() => campaignService.getById(campaignId))
@@ -354,6 +356,19 @@ export default function CampaignDetail() {
     }
   }
 
+  const handleBrandReport = async () => {
+    const result = await createReportLink(() => campaignReportService.createOrGetLink(campaignId))
+    if (result?.data) {
+      const url = `${window.location.origin}/r/${result.data.token}`
+      try {
+        await navigator.clipboard.writeText(url)
+      } catch {
+        // ignore clipboard failure
+      }
+      window.alert(t('campaignReport.linkCopied').replace('{0}', url))
+    }
+  }
+
   return (
     <div className="space-y-4">
       <PageLayout
@@ -512,10 +527,16 @@ export default function CampaignDetail() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
                 <CardTitle className="text-base">{t('campaign.detail.deliverablesTab')}</CardTitle>
-                <Button size="sm" onClick={() => { setSelectedDeliverable(null); setIsDeliverableFormOpen(true) }}>
-                  <Plus size={16} className="mr-2" />
-                  {t('campaign.detail.action.newDeliverable')}
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => void handleBrandReport()} disabled={reportLinkLoading}>
+                    <BarChart3 size={16} className="mr-2" />
+                    {t('campaignReport.action.generate')}
+                  </Button>
+                  <Button size="sm" onClick={() => { setSelectedDeliverable(null); setIsDeliverableFormOpen(true) }}>
+                    <Plus size={16} className="mr-2" />
+                    {t('campaign.detail.action.newDeliverable')}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="pt-0">
                 <DataTable

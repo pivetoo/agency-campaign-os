@@ -10,6 +10,7 @@ import CampaignDetail from '../modules/Main/Operations/Campaigns/Detail'
 import CommercialPipeline from '../modules/Main/Commercial/Pipeline'
 import PublicProposal from '../modules/Public/Proposal'
 import PublicDeliverable from '../modules/Public/Deliverable'
+import PublicCampaignReport from '../modules/Public/CampaignReport'
 import CreatorPortalLayout from '../modules/CreatorPortal/Layout'
 import CreatorPortalDashboard from '../modules/CreatorPortal/Dashboard'
 import CreatorPortalCampaigns from '../modules/CreatorPortal/Campaigns'
@@ -71,6 +72,7 @@ function AppRoutes() {
 
         <Route path="/p/:token" element={<PublicProposal />} />
         <Route path="/d/:token" element={<PublicDeliverable />} />
+        <Route path="/r/:token" element={<PublicCampaignReport />} />
 
         <Route path="/portal/:token" element={<CreatorPortalLayout />}>
           <Route index element={<CreatorPortalDashboard />} />

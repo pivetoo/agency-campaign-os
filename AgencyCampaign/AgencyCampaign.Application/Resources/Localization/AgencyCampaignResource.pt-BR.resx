@@ -924,6 +924,24 @@
   <data name="modal.deliverable.metrics.impressions" xml:space="preserve"><value>Impressões</value></data>
   <data name="modal.deliverable.metrics.saves" xml:space="preserve"><value>Salvamentos</value></data>
   <data name="modal.deliverable.metrics.shares" xml:space="preserve"><value>Compartilhamentos</value></data>
+  <data name="campaignReport.action.generate" xml:space="preserve"><value>Relatório da marca</value></data>
+  <data name="campaignReport.linkCopied" xml:space="preserve"><value>Link do relatório copiado para a área de transferência:
+
+{0}</value></data>
+  <data name="campaignReport.notFound" xml:space="preserve"><value>Relatório não encontrado ou link expirado.</value></data>
+  <data name="campaignReport.empty" xml:space="preserve"><value>Nenhuma entrega medida ainda.</value></data>
+  <data name="campaignReport.footer" xml:space="preserve"><value>Relatório gerado pelo Kanvas</value></data>
+  <data name="campaignReport.section.byPlatform" xml:space="preserve"><value>Alcance por plataforma</value></data>
+  <data name="campaignReport.section.deliverables" xml:space="preserve"><value>Entregas da campanha</value></data>
+  <data name="campaignReport.kpi.reach" xml:space="preserve"><value>Alcance</value></data>
+  <data name="campaignReport.kpi.impressions" xml:space="preserve"><value>Impressões</value></data>
+  <data name="campaignReport.kpi.engagement" xml:space="preserve"><value>Engajamento</value></data>
+  <data name="campaignReport.kpi.engagementRate" xml:space="preserve"><value>Taxa de engajamento</value></data>
+  <data name="campaignReport.kpi.cpm" xml:space="preserve"><value>CPM</value></data>
+  <data name="campaignReport.kpi.cpmHint" xml:space="preserve"><value>Custo por mil de alcance</value></data>
+  <data name="campaignReport.kpi.costPerEngagement" xml:space="preserve"><value>Custo por engajamento</value></data>
+  <data name="campaignReport.kpi.deliverables" xml:space="preserve"><value>Entregas</value></data>
+  <data name="campaignReport.kpi.investment" xml:space="preserve"><value>Investimento</value></data>
   <data name="modal.document.title.details" xml:space="preserve"><value>Detalhes do documento</value></data>
   <data name="modal.document.title.edit" xml:space="preserve"><value>Editar documento</value></data>
   <data name="modal.document.title.new" xml:space="preserve"><value>Novo documento</value></data>
