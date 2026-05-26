@@ -40,6 +40,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         private async Task<OpportunityNegotiation> SeedNegotiationAsync()
         {
             db.Add(new CommercialPipelineStageBuilder().WithId(1).Build());
+            db.Add(new Brand("Acme").WithId(1));
             await db.SaveChangesAsync();
             Opportunity opportunity = new(1, 1, "Big deal", 0);
             db.Add(opportunity);
