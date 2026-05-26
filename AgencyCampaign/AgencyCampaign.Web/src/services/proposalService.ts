@@ -212,6 +212,10 @@ export const proposalService = {
     return httpClient.post<Proposal>(`${BASE_URL}/${id}/ConvertToCampaign`, { campaignId })
   },
 
+  convertToNewCampaign(id: number) {
+    return httpClient.post<Proposal>(`${BASE_URL}/${id}/ConvertToNewCampaign`, {})
+  },
+
   cancel(id: number) {
     return httpClient.post<Proposal>(`${BASE_URL}/${id}/Cancel`, {})
   },
