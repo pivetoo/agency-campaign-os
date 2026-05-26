@@ -116,23 +116,23 @@ export default function OpportunityNegotiationFormModal({ open, onOpenChange, op
               <Input type="date" value={isoToDateInput(formData.negotiatedAt)} onChange={(e) => setFormData((prev) => ({ ...prev, negotiatedAt: dateInputToIso(e.target.value) }))} />
             </div>
             <div style={{ gridColumn: '1 / -1' }} className="mt-1 border-t border-border pt-3">
-              <div className="text-sm font-semibold text-foreground">Verificação de política comercial</div>
-              <p className="mt-0.5 text-xs text-muted-foreground">Usado para detectar automaticamente desvios da política e montar o diff da aprovação. O desconto é calculado do valor e o prazo já vem do padrão da política.</p>
+              <div className="text-sm font-semibold text-foreground">{t('modal.opportunityNegotiation.section.policyCheck')}</div>
+              <p className="mt-0.5 text-xs text-muted-foreground">{t('modal.opportunityNegotiation.section.policyCheckHelp')}</p>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Desconto %</label>
+              <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.discount')}</label>
               <div className="flex h-9 items-center rounded-md border border-input bg-muted/40 px-3 text-sm text-foreground">
                 {formData.discountPercent != null ? `${formData.discountPercent}%` : '—'}
               </div>
-              <p className="text-[11px] text-muted-foreground">{estimatedValue > 0 ? 'Calculado do valor estimado vs negociado.' : 'Defina o valor estimado da oportunidade para calcular.'}</p>
+              <p className="text-[11px] text-muted-foreground">{estimatedValue > 0 ? t('modal.opportunityNegotiation.help.discountCalc') : t('modal.opportunityNegotiation.help.discountSetValue')}</p>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Prazo de pagamento (dias)</label>
-              <Input type="number" min={0} max={3650} step="1" placeholder="ex.: 30" value={formData.paymentTermDays ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, paymentTermDays: e.target.value === '' ? null : Number(e.target.value) }))} />
+              <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.paymentTerm')}</label>
+              <Input type="number" min={0} max={3650} step="1" placeholder={t('modal.opportunityNegotiation.placeholder.paymentTerm')} value={formData.paymentTermDays ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, paymentTermDays: e.target.value === '' ? null : Number(e.target.value) }))} />
             </div>
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
-              <label className="text-sm font-medium">Margem % <span className="font-normal text-muted-foreground">· opcional</span></label>
-              <Input type="number" min={0} max={100} step="0.1" placeholder="Preencha apenas se controla a margem (custo)" value={formData.marginPercent ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, marginPercent: e.target.value === '' ? null : Number(e.target.value) }))} />
+              <label className="text-sm font-medium">{t('modal.opportunityNegotiation.field.margin')} <span className="font-normal text-muted-foreground">{t('modal.opportunityNegotiation.field.marginOptionalSuffix')}</span></label>
+              <Input type="number" min={0} max={100} step="0.1" placeholder={t('modal.opportunityNegotiation.placeholder.margin')} value={formData.marginPercent ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, marginPercent: e.target.value === '' ? null : Number(e.target.value) }))} />
             </div>
             <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
               <label className="text-sm font-medium">{t('common.field.notes')}</label>

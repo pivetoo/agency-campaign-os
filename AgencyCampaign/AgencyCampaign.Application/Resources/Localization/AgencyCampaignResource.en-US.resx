@@ -1934,4 +1934,36 @@
   <data name="opportunityDetail.approval.rejectButton" xml:space="preserve"><value>Reject</value></data>
   <data name="opportunityDetail.funnel.title" xml:space="preserve"><value>Funnel stage</value></data>
   <data name="opportunityDetail.funnel.here" xml:space="preserve"><value>here</value></data>
+  <data name="modal.opportunity.field.probability" xml:space="preserve"><value>Probability %</value></data>
+  <data name="modal.opportunity.placeholder.probability" xml:space="preserve"><value>use stage default</value></data>
+  <data name="modal.opportunity.help.probability" xml:space="preserve"><value>Overrides the stage default. Leave blank to inherit.</value></data>
+  <data name="modal.opportunity.option.noResponsible" xml:space="preserve"><value>None</value></data>
+  <data name="modal.opportunity.placeholder.noSource" xml:space="preserve"><value>No source</value></data>
+  <data name="modal.opportunityNegotiation.section.policyCheck" xml:space="preserve"><value>Commercial policy check</value></data>
+  <data name="modal.opportunityNegotiation.section.policyCheckHelp" xml:space="preserve"><value>Used to automatically detect policy deviations and build the approval diff. The discount is calculated from the value and the term comes from the policy default.</value></data>
+  <data name="modal.opportunityNegotiation.field.discount" xml:space="preserve"><value>Discount %</value></data>
+  <data name="modal.opportunityNegotiation.help.discountCalc" xml:space="preserve"><value>Calculated from estimated vs negotiated value.</value></data>
+  <data name="modal.opportunityNegotiation.help.discountSetValue" xml:space="preserve"><value>Set the opportunity estimated value to calculate.</value></data>
+  <data name="modal.opportunityNegotiation.field.paymentTerm" xml:space="preserve"><value>Payment term (days)</value></data>
+  <data name="modal.opportunityNegotiation.placeholder.paymentTerm" xml:space="preserve"><value>e.g.: 30</value></data>
+  <data name="modal.opportunityNegotiation.field.margin" xml:space="preserve"><value>Margin %</value></data>
+  <data name="modal.opportunityNegotiation.field.marginOptionalSuffix" xml:space="preserve"><value>· optional</value></data>
+  <data name="modal.opportunityNegotiation.placeholder.margin" xml:space="preserve"><value>Fill in only if you control the margin (cost)</value></data>
+  <data name="modal.proposal.field.layout" xml:space="preserve"><value>Proposal layout</value></data>
+  <data name="modal.proposal.option.defaultLayout" xml:space="preserve"><value>Agency default</value></data>
+  <data name="modal.proposal.option.layoutDefaultSuffix" xml:space="preserve"><value>{0} (default)</value></data>
+  <data name="modal.proposal.fallback.brand" xml:space="preserve"><value>Brand</value></data>
+  <data name="modal.proposalItem.option.noCreator" xml:space="preserve"><value>No creator</value></data>
+  <data name="modal.proposalItem.placeholder.optional" xml:space="preserve"><value>Optional</value></data>
+  <data name="modal.commercialGoal.title.edit" xml:space="preserve"><value>Edit goal</value></data>
+  <data name="modal.commercialGoal.title.new" xml:space="preserve"><value>New goal</value></data>
+  <data name="modal.commercialGoal.field.scope" xml:space="preserve"><value>Scope</value></data>
+  <data name="modal.commercialGoal.option.allSellers" xml:space="preserve"><value>Agency (all sellers)</value></data>
+  <data name="modal.commercialGoal.help.scope" xml:space="preserve"><value>Empty = goal for the whole agency. Selecting a seller makes it an individual goal.</value></data>
+  <data name="modal.commercialGoal.field.period" xml:space="preserve"><value>Period</value></data>
+  <data name="modal.commercialGoal.field.start" xml:space="preserve"><value>Start</value></data>
+  <data name="modal.commercialGoal.help.start" xml:space="preserve"><value>Automatically normalized (1st day of the month/quarter/year).</value></data>
+  <data name="modal.commercialGoal.field.target" xml:space="preserve"><value>Target (R$)</value></data>
+  <data name="modal.commercialGoal.field.notes" xml:space="preserve"><value>Notes (optional)</value></data>
+  <data name="modal.commercialGoal.placeholder.notes" xml:space="preserve"><value>Goal context (e.g.: strong quarter of seasonal campaigns)</value></data>
 </root>

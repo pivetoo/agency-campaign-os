@@ -141,9 +141,9 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="opportunity-probability" className="text-sm font-medium">Probabilidade %</label>
-              <Input id="opportunity-probability" type="number" min={0} max={100} step={1} placeholder="usar padrão do estágio" value={formData.probability ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, probability: e.target.value === '' ? undefined : Math.max(0, Math.min(100, Number(e.target.value))) }))} />
-              <p className="text-[11px] text-muted-foreground">Sobrescreve o padrão do estágio. Deixe vazio para herdar.</p>
+              <label htmlFor="opportunity-probability" className="text-sm font-medium">{t('modal.opportunity.field.probability')}</label>
+              <Input id="opportunity-probability" type="number" min={0} max={100} step={1} placeholder={t('modal.opportunity.placeholder.probability')} value={formData.probability ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, probability: e.target.value === '' ? undefined : Math.max(0, Math.min(100, Number(e.target.value))) }))} />
+              <p className="text-[11px] text-muted-foreground">{t('modal.opportunity.help.probability')}</p>
             </div>
 
             <div className="space-y-2">
@@ -152,7 +152,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
                 value={formData.responsibleUserId ? String(formData.responsibleUserId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, responsibleUserId: value ? Number(value) : undefined }))}
                 options={[
-                  { value: '', label: 'Nenhum' },
+                  { value: '', label: t('modal.opportunity.option.noResponsible') },
                   ...responsibles.filter((r) => r.isActive).map((responsible) => ({ value: String(responsible.id), label: responsible.name })),
                 ]}
                 placeholder={t('common.placeholder.select')}
@@ -191,7 +191,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
                 value={formData.opportunitySourceId ? String(formData.opportunitySourceId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, opportunitySourceId: value ? Number(value) : undefined }))}
                 options={sources.map((source) => ({ value: String(source.id), label: source.name }))}
-                placeholder="Sem origem"
+                placeholder={t('modal.opportunity.placeholder.noSource')}
                 searchPlaceholder={t('common.placeholder.search')}
               />
             </div>

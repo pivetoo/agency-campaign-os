@@ -53,16 +53,16 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
   }, [proposal, open, presetOpportunityId])
 
   const layoutOptions = [
-    { value: DEFAULT_LAYOUT_VALUE, label: 'Padrão da agência' },
+    { value: DEFAULT_LAYOUT_VALUE, label: t('modal.proposal.option.defaultLayout') },
     ...layouts.map((layout) => ({
       value: String(layout.id),
-      label: layout.isActive ? `${layout.name} (padrão)` : layout.name,
+      label: layout.isActive ? t('modal.proposal.option.layoutDefaultSuffix').replace('{0}', layout.name) : layout.name,
     })),
   ]
 
   const opportunityOptions = opportunities.map((opportunity) => ({
     value: String(opportunity.id),
-    label: `${opportunity.name} · ${opportunity.brand?.name || 'Marca'}`,
+    label: `${opportunity.name} · ${opportunity.brand?.name || t('modal.proposal.fallback.brand')}`,
   }))
 
   const handleOpportunityChange = (value: string) => {
@@ -111,7 +111,7 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
                     const r = await opportunityService.getAll({ search: term, pageSize: 10 })
                     return (r.data ?? []).map((opportunity) => ({
                       value: String(opportunity.id),
-                      label: `${opportunity.name} · ${opportunity.brand?.name || 'Marca'}`,
+                      label: `${opportunity.name} · ${opportunity.brand?.name || t('modal.proposal.fallback.brand')}`,
                     }))
                   }}
                 />
@@ -133,12 +133,12 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Layout da proposta</label>
+              <label className="text-sm font-medium">{t('modal.proposal.field.layout')}</label>
               <SearchableSelect
                 value={formData.proposalLayoutId ? String(formData.proposalLayoutId) : DEFAULT_LAYOUT_VALUE}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, proposalLayoutId: value === DEFAULT_LAYOUT_VALUE ? null : Number(value) }))}
                 options={layoutOptions}
-                placeholder="Padrão da agência"
+                placeholder={t('modal.proposal.option.defaultLayout')}
               />
             </div>
           </div>

@@ -107,10 +107,10 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
                 value={formData.creatorId ? String(formData.creatorId) : ''}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: value ? Number(value) : undefined }))}
                 options={[
-                  { value: '', label: 'Sem creator' },
+                  { value: '', label: t('modal.proposalItem.option.noCreator') },
                   ...creators.map((creator) => ({ value: String(creator.id), label: creator.name })),
                 ]}
-                placeholder="Opcional"
+                placeholder={t('modal.proposalItem.placeholder.optional')}
                 searchPlaceholder={t('common.placeholder.search')}
                 onSearch={async (term) => {
                   const r = await creatorService.getAll({ search: term, pageSize: 10 })

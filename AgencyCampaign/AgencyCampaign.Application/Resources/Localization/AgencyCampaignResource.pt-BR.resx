@@ -1934,4 +1934,36 @@
   <data name="opportunityDetail.approval.rejectButton" xml:space="preserve"><value>Rejeitar</value></data>
   <data name="opportunityDetail.funnel.title" xml:space="preserve"><value>Estágio do funil</value></data>
   <data name="opportunityDetail.funnel.here" xml:space="preserve"><value>aqui</value></data>
+  <data name="modal.opportunity.field.probability" xml:space="preserve"><value>Probabilidade %</value></data>
+  <data name="modal.opportunity.placeholder.probability" xml:space="preserve"><value>usar padrão do estágio</value></data>
+  <data name="modal.opportunity.help.probability" xml:space="preserve"><value>Sobrescreve o padrão do estágio. Deixe vazio para herdar.</value></data>
+  <data name="modal.opportunity.option.noResponsible" xml:space="preserve"><value>Nenhum</value></data>
+  <data name="modal.opportunity.placeholder.noSource" xml:space="preserve"><value>Sem origem</value></data>
+  <data name="modal.opportunityNegotiation.section.policyCheck" xml:space="preserve"><value>Verificação de política comercial</value></data>
+  <data name="modal.opportunityNegotiation.section.policyCheckHelp" xml:space="preserve"><value>Usado para detectar automaticamente desvios da política e montar o diff da aprovação. O desconto é calculado do valor e o prazo já vem do padrão da política.</value></data>
+  <data name="modal.opportunityNegotiation.field.discount" xml:space="preserve"><value>Desconto %</value></data>
+  <data name="modal.opportunityNegotiation.help.discountCalc" xml:space="preserve"><value>Calculado do valor estimado vs negociado.</value></data>
+  <data name="modal.opportunityNegotiation.help.discountSetValue" xml:space="preserve"><value>Defina o valor estimado da oportunidade para calcular.</value></data>
+  <data name="modal.opportunityNegotiation.field.paymentTerm" xml:space="preserve"><value>Prazo de pagamento (dias)</value></data>
+  <data name="modal.opportunityNegotiation.placeholder.paymentTerm" xml:space="preserve"><value>ex.: 30</value></data>
+  <data name="modal.opportunityNegotiation.field.margin" xml:space="preserve"><value>Margem %</value></data>
+  <data name="modal.opportunityNegotiation.field.marginOptionalSuffix" xml:space="preserve"><value>· opcional</value></data>
+  <data name="modal.opportunityNegotiation.placeholder.margin" xml:space="preserve"><value>Preencha apenas se controla a margem (custo)</value></data>
+  <data name="modal.proposal.field.layout" xml:space="preserve"><value>Layout da proposta</value></data>
+  <data name="modal.proposal.option.defaultLayout" xml:space="preserve"><value>Padrão da agência</value></data>
+  <data name="modal.proposal.option.layoutDefaultSuffix" xml:space="preserve"><value>{0} (padrão)</value></data>
+  <data name="modal.proposal.fallback.brand" xml:space="preserve"><value>Marca</value></data>
+  <data name="modal.proposalItem.option.noCreator" xml:space="preserve"><value>Sem creator</value></data>
+  <data name="modal.proposalItem.placeholder.optional" xml:space="preserve"><value>Opcional</value></data>
+  <data name="modal.commercialGoal.title.edit" xml:space="preserve"><value>Editar meta</value></data>
+  <data name="modal.commercialGoal.title.new" xml:space="preserve"><value>Nova meta</value></data>
+  <data name="modal.commercialGoal.field.scope" xml:space="preserve"><value>Escopo</value></data>
+  <data name="modal.commercialGoal.option.allSellers" xml:space="preserve"><value>Agência (todos os vendedores)</value></data>
+  <data name="modal.commercialGoal.help.scope" xml:space="preserve"><value>Vazio = meta da agência inteira. Selecionando vendedor, vira meta individual.</value></data>
+  <data name="modal.commercialGoal.field.period" xml:space="preserve"><value>Período</value></data>
+  <data name="modal.commercialGoal.field.start" xml:space="preserve"><value>Início</value></data>
+  <data name="modal.commercialGoal.help.start" xml:space="preserve"><value>Normalizado automaticamente (1º dia do mês/trimestre/ano).</value></data>
+  <data name="modal.commercialGoal.field.target" xml:space="preserve"><value>Meta (R$)</value></data>
+  <data name="modal.commercialGoal.field.notes" xml:space="preserve"><value>Notas (opcional)</value></data>
+  <data name="modal.commercialGoal.placeholder.notes" xml:space="preserve"><value>Contexto da meta (ex.: trimestre forte de campanhas sazonais)</value></data>
 </root>

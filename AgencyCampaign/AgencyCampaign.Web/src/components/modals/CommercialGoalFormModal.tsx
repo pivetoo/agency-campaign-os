@@ -71,27 +71,27 @@ export default function CommercialGoalFormModal({ open, onOpenChange, goal, onSu
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="form">
         <ModalHeader>
-          <ModalTitle>{isEditing ? 'Editar meta' : 'Nova meta'}</ModalTitle>
+          <ModalTitle>{isEditing ? t('modal.commercialGoal.title.edit') : t('modal.commercialGoal.title.new')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Escopo</label>
+            <label className="text-sm font-medium">{t('modal.commercialGoal.field.scope')}</label>
             <SearchableSelect
               value={formData.userId ? String(formData.userId) : ''}
               onValueChange={(value) => setFormData((prev) => ({ ...prev, userId: value ? Number(value) : null }))}
               options={[
-                { value: '', label: 'Agência (todos os vendedores)' },
+                { value: '', label: t('modal.commercialGoal.option.allSellers') },
                 ...responsibles.filter((r) => r.isActive).map((r) => ({ value: String(r.id), label: r.name })),
               ]}
               placeholder={t('common.placeholder.select')}
               searchPlaceholder={t('common.placeholder.search')}
             />
-            <p className="text-[11px] text-muted-foreground">Vazio = meta da agência inteira. Selecionando vendedor, vira meta individual.</p>
+            <p className="text-[11px] text-muted-foreground">{t('modal.commercialGoal.help.scope')}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Período</label>
+              <label className="text-sm font-medium">{t('modal.commercialGoal.field.period')}</label>
               <select
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={formData.periodType}
@@ -104,28 +104,28 @@ export default function CommercialGoalFormModal({ open, onOpenChange, goal, onSu
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Início</label>
+              <label className="text-sm font-medium">{t('modal.commercialGoal.field.start')}</label>
               <Input
                 type="date"
                 value={periodStartDate}
                 onChange={(e) => setFormData((prev) => ({ ...prev, periodStart: e.target.value ? `${e.target.value}T00:00:00.000Z` : `${todayDateInput()}T00:00:00.000Z` }))}
               />
-              <p className="text-[11px] text-muted-foreground">Normalizado automaticamente (1º dia do mês/trimestre/ano).</p>
+              <p className="text-[11px] text-muted-foreground">{t('modal.commercialGoal.help.start')}</p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Meta (R$)</label>
+            <label className="text-sm font-medium">{t('modal.commercialGoal.field.target')}</label>
             <Input type="number" min={0} step="0.01" value={formData.targetAmount || ''} onChange={(e) => setFormData((prev) => ({ ...prev, targetAmount: e.target.value === '' ? 0 : Number(e.target.value) }))} required />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Notas (opcional)</label>
+            <label className="text-sm font-medium">{t('modal.commercialGoal.field.notes')}</label>
             <textarea
               className="min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               value={formData.notes ?? ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-              placeholder="Contexto da meta (ex.: trimestre forte de campanhas sazonais)"
+              placeholder={t('modal.commercialGoal.placeholder.notes')}
             />
           </div>
 
