@@ -357,7 +357,7 @@ export default function CampaignDetail() {
     <div className="space-y-4">
       <PageLayout
         title={campaign?.name || 'Campanha'}
-        subtitle={campaign?.brand?.name ? `${campaign.brand.name} · operação da campanha` : 'Operação da campanha'}
+        subtitle={campaign ? `${t('common.field.code')} ${campaign.id}${campaign.brand?.name ? ` · ${campaign.brand.name}` : ''} · operação da campanha` : 'Operação da campanha'}
         onRefresh={() => {
           void loadCampaign()
           void loadCampaignCreators()

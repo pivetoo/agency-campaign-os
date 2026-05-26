@@ -80,6 +80,7 @@ export default function Creators() {
   }
 
   const columns: DataTableColumn<Creator>[] = [
+    { key: 'id', title: t('common.field.code'), dataIndex: 'id', width: 72, render: (value: number) => <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{value}</code> },
     { key: 'photo', title: '', dataIndex: 'photoUrl', width: 56, render: renderPhotoCell },
     { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
     { key: 'stageName', title: t('creators.field.stageName'), dataIndex: 'stageName', hiddenBelow: 'sm', render: (value?: string) => value || '-' },

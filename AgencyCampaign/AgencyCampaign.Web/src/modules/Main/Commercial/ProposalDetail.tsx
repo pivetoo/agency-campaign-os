@@ -181,6 +181,7 @@ export default function CommercialProposalDetail() {
 
   const isApproved = proposal?.status === ProposalStatus.Approved
   const subtitleParts: string[] = []
+  if (proposal?.id) subtitleParts.push(`${t('common.field.code')} ${proposal.id}`)
   if (proposal?.brand?.name) subtitleParts.push(proposal.brand.name)
   if (proposal?.opportunity?.name) subtitleParts.push(t('proposalDetail.linkedTo').replace('{0}', proposal.opportunity.name))
   const subtitle = subtitleParts.length > 0 ? subtitleParts.join(' · ') : t('proposalDetail.fallbackSubtitle')

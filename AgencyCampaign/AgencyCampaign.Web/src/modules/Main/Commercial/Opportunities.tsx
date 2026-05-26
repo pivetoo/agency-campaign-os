@@ -121,6 +121,7 @@ export default function CommercialOpportunities() {
   }
 
   const columns: DataTableColumn<Opportunity>[] = [
+    { key: 'id', title: t('common.field.code'), dataIndex: 'id', width: 72, render: (value: number) => <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{value}</code> },
     { key: 'name', title: t('opportunities.field.opportunity'), dataIndex: 'name' },
     { key: 'brand', title: t('campaign.field.brand'), dataIndex: 'brand', render: (value?: Opportunity['brand']) => value?.name || '-' },
     { key: 'estimatedValue', title: t('opportunities.field.estimatedValue'), dataIndex: 'estimatedValue', hiddenBelow: 'md', render: (value: number) => `R$ ${value.toFixed(2)}` },

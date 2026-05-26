@@ -169,7 +169,7 @@ export default function CreatorDetail() {
     <div className="space-y-4">
       <PageLayout
         title={creator?.stageName || creator?.name || t('creators.detail.title')}
-        subtitle={creator?.primaryNiche ? `${creator.primaryNiche}${creator.city ? ` · ${creator.city}/${creator.state ?? ''}` : ''}` : t('creators.detail.subtitle')}
+        subtitle={creator ? `${t('common.field.code')} ${creator.id}${creator.primaryNiche ? ` · ${creator.primaryNiche}` : ''}${creator.city ? ` · ${creator.city}/${creator.state ?? ''}` : ''}` : t('creators.detail.subtitle')}
         showDefaultActions={false}
         onRefresh={() => {
           void loadCreator()

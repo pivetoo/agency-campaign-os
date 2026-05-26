@@ -136,6 +136,7 @@ export default function CommercialProposals() {
   }
 
   const columns: DataTableColumn<Proposal>[] = [
+    { key: 'id', title: t('common.field.code'), dataIndex: 'id', width: 72, render: (value: number) => <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{value}</code> },
     {
       key: 'name',
       title: t('proposals.field.proposal'),

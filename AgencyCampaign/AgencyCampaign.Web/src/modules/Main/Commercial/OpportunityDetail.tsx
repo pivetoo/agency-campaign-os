@@ -234,6 +234,11 @@ export default function OpportunityDetail() {
                   <h1 className="text-3xl font-semibold tracking-tight text-foreground" style={{ letterSpacing: '-0.01em', lineHeight: 1.15 }}>
                     {opportunity?.name || t('opportunityDetail.fallbackTitle')}
                   </h1>
+                  {opportunity?.id ? (
+                    <span className="inline-flex items-center rounded bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+                      {t('common.field.code')} {opportunity.id}
+                    </span>
+                  ) : null}
                   <span
                     className="inline-flex items-center rounded px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white"
                     style={{ backgroundColor: opportunity?.commercialPipelineStage?.color || 'hsl(var(--primary))' }}

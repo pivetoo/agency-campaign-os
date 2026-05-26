@@ -133,6 +133,7 @@ export default function FinancialAccounts() {
   }
 
   const columns: DataTableColumn<FinancialAccount>[] = [
+    { key: 'id', title: t('common.field.code'), dataIndex: 'id', width: 72, render: (value: number) => <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{value}</code> },
     { key: 'logo', title: '', dataIndex: 'bankLogoUrl', width: 56, render: renderLogoCell },
     {
       key: 'name',

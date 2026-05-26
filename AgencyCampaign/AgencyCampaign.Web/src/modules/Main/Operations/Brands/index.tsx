@@ -77,6 +77,7 @@ export default function Brands() {
   }
 
   const columns: DataTableColumn<Brand>[] = [
+    { key: 'id', title: t('common.field.code'), dataIndex: 'id', width: 72, render: (value: number) => <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{value}</code> },
     { key: 'logo', title: '', dataIndex: 'logoUrl', width: 56, render: renderLogoCell },
     { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
     { key: 'tradeName', title: t('common.field.tradeName'), dataIndex: 'tradeName', hiddenBelow: 'sm', render: (value?: string) => value || '-' },

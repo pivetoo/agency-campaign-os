@@ -296,6 +296,7 @@
   <data name="dashboard.creatorGrowth.empty" xml:space="preserve"><value>No creators registered.</value></data>
   <data name="dashboard.operationHealth.title" xml:space="preserve"><value>Operations health</value></data>
   <data name="dashboard.operationHealth.empty" xml:space="preserve"><value>Not enough data.</value></data>
+  <data name="common.field.code" xml:space="preserve"><value>Code</value></data>
   <data name="common.field.name" xml:space="preserve"><value>Name</value></data>
   <data name="common.field.tradeName" xml:space="preserve"><value>Trade name</value></data>
   <data name="common.field.document" xml:space="preserve"><value>Document</value></data>

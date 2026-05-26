@@ -296,6 +296,7 @@
   <data name="dashboard.creatorGrowth.empty" xml:space="preserve"><value>No hay influencers registrados.</value></data>
   <data name="dashboard.operationHealth.title" xml:space="preserve"><value>Salud de la operación</value></data>
   <data name="dashboard.operationHealth.empty" xml:space="preserve"><value>Datos insuficientes.</value></data>
+  <data name="common.field.code" xml:space="preserve"><value>Código</value></data>
   <data name="common.field.name" xml:space="preserve"><value>Nombre</value></data>
   <data name="common.field.tradeName" xml:space="preserve"><value>Nombre de fantasía</value></data>
   <data name="common.field.document" xml:space="preserve"><value>Documento</value></data>

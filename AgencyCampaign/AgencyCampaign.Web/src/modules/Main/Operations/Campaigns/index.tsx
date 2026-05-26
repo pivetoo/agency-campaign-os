@@ -69,6 +69,7 @@ export default function Campaigns() {
   }
 
   const columns: DataTableColumn<Campaign>[] = [
+    { key: 'id', title: t('common.field.code'), dataIndex: 'id', width: 72, render: (value: number) => <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{value}</code> },
     { key: 'name', title: t('campaign.field.campaign'), dataIndex: 'name' },
     { key: 'brand', title: t('campaign.field.brand'), dataIndex: 'brand', render: (value: Campaign['brand']) => value?.name || '-' },
     { key: 'objective', title: t('campaign.field.objective'), dataIndex: 'objective', hiddenBelow: 'md', render: (value?: string) => value || '-' },

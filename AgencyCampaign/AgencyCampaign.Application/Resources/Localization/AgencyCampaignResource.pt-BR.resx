@@ -296,6 +296,7 @@
   <data name="dashboard.creatorGrowth.empty" xml:space="preserve"><value>Nenhum influenciador cadastrado.</value></data>
   <data name="dashboard.operationHealth.title" xml:space="preserve"><value>Saúde da operação</value></data>
   <data name="dashboard.operationHealth.empty" xml:space="preserve"><value>Sem dados suficientes.</value></data>
+  <data name="common.field.code" xml:space="preserve"><value>Código</value></data>
   <data name="common.field.name" xml:space="preserve"><value>Nome</value></data>
   <data name="common.field.tradeName" xml:space="preserve"><value>Nome fantasia</value></data>
   <data name="common.field.document" xml:space="preserve"><value>Documento</value></data>
