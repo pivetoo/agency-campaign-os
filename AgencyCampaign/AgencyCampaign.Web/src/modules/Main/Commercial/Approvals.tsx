@@ -95,6 +95,21 @@ export default function CommercialApprovals() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    const refetchOnFocus = () => {
+      if (document.visibilityState !== 'visible') return
+      void loadData()
+      setReviewerRefreshKey((value) => value + 1)
+    }
+    window.addEventListener('focus', refetchOnFocus)
+    document.addEventListener('visibilitychange', refetchOnFocus)
+    return () => {
+      window.removeEventListener('focus', refetchOnFocus)
+      document.removeEventListener('visibilitychange', refetchOnFocus)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const counts = useMemo(() => ({
     pending: approvals.filter((a) => a.status === OpportunityApprovalStatus.Pending).length,
     approved: approvals.filter((a) => a.status === OpportunityApprovalStatus.Approved).length,
@@ -1041,6 +1056,11 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
     }
   }
 
+  const requiredReviewers = reviewers.filter((item) => item.required)
+  const requiredTotal = requiredReviewers.length
+  const approvedRequiredCount = requiredReviewers.filter((item) => item.status === OpportunityApprovalReviewerStatus.Approved).length
+  const allRequiredApproved = requiredTotal > 0 && approvedRequiredCount === requiredTotal
+
   return (
     <>
     <SidebarBlock title="Aprovadores" icon={<Users className="h-3.5 w-3.5" />} action={(
@@ -1049,6 +1069,19 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
       </button>
     )}>
       <div className="space-y-2">
+        {!loading && !error && requiredTotal > 0 && (
+          <div className="space-y-1 rounded-md bg-muted/30 px-2.5 py-2">
+            <div className="flex items-center justify-between text-[11px] font-semibold">
+              <span className={allRequiredApproved ? 'text-emerald-700' : 'text-foreground'}>
+                {approvedRequiredCount} de {requiredTotal} {requiredTotal === 1 ? 'aprovador obrigatório aprovou' : 'aprovadores obrigatórios aprovaram'}
+              </span>
+              {allRequiredApproved && <span className="text-emerald-700">concluído</span>}
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-border">
+              <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${Math.round((approvedRequiredCount / requiredTotal) * 100)}%` }} />
+            </div>
+          </div>
+        )}
         <ReviewerRow name={requesterName} role="Solicitante" status="comentou" />
         {loading ? (
           <p className="text-[11px] text-muted-foreground">Carregando…</p>

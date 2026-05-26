@@ -1544,4 +1544,7 @@
   <data name="integrationCallback.handled" xml:space="preserve"><value>Callback processed successfully.</value></data>
   <data name="campaignDocuments.sendWhatsapp.description" xml:space="preserve"><value>Send a campaign document via WhatsApp.</value></data>
   <data name="opportunityNegotiation.statusTransition.pendingApprovalRequiresRequest" xml:space="preserve"><value>To set the negotiation as pending approval use "Request approval", which creates the internal request.</value></data>
+  <data name="opportunityApproval.resolved.approved" xml:space="preserve"><value>Approval completed — all required approvers approved.</value></data>
+  <data name="opportunityApproval.resolved.rejected" xml:space="preserve"><value>Approval rejected.</value></data>
+  <data name="opportunityApproval.voteRegistered" xml:space="preserve"><value>Your vote was registered. Waiting for the remaining approvers.</value></data>
 </root>

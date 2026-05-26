@@ -112,7 +112,15 @@ namespace AgencyCampaign.Api.Controllers
                 : OpportunityApprovalReviewerStatus.Rejected;
 
             OpportunityApprovalRequest approval = await approvalRequestService.RecordReviewerDecision(id, decision, request.Notes, cancellationToken);
-            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
+
+            string messageKey = approval.Status switch
+            {
+                OpportunityApprovalStatus.Approved => "opportunityApproval.resolved.approved",
+                OpportunityApprovalStatus.Rejected => "opportunityApproval.resolved.rejected",
+                _ => "opportunityApproval.voteRegistered",
+            };
+
+            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer[messageKey]);
         }
 
         [RequireAccess("opportunityApprovals.markInReview.description")]
