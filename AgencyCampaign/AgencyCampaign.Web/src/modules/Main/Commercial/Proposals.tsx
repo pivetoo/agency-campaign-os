@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, Button, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, Button, FilterPanel, TableToolbar, Dropdown, DropdownContent, DropdownItem, DropdownTrigger, DropdownSeparator, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { CheckCircle, Clock, Eye, Pencil, Plus, Send, XCircle } from 'lucide-react'
+import { CheckCircle, Clock, Eye, MoreHorizontal, Pencil, Plus, Send, XCircle } from 'lucide-react'
 import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValue, type ProposalListFilters } from '../../../services/proposalService'
 import { commercialResponsibleService } from '../../../services/commercialResponsibleService'
 import type { CommercialResponsible } from '../../../types/commercialResponsible'
@@ -322,7 +322,8 @@ function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkVi
     <div className="flex flex-wrap items-center gap-2">
       <AuditUtilityBar entityName="Proposal" entityLabel={t('proposals.audit.entityLabel')} entityId={selected?.id ?? null} />
 
-      <div className="inline-flex overflow-hidden rounded-md border border-border bg-card">
+      {/* Desktop: controle segmentado */}
+      <div className="hidden overflow-hidden rounded-md border border-border bg-card md:inline-flex">
         <SegmentedAction icon={<Send className="h-3.5 w-3.5" />} label={t('proposals.action.openToSend')} active={canSend} disabled={!canSend} onClick={onSend} />
         <SegmentedAction icon={<Eye className="h-3.5 w-3.5" />} label={t('proposals.action.markViewed')} active={canMarkViewed} disabled={!canMarkViewed} onClick={onMarkViewed} />
         <SegmentedAction icon={<CheckCircle className="h-3.5 w-3.5" />} label={t('proposals.action.approve')} active={canApprove} tone="emerald" disabled={!canApprove} onClick={onApprove} />
@@ -330,11 +331,42 @@ function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkVi
         <SegmentedAction icon={<Clock className="h-3.5 w-3.5" />} label={t('proposals.action.cancel')} tone="amber" disabled={!canCancel} onClick={onCancel} last />
       </div>
 
-      <span aria-hidden className="hidden h-6 w-px bg-border sm:inline-block" />
+      <span aria-hidden className="hidden h-6 w-px bg-border md:inline-block" />
 
-      <Button size="sm" variant="ghost" onClick={onEdit} disabled={!canEdit}>
+      <Button size="sm" variant="ghost" onClick={onEdit} disabled={!canEdit} className="hidden md:inline-flex">
         <Pencil className="mr-1.5 h-3.5 w-3.5" /> {t('common.action.edit')}
       </Button>
+
+      {/* Mobile: acoes de status agrupadas num menu */}
+      <Dropdown>
+        <DropdownTrigger asChild>
+          <Button size="sm" variant="outline" className="md:hidden">
+            <MoreHorizontal className="mr-1.5 h-4 w-4" /> Ações
+          </Button>
+        </DropdownTrigger>
+        <DropdownContent align="start" className="min-w-[13rem]">
+          <DropdownItem disabled={!canSend} onSelect={onSend} className="gap-2">
+            <Send className="h-4 w-4" /> {t('proposals.action.openToSend')}
+          </DropdownItem>
+          <DropdownItem disabled={!canMarkViewed} onSelect={onMarkViewed} className="gap-2">
+            <Eye className="h-4 w-4" /> {t('proposals.action.markViewed')}
+          </DropdownItem>
+          <DropdownItem disabled={!canApprove} onSelect={onApprove} className="gap-2">
+            <CheckCircle className="h-4 w-4" /> {t('proposals.action.approve')}
+          </DropdownItem>
+          <DropdownItem disabled={!canReject} onSelect={onReject} className="gap-2 text-destructive focus:text-destructive">
+            <XCircle className="h-4 w-4" /> {t('proposals.action.reject')}
+          </DropdownItem>
+          <DropdownItem disabled={!canCancel} onSelect={onCancel} className="gap-2">
+            <Clock className="h-4 w-4" /> {t('proposals.action.cancel')}
+          </DropdownItem>
+          <DropdownSeparator />
+          <DropdownItem disabled={!canEdit} onSelect={onEdit} className="gap-2">
+            <Pencil className="h-4 w-4" /> {t('common.action.edit')}
+          </DropdownItem>
+        </DropdownContent>
+      </Dropdown>
+
       <Button size="sm" variant="secondary" onClick={onNew}>
         <Plus className="mr-1.5 h-4 w-4" /> {t('proposals.action.new')}
       </Button>
