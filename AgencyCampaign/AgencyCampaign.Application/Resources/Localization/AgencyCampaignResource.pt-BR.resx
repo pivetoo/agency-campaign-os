@@ -1777,4 +1777,161 @@
   <data name="pipeline.finalMove.lostReasonLabel" xml:space="preserve"><value>Motivo da perda</value></data>
   <data name="pipeline.finalMove.wonPlaceholder" xml:space="preserve"><value>Ex.: Cliente aprovou orçamento completo.</value></data>
   <data name="pipeline.finalMove.lostPlaceholder" xml:space="preserve"><value>Ex.: Cliente escolheu concorrente.</value></data>
+  <data name="opportunityDetail.pendingApprovals.one" xml:space="preserve"><value>1 aprovação pendente</value></data>
+  <data name="opportunityDetail.pendingApprovals.many" xml:space="preserve"><value>{0} aprovações pendentes</value></data>
+  <data name="opportunityDetail.opportunityNumber" xml:space="preserve"><value>Oportunidade #{0}</value></data>
+  <data name="opportunityDetail.createdAt" xml:space="preserve"><value>Criada em {0}</value></data>
+  <data name="opportunityDetail.byResponsiblePrefix" xml:space="preserve"><value>por</value></data>
+  <data name="opportunityDetail.moveToStage" xml:space="preserve"><value>Mover para estágio</value></data>
+  <data name="opportunityDetail.stage.current" xml:space="preserve"><value>atual</value></data>
+  <data name="opportunityDetail.action.refresh" xml:space="preserve"><value>Atualizar</value></data>
+  <data name="opportunityDetail.action.advanceTo" xml:space="preserve"><value>Avançar para {0}</value></data>
+  <data name="opportunityDetail.negotiation.pendingApprovalAria" xml:space="preserve"><value>Negociação pendente de aprovação</value></data>
+  <data name="opportunityDetail.approval.waitingForYouAria" xml:space="preserve"><value>{0} aprovações esperando você</value></data>
+  <data name="opportunityDetail.followups.overdueAria" xml:space="preserve"><value>{0} follow-ups vencidos</value></data>
+  <data name="opportunityDetail.summary.nextStep" xml:space="preserve"><value>Próximo passo</value></data>
+  <data name="opportunityDetail.summary.banner.one" xml:space="preserve"><value>Há uma aprovação esperando a sua decisão</value></data>
+  <data name="opportunityDetail.summary.banner.many" xml:space="preserve"><value>Há {0} aprovações esperando a sua decisão</value></data>
+  <data name="opportunityDetail.summary.banner.subtitle" xml:space="preserve"><value>Sua aprovação é necessária para a negociação avançar.</value></data>
+  <data name="opportunityDetail.summary.banner.review" xml:space="preserve"><value>Revisar agora</value></data>
+  <data name="opportunityDetail.nextFollowUp.overduePrefix" xml:space="preserve"><value>Venceu em </value></data>
+  <data name="opportunityDetail.nextFollowUp.scheduledPrefix" xml:space="preserve"><value>Agendado para </value></data>
+  <data name="opportunityDetail.nextFollowUp.reschedule" xml:space="preserve"><value>Reagendar</value></data>
+  <data name="opportunityDetail.nextFollowUp.complete" xml:space="preserve"><value>Concluir</value></data>
+  <data name="opportunityDetail.progress.title" xml:space="preserve"><value>Andamento</value></data>
+  <data name="opportunityDetail.progress.negotiations" xml:space="preserve"><value>Negociações</value></data>
+  <data name="opportunityDetail.progress.approvals" xml:space="preserve"><value>Aprovações</value></data>
+  <data name="opportunityDetail.progress.proposals" xml:space="preserve"><value>Propostas</value></data>
+  <data name="opportunityDetail.progress.pendingApproval.one" xml:space="preserve"><value>{0} pendente aprovação</value></data>
+  <data name="opportunityDetail.progress.pendingApproval.many" xml:space="preserve"><value>{0} pendentes aprovação</value></data>
+  <data name="opportunityDetail.progress.noPending" xml:space="preserve"><value>sem pendências</value></data>
+  <data name="opportunityDetail.progress.waitingForYou" xml:space="preserve"><value>{0} esperando você</value></data>
+  <data name="opportunityDetail.progress.pending.one" xml:space="preserve"><value>{0} pendente</value></data>
+  <data name="opportunityDetail.progress.pending.many" xml:space="preserve"><value>{0} pendentes</value></data>
+  <data name="opportunityDetail.progress.versions.one" xml:space="preserve"><value>{0} versão</value></data>
+  <data name="opportunityDetail.progress.versions.many" xml:space="preserve"><value>{0} versões</value></data>
+  <data name="opportunityDetail.progress.noneSent" xml:space="preserve"><value>nenhuma enviada</value></data>
+  <data name="opportunityDetail.details.title" xml:space="preserve"><value>Detalhes</value></data>
+  <data name="opportunityDetail.responsible.title" xml:space="preserve"><value>Responsável</value></data>
+  <data name="opportunityDetail.responsible.role" xml:space="preserve"><value>Agência · Comercial</value></data>
+  <data name="opportunityDetail.responsible.none" xml:space="preserve"><value>Sem responsável atribuído.</value></data>
+  <data name="opportunityDetail.followups.sidebarTitle" xml:space="preserve"><value>Follow-ups</value></data>
+  <data name="opportunityDetail.followups.newShort" xml:space="preserve"><value>Novo</value></data>
+  <data name="opportunityDetail.followups.sidebarEmpty" xml:space="preserve"><value>Sem follow-ups agendados. Bom momento para combinar o próximo passo.</value></data>
+  <data name="opportunityDetail.followups.overdueWaiting.one" xml:space="preserve"><value>follow-up vencido esperando ação.</value></data>
+  <data name="opportunityDetail.followups.overdueWaiting.many" xml:space="preserve"><value>follow-ups vencidos esperando ação.</value></data>
+  <data name="opportunityDetail.followups.scheduledOnTime.one" xml:space="preserve"><value>{0} follow-up agendado no prazo.</value></data>
+  <data name="opportunityDetail.followups.scheduledOnTime.many" xml:space="preserve"><value>{0} follow-ups agendados no prazo.</value></data>
+  <data name="opportunityDetail.close.wonTitle" xml:space="preserve"><value>Encerrar como ganha</value></data>
+  <data name="opportunityDetail.close.lostTitle" xml:space="preserve"><value>Encerrar como perdida</value></data>
+  <data name="opportunityDetail.close.movingPrefix" xml:space="preserve"><value>Você está movendo a oportunidade para </value></data>
+  <data name="opportunityDetail.close.lostSuffix" xml:space="preserve"><value> Selecione o motivo da perda.</value></data>
+  <data name="opportunityDetail.close.wonSuffix" xml:space="preserve"><value> Selecione o motivo do ganho (opcional).</value></data>
+  <data name="opportunityDetail.close.wonReasonLabel" xml:space="preserve"><value>Motivo do ganho</value></data>
+  <data name="opportunityDetail.close.wonReasonEmpty" xml:space="preserve"><value>Nenhum motivo de ganho cadastrado.</value></data>
+  <data name="opportunityDetail.close.lostReasonLabel" xml:space="preserve"><value>Motivo da perda</value></data>
+  <data name="opportunityDetail.close.lostReasonEmpty" xml:space="preserve"><value>Nenhum motivo de perda cadastrado.</value></data>
+  <data name="opportunityDetail.close.wonNotesLabel" xml:space="preserve"><value>Observação (opcional)</value></data>
+  <data name="opportunityDetail.close.lostNotesLabel" xml:space="preserve"><value>Detalhes adicionais (opcional)</value></data>
+  <data name="opportunityDetail.close.wonPlaceholder" xml:space="preserve"><value>Ex.: Cliente aprovou orçamento completo.</value></data>
+  <data name="opportunityDetail.close.lostPlaceholder" xml:space="preserve"><value>Ex.: Cliente escolheu concorrente Acme.</value></data>
+  <data name="opportunityDetail.close.confirm" xml:space="preserve"><value>Confirmar</value></data>
+  <data name="opportunityDetail.close.defaultLossReason" xml:space="preserve"><value>Sem motivo informado</value></data>
+  <data name="opportunityDetail.negotiation.heading" xml:space="preserve"><value>Negociações</value></data>
+  <data name="opportunityDetail.negotiation.subtitle.one" xml:space="preserve"><value>Cada negociação com valor, motivo e desfecho. {0} registrada.</value></data>
+  <data name="opportunityDetail.negotiation.subtitle.many" xml:space="preserve"><value>Cada negociação com valor, motivo e desfecho. {0} registradas.</value></data>
+  <data name="opportunityDetail.negotiation.newButton" xml:space="preserve"><value>Nova negociação</value></data>
+  <data name="opportunityDetail.negotiation.filter.all" xml:space="preserve"><value>Todas</value></data>
+  <data name="opportunityDetail.negotiation.filter.pendingApproval" xml:space="preserve"><value>Pendente aprovação</value></data>
+  <data name="opportunityDetail.negotiation.filter.approved" xml:space="preserve"><value>Aprovadas</value></data>
+  <data name="opportunityDetail.negotiation.filter.draft" xml:space="preserve"><value>Rascunhos</value></data>
+  <data name="opportunityDetail.negotiation.filter.sent" xml:space="preserve"><value>Enviadas</value></data>
+  <data name="opportunityDetail.negotiation.filter.closed" xml:space="preserve"><value>Fechadas</value></data>
+  <data name="opportunityDetail.negotiation.banner.one" xml:space="preserve"><value>negociação esperando aprovação interna.</value></data>
+  <data name="opportunityDetail.negotiation.banner.many" xml:space="preserve"><value>negociações esperando aprovação interna.</value></data>
+  <data name="opportunityDetail.negotiation.emptyAll" xml:space="preserve"><value>Nenhuma negociação registrada</value></data>
+  <data name="opportunityDetail.negotiation.emptyFilter" xml:space="preserve"><value>Nenhuma negociação neste filtro</value></data>
+  <data name="opportunityDetail.negotiation.registerFirst" xml:space="preserve"><value>Registrar primeira negociação</value></data>
+  <data name="opportunityDetail.negotiation.selectPrompt" xml:space="preserve"><value>Selecione uma negociação</value></data>
+  <data name="opportunityDetail.negotiation.selectHint" xml:space="preserve"><value>Clique num card à esquerda para ver detalhes, aprovações vinculadas e ações.</value></data>
+  <data name="opportunityDetail.negotiation.statusShort.pending" xml:space="preserve"><value>Pendente</value></data>
+  <data name="opportunityDetail.negotiation.statusShort.approved" xml:space="preserve"><value>Aprovada</value></data>
+  <data name="opportunityDetail.negotiation.statusShort.draft" xml:space="preserve"><value>Rascunho</value></data>
+  <data name="opportunityDetail.negotiation.statusShort.sent" xml:space="preserve"><value>Enviada</value></data>
+  <data name="opportunityDetail.negotiation.statusShort.accepted" xml:space="preserve"><value>Aceita</value></data>
+  <data name="opportunityDetail.negotiation.statusShort.rejected" xml:space="preserve"><value>Rejeitada</value></data>
+  <data name="opportunityDetail.negotiation.statusShort.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="opportunityDetail.negotiation.statusShort.other" xml:space="preserve"><value>Outro</value></data>
+  <data name="opportunityDetail.negotiation.firstShort" xml:space="preserve"><value>1ª</value></data>
+  <data name="opportunityDetail.negotiation.firstRound" xml:space="preserve"><value>1ª negociação</value></data>
+  <data name="opportunityDetail.negotiation.closePanelAria" xml:space="preserve"><value>Fechar painel</value></data>
+  <data name="opportunityDetail.negotiation.policyTitle" xml:space="preserve"><value>Fora da política comercial</value></data>
+  <data name="opportunityDetail.negotiation.policyDeviation" xml:space="preserve"><value>(padrão {0} · {1})</value></data>
+  <data name="opportunityDetail.negotiation.openApprovalDiff" xml:space="preserve"><value>Abrir aprovação com diff pré-populado</value></data>
+  <data name="opportunityDetail.negotiation.field.value" xml:space="preserve"><value>Valor</value></data>
+  <data name="opportunityDetail.negotiation.field.date" xml:space="preserve"><value>Data</value></data>
+  <data name="opportunityDetail.negotiation.field.created" xml:space="preserve"><value>Criada</value></data>
+  <data name="opportunityDetail.negotiation.field.notes" xml:space="preserve"><value>Notas</value></data>
+  <data name="opportunityDetail.negotiation.linkedApprovals" xml:space="preserve"><value>Aprovações vinculadas</value></data>
+  <data name="opportunityDetail.negotiation.approvalFallback" xml:space="preserve"><value>Solicitação de aprovação</value></data>
+  <data name="opportunityDetail.negotiation.deleteButton" xml:space="preserve"><value>Excluir negociação</value></data>
+  <data name="opportunityDetail.proposal.statusShort.draft" xml:space="preserve"><value>Rascunho</value></data>
+  <data name="opportunityDetail.proposal.statusShort.sent" xml:space="preserve"><value>Enviada</value></data>
+  <data name="opportunityDetail.proposal.statusShort.viewed" xml:space="preserve"><value>Visualizada</value></data>
+  <data name="opportunityDetail.proposal.statusShort.approved" xml:space="preserve"><value>Aprovada</value></data>
+  <data name="opportunityDetail.proposal.statusShort.rejected" xml:space="preserve"><value>Rejeitada</value></data>
+  <data name="opportunityDetail.proposal.statusShort.converted" xml:space="preserve"><value>Convertida</value></data>
+  <data name="opportunityDetail.proposal.statusShort.expired" xml:space="preserve"><value>Expirada</value></data>
+  <data name="opportunityDetail.proposal.statusShort.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="opportunityDetail.proposal.emptyTitle" xml:space="preserve"><value>Nenhuma proposta criada</value></data>
+  <data name="opportunityDetail.proposal.emptyHint" xml:space="preserve"><value>Crie a primeira proposta pra começar o histórico. Cada nova versão entra como um nó da timeline.</value></data>
+  <data name="opportunityDetail.proposal.historyTitle" xml:space="preserve"><value>Histórico de propostas</value></data>
+  <data name="opportunityDetail.proposal.versionsCreated.one" xml:space="preserve"><value>{0} versão criada</value></data>
+  <data name="opportunityDetail.proposal.versionsCreated.many" xml:space="preserve"><value>{0} versões criadas</value></data>
+  <data name="opportunityDetail.proposal.approvedCount.one" xml:space="preserve"><value>{0} aprovada</value></data>
+  <data name="opportunityDetail.proposal.approvedCount.many" xml:space="preserve"><value>{0} aprovadas</value></data>
+  <data name="opportunityDetail.proposal.awaitingClient" xml:space="preserve"><value>{0} aguardando cliente</value></data>
+  <data name="opportunityDetail.proposal.cell.versionsCreated" xml:space="preserve"><value>Versões criadas</value></data>
+  <data name="opportunityDetail.proposal.cell.onlyInitial" xml:space="preserve"><value>só a inicial</value></data>
+  <data name="opportunityDetail.proposal.cell.offerEvolution" xml:space="preserve"><value>evolução de oferta</value></data>
+  <data name="opportunityDetail.proposal.cell.diff" xml:space="preserve"><value>Diferencial v1 → v{0}</value></data>
+  <data name="opportunityDetail.proposal.cell.diffSub" xml:space="preserve"><value>comparado à primeira oferta</value></data>
+  <data name="opportunityDetail.proposal.cell.onlyOneVersion" xml:space="preserve"><value>apenas uma versão</value></data>
+  <data name="opportunityDetail.proposal.cell.currentValue" xml:space="preserve"><value>Valor da versão atual</value></data>
+  <data name="opportunityDetail.proposal.cell.currentStatus" xml:space="preserve"><value>Status atual</value></data>
+  <data name="opportunityDetail.proposal.currentVersion" xml:space="preserve"><value>Versão atual</value></data>
+  <data name="opportunityDetail.proposal.validity" xml:space="preserve"><value>Validade {0}</value></data>
+  <data name="opportunityDetail.proposal.convertedToCampaign" xml:space="preserve"><value>Convertida em campanha</value></data>
+  <data name="opportunityDetail.proposal.opportunityCreated" xml:space="preserve"><value>Oportunidade criada</value></data>
+  <data name="opportunityDetail.proposal.createdOn" xml:space="preserve"><value>em {0}</value></data>
+  <data name="opportunityDetail.approval.heading" xml:space="preserve"><value>Aprovações internas</value></data>
+  <data name="opportunityDetail.approval.subtitle" xml:space="preserve"><value>Solicitações de exceção (margem, prazo, desconto) ligadas à negociação que motivou.</value></data>
+  <data name="opportunityDetail.approval.waitingBanner.one" xml:space="preserve"><value>1 aprovação esperando você</value></data>
+  <data name="opportunityDetail.approval.waitingBanner.many" xml:space="preserve"><value>{0} aprovações esperando você</value></data>
+  <data name="opportunityDetail.approval.waitingBannerSub.one" xml:space="preserve"><value>Negociação pausada até sua decisão.</value></data>
+  <data name="opportunityDetail.approval.waitingBannerSub.many" xml:space="preserve"><value>Negociações pausadas até sua decisão.</value></data>
+  <data name="opportunityDetail.approval.emptyTitle" xml:space="preserve"><value>Nenhuma aprovação solicitada</value></data>
+  <data name="opportunityDetail.approval.emptyHint" xml:space="preserve"><value>Aprovações são criadas quando uma negociação tem desvio de política. Para criar uma, abra a negociação em "Negociações" e clique em "Solicitar aprovação".</value></data>
+  <data name="opportunityDetail.approval.type.discount" xml:space="preserve"><value>Exceção de desconto</value></data>
+  <data name="opportunityDetail.approval.type.margin" xml:space="preserve"><value>Exceção de margem</value></data>
+  <data name="opportunityDetail.approval.type.deadline" xml:space="preserve"><value>Exceção de prazo</value></data>
+  <data name="opportunityDetail.approval.type.other" xml:space="preserve"><value>Exceção (outra)</value></data>
+  <data name="opportunityDetail.approval.type.fallback" xml:space="preserve"><value>Exceção</value></data>
+  <data name="opportunityDetail.approval.statusShort.pending" xml:space="preserve"><value>Pendente</value></data>
+  <data name="opportunityDetail.approval.statusShort.approved" xml:space="preserve"><value>Aprovada</value></data>
+  <data name="opportunityDetail.approval.statusShort.rejected" xml:space="preserve"><value>Rejeitada</value></data>
+  <data name="opportunityDetail.approval.statusShort.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="opportunityDetail.approval.waitingLessThanHour" xml:space="preserve"><value>aguardando há menos de 1h</value></data>
+  <data name="opportunityDetail.approval.waitingHours" xml:space="preserve"><value>aguardando há {0}h</value></data>
+  <data name="opportunityDetail.approval.decidedOn" xml:space="preserve"><value>decidida em {0}</value></data>
+  <data name="opportunityDetail.approval.linkedTo" xml:space="preserve"><value>Vinculada a</value></data>
+  <data name="opportunityDetail.approval.requestedBy" xml:space="preserve"><value>Solicitado por</value></data>
+  <data name="opportunityDetail.approval.onDate" xml:space="preserve"><value>em {0}</value></data>
+  <data name="opportunityDetail.approval.approvedBy" xml:space="preserve"><value>Aprovado por</value></data>
+  <data name="opportunityDetail.approval.rejectedBy" xml:space="preserve"><value>Rejeitado por</value></data>
+  <data name="opportunityDetail.approval.decidedBy" xml:space="preserve"><value>Decidido por</value></data>
+  <data name="opportunityDetail.approval.approveButton" xml:space="preserve"><value>Aprovar</value></data>
+  <data name="opportunityDetail.approval.rejectButton" xml:space="preserve"><value>Rejeitar</value></data>
+  <data name="opportunityDetail.funnel.title" xml:space="preserve"><value>Estágio do funil</value></data>
+  <data name="opportunityDetail.funnel.here" xml:space="preserve"><value>aqui</value></data>
 </root>
