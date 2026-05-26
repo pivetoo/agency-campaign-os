@@ -2016,4 +2016,63 @@
   <data name="configuration.opportunityOutcomeReasons.field.reason" xml:space="preserve"><value>Motivo</value></data>
   <data name="configuration.opportunityOutcomeReasons.empty" xml:space="preserve"><value>Nenhum motivo cadastrado.</value></data>
   <data name="configuration.opportunityOutcomeReasons.confirm.delete" xml:space="preserve"><value>Excluir o motivo "{0}"?</value></data>
+  <data name="configuration.commercialPolicy.title" xml:space="preserve"><value>Política comercial</value></data>
+  <data name="configuration.commercialPolicy.subtitle" xml:space="preserve"><value>Limites usados para detectar quando uma negociação requer aprovação.</value></data>
+  <data name="configuration.commercialPolicy.intro" xml:space="preserve"><value>Quando uma negociação for criada ou editada com valores **fora destes limites**, o Kanvas avisa o operador e pré-popula a aprovação com o diff e o impacto financeiro estimado.</value></data>
+  <data name="configuration.commercialPolicy.action.save" xml:space="preserve"><value>Salvar política</value></data>
+  <data name="configuration.commercialPolicy.field.maxDiscount.label" xml:space="preserve"><value>Desconto máximo permitido (%)</value></data>
+  <data name="configuration.commercialPolicy.field.maxDiscount.hint" xml:space="preserve"><value>Desconto acima disso exige aprovação.</value></data>
+  <data name="configuration.commercialPolicy.field.maxDiscount.placeholder" xml:space="preserve"><value>Ex.: 10</value></data>
+  <data name="configuration.commercialPolicy.field.minMargin.label" xml:space="preserve"><value>Margem mínima exigida (%)</value></data>
+  <data name="configuration.commercialPolicy.field.minMargin.hint" xml:space="preserve"><value>Margem abaixo disso exige aprovação.</value></data>
+  <data name="configuration.commercialPolicy.field.minMargin.placeholder" xml:space="preserve"><value>Ex.: 22</value></data>
+  <data name="configuration.commercialPolicy.field.defaultPaymentTerm.label" xml:space="preserve"><value>Prazo padrão de pagamento (dias)</value></data>
+  <data name="configuration.commercialPolicy.field.defaultPaymentTerm.hint" xml:space="preserve"><value>Usado como referência (sem aprovação).</value></data>
+  <data name="configuration.commercialPolicy.field.defaultPaymentTerm.placeholder" xml:space="preserve"><value>Ex.: 30</value></data>
+  <data name="configuration.commercialPolicy.field.maxPaymentTerm.label" xml:space="preserve"><value>Prazo máximo aceito (dias)</value></data>
+  <data name="configuration.commercialPolicy.field.maxPaymentTerm.hint" xml:space="preserve"><value>Prazo acima disso exige aprovação.</value></data>
+  <data name="configuration.commercialPolicy.field.maxPaymentTerm.placeholder" xml:space="preserve"><value>Ex.: 60</value></data>
+  <data name="configuration.commercialPolicy.field.notes.label" xml:space="preserve"><value>Notas internas (opcional)</value></data>
+  <data name="configuration.commercialPolicy.field.notes.placeholder" xml:space="preserve"><value>Contexto da política (ex.: válida a partir de Q2/2026, aprovada pela diretoria)</value></data>
+  <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Modelo de proposta</value></data>
+  <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>Novo modelo</value></data>
+  <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Layouts da proposta</value></data>
+  <data name="configuration.proposalLayouts.subtitle" xml:space="preserve"><value>Modelos de PDF reutilizáveis. Um é marcado como padrão; o vendedor pode escolher outro por proposta.</value></data>
+  <data name="configuration.proposalLayouts.entityLabel" xml:space="preserve"><value>Layout da proposta</value></data>
+  <data name="configuration.proposalLayouts.addLabel" xml:space="preserve"><value>Novo layout</value></data>
+  <data name="configuration.proposalLayouts.field.default" xml:space="preserve"><value>Padrão</value></data>
+  <data name="configuration.proposalLayouts.field.createdAt" xml:space="preserve"><value>Criado em</value></data>
+  <data name="configuration.proposalLayouts.empty" xml:space="preserve"><value>Nenhum layout cadastrado.</value></data>
+  <data name="configuration.proposalLayouts.confirm.delete" xml:space="preserve"><value>Excluir o layout "{0}"? Propostas que usavam este layout voltam ao padrão da agência.</value></data>
+  <data name="configuration.proposalLayout.name.placeholder" xml:space="preserve"><value>Ex.: Layout Premium B2B</value></data>
+  <data name="configuration.proposalLayout.setAsDefault" xml:space="preserve"><value>Definir como padrão</value></data>
+  <data name="configuration.proposalLayout.action.create" xml:space="preserve"><value>Criar layout</value></data>
+  <data name="configuration.proposalLayout.loadPreset" xml:space="preserve"><value>Carregar:</value></data>
+  <data name="configuration.proposalLayout.variables.agency.group" xml:space="preserve"><value>Agência</value></data>
+  <data name="configuration.proposalLayout.variables.agency.primaryColor" xml:space="preserve"><value>Cor primária (hex)</value></data>
+  <data name="configuration.proposalLayout.variables.agency.logo" xml:space="preserve"><value>Logo (img tag ou texto)</value></data>
+  <data name="configuration.proposalLayout.variables.agency.name" xml:space="preserve"><value>Nome da agência</value></data>
+  <data name="configuration.proposalLayout.variables.agency.displayName" xml:space="preserve"><value>Nome fantasia ou nome</value></data>
+  <data name="configuration.proposalLayout.variables.agency.emailHtml" xml:space="preserve"><value>E-mail (div ou vazio)</value></data>
+  <data name="configuration.proposalLayout.variables.agency.email" xml:space="preserve"><value>E-mail (texto simples)</value></data>
+  <data name="configuration.proposalLayout.variables.agency.phone" xml:space="preserve"><value>Telefone</value></data>
+  <data name="configuration.proposalLayout.variables.agency.address" xml:space="preserve"><value>Endereço</value></data>
+  <data name="configuration.proposalLayout.variables.agency.document" xml:space="preserve"><value>CNPJ / documento</value></data>
+  <data name="configuration.proposalLayout.variables.agency.nameWithDocument" xml:space="preserve"><value>Nome + documento</value></data>
+  <data name="configuration.proposalLayout.variables.agency.contactLine" xml:space="preserve"><value>Email · Fone · Endereço</value></data>
+  <data name="configuration.proposalLayout.variables.proposal.group" xml:space="preserve"><value>Proposta</value></data>
+  <data name="configuration.proposalLayout.variables.proposal.name" xml:space="preserve"><value>Título da proposta</value></data>
+  <data name="configuration.proposalLayout.variables.proposal.descriptionHtml" xml:space="preserve"><value>Descrição em &lt;p&gt; ou vazio</value></data>
+  <data name="configuration.proposalLayout.variables.proposal.description" xml:space="preserve"><value>Descrição (texto simples)</value></data>
+  <data name="configuration.proposalLayout.variables.proposal.date" xml:space="preserve"><value>Data de emissão</value></data>
+  <data name="configuration.proposalLayout.variables.proposal.client" xml:space="preserve"><value>Nome do cliente</value></data>
+  <data name="configuration.proposalLayout.variables.proposal.clientRow" xml:space="preserve"><value>&lt;tr&gt; do cliente ou vazio</value></data>
+  <data name="configuration.proposalLayout.variables.proposal.owner" xml:space="preserve"><value>Responsável interno</value></data>
+  <data name="configuration.proposalLayout.variables.proposal.ownerRow" xml:space="preserve"><value>&lt;tr&gt; do responsável ou vazio</value></data>
+  <data name="configuration.proposalLayout.variables.itemsTotals.group" xml:space="preserve"><value>Itens e totais</value></data>
+  <data name="configuration.proposalLayout.variables.itemsTotals.items" xml:space="preserve"><value>Tabela completa de itens</value></data>
+  <data name="configuration.proposalLayout.variables.itemsTotals.totals" xml:space="preserve"><value>Bloco de total</value></data>
+  <data name="configuration.proposalLayout.variables.itemsTotals.totalFormatted" xml:space="preserve"><value>Valor total formatado (R$)</value></data>
+  <data name="configuration.proposalLayout.variables.itemsTotals.validityHtml" xml:space="preserve"><value>Validade em &lt;p&gt; ou vazio</value></data>
+  <data name="configuration.proposalLayout.variables.itemsTotals.notesHtml" xml:space="preserve"><value>Observações ou vazio</value></data>
 </root>

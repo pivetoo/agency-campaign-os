@@ -38,13 +38,13 @@ export default function ProposalLayouts() {
     { key: 'name', title: t('common.field.name'), dataIndex: 'name' },
     {
       key: 'isActive',
-      title: 'Padrão',
+      title: t('configuration.proposalLayouts.field.default'),
       dataIndex: 'isActive',
-      render: (value: boolean) => value ? <Badge variant="success">Padrão</Badge> : <span className="text-xs text-muted-foreground">—</span>,
+      render: (value: boolean) => value ? <Badge variant="success">{t('configuration.proposalLayouts.field.default')}</Badge> : <span className="text-xs text-muted-foreground">—</span>,
     },
     {
       key: 'createdAt',
-      title: 'Criado em',
+      title: t('configuration.proposalLayouts.field.createdAt'),
       dataIndex: 'createdAt',
       render: (value: string) => <span className="text-sm text-muted-foreground">{formatDate(value)}</span>,
     },
@@ -53,13 +53,13 @@ export default function ProposalLayouts() {
   return (
     <>
       <PageLayout
-        title="Layouts da proposta"
-        subtitle="Modelos de PDF reutilizáveis. Um é marcado como padrão; o vendedor pode escolher outro por proposta."
+        title={t('configuration.proposalLayouts.title')}
+        subtitle={t('configuration.proposalLayouts.subtitle')}
         onAdd={() => navigate('/configuracao/layouts-proposta/novo')}
         onEdit={() => selected && navigate(`/configuracao/layouts-proposta/${selected.id}`)}
         onRefresh={() => void load()}
-        actionsSlot={<AuditUtilityBar entityName="ProposalTemplateVersion" entityLabel="Layout da proposta" entityId={selected?.id ?? null} />}
-        addLabel="Novo layout"
+        actionsSlot={<AuditUtilityBar entityName="ProposalTemplateVersion" entityLabel={t('configuration.proposalLayouts.entityLabel')} entityId={selected?.id ?? null} />}
+        addLabel={t('configuration.proposalLayouts.addLabel')}
         selectedRowsCount={selected ? 1 : 0}
         actions={[
           {
@@ -80,7 +80,7 @@ export default function ProposalLayouts() {
           selectedRows={selected ? [selected] : []}
           onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
           onRowDoubleClick={(row) => navigate(`/configuracao/layouts-proposta/${row.id}`)}
-          emptyText="Nenhum layout cadastrado."
+          emptyText={t('configuration.proposalLayouts.empty')}
           loading={loading}
         />
       </PageLayout>
@@ -88,7 +88,7 @@ export default function ProposalLayouts() {
       <ConfirmModal
         open={confirmDeleteOpen}
         onOpenChange={setConfirmDeleteOpen}
-        description={`Excluir o layout "${selected?.name ?? ''}"? Propostas que usavam este layout voltam ao padrão da agência.`}
+        description={t('configuration.proposalLayouts.confirm.delete').replace('{0}', selected?.name ?? '')}
         variant="danger"
         onConfirm={() => void handleDelete()}
         loading={deleting}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Input, PageLayout, useApi } from 'archon-ui'
+import { Button, Input, PageLayout, useApi, useI18n } from 'archon-ui'
 import { ShieldCheck } from 'lucide-react'
 import { commercialPolicyService, type UpsertCommercialPolicyRequest } from '../../../services/commercialPolicyService'
 
@@ -12,6 +12,7 @@ const initialFormData: UpsertCommercialPolicyRequest = {
 }
 
 export default function CommercialPolicyAdmin() {
+  const { t } = useI18n()
   const [formData, setFormData] = useState<UpsertCommercialPolicyRequest>(initialFormData)
   const [loaded, setLoaded] = useState(false)
   const { execute: load, loading: loading } = useApi({ showErrorMessage: true })
@@ -47,8 +48,8 @@ export default function CommercialPolicyAdmin() {
 
   return (
     <PageLayout
-      title="Política comercial"
-      subtitle="Limites usados para detectar quando uma negociação requer aprovação."
+      title={t('configuration.commercialPolicy.title')}
+      subtitle={t('configuration.commercialPolicy.subtitle')}
       showDefaultActions={false}
       onRefresh={() => void fetchData()}
     >
@@ -56,37 +57,37 @@ export default function CommercialPolicyAdmin() {
         <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <div className="text-muted-foreground">
-            Quando uma negociação for criada ou editada com valores **fora destes limites**, o Kanvas avisa o operador e pré-popula a aprovação com o diff e o impacto financeiro estimado.
+            {t('configuration.commercialPolicy.intro')}
           </div>
         </div>
 
         <section className="grid gap-4 rounded-lg border border-border bg-card p-5 sm:grid-cols-2">
-          <Field label="Desconto máximo permitido (%)" hint="Desconto acima disso exige aprovação.">
-            <Input type="number" min={0} max={100} step="0.1" placeholder="Ex.: 10" value={formData.maxDiscountPercent ?? ''} onChange={(e) => handleNumberChange('maxDiscountPercent', e.target.value)} disabled={loading} />
+          <Field label={t('configuration.commercialPolicy.field.maxDiscount.label')} hint={t('configuration.commercialPolicy.field.maxDiscount.hint')}>
+            <Input type="number" min={0} max={100} step="0.1" placeholder={t('configuration.commercialPolicy.field.maxDiscount.placeholder')} value={formData.maxDiscountPercent ?? ''} onChange={(e) => handleNumberChange('maxDiscountPercent', e.target.value)} disabled={loading} />
           </Field>
-          <Field label="Margem mínima exigida (%)" hint="Margem abaixo disso exige aprovação.">
-            <Input type="number" min={0} max={100} step="0.1" placeholder="Ex.: 22" value={formData.minMarginPercent ?? ''} onChange={(e) => handleNumberChange('minMarginPercent', e.target.value)} disabled={loading} />
+          <Field label={t('configuration.commercialPolicy.field.minMargin.label')} hint={t('configuration.commercialPolicy.field.minMargin.hint')}>
+            <Input type="number" min={0} max={100} step="0.1" placeholder={t('configuration.commercialPolicy.field.minMargin.placeholder')} value={formData.minMarginPercent ?? ''} onChange={(e) => handleNumberChange('minMarginPercent', e.target.value)} disabled={loading} />
           </Field>
-          <Field label="Prazo padrão de pagamento (dias)" hint="Usado como referência (sem aprovação).">
-            <Input type="number" min={0} max={3650} step="1" placeholder="Ex.: 30" value={formData.defaultPaymentTermDays ?? ''} onChange={(e) => handleNumberChange('defaultPaymentTermDays', e.target.value)} disabled={loading} />
+          <Field label={t('configuration.commercialPolicy.field.defaultPaymentTerm.label')} hint={t('configuration.commercialPolicy.field.defaultPaymentTerm.hint')}>
+            <Input type="number" min={0} max={3650} step="1" placeholder={t('configuration.commercialPolicy.field.defaultPaymentTerm.placeholder')} value={formData.defaultPaymentTermDays ?? ''} onChange={(e) => handleNumberChange('defaultPaymentTermDays', e.target.value)} disabled={loading} />
           </Field>
-          <Field label="Prazo máximo aceito (dias)" hint="Prazo acima disso exige aprovação.">
-            <Input type="number" min={0} max={3650} step="1" placeholder="Ex.: 60" value={formData.maxPaymentTermDays ?? ''} onChange={(e) => handleNumberChange('maxPaymentTermDays', e.target.value)} disabled={loading} />
+          <Field label={t('configuration.commercialPolicy.field.maxPaymentTerm.label')} hint={t('configuration.commercialPolicy.field.maxPaymentTerm.hint')}>
+            <Input type="number" min={0} max={3650} step="1" placeholder={t('configuration.commercialPolicy.field.maxPaymentTerm.placeholder')} value={formData.maxPaymentTermDays ?? ''} onChange={(e) => handleNumberChange('maxPaymentTermDays', e.target.value)} disabled={loading} />
           </Field>
         </section>
 
         <section className="space-y-2 rounded-lg border border-border bg-card p-5">
-          <label className="text-sm font-medium">Notas internas (opcional)</label>
+          <label className="text-sm font-medium">{t('configuration.commercialPolicy.field.notes.label')}</label>
           <textarea
             className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             value={formData.notes ?? ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-            placeholder="Contexto da política (ex.: válida a partir de Q2/2026, aprovada pela diretoria)"
+            placeholder={t('configuration.commercialPolicy.field.notes.placeholder')}
           />
         </section>
 
         <div className="flex justify-end gap-2">
-          <Button type="submit" variant="primary" disabled={saving || !loaded}>{saving ? 'Salvando…' : 'Salvar política'}</Button>
+          <Button type="submit" variant="primary" disabled={saving || !loaded}>{saving ? t('common.action.saving') : t('configuration.commercialPolicy.action.save')}</Button>
         </div>
       </form>
     </PageLayout>

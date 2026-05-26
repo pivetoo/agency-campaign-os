@@ -1,53 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, Checkbox, ConfirmModal, Input, useApi } from 'archon-ui'
+import { Button, Checkbox, ConfirmModal, Input, useApi, useI18n } from 'archon-ui'
 import { RefreshCw, Trash2 } from 'lucide-react'
 import HtmlTemplateEditor, { type TemplateVariableGroup } from '../../../components/editor/HtmlTemplateEditor'
 import { agencySettingsService, type ProposalLayout, type ProposalTemplateVersion } from '../../../services/agencySettingsService'
 
-const VARIABLES: TemplateVariableGroup[] = [
-  {
-    group: 'Agência',
-    items: [
-      { key: 'agency.primaryColor', label: 'Cor primária (hex)' },
-      { key: 'agency.logo', label: 'Logo (img tag ou texto)' },
-      { key: 'agency.name', label: 'Nome da agência' },
-      { key: 'agency.displayName', label: 'Nome fantasia ou nome' },
-      { key: 'agency.emailHtml', label: 'E-mail (div ou vazio)' },
-      { key: 'agency.email', label: 'E-mail (texto simples)' },
-      { key: 'agency.phone', label: 'Telefone' },
-      { key: 'agency.address', label: 'Endereço' },
-      { key: 'agency.document', label: 'CNPJ / documento' },
-      { key: 'agency.nameWithDocument', label: 'Nome + documento' },
-      { key: 'agency.contactLine', label: 'Email · Fone · Endereço' },
-    ],
-  },
-  {
-    group: 'Proposta',
-    items: [
-      { key: 'proposal.name', label: 'Título da proposta' },
-      { key: 'proposal.descriptionHtml', label: 'Descrição em <p> ou vazio' },
-      { key: 'proposal.description', label: 'Descrição (texto simples)' },
-      { key: 'proposal.date', label: 'Data de emissão' },
-      { key: 'proposal.client', label: 'Nome do cliente' },
-      { key: 'proposal.clientRow', label: '<tr> do cliente ou vazio' },
-      { key: 'proposal.owner', label: 'Responsável interno' },
-      { key: 'proposal.ownerRow', label: '<tr> do responsável ou vazio' },
-    ],
-  },
-  {
-    group: 'Itens e totais',
-    items: [
-      { key: 'proposal.items', label: 'Tabela completa de itens' },
-      { key: 'proposal.totals', label: 'Bloco de total' },
-      { key: 'proposal.totalFormatted', label: 'Valor total formatado (R$)' },
-      { key: 'proposal.validityHtml', label: 'Validade em <p> ou vazio' },
-      { key: 'proposal.notesHtml', label: 'Observações ou vazio' },
-    ],
-  },
-]
-
 export default function ProposalLayoutEditor() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { id } = useParams<{ id?: string }>()
   const isNew = !id || id === 'novo'
@@ -58,6 +17,48 @@ export default function ProposalLayoutEditor() {
   const [isDefault, setIsDefault] = useState(false)
   const [layoutPresets, setLayoutPresets] = useState<ProposalLayout[]>([])
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
+
+  const VARIABLES: TemplateVariableGroup[] = useMemo(() => [
+    {
+      group: t('configuration.proposalLayout.variables.agency.group'),
+      items: [
+        { key: 'agency.primaryColor', label: t('configuration.proposalLayout.variables.agency.primaryColor') },
+        { key: 'agency.logo', label: t('configuration.proposalLayout.variables.agency.logo') },
+        { key: 'agency.name', label: t('configuration.proposalLayout.variables.agency.name') },
+        { key: 'agency.displayName', label: t('configuration.proposalLayout.variables.agency.displayName') },
+        { key: 'agency.emailHtml', label: t('configuration.proposalLayout.variables.agency.emailHtml') },
+        { key: 'agency.email', label: t('configuration.proposalLayout.variables.agency.email') },
+        { key: 'agency.phone', label: t('configuration.proposalLayout.variables.agency.phone') },
+        { key: 'agency.address', label: t('configuration.proposalLayout.variables.agency.address') },
+        { key: 'agency.document', label: t('configuration.proposalLayout.variables.agency.document') },
+        { key: 'agency.nameWithDocument', label: t('configuration.proposalLayout.variables.agency.nameWithDocument') },
+        { key: 'agency.contactLine', label: t('configuration.proposalLayout.variables.agency.contactLine') },
+      ],
+    },
+    {
+      group: t('configuration.proposalLayout.variables.proposal.group'),
+      items: [
+        { key: 'proposal.name', label: t('configuration.proposalLayout.variables.proposal.name') },
+        { key: 'proposal.descriptionHtml', label: t('configuration.proposalLayout.variables.proposal.descriptionHtml') },
+        { key: 'proposal.description', label: t('configuration.proposalLayout.variables.proposal.description') },
+        { key: 'proposal.date', label: t('configuration.proposalLayout.variables.proposal.date') },
+        { key: 'proposal.client', label: t('configuration.proposalLayout.variables.proposal.client') },
+        { key: 'proposal.clientRow', label: t('configuration.proposalLayout.variables.proposal.clientRow') },
+        { key: 'proposal.owner', label: t('configuration.proposalLayout.variables.proposal.owner') },
+        { key: 'proposal.ownerRow', label: t('configuration.proposalLayout.variables.proposal.ownerRow') },
+      ],
+    },
+    {
+      group: t('configuration.proposalLayout.variables.itemsTotals.group'),
+      items: [
+        { key: 'proposal.items', label: t('configuration.proposalLayout.variables.itemsTotals.items') },
+        { key: 'proposal.totals', label: t('configuration.proposalLayout.variables.itemsTotals.totals') },
+        { key: 'proposal.totalFormatted', label: t('configuration.proposalLayout.variables.itemsTotals.totalFormatted') },
+        { key: 'proposal.validityHtml', label: t('configuration.proposalLayout.variables.itemsTotals.validityHtml') },
+        { key: 'proposal.notesHtml', label: t('configuration.proposalLayout.variables.itemsTotals.notesHtml') },
+      ],
+    },
+  ], [t])
 
   const { execute: fetchVersion, loading: loadingVersion } = useApi<ProposalTemplateVersion | null>({ showErrorMessage: true })
   const { execute: runSave, loading: saving } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -128,7 +129,7 @@ export default function ProposalLayoutEditor() {
       <ConfirmModal
         open={confirmDeleteOpen}
         onOpenChange={setConfirmDeleteOpen}
-        description={`Excluir o layout "${name}"? Propostas que usavam este layout voltam ao padrão da agência.`}
+        description={t('configuration.proposalLayouts.confirm.delete').replace('{0}', name)}
         variant="danger"
         onConfirm={() => void handleDelete()}
         loading={deleting}
@@ -136,25 +137,25 @@ export default function ProposalLayoutEditor() {
 
       <div className="flex shrink-0 flex-wrap items-end gap-3 border-b bg-background px-4 py-3">
         <div className="min-w-[260px] flex-1">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Nome</label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Layout Premium B2B" />
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{t('common.field.name')}</label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('configuration.proposalLayout.name.placeholder')} />
         </div>
 
         <label className="flex items-center gap-2 pb-1 text-sm">
           <Checkbox checked={isDefault} onCheckedChange={(checked) => setIsDefault(!!checked)} />
-          <span>Definir como padrão</span>
+          <span>{t('configuration.proposalLayout.setAsDefault')}</span>
         </label>
 
         {!isNew ? (
           <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmDeleteOpen(true)}>
             <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-            Excluir
+            {t('common.action.delete')}
           </Button>
         ) : null}
 
         <Button type="button" size="sm" onClick={() => void handleSave()} disabled={saving || loadingVersion || !isValid}>
           {saving ? <RefreshCw className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-          {saving ? 'Salvando...' : isNew ? 'Criar layout' : 'Salvar'}
+          {saving ? t('common.action.saving') : isNew ? t('configuration.proposalLayout.action.create') : t('common.action.save')}
         </Button>
       </div>
 
@@ -168,7 +169,7 @@ export default function ProposalLayoutEditor() {
         toolbarLeftSlot={
           layoutPresets.length > 0 ? (
             <>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Carregar:</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('configuration.proposalLayout.loadPreset')}</span>
               {layoutPresets.map((preset) => (
                 <button
                   key={preset.key}

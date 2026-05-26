@@ -47,9 +47,9 @@ export default function ProposalTemplates() {
       value: includeInactiveFilter,
       onChange: setIncludeInactiveFilter,
       options: [
-        { value: 'all', label: 'Incluir inativos' },
+        { value: 'all', label: t('common.filter.includeInactive') },
       ],
-      allLabel: 'Somente ativos',
+      allLabel: t('common.filter.activeOnly'),
     },
   ], [includeInactiveFilter, t])
 
@@ -105,8 +105,8 @@ export default function ProposalTemplates() {
         onAdd={() => { setSelected(null); setIsFormOpen(true) }}
         onEdit={() => selected && setIsFormOpen(true)}
         onRefresh={() => void load()}
-        actionsSlot={<AuditUtilityBar entityName="ProposalTemplate" entityLabel="Modelo de proposta" entityId={selected?.id ?? null} />}
-        addLabel="Novo modelo"
+        actionsSlot={<AuditUtilityBar entityName="ProposalTemplate" entityLabel={t('configuration.proposalTemplates.entityLabel')} entityId={selected?.id ?? null} />}
+        addLabel={t('configuration.proposalTemplates.addLabel')}
         selectedRowsCount={selected ? 1 : 0}
         actions={[
           {
