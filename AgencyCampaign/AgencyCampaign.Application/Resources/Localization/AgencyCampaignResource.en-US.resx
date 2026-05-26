@@ -404,6 +404,7 @@
   <data name="pipeline.card.overdue" xml:space="preserve"><value>Overdue</value></data>
   <data name="common.action.clear" xml:space="preserve"><value>Clear</value></data>
   <data name="common.action.open" xml:space="preserve"><value>Open</value></data>
+  <data name="common.action.search" xml:space="preserve"><value>Search</value></data>
   <data name="common.field.responsible" xml:space="preserve"><value>Responsible</value></data>
   <data name="common.field.totalValue" xml:space="preserve"><value>Total Value</value></data>
   <data name="common.field.validity" xml:space="preserve"><value>Validity</value></data>
