@@ -375,7 +375,7 @@ export default function OpportunityDetail() {
                   {approvalRequests.length}
                 </span>
               ) : null}
-              {pendingApprovalsCount > 0 && <span className="h-1.5 w-1.5 rounded-full bg-destructive" aria-label={`${pendingApprovalsCount} aprovações pendentes`} />}
+              {pendingForMe > 0 && <span className="h-1.5 w-1.5 rounded-full bg-destructive" aria-label={`${pendingForMe} aprovações esperando você`} />}
             </TabsTrigger>
             <TabsTrigger value="proposals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <TrendingUp className="h-4 w-4" /> {t('opportunityDetail.tab.proposals')}
@@ -505,10 +505,12 @@ export default function OpportunityDetail() {
                       iconClassName="bg-emerald-100 text-emerald-700"
                       label="Aprovações"
                       count={approvalRequests.length}
-                      statusLabel={pendingApprovalsCount > 0
-                        ? `${pendingApprovalsCount} esperando você`
-                        : 'sem pendências'}
-                      statusTone={pendingApprovalsCount > 0 ? 'red' : 'muted'}
+                      statusLabel={pendingForMe > 0
+                        ? `${pendingForMe} esperando você`
+                        : pendingApprovalsCount > 0
+                          ? `${pendingApprovalsCount} pendente${pendingApprovalsCount === 1 ? '' : 's'}`
+                          : 'sem pendências'}
+                      statusTone={pendingForMe > 0 ? 'red' : pendingApprovalsCount > 0 ? 'amber' : 'muted'}
                       onClick={() => handleTabChange('approvals')}
                     />
                     <SubflowCard
@@ -1559,7 +1561,7 @@ function ApprovalsTab({ approvals, negotiations, actionLoading, t: _t, canDecide
     return map
   }, [negotiations])
 
-  const pendingTotal = pendingApprovals.length
+  const pendingTotal = pendingApprovals.filter((approval) => canDecide(approval)).length
 
   return (
     <div className="space-y-4">
