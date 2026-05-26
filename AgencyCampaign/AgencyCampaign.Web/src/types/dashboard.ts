@@ -3,13 +3,13 @@ export interface HeadlineSummary {
   activeBrands: number
   activeCreators: number
   pendingDeliverables: number
-  monthRevenue: number
 }
 
-export interface MonthlyRevenueItem {
+export interface CommercialActivityItem {
   name: string
-  receita: number
-  fee: number
+  criadas: number
+  ganhas: number
+  perdidas: number
 }
 
 export interface PipelineStageItem {
@@ -36,7 +36,7 @@ export interface OperationHealthItem {
 
 export interface DashboardOverview {
   headline: HeadlineSummary
-  monthlyRevenue: MonthlyRevenueItem[]
+  commercialActivity: CommercialActivityItem[]
   pipeline: PipelineStageItem[]
   platformDistribution: PlatformDistributionItem[]
   creatorGrowth: CreatorGrowthItem[]

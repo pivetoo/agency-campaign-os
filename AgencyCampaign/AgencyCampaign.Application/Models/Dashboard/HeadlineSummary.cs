@@ -9,7 +9,5 @@ namespace AgencyCampaign.Application.Models.Dashboard
         public int ActiveCreators { get; init; }
 
         public int PendingDeliverables { get; init; }
-
-        public decimal MonthRevenue { get; init; }
     }
 }

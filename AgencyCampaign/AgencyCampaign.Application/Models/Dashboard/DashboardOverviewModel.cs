@@ -4,7 +4,7 @@ namespace AgencyCampaign.Application.Models.Dashboard
     {
         public HeadlineSummary Headline { get; init; } = new();
 
-        public IReadOnlyCollection<MonthlyRevenueItem> MonthlyRevenue { get; init; } = [];
+        public IReadOnlyCollection<CommercialActivityItem> CommercialActivity { get; init; } = [];
 
         public IReadOnlyCollection<PipelineStageItem> Pipeline { get; init; } = [];
 

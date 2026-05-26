@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AreaChart, BarChart, Card, CardContent, CardHeader, CardTitle, ChartContainer, GlobalLoader, LineChart, PieChart, useAuth, useI18n } from 'archon-ui'
+import { BarChart, Card, CardContent, CardHeader, CardTitle, ChartContainer, GlobalLoader, LineChart, PieChart, useAuth, useI18n } from 'archon-ui'
 import { Activity, BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon, Sparkles, Megaphone, Building2, Users, Clock } from 'lucide-react'
 import { dashboardService } from '../../services/dashboardService'
 import type { DashboardOverview } from '../../types/dashboard'
-import { formatCurrencyShort } from '../../lib/format'
 // import TourButton from '../../components/tour/TourButton'
 
 const chartColors = ['#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6']
@@ -70,11 +69,10 @@ export default function Dashboard() {
     return <GlobalLoader isVisible={true} className="bg-background" />
   }
 
-  const monthlyRevenue = overview?.monthlyRevenue ?? []
+  const commercialActivity = overview?.commercialActivity ?? []
   const pipeline = overview?.pipeline ?? []
   const creatorGrowth = overview?.creatorGrowth ?? []
   const operationHealth = overview?.operationHealth ?? []
-  const monthRevenue = overview?.headline.monthRevenue ?? 0
 
   return (
     <div className="flex flex-col gap-5">
@@ -108,30 +106,41 @@ export default function Dashboard() {
       <div className="grid gap-4 xl:grid-cols-[1.4fr_0.9fr]">
         <Card className="overflow-hidden border border-border/70 shadow-sm">
           <CardHeader className="border-b bg-muted/20 pb-4">
-            <CardTitle className="flex items-center justify-between gap-2 text-base">
+            <CardTitle className="flex flex-wrap items-center justify-between gap-2 text-base">
               <span className="flex items-center gap-2">
                 <LineChartIcon className="h-5 w-5 text-primary" />
-                {t('dashboard.revenue.title')}
+                {t('dashboard.commercialActivity.title')}
               </span>
-              <span className="text-xs font-normal text-muted-foreground">
-                {t('dashboard.revenue.currentMonth')}: <strong className="text-foreground">{formatCurrencyShort(monthRevenue)}</strong>
+              <span className="flex flex-wrap items-center gap-3 text-xs font-normal text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#6366f1' }} />
+                  {t('dashboard.commercialActivity.series.created')}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#22c55e' }} />
+                  {t('dashboard.commercialActivity.series.won')}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#ef4444' }} />
+                  {t('dashboard.commercialActivity.series.lost')}
+                </span>
               </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5">
             <ChartContainer
-              title={t('dashboard.revenue.chartTitle')}
+              title={t('dashboard.commercialActivity.chartTitle')}
               height={290}
-              isEmpty={monthlyRevenue.length === 0}
-              emptyMessage={t('dashboard.revenue.empty')}
+              isEmpty={commercialActivity.length === 0}
+              emptyMessage={t('dashboard.commercialActivity.empty')}
             >
-              <AreaChart
-                data={monthlyRevenue}
-                dataKeys={['receita', 'fee']}
-                colors={['#6366f1', '#22c55e']}
+              <LineChart
+                data={commercialActivity}
+                dataKeys={['criadas', 'ganhas', 'perdidas']}
+                colors={['#6366f1', '#22c55e', '#ef4444']}
                 height={230}
                 showLegend={false}
-                fillOpacity={0.18}
+                showDots={false}
               />
             </ChartContainer>
           </CardContent>

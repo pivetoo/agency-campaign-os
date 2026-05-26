@@ -283,10 +283,12 @@
   <data name="dashboard.kpi.activeBrands" xml:space="preserve"><value>Marcas</value></data>
   <data name="dashboard.kpi.activeCreators" xml:space="preserve"><value>Influenciadores</value></data>
   <data name="dashboard.kpi.pendingDeliverables" xml:space="preserve"><value>Entregas pendentes</value></data>
-  <data name="dashboard.revenue.title" xml:space="preserve"><value>Receita dos últimos 12 meses</value></data>
-  <data name="dashboard.revenue.currentMonth" xml:space="preserve"><value>Mês atual</value></data>
-  <data name="dashboard.revenue.chartTitle" xml:space="preserve"><value>Receita bruta x fee da agência</value></data>
-  <data name="dashboard.revenue.empty" xml:space="preserve"><value>Nenhuma receita registrada nos últimos 12 meses.</value></data>
+  <data name="dashboard.commercialActivity.title" xml:space="preserve"><value>Atividade comercial</value></data>
+  <data name="dashboard.commercialActivity.chartTitle" xml:space="preserve"><value>Oportunidades criadas, ganhas e perdidas</value></data>
+  <data name="dashboard.commercialActivity.empty" xml:space="preserve"><value>Nenhuma atividade comercial nos últimos 12 meses.</value></data>
+  <data name="dashboard.commercialActivity.series.created" xml:space="preserve"><value>Criadas</value></data>
+  <data name="dashboard.commercialActivity.series.won" xml:space="preserve"><value>Ganhas</value></data>
+  <data name="dashboard.commercialActivity.series.lost" xml:space="preserve"><value>Perdidas</value></data>
   <data name="dashboard.pipeline.title" xml:space="preserve"><value>Pipeline comercial</value></data>
   <data name="dashboard.pipeline.chartTitle" xml:space="preserve"><value>Oportunidades por estágio</value></data>
   <data name="dashboard.pipeline.empty" xml:space="preserve"><value>Nenhuma oportunidade no pipeline.</value></data>

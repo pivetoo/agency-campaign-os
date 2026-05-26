@@ -21,12 +21,6 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<DashboardOverviewModel> GetOverview(CancellationToken cancellationToken = default)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
-            DateTimeOffset windowStart = new DateTimeOffset(now.Year - 1, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
-
-            List<CampaignDeliverable> windowDeliverables = await dbContext.Set<CampaignDeliverable>()
-                .AsNoTracking()
-                .Where(item => item.CreatedAt >= windowStart)
-                .ToListAsync(cancellationToken);
 
             List<CampaignDeliverable> allDeliverables = await dbContext.Set<CampaignDeliverable>()
                 .AsNoTracking()
@@ -58,17 +52,17 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            IReadOnlyCollection<MonthlyRevenueItem> monthlyRevenue = BuildMonthlyRevenue(windowDeliverables, now);
+            IReadOnlyCollection<CommercialActivityItem> commercialActivity = BuildCommercialActivity(opportunities, now);
             IReadOnlyCollection<PipelineStageItem> pipeline = BuildPipeline(opportunities);
             IReadOnlyCollection<PlatformDistributionItem> platformDistribution = BuildPlatformDistribution(allDeliverables, platforms);
             IReadOnlyCollection<CreatorGrowthItem> creatorGrowth = BuildCreatorGrowth(creators, now);
             IReadOnlyCollection<OperationHealthItem> operationHealth = BuildOperationHealth(allDeliverables, approvals, opportunities, campaigns);
-            HeadlineSummary headline = BuildHeadline(campaigns, activeBrands, creators, allDeliverables, now);
+            HeadlineSummary headline = BuildHeadline(campaigns, activeBrands, creators, allDeliverables);
 
             return new DashboardOverviewModel
             {
                 Headline = headline,
-                MonthlyRevenue = monthlyRevenue,
+                CommercialActivity = commercialActivity,
                 Pipeline = pipeline,
                 PlatformDistribution = platformDistribution,
                 CreatorGrowth = creatorGrowth,
@@ -76,21 +70,21 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
-        private static IReadOnlyCollection<MonthlyRevenueItem> BuildMonthlyRevenue(List<CampaignDeliverable> deliverables, DateTimeOffset now)
+        private static IReadOnlyCollection<CommercialActivityItem> BuildCommercialActivity(List<Opportunity> opportunities, DateTimeOffset now)
         {
             return EnumerateLast12Months(now)
-                .Select(slot =>
+                .Select(slot => new CommercialActivityItem
                 {
-                    var monthDeliverables = deliverables
-                        .Where(item => item.CreatedAt.Month == slot.Month && item.CreatedAt.Year == slot.Year)
-                        .ToList();
-
-                    return new MonthlyRevenueItem
-                    {
-                        Name = MonthNames[slot.Month - 1],
-                        Receita = monthDeliverables.Sum(item => item.GrossAmount),
-                        Fee = monthDeliverables.Sum(item => item.AgencyFeeAmount)
-                    };
+                    Name = MonthNames[slot.Month - 1],
+                    Criadas = opportunities.Count(item => item.CreatedAt.Month == slot.Month && item.CreatedAt.Year == slot.Year),
+                    Ganhas = opportunities.Count(item =>
+                        item.ClosedAt.HasValue &&
+                        item.ClosedAt.Value.Month == slot.Month && item.ClosedAt.Value.Year == slot.Year &&
+                        item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Won),
+                    Perdidas = opportunities.Count(item =>
+                        item.ClosedAt.HasValue &&
+                        item.ClosedAt.Value.Month == slot.Month && item.ClosedAt.Value.Year == slot.Year &&
+                        item.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost)
                 })
                 .ToArray();
         }
@@ -212,8 +206,7 @@ namespace AgencyCampaign.Infrastructure.Services
             List<Campaign> campaigns,
             int activeBrandsCount,
             List<Creator> creators,
-            List<CampaignDeliverable> deliverables,
-            DateTimeOffset now)
+            List<CampaignDeliverable> deliverables)
         {
             int activeCampaigns = campaigns.Count(item =>
                 item.IsActive &&
@@ -226,17 +219,12 @@ namespace AgencyCampaign.Infrastructure.Services
             int pendingDeliverables = deliverables.Count(item =>
                 item.Status == DeliverableStatus.Pending || item.Status == DeliverableStatus.InReview);
 
-            decimal monthRevenue = deliverables
-                .Where(item => item.CreatedAt.Year == now.Year && item.CreatedAt.Month == now.Month)
-                .Sum(item => item.GrossAmount);
-
             return new HeadlineSummary
             {
                 ActiveCampaigns = activeCampaigns,
                 ActiveBrands = activeBrandsCount,
                 ActiveCreators = activeCreators,
-                PendingDeliverables = pendingDeliverables,
-                MonthRevenue = monthRevenue
+                PendingDeliverables = pendingDeliverables
             };
         }
 
