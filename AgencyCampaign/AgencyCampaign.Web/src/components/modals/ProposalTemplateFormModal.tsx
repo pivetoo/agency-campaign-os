@@ -95,12 +95,12 @@ export default function ProposalTemplateFormModal(props: ProposalTemplateFormMod
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium">{t('common.field.name')}</label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Pacote Influência Reels" />
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('modal.proposalTemplate.placeholder.name')} />
               </div>
               {template ? (
                 <div className="flex items-end gap-3">
                   <Switch checked={isActive} onCheckedChange={setIsActive} />
-                  <span className="text-sm">Template ativo</span>
+                  <span className="text-sm">{t('modal.proposalTemplate.field.isActive')}</span>
                 </div>
               ) : null}
             </div>
@@ -112,22 +112,22 @@ export default function ProposalTemplateFormModal(props: ProposalTemplateFormMod
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                placeholder="Para que esse template é usado?"
+                placeholder={t('modal.proposalTemplate.placeholder.description')}
               />
             </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">Itens do template</h3>
+                <h3 className="text-sm font-semibold">{t('modal.proposalTemplate.items.title')}</h3>
                 <Button size="sm" variant="outline" icon={<Plus className="h-4 w-4" />} onClick={addItem}>
-                  Adicionar item
+                  {t('modal.proposalTemplate.items.add')}
                 </Button>
               </div>
 
               {items.map((item, index) => (
                 <div key={index} className="rounded-md border border-border/70 p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-medium text-muted-foreground">Item #{index + 1}</span>
+                    <span className="text-xs font-medium text-muted-foreground">{t('modal.proposalTemplate.items.itemNumber').replace('{0}', String(index + 1))}</span>
                     {items.length > 1 ? (
                       <button
                         type="button"
@@ -140,15 +140,15 @@ export default function ProposalTemplateFormModal(props: ProposalTemplateFormMod
                   </div>
                   <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-12">
                     <div className="md:col-span-6">
-                      <label className="mb-1 block text-xs text-muted-foreground">Descrição</label>
+                      <label className="mb-1 block text-xs text-muted-foreground">{t('common.field.description')}</label>
                       <Input
                         value={item.description}
                         onChange={(e) => updateItem(index, { description: e.target.value })}
-                        placeholder="Reels patrocinado, 30s, 1 entrega"
+                        placeholder={t('modal.proposalTemplate.placeholder.itemDescription')}
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="mb-1 block text-xs text-muted-foreground">Qtd</label>
+                      <label className="mb-1 block text-xs text-muted-foreground">{t('modal.proposalTemplate.field.quantity')}</label>
                       <Input
                         type="number"
                         min={1}
@@ -157,7 +157,7 @@ export default function ProposalTemplateFormModal(props: ProposalTemplateFormMod
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="mb-1 block text-xs text-muted-foreground">Unitário (R$)</label>
+                      <label className="mb-1 block text-xs text-muted-foreground">{t('modal.proposalTemplate.field.unitPrice')}</label>
                       <Input
                         type="number"
                         min={0}
@@ -167,7 +167,7 @@ export default function ProposalTemplateFormModal(props: ProposalTemplateFormMod
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="mb-1 block text-xs text-muted-foreground">Prazo (dias)</label>
+                      <label className="mb-1 block text-xs text-muted-foreground">{t('modal.proposalTemplate.field.deliveryDays')}</label>
                       <Input
                         type="number"
                         min={0}
@@ -179,11 +179,11 @@ export default function ProposalTemplateFormModal(props: ProposalTemplateFormMod
                       />
                     </div>
                     <div className="md:col-span-12">
-                      <label className="mb-1 block text-xs text-muted-foreground">Observações</label>
+                      <label className="mb-1 block text-xs text-muted-foreground">{t('common.field.notes')}</label>
                       <Input
                         value={item.observations ?? ''}
                         onChange={(e) => updateItem(index, { observations: e.target.value })}
-                        placeholder="Opcional"
+                        placeholder={t('modal.proposalTemplate.placeholder.itemObservations')}
                       />
                     </div>
                   </div>

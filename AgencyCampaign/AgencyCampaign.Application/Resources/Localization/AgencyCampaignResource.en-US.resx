@@ -1966,4 +1966,33 @@
   <data name="modal.commercialGoal.field.target" xml:space="preserve"><value>Target (R$)</value></data>
   <data name="modal.commercialGoal.field.notes" xml:space="preserve"><value>Notes (optional)</value></data>
   <data name="modal.commercialGoal.placeholder.notes" xml:space="preserve"><value>Goal context (e.g.: strong quarter of seasonal campaigns)</value></data>
+  <data name="modal.opportunityOutcomeReason.win.placeholder" xml:space="preserve"><value>E.g.: Better proposal, Referral...</value></data>
+  <data name="modal.opportunityOutcomeReason.win.title.new" xml:space="preserve"><value>New win reason</value></data>
+  <data name="modal.opportunityOutcomeReason.win.title.edit" xml:space="preserve"><value>Edit win reason</value></data>
+  <data name="modal.opportunityOutcomeReason.loss.placeholder" xml:space="preserve"><value>E.g.: Price, Competitor, Timing...</value></data>
+  <data name="modal.opportunityOutcomeReason.loss.title.new" xml:space="preserve"><value>New loss reason</value></data>
+  <data name="modal.opportunityOutcomeReason.loss.title.edit" xml:space="preserve"><value>Edit loss reason</value></data>
+  <data name="modal.opportunitySource.placeholder.name" xml:space="preserve"><value>E.g.: Inbound, Referral...</value></data>
+  <data name="modal.opportunityTag.placeholder.name" xml:space="preserve"><value>E.g.: Strategic, Hot, Q4...</value></data>
+  <data name="modal.pipelineStage.finalBehavior.none" xml:space="preserve"><value>No closing</value></data>
+  <data name="modal.pipelineStage.finalBehavior.won" xml:space="preserve"><value>Won</value></data>
+  <data name="modal.pipelineStage.finalBehavior.lost" xml:space="preserve"><value>Lost</value></data>
+  <data name="modal.pipelineStage.help.defaultProbability" xml:space="preserve"><value>Automatically applied when an opportunity enters this stage.</value></data>
+  <data name="modal.pipelineStage.help.slaInDays" xml:space="preserve"><value>Maximum days in the stage before the card turns yellow / red on the Kanban.</value></data>
+  <data name="modal.pipelineStage.field.isInitial" xml:space="preserve"><value>Initial stage</value></data>
+  <data name="modal.pipelineStage.field.isFinal" xml:space="preserve"><value>Final stage</value></data>
+  <data name="modal.applyProposalTemplate.itemCount.one" xml:space="preserve"><value>item</value></data>
+  <data name="modal.applyProposalTemplate.itemCount.many" xml:space="preserve"><value>items</value></data>
+  <data name="modal.applyProposalTemplate.placeholder.search" xml:space="preserve"><value>Search template...</value></data>
+  <data name="modal.proposalTemplate.placeholder.name" xml:space="preserve"><value>E.g.: Reels Influence Package</value></data>
+  <data name="modal.proposalTemplate.field.isActive" xml:space="preserve"><value>Active template</value></data>
+  <data name="modal.proposalTemplate.placeholder.description" xml:space="preserve"><value>What is this template used for?</value></data>
+  <data name="modal.proposalTemplate.items.title" xml:space="preserve"><value>Template items</value></data>
+  <data name="modal.proposalTemplate.items.add" xml:space="preserve"><value>Add item</value></data>
+  <data name="modal.proposalTemplate.items.itemNumber" xml:space="preserve"><value>Item #{0}</value></data>
+  <data name="modal.proposalTemplate.placeholder.itemDescription" xml:space="preserve"><value>Sponsored Reels, 30s, 1 delivery</value></data>
+  <data name="modal.proposalTemplate.field.quantity" xml:space="preserve"><value>Qty</value></data>
+  <data name="modal.proposalTemplate.field.unitPrice" xml:space="preserve"><value>Unit (R$)</value></data>
+  <data name="modal.proposalTemplate.field.deliveryDays" xml:space="preserve"><value>Lead time (days)</value></data>
+  <data name="modal.proposalTemplate.placeholder.itemObservations" xml:space="preserve"><value>Optional</value></data>
 </root>

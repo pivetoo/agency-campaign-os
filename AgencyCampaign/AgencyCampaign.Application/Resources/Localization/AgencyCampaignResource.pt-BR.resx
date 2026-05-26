@@ -1966,4 +1966,33 @@
   <data name="modal.commercialGoal.field.target" xml:space="preserve"><value>Meta (R$)</value></data>
   <data name="modal.commercialGoal.field.notes" xml:space="preserve"><value>Notas (opcional)</value></data>
   <data name="modal.commercialGoal.placeholder.notes" xml:space="preserve"><value>Contexto da meta (ex.: trimestre forte de campanhas sazonais)</value></data>
+  <data name="modal.opportunityOutcomeReason.win.placeholder" xml:space="preserve"><value>Ex.: Melhor proposta, Indicação...</value></data>
+  <data name="modal.opportunityOutcomeReason.win.title.new" xml:space="preserve"><value>Novo motivo de ganho</value></data>
+  <data name="modal.opportunityOutcomeReason.win.title.edit" xml:space="preserve"><value>Editar motivo de ganho</value></data>
+  <data name="modal.opportunityOutcomeReason.loss.placeholder" xml:space="preserve"><value>Ex.: Preço, Concorrente, Timing...</value></data>
+  <data name="modal.opportunityOutcomeReason.loss.title.new" xml:space="preserve"><value>Novo motivo de perda</value></data>
+  <data name="modal.opportunityOutcomeReason.loss.title.edit" xml:space="preserve"><value>Editar motivo de perda</value></data>
+  <data name="modal.opportunitySource.placeholder.name" xml:space="preserve"><value>Ex.: Inbound, Indicação...</value></data>
+  <data name="modal.opportunityTag.placeholder.name" xml:space="preserve"><value>Ex.: Estratégico, Quente, Q4...</value></data>
+  <data name="modal.pipelineStage.finalBehavior.none" xml:space="preserve"><value>Sem fechamento</value></data>
+  <data name="modal.pipelineStage.finalBehavior.won" xml:space="preserve"><value>Ganha</value></data>
+  <data name="modal.pipelineStage.finalBehavior.lost" xml:space="preserve"><value>Perdida</value></data>
+  <data name="modal.pipelineStage.help.defaultProbability" xml:space="preserve"><value>Aplicada automaticamente quando uma oportunidade entra neste estágio.</value></data>
+  <data name="modal.pipelineStage.help.slaInDays" xml:space="preserve"><value>Dias máximos no estágio antes do card ficar amarelo / vermelho no Kanban.</value></data>
+  <data name="modal.pipelineStage.field.isInitial" xml:space="preserve"><value>Estágio inicial</value></data>
+  <data name="modal.pipelineStage.field.isFinal" xml:space="preserve"><value>Estágio final</value></data>
+  <data name="modal.applyProposalTemplate.itemCount.one" xml:space="preserve"><value>item</value></data>
+  <data name="modal.applyProposalTemplate.itemCount.many" xml:space="preserve"><value>itens</value></data>
+  <data name="modal.applyProposalTemplate.placeholder.search" xml:space="preserve"><value>Buscar template...</value></data>
+  <data name="modal.proposalTemplate.placeholder.name" xml:space="preserve"><value>Ex.: Pacote Influência Reels</value></data>
+  <data name="modal.proposalTemplate.field.isActive" xml:space="preserve"><value>Template ativo</value></data>
+  <data name="modal.proposalTemplate.placeholder.description" xml:space="preserve"><value>Para que esse template é usado?</value></data>
+  <data name="modal.proposalTemplate.items.title" xml:space="preserve"><value>Itens do template</value></data>
+  <data name="modal.proposalTemplate.items.add" xml:space="preserve"><value>Adicionar item</value></data>
+  <data name="modal.proposalTemplate.items.itemNumber" xml:space="preserve"><value>Item #{0}</value></data>
+  <data name="modal.proposalTemplate.placeholder.itemDescription" xml:space="preserve"><value>Reels patrocinado, 30s, 1 entrega</value></data>
+  <data name="modal.proposalTemplate.field.quantity" xml:space="preserve"><value>Qtd</value></data>
+  <data name="modal.proposalTemplate.field.unitPrice" xml:space="preserve"><value>Unitário (R$)</value></data>
+  <data name="modal.proposalTemplate.field.deliveryDays" xml:space="preserve"><value>Prazo (dias)</value></data>
+  <data name="modal.proposalTemplate.placeholder.itemObservations" xml:space="preserve"><value>Opcional</value></data>
 </root>

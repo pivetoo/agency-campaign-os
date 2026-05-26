@@ -30,9 +30,9 @@ export default function ApplyProposalTemplateModal(props: ApplyProposalTemplateM
   const options = useMemo(
     () => templates.map((template) => ({
       value: template.id.toString(),
-      label: `${template.name} (${template.items.length} ${template.items.length === 1 ? 'item' : 'itens'})`,
+      label: `${template.name} (${template.items.length} ${template.items.length === 1 ? t('modal.applyProposalTemplate.itemCount.one') : t('modal.applyProposalTemplate.itemCount.many')})`,
     })),
-    [templates]
+    [templates, t]
   )
 
   const selectedTemplate = useMemo(
@@ -65,7 +65,7 @@ export default function ApplyProposalTemplateModal(props: ApplyProposalTemplateM
               onValueChange={setSelectedId}
               options={options}
               placeholder={templates.length === 0 ? t('modal.applyProposalTemplate.placeholder.noTemplate') : t('modal.applyProposalTemplate.placeholder.selectTemplate')}
-              searchPlaceholder="Buscar template..."
+              searchPlaceholder={t('modal.applyProposalTemplate.placeholder.search')}
               disabled={templates.length === 0}
             />
 

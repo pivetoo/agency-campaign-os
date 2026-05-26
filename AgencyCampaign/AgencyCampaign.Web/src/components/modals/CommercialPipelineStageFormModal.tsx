@@ -102,9 +102,9 @@ export default function CommercialPipelineStageFormModal({ open, onOpenChange, s
               <Select value={String(formData.finalBehavior)} onValueChange={(value) => setFormData((prev) => ({ ...prev, finalBehavior: Number(value), isFinal: value !== '0' ? true : prev.isFinal }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">Sem fechamento</SelectItem>
-                  <SelectItem value="1">Ganha</SelectItem>
-                  <SelectItem value="2">Perdida</SelectItem>
+                  <SelectItem value="0">{t('modal.pipelineStage.finalBehavior.none')}</SelectItem>
+                  <SelectItem value="1">{t('modal.pipelineStage.finalBehavior.won')}</SelectItem>
+                  <SelectItem value="2">{t('modal.pipelineStage.finalBehavior.lost')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -123,7 +123,7 @@ export default function CommercialPipelineStageFormModal({ open, onOpenChange, s
                   defaultProbability: event.target.value === '' ? undefined : Number(event.target.value),
                 }))}
               />
-              <p className="text-xs text-muted-foreground">Aplicada automaticamente quando uma oportunidade entra neste estágio.</p>
+              <p className="text-xs text-muted-foreground">{t('modal.pipelineStage.help.defaultProbability')}</p>
             </div>
 
             <div className="space-y-2">
@@ -138,13 +138,13 @@ export default function CommercialPipelineStageFormModal({ open, onOpenChange, s
                   slaInDays: event.target.value === '' ? undefined : Number(event.target.value),
                 }))}
               />
-              <p className="text-xs text-muted-foreground">Dias máximos no estágio antes do card ficar amarelo / vermelho no Kanban.</p>
+              <p className="text-xs text-muted-foreground">{t('modal.pipelineStage.help.slaInDays')}</p>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-6">
-            <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isInitial} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isInitial: !!checked }))} /><span>Estágio inicial</span></label>
-            <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isFinal} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isFinal: !!checked, finalBehavior: !checked ? 0 : prev.finalBehavior }))} /><span>Estágio final</span></label>
+            <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isInitial} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isInitial: !!checked }))} /><span>{t('modal.pipelineStage.field.isInitial')}</span></label>
+            <label className="flex items-center gap-2 text-sm"><Checkbox checked={formData.isFinal} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isFinal: !!checked, finalBehavior: !checked ? 0 : prev.finalBehavior }))} /><span>{t('modal.pipelineStage.field.isFinal')}</span></label>
             {isEditing && <label className="flex items-center gap-2 text-sm"><Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} /><span>{t('common.status.active')}</span></label>}
           </div>
 

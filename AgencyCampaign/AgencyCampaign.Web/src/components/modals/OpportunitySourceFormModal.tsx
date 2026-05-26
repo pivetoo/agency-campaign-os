@@ -67,7 +67,7 @@ export function OpportunitySourceFormModal({
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">{t('common.field.name')}</label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Inbound, Indicação..." required />
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('modal.opportunitySource.placeholder.name')} required />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.color')}</label>
@@ -152,7 +152,7 @@ export function OpportunityTagFormModal({
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">{t('common.field.name')}</label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Estratégico, Quente, Q4..." required />
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('modal.opportunityTag.placeholder.name')} required />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.color')}</label>

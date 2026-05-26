@@ -15,15 +15,20 @@ interface Props {
   onSuccess: () => void
 }
 
-const defaults: Record<ReasonKind, { color: string; placeholder: string; titleNew: string; titleEdit: string }> = {
-  win: { color: '#15803d', placeholder: 'Ex.: Melhor proposta, Indicação...', titleNew: 'Novo motivo de ganho', titleEdit: 'Editar motivo de ganho' },
-  loss: { color: '#b91c1c', placeholder: 'Ex.: Preço, Concorrente, Timing...', titleNew: 'Novo motivo de perda', titleEdit: 'Editar motivo de perda' },
+const defaultColors: Record<ReasonKind, string> = {
+  win: '#15803d',
+  loss: '#b91c1c',
 }
 
 export default function OpportunityOutcomeReasonFormModal({ open, onOpenChange, kind, reason, onSuccess }: Props) {
   const { t } = useI18n()
   const isEditing = !!reason
-  const cfg = defaults[kind]
+  const cfg = {
+    color: defaultColors[kind],
+    placeholder: t(`modal.opportunityOutcomeReason.${kind}.placeholder`),
+    titleNew: t(`modal.opportunityOutcomeReason.${kind}.title.new`),
+    titleEdit: t(`modal.opportunityOutcomeReason.${kind}.title.edit`),
+  }
   const [name, setName] = useState('')
   const [color, setColor] = useState(cfg.color)
   const [displayOrder, setDisplayOrder] = useState(0)
