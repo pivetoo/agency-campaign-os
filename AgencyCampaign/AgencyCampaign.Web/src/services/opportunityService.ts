@@ -545,6 +545,10 @@ export const opportunityService = {
     return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/Reject`, data)
   },
 
+  recordReviewerDecision(id: number, data: { approved: boolean; notes?: string }) {
+    return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/Reviewers/Decision`, data)
+  },
+
   markApprovalInReview(id: number) {
     return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/MarkInReview`, {})
   },
