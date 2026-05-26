@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, PageLayout, useApi, useAuth, useI18n } from 'archon-ui'
+import { Button, PageLayout, SearchableSelect, useApi, useAuth, useI18n } from 'archon-ui'
 import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, History, MessageSquare, MoreHorizontal, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
-import type { OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
+import { OpportunityApprovalReviewerStatus, type OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
 import type { OpportunityApprovalDiff } from '../../../types/opportunityApprovalDiff'
+import { commercialResponsibleService } from '../../../services/commercialResponsibleService'
 import { formatDate } from '../../../lib/format'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 
@@ -50,6 +51,7 @@ export default function CommercialApprovals() {
   const [filter, setFilter] = useState<FilterTab>('pending')
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [reviewerRefreshKey, setReviewerRefreshKey] = useState(0)
   const { execute: fetchApprovals, loading } = useApi<OpportunityApprovalRequest[]>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
@@ -107,16 +109,14 @@ export default function CommercialApprovals() {
 
   const decideApproval = async (status: 'approve' | 'reject') => {
     if (!selected) return
-    const payload = {
-      approvedByUserName: user?.name || t('approvals.user.fallback'),
-      decisionNotes: status === 'approve' ? t('approvals.decision.approved') : t('approvals.decision.rejected'),
+    const result = await executeAction(() => opportunityService.recordReviewerDecision(selected.id, {
+      approved: status === 'approve',
+      notes: status === 'approve' ? t('approvals.decision.approved') : t('approvals.decision.rejected'),
+    }))
+    if (result !== null) {
+      setReviewerRefreshKey((value) => value + 1)
+      await loadData()
     }
-    const result = await executeAction(() => (
-      status === 'approve'
-        ? opportunityService.approveRequest(selected.id, payload)
-        : opportunityService.rejectRequest(selected.id, payload)
-    ))
-    if (result !== null) await loadData()
   }
 
   const requestChanges = async () => {
@@ -172,6 +172,8 @@ export default function CommercialApprovals() {
                 approval={selected}
                 actionLoading={actionLoading}
                 currentUserName={user?.name || t('approvals.user.fallback')}
+                currentUserId={user?.id}
+                reviewerRefreshKey={reviewerRefreshKey}
                 onApprove={() => void decideApproval('approve')}
                 onReject={() => void decideApproval('reject')}
                 onRequestChanges={() => void requestChanges()}
@@ -314,6 +316,8 @@ interface DetailProps {
   approval: OpportunityApprovalRequest
   actionLoading: boolean
   currentUserName: string
+  currentUserId?: number
+  reviewerRefreshKey: number
   onApprove: () => void
   onReject: () => void
   onRequestChanges: () => void
@@ -323,12 +327,25 @@ interface DetailProps {
   t: (key: string) => string
 }
 
-function ApprovalDetail({ approval, actionLoading, currentUserName, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged, onOpenOpportunity, t }: DetailProps) {
+function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserId, reviewerRefreshKey, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged, onOpenOpportunity, t }: DetailProps) {
+  const [detailReviewers, setDetailReviewers] = useState<OpportunityApprovalReviewer[]>([])
+
+  useEffect(() => {
+    let active = true
+    void opportunityService.getApprovalReviewers(approval.id)
+      .then((data) => { if (active) setDetailReviewers(data) })
+      .catch(() => { if (active) setDetailReviewers([]) })
+    return () => { active = false }
+  }, [approval.id, approval.status, approval.updatedAt, reviewerRefreshKey])
+
   const isApproved = approval.status === OpportunityApprovalStatus.Approved
   const isRejected = approval.status === OpportunityApprovalStatus.Rejected
   const isMerged = approval.status === OpportunityApprovalStatus.Merged
   const isChangesRequested = approval.status === OpportunityApprovalStatus.ChangesRequested
-  const canDecide = approval.status === OpportunityApprovalStatus.Pending || approval.status === OpportunityApprovalStatus.InReview
+  const isOpenPending = approval.status === OpportunityApprovalStatus.Pending || approval.status === OpportunityApprovalStatus.InReview
+  const isMyPendingReview = detailReviewers.some((item) => item.status === OpportunityApprovalReviewerStatus.Pending && ((currentUserId != null && item.userId === currentUserId) || (item.userId == null && item.userName === currentUserName)))
+  const canDecide = isOpenPending && isMyPendingReview
+  const pendingReviewerNames = detailReviewers.filter((item) => item.required && item.status === OpportunityApprovalReviewerStatus.Pending).map((item) => item.userName)
   const hours = hoursSince(approval.requestedAt)
   const typeLabel = approvalTypeKeys[approval.approvalType] ? t(approvalTypeKeys[approval.approvalType]) : 'Solicitação'
   const statusInfo = statusBadgeConfig(approval.status)
@@ -421,13 +438,15 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, onApprove, o
             onResubmit={onResubmit}
             onMarkMerged={onMarkMerged}
             canDecide={canDecide}
+            isOpenPending={isOpenPending}
+            pendingReviewerNames={pendingReviewerNames}
             isChangesRequested={isChangesRequested}
             isApproved={isApproved}
             isRejected={isRejected}
             isMerged={isMerged}
           />
 
-          <ReviewersPanel approvalId={approval.id} requesterName={approval.requestedByUserName} currentUserName={currentUserName} />
+          <ReviewersPanel approvalId={approval.id} requesterName={approval.requestedByUserName} currentUserName={currentUserName} currentUserId={currentUserId} refreshKey={reviewerRefreshKey} />
 
           <SidebarBlock title="Vinculado a" icon={<ShieldCheck className="h-3.5 w-3.5" />}>
             <LinkRow icon={<MessageSquare className="h-3 w-3" />} label="Negociação" value={approval.negotiationTitle || 'Sem título'} tone="purple" />
@@ -446,6 +465,8 @@ interface ActionPanelProps {
   approval: OpportunityApprovalRequest
   actionLoading: boolean
   canDecide: boolean
+  isOpenPending: boolean
+  pendingReviewerNames: string[]
   isChangesRequested: boolean
   isApproved: boolean
   isRejected: boolean
@@ -457,7 +478,7 @@ interface ActionPanelProps {
   onMarkMerged: () => void
 }
 
-function ActionPanel({ approval, actionLoading, canDecide, isChangesRequested, isApproved, isRejected, isMerged, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged }: ActionPanelProps) {
+function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendingReviewerNames, isChangesRequested, isApproved, isRejected, isMerged, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged }: ActionPanelProps) {
   if (canDecide) {
     return (
       <div className="rounded-xl border-2 border-primary bg-card p-4 shadow-[0_4px_14px_rgba(11,165,164,0.08)]">
@@ -480,6 +501,19 @@ function ActionPanel({ approval, actionLoading, canDecide, isChangesRequested, i
           <Eye className="mt-0.5 h-3 w-3 shrink-0" />
           Sua decisão é registrada com timestamp e fica no histórico da oportunidade.
         </div>
+      </div>
+    )
+  }
+
+  if (isOpenPending) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Aguardando aprovação</div>
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+          {pendingReviewerNames.length > 0
+            ? <>Aguardando decisão de <strong className="text-foreground">{pendingReviewerNames.join(', ')}</strong>.</>
+            : 'Nenhum aprovador obrigatório definido. Adicione aprovadores ao lado para registrar a decisão.'}
+        </p>
       </div>
     )
   }
@@ -850,48 +884,64 @@ interface ReviewersPanelProps {
   approvalId: number
   requesterName: string
   currentUserName: string
+  currentUserId?: number
+  refreshKey: number
 }
 
-function ReviewersPanel({ approvalId, requesterName, currentUserName }: ReviewersPanelProps) {
+function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUserId, refreshKey }: ReviewersPanelProps) {
   const [reviewers, setReviewers] = useState<OpportunityApprovalReviewer[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [adding, setAdding] = useState(false)
-  const [draftName, setDraftName] = useState('')
+  const [users, setUsers] = useState<{ userId: number; name: string }[]>([])
+  const [draftUserId, setDraftUserId] = useState('')
   const [draftRole, setDraftRole] = useState('')
-  const [draftRequired, setDraftRequired] = useState(false)
+  const [draftRequired, setDraftRequired] = useState(true)
   const [posting, setPosting] = useState(false)
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true)
+    setError(false)
     try {
       const data = await opportunityService.getApprovalReviewers(approvalId)
       setReviewers(data)
     } catch {
       setReviewers([])
+      setError(true)
     } finally {
       setLoading(false)
     }
-  }
+  }, [approvalId])
 
   useEffect(() => {
     void load()
+  }, [load, refreshKey])
+
+  useEffect(() => {
     setAdding(false)
-    setDraftName('')
+    setDraftUserId('')
     setDraftRole('')
-    setDraftRequired(false)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setDraftRequired(true)
   }, [approvalId])
 
+  useEffect(() => {
+    let active = true
+    void commercialResponsibleService.getAll()
+      .then((list) => { if (active) setUsers(list.map((item) => ({ userId: item.userId, name: item.name }))) })
+      .catch(() => undefined)
+    return () => { active = false }
+  }, [])
+
   const submit = async () => {
-    const name = draftName.trim()
-    if (!name || posting) return
+    const selectedUser = users.find((item) => String(item.userId) === draftUserId)
+    if (!selectedUser || posting) return
     setPosting(true)
     try {
-      await opportunityService.addApprovalReviewer(approvalId, { userName: name, role: draftRole.trim() || undefined, required: draftRequired })
+      await opportunityService.addApprovalReviewer(approvalId, { userName: selectedUser.name, userId: selectedUser.userId, role: draftRole.trim() || undefined, required: draftRequired })
       setAdding(false)
-      setDraftName('')
+      setDraftUserId('')
       setDraftRole('')
-      setDraftRequired(false)
+      setDraftRequired(true)
       await load()
     } finally {
       setPosting(false)
@@ -914,22 +964,24 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName }: Reviewer
         <ReviewerRow name={requesterName} role="Solicitante" status="comentou" />
         {loading ? (
           <p className="text-[11px] text-muted-foreground">Carregando…</p>
+        ) : error ? (
+          <button type="button" onClick={() => void load()} className="text-[11px] font-semibold text-destructive hover:underline">Erro ao carregar aprovadores. Tentar novamente</button>
         ) : (
           reviewers.map((r) => (
-            <ReviewerRowFromEntity key={r.id} reviewer={r} canRemove={r.userName === currentUserName || r.status === 1} onRemove={() => void handleRemove(r.id)} />
+            <ReviewerRowFromEntity key={r.id} reviewer={r} canRemove={(currentUserId != null && r.userId === currentUserId) || (r.userId == null && r.userName === currentUserName) || r.status === OpportunityApprovalReviewerStatus.Pending} onRemove={() => void handleRemove(r.id)} />
           ))
         )}
-        {reviewers.length === 0 && !loading && (
-          <p className="text-[11px] text-muted-foreground">Nenhum aprovador adicionado.</p>
+        {reviewers.length === 0 && !loading && !error && (
+          <p className="text-[11px] text-muted-foreground">Nenhum aprovador obrigatório. Adicione ao menos um para a decisão poder ser registrada.</p>
         )}
 
         {adding && (
           <div className="space-y-1.5 rounded-md border border-dashed border-border bg-muted/20 p-2">
-            <input
-              value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
-              placeholder="Nome do aprovador"
-              className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            <SearchableSelect
+              value={draftUserId}
+              onValueChange={setDraftUserId}
+              options={users.map((item) => ({ value: String(item.userId), label: item.name }))}
+              placeholder="Selecione o aprovador"
             />
             <input
               value={draftRole}
@@ -941,7 +993,7 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName }: Reviewer
               <input type="checkbox" checked={draftRequired} onChange={(e) => setDraftRequired(e.target.checked)} />
               Aprovação obrigatória
             </label>
-            <Button size="sm" variant="primary" fullWidth disabled={!draftName.trim() || posting} onClick={() => void submit()}>
+            <Button size="sm" variant="primary" fullWidth disabled={!draftUserId || posting} onClick={() => void submit()}>
               {posting ? 'Adicionando…' : 'Adicionar aprovador'}
             </Button>
           </div>
