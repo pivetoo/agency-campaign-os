@@ -373,6 +373,56 @@ namespace AgencyCampaign.Infrastructure.Services
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
 
+            await ApplyPostConversionAsync(saved, campaignId, cancellationToken);
+            return saved;
+        }
+
+        public async Task<Proposal> ConvertToNewCampaign(long id, CancellationToken cancellationToken = default)
+        {
+            Proposal? proposal = await DbContext.Set<Proposal>()
+                .AsTracking()
+                .Include(item => item.Opportunity)
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (proposal is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            if (proposal.Status != ProposalStatus.Approved)
+            {
+                throw new InvalidOperationException("proposal.convert.notApproved");
+            }
+
+            if (proposal.CampaignId is not null)
+            {
+                throw new InvalidOperationException("proposal.convert.alreadyConverted");
+            }
+
+            Opportunity opportunity = proposal.Opportunity
+                ?? throw new InvalidOperationException("record.notFound");
+
+            Campaign campaign = new(
+                opportunity.BrandId,
+                opportunity.Name,
+                proposal.TotalValue,
+                DateTimeOffset.UtcNow,
+                description: proposal.Description,
+                internalOwnerName: proposal.InternalOwnerName);
+            campaign.AttachOrigin(proposal.OpportunityId, proposal.Id);
+
+            DbContext.Set<Campaign>().Add(campaign);
+            await DbContext.SaveChangesAsync(cancellationToken);
+
+            proposal.ConvertToCampaign(campaign.Id, currentUser.UserId, currentUser.UserName);
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+
+            await ApplyPostConversionAsync(saved, campaign.Id, cancellationToken);
+            return saved;
+        }
+
+        private async Task ApplyPostConversionAsync(Proposal saved, long campaignId, CancellationToken cancellationToken)
+        {
             try
             {
                 await financialAutoGeneration.GenerateForConvertedProposal(saved, campaignId, cancellationToken);
@@ -384,7 +434,6 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await NotifyAutomations(AutomationTriggers.ProposalConverted, saved, cancellationToken);
             await TryNotify(KanvasNotifications.ProposalConverted(saved, campaignId), cancellationToken);
-            return saved;
         }
 
         private async Task TryNotify(Archon.Core.Notifications.CreateNotificationRequest request, CancellationToken cancellationToken)

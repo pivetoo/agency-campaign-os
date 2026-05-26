@@ -163,6 +163,38 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task ConvertToNewCampaign_should_throw_when_not_approved()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+
+            Func<Task> act = () => service.ConvertToNewCampaign(proposal.Id);
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task ConvertToNewCampaign_should_create_linked_campaign_and_convert()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(proposal.Id);
+            await service.ApproveProposal(proposal.Id);
+
+            Proposal result = await service.ConvertToNewCampaign(proposal.Id);
+
+            result.Status.Should().Be(ProposalStatus.Converted);
+            result.CampaignId.Should().NotBeNull();
+
+            db.ChangeTracker.Clear();
+            Campaign campaign = await db.Set<Campaign>().AsNoTracking().SingleAsync();
+            campaign.Id.Should().Be(result.CampaignId!.Value);
+            campaign.BrandId.Should().Be(opportunity.BrandId);
+            campaign.OpportunityId.Should().Be(opportunity.Id);
+            campaign.SourceProposalId.Should().Be(proposal.Id);
+            financial.Verify(item => item.GenerateForConvertedProposal(It.IsAny<Proposal>(), campaign.Id, It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
         public async Task CancelProposal_should_persist_cancelled_status()
         {
             Opportunity opportunity = await SeedOpportunityAsync();
