@@ -12,15 +12,13 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     public sealed class ContentReviewServiceTests
     {
         private TestDbContext db = null!;
-        private Mock<IContentFileStorage> fileStorage = null!;
         private ContentReviewService service = null!;
 
         [SetUp]
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            fileStorage = new Mock<IContentFileStorage>();
-            service = new ContentReviewService(db, fileStorage.Object);
+            service = new ContentReviewService(db);
         }
 
         [TearDown]

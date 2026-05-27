@@ -9,12 +9,10 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class ContentReviewService : IContentReviewService
     {
         private readonly DbContext dbContext;
-        private readonly IContentFileStorage fileStorage;
 
-        public ContentReviewService(DbContext dbContext, IContentFileStorage fileStorage)
+        public ContentReviewService(DbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.fileStorage = fileStorage;
         }
 
         public async Task<ContentReviewModel> GetByDeliverable(long deliverableId, CancellationToken cancellationToken = default)
