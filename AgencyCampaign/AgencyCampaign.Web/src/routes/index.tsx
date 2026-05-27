@@ -18,6 +18,7 @@ import CreatorPortalResults from '../modules/CreatorPortal/Results'
 import CreatorPortalDocuments from '../modules/CreatorPortal/Documents'
 import CreatorPortalPayments from '../modules/CreatorPortal/Payments'
 import CreatorPortalProfile from '../modules/CreatorPortal/Profile'
+import CreatorPortalContent from '../modules/CreatorPortal/Content'
 import OperationsApprovals from '../modules/Main/Operations/Approvals'
 import CommercialOpportunities from '../modules/Main/Commercial/Opportunities'
 import CommercialOpportunityDetail from '../modules/Main/Commercial/OpportunityDetail'
@@ -82,6 +83,7 @@ function AppRoutes() {
           <Route path="contratos" element={<CreatorPortalDocuments />} />
           <Route path="pagamentos" element={<CreatorPortalPayments />} />
           <Route path="perfil" element={<CreatorPortalProfile />} />
+          <Route path="conteudo" element={<CreatorPortalContent />} />
         </Route>
 
         <Route

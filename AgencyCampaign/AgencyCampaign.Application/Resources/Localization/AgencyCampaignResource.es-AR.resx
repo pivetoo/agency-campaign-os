@@ -760,6 +760,7 @@
   <data name="creatorPortal.layout.nav.contracts" xml:space="preserve"><value>Contratos</value></data>
   <data name="creatorPortal.layout.nav.payments" xml:space="preserve"><value>Pagos</value></data>
   <data name="creatorPortal.layout.nav.profile" xml:space="preserve"><value>Perfil</value></data>
+  <data name="creatorPortal.layout.nav.content" xml:space="preserve"><value>Contenido</value></data>
   <data name="creatorPortal.dashboard.campaigns" xml:space="preserve"><value>Campañas</value></data>
   <data name="creatorPortal.dashboard.pendingContracts" xml:space="preserve"><value>Contratos pendientes</value></data>
   <data name="creatorPortal.dashboard.pendingPayments" xml:space="preserve"><value>Pagos pendientes</value></data>

@@ -2,6 +2,7 @@ import { httpClient } from 'archon-ui'
 import type { CampaignDocument } from '../types/campaignDocument'
 import type { CreatorPayment, PixKeyTypeValue } from '../types/creatorPayment'
 import type { CampaignDeliverable } from '../types/campaignDeliverable'
+import type { ContentReview, ContentAssetInput } from '../types/contentReview'
 
 const BASE = '/CreatorPortal'
 
@@ -88,5 +89,20 @@ export const creatorPortalService = {
   },
   submitInsights(token: string, deliverableId: number, payload: SubmitInsightsPayload) {
     return httpClient.post<CampaignDeliverable>(`${BASE}/${token}/deliverables/${deliverableId}/insights`, payload)
+  },
+  async getDeliverableReview(token: string, deliverableId: number): Promise<ContentReview | null> {
+    const response = await httpClient.get<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/review`)
+    return response.data ?? null
+  },
+  submitContentVersion(token: string, deliverableId: number, assets: ContentAssetInput[], note?: string) {
+    return httpClient.post<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/version`, { assets, note })
+  },
+  addReviewComment(token: string, deliverableId: number, body: string) {
+    return httpClient.post<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/comment`, { body })
+  },
+  uploadReviewFile(token: string, deliverableId: number, file: File) {
+    const form = new FormData()
+    form.append('file', file)
+    return httpClient.post<{ url: string; fileName: string; contentType: string }>(`${BASE}/${token}/deliverables/${deliverableId}/upload`, form)
   },
 }
