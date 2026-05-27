@@ -1,3 +1,4 @@
+using AgencyCampaign.Api.BackgroundJobs;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Infrastructure.DependencyInjection;
 using Archon.Api.DependencyInjection;
@@ -21,6 +22,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddArchonApi(builder.Configuration, typeof(AgencyCampaignResource));
 builder.Services.AddAgencyCampaignInfrastructure(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
+builder.Services.AddHostedService<SocialSyncJob>();
 builder.Services.AddArchonAuthentication(builder.Configuration);
 
 var app = builder.Build();

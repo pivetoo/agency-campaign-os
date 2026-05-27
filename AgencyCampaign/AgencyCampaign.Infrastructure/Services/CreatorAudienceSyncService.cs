@@ -20,26 +20,57 @@ namespace AgencyCampaign.Infrastructure.Services
             this.logger = logger;
         }
 
-        public async Task<int> SyncCreator(long creatorId, CancellationToken cancellationToken = default)
+        public async Task<int> SyncCreator(long creatorId, TimeSpan cooldown, CancellationToken cancellationToken = default)
         {
             if (!client.IsConfigured)
             {
                 return 0;
             }
 
-            List<CreatorSocialHandle> handles = await dbContext.Set<CreatorSocialHandle>()
-                .AsTracking()
-                .Include(item => item.Platform)
-                .Where(item => item.CreatorId == creatorId && item.IsActive)
+            List<CreatorSocialHandle> handles = await EligibleQuery()
+                .Where(item => item.CreatorId == creatorId)
                 .ToListAsync(cancellationToken);
 
+            return await SyncList(handles, cooldown, cancellationToken);
+        }
+
+        public async Task<int> SyncAll(TimeSpan cooldown, CancellationToken cancellationToken = default)
+        {
+            if (!client.IsConfigured)
+            {
+                return 0;
+            }
+
+            List<CreatorSocialHandle> handles = await EligibleQuery().ToListAsync(cancellationToken);
+
+            return await SyncList(handles, cooldown, cancellationToken);
+        }
+
+        private IQueryable<CreatorSocialHandle> EligibleQuery()
+        {
+            return dbContext.Set<CreatorSocialHandle>()
+                .AsTracking()
+                .Include(item => item.Platform)
+                .Where(item => item.IsActive);
+        }
+
+        private async Task<int> SyncList(List<CreatorSocialHandle> handles, TimeSpan cooldown, CancellationToken cancellationToken)
+        {
             DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset threshold = now - cooldown;
             int synced = 0;
 
             foreach (CreatorSocialHandle handle in handles)
             {
                 try
                 {
+                    bool recentlySynced = await dbContext.Set<CreatorSocialHandleSnapshot>()
+                        .AnyAsync(item => item.CreatorSocialHandleId == handle.Id && item.CollectedAt > threshold, cancellationToken);
+                    if (recentlySynced)
+                    {
+                        continue;
+                    }
+
                     string platformName = handle.Platform?.Name ?? string.Empty;
                     SocialProfileResult? result = await client.FetchProfileAsync(platformName, handle.Handle, handle.ProfileUrl, cancellationToken);
                     if (result is null || !result.Followers.HasValue)

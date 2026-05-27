@@ -1,5 +1,6 @@
 using AgencyCampaign.Application.Abstractions;
 using AgencyCampaign.Application.Services;
+using AgencyCampaign.Infrastructure.BackgroundJobs;
 using AgencyCampaign.Infrastructure.Clients;
 using AgencyCampaign.Infrastructure.Options;
 using AgencyCampaign.Infrastructure.Security;
@@ -29,6 +30,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddArchonRestApi();
             services.AddScoped<IntegrationPlatformClient>();
             services.AddHttpClient<IApifySocialMetricsClient, ApifySocialMetricsClient>();
+            services.AddSingleton<TenantJobRunner>();
             services.AddScoped<IAutomationDispatcher, AutomationDispatcher>();
             services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();
             services.AddScoped<IImageUploadStorage, ImageUploadStorage>();
