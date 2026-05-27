@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Requests.ContentReview;
 using AgencyCampaign.Application.Requests.CreatorPortal;
 using AgencyCampaign.Domain.Entities;
 
@@ -13,6 +14,9 @@ namespace AgencyCampaign.Application.Services
         Task<List<CreatorPayment>> GetPayments(long creatorId, CancellationToken cancellationToken = default);
         Task<Creator> UpdateBankInfo(long creatorId, UpdateCreatorBankInfoRequest request, CancellationToken cancellationToken = default);
         Task<CreatorPayment> UploadInvoice(long creatorId, UploadInvoiceRequest request, CancellationToken cancellationToken = default);
+        Task<ContentReviewModel> GetDeliverableReview(long creatorId, long deliverableId, CancellationToken cancellationToken = default);
+        Task<ContentReviewModel> SubmitContentVersion(long creatorId, long deliverableId, AddContentVersionRequest request, CancellationToken cancellationToken = default);
+        Task<ContentReviewModel> AddReviewComment(long creatorId, long deliverableId, string body, CancellationToken cancellationToken = default);
     }
 
     public sealed record CreatorPortalContext(Creator Creator, CreatorAccessToken Token);

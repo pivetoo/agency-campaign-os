@@ -1,4 +1,5 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Requests.ContentReview;
 using AgencyCampaign.Application.Requests.CreatorPortal;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
@@ -17,6 +18,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     {
         private TestDbContext db = null!;
         private Mock<ICreatorAccessTokenService> tokenService = null!;
+        private Mock<IContentReviewService> contentReviewMock = null!;
         private CreatorPortalService service = null!;
 
         [SetUp]
@@ -24,7 +26,8 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             tokenService = new Mock<ICreatorAccessTokenService>();
-            service = new CreatorPortalService(db, tokenService.Object);
+            contentReviewMock = new Mock<IContentReviewService>();
+            service = new CreatorPortalService(db, tokenService.Object, contentReviewMock.Object);
         }
 
         [TearDown]

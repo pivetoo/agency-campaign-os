@@ -1,4 +1,5 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Requests.ContentReview;
 using AgencyCampaign.Application.Requests.CreatorPortal;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
@@ -12,11 +13,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICreatorAccessTokenService accessTokenService;
+        private readonly IContentReviewService contentReview;
 
-        public CreatorPortalService(DbContext dbContext, ICreatorAccessTokenService accessTokenService)
+        public CreatorPortalService(DbContext dbContext, ICreatorAccessTokenService accessTokenService, IContentReviewService contentReview)
         {
             this.dbContext = dbContext;
             this.accessTokenService = accessTokenService;
+            this.contentReview = contentReview;
         }
 
         public async Task<CreatorPortalContext> ResolveContext(string token, CancellationToken cancellationToken = default)
@@ -140,6 +143,60 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return payment;
+        }
+
+        public async Task<ContentReviewModel> GetDeliverableReview(long creatorId, long deliverableId, CancellationToken cancellationToken = default)
+        {
+            await EnsureDeliverableBelongsToCreator(creatorId, deliverableId, cancellationToken);
+            ContentReviewModel full = await contentReview.GetByDeliverable(deliverableId, cancellationToken);
+            return FilterShared(full);
+        }
+
+        public async Task<ContentReviewModel> SubmitContentVersion(long creatorId, long deliverableId, AddContentVersionRequest request, CancellationToken cancellationToken = default)
+        {
+            await EnsureDeliverableBelongsToCreator(creatorId, deliverableId, cancellationToken);
+            string name = await CreatorName(creatorId, cancellationToken);
+            ContentReviewModel full = await contentReview.AddVersion(deliverableId, ReviewParticipant.Creator, name, request, cancellationToken);
+            return FilterShared(full);
+        }
+
+        public async Task<ContentReviewModel> AddReviewComment(long creatorId, long deliverableId, string body, CancellationToken cancellationToken = default)
+        {
+            await EnsureDeliverableBelongsToCreator(creatorId, deliverableId, cancellationToken);
+            string name = await CreatorName(creatorId, cancellationToken);
+            ContentReviewModel full = await contentReview.AddComment(deliverableId, ReviewParticipant.Creator, name, new AddReviewCommentRequest(null, body, ReviewCommentVisibility.Shared), cancellationToken);
+            return FilterShared(full);
+        }
+
+        private async Task EnsureDeliverableBelongsToCreator(long creatorId, long deliverableId, CancellationToken cancellationToken)
+        {
+            bool exists = await dbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == deliverableId && item.CampaignCreator != null && item.CampaignCreator.CreatorId == creatorId, cancellationToken);
+
+            if (!exists)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+        }
+
+        private async Task<string> CreatorName(long creatorId, CancellationToken cancellationToken)
+        {
+            Creator? creator = await dbContext.Set<Creator>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == creatorId, cancellationToken);
+
+            return creator?.StageName ?? creator?.Name ?? string.Empty;
+        }
+
+        private static ContentReviewModel FilterShared(ContentReviewModel model)
+        {
+            return new ContentReviewModel
+            {
+                DeliverableId = model.DeliverableId,
+                Versions = model.Versions,
+                Comments = model.Comments.Where(item => item.Visibility == ReviewCommentVisibility.Shared).ToList()
+            };
         }
     }
 }
