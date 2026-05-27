@@ -192,5 +192,36 @@ namespace AgencyCampaign.Testing.Domain.Entities
 
             subject.MetricsSource.Should().Be(DeliverableMetricsSource.Mixed);
         }
+
+        [Test]
+        public void RegisterPublicMetrics_should_set_public_and_mark_auto_without_insights()
+        {
+            CampaignDeliverable subject = BuildDefault();
+
+            subject.RegisterPublicMetrics(100, 20, 5000, 10);
+
+            subject.Likes.Should().Be(100);
+            subject.Comments.Should().Be(20);
+            subject.Views.Should().Be(5000);
+            subject.Shares.Should().Be(10);
+            subject.MetricsSource.Should().Be(DeliverableMetricsSource.Auto);
+        }
+
+        [Test]
+        public void RegisterPublicMetrics_should_mark_mixed_and_preserve_creator_insights()
+        {
+            CampaignDeliverable subject = BuildDefault();
+            subject.RegisterCreatorInsights(4000, 6000, 30);
+
+            subject.RegisterPublicMetrics(100, 20, 5000, 10);
+
+            subject.Reach.Should().Be(4000);
+            subject.Impressions.Should().Be(6000);
+            subject.Saves.Should().Be(30);
+            subject.Likes.Should().Be(100);
+            subject.MetricsSource.Should().Be(DeliverableMetricsSource.Mixed);
+            // interacoes = 100+20+10+30 = 160; reach 4000 -> 4,00%
+            subject.EngagementRate.Should().Be(4.00m);
+        }
     }
 }

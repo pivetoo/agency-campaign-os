@@ -196,6 +196,24 @@ namespace AgencyCampaign.Domain.Entities
             MetricsSource = source;
         }
 
+        public void RegisterPublicMetrics(int? likes, int? comments, long? views, int? shares)
+        {
+            EnsureNonNegative(likes);
+            EnsureNonNegative(comments);
+            EnsureNonNegative(views);
+            EnsureNonNegative(shares);
+
+            Likes = likes;
+            Comments = comments;
+            Views = views;
+            Shares = shares;
+            EngagementRate = ComputeEngagementRate();
+            MetricsCollectedAt = DateTimeOffset.UtcNow;
+            MetricsSource = Reach.HasValue || Impressions.HasValue || Saves.HasValue
+                ? DeliverableMetricsSource.Mixed
+                : DeliverableMetricsSource.Auto;
+        }
+
         public void RegisterCreatorInsights(long? reach, long? impressions, int? saves)
         {
             EnsureNonNegative(reach);

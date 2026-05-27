@@ -934,6 +934,8 @@
   <data name="modal.deliverable.metrics.saves" xml:space="preserve"><value>Saves</value></data>
   <data name="modal.deliverable.metrics.shares" xml:space="preserve"><value>Shares</value></data>
   <data name="campaignReport.action.generate" xml:space="preserve"><value>Brand report</value></data>
+  <data name="campaignReport.action.syncMetrics" xml:space="preserve"><value>Sync metrics (auto)</value></data>
+  <data name="campaignReport.metricsSynced" xml:space="preserve"><value>{0} deliverable(s) updated with automatic metrics.</value></data>
   <data name="campaignReport.linkCopied" xml:space="preserve"><value>Report link copied to clipboard:
 
 {0}</value></data>

@@ -18,6 +18,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
         {
             services.Configure<DocumentEmailOptions>(configuration.GetSection("DocumentEmail"));
             services.Configure<WebhookOptions>(configuration.GetSection("Webhooks"));
+            services.Configure<ApifyOptions>(configuration.GetSection("Apify"));
             services.AddArchonPersistence(configuration, typeof(ServiceCollectionExtensions).Assembly);
             services.RunMigrations(
                 configuration,
@@ -27,6 +28,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
             services.AddArchonRestApi();
             services.AddScoped<IntegrationPlatformClient>();
+            services.AddHttpClient<IApifySocialMetricsClient, ApifySocialMetricsClient>();
             services.AddScoped<IAutomationDispatcher, AutomationDispatcher>();
             services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();
             services.AddScoped<IImageUploadStorage, ImageUploadStorage>();

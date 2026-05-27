@@ -60,4 +60,8 @@ export const campaignDeliverableService = {
   remove(id: number) {
     return httpClient.delete<CampaignDeliverable>(`${BASE_URL}/Delete/${id}`)
   },
+
+  syncCampaignMetrics(campaignId: number) {
+    return httpClient.post<{ synced: number }>(`/DeliverableMetrics/campaign/${campaignId}`, {})
+  },
 }

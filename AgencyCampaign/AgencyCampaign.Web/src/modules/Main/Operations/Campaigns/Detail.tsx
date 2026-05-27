@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3 } from 'lucide-react'
+import { Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
 import { campaignCreatorService } from '../../../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../../../services/campaignDeliverableService'
@@ -93,6 +93,7 @@ export default function CampaignDetail() {
   const { execute: fetchDocuments, loading: documentsLoading } = useApi<CampaignDocument[]>({ showErrorMessage: true })
   const { execute: markSigned, loading: signingDocument } = useApi({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: createReportLink, loading: reportLinkLoading } = useApi({ showErrorMessage: true })
+  const { execute: syncMetrics, loading: syncingMetrics } = useApi({ showErrorMessage: true })
 
   const loadCampaign = async () => {
     const result = await fetchCampaign(() => campaignService.getById(campaignId))
@@ -369,6 +370,14 @@ export default function CampaignDetail() {
     }
   }
 
+  const handleSyncMetrics = async () => {
+    const result = await syncMetrics(() => campaignDeliverableService.syncCampaignMetrics(campaignId))
+    if (result?.data) {
+      await loadDeliverables()
+      window.alert(t('campaignReport.metricsSynced').replace('{0}', String(result.data.synced)))
+    }
+  }
+
   return (
     <div className="space-y-4">
       <PageLayout
@@ -528,6 +537,10 @@ export default function CampaignDetail() {
               <CardHeader className="flex flex-row items-center justify-between py-3">
                 <CardTitle className="text-base">{t('campaign.detail.deliverablesTab')}</CardTitle>
                 <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => void handleSyncMetrics()} disabled={syncingMetrics}>
+                    <RefreshCw size={16} className="mr-2" />
+                    {t('campaignReport.action.syncMetrics')}
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => void handleBrandReport()} disabled={reportLinkLoading}>
                     <BarChart3 size={16} className="mr-2" />
                     {t('campaignReport.action.generate')}
