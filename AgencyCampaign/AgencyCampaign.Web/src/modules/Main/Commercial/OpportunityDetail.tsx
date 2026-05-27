@@ -342,6 +342,14 @@ export default function OpportunityDetail() {
             <TabsTrigger value="summary" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <FileText className="h-4 w-4" /> {t('opportunityDetail.tab.summary')}
             </TabsTrigger>
+            <TabsTrigger value="proposals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+              <TrendingUp className="h-4 w-4" /> {t('opportunityDetail.tab.proposals')}
+              {opportunity?.proposals?.length ? (
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
+                  {opportunity.proposals.length}
+                </span>
+              ) : null}
+            </TabsTrigger>
             <TabsTrigger value="approvals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <CheckCircle className="h-4 w-4" /> {t('opportunityDetail.tab.approvals')}
               {approvalRequests.length ? (
@@ -350,14 +358,6 @@ export default function OpportunityDetail() {
                 </span>
               ) : null}
               {pendingForMe > 0 && <span className="h-1.5 w-1.5 rounded-full bg-destructive" aria-label={t('opportunityDetail.approval.waitingForYouAria').replace('{0}', String(pendingForMe))} />}
-            </TabsTrigger>
-            <TabsTrigger value="proposals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-              <TrendingUp className="h-4 w-4" /> {t('opportunityDetail.tab.proposals')}
-              {opportunity?.proposals?.length ? (
-                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
-                  {opportunity.proposals.length}
-                </span>
-              ) : null}
             </TabsTrigger>
             <TabsTrigger value="followups" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Clock className="h-4 w-4" /> {t('opportunityDetail.tab.followups')}
