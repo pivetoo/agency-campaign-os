@@ -153,7 +153,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         private static decimal? ReadDecimal(JsonElement item, string? field)
         {
-            if (string.IsNullOrWhiteSpace(field) || !item.TryGetProperty(field, out JsonElement value))
+            if (string.IsNullOrWhiteSpace(field) || !TryResolve(item, field, out JsonElement value))
             {
                 return null;
             }
@@ -173,7 +173,7 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         private static long? ReadLong(JsonElement item, string? field)
         {
-            if (string.IsNullOrWhiteSpace(field) || !item.TryGetProperty(field, out JsonElement value))
+            if (string.IsNullOrWhiteSpace(field) || !TryResolve(item, field, out JsonElement value))
             {
                 return null;
             }
@@ -200,6 +200,25 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             return value.Value > int.MaxValue ? int.MaxValue : (int)value.Value;
+        }
+
+        // Resolve um campo que pode ser aninhado via caminho com pontos (ex.: "authorMeta.fans").
+        private static bool TryResolve(JsonElement item, string field, out JsonElement value)
+        {
+            JsonElement current = item;
+            foreach (string segment in field.Split('.', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (current.ValueKind != JsonValueKind.Object || !current.TryGetProperty(segment, out JsonElement next))
+                {
+                    value = default;
+                    return false;
+                }
+
+                current = next;
+            }
+
+            value = current;
+            return true;
         }
     }
 }
