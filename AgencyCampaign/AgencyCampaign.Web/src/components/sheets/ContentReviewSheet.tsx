@@ -148,7 +148,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
     if (!links) return
     const existing = Array.isArray(links) ? links[0] : null
     if (existing) {
-      const url = `${window.location.origin}/deliverable/${existing.token}`
+      const url = `${window.location.origin}/d/${existing.token}`
       try {
         await navigator.clipboard.writeText(url)
       } catch {
