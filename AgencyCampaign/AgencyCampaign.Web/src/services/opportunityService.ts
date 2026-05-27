@@ -12,17 +12,6 @@ import type { PolicyEvaluation } from '../types/policyEvaluation'
 
 const BASE_URL = '/Opportunities'
 
-export const OpportunityNegotiationStatus = {
-  Draft: 1,
-  PendingApproval: 2,
-  Approved: 3,
-  Rejected: 4,
-  SentToClient: 5,
-  AcceptedByClient: 6,
-  Cancelled: 7,
-} as const
-export type OpportunityNegotiationStatusValue = (typeof OpportunityNegotiationStatus)[keyof typeof OpportunityNegotiationStatus]
-
 export const OpportunityApprovalStatus = {
   Pending: 1,
   Approved: 2,
@@ -43,25 +32,9 @@ export interface OpportunityProposalReference {
   campaignId?: number
 }
 
-export interface OpportunityNegotiation {
-  id: number
-  opportunityId: number
-  title: string
-  amount: number
-  status: OpportunityNegotiationStatusValue
-  negotiatedAt: string
-  notes?: string
-  discountPercent?: number
-  marginPercent?: number
-  paymentTermDays?: number
-  approvalRequests: OpportunityApprovalRequest[]
-  createdAt: string
-  updatedAt?: string
-}
-
 export interface OpportunityApprovalRequest {
   id: number
-  opportunityNegotiationId: number
+  proposalId: number
   approvalType: number
   status: OpportunityApprovalStatusValue
   reason: string
@@ -76,8 +49,8 @@ export interface OpportunityApprovalRequest {
   updatedAt?: string
   opportunityId?: number
   opportunityName?: string
-  negotiationTitle?: string
-  negotiationAmount?: number
+  proposalName?: string
+  proposalTotalValue?: number
   brandId?: number
   brandName?: string
   brandLogoUrl?: string
@@ -144,7 +117,6 @@ export interface Opportunity {
   opportunitySourceId?: number
   opportunitySource?: OpportunitySourceReference
   tags: OpportunityTagReference[]
-  negotiations: OpportunityNegotiation[]
   followUps: OpportunityFollowUp[]
   proposals: OpportunityProposalReference[]
   createdAt: string
@@ -204,7 +176,7 @@ export interface CommercialDashboardSummary {
   openOpportunities: number
   wonOpportunities: number
   lostOpportunities: number
-  negotiationsCount: number
+  proposalsCount: number
   pendingFollowUpsCount: number
   overdueFollowUpsCount: number
   totalPipelineValue: number
@@ -292,34 +264,8 @@ export interface CloseOpportunityAsLostRequest {
   lossReasonId?: number | null
 }
 
-export interface CreateOpportunityNegotiationRequest {
-  opportunityId: number
-  title: string
-  amount: number
-  negotiatedAt: string
-  notes?: string
-  discountPercent?: number | null
-  marginPercent?: number | null
-  paymentTermDays?: number | null
-}
-
-export interface UpdateOpportunityNegotiationRequest {
-  title: string
-  amount: number
-  status?: number
-  negotiatedAt: string
-  notes?: string
-  discountPercent?: number | null
-  marginPercent?: number | null
-  paymentTermDays?: number | null
-}
-
-export interface ChangeOpportunityNegotiationStatusRequest {
-  status: number
-}
-
 export interface CreateOpportunityApprovalRequest {
-  opportunityNegotiationId: number
+  proposalId: number
   approvalType: number
   reason: string
   requestedByUserId?: number
@@ -506,29 +452,8 @@ export const opportunityService = {
     return httpClient.delete(`${BASE_URL}/${id}`)
   },
 
-  async getNegotiations(opportunityId: number): Promise<OpportunityNegotiation[]> {
-    const response = await httpClient.get<OpportunityNegotiation[]>(`${BASE_URL}/${opportunityId}/negotiations/GetNegotiations`)
-    return response.data ?? []
-  },
-
-  createNegotiation(opportunityId: number, data: CreateOpportunityNegotiationRequest) {
-    return httpClient.post<OpportunityNegotiation>(`${BASE_URL}/${opportunityId}/negotiations/CreateNegotiation`, data)
-  },
-
-  updateNegotiation(id: number, data: UpdateOpportunityNegotiationRequest) {
-    return httpClient.put<OpportunityNegotiation>(`${BASE_URL}/negotiations/${id}`, data)
-  },
-
-  changeNegotiationStatus(id: number, data: ChangeOpportunityNegotiationStatusRequest) {
-    return httpClient.post<OpportunityNegotiation>(`${BASE_URL}/negotiations/${id}/ChangeStatus`, data)
-  },
-
-  deleteNegotiation(id: number) {
-    return httpClient.delete(`${BASE_URL}/negotiations/${id}`)
-  },
-
-  async getApprovalRequests(negotiationId: number): Promise<OpportunityApprovalRequest[]> {
-    const response = await httpClient.get<OpportunityApprovalRequest[]>(`/OpportunityApprovals/negotiation/${negotiationId}`)
+  async getApprovalRequests(proposalId: number): Promise<OpportunityApprovalRequest[]> {
+    const response = await httpClient.get<OpportunityApprovalRequest[]>(`/OpportunityApprovals/proposal/${proposalId}`)
     return response.data ?? []
   },
 
@@ -620,8 +545,8 @@ export const opportunityService = {
     return httpClient.delete(`/OpportunityApprovals/Impacts/${impactId}`)
   },
 
-  async evaluateNegotiationPolicy(negotiationId: number): Promise<PolicyEvaluation | null> {
-    const response = await httpClient.get<PolicyEvaluation>(`/OpportunityApprovals/evaluate-policy/${negotiationId}`)
+  async evaluateProposalPolicy(proposalId: number): Promise<PolicyEvaluation | null> {
+    const response = await httpClient.get<PolicyEvaluation>(`/OpportunityApprovals/evaluate-policy/${proposalId}`)
     return response.data ?? null
   },
 

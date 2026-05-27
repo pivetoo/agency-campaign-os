@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SearchableSelect, useApi, useAuth, useI18n, UsersManagementService } from 'archon-ui'
 import { X } from 'lucide-react'
-import { opportunityService, type CreateOpportunityApprovalRequest, type OpportunityNegotiation } from '../../services/opportunityService'
+import { type CreateOpportunityApprovalRequest } from '../../services/opportunityService'
+import { proposalService, type Proposal } from '../../services/proposalService'
 
 interface OpportunityApprovalRequestFormModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  negotiation: OpportunityNegotiation | null
+  proposal: Proposal | null
   onSuccess: () => void
 }
 
@@ -17,7 +18,7 @@ interface ApproverOption {
 }
 
 const initialFormData: CreateOpportunityApprovalRequest = {
-  opportunityNegotiationId: 0,
+  proposalId: 0,
   approvalType: 4,
   reason: '',
   requestedByUserName: '',
@@ -25,7 +26,7 @@ const initialFormData: CreateOpportunityApprovalRequest = {
 
 const APPROVER_SENTINEL = '__none__'
 
-export default function OpportunityApprovalRequestFormModal({ open, onOpenChange, negotiation, onSuccess }: OpportunityApprovalRequestFormModalProps) {
+export default function OpportunityApprovalRequestFormModal({ open, onOpenChange, proposal, onSuccess }: OpportunityApprovalRequestFormModalProps) {
   const { t } = useI18n()
   const { user: authUser } = useAuth()
   const [formData, setFormData] = useState<CreateOpportunityApprovalRequest>(initialFormData)
@@ -42,9 +43,9 @@ export default function OpportunityApprovalRequestFormModal({ open, onOpenChange
   }, [open])
 
   useEffect(() => {
-    if (negotiation) {
+    if (proposal) {
       setFormData({
-        opportunityNegotiationId: negotiation.id,
+        proposalId: proposal.id,
         approvalType: 4,
         reason: '',
         requestedByUserName: authUser?.name ?? '',
@@ -57,7 +58,7 @@ export default function OpportunityApprovalRequestFormModal({ open, onOpenChange
 
     setFormData(initialFormData)
     setSelectedApprovers([])
-  }, [negotiation, open, authUser])
+  }, [proposal, open, authUser])
 
   const handleApproverChange = (value: string) => {
     if (value === APPROVER_SENTINEL) {
@@ -85,7 +86,7 @@ export default function OpportunityApprovalRequestFormModal({ open, onOpenChange
       approvers: selectedApprovers.map((item) => ({ userId: item.userId, userName: item.name })),
     }
 
-    const result = await execute(() => opportunityService.createApprovalRequest(payload))
+    const result = await execute(() => proposalService.createApprovalRequest(payload))
     if (result !== null) {
       onSuccess()
     }
@@ -153,7 +154,7 @@ export default function OpportunityApprovalRequestFormModal({ open, onOpenChange
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
-            <Button type="submit" disabled={loading || !formData.opportunityNegotiationId || selectedApprovers.length === 0}>{loading ? t('common.action.saving') : t('common.action.request')}</Button>
+            <Button type="submit" disabled={loading || !formData.proposalId || selectedApprovers.length === 0}>{loading ? t('common.action.saving') : t('common.action.request')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

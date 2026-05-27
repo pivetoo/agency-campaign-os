@@ -8,7 +8,7 @@ namespace AgencyCampaign.Testing.Domain.Entities
     {
         private static OpportunityApprovalRequest BuildDefault()
         {
-            return new OpportunityApprovalRequest(opportunityNegotiationId: 1, approvalType: OpportunityApprovalType.DiscountApproval,
+            return new OpportunityApprovalRequest(proposalId: 1, approvalType: OpportunityApprovalType.DiscountApproval,
                 reason: "  10%  ", requestedByUserName: "  Tester  ", requestedByUserId: 7);
         }
 

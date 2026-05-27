@@ -320,7 +320,7 @@ namespace AgencyCampaign.Api.Controllers
             return new OpportunityApprovalRequestContract
             {
                 Id = approval.Id,
-                OpportunityNegotiationId = approval.OpportunityNegotiationId,
+                ProposalId = approval.ProposalId,
                 ApprovalType = approval.ApprovalType,
                 Status = approval.Status,
                 Reason = approval.Reason,
@@ -341,7 +341,7 @@ namespace AgencyCampaign.Api.Controllers
             return new OpportunityApprovalRequestContract
             {
                 Id = approval.Id,
-                OpportunityNegotiationId = approval.OpportunityNegotiationId,
+                ProposalId = approval.ProposalId,
                 ApprovalType = approval.ApprovalType,
                 Status = approval.Status,
                 Reason = approval.Reason,
@@ -354,13 +354,13 @@ namespace AgencyCampaign.Api.Controllers
                 DecisionNotes = approval.DecisionNotes,
                 CreatedAt = approval.CreatedAt,
                 UpdatedAt = approval.UpdatedAt,
-                OpportunityId = approval.OpportunityNegotiation?.OpportunityId,
-                OpportunityName = approval.OpportunityNegotiation?.Opportunity?.Name,
-                NegotiationTitle = approval.OpportunityNegotiation?.Title,
-                NegotiationAmount = approval.OpportunityNegotiation?.Amount,
-                BrandId = approval.OpportunityNegotiation?.Opportunity?.BrandId,
-                BrandName = approval.OpportunityNegotiation?.Opportunity?.Brand?.Name,
-                BrandLogoUrl = approval.OpportunityNegotiation?.Opportunity?.Brand?.LogoUrl,
+                OpportunityId = approval.Proposal?.OpportunityId,
+                OpportunityName = approval.Proposal?.Opportunity?.Name,
+                ProposalName = approval.Proposal?.Name,
+                ProposalTotalValue = approval.Proposal?.TotalValue,
+                BrandId = approval.Proposal?.Opportunity?.BrandId,
+                BrandName = approval.Proposal?.Opportunity?.Brand?.Name,
+                BrandLogoUrl = approval.Proposal?.Opportunity?.Brand?.LogoUrl,
             };
         }
     }

@@ -192,6 +192,7 @@
   <data name="creatorPayment.cannotCancelPaid" xml:space="preserve"><value>Cannot cancel a payment already marked as Paid.</value></data>
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>The proposal must be Sent to be marked as Viewed.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>The proposal must be Sent or Viewed to be Approved.</value></data>
+  <data name="proposal.send.approvalRequired" xml:space="preserve"><value>This proposal exceeds the commercial policy and requires internal approval before it can be sent or approved. Use "Request approval".</value></data>
   <data name="proposal.reject.notSentOrViewed" xml:space="preserve"><value>The proposal must be Sent or Viewed to be Rejected.</value></data>
   <data name="proposal.convert.notApproved" xml:space="preserve"><value>The proposal must be Approved to be Converted.</value></data>
   <data name="proposal.cancel.alreadyConverted" xml:space="preserve"><value>Cannot cancel a Converted proposal.</value></data>
@@ -1503,7 +1504,7 @@
   <data name="opportunityApprovals.area" xml:space="preserve"><value>Opportunity approvals</value></data>
   <data name="opportunityApprovals.create.description" xml:space="preserve"><value>Permite solicitar uma aprovação comercial.</value></data>
   <data name="opportunityApprovals.get.description" xml:space="preserve"><value>Permite listar todas as aprovações comerciais.</value></data>
-  <data name="opportunityApprovals.getByNegotiation.description" xml:space="preserve"><value>Permite listar as aprovações de uma negociação comercial.</value></data>
+  <data name="opportunityApprovals.getByProposal.description" xml:space="preserve"><value>Allows listing the internal approvals of a proposal.</value></data>
   <data name="opportunityApprovals.reject.description" xml:space="preserve"><value>Permite rejeitar uma solicitação comercial.</value></data>
   <data name="opportunityApprovals.markInReview.description" xml:space="preserve"><value>Allows marking a request as under review.</value></data>
   <data name="opportunityApprovals.requestChanges.description" xml:space="preserve"><value>Allows requesting changes from the approval requester.</value></data>
@@ -2214,4 +2215,15 @@
   <data name="operations.approvals.linkCopied" xml:space="preserve"><value>Link copied to clipboard:
 
 {0}</value></data>
+  <data name="modal.proposal.field.discount" xml:space="preserve"><value>Discount %</value></data>
+  <data name="modal.proposal.placeholder.discount" xml:space="preserve"><value>e.g. 10</value></data>
+  <data name="modal.proposal.field.paymentTerm" xml:space="preserve"><value>Payment term (days)</value></data>
+  <data name="modal.proposal.placeholder.paymentTerm" xml:space="preserve"><value>e.g. 30</value></data>
+  <data name="commercialApprovals.linked.proposal" xml:space="preserve"><value>Proposal</value></data>
+  <data name="commercialApprovals.request.noProposal" xml:space="preserve"><value>No proposal</value></data>
+  <data name="proposalDetail.paymentTermValue" xml:space="preserve"><value>{0} days</value></data>
+  <data name="proposalDetail.approval.requestButton" xml:space="preserve"><value>Request approval</value></data>
+  <data name="proposalDetail.approval.deviationTitle" xml:space="preserve"><value>This proposal exceeds the commercial policy</value></data>
+  <data name="proposalDetail.approval.requiredHint" xml:space="preserve"><value>Internal approval is required before sending or approving the proposal.</value></data>
+  <data name="proposalDetail.approval.pendingHint" xml:space="preserve"><value>An approval request is already in progress. Sending is blocked until it is approved.</value></data>
 </root>

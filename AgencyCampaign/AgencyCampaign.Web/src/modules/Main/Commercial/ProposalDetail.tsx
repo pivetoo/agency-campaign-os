@@ -2,14 +2,17 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, DataTable, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, PageAction } from 'archon-ui'
-import { CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Send, Trash2, XCircle } from 'lucide-react'
+import { AlertTriangle, CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Percent, Send, ShieldCheck, Trash2, Wallet, XCircle } from 'lucide-react'
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'
 import ProposalItemFormModal from '../../../components/modals/ProposalItemFormModal'
 import ApplyProposalTemplateModal from '../../../components/modals/ApplyProposalTemplateModal'
 import ProposalSendModal from '../../../components/modals/ProposalSendModal'
+import OpportunityApprovalRequestFormModal from '../../../components/modals/OpportunityApprovalRequestFormModal'
 import ProposalShareTab from './ProposalShareTab'
 import { campaignService } from '../../../services/campaignService'
 import { proposalService, ProposalStatus, type Proposal, type ProposalItem, type ProposalStatusValue } from '../../../services/proposalService'
+import { OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
+import type { PolicyEvaluation } from '../../../types/policyEvaluation'
 import type { Campaign } from '../../../types/campaign'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
@@ -49,8 +52,11 @@ export default function CommercialProposalDetail() {
   const [isItemFormOpen, setIsItemFormOpen] = useState(false)
   const [isApplyTemplateOpen, setIsApplyTemplateOpen] = useState(false)
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
+  const [isApprovalRequestOpen, setIsApprovalRequestOpen] = useState(false)
   const [publicLinkUrl, setPublicLinkUrl] = useState<string | undefined>(undefined)
   const [campaignId, setCampaignId] = useState<string>('')
+  const [policyEvaluation, setPolicyEvaluation] = useState<PolicyEvaluation | null>(null)
+  const [approvals, setApprovals] = useState<OpportunityApprovalRequest[]>([])
 
   const { execute: fetchProposal, loading } = useApi<Proposal | undefined>({ showErrorMessage: true })
   const { execute: fetchItems } = useApi<ProposalItem[]>({ showErrorMessage: true })
@@ -62,7 +68,18 @@ export default function CommercialProposalDetail() {
 
     const proposalItems = await fetchItems(() => proposalService.getItems(proposalId))
     if (proposalItems) setItems(proposalItems)
+
+    const [evaluation, approvalList] = await Promise.all([
+      proposalService.evaluatePolicy(proposalId).catch(() => null),
+      proposalService.getApprovalRequests(proposalId).catch(() => []),
+    ])
+    setPolicyEvaluation(evaluation)
+    setApprovals(approvalList)
   }
+
+  const hasApprovedApproval = useMemo(() => approvals.some((a) => a.status === OpportunityApprovalStatus.Approved), [approvals])
+  const hasOpenApproval = useMemo(() => approvals.some((a) => a.status === OpportunityApprovalStatus.Pending || a.status === OpportunityApprovalStatus.InReview || a.status === OpportunityApprovalStatus.ChangesRequested), [approvals])
+  const needsApproval = !!policyEvaluation?.hasDeviations && !hasApprovedApproval
 
   useEffect(() => {
     if (!proposalId) return
@@ -102,6 +119,16 @@ export default function CommercialProposalDetail() {
 
     const actions: PageAction[] = []
 
+    if (needsApproval && !hasOpenApproval) {
+      actions.push({
+        key: 'requestApproval',
+        label: t('proposalDetail.approval.requestButton'),
+        icon: <ShieldCheck className="h-4 w-4" />,
+        variant: 'outline-primary',
+        disabled: actionLoading,
+        onClick: () => setIsApprovalRequestOpen(true),
+      })
+    }
     if (status === ProposalStatus.Draft || status === ProposalStatus.Sent || status === ProposalStatus.Viewed) {
       actions.push({
         key: 'send',
@@ -160,7 +187,7 @@ export default function CommercialProposalDetail() {
 
     return actions
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [proposal, actionLoading, proposalId])
+  }, [proposal, actionLoading, proposalId, needsApproval, hasOpenApproval])
 
   const columns: DataTableColumn<ProposalItem>[] = [
     { key: 'description', title: t('proposalDetail.item.field.item'), dataIndex: 'description' },
@@ -197,6 +224,26 @@ export default function CommercialProposalDetail() {
     >
       {proposal && (
         <div className="space-y-6">
+          {needsApproval && (
+            <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+              <div className="flex-1 text-sm text-amber-900">
+                <p className="font-semibold">{t('proposalDetail.approval.deviationTitle')}</p>
+                <ul className="mt-1 space-y-0.5 text-[12.5px] text-amber-800">
+                  {(policyEvaluation?.deviations ?? []).filter((d) => d.isViolation).map((d) => (
+                    <li key={d.field}><strong>{d.field}</strong>: {d.requestedValue} ({d.policyValue} · {d.delta})</li>
+                  ))}
+                </ul>
+                <p className="mt-1.5 text-[12.5px] text-amber-800">{hasOpenApproval ? t('proposalDetail.approval.pendingHint') : t('proposalDetail.approval.requiredHint')}</p>
+              </div>
+              {!hasOpenApproval && (
+                <Button size="sm" variant="primary" onClick={() => setIsApprovalRequestOpen(true)} className="shrink-0">
+                  <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> {t('proposalDetail.approval.requestButton')}
+                </Button>
+              )}
+            </div>
+          )}
+
           <div className="flex flex-wrap items-center gap-4 rounded-md border border-border/70 bg-muted/20 px-4 py-3">
             <div className="flex items-center gap-2">
               <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('common.field.status')}</span>
@@ -215,6 +262,26 @@ export default function CommercialProposalDetail() {
               <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('common.field.validity')}</span>
               <span className="text-sm text-foreground">{formatDate(proposal.validityUntil)}</span>
             </div>
+            {proposal.discountPercent != null ? (
+              <>
+                <span className="hidden text-border md:inline">·</span>
+                <div className="flex items-center gap-2">
+                  <Percent className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('modal.proposal.field.discount')}</span>
+                  <span className="text-sm text-foreground">{proposal.discountPercent}%</span>
+                </div>
+              </>
+            ) : null}
+            {proposal.paymentTermDays != null ? (
+              <>
+                <span className="hidden text-border md:inline">·</span>
+                <div className="flex items-center gap-2">
+                  <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('modal.proposal.field.paymentTerm')}</span>
+                  <span className="text-sm text-foreground">{t('proposalDetail.paymentTermValue').replace('{0}', String(proposal.paymentTermDays))}</span>
+                </div>
+              </>
+            ) : null}
             {proposal.campaign?.name ? (
               <>
                 <span className="hidden text-border md:inline">·</span>
@@ -378,6 +445,16 @@ export default function CommercialProposalDetail() {
           }}
         />
       ) : null}
+
+      <OpportunityApprovalRequestFormModal
+        open={isApprovalRequestOpen}
+        onOpenChange={setIsApprovalRequestOpen}
+        proposal={proposal}
+        onSuccess={() => {
+          setIsApprovalRequestOpen(false)
+          void loadProposal()
+        }}
+      />
     </PageLayout>
   )
 }

@@ -1,5 +1,7 @@
 import { httpClient } from 'archon-ui'
 import type { ApiResponse } from 'archon-ui'
+import type { CreateOpportunityApprovalRequest, OpportunityApprovalRequest } from './opportunityService'
+import type { PolicyEvaluation } from '../types/policyEvaluation'
 
 const BASE_URL = '/Proposals'
 
@@ -63,6 +65,8 @@ export interface Proposal {
   }
   items?: ProposalItem[]
   proposalLayoutId?: number | null
+  discountPercent?: number
+  paymentTermDays?: number
   createdAt: string
   updatedAt?: string
 }
@@ -75,6 +79,8 @@ export interface CreateProposalRequest {
   internalOwnerId?: number
   internalOwnerName?: string
   proposalLayoutId?: number | null
+  discountPercent?: number | null
+  paymentTermDays?: number | null
 }
 
 export interface UpdateProposalRequest extends CreateProposalRequest {
@@ -258,6 +264,20 @@ export const proposalService = {
 
   revokeShareLink(shareLinkId: number) {
     return httpClient.post<ProposalShareLink>(`${BASE_URL}/share-links/${shareLinkId}/Revoke`, {})
+  },
+
+  async getApprovalRequests(proposalId: number): Promise<OpportunityApprovalRequest[]> {
+    const response = await httpClient.get<OpportunityApprovalRequest[]>(`/OpportunityApprovals/proposal/${proposalId}`)
+    return response.data ?? []
+  },
+
+  createApprovalRequest(data: CreateOpportunityApprovalRequest) {
+    return httpClient.post<OpportunityApprovalRequest>('/OpportunityApprovals/Create', data)
+  },
+
+  async evaluatePolicy(proposalId: number): Promise<PolicyEvaluation | null> {
+    const response = await httpClient.get<PolicyEvaluation>(`/OpportunityApprovals/evaluate-policy/${proposalId}`)
+    return response.data ?? null
   },
 
   async downloadPdf(id: number): Promise<void> {

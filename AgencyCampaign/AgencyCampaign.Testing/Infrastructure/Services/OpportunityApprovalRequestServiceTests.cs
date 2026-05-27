@@ -1,4 +1,3 @@
-using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
@@ -10,8 +9,6 @@ using AgencyCampaign.Testing.TestSupport;
 using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -30,7 +27,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             notifications = new Mock<INotificationService>();
             policyEvaluator = new();
             policyEvaluator
-                .Setup(p => p.EvaluateNegotiationAsync(It.IsAny<OpportunityNegotiation>(), It.IsAny<CancellationToken>()))
+                .Setup(p => p.EvaluateProposalAsync(It.IsAny<Proposal>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new PolicyEvaluationModel { HasDeviations = false });
             service = new OpportunityApprovalRequestService(db, notifications.Object, policyEvaluator.Object, CurrentUserMock.Create());
         }
@@ -38,7 +35,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [TearDown]
         public void TearDown() => db.Dispose();
 
-        private async Task<OpportunityNegotiation> SeedNegotiationAsync()
+        private async Task<Proposal> SeedProposalAsync()
         {
             db.Add(new CommercialPipelineStageBuilder().WithId(1).Build());
             db.Add(new Brand("Acme").WithId(1));
@@ -47,18 +44,19 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(opportunity);
             await db.SaveChangesAsync();
 
-            OpportunityNegotiation negotiation = new(opportunity.Id, "v1", 100m, DateTimeOffset.UtcNow);
-            db.Add(negotiation);
+            Proposal proposal = new(opportunity.Id, "Proposta v1", 1);
+            proposal.UpdateTotalValue(1000m);
+            db.Add(proposal);
             await db.SaveChangesAsync();
-            return negotiation;
+            return proposal;
         }
 
         [Test]
-        public async Task CreateOpportunityApprovalRequest_should_throw_when_negotiation_not_found()
+        public async Task CreateOpportunityApprovalRequest_should_throw_when_proposal_not_found()
         {
             CreateOpportunityApprovalRequest request = new()
             {
-                OpportunityNegotiationId = 99,
+                ProposalId = 99,
                 ApprovalType = OpportunityApprovalType.DiscountApproval,
                 Reason = "alta",
                 RequestedByUserName = "Tester"
@@ -69,58 +67,31 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task CreateOpportunityApprovalRequest_should_persist_mark_negotiation_pending_and_notify()
+        public async Task CreateOpportunityApprovalRequest_should_persist_pending_and_notify()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            Proposal proposal = await SeedProposalAsync();
 
             OpportunityApprovalRequest result = await service.CreateOpportunityApprovalRequest(new CreateOpportunityApprovalRequest
             {
-                OpportunityNegotiationId = negotiation.Id,
+                ProposalId = proposal.Id,
                 ApprovalType = OpportunityApprovalType.DiscountApproval,
                 Reason = "10%",
                 RequestedByUserName = "Tester"
             });
 
             result.Status.Should().Be(OpportunityApprovalStatus.Pending);
+            result.ProposalId.Should().Be(proposal.Id);
             (await db.Set<OpportunityApprovalRequest>().CountAsync()).Should().Be(1);
-
-            db.ChangeTracker.Clear();
-            OpportunityNegotiation persisted = await db.Set<OpportunityNegotiation>().AsNoTracking().SingleAsync();
-            persisted.Status.Should().Be(OpportunityNegotiationStatus.PendingApproval);
 
             notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
-        public async Task CreateOpportunityApprovalRequest_should_throw_when_negotiation_already_approved()
+        public async Task Approve_should_set_status_approved()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            negotiation.Approve();
-            await db.SaveChangesAsync();
-            db.ChangeTracker.Clear();
+            Proposal proposal = await SeedProposalAsync();
 
-            CreateOpportunityApprovalRequest request = new()
-            {
-                OpportunityNegotiationId = negotiation.Id,
-                ApprovalType = OpportunityApprovalType.DiscountApproval,
-                Reason = "10%",
-                RequestedByUserName = "Tester"
-            };
-
-            Func<Task> act = () => service.CreateOpportunityApprovalRequest(request);
-            await act.Should().ThrowAsync<InvalidOperationException>();
-
-            (await db.Set<OpportunityApprovalRequest>().CountAsync()).Should().Be(0);
-        }
-
-        [Test]
-        public async Task Approve_should_set_status_and_mark_negotiation_approved()
-        {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            negotiation.MarkPendingApproval();
-            await db.SaveChangesAsync();
-
-            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester", 1);
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester", 1);
             db.Add(approval);
             await db.SaveChangesAsync();
             db.ChangeTracker.Clear();
@@ -132,18 +103,14 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             });
 
             result.Status.Should().Be(OpportunityApprovalStatus.Approved);
-            db.ChangeTracker.Clear();
-            (await db.Set<OpportunityNegotiation>().AsNoTracking().SingleAsync()).Status.Should().Be(OpportunityNegotiationStatus.Approved);
         }
 
         [Test]
         public async Task Approve_should_throw_when_already_decided()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            negotiation.MarkPendingApproval();
-            await db.SaveChangesAsync();
+            Proposal proposal = await SeedProposalAsync();
 
-            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
             approval.Approve("Boss");
             db.Add(approval);
             await db.SaveChangesAsync();
@@ -154,13 +121,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task Reject_should_set_status_and_mark_negotiation_rejected()
+        public async Task Reject_should_set_status_rejected()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            negotiation.MarkPendingApproval();
-            await db.SaveChangesAsync();
+            Proposal proposal = await SeedProposalAsync();
 
-            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
             db.Add(approval);
             await db.SaveChangesAsync();
             db.ChangeTracker.Clear();
@@ -171,7 +136,6 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             });
 
             result.Status.Should().Be(OpportunityApprovalStatus.Rejected);
-            (await db.Set<OpportunityNegotiation>().AsNoTracking().SingleAsync()).Status.Should().Be(OpportunityNegotiationStatus.Rejected);
         }
 
         [Test]
@@ -192,11 +156,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task Reject_should_throw_when_already_decided()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            negotiation.MarkPendingApproval();
-            await db.SaveChangesAsync();
+            Proposal proposal = await SeedProposalAsync();
 
-            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
             approval.Reject("Boss");
             db.Add(approval);
             await db.SaveChangesAsync();
@@ -210,11 +172,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task CreateOpportunityApprovalRequest_should_create_reviewers_and_notify_each_approver()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            Proposal proposal = await SeedProposalAsync();
 
             OpportunityApprovalRequest created = await service.CreateOpportunityApprovalRequest(new CreateOpportunityApprovalRequest
             {
-                OpportunityNegotiationId = negotiation.Id,
+                ProposalId = proposal.Id,
                 ApprovalType = OpportunityApprovalType.DiscountApproval,
                 Reason = "alta",
                 RequestedByUserName = "Tester",
@@ -240,8 +202,8 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GetOpportunityApprovalRequestById_should_return_when_found()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "x", "Tester");
+            Proposal proposal = await SeedProposalAsync();
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "x", "Tester");
             db.Add(approval);
             await db.SaveChangesAsync();
 
@@ -253,9 +215,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GetAllApprovals_should_return_paged_result()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            db.Add(new OpportunityApprovalRequest(negotiation.Id, OpportunityApprovalType.DiscountApproval, "a", "Tester"));
-            db.Add(new OpportunityApprovalRequest(negotiation.Id, OpportunityApprovalType.DeadlineApproval, "b", "Tester"));
+            Proposal proposal = await SeedProposalAsync();
+            db.Add(new OpportunityApprovalRequest(proposal.Id, OpportunityApprovalType.DiscountApproval, "a", "Tester"));
+            db.Add(new OpportunityApprovalRequest(proposal.Id, OpportunityApprovalType.DeadlineApproval, "b", "Tester"));
             await db.SaveChangesAsync();
 
             Archon.Core.Pagination.PagedResult<OpportunityApprovalRequest> result = await service.GetAllApprovals(new Archon.Core.Pagination.PagedRequest { Page = 1, PageSize = 10 });
@@ -266,11 +228,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GetApprovalsSummary_should_aggregate_by_status()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            OpportunityApprovalRequest pending = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "pending", "Tester");
-            OpportunityApprovalRequest approved = new(negotiation.Id, OpportunityApprovalType.DeadlineApproval, "approved", "Tester");
+            Proposal proposal = await SeedProposalAsync();
+            OpportunityApprovalRequest pending = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "pending", "Tester");
+            OpportunityApprovalRequest approved = new(proposal.Id, OpportunityApprovalType.DeadlineApproval, "approved", "Tester");
             approved.Approve("Boss");
-            OpportunityApprovalRequest rejected = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "rejected", "Tester");
+            OpportunityApprovalRequest rejected = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "rejected", "Tester");
             rejected.Reject("Boss");
 
             db.Add(pending);
@@ -288,11 +250,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task RecordReviewerDecision_should_keep_request_pending_until_all_required_reviewers_approve()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            negotiation.MarkPendingApproval();
-            await db.SaveChangesAsync();
+            Proposal proposal = await SeedProposalAsync();
 
-            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
             approval.AddReviewer("Ana", "Diretora", required: true, userId: 10);
             approval.AddReviewer("Bruno", "CFO", required: true, userId: 20);
             db.Add(approval);
@@ -306,13 +266,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task RecordReviewerDecision_should_approve_request_and_negotiation_when_all_required_approve()
+        public async Task RecordReviewerDecision_should_approve_request_when_all_required_approve()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            negotiation.MarkPendingApproval();
-            await db.SaveChangesAsync();
+            Proposal proposal = await SeedProposalAsync();
 
-            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
             approval.AddReviewer("Ana", "Diretora", required: true, userId: 10);
             approval.AddReviewer("Bruno", "CFO", required: true, userId: 20);
             db.Add(approval);
@@ -327,18 +285,14 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             OpportunityApprovalRequest result = await bruno.RecordReviewerDecision(approval.Id, OpportunityApprovalReviewerStatus.Approved, "ok");
 
             result.Status.Should().Be(OpportunityApprovalStatus.Approved);
-            db.ChangeTracker.Clear();
-            (await db.Set<OpportunityNegotiation>().AsNoTracking().SingleAsync()).Status.Should().Be(OpportunityNegotiationStatus.Approved);
         }
 
         [Test]
         public async Task RecordReviewerDecision_should_throw_when_current_user_is_not_a_reviewer()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
-            negotiation.MarkPendingApproval();
-            await db.SaveChangesAsync();
+            Proposal proposal = await SeedProposalAsync();
 
-            OpportunityApprovalRequest approval = new(negotiation.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
             approval.AddReviewer("Ana", "Diretora", required: true, userId: 10);
             db.Add(approval);
             await db.SaveChangesAsync();
@@ -351,16 +305,16 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task GetApprovalsByNegotiationId_should_filter_and_order_desc()
+        public async Task GetApprovalsByProposalId_should_filter_and_order_desc()
         {
-            OpportunityNegotiation negotiation = await SeedNegotiationAsync();
+            Proposal proposal = await SeedProposalAsync();
 
-            db.Add(new OpportunityApprovalRequest(negotiation.Id, OpportunityApprovalType.DiscountApproval, "v1", "Tester").WithId(1));
-            db.Add(new OpportunityApprovalRequest(negotiation.Id, OpportunityApprovalType.DeadlineApproval, "v2", "Tester").WithId(2));
+            db.Add(new OpportunityApprovalRequest(proposal.Id, OpportunityApprovalType.DiscountApproval, "v1", "Tester").WithId(1));
+            db.Add(new OpportunityApprovalRequest(proposal.Id, OpportunityApprovalType.DeadlineApproval, "v2", "Tester").WithId(2));
             db.Add(new OpportunityApprovalRequest(99, OpportunityApprovalType.DiscountApproval, "outro", "Tester").WithId(3));
             await db.SaveChangesAsync();
 
-            IReadOnlyCollection<OpportunityApprovalRequest> result = await service.GetApprovalsByNegotiationId(negotiation.Id);
+            IReadOnlyCollection<OpportunityApprovalRequest> result = await service.GetApprovalsByProposalId(proposal.Id);
 
             result.Select(item => item.Id).Should().Equal(2, 1);
         }

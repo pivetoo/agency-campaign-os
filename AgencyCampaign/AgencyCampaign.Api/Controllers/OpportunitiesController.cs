@@ -15,23 +15,19 @@ namespace AgencyCampaign.Api.Controllers
     public sealed class OpportunitiesController : ApiControllerBase
     {
         private readonly IOpportunityService opportunityService;
-        private readonly IOpportunityNegotiationService negotiationService;
         private readonly IOpportunityFollowUpService followUpService;
         private readonly IOpportunityCommentService commentService;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
         private static readonly Func<Opportunity, OpportunityContract> MapOpportunity = OpportunityContract.Projection.Compile();
-        private static readonly Func<OpportunityNegotiation, OpportunityNegotiationContract> MapNegotiation = OpportunityNegotiationContract.Projection.Compile();
         private static readonly Func<OpportunityFollowUp, OpportunityFollowUpContract> MapFollowUp = OpportunityFollowUpContract.Projection.Compile();
 
         public OpportunitiesController(
             IOpportunityService opportunityService,
-            IOpportunityNegotiationService negotiationService,
             IOpportunityFollowUpService followUpService,
             IOpportunityCommentService commentService,
             IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.opportunityService = opportunityService;
-            this.negotiationService = negotiationService;
             this.followUpService = followUpService;
             this.commentService = commentService;
             Localizer = localizer;
@@ -272,63 +268,6 @@ namespace AgencyCampaign.Api.Controllers
         {
             Opportunity? opportunity = await opportunityService.Delete(id, cancellationToken);
             return opportunity is null ? Http404(Localizer["record.notFound"]) : Http204();
-        }
-
-        [RequireAccess("opportunities.getNegotiations.description")]
-        [HttpGet("{opportunityId:long}/negotiations/GetNegotiations")]
-        public async Task<IActionResult> GetNegotiations(long opportunityId, CancellationToken cancellationToken)
-        {
-            IReadOnlyCollection<OpportunityNegotiation> negotiations = await negotiationService.GetNegotiationsByOpportunityId(opportunityId, cancellationToken);
-            return Http200(negotiations.Select(MapNegotiation).ToList());
-        }
-
-        [RequireAccess("opportunities.createNegotiation.description")]
-        [HttpPost("{opportunityId:long}/negotiations/CreateNegotiation")]
-        public async Task<IActionResult> CreateNegotiation(long opportunityId, [FromBody] CreateOpportunityNegotiationRequest request, CancellationToken cancellationToken)
-        {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
-            if (request.OpportunityId != opportunityId)
-            {
-                request.OpportunityId = opportunityId;
-            }
-
-            OpportunityNegotiation negotiation = await negotiationService.CreateOpportunityNegotiation(request, cancellationToken);
-            return Http201(MapNegotiation(negotiation), Localizer["record.created"]);
-        }
-
-        [RequireAccess("opportunities.updateNegotiation.description")]
-        [PutEndpoint("negotiations/{id:long}")]
-        public async Task<IActionResult> UpdateNegotiation(long id, [FromBody] UpdateOpportunityNegotiationRequest request, CancellationToken cancellationToken)
-        {
-            IActionResult? validationResult = ValidateBody(request);
-            if (validationResult is not null)
-            {
-                return validationResult;
-            }
-
-            OpportunityNegotiation negotiation = await negotiationService.UpdateOpportunityNegotiation(id, request, cancellationToken);
-            return Http200(MapNegotiation(negotiation), Localizer["record.updated"]);
-        }
-
-        [RequireAccess("opportunities.changeStatus.description")]
-        [PostEndpoint("negotiations/{id:long}/[action]")]
-        public async Task<IActionResult> ChangeStatus(long id, [FromBody] ChangeOpportunityNegotiationStatusRequest request, CancellationToken cancellationToken)
-        {
-            OpportunityNegotiation negotiation = await negotiationService.ChangeStatus(id, request, cancellationToken);
-            return Http200(MapNegotiation(negotiation), Localizer["record.updated"]);
-        }
-
-        [RequireAccess("opportunities.deleteNegotiation.description")]
-        [DeleteEndpoint("negotiations/{id:long}")]
-        public async Task<IActionResult> DeleteNegotiation(long id, CancellationToken cancellationToken)
-        {
-            await negotiationService.DeleteOpportunityNegotiation(id, cancellationToken);
-            return Http204();
         }
 
         [RequireAccess("opportunities.getAllFollowUps.description")]

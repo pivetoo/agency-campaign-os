@@ -4,6 +4,7 @@ export interface PolicyDeviation {
   requestedValue: string
   delta: string
   kind: number
+  isViolation: boolean
 }
 
 export interface PolicyImpact {

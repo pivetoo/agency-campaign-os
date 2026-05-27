@@ -1,4 +1,5 @@
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
@@ -21,6 +22,8 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         private Mock<IFinancialAutoGeneration> financial = null!;
         private Mock<IAutomationDispatcher> automation = null!;
         private Mock<INotificationService> notifications = null!;
+        private IPolicyEvaluator policyEvaluator = null!;
+        private IOpportunityApprovalRequestService approvalRequestService = null!;
         private ProposalService service = null!;
 
         [SetUp]
@@ -30,7 +33,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             financial = new Mock<IFinancialAutoGeneration>();
             automation = new Mock<IAutomationDispatcher>();
             notifications = new Mock<INotificationService>();
-            service = new ProposalService(db, CurrentUserMock.Create(), financial.Object, automation.Object, notifications.Object, IntegrationPlatformClientFactory.CreateInert(), new IntegrationCapabilityService(db));
+            policyEvaluator = new PolicyEvaluatorService(db);
+            approvalRequestService = new OpportunityApprovalRequestService(db, notifications.Object, policyEvaluator, CurrentUserMock.Create());
+            service = new ProposalService(db, CurrentUserMock.Create(), financial.Object, automation.Object, notifications.Object, IntegrationPlatformClientFactory.CreateInert(), new IntegrationCapabilityService(db), policyEvaluator, approvalRequestService);
         }
 
         [TearDown]
@@ -317,6 +322,113 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             IReadOnlyCollection<AgencyCampaign.Application.Models.Commercial.ProposalStatusHistoryModel> result = await service.GetStatusHistory(proposal.Id);
 
             result.Should().NotBeEmpty();
+        }
+
+        [Test]
+        public async Task CreateProposal_should_persist_discount_and_payment_term()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest
+            {
+                OpportunityId = opportunity.Id,
+                DiscountPercent = 15m,
+                PaymentTermDays = 45
+            });
+
+            proposal.DiscountPercent.Should().Be(15m);
+            proposal.PaymentTermDays.Should().Be(45);
+        }
+
+        [Test]
+        public async Task MarkAsSent_should_block_and_create_approval_when_proposal_deviates_from_policy()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            await db.SaveChangesAsync();
+
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest
+            {
+                OpportunityId = opportunity.Id,
+                DiscountPercent = 30m
+            });
+
+            Func<Task> act = () => service.MarkAsSent(proposal.Id);
+
+            await act.Should().ThrowAsync<InvalidOperationException>()
+                .WithMessage("proposal.send.approvalRequired");
+
+            db.ChangeTracker.Clear();
+            (await db.Set<OpportunityApprovalRequest>().CountAsync(item => item.ProposalId == proposal.Id)).Should().Be(1);
+        }
+
+        [Test]
+        public async Task MarkAsSent_should_not_duplicate_approval_when_one_is_already_pending()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            await db.SaveChangesAsync();
+
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest
+            {
+                OpportunityId = opportunity.Id,
+                DiscountPercent = 30m
+            });
+
+            await service.Invoking(s => s.MarkAsSent(proposal.Id)).Should().ThrowAsync<InvalidOperationException>();
+            db.ChangeTracker.Clear();
+            await service.Invoking(s => s.MarkAsSent(proposal.Id)).Should().ThrowAsync<InvalidOperationException>();
+
+            db.ChangeTracker.Clear();
+            (await db.Set<OpportunityApprovalRequest>().CountAsync(item => item.ProposalId == proposal.Id)).Should().Be(1);
+        }
+
+        [Test]
+        public async Task MarkAsSent_should_succeed_after_internal_approval_is_approved()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            await db.SaveChangesAsync();
+
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest
+            {
+                OpportunityId = opportunity.Id,
+                DiscountPercent = 30m
+            });
+
+            await service.Invoking(s => s.MarkAsSent(proposal.Id)).Should().ThrowAsync<InvalidOperationException>();
+            db.ChangeTracker.Clear();
+
+            OpportunityApprovalRequest approval = await db.Set<OpportunityApprovalRequest>()
+                .AsTracking()
+                .SingleAsync(item => item.ProposalId == proposal.Id);
+            await approvalRequestService.Approve(approval.Id, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Boss" });
+            db.ChangeTracker.Clear();
+
+            await service.MarkAsSent(proposal.Id);
+
+            db.ChangeTracker.Clear();
+            (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == proposal.Id)).Status.Should().Be(ProposalStatus.Sent);
+        }
+
+        [Test]
+        public async Task MarkAsSent_should_succeed_when_proposal_within_policy()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            db.Add(new CommercialPolicy(maxDiscountPercent: 30m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            await db.SaveChangesAsync();
+
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest
+            {
+                OpportunityId = opportunity.Id,
+                DiscountPercent = 10m
+            });
+
+            await service.MarkAsSent(proposal.Id);
+
+            db.ChangeTracker.Clear();
+            (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == proposal.Id)).Status.Should().Be(ProposalStatus.Sent);
+            (await db.Set<OpportunityApprovalRequest>().CountAsync(item => item.ProposalId == proposal.Id)).Should().Be(0);
         }
     }
 }

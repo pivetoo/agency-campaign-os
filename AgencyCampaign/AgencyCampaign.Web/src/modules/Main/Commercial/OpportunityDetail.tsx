@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Activity, AlertTriangle, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MessageSquare, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
+import { Activity, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
 import { opportunityWinReasonService, opportunityLossReasonService } from '../../../services/opportunityOutcomeReasonService'
 import type { OpportunityWinReason, OpportunityLossReason } from '../../../types/opportunityOutcomeReason'
-import type { PolicyEvaluation } from '../../../types/policyEvaluation'
-import { opportunityService, OpportunityNegotiationStatus, OpportunityApprovalStatus, type OpportunityNegotiationStatusValue, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp, type OpportunityNegotiation } from '../../../services/opportunityService'
+import { opportunityService, OpportunityApprovalStatus, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp } from '../../../services/opportunityService'
+import { proposalService, type Proposal } from '../../../services/proposalService'
 import { OpportunityApprovalReviewerStatus, type OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
-import OpportunityNegotiationFormModal from '../../../components/modals/OpportunityNegotiationFormModal'
 import OpportunityFollowUpFormModal from '../../../components/modals/OpportunityFollowUpFormModal'
 import OpportunityApprovalRequestFormModal from '../../../components/modals/OpportunityApprovalRequestFormModal'
 import OpportunityActivityTab from './OpportunityActivityTab'
@@ -18,16 +17,6 @@ import ProposalFormModal from '../../../components/modals/ProposalFormModal'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
-
-const negotiationStatusKeys: Record<OpportunityNegotiationStatusValue, string> = {
-  [OpportunityNegotiationStatus.Draft]: 'negotiation.status.draft',
-  [OpportunityNegotiationStatus.PendingApproval]: 'negotiation.status.pendingApproval',
-  [OpportunityNegotiationStatus.Approved]: 'negotiation.status.approved',
-  [OpportunityNegotiationStatus.Rejected]: 'negotiation.status.rejected',
-  [OpportunityNegotiationStatus.SentToClient]: 'negotiation.status.sentToClient',
-  [OpportunityNegotiationStatus.AcceptedByClient]: 'negotiation.status.acceptedByClient',
-  [OpportunityNegotiationStatus.Cancelled]: 'negotiation.status.cancelled',
-}
 
 export default function OpportunityDetail() {
   const { t } = useI18n()
@@ -56,12 +45,12 @@ export default function OpportunityDetail() {
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
   const [stages, setStages] = useState<Array<{ id: number; name: string; finalBehavior: number; displayOrder?: number; color?: string }>>([])
-  const [selectedNegotiation, setSelectedNegotiation] = useState<OpportunityNegotiation | null>(null)
+  const [approvalRequests, setApprovalRequests] = useState<OpportunityApprovalRequest[]>([])
+  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
   const [, setSelectedApprovalRequest] = useState<OpportunityApprovalRequest | null>(null)
   const [reviewersByApproval, setReviewersByApproval] = useState<Record<number, OpportunityApprovalReviewer[]>>({})
   const [selectedFollowUp, setSelectedFollowUp] = useState<OpportunityFollowUp | null>(null)
   const [isOpportunityFormOpen, setIsOpportunityFormOpen] = useState(false)
-  const [isNegotiationFormOpen, setIsNegotiationFormOpen] = useState(false)
   const [isApprovalRequestFormOpen, setIsApprovalRequestFormOpen] = useState(false)
   const [isFollowUpFormOpen, setIsFollowUpFormOpen] = useState(false)
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
@@ -71,17 +60,25 @@ export default function OpportunityDetail() {
   const [finalReasonId, setFinalReasonId] = useState<number | null>(null)
   const [winReasons, setWinReasons] = useState<OpportunityWinReason[]>([])
   const [lossReasons, setLossReasons] = useState<OpportunityLossReason[]>([])
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
-  const [statusToSet, setStatusToSet] = useState<string>('')
 
   const { execute: fetchOpportunity, loading } = useApi<Opportunity | null>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
+
+  const loadApprovals = async (proposals: { id: number }[]) => {
+    if (proposals.length === 0) {
+      setApprovalRequests([])
+      return
+    }
+    const lists = await Promise.all(proposals.map((p) => proposalService.getApprovalRequests(p.id).catch(() => [])))
+    setApprovalRequests(lists.flat())
+  }
 
   const loadOpportunity = async () => {
     const result = await fetchOpportunity(() => opportunityService.getById(opportunityId))
     if (result) {
       setOpportunity(result)
       setSelectedStage(String(result.commercialPipelineStageId))
+      await loadApprovals(result.proposals ?? [])
     }
   }
 
@@ -176,19 +173,6 @@ export default function OpportunityDetail() {
     if (opportunity) setSelectedStage(String(opportunity.commercialPipelineStageId))
   }
 
-  const submitStatusChange = async () => {
-    if (!selectedNegotiation || !statusToSet) return
-    const result = await executeAction(() => opportunityService.changeNegotiationStatus(selectedNegotiation.id, { status: Number(statusToSet) }))
-    if (result !== null) {
-      setIsStatusModalOpen(false)
-      setSelectedNegotiation(null)
-      await loadOpportunity()
-    }
-  }
-
-
-  const approvalRequests = useMemo(() => opportunity?.negotiations.flatMap((item) => item.approvalRequests ?? []) ?? [], [opportunity])
-
   const handleCompleteFollowUp = async () => {
     if (!selectedFollowUp) return
     const result = await executeAction(() => opportunityService.completeFollowUp(selectedFollowUp.id))
@@ -205,7 +189,6 @@ export default function OpportunityDetail() {
   }
 
   const pendingApprovalsCount = approvalRequests.filter((item) => item.status === OpportunityApprovalStatus.Pending).length
-  const hasNegotiationPendingApproval = (opportunity?.negotiations ?? []).some((item) => item.status === OpportunityNegotiationStatus.PendingApproval)
 
   const pendingApprovalIds = useMemo(() => approvalRequests.filter((item) => item.status === OpportunityApprovalStatus.Pending).map((item) => item.id).join(','), [approvalRequests])
 
@@ -359,15 +342,6 @@ export default function OpportunityDetail() {
             <TabsTrigger value="summary" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <FileText className="h-4 w-4" /> {t('opportunityDetail.tab.summary')}
             </TabsTrigger>
-            <TabsTrigger value="negotiations" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
-              <MessageSquare className="h-4 w-4" /> {t('opportunityDetail.tab.negotiations')}
-              {opportunity?.negotiations?.length ? (
-                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
-                  {opportunity.negotiations.length}
-                </span>
-              ) : null}
-              {hasNegotiationPendingApproval && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-label={t('opportunityDetail.negotiation.pendingApprovalAria')} />}
-            </TabsTrigger>
             <TabsTrigger value="approvals" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <CheckCircle className="h-4 w-4" /> {t('opportunityDetail.tab.approvals')}
               {approvalRequests.length ? (
@@ -488,20 +462,7 @@ export default function OpportunityDetail() {
 
                 <div>
                   <h3 className="mb-3 text-base font-semibold text-foreground">{t('opportunityDetail.progress.title')}</h3>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    <SubflowCard
-                      icon={<MessageSquare className="h-4 w-4" />}
-                      iconClassName="bg-purple-100 text-purple-700"
-                      label={t('opportunityDetail.progress.negotiations')}
-                      count={opportunity?.negotiations?.length ?? 0}
-                      statusLabel={hasNegotiationPendingApproval
-                        ? ((opportunity?.negotiations ?? []).filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval).length === 1
-                          ? t('opportunityDetail.progress.pendingApproval.one')
-                          : t('opportunityDetail.progress.pendingApproval.many')).replace('{0}', String((opportunity?.negotiations ?? []).filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval).length))
-                        : t('opportunityDetail.progress.noPending')}
-                      statusTone={hasNegotiationPendingApproval ? 'amber' : 'muted'}
-                      onClick={() => handleTabChange('negotiations')}
-                    />
+                  <div className="grid gap-3 md:grid-cols-2">
                     <SubflowCard
                       icon={<CheckCircle className="h-4 w-4" />}
                       iconClassName="bg-emerald-100 text-emerald-700"
@@ -621,39 +582,9 @@ export default function OpportunityDetail() {
             />
           </TabsContent>
 
-          <TabsContent value="negotiations" className="mt-0">
-            <NegotiationsTab
-              negotiations={opportunity?.negotiations ?? []}
-              actionLoading={actionLoading}
-              onNew={() => { setSelectedNegotiation(null); setIsNegotiationFormOpen(true) }}
-              onEdit={(item) => { setSelectedNegotiation(item); setIsNegotiationFormOpen(true) }}
-              onDelete={async (item) => {
-                const result = await executeAction(() => opportunityService.deleteNegotiation(item.id))
-                if (result !== null) {
-                  setSelectedNegotiation(null)
-                  await loadOpportunity()
-                }
-              }}
-              onChangeStatus={(item) => {
-                setSelectedNegotiation(item)
-                setStatusToSet(String(item.status))
-                setIsStatusModalOpen(true)
-              }}
-              onRequestApproval={(item) => { setSelectedNegotiation(item); setIsApprovalRequestFormOpen(true) }}
-              onApprove={async (item) => {
-                setSelectedNegotiation(item)
-                const result = await executeAction(() => opportunityService.changeNegotiationStatus(item.id, { status: OpportunityNegotiationStatus.Approved }))
-                if (result !== null) {
-                  await loadOpportunity()
-                }
-              }}
-            />
-          </TabsContent>
-
           <TabsContent value="approvals" className="mt-0">
             <ApprovalsTab
               approvals={approvalRequests}
-              negotiations={opportunity?.negotiations ?? []}
               actionLoading={actionLoading}
               t={t}
               canDecide={(item) => isMyPendingApproval(item.id)}
@@ -739,19 +670,6 @@ export default function OpportunityDetail() {
         }}
       />
 
-      <OpportunityNegotiationFormModal
-        open={isNegotiationFormOpen}
-        onOpenChange={setIsNegotiationFormOpen}
-        opportunityId={opportunityId}
-        estimatedValue={opportunity?.estimatedValue ?? 0}
-        negotiation={selectedNegotiation}
-        onSuccess={() => {
-          setIsNegotiationFormOpen(false)
-          setSelectedNegotiation(null)
-          void loadOpportunity()
-        }}
-      />
-
       <OpportunityFollowUpFormModal
         open={isFollowUpFormOpen}
         onOpenChange={setIsFollowUpFormOpen}
@@ -767,9 +685,10 @@ export default function OpportunityDetail() {
       <OpportunityApprovalRequestFormModal
         open={isApprovalRequestFormOpen}
         onOpenChange={setIsApprovalRequestFormOpen}
-        negotiation={selectedNegotiation}
+        proposal={selectedProposal}
         onSuccess={() => {
           setIsApprovalRequestFormOpen(false)
+          setSelectedProposal(null)
           void loadOpportunity()
         }}
       />
@@ -791,36 +710,6 @@ export default function OpportunityDetail() {
           }
         }}
       />
-
-      <Modal open={isStatusModalOpen} onOpenChange={(open) => { if (!open) setIsStatusModalOpen(false) }}>
-        <ModalContent size="form">
-          <ModalHeader>
-            <ModalTitle>{t('opportunityDetail.negotiations.changeStatus')}</ModalTitle>
-          </ModalHeader>
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">{t('opportunityDetail.negotiations.changeStatus.description')}</p>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t('common.field.status')}</label>
-              <Select value={statusToSet} onValueChange={setStatusToSet}>
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(negotiationStatusKeys).map(([value, key]) => (
-                    <SelectItem key={value} value={value}>{t(key)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <ModalFooter>
-            <Button type="button" variant="outline" onClick={() => setIsStatusModalOpen(false)} disabled={actionLoading}>{t('common.action.cancel')}</Button>
-            <Button type="button" variant="primary" onClick={() => void submitStatusChange()} disabled={actionLoading || !statusToSet || Number(statusToSet) === selectedNegotiation?.status}>
-              {actionLoading ? t('common.action.saving') : t('common.action.save')}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
 
       <Modal open={!!pendingFinalStage} onOpenChange={(open) => { if (!open) cancelFinalChange() }}>
         <ModalContent size="form">
@@ -969,380 +858,6 @@ function DetailField({ icon, label, value }: { icon: React.ReactNode; label: str
         <div className="text-sm text-foreground">{value}</div>
       )}
     </div>
-  )
-}
-
-type NegotiationFilter = 'all' | 'pendingApproval' | 'approved' | 'draft' | 'sent' | 'closed'
-
-interface NegotiationsTabProps {
-  negotiations: OpportunityNegotiation[]
-  actionLoading: boolean
-  onNew: () => void
-  onEdit: (item: OpportunityNegotiation) => void
-  onDelete: (item: OpportunityNegotiation) => Promise<void> | void
-  onChangeStatus: (item: OpportunityNegotiation) => void
-  onRequestApproval: (item: OpportunityNegotiation) => void
-  onApprove: (item: OpportunityNegotiation) => Promise<void> | void
-}
-
-function NegotiationsTab({ negotiations, actionLoading, onNew, onEdit, onDelete, onChangeStatus, onRequestApproval, onApprove }: NegotiationsTabProps) {
-  const { t } = useI18n()
-  const [filter, setFilter] = useState<NegotiationFilter>('all')
-  const [selectedId, setSelectedId] = useState<number | null>(null)
-
-  const counts = useMemo(() => ({
-    all: negotiations.length,
-    pendingApproval: negotiations.filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval).length,
-    approved: negotiations.filter((n) => n.status === OpportunityNegotiationStatus.Approved).length,
-    draft: negotiations.filter((n) => n.status === OpportunityNegotiationStatus.Draft).length,
-    sent: negotiations.filter((n) => n.status === OpportunityNegotiationStatus.SentToClient).length,
-    closed: negotiations.filter((n) => n.status === OpportunityNegotiationStatus.AcceptedByClient || n.status === OpportunityNegotiationStatus.Rejected || n.status === OpportunityNegotiationStatus.Cancelled).length,
-  }), [negotiations])
-
-  const filtered = useMemo(() => {
-    if (filter === 'all') return negotiations
-    if (filter === 'pendingApproval') return negotiations.filter((n) => n.status === OpportunityNegotiationStatus.PendingApproval)
-    if (filter === 'approved') return negotiations.filter((n) => n.status === OpportunityNegotiationStatus.Approved)
-    if (filter === 'draft') return negotiations.filter((n) => n.status === OpportunityNegotiationStatus.Draft)
-    if (filter === 'sent') return negotiations.filter((n) => n.status === OpportunityNegotiationStatus.SentToClient)
-    return negotiations.filter((n) => n.status === OpportunityNegotiationStatus.AcceptedByClient || n.status === OpportunityNegotiationStatus.Rejected || n.status === OpportunityNegotiationStatus.Cancelled)
-  }, [negotiations, filter])
-
-  const sorted = useMemo(() => [...filtered].sort((a, b) => b.id - a.id), [filtered])
-  const firstNegotiationId = useMemo(() => {
-    if (negotiations.length === 0) return null
-    return [...negotiations].sort((a, b) => a.id - b.id)[0]?.id ?? null
-  }, [negotiations])
-
-  const pendingTopBanner = counts.pendingApproval > 0
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
-        <div>
-          <h2 className="text-xl font-semibold text-foreground">{t('opportunityDetail.negotiation.heading')}</h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">{(counts.all === 1 ? t('opportunityDetail.negotiation.subtitle.one') : t('opportunityDetail.negotiation.subtitle.many')).replace('{0}', String(counts.all))}</p>
-        </div>
-        <Button size="sm" onClick={onNew}>
-          <Plus className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.negotiation.newButton')}
-        </Button>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <FilterChip label={t('opportunityDetail.negotiation.filter.all')} count={counts.all} active={filter === 'all'} onClick={() => setFilter('all')} />
-        <FilterChip label={t('opportunityDetail.negotiation.filter.pendingApproval')} count={counts.pendingApproval} active={filter === 'pendingApproval'} dotColor="amber" onClick={() => setFilter('pendingApproval')} />
-        <FilterChip label={t('opportunityDetail.negotiation.filter.approved')} count={counts.approved} active={filter === 'approved'} onClick={() => setFilter('approved')} />
-        <FilterChip label={t('opportunityDetail.negotiation.filter.draft')} count={counts.draft} active={filter === 'draft'} onClick={() => setFilter('draft')} />
-        <FilterChip label={t('opportunityDetail.negotiation.filter.sent')} count={counts.sent} active={filter === 'sent'} onClick={() => setFilter('sent')} />
-        <FilterChip label={t('opportunityDetail.negotiation.filter.closed')} count={counts.closed} active={filter === 'closed'} onClick={() => setFilter('closed')} />
-      </div>
-
-      {pendingTopBanner && (
-        <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
-          <Clock className="h-4 w-4 shrink-0" />
-          <span className="flex-1">
-            <strong>{counts.pendingApproval}</strong> {counts.pendingApproval === 1 ? t('opportunityDetail.negotiation.banner.one') : t('opportunityDetail.negotiation.banner.many')}
-          </span>
-        </div>
-      )}
-
-      {sorted.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-            <MessageSquare className="mb-3 h-9 w-9 opacity-50" />
-            <p className="text-sm font-medium">{filter === 'all' ? t('opportunityDetail.negotiation.emptyAll') : t('opportunityDetail.negotiation.emptyFilter')}</p>
-            {filter === 'all' && (
-              <Button size="sm" variant="outline" className="mt-3" onClick={onNew}>
-                <Plus className="mr-1.5 h-4 w-4" /> {t('opportunityDetail.negotiation.registerFirst')}
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            {sorted.map((n) => (
-              <NegotiationCard
-                key={n.id}
-                negotiation={n}
-                isFirstRound={n.id === firstNegotiationId}
-                selected={selectedId === n.id}
-                onClick={() => setSelectedId((current) => current === n.id ? null : n.id)}
-              />
-            ))}
-          </div>
-          <div className="hidden md:block">
-            {(() => {
-              const sel = negotiations.find((n) => n.id === selectedId)
-              if (!sel) {
-                return (
-                  <div className="sticky top-4 flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 text-center text-sm text-muted-foreground">
-                    <MessageSquare className="mb-2 h-6 w-6 opacity-40" />
-                    <p className="font-medium">{t('opportunityDetail.negotiation.selectPrompt')}</p>
-                    <p className="mt-1 text-xs">{t('opportunityDetail.negotiation.selectHint')}</p>
-                  </div>
-                )
-              }
-              return (
-                <NegotiationDetailPanel
-                  negotiation={sel}
-                  isFirstRound={sel.id === firstNegotiationId}
-                  actionLoading={actionLoading}
-                  onClose={() => setSelectedId(null)}
-                  onEdit={() => onEdit(sel)}
-                  onDelete={() => void onDelete(sel)}
-                  onChangeStatus={() => onChangeStatus(sel)}
-                  onRequestApproval={() => onRequestApproval(sel)}
-                  onApprove={() => onApprove(sel)}
-                />
-              )
-            })()}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function FilterChip({ label, count, active, dotColor, onClick }: { label: string; count: number; active: boolean; dotColor?: 'amber' | 'green' | 'muted'; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors',
-        active
-          ? 'bg-primary/12 text-primary'
-          : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground',
-      ].join(' ')}
-    >
-      {dotColor && (
-        <span className={`h-1.5 w-1.5 rounded-full ${dotColor === 'amber' ? 'bg-amber-500' : dotColor === 'green' ? 'bg-emerald-500' : 'bg-muted-foreground/60'}`} />
-      )}
-      {label}
-      <span className={`text-[11px] font-semibold ${active ? 'text-primary/80' : 'text-muted-foreground/70'}`}>
-        {count}
-      </span>
-    </button>
-  )
-}
-
-interface NegotiationCardProps {
-  negotiation: OpportunityNegotiation
-  isFirstRound: boolean
-  selected: boolean
-  onClick: () => void
-}
-
-const negotiationStatusStyle = (status: OpportunityNegotiationStatusValue) => {
-  if (status === OpportunityNegotiationStatus.PendingApproval) return { bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500', labelKey: 'opportunityDetail.negotiation.statusShort.pending' }
-  if (status === OpportunityNegotiationStatus.Approved) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500', labelKey: 'opportunityDetail.negotiation.statusShort.approved' }
-  if (status === OpportunityNegotiationStatus.Draft) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', labelKey: 'opportunityDetail.negotiation.statusShort.draft' }
-  if (status === OpportunityNegotiationStatus.SentToClient) return { bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500', labelKey: 'opportunityDetail.negotiation.statusShort.sent' }
-  if (status === OpportunityNegotiationStatus.AcceptedByClient) return { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-600', labelKey: 'opportunityDetail.negotiation.statusShort.accepted' }
-  if (status === OpportunityNegotiationStatus.Rejected) return { bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500', labelKey: 'opportunityDetail.negotiation.statusShort.rejected' }
-  if (status === OpportunityNegotiationStatus.Cancelled) return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', labelKey: 'opportunityDetail.negotiation.statusShort.cancelled' }
-  return { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-muted-foreground/50', labelKey: 'opportunityDetail.negotiation.statusShort.other' }
-}
-
-function NegotiationCard({ negotiation, isFirstRound, selected, onClick }: NegotiationCardProps) {
-  const { t } = useI18n()
-  const isPending = negotiation.status === OpportunityNegotiationStatus.PendingApproval
-  const statusStyle = negotiationStatusStyle(negotiation.status)
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        'group w-full rounded-lg border bg-card px-4 py-3 text-left transition-all',
-        selected
-          ? 'border-primary ring-1 ring-primary/20'
-          : isPending
-            ? 'border-amber-200 hover:border-amber-300'
-            : 'border-border hover:border-primary/30',
-      ].join(' ')}
-    >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <strong className={`truncate text-[14px] ${selected ? 'text-primary' : 'text-foreground'}`}>{negotiation.title}</strong>
-          <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusStyle.bg} ${statusStyle.text}`}>
-            <span className={`h-1 w-1 rounded-full ${statusStyle.dot}`} />
-            {t(statusStyle.labelKey)}
-          </span>
-          {isFirstRound && (
-            <span className="hidden rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:inline-flex">
-              {t('opportunityDetail.negotiation.firstShort')}
-            </span>
-          )}
-        </div>
-        <span className="font-mono text-[15px] font-semibold text-foreground">{formatCurrency(negotiation.amount)}</span>
-      </div>
-
-      <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[11.5px] text-muted-foreground">
-        <span>{formatDate(negotiation.negotiatedAt)}</span>
-        {negotiation.notes && (
-          <>
-            <span>·</span>
-            <span className="line-clamp-1 italic">{negotiation.notes}</span>
-          </>
-        )}
-      </div>
-    </button>
-  )
-}
-
-interface NegotiationDetailPanelProps {
-  negotiation: OpportunityNegotiation
-  isFirstRound: boolean
-  actionLoading: boolean
-  onClose: () => void
-  onEdit: () => void
-  onDelete: () => void
-  onChangeStatus: () => void
-  onRequestApproval: () => void
-  onApprove: () => void
-}
-
-function NegotiationDetailPanel({ negotiation, isFirstRound, actionLoading, onClose, onEdit, onDelete, onChangeStatus, onRequestApproval, onApprove }: NegotiationDetailPanelProps) {
-  const { t } = useI18n()
-  const isDraft = negotiation.status === OpportunityNegotiationStatus.Draft
-  const isCancelled = negotiation.status === OpportunityNegotiationStatus.Cancelled
-  const statusStyle = negotiationStatusStyle(negotiation.status)
-  const approvals = negotiation.approvalRequests ?? []
-  const [evaluation, setEvaluation] = useState<PolicyEvaluation | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    opportunityService.evaluateNegotiationPolicy(negotiation.id)
-      .then((data) => { if (!cancelled) setEvaluation(data) })
-      .catch(() => { if (!cancelled) setEvaluation(null) })
-    return () => { cancelled = true }
-  }, [negotiation.id])
-
-  const showPolicyBanner = isDraft && evaluation?.hasDeviations
-  const requiresReview = evaluation?.hasDeviations === true
-
-  return (
-    <aside className="sticky top-4 self-start overflow-hidden rounded-xl border border-border bg-card">
-      <div className="flex items-start justify-between gap-2 border-b border-border/60 px-4 py-3">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusStyle.bg} ${statusStyle.text}`}>
-              <span className={`h-1 w-1 rounded-full ${statusStyle.dot}`} />
-              {t(statusStyle.labelKey)}
-            </span>
-            {isFirstRound && (
-              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.firstRound')}</span>
-            )}
-          </div>
-          <h3 className="mt-1.5 truncate text-base font-semibold text-foreground">{negotiation.title}</h3>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          aria-label={t('opportunityDetail.negotiation.closePanelAria')}
-        >
-          <XCircle className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="space-y-4 px-4 py-4">
-        {showPolicyBanner && (
-          <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-800">
-              <AlertTriangle className="h-3 w-3" /> {t('opportunityDetail.negotiation.policyTitle')}
-            </div>
-            <ul className="space-y-0.5 text-[11.5px] text-amber-900">
-              {evaluation!.deviations.map((d) => (
-                <li key={d.field}>
-                  <strong>{d.field}</strong>: {d.requestedValue} {t('opportunityDetail.negotiation.policyDeviation').replace('{0}', String(d.policyValue)).replace('{1}', String(d.delta))}
-                </li>
-              ))}
-            </ul>
-            <Button size="sm" variant="primary" onClick={onRequestApproval} className="w-full justify-center">
-              <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiation.openApprovalDiff')}
-            </Button>
-          </div>
-        )}
-
-        <div>
-          <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.field.value')}</p>
-          <p className="mt-0.5 font-mono text-2xl font-bold tracking-tight text-foreground">{formatCurrency(negotiation.amount)}</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.field.date')}</p>
-            <p className="mt-0.5 text-sm text-foreground">{formatDate(negotiation.negotiatedAt)}</p>
-          </div>
-          <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.field.created')}</p>
-            <p className="mt-0.5 text-sm text-foreground">{formatDate(negotiation.createdAt)}</p>
-          </div>
-        </div>
-
-        {negotiation.notes && (
-          <div>
-            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.field.notes')}</p>
-            <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{negotiation.notes}</p>
-          </div>
-        )}
-
-        {approvals.length > 0 && (
-          <div>
-            <p className="mb-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">{t('opportunityDetail.negotiation.linkedApprovals')}</p>
-            <div className="space-y-1.5">
-              {approvals.map((approval) => {
-                const isPending = approval.status === OpportunityApprovalStatus.Pending
-                const isApproved = approval.status === OpportunityApprovalStatus.Approved
-                const isRejected = approval.status === OpportunityApprovalStatus.Rejected
-                const label = isPending ? t('opportunityDetail.approval.statusShort.pending') : isApproved ? t('opportunityDetail.approval.statusShort.approved') : isRejected ? t('opportunityDetail.approval.statusShort.rejected') : t('opportunityDetail.approval.statusShort.cancelled')
-                const tone = isPending ? 'bg-amber-100 text-amber-800' : isApproved ? 'bg-emerald-100 text-emerald-800' : isRejected ? 'bg-rose-100 text-rose-800' : 'bg-muted text-muted-foreground'
-                return (
-                  <div key={approval.id} className="flex items-center justify-between gap-2 rounded-md border border-border/60 bg-muted/30 px-2.5 py-2 text-xs">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-foreground">{approval.reason || t('opportunityDetail.negotiation.approvalFallback')}</p>
-                      <p className="text-[11px] text-muted-foreground">{approval.requestedByUserName} · {formatDate(approval.requestedAt)}</p>
-                    </div>
-                    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tone}`}>{label}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-1.5 border-t border-border/60 bg-muted/20 px-4 py-3">
-        {isDraft && (
-          <>
-            {!requiresReview && (
-              <Button size="sm" onClick={onApprove} disabled={actionLoading} className="justify-center">
-                <CheckCircle className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiations.approve')}
-              </Button>
-            )}
-            <Button size="sm" variant={requiresReview ? 'primary' : 'outline'} onClick={onRequestApproval} disabled={actionLoading} className="justify-center">
-              <UserCheck className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiations.requestApproval')}
-            </Button>
-            <Button size="sm" variant="outline" onClick={onEdit} disabled={actionLoading} className="justify-center">
-              <Pencil className="mr-1.5 h-3.5 w-3.5" /> {t('common.action.edit')}
-            </Button>
-          </>
-        )}
-        {!isDraft && (
-          <Button size="sm" variant="outline" onClick={onChangeStatus} disabled={actionLoading} className="justify-center">
-            <Activity className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiations.changeStatus')}
-          </Button>
-        )}
-        {(isDraft || isCancelled) && (
-          <Button size="sm" variant="ghost" onClick={onDelete} disabled={actionLoading} className="justify-center text-muted-foreground hover:text-destructive">
-            <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {t('opportunityDetail.negotiation.deleteButton')}
-          </Button>
-        )}
-      </div>
-    </aside>
   )
 }
 
@@ -1554,7 +1069,6 @@ function ProposalTimelineNode({ proposal, versionNumber, isCurrent, onOpen }: Pr
 
 interface ApprovalsTabProps {
   approvals: OpportunityApprovalRequest[]
-  negotiations: OpportunityNegotiation[]
   actionLoading: boolean
   t: (key: string) => string
   canDecide: (approval: OpportunityApprovalRequest) => boolean
@@ -1574,15 +1088,9 @@ function hoursSince(iso: string): number {
   return Math.max(0, Math.floor(diff / (1000 * 60 * 60)))
 }
 
-function ApprovalsTab({ approvals, negotiations, actionLoading, t, canDecide, onApprove, onReject }: ApprovalsTabProps) {
+function ApprovalsTab({ approvals, actionLoading, t, canDecide, onApprove, onReject }: ApprovalsTabProps) {
   const pendingApprovals = useMemo(() => approvals.filter((a) => a.status === OpportunityApprovalStatus.Pending), [approvals])
   const decidedApprovals = useMemo(() => approvals.filter((a) => a.status !== OpportunityApprovalStatus.Pending), [approvals])
-
-  const negotiationsById = useMemo(() => {
-    const map = new Map<number, OpportunityNegotiation>()
-    negotiations.forEach((n) => map.set(n.id, n))
-    return map
-  }, [negotiations])
 
   const pendingTotal = pendingApprovals.filter((approval) => canDecide(approval)).length
 
@@ -1621,7 +1129,6 @@ function ApprovalsTab({ approvals, negotiations, actionLoading, t, canDecide, on
             <ApprovalCard
               key={a.id}
               approval={a}
-              negotiation={negotiationsById.get(a.opportunityNegotiationId) ?? null}
               actionLoading={actionLoading}
               canDecide={canDecide(a)}
               onApprove={() => void onApprove(a)}
@@ -1636,14 +1143,13 @@ function ApprovalsTab({ approvals, negotiations, actionLoading, t, canDecide, on
 
 interface ApprovalCardProps {
   approval: OpportunityApprovalRequest
-  negotiation: OpportunityNegotiation | null
   actionLoading: boolean
   canDecide: boolean
   onApprove: () => void
   onReject: () => void
 }
 
-function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onApprove, onReject }: ApprovalCardProps) {
+function ApprovalCard({ approval, actionLoading, canDecide, onApprove, onReject }: ApprovalCardProps) {
   const { t } = useI18n()
   const isPending = approval.status === OpportunityApprovalStatus.Pending
   const isApproved = approval.status === OpportunityApprovalStatus.Approved
@@ -1683,13 +1189,17 @@ function ApprovalCard({ approval, negotiation, actionLoading, canDecide, onAppro
             <p className="mb-3 text-sm leading-relaxed text-muted-foreground">{approval.reason}</p>
           )}
 
-          {negotiation && (
+          {approval.proposalName && (
             <div className="mb-3 inline-flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-1.5 text-xs">
-              <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-muted-foreground">{t('opportunityDetail.approval.linkedTo')}</span>
-              <strong className="text-foreground">{negotiation.title}</strong>
-              <span className="text-muted-foreground">·</span>
-              <span className="font-mono font-semibold text-foreground">{formatCurrency(negotiation.amount)}</span>
+              <strong className="text-foreground">{approval.proposalName}</strong>
+              {approval.proposalTotalValue != null && (
+                <>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="font-mono font-semibold text-foreground">{formatCurrency(approval.proposalTotalValue)}</span>
+                </>
+              )}
             </div>
           )}
 

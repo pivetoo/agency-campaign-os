@@ -192,6 +192,7 @@
   <data name="creatorPayment.cannotCancelPaid" xml:space="preserve"><value>No es posible cancelar un pago ya marcado como Pagado.</value></data>
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>La propuesta debe estar Enviada para ser marcada como Vista.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>La propuesta debe estar Enviada o Vista para ser Aprobada.</value></data>
+  <data name="proposal.send.approvalRequired" xml:space="preserve"><value>Esta propuesta excede la política comercial y requiere aprobación interna antes de poder enviarse o aprobarse. Use "Solicitar aprobación".</value></data>
   <data name="proposal.reject.notSentOrViewed" xml:space="preserve"><value>La propuesta debe estar Enviada o Vista para ser Rechazada.</value></data>
   <data name="proposal.convert.notApproved" xml:space="preserve"><value>La propuesta debe estar Aprobada para ser Convertida.</value></data>
   <data name="proposal.cancel.alreadyConverted" xml:space="preserve"><value>No es posible cancelar una propuesta ya Convertida.</value></data>
@@ -573,6 +574,11 @@
   <data name="proposalDetail.fallbackSubtitle" xml:space="preserve"><value>Detalle de la propuesta</value></data>
   <data name="proposalDetail.fallbackTitle" xml:space="preserve"><value>Propuesta</value></data>
   <data name="proposalDetail.linkedTo" xml:space="preserve"><value>vinculada a {0}</value></data>
+  <data name="proposalDetail.paymentTermValue" xml:space="preserve"><value>{0} días</value></data>
+  <data name="proposalDetail.approval.requestButton" xml:space="preserve"><value>Solicitar aprobación</value></data>
+  <data name="proposalDetail.approval.deviationTitle" xml:space="preserve"><value>Esta propuesta excede la política comercial</value></data>
+  <data name="proposalDetail.approval.requiredHint" xml:space="preserve"><value>Se requiere una aprobación interna antes de enviar o aprobar la propuesta.</value></data>
+  <data name="proposalDetail.approval.pendingHint" xml:space="preserve"><value>Ya existe una solicitud de aprobación en curso. El envío queda bloqueado hasta la aprobación.</value></data>
   <data name="proposalDetail.items.title" xml:space="preserve"><value>Items de la propuesta</value></data>
   <data name="proposalDetail.items.applyTemplate" xml:space="preserve"><value>Aplicar plantilla</value></data>
   <data name="proposalDetail.items.empty" xml:space="preserve"><value>No hay items registrados para esta propuesta</value></data>
@@ -1503,7 +1509,7 @@
   <data name="opportunityApprovals.area" xml:space="preserve"><value>Opportunity approvals</value></data>
   <data name="opportunityApprovals.create.description" xml:space="preserve"><value>Permite solicitar uma aprovação comercial.</value></data>
   <data name="opportunityApprovals.get.description" xml:space="preserve"><value>Permite listar todas as aprovações comerciais.</value></data>
-  <data name="opportunityApprovals.getByNegotiation.description" xml:space="preserve"><value>Permite listar as aprovações de uma negociação comercial.</value></data>
+  <data name="opportunityApprovals.getByProposal.description" xml:space="preserve"><value>Permite listar las aprobaciones internas de una propuesta.</value></data>
   <data name="opportunityApprovals.reject.description" xml:space="preserve"><value>Permite rejeitar uma solicitação comercial.</value></data>
   <data name="opportunityApprovals.markInReview.description" xml:space="preserve"><value>Permite marcar una solicitud como en revisión.</value></data>
   <data name="opportunityApprovals.requestChanges.description" xml:space="preserve"><value>Permite pedir ajustes al solicitante de una aprobación.</value></data>
@@ -1682,6 +1688,7 @@
   <data name="commercialApprovals.panel.decision" xml:space="preserve"><value>Decisión</value></data>
   <data name="commercialApprovals.panel.justification" xml:space="preserve"><value>Justificación</value></data>
   <data name="commercialApprovals.request.byUser" xml:space="preserve"><value>por {0}</value></data>
+  <data name="commercialApprovals.request.noProposal" xml:space="preserve"><value>Sin propuesta</value></data>
   <data name="commercialApprovals.request.fallbackTitle" xml:space="preserve"><value>Solicitud</value></data>
   <data name="commercialApprovals.request.noNegotiation" xml:space="preserve"><value>Sin negociación vinculada</value></data>
   <data name="commercialApprovals.requestChanges.defaultNote" xml:space="preserve"><value>Por favor, ajustá la solicitud.</value></data>
@@ -2214,4 +2221,9 @@
   <data name="operations.approvals.linkCopied" xml:space="preserve"><value>Enlace copiado al portapapeles:
 
 {0}</value></data>
+  <data name="modal.proposal.field.discount" xml:space="preserve"><value>Descuento %</value></data>
+  <data name="modal.proposal.placeholder.discount" xml:space="preserve"><value>ej.: 10</value></data>
+  <data name="modal.proposal.field.paymentTerm" xml:space="preserve"><value>Plazo de pago (días)</value></data>
+  <data name="modal.proposal.placeholder.paymentTerm" xml:space="preserve"><value>ej.: 30</value></data>
+  <data name="commercialApprovals.linked.proposal" xml:space="preserve"><value>Propuesta</value></data>
 </root>

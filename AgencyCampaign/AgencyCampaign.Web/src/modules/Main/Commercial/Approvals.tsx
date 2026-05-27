@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, ConfirmModal, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetHeader, SheetTitle, UsersManagementService, useApi, useAuth, useI18n } from 'archon-ui'
-import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, MessageSquare, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
+import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, FileText, MessageSquare, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
 import { OpportunityApprovalReviewerStatus, type OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
@@ -141,7 +141,7 @@ export default function CommercialApprovals() {
       list = list.filter((a) =>
         (approvalTypeKeys[a.approvalType] && t(approvalTypeKeys[a.approvalType]).toLowerCase().includes(term))
         || (a.opportunityName ?? '').toLowerCase().includes(term)
-        || (a.negotiationTitle ?? '').toLowerCase().includes(term)
+        || (a.proposalName ?? '').toLowerCase().includes(term)
         || (a.requestedByUserName ?? '').toLowerCase().includes(term)
         || String(a.id).includes(term))
     }
@@ -416,7 +416,7 @@ function InboxRow({ approval, selected, onClick, t }: { approval: OpportunityApp
         )}
       </p>
       <p className="line-clamp-1 text-[11px] text-muted-foreground">
-        {approval.negotiationTitle || t('commercialApprovals.request.noNegotiation')} · {t('commercialApprovals.request.byUser').replace('{0}', approval.requestedByUserName)}
+        {approval.proposalName || t('commercialApprovals.request.noProposal')} · {t('commercialApprovals.request.byUser').replace('{0}', approval.requestedByUserName)}
       </p>
       <div className="flex items-center justify-between pt-0.5">
         <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusBadge.bg} ${statusBadge.text}`}>{statusBadge.label}</span>
@@ -555,8 +555,8 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserI
           <ReviewersPanel approvalId={approval.id} requesterName={approval.requestedByUserName} currentUserName={currentUserName} currentUserId={currentUserId} refreshKey={reviewerRefreshKey} />
 
           <SidebarBlock title={t('commercialApprovals.linked.title')} icon={<ShieldCheck className="h-3.5 w-3.5" />}>
-            <LinkRow icon={<MessageSquare className="h-3 w-3" />} label={t('commercialApprovals.linked.negotiation')} value={approval.negotiationTitle || t('commercialApprovals.linked.noTitle')} tone="purple" />
-            <LinkRow icon={<ArrowUpRight className="h-3 w-3" />} label={t('commercialApprovals.linked.opportunity')} value={approval.opportunityName || `#${approval.opportunityNegotiationId}`} tone="primary" onClick={onOpenOpportunity} />
+            <LinkRow icon={<FileText className="h-3 w-3" />} label={t('commercialApprovals.linked.proposal')} value={approval.proposalName || t('commercialApprovals.linked.noTitle')} tone="purple" />
+            <LinkRow icon={<ArrowUpRight className="h-3 w-3" />} label={t('commercialApprovals.linked.opportunity')} value={approval.opportunityName || `#${approval.proposalId}`} tone="primary" onClick={onOpenOpportunity} />
             {approval.brandName && (
               <LinkRow label={t('commercialApprovals.linked.brand')} value={approval.brandName} brandLogoUrl={approval.brandLogoUrl} />
             )}
