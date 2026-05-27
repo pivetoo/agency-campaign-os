@@ -71,7 +71,7 @@ function UpcomingSection({ items, onClick }: { items: UpcomingClosingItem[]; onC
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-foreground">{item.name}</p>
                     <p className="truncate text-[11px] text-muted-foreground">
-                      {item.brandName ?? t('commercialInsights.noBrand')} · <span className="font-mono">{formatCurrency(item.estimatedValue)}</span> · {item.probability.toFixed(0)}%
+                      {item.brandName ?? t('commercialInsights.noBrand')} · <span className="font-mono">{formatCurrency(item.estimatedValue)}</span>
                     </p>
                   </div>
                   <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 transition-colors group-hover:text-primary" />

@@ -269,7 +269,6 @@ export interface CreateOpportunityRequest {
   contactEmail?: string
   contactPhone?: string
   notes?: string
-  probability?: number
   opportunitySourceId?: number
   tagIds?: number[]
 }

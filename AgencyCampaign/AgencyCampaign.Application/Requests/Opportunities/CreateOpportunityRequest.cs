@@ -40,9 +40,6 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         [StringLength(1000)]
         public string? Notes { get; set; }
 
-        [Range(0, 100)]
-        public decimal? Probability { get; set; }
-
         [Range(1, long.MaxValue)]
         public long? OpportunitySourceId { get; set; }
 
