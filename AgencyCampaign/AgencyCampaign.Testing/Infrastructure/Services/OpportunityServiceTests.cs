@@ -343,16 +343,13 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
                 BrandId = 1,
                 Name = "Updated",
                 EstimatedValue = 250m,
-                TagIds = new List<long> { 61, 62 },
-                Probability = 70m
+                TagIds = new List<long> { 61, 62 }
             };
 
             Opportunity result = await service.UpdateOpportunity(opportunity.Id, request);
 
             result.Name.Should().Be("Updated");
             result.EstimatedValue.Should().Be(250m);
-            result.Probability.Should().Be(70m);
-            result.ProbabilityIsManual.Should().BeTrue();
             result.TagAssignments.Select(item => item.OpportunityTagId).Should().BeEquivalentTo(new long[] { 61, 62 });
         }
 
