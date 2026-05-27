@@ -168,6 +168,11 @@ namespace AgencyCampaign.Infrastructure.Services
             return FilterShared(full);
         }
 
+        public Task EnsureCreatorOwnsDeliverable(long creatorId, long deliverableId, CancellationToken cancellationToken = default)
+        {
+            return EnsureDeliverableBelongsToCreator(creatorId, deliverableId, cancellationToken);
+        }
+
         private async Task EnsureDeliverableBelongsToCreator(long creatorId, long deliverableId, CancellationToken cancellationToken)
         {
             bool exists = await dbContext.Set<CampaignDeliverable>()

@@ -260,7 +260,8 @@ namespace AgencyCampaign.Api.Controllers
         {
             try
             {
-                await portalService.ResolveContext(token, cancellationToken);
+                CreatorPortalContext ctx = await portalService.ResolveContext(token, cancellationToken);
+                await portalService.EnsureCreatorOwnsDeliverable(ctx.Creator.Id, deliverableId, cancellationToken);
                 await using Stream stream = file.OpenReadStream();
                 ContentFileResult result = await fileStorage.SaveAsync(deliverableId, stream, file.FileName, file.ContentType, cancellationToken);
                 return Http200(result);

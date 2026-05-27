@@ -17,6 +17,7 @@ namespace AgencyCampaign.Application.Services
         Task<ContentReviewModel> GetDeliverableReview(long creatorId, long deliverableId, CancellationToken cancellationToken = default);
         Task<ContentReviewModel> SubmitContentVersion(long creatorId, long deliverableId, AddContentVersionRequest request, CancellationToken cancellationToken = default);
         Task<ContentReviewModel> AddReviewComment(long creatorId, long deliverableId, string body, CancellationToken cancellationToken = default);
+        Task EnsureCreatorOwnsDeliverable(long creatorId, long deliverableId, CancellationToken cancellationToken = default);
     }
 
     public sealed record CreatorPortalContext(Creator Creator, CreatorAccessToken Token);
