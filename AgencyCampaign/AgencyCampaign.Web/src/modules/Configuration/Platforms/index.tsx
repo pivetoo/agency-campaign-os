@@ -57,7 +57,17 @@ export default function Platforms() {
   }
 
   const columns: DataTableColumn<Platform>[] = [
-    { key: 'name', title: t('common.field.platform'), dataIndex: 'name' },
+    {
+      key: 'name',
+      title: t('common.field.platform'),
+      dataIndex: 'name',
+      render: (value: string, row: Platform) => (
+        <span className="inline-flex items-center gap-2">
+          {value}
+          {row.isSystem && <Badge variant="info">{t('configuration.platforms.systemBadge')}</Badge>}
+        </span>
+      ),
+    },
     { key: 'displayOrder', title: t('common.field.order'), dataIndex: 'displayOrder' },
     {
       key: 'isActive',

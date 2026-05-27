@@ -4,9 +4,9 @@ namespace AgencyCampaign.Application.Services
     {
         bool IsConfigured { get; }
 
-        Task<SocialMetricsResult?> FetchAsync(string platformName, string url, CancellationToken cancellationToken = default);
+        Task<SocialMetricsResult?> FetchAsync(string platformIdentifier, string url, CancellationToken cancellationToken = default);
 
-        Task<SocialProfileResult?> FetchProfileAsync(string platformName, string? handle, string? profileUrl, CancellationToken cancellationToken = default);
+        Task<SocialProfileResult?> FetchProfileAsync(string platformIdentifier, string? handle, string? profileUrl, CancellationToken cancellationToken = default);
     }
 
     public sealed class SocialProfileResult

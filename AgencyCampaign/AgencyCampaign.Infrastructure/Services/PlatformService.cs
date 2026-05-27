@@ -82,6 +82,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            if (platform.IsSystem)
+            {
+                throw new InvalidOperationException("platforms.system.cannotModify");
+            }
+
             platform.Update(request.Name, request.DisplayOrder, request.IsActive);
 
             Platform? result = await Update(platform, cancellationToken);

@@ -18,6 +18,7 @@ const initialFormData: CreatePlatformRequest = {
 export default function PlatformFormModal({ open, onOpenChange, platform, onSuccess }: PlatformFormModalProps) {
   const { t } = useI18n()
   const isEditing = !!platform
+  const isSystem = !!platform?.isSystem
   const [formData, setFormData] = useState<CreatePlatformRequest>(initialFormData)
   const [isActive, setIsActive] = useState(true)
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -62,21 +63,25 @@ export default function PlatformFormModal({ open, onOpenChange, platform, onSucc
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {isSystem && (
+            <div className="rounded-md bg-info/10 px-3 py-2 text-sm text-info">{t('modal.platform.systemNotice')}</div>
+          )}
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.name')}</label>
-              <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required />
+              <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} required disabled={isSystem} />
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.order')}</label>
-              <Input type="number" value={formData.displayOrder} onChange={(e) => setFormData((prev) => ({ ...prev, displayOrder: Number(e.target.value) }))} />
+              <Input type="number" value={formData.displayOrder} onChange={(e) => setFormData((prev) => ({ ...prev, displayOrder: Number(e.target.value) }))} disabled={isSystem} />
             </div>
           </div>
 
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              {isEditing && (
+              {isEditing && !isSystem && (
                 <div className="flex items-center gap-2">
                   <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
                   <span className="text-sm">{t('common.status.active')}</span>
@@ -86,7 +91,9 @@ export default function PlatformFormModal({ open, onOpenChange, platform, onSucc
 
             <ModalFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
-              <Button type="submit" disabled={loading}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
+              {!isSystem && (
+                <Button type="submit" disabled={loading}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
+              )}
             </ModalFooter>
           </div>
         </form>

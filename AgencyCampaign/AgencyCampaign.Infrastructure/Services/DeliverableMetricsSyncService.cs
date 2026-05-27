@@ -67,8 +67,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
                 try
                 {
-                    string platformName = deliverable.Platform?.Name ?? string.Empty;
-                    SocialMetricsResult? result = await client.FetchAsync(platformName, deliverable.PublishedUrl!, cancellationToken);
+                    string platformIdentifier = deliverable.Platform?.Identifier ?? string.Empty;
+                    SocialMetricsResult? result = await client.FetchAsync(platformIdentifier, deliverable.PublishedUrl!, cancellationToken);
                     if (result is null)
                     {
                         continue;

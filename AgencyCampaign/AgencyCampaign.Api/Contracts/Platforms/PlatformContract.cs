@@ -7,6 +7,8 @@ namespace AgencyCampaign.Api.Contracts.Platforms
     {
         public long Id { get; init; }
         public string Name { get; init; } = string.Empty;
+        public string? Identifier { get; init; }
+        public bool IsSystem { get; init; }
         public bool IsActive { get; init; }
         public int DisplayOrder { get; init; }
         public DateTimeOffset CreatedAt { get; init; }
@@ -16,6 +18,8 @@ namespace AgencyCampaign.Api.Contracts.Platforms
         {
             Id = item.Id,
             Name = item.Name,
+            Identifier = item.Identifier,
+            IsSystem = item.IsSystem,
             IsActive = item.IsActive,
             DisplayOrder = item.DisplayOrder,
             CreatedAt = item.CreatedAt,

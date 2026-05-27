@@ -23,16 +23,16 @@ namespace AgencyCampaign.Infrastructure.Clients
 
         public bool IsConfigured => !string.IsNullOrWhiteSpace(options.Token) && options.Platforms.Count > 0;
 
-        public async Task<SocialMetricsResult?> FetchAsync(string platformName, string url, CancellationToken cancellationToken = default)
+        public async Task<SocialMetricsResult?> FetchAsync(string platformIdentifier, string url, CancellationToken cancellationToken = default)
         {
-            if (!IsConfigured || string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(platformName))
+            if (!IsConfigured || string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(platformIdentifier))
             {
                 return null;
             }
 
             ApifyPlatformProfile? profile = options.Platforms.FirstOrDefault(item =>
                 !string.IsNullOrWhiteSpace(item.Match) &&
-                platformName.Contains(item.Match, StringComparison.OrdinalIgnoreCase));
+                string.Equals(item.Match, platformIdentifier, StringComparison.OrdinalIgnoreCase));
 
             if (profile is null || string.IsNullOrWhiteSpace(profile.ActorId))
             {
@@ -58,7 +58,7 @@ namespace AgencyCampaign.Infrastructure.Clients
                 using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
                 if (!response.IsSuccessStatusCode)
                 {
-                    logger.LogWarning("Apify run failed for platform {Platform} with status {Status}.", platformName, response.StatusCode);
+                    logger.LogWarning("Apify run failed for platform {Platform} with status {Status}.", platformIdentifier, response.StatusCode);
                     return null;
                 }
 
@@ -80,21 +80,21 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Apify fetch failed for platform {Platform}.", platformName);
+                logger.LogError(exception, "Apify fetch failed for platform {Platform}.", platformIdentifier);
                 return null;
             }
         }
 
-        public async Task<SocialProfileResult?> FetchProfileAsync(string platformName, string? handle, string? profileUrl, CancellationToken cancellationToken = default)
+        public async Task<SocialProfileResult?> FetchProfileAsync(string platformIdentifier, string? handle, string? profileUrl, CancellationToken cancellationToken = default)
         {
-            if (!IsConfigured || string.IsNullOrWhiteSpace(platformName))
+            if (!IsConfigured || string.IsNullOrWhiteSpace(platformIdentifier))
             {
                 return null;
             }
 
             ApifyPlatformProfile? profile = options.Platforms.FirstOrDefault(item =>
                 !string.IsNullOrWhiteSpace(item.Match) &&
-                platformName.Contains(item.Match, StringComparison.OrdinalIgnoreCase));
+                string.Equals(item.Match, platformIdentifier, StringComparison.OrdinalIgnoreCase));
 
             if (profile is null || string.IsNullOrWhiteSpace(profile.ProfileActorId))
             {
@@ -126,7 +126,7 @@ namespace AgencyCampaign.Infrastructure.Clients
                 using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
                 if (!response.IsSuccessStatusCode)
                 {
-                    logger.LogWarning("Apify profile run failed for platform {Platform} with status {Status}.", platformName, response.StatusCode);
+                    logger.LogWarning("Apify profile run failed for platform {Platform} with status {Status}.", platformIdentifier, response.StatusCode);
                     return null;
                 }
 
@@ -146,7 +146,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Apify profile fetch failed for platform {Platform}.", platformName);
+                logger.LogError(exception, "Apify profile fetch failed for platform {Platform}.", platformIdentifier);
                 return null;
             }
         }

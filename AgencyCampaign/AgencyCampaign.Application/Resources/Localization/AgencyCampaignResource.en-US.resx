@@ -1241,6 +1241,8 @@
   <data name="configuration.proposalTemplates.field.template" xml:space="preserve"><value>Template</value></data>
   <data name="configuration.proposalTemplates.field.createdBy" xml:space="preserve"><value>Created by</value></data>
   <data name="configuration.platforms.empty" xml:space="preserve"><value>No platforms registered</value></data>
+  <data name="configuration.platforms.systemBadge" xml:space="preserve"><value>Default</value></data>
+  <data name="modal.platform.systemNotice" xml:space="preserve"><value>System default platform. It cannot be edited or removed.</value></data>
   <data name="configuration.proposalTemplate.confirm.deleteVersion" xml:space="preserve"><value>Delete version "{0}"?</value></data>
   <data name="automations.column.when" xml:space="preserve"><value>When</value></data>
   <data name="automations.column.action" xml:space="preserve"><value>Action</value></data>
@@ -1542,6 +1544,7 @@
   <data name="platforms.get.description" xml:space="preserve"><value>Permite listar as plataformas cadastradas.</value></data>
   <data name="platforms.getActive.description" xml:space="preserve"><value>Permite listar as plataformas ativas.</value></data>
   <data name="platforms.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de uma plataforma.</value></data>
+  <data name="platforms.system.cannotModify" xml:space="preserve"><value>System default platforms cannot be modified.</value></data>
   <data name="platforms.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma plataforma.</value></data>
   <data name="profile.area" xml:space="preserve"><value>Profile</value></data>
   <data name="profile.uploadAvatar.description" xml:space="preserve"><value>Permite enviar foto de perfil do usuário.</value></data>

@@ -71,8 +71,8 @@ namespace AgencyCampaign.Infrastructure.Services
                         continue;
                     }
 
-                    string platformName = handle.Platform?.Name ?? string.Empty;
-                    SocialProfileResult? result = await client.FetchProfileAsync(platformName, handle.Handle, handle.ProfileUrl, cancellationToken);
+                    string platformIdentifier = handle.Platform?.Identifier ?? string.Empty;
+                    SocialProfileResult? result = await client.FetchProfileAsync(platformIdentifier, handle.Handle, handle.ProfileUrl, cancellationToken);
                     if (result is null || !result.Followers.HasValue)
                     {
                         continue;

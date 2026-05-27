@@ -10,6 +10,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public int DisplayOrder { get; private set; }
 
+        public string? Identifier { get; private set; }
+
+        public bool IsSystem { get; private set; }
+
         private Platform()
         {
         }

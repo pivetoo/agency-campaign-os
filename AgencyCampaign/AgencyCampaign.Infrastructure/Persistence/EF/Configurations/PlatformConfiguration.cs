@@ -13,6 +13,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Name)
                 .IsRequired()
                 .HasMaxLength(120);
+
+            builder.Property(entity => entity.Identifier)
+                .HasMaxLength(60);
         }
     }
 }
