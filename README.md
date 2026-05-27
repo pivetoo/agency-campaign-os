@@ -4,7 +4,7 @@ O Kanvas é um sistema operacional completo para agências que trabalham com mar
 
 A plataforma é organizada em três módulos de negócio:
 
-- **Comercial** — prospecção, pipeline, propostas, negociações e aprovações até o fechamento.
+- **Comercial** — prospecção, pipeline, propostas e aprovações até o fechamento.
 - **Operacional** — execução das campanhas com creators: entregáveis, aprovações de conteúdo e documentos.
 - **Financeiro** — contas, lançamentos, conciliação bancária e pagamentos a creators.
 
@@ -15,7 +15,7 @@ A plataforma é organizada em três módulos de negócio:
 - [Módulo Comercial](#módulo-comercial)
   - [Pipeline e oportunidades](#pipeline-e-oportunidades)
   - [Propostas](#propostas)
-  - [Negociações e aprovações](#negociações-e-aprovações)
+  - [Aprovações (desconto e prazo)](#aprovações-desconto-e-prazo)
   - [Follow-ups](#follow-ups)
   - [Metas comerciais](#metas-comerciais)
   - [Painel, forecast e analytics](#painel-forecast-e-analytics)
@@ -29,7 +29,7 @@ A plataforma é organizada em três módulos de negócio:
 
 ## Módulo Comercial
 
-Cobre todo o funil comercial: da entrada do lead ao fechamento (ganho/perdido) e à conversão da proposta em campanha. Reúne pipeline visual, gestão de oportunidades, propostas com versionamento e link público, negociações com gate de aprovação por política comercial, follow-ups, metas e analytics.
+Cobre todo o funil comercial: da entrada do lead ao fechamento (ganho/perdido) e à conversão da proposta em campanha. Reúne pipeline visual, gestão de oportunidades, propostas com desconto/prazo, versionamento e link público, gate de aprovação de desconto/prazo por política comercial, follow-ups, metas e analytics.
 
 ### Pipeline e oportunidades
 
@@ -37,7 +37,7 @@ Cobre todo o funil comercial: da entrada do lead ao fechamento (ganho/perdido) e
 
 - Pipeline visual (kanban) com as oportunidades em colunas por estágio; arrastar e soltar entre estágios no desktop. No mobile, vira um seletor de etapa com a lista vertical das oportunidades daquela etapa.
 - Lista de oportunidades com paginação, busca e filtros (estágio, responsável, status aberta/ganha/perdida).
-- Detalhe da oportunidade com abas: **Resumo**, **Negociações**, **Aprovações**, **Propostas**, **Follow-ups** e **Atividade**.
+- Detalhe da oportunidade com abas: **Resumo**, **Aprovações**, **Propostas**, **Follow-ups** e **Atividade**.
 - Fechamento como **ganha** ou **perdida** com registro de motivo. Cada oportunidade guarda marca, valor estimado, probabilidade, data prevista de fechamento, contato (nome/e-mail/telefone), origem e tags.
 - Escopo "minhas" oportunidades (restritas ao usuário) além da visão geral, conforme permissão.
 
@@ -76,27 +76,23 @@ Draft → Sent → Viewed → Approved → Converted
 - `Draft` (rascunho) → `Sent` (enviada) → `Viewed` (visualizada) → `Approved` (aprovada) → `Converted` (virou campanha).
 - `Expired` (validade vencida, automático quando `ValidityUntil` passa e estava enviada), `Rejected` (rejeitada) e `Cancelled` (cancelada) são terminais.
 
-### Negociações e aprovações
+### Aprovações (desconto e prazo)
 
-O coração das regras comerciais: registra as tratativas de valor/condição de uma oportunidade e aplica o gate de aprovação quando a negociação fere a política comercial.
-
-**Negociações (`OpportunityNegotiation`)**
-
-- Registram título, valor negociado, percentual de desconto, margem e prazo de pagamento.
-- Ciclo: `Draft` → `PendingApproval` → `Approved`/`Rejected` → `SentToClient` → `AcceptedByClient` (ou `Cancelled`).
+As condições comerciais — **desconto** e **prazo de pagamento** — vivem na própria **Proposta**. Quando uma proposta com desvio é enviada, entra o gate de aprovação interna.
 
 **Política comercial (`CommercialPolicy`)**
 
-- Singleton com os limites: desconto máximo, margem mínima, prazo de pagamento padrão e máximo.
-- O `PolicyEvaluator` compara a negociação com a política vigente e identifica as violações.
+- Singleton com os limites: desconto máximo e prazo de pagamento máximo (a entidade também guarda margem mínima, mas a margem não entra no gate).
+- O `PolicyEvaluator` compara a proposta (desconto/prazo) com a política vigente e identifica as violações.
 
 **Gate de aprovação (regra central)**
 
-- Aprovar uma negociação é direto **quando não há desvio**. A revisão só se torna **obrigatória** quando existe uma política comercial e ela é **estourada** (desconto acima do máximo, margem abaixo da mínima ou prazo acima do máximo). Sem política definida, não há gate.
-- Ao criar a requisição de aprovação (`OpportunityApprovalRequest`), o sistema popula automaticamente, a partir do `PolicyEvaluator`:
-  - **Diffs** (`OpportunityApprovalDiff`): o que diverge da política (valor da política vs. valor solicitado e o delta).
-  - **Impactos** (`OpportunityApprovalImpact`): o efeito da exceção (ex.: redução de margem).
-- Tipos de aprovação: desconto, margem, prazo ou exceção.
+- Sem política definida, não há gate — a proposta segue livremente.
+- Ao **enviar** uma proposta cujo desconto ou prazo **estoura** a política, o sistema **bloqueia o envio** e exige aprovação interna, criando automaticamente uma requisição (`OpportunityApprovalRequest`, ancorada na proposta via `ProposalId`) com:
+  - **Diffs** (`OpportunityApprovalDiff`): o que diverge da política (valor da política vs. solicitado e o delta).
+  - **Impactos** (`OpportunityApprovalImpact`): o efeito da exceção (ex.: receita perdida).
+- A proposta só pode ser enviada/aprovada depois que a aprovação interna sai como aprovada.
+- Tipos de aprovação: desconto, prazo ou exceção.
 
 **Fluxo de revisão**
 
@@ -148,16 +144,16 @@ O coração das regras comerciais: registra as tratativas de valor/condição de
 | `/comercial/analytics` | `Analytics.tsx` | Indicadores e análises do funil |
 | `/p/:token` | `Public/Proposal.tsx` | Visualização pública de proposta (sem login) |
 
-Principais modais: criar/editar oportunidade, negociação, follow-up, solicitação de aprovação, proposta, item de proposta, envio de proposta, aplicação de template, meta comercial e configuração de estágio/motivos.
+Principais modais: criar/editar oportunidade, follow-up, solicitação de aprovação (na proposta), proposta, item de proposta, envio de proposta, aplicação de template, meta comercial e configuração de estágio/motivos.
 
 ### Principais endpoints
 
 Todos protegidos por `[RequireAccess]` (exceto os públicos de proposta). Rotas relativas à API do AgencyCampaign.
 
-- **Oportunidades** (`/opportunities`): listar, `mine`, detalhe, `board`, `forecast`, `analytics`, `insights`, `StageHistory`; criar, atualizar, excluir; `ChangeStage`, `CloseAsWon`, `CloseAsLost`. O mesmo controller agrupa, como sub-recursos da oportunidade, os comentários, as negociações e os follow-ups. A probabilidade não tem endpoint nem campo de entrada: é derivada do estágio e usada só para ponderar o forecast.
+- **Oportunidades** (`/opportunities`): listar, `mine`, detalhe, `board`, `forecast`, `analytics`, `insights`, `StageHistory`; criar, atualizar, excluir; `ChangeStage`, `CloseAsWon`, `CloseAsLost`. O mesmo controller agrupa, como sub-recursos da oportunidade, os comentários e os follow-ups. A probabilidade não tem endpoint nem campo de entrada: é derivada do estágio e usada só para ponderar o forecast.
 - **Propostas** (`/proposals`): listar, detalhe, `pdf`; criar, atualizar; itens (criar/editar/remover); `SendByEmail`, `SendByWhatsapp`, `MarkAsSent`, `MarkAsViewed`, `Approve`, `Reject`, `ConvertToCampaign`, `ConvertToNewCampaign`, `Cancel`, `StatusHistory`; links de compartilhamento (criar/listar/revogar) e versões (listar). Não há exclusão de proposta pela API.
 - **Proposta pública** (`/public/proposals/{token}` e `/pdf`): acesso por token, registra visualização.
-- **Aprovações** (`/opportunityApprovals`): listar, por negociação; criar; `Approve`, `Reject`, `MarkInReview`, `RequestChanges`, `Resubmit`, `MarkMerged`; decisão de revisor (`Reviewers/Decision`); `Comments` (CRUD); `Reviewers`, `Diffs` e `Impacts` (gerenciáveis); `evaluate-policy` e `PopulateFromPolicy` (avaliam/regeneram os desvios pela política).
+- **Aprovações** (`/opportunityApprovals`): listar, por proposta; criar; `Approve`, `Reject`, `MarkInReview`, `RequestChanges`, `Resubmit`, `MarkMerged`; decisão de revisor (`Reviewers/Decision`); `Comments` (CRUD); `Reviewers`, `Diffs` e `Impacts` (gerenciáveis); `evaluate-policy` e `PopulateFromPolicy` (avaliam/regeneram os desvios pela política).
 - **Política comercial** (`/commercialPolicy`): obter e atualizar (upsert).
 - **Estágios** (`/commercialPipelineStages`): listar, `active`, detalhe, criar/atualizar/excluir.
 - **Metas** (`/commercialGoals`): listar, `progress`, criar/atualizar/excluir.
