@@ -2170,6 +2170,38 @@
   <data name="campaign.detail.action.newDeliverable" xml:space="preserve"><value>New deliverable</value></data>
   <data name="campaign.detail.empty.documents" xml:space="preserve"><value>No documents registered</value></data>
   <data name="campaign.detail.empty.deliverables" xml:space="preserve"><value>No deliverables registered</value></data>
+  <data name="contentReview.version.brandCannotSubmit" xml:space="preserve"><value>The brand cannot submit content versions.</value></data>
+  <data name="contentReview.version.invalidTransition" xml:space="preserve"><value>Invalid status transition for this version.</value></data>
+  <data name="contentReview.version.alreadyOpen" xml:space="preserve"><value>There is already a version under review for this deliverable.</value></data>
+  <data name="contentReview.comment.onlyAgencyInternal" xml:space="preserve"><value>Only the agency can add internal comments.</value></data>
+  <data name="contentReview.upload.unsupportedType" xml:space="preserve"><value>Unsupported file type. Upload an image.</value></data>
+  <data name="contentReview.title" xml:space="preserve"><value>Content review</value></data>
+  <data name="contentReview.empty" xml:space="preserve"><value>No content versions yet.</value></data>
+  <data name="contentReview.open" xml:space="preserve"><value>Review</value></data>
+  <data name="contentReview.round" xml:space="preserve"><value>Round {0}</value></data>
+  <data name="contentReview.status.pendingInternal" xml:space="preserve"><value>Internal review</value></data>
+  <data name="contentReview.status.pendingBrand" xml:space="preserve"><value>With the brand</value></data>
+  <data name="contentReview.status.changesRequested" xml:space="preserve"><value>Changes requested</value></data>
+  <data name="contentReview.status.approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="contentReview.action.submitVersion" xml:space="preserve"><value>Submit version</value></data>
+  <data name="contentReview.action.requestChanges" xml:space="preserve"><value>Request changes</value></data>
+  <data name="contentReview.action.sendToBrand" xml:space="preserve"><value>Send to brand</value></data>
+  <data name="contentReview.action.approve" xml:space="preserve"><value>Approve</value></data>
+  <data name="contentReview.action.addComment" xml:space="preserve"><value>Comment</value></data>
+  <data name="contentReview.action.copyLink" xml:space="preserve"><value>Copy brand link</value></data>
+  <data name="contentReview.comments.internal" xml:space="preserve"><value>Internal</value></data>
+  <data name="contentReview.comments.shared" xml:space="preserve"><value>Shared</value></data>
+  <data name="contentReview.comments.placeholder" xml:space="preserve"><value>Write a comment...</value></data>
+  <data name="contentReview.comments.empty" xml:space="preserve"><value>No comments.</value></data>
+  <data name="contentReview.asset.externalLink" xml:space="preserve"><value>Open link</value></data>
+  <data name="contentReview.field.note" xml:space="preserve"><value>Note</value></data>
+  <data name="contentReview.field.externalUrl" xml:space="preserve"><value>External link (video/file)</value></data>
+  <data name="contentReview.field.uploadImage" xml:space="preserve"><value>Image</value></data>
+  <data name="contentReview.submittedBy" xml:space="preserve"><value>by {0}</value></data>
+  <data name="contentReview.author.agency" xml:space="preserve"><value>Agency</value></data>
+  <data name="contentReview.author.brand" xml:space="preserve"><value>Brand</value></data>
+  <data name="contentReview.author.creator" xml:space="preserve"><value>Creator</value></data>
+  <data name="contentReview.visibility.internalHint" xml:space="preserve"><value>Only the agency sees this</value></data>
   <data name="operations.approvals.field.registered" xml:space="preserve"><value>Registered approvals</value></data>
   <data name="operations.approvals.field.defaultReviewer" xml:space="preserve"><value>Default reviewer name:</value></data>
   <data name="operations.approvals.type.internal" xml:space="preserve"><value>Internal</value></data>

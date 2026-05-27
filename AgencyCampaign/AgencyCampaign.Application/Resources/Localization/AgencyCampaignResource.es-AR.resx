@@ -2170,6 +2170,38 @@
   <data name="campaign.detail.action.newDeliverable" xml:space="preserve"><value>Nueva entrega</value></data>
   <data name="campaign.detail.empty.documents" xml:space="preserve"><value>No hay documentos registrados</value></data>
   <data name="campaign.detail.empty.deliverables" xml:space="preserve"><value>No hay entregas registradas</value></data>
+  <data name="contentReview.version.brandCannotSubmit" xml:space="preserve"><value>La marca no puede enviar versiones de contenido.</value></data>
+  <data name="contentReview.version.invalidTransition" xml:space="preserve"><value>Transición de estado inválida para esta versión.</value></data>
+  <data name="contentReview.version.alreadyOpen" xml:space="preserve"><value>Ya hay una versión en revisión para esta entrega.</value></data>
+  <data name="contentReview.comment.onlyAgencyInternal" xml:space="preserve"><value>Solo la agencia puede agregar comentarios internos.</value></data>
+  <data name="contentReview.upload.unsupportedType" xml:space="preserve"><value>Tipo de archivo no soportado. Suba una imagen.</value></data>
+  <data name="contentReview.title" xml:space="preserve"><value>Revisión de contenido</value></data>
+  <data name="contentReview.empty" xml:space="preserve"><value>Aún no hay versiones de contenido.</value></data>
+  <data name="contentReview.open" xml:space="preserve"><value>Revisión</value></data>
+  <data name="contentReview.round" xml:space="preserve"><value>Ronda {0}</value></data>
+  <data name="contentReview.status.pendingInternal" xml:space="preserve"><value>Revisión interna</value></data>
+  <data name="contentReview.status.pendingBrand" xml:space="preserve"><value>Con la marca</value></data>
+  <data name="contentReview.status.changesRequested" xml:space="preserve"><value>Cambios solicitados</value></data>
+  <data name="contentReview.status.approved" xml:space="preserve"><value>Aprobada</value></data>
+  <data name="contentReview.action.submitVersion" xml:space="preserve"><value>Subir versión</value></data>
+  <data name="contentReview.action.requestChanges" xml:space="preserve"><value>Pedir cambios</value></data>
+  <data name="contentReview.action.sendToBrand" xml:space="preserve"><value>Enviar a la marca</value></data>
+  <data name="contentReview.action.approve" xml:space="preserve"><value>Aprobar</value></data>
+  <data name="contentReview.action.addComment" xml:space="preserve"><value>Comentar</value></data>
+  <data name="contentReview.action.copyLink" xml:space="preserve"><value>Copiar enlace de la marca</value></data>
+  <data name="contentReview.comments.internal" xml:space="preserve"><value>Internos</value></data>
+  <data name="contentReview.comments.shared" xml:space="preserve"><value>Compartidos</value></data>
+  <data name="contentReview.comments.placeholder" xml:space="preserve"><value>Escribe un comentario...</value></data>
+  <data name="contentReview.comments.empty" xml:space="preserve"><value>Sin comentarios.</value></data>
+  <data name="contentReview.asset.externalLink" xml:space="preserve"><value>Abrir enlace</value></data>
+  <data name="contentReview.field.note" xml:space="preserve"><value>Observación</value></data>
+  <data name="contentReview.field.externalUrl" xml:space="preserve"><value>Enlace externo (video/archivo)</value></data>
+  <data name="contentReview.field.uploadImage" xml:space="preserve"><value>Imagen</value></data>
+  <data name="contentReview.submittedBy" xml:space="preserve"><value>por {0}</value></data>
+  <data name="contentReview.author.agency" xml:space="preserve"><value>Agencia</value></data>
+  <data name="contentReview.author.brand" xml:space="preserve"><value>Marca</value></data>
+  <data name="contentReview.author.creator" xml:space="preserve"><value>Creador</value></data>
+  <data name="contentReview.visibility.internalHint" xml:space="preserve"><value>Solo la agencia lo ve</value></data>
   <data name="operations.approvals.field.registered" xml:space="preserve"><value>Aprobaciones registradas</value></data>
   <data name="operations.approvals.field.defaultReviewer" xml:space="preserve"><value>Nombre del revisor por defecto:</value></data>
   <data name="operations.approvals.type.internal" xml:space="preserve"><value>Interna</value></data>
