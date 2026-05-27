@@ -2,6 +2,7 @@ using AgencyCampaign.Api.Contracts.CampaignDeliverables;
 using AgencyCampaign.Api.Contracts.CampaignDocuments;
 using AgencyCampaign.Api.Contracts.CreatorPayments;
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Requests.ContentReview;
 using AgencyCampaign.Application.Requests.CreatorPortal;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
@@ -16,15 +17,19 @@ namespace AgencyCampaign.Api.Controllers
     [Route("api/creatorportal")]
     public sealed class CreatorPortalController : ApiControllerBase
     {
+        private const long MaxUploadBytes = 10 * 1024 * 1024;
+
         private readonly ICreatorPortalService portalService;
+        private readonly IContentFileStorage fileStorage;
         private new IStringLocalizer<AgencyCampaignResource> Localizer { get; }
         private static readonly Func<CampaignDocument, CampaignDocumentContract> MapDocument = CampaignDocumentContract.Projection.Compile();
         private static readonly Func<CreatorPayment, CreatorPaymentContract> MapPayment = CreatorPaymentContract.Projection.Compile();
         private static readonly Func<CampaignDeliverable, CampaignDeliverableContract> MapDeliverable = CampaignDeliverableContract.Projection.Compile();
 
-        public CreatorPortalController(ICreatorPortalService portalService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public CreatorPortalController(ICreatorPortalService portalService, IContentFileStorage fileStorage, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.portalService = portalService;
+            this.fileStorage = fileStorage;
             Localizer = localizer;
         }
 
@@ -199,6 +204,66 @@ namespace AgencyCampaign.Api.Controllers
 
                 CreatorPayment payment = await portalService.UploadInvoice(ctx.Creator.Id, request, cancellationToken);
                 return Http200(MapPayment(payment), Localizer["record.updated"]);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Http401(Localizer[ex.Message]);
+            }
+        }
+
+        [HttpGet("{token}/deliverables/{deliverableId:long}/review")]
+        public async Task<IActionResult> GetDeliverableReview(string token, long deliverableId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                CreatorPortalContext ctx = await portalService.ResolveContext(token, cancellationToken);
+                return Http200(await portalService.GetDeliverableReview(ctx.Creator.Id, deliverableId, cancellationToken));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Http401(Localizer[ex.Message]);
+            }
+        }
+
+        [HttpPost("{token}/deliverables/{deliverableId:long}/version")]
+        public async Task<IActionResult> SubmitVersion(string token, long deliverableId, [FromBody] AddContentVersionRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                CreatorPortalContext ctx = await portalService.ResolveContext(token, cancellationToken);
+                return Http200(await portalService.SubmitContentVersion(ctx.Creator.Id, deliverableId, request, cancellationToken));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Http401(Localizer[ex.Message]);
+            }
+        }
+
+        [HttpPost("{token}/deliverables/{deliverableId:long}/comment")]
+        public async Task<IActionResult> AddComment(string token, long deliverableId, [FromBody] PortalCommentRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                CreatorPortalContext ctx = await portalService.ResolveContext(token, cancellationToken);
+                return Http200(await portalService.AddReviewComment(ctx.Creator.Id, deliverableId, request.Body, cancellationToken));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Http401(Localizer[ex.Message]);
+            }
+        }
+
+        [HttpPost("{token}/deliverables/{deliverableId:long}/upload")]
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(MaxUploadBytes)]
+        public async Task<IActionResult> UploadAsset(string token, long deliverableId, [FromForm] IFormFile file, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await portalService.ResolveContext(token, cancellationToken);
+                await using Stream stream = file.OpenReadStream();
+                ContentFileResult result = await fileStorage.SaveAsync(deliverableId, stream, file.FileName, file.ContentType, cancellationToken);
+                return Http200(result);
             }
             catch (InvalidOperationException ex)
             {
