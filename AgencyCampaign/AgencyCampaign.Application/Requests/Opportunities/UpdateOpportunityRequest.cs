@@ -47,5 +47,8 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         public long? OpportunitySourceId { get; set; }
 
         public IReadOnlyCollection<long>? TagIds { get; set; }
+
+        [Range(0, 100)]
+        public decimal? Probability { get; set; }
     }
 }

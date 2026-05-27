@@ -34,6 +34,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddScoped<IAutomationDispatcher, AutomationDispatcher>();
             services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();
             services.AddScoped<IImageUploadStorage, ImageUploadStorage>();
+            services.AddScoped<IContentFileStorage, ContentFileStorage>();
             services.AddHttpContextAccessor();
             services.AddScoped<IPermissionChecker, PermissionChecker>();
 
