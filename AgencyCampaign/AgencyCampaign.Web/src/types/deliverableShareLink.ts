@@ -1,3 +1,5 @@
+import type { ContentVersion, ReviewComment } from './contentReview'
+
 export const DeliverableApprovalStatus = {
   Pending: 1,
   Approved: 2,
@@ -57,4 +59,6 @@ export interface DeliverablePublicView {
   status: number
   approvalStatus?: number | null
   approvalComment?: string | null
+  versions?: ContentVersion[]
+  comments?: ReviewComment[]
 }

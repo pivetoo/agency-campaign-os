@@ -56,4 +56,12 @@ export const deliverablePublicService = {
   reject(token: string, request: PublicDecisionRequest) {
     return httpClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/reject`, request)
   },
+
+  requestChanges(token: string, request: { reviewerName: string; comment?: string }) {
+    return httpClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/request-changes`, request)
+  },
+
+  addComment(token: string, body: string) {
+    return httpClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/comment`, { body })
+  },
 }
