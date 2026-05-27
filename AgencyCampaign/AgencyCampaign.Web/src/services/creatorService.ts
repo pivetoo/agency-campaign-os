@@ -76,4 +76,8 @@ export const creatorService = {
     const response = await httpClient.get<Blob>(`${BASE_URL}/Export`, { responseType: 'blob' })
     return response.data as Blob
   },
+
+  syncAudience(id: number) {
+    return httpClient.post<{ synced: number }>(`/CreatorAudience/creator/${id}`, {})
+  },
 }

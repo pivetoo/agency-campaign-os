@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PageLayout, Card, CardContent, Badge, DataTable, Tabs, TabsList, TabsTrigger, TabsContent, Button, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { ExternalLink, Plus, Pencil, Trash2, Users, Activity, Megaphone } from 'lucide-react'
+import { ExternalLink, Plus, Pencil, Trash2, Users, Activity, Megaphone, RefreshCw } from 'lucide-react'
 import { creatorService, resolveCreatorPhotoUrl } from '../../../../services/creatorService'
 import { creatorSocialHandleService } from '../../../../services/creatorSocialHandleService'
 import type { Creator } from '../../../../types/creator'
@@ -30,6 +30,7 @@ export default function CreatorDetail() {
   const { execute: fetchHandles, loading: handlesLoading } = useApi<CreatorSocialHandle[]>({ showErrorMessage: true })
   const { execute: fetchCampaigns, loading: campaignsLoading } = useApi<CreatorCampaignEntry[]>({ showErrorMessage: true })
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: syncFollowers, loading: syncingFollowers } = useApi({ showErrorMessage: true })
 
   const loadCreator = async () => {
     const result = await fetchCreator(() => creatorService.getById(creatorId))
@@ -67,6 +68,14 @@ export default function CreatorDetail() {
       setHandleToDelete(null)
       void loadHandles()
       if (selectedHandle?.id === handleToDelete.id) setSelectedHandle(null)
+    }
+  }
+
+  const handleSyncFollowers = async () => {
+    const result = await syncFollowers(() => creatorService.syncAudience(creatorId))
+    if (result?.data) {
+      await loadHandles()
+      window.alert(t('creators.detail.followersSynced').replace('{0}', String(result.data.synced)))
     }
   }
 
@@ -262,7 +271,11 @@ export default function CreatorDetail() {
           <TabsContent value="handles" className="mt-0">
             <Card>
               <CardContent className="pt-4">
-                <div className="mb-3 flex justify-end">
+                <div className="mb-3 flex justify-end gap-2">
+                  <Button size="sm" variant="outline" onClick={() => void handleSyncFollowers()} disabled={syncingFollowers}>
+                    <RefreshCw size={14} className="mr-1.5" />
+                    {t('creators.detail.action.syncFollowers')}
+                  </Button>
                   <Button size="sm" data-testid="creator-add-handle-button" onClick={() => { setSelectedHandle(null); setIsHandleFormOpen(true) }}>
                     <Plus size={14} className="mr-1.5" />
                     {t('creators.detail.action.newHandle')}

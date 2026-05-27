@@ -24,5 +24,17 @@ namespace AgencyCampaign.Infrastructure.Options
         public string? ViewsField { get; set; }
 
         public string? SharesField { get; set; }
+
+        public string? ProfileActorId { get; set; }
+
+        public string ProfileInputField { get; set; } = "usernames";
+
+        public bool ProfileUsesHandle { get; set; }
+
+        public bool ProfileUrlAsObject { get; set; }
+
+        public string? FollowersField { get; set; }
+
+        public string? ProfileEngagementField { get; set; }
     }
 }

@@ -59,5 +59,37 @@ namespace AgencyCampaign.Testing.Domain.Entities
             subject.Handle.Should().Be("@new");
             subject.IsActive.Should().BeFalse();
         }
+
+        [Test]
+        public void SyncAudience_should_update_followers_and_engagement()
+        {
+            CreatorSocialHandle subject = new(1, 1, "@fulano");
+
+            subject.SyncAudience(48500, 3.2m);
+
+            subject.Followers.Should().Be(48500);
+            subject.EngagementRate.Should().Be(3.2m);
+        }
+
+        [Test]
+        public void SyncAudience_should_preserve_engagement_when_only_followers_returned()
+        {
+            CreatorSocialHandle subject = new(1, 1, "@fulano", followers: 100, engagementRate: 5m);
+
+            subject.SyncAudience(48500, null);
+
+            subject.Followers.Should().Be(48500);
+            subject.EngagementRate.Should().Be(5m);
+        }
+
+        [Test]
+        public void SyncAudience_should_reject_negative_followers()
+        {
+            CreatorSocialHandle subject = new(1, 1, "@fulano");
+
+            Action act = () => subject.SyncAudience(-1, null);
+
+            act.Should().Throw<ArgumentOutOfRangeException>();
+        }
     }
 }

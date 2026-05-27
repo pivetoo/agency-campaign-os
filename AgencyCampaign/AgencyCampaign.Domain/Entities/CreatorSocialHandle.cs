@@ -59,6 +59,21 @@ namespace AgencyCampaign.Domain.Entities
             IsActive = isActive;
         }
 
+        public void SyncAudience(long? followers, decimal? engagementRate)
+        {
+            EnsureValid(followers, engagementRate);
+
+            if (followers.HasValue)
+            {
+                Followers = followers;
+            }
+
+            if (engagementRate.HasValue)
+            {
+                EngagementRate = engagementRate;
+            }
+        }
+
         private static void EnsureValid(long? followers, decimal? engagementRate)
         {
             if (followers.HasValue && followers.Value < 0)

@@ -2149,6 +2149,8 @@
   <data name="creators.detail.tab.socialNetworks" xml:space="preserve"><value>Redes sociais</value></data>
   <data name="creators.detail.tab.platformPerformance" xml:space="preserve"><value>Desempenho por rede</value></data>
   <data name="creators.detail.action.newHandle" xml:space="preserve"><value>Nova rede social</value></data>
+  <data name="creators.detail.action.syncFollowers" xml:space="preserve"><value>Sincronizar seguidores</value></data>
+  <data name="creators.detail.followersSynced" xml:space="preserve"><value>{0} rede(s) atualizada(s) com seguidores.</value></data>
   <data name="campaign.detail.operations" xml:space="preserve"><value>Operação da campanha</value></data>
   <data name="campaign.detail.field.agreedAmount" xml:space="preserve"><value>Valor combinado</value></data>
   <data name="campaign.detail.field.agencyFee" xml:space="preserve"><value>Fee agência</value></data>

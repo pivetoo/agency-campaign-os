@@ -85,6 +85,92 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
         }
 
+        public async Task<SocialProfileResult?> FetchProfileAsync(string platformName, string? handle, string? profileUrl, CancellationToken cancellationToken = default)
+        {
+            if (!IsConfigured || string.IsNullOrWhiteSpace(platformName))
+            {
+                return null;
+            }
+
+            ApifyPlatformProfile? profile = options.Platforms.FirstOrDefault(item =>
+                !string.IsNullOrWhiteSpace(item.Match) &&
+                platformName.Contains(item.Match, StringComparison.OrdinalIgnoreCase));
+
+            if (profile is null || string.IsNullOrWhiteSpace(profile.ProfileActorId))
+            {
+                return null;
+            }
+
+            string? value = profile.ProfileUsesHandle ? handle?.TrimStart('@').Trim() : profileUrl?.Trim();
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            try
+            {
+                object inputValue = profile.ProfileUrlAsObject ? new[] { new { url = value } } : (object)new[] { value };
+                Dictionary<string, object?> input = new()
+                {
+                    [profile.ProfileInputField] = inputValue,
+                    ["resultsLimit"] = 1
+                };
+
+                string requestUri = $"https://api.apify.com/v2/acts/{profile.ProfileActorId}/run-sync-get-dataset-items";
+                using HttpRequestMessage request = new(HttpMethod.Post, requestUri)
+                {
+                    Content = JsonContent.Create(input)
+                };
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", options.Token);
+
+                using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+                if (!response.IsSuccessStatusCode)
+                {
+                    logger.LogWarning("Apify profile run failed for platform {Platform} with status {Status}.", platformName, response.StatusCode);
+                    return null;
+                }
+
+                await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+                using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+                if (document.RootElement.ValueKind != JsonValueKind.Array || document.RootElement.GetArrayLength() == 0)
+                {
+                    return null;
+                }
+
+                JsonElement item = document.RootElement[0];
+                return new SocialProfileResult
+                {
+                    Followers = ReadLong(item, profile.FollowersField),
+                    EngagementRate = ReadDecimal(item, profile.ProfileEngagementField)
+                };
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Apify profile fetch failed for platform {Platform}.", platformName);
+                return null;
+            }
+        }
+
+        private static decimal? ReadDecimal(JsonElement item, string? field)
+        {
+            if (string.IsNullOrWhiteSpace(field) || !item.TryGetProperty(field, out JsonElement value))
+            {
+                return null;
+            }
+
+            if (value.ValueKind == JsonValueKind.Number && value.TryGetDecimal(out decimal number))
+            {
+                return number;
+            }
+
+            if (value.ValueKind == JsonValueKind.String && decimal.TryParse(value.GetString(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal parsed))
+            {
+                return parsed;
+            }
+
+            return null;
+        }
+
         private static long? ReadLong(JsonElement item, string? field)
         {
             if (string.IsNullOrWhiteSpace(field) || !item.TryGetProperty(field, out JsonElement value))
