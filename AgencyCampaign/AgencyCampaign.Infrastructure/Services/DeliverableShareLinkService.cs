@@ -186,7 +186,7 @@ namespace AgencyCampaign.Infrastructure.Services
             DeliverablePublicViewModel viewModel = await BuildViewModel(shareLink.CampaignDeliverableId, cancellationToken)
                 ?? throw new InvalidOperationException("record.notFound");
             viewModel.Versions = review.Versions;
-            viewModel.Comments = review.Comments;
+            viewModel.Comments = review.Comments.Where(c => c.Visibility == ReviewCommentVisibility.Shared).ToList();
             return viewModel;
         }
 
@@ -204,7 +204,7 @@ namespace AgencyCampaign.Infrastructure.Services
             DeliverablePublicViewModel viewModel = await BuildViewModel(shareLink.CampaignDeliverableId, cancellationToken)
                 ?? throw new InvalidOperationException("record.notFound");
             viewModel.Versions = review.Versions;
-            viewModel.Comments = review.Comments;
+            viewModel.Comments = review.Comments.Where(c => c.Visibility == ReviewCommentVisibility.Shared).ToList();
             return viewModel;
         }
 
