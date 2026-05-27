@@ -50,6 +50,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
   const [changesOpen, setChangesOpen] = useState(false)
 
   const { execute: fetchReview, loading: loadingReview } = useApi<ContentReview | null>({ showErrorMessage: true })
+  const { execute: runUpload } = useApi({ showErrorMessage: true })
   const { execute: runAddVersion, loading: addingVersion } = useApi({ showErrorMessage: true, showSuccessMessage: true })
   const { execute: runRequestChanges, loading: requestingChanges } = useApi({ showErrorMessage: true, showSuccessMessage: true })
   const { execute: runSendToBrand, loading: sendingToBrand } = useApi({ showErrorMessage: true, showSuccessMessage: true })
@@ -100,9 +101,9 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
     const assets: Array<{ type: 1 | 2; url: string; fileName?: string; contentType?: string }> = []
 
     if (submitFile) {
-      const uploadRes = await runAddVersion(() => contentReviewService.uploadFile(deliverableId, submitFile))
-      if (!uploadRes?.data) return
-      assets.push({ type: 1, url: uploadRes.data.url, fileName: uploadRes.data.fileName, contentType: uploadRes.data.contentType })
+      const uploadRes = await runUpload(() => contentReviewService.uploadFile(deliverableId, submitFile))
+      if (!uploadRes) return
+      assets.push({ type: 1, url: uploadRes.url, fileName: uploadRes.fileName, contentType: uploadRes.contentType })
     }
 
     if (submitUrl.trim()) {
@@ -110,8 +111,8 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
     }
 
     const res = await runAddVersion(() => contentReviewService.addVersion(deliverableId, assets, submitNote.trim() || undefined))
-    if (res?.data) {
-      setReview(res.data)
+    if (res) {
+      setReview(res)
       resetSubmitForm()
     }
   }
@@ -119,8 +120,8 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
   async function handleRequestChanges() {
     if (!latestVersion || !changesBody.trim()) return
     const res = await runRequestChanges(() => contentReviewService.requestChanges(latestVersion.id, changesBody.trim()))
-    if (res?.data) {
-      setReview(res.data)
+    if (res) {
+      setReview(res)
       resetChangesForm()
     }
   }
@@ -128,16 +129,16 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
   async function handleSendToBrand() {
     if (!latestVersion) return
     const res = await runSendToBrand(() => contentReviewService.sendToBrand(latestVersion.id))
-    if (res?.data) {
-      setReview(res.data)
+    if (res) {
+      setReview(res)
     }
   }
 
   async function handleAddComment() {
     if (!deliverableId || !commentBody.trim()) return
     const res = await runAddComment(() => contentReviewService.addComment(deliverableId, commentBody.trim(), commentVisibility))
-    if (res?.data) {
-      setReview(res.data)
+    if (res) {
+      setReview(res)
       setCommentBody('')
     }
   }
