@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, DataTable, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Input, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, PageAction } from 'archon-ui'
 import { AlertTriangle, CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Percent, Send, ShieldCheck, Trash2, Wallet, XCircle } from 'lucide-react'
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'
@@ -16,6 +16,8 @@ import type { PolicyEvaluation } from '../../../types/policyEvaluation'
 import type { Campaign } from '../../../types/campaign'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
+
+const round2 = (value: number) => Math.round(value * 100) / 100
 
 const proposalStatusKeys: Record<ProposalStatusValue, string> = {
   [ProposalStatus.Draft]: 'proposal.status.draft',
@@ -57,6 +59,8 @@ export default function CommercialProposalDetail() {
   const [campaignId, setCampaignId] = useState<string>('')
   const [policyEvaluation, setPolicyEvaluation] = useState<PolicyEvaluation | null>(null)
   const [approvals, setApprovals] = useState<OpportunityApprovalRequest[]>([])
+  const [discountPercentInput, setDiscountPercentInput] = useState('')
+  const [discountValueInput, setDiscountValueInput] = useState('')
 
   const { execute: fetchProposal, loading } = useApi<Proposal | undefined>({ showErrorMessage: true })
   const { execute: fetchItems } = useApi<ProposalItem[]>({ showErrorMessage: true })
@@ -68,6 +72,13 @@ export default function CommercialProposalDetail() {
 
     const proposalItems = await fetchItems(() => proposalService.getItems(proposalId))
     if (proposalItems) setItems(proposalItems)
+
+    const loadedGross = proposalItems && proposalItems.length > 0
+      ? proposalItems.reduce((sum, item) => sum + item.total, 0)
+      : result?.totalValue ?? 0
+    const loadedPercent = result?.discountPercent ?? null
+    setDiscountPercentInput(loadedPercent != null ? String(loadedPercent) : '')
+    setDiscountValueInput(loadedPercent != null ? String(round2((loadedGross * loadedPercent) / 100)) : '')
 
     const [evaluation, approvalList] = await Promise.all([
       proposalService.evaluatePolicy(proposalId).catch(() => null),
@@ -89,6 +100,60 @@ export default function CommercialProposalDetail() {
   }, [proposalId])
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.total, 0), [items])
+  const gross = total || proposal?.totalValue || 0
+  const discountPercent = proposal?.discountPercent ?? 0
+  const discountValue = round2((gross * discountPercent) / 100)
+  const netTotal = round2(gross - discountValue)
+  const hasItems = gross > 0
+  const canEditDiscount = hasItems && proposal != null && proposal.status !== ProposalStatus.Converted && proposal.status !== ProposalStatus.Cancelled
+
+  const persistDiscountPercent = async (percent: number | null) => {
+    if (!proposal) return
+    await runProposalAction(() => proposalService.update(proposal.id, {
+      id: proposal.id,
+      opportunityId: proposal.opportunityId,
+      description: proposal.description,
+      validityUntil: proposal.validityUntil,
+      notes: proposal.notes,
+      proposalLayoutId: proposal.proposalLayoutId ?? null,
+      paymentTermDays: proposal.paymentTermDays ?? null,
+      discountPercent: percent,
+    }))
+  }
+
+  const clampPercent = (value: number) => Math.min(100, Math.max(0, value))
+
+  const handleDiscountPercentChange = (raw: string) => {
+    setDiscountPercentInput(raw)
+    if (raw === '') {
+      setDiscountValueInput('')
+      return
+    }
+    const percent = clampPercent(Number(raw))
+    setDiscountValueInput(String(round2((gross * percent) / 100)))
+  }
+
+  const handleDiscountValueChange = (raw: string) => {
+    setDiscountValueInput(raw)
+    if (raw === '' || gross <= 0) {
+      setDiscountPercentInput('')
+      return
+    }
+    const value = Math.min(gross, Math.max(0, Number(raw)))
+    setDiscountPercentInput(String(round2((value / gross) * 100)))
+  }
+
+  const commitDiscount = async () => {
+    if (!canEditDiscount) return
+    if (discountPercentInput === '') {
+      if (proposal?.discountPercent != null) await persistDiscountPercent(null)
+      return
+    }
+    const percent = clampPercent(round2(Number(discountPercentInput)))
+    if (percent === (proposal?.discountPercent ?? 0)) return
+    await persistDiscountPercent(percent)
+  }
+
   const campaignOptions = campaigns.map((campaign) => ({
     value: String(campaign.id),
     label: campaign.name,
@@ -253,8 +318,23 @@ export default function CommercialProposalDetail() {
             </div>
             <span className="hidden text-border md:inline">·</span>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('proposalDetail.item.field.total')}</span>
-              <strong className="text-base text-foreground">{formatCurrency(total || proposal.totalValue)}</strong>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('proposalDetail.values.gross')}</span>
+              <span className="text-sm text-foreground">{formatCurrency(gross)}</span>
+            </div>
+            {discountValue > 0 ? (
+              <>
+                <span className="hidden text-border md:inline">·</span>
+                <div className="flex items-center gap-2">
+                  <Percent className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('modal.proposal.field.discount')}</span>
+                  <span className="text-sm text-destructive">- {formatCurrency(discountValue)} ({discountPercent}%)</span>
+                </div>
+              </>
+            ) : null}
+            <span className="hidden text-border md:inline">·</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('proposalDetail.values.net')}</span>
+              <strong className="text-base text-foreground">{formatCurrency(netTotal)}</strong>
             </div>
             <span className="hidden text-border md:inline">·</span>
             <div className="flex items-center gap-2">
@@ -262,16 +342,6 @@ export default function CommercialProposalDetail() {
               <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('common.field.validity')}</span>
               <span className="text-sm text-foreground">{formatDate(proposal.validityUntil)}</span>
             </div>
-            {proposal.discountPercent != null ? (
-              <>
-                <span className="hidden text-border md:inline">·</span>
-                <div className="flex items-center gap-2">
-                  <Percent className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground">{t('modal.proposal.field.discount')}</span>
-                  <span className="text-sm text-foreground">{proposal.discountPercent}%</span>
-                </div>
-              </>
-            ) : null}
             {proposal.paymentTermDays != null ? (
               <>
                 <span className="hidden text-border md:inline">·</span>
@@ -342,6 +412,70 @@ export default function CommercialProposalDetail() {
                     pageSize={10}
                     pageSizeOptions={[5, 10, 20, 50]}
                   />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="border-b bg-muted/20 py-3">
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <Percent className="h-4 w-4 text-muted-foreground" />
+                    {t('proposalDetail.discount.title')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {!hasItems ? (
+                    <div className="flex items-start gap-2 rounded-md border border-dashed border-border/70 bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                      {t('proposalDetail.discount.needsItems')}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">{t('proposalDetail.discount.fieldValue')}</label>
+                          <Input
+                            type="number"
+                            min={0}
+                            max={gross}
+                            step="0.01"
+                            value={discountValueInput}
+                            disabled={!canEditDiscount || actionLoading}
+                            onChange={(e) => handleDiscountValueChange(e.target.value)}
+                            onBlur={() => void commitDiscount()}
+                            placeholder="0,00"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">{t('proposalDetail.discount.fieldPercent')}</label>
+                          <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            step="0.01"
+                            value={discountPercentInput}
+                            disabled={!canEditDiscount || actionLoading}
+                            onChange={(e) => handleDiscountPercentChange(e.target.value)}
+                            onBlur={() => void commitDiscount()}
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1 rounded-md border border-border/70 bg-muted/20 px-4 py-3 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">{t('proposalDetail.values.gross')}</span>
+                          <span className="text-foreground">{formatCurrency(gross)}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">{t('modal.proposal.field.discount')}</span>
+                          <span className="text-destructive">- {formatCurrency(discountValue)}</span>
+                        </div>
+                        <div className="mt-1 flex items-center justify-between border-t border-border/70 pt-2">
+                          <span className="font-medium text-muted-foreground">{t('proposalDetail.values.net')}</span>
+                          <strong className="text-base text-foreground">{formatCurrency(netTotal)}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

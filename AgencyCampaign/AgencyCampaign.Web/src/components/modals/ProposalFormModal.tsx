@@ -19,7 +19,6 @@ const initialFormData: CreateProposalRequest = {
   validityUntil: undefined,
   notes: '',
   proposalLayoutId: null,
-  discountPercent: null,
   paymentTermDays: null,
 }
 
@@ -47,7 +46,6 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
         validityUntil: proposal.validityUntil,
         notes: proposal.notes || '',
         proposalLayoutId: proposal.proposalLayoutId ?? null,
-        discountPercent: proposal.discountPercent ?? null,
         paymentTermDays: proposal.paymentTermDays ?? null,
       })
       return
@@ -84,6 +82,8 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
         ? proposalService.update(proposal.id, {
             id: proposal.id,
             ...formData,
+            // desconto é gerenciado no detalhe da proposta; preserva o valor atual no update do modal
+            discountPercent: proposal.discountPercent ?? null,
           } satisfies UpdateProposalRequest)
         : proposalService.create(formData),
     )
@@ -143,19 +143,6 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, proposalLayoutId: value === DEFAULT_LAYOUT_VALUE ? null : Number(value) }))}
                 options={layoutOptions}
                 placeholder={t('modal.proposal.option.defaultLayout')}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t('modal.proposal.field.discount')}</label>
-              <Input
-                type="number"
-                min={0}
-                max={100}
-                step="0.01"
-                value={formData.discountPercent ?? ''}
-                onChange={(e) => setFormData((prev) => ({ ...prev, discountPercent: e.target.value === '' ? null : Number(e.target.value) }))}
-                placeholder={t('modal.proposal.placeholder.discount')}
               />
             </div>
 

@@ -587,6 +587,12 @@
   <data name="proposalDetail.item.field.unitPrice" xml:space="preserve"><value>Precio unitario</value></data>
   <data name="proposalDetail.item.field.deadline" xml:space="preserve"><value>Plazo</value></data>
   <data name="proposalDetail.item.field.total" xml:space="preserve"><value>Total</value></data>
+  <data name="proposalDetail.values.gross" xml:space="preserve"><value>Total bruto</value></data>
+  <data name="proposalDetail.values.net" xml:space="preserve"><value>Total neto</value></data>
+  <data name="proposalDetail.discount.title" xml:space="preserve"><value>Descuento</value></data>
+  <data name="proposalDetail.discount.needsItems" xml:space="preserve"><value>Agregá ítems a la propuesta para aplicar un descuento.</value></data>
+  <data name="proposalDetail.discount.fieldValue" xml:space="preserve"><value>Descuento (monto)</value></data>
+  <data name="proposalDetail.discount.fieldPercent" xml:space="preserve"><value>Descuento (%)</value></data>
   <data name="proposalDetail.convert.title" xml:space="preserve"><value>Conversión en campaña</value></data>
   <data name="proposalDetail.convert.description" xml:space="preserve"><value>Vincule esta propuesta aprobada a una campaña existente. Los items ya registrados serán referenciados por la campaña.</value></data>
   <data name="proposalDetail.convert.campaignPlaceholder" xml:space="preserve"><value>Seleccione una campaña</value></data>

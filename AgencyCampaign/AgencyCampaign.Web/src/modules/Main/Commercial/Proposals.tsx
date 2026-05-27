@@ -8,6 +8,7 @@ import { commercialResponsibleService } from '../../../services/commercialRespon
 import type { CommercialResponsible } from '../../../types/commercialResponsible'
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
+import { formatCurrency } from '../../../lib/format'
 
 const STATUS_ALL = ''
 
@@ -159,10 +160,21 @@ export default function CommercialProposals() {
       render: (value?: Proposal['opportunity']) => value ? `${value.name} (#${value.id})` : '-',
     },
     {
-      key: 'totalValue',
+      key: 'netTotalValue',
       title: t('common.field.totalValue'),
-      dataIndex: 'totalValue',
-      render: (value?: number) => value != null ? `R$ ${value.toFixed(2)}` : '-',
+      dataIndex: 'netTotalValue',
+      render: (value: number | undefined, record: Proposal) => {
+        const net = value ?? record.totalValue
+        const hasDiscount = record.discountPercent != null && record.discountPercent > 0
+        return (
+          <div className="flex flex-col leading-tight">
+            <span className="font-medium">{formatCurrency(net)}</span>
+            {hasDiscount ? (
+              <span className="text-xs text-muted-foreground line-through">{formatCurrency(record.totalValue)}</span>
+            ) : null}
+          </div>
+        )
+      },
     },
     {
       key: 'validityUntil',

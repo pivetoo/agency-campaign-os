@@ -67,6 +67,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 proposal.InternalOwnerName,
                 items,
                 proposal.TotalValue,
+                proposal.DiscountPercent,
+                proposal.DiscountValue,
+                proposal.NetTotalValue,
                 proposal.ValidityUntil,
                 proposal.Notes);
         }
@@ -79,13 +82,19 @@ namespace AgencyCampaign.Infrastructure.Services
                 new ProposalItemData("João Costa (@jcosta)", "Vídeo YouTube — 10 min", 2, 3500m, 7000m),
                 new ProposalItemData("Lua Mendes (@luamendes)", "Post no feed + carrossel", 3, 800m, 2400m),
             ];
+            decimal mockTotal = 14200m;
+            decimal mockDiscountPercent = 10m;
+            decimal mockDiscountValue = Math.Round(mockTotal * mockDiscountPercent / 100m, 2);
             return new ProposalData(
                 Name: "Campanha de Lançamento — Produto XYZ",
                 Description: "Proposta comercial para campanha digital completa, incluindo produção de conteúdo no Instagram, TikTok e YouTube.",
                 Client: "Empresa ABC",
                 Owner: "Maria Oliveira",
                 Items: items,
-                TotalValue: 14200m,
+                TotalValue: mockTotal,
+                DiscountPercent: mockDiscountPercent,
+                DiscountValue: mockDiscountValue,
+                NetTotalValue: mockTotal - mockDiscountValue,
                 ValidityUntil: DateTimeOffset.UtcNow.AddDays(30),
                 Notes: "Valores sujeitos ao briefing final aprovado. Pagamento: 50% na assinatura e 50% na entrega.");
         }
@@ -120,7 +129,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 ["proposal.ownerRow"] = BuildOwnerRow(proposal.Owner),
                 ["proposal.items"] = BuildItemsTable(proposal.Items, agency.PrimaryColor),
                 ["proposal.totalFormatted"] = proposal.TotalValue.ToString("C", PtBR),
-                ["proposal.totals"] = BuildTotals(proposal.TotalValue, agency.PrimaryColor),
+                ["proposal.totals"] = BuildTotals(proposal, agency.PrimaryColor),
                 ["proposal.validityHtml"] = BuildValidity(proposal.ValidityUntil),
                 ["proposal.notesHtml"] = BuildNotes(proposal.Notes, agency.PrimaryColor),
             };
@@ -223,13 +232,39 @@ namespace AgencyCampaign.Infrastructure.Services
             return sb.ToString();
         }
 
-        private static string BuildTotals(decimal totalValue, string primaryColor) =>
-            $"""
-            <div class="total-row" style="border-top:2px solid {primaryColor}">
-              <span class="total-label">Total da proposta</span>
-              <span class="total-value">{totalValue.ToString("C", PtBR)}</span>
-            </div>
-            """;
+        private static string BuildTotals(ProposalData proposal, string primaryColor)
+        {
+            decimal discountPercent = proposal.DiscountPercent ?? 0m;
+            bool hasDiscount = discountPercent > 0m && proposal.DiscountValue > 0m;
+
+            if (!hasDiscount)
+            {
+                return $"""
+                    <div class="total-row" style="border-top:2px solid {primaryColor}">
+                      <span class="total-label">Total da proposta</span>
+                      <span class="total-value">{proposal.NetTotalValue.ToString("C", PtBR)}</span>
+                    </div>
+                    """;
+            }
+
+            string discountLabel = $"Desconto ({discountPercent.ToString("0.##", PtBR)}%)";
+            return $"""
+                <div class="totals-summary" style="border-top:2px solid {primaryColor}">
+                  <div class="total-summary-row">
+                    <span class="total-summary-label">Total bruto</span>
+                    <span class="total-summary-value">{proposal.TotalValue.ToString("C", PtBR)}</span>
+                  </div>
+                  <div class="total-summary-row total-summary-discount">
+                    <span class="total-summary-label">{discountLabel}</span>
+                    <span class="total-summary-value">- {proposal.DiscountValue.ToString("C", PtBR)}</span>
+                  </div>
+                </div>
+                <div class="total-row">
+                  <span class="total-label">Total da proposta</span>
+                  <span class="total-value">{proposal.NetTotalValue.ToString("C", PtBR)}</span>
+                </div>
+                """;
+        }
 
         private static string BuildValidity(DateTimeOffset? validityUntil) =>
             validityUntil.HasValue
@@ -272,6 +307,9 @@ namespace AgencyCampaign.Infrastructure.Services
             string? Owner,
             IReadOnlyList<ProposalItemData> Items,
             decimal TotalValue,
+            decimal? DiscountPercent,
+            decimal DiscountValue,
+            decimal NetTotalValue,
             DateTimeOffset? ValidityUntil,
             string? Notes);
 
@@ -351,6 +389,24 @@ namespace AgencyCampaign.Infrastructure.Services
             table.items tbody td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
             table.items tbody td.right { text-align: right; }
             .empty-items { font-size: 9pt; color: #aaa; font-style: italic; margin-top: 8px; }
+            .totals-summary {
+              margin-top: 14px;
+              padding-top: 12px;
+              margin-left: auto;
+              width: 280px;
+            }
+            .total-summary-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: baseline;
+              gap: 12px;
+              font-size: 9.5pt;
+              color: #555;
+              padding: 3px 0;
+            }
+            .total-summary-discount { color: #b91c1c; }
+            .total-summary-label { font-weight: 500; }
+            .total-summary-value { font-weight: 600; }
             .total-row {
               display: flex;
               justify-content: flex-end;

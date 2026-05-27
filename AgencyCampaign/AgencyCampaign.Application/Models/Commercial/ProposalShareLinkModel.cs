@@ -41,6 +41,12 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public decimal TotalValue { get; init; }
 
+        public decimal? DiscountPercent { get; init; }
+
+        public decimal DiscountValue { get; init; }
+
+        public decimal NetTotalValue { get; init; }
+
         public DateTimeOffset? ValidityUntil { get; init; }
 
         public DateTimeOffset SentAt { get; init; }

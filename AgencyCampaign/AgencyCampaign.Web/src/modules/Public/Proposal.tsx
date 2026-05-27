@@ -152,12 +152,32 @@ export default function PublicProposal() {
                     ))}
                   </tbody>
                   <tfoot className="bg-muted/30">
+                    {view.discountPercent != null && view.discountPercent > 0 ? (
+                      <>
+                        <tr>
+                          <td colSpan={4} className="px-4 py-2 text-right text-sm text-muted-foreground">
+                            Total bruto
+                          </td>
+                          <td className="px-4 py-2 text-right text-sm text-foreground">
+                            {formatCurrency(view.totalValue)}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan={4} className="px-4 py-2 text-right text-sm text-muted-foreground">
+                            Desconto ({view.discountPercent}%)
+                          </td>
+                          <td className="px-4 py-2 text-right text-sm text-destructive">
+                            - {formatCurrency(view.discountValue)}
+                          </td>
+                        </tr>
+                      </>
+                    ) : null}
                     <tr>
                       <td colSpan={4} className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                         Total da proposta
                       </td>
                       <td className="px-4 py-3 text-right text-lg font-bold text-foreground">
-                        {formatCurrency(view.totalValue)}
+                        {formatCurrency(view.netTotalValue)}
                       </td>
                     </tr>
                   </tfoot>

@@ -1,5 +1,6 @@
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AgencyCampaign.Domain.Entities
 {
@@ -37,6 +38,12 @@ namespace AgencyCampaign.Domain.Entities
         public decimal? DiscountPercent { get; private set; }
 
         public int? PaymentTermDays { get; private set; }
+
+        [NotMapped]
+        public decimal DiscountValue => Math.Round(TotalValue * (DiscountPercent ?? 0m) / 100m, 2);
+
+        [NotMapped]
+        public decimal NetTotalValue => TotalValue - DiscountValue;
 
         public long? ProposalLayoutId { get; private set; }
 

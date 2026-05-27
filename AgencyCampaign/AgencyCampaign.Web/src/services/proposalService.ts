@@ -67,6 +67,8 @@ export interface Proposal {
   proposalLayoutId?: number | null
   discountPercent?: number
   paymentTermDays?: number
+  discountValue: number
+  netTotalValue: number
   createdAt: string
   updatedAt?: string
 }

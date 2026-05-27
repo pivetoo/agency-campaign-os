@@ -33,6 +33,9 @@ export interface ProposalPublicView {
   agencyName: string
   brandName: string
   totalValue: number
+  discountPercent?: number
+  discountValue: number
+  netTotalValue: number
   validityUntil?: string
   sentAt: string
   snapshotJson: string

@@ -22,6 +22,14 @@ namespace AgencyCampaign.Api.Contracts.Proposals
 
         public decimal TotalValue { get; init; }
 
+        public decimal? DiscountPercent { get; init; }
+
+        public int? PaymentTermDays { get; init; }
+
+        public decimal DiscountValue { get; init; }
+
+        public decimal NetTotalValue { get; init; }
+
         public long InternalOwnerId { get; init; }
 
         public string? InternalOwnerName { get; init; }
@@ -58,6 +66,10 @@ namespace AgencyCampaign.Api.Contracts.Proposals
                     ContactPhone = item.Opportunity.ContactPhone
                 },
             TotalValue = item.TotalValue,
+            DiscountPercent = item.DiscountPercent,
+            PaymentTermDays = item.PaymentTermDays,
+            DiscountValue = item.DiscountValue,
+            NetTotalValue = item.NetTotalValue,
             InternalOwnerId = item.InternalOwnerId,
             InternalOwnerName = item.InternalOwnerName,
             Notes = item.Notes,
