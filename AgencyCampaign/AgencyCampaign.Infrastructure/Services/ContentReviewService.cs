@@ -71,6 +71,49 @@ namespace AgencyCampaign.Infrastructure.Services
             return await BuildModel(deliverableId, includeInternal: role == ReviewParticipant.Agency, cancellationToken);
         }
 
+        public async Task<ContentReviewModel> BrandApprove(long deliverableId, CancellationToken cancellationToken = default)
+        {
+            DeliverableContentVersion? version = await dbContext.Set<DeliverableContentVersion>()
+                .AsTracking()
+                .Where(item => item.CampaignDeliverableId == deliverableId)
+                .OrderByDescending(item => item.RoundNumber)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (version is not null && version.Status == ContentVersionStatus.PendingBrandReview)
+            {
+                version.Approve();
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return await BuildModel(deliverableId, includeInternal: false, cancellationToken);
+        }
+
+        public async Task<ContentReviewModel> BrandRequestChanges(long deliverableId, string reviewerName, string comment, CancellationToken cancellationToken = default)
+        {
+            DeliverableContentVersion? version = await dbContext.Set<DeliverableContentVersion>()
+                .AsTracking()
+                .Where(item => item.CampaignDeliverableId == deliverableId)
+                .OrderByDescending(item => item.RoundNumber)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (version is null || version.Status != ContentVersionStatus.PendingBrandReview)
+            {
+                throw new InvalidOperationException("contentReview.version.invalidTransition");
+            }
+
+            version.RequestChanges();
+            dbContext.Set<DeliverableReviewComment>().Add(new DeliverableReviewComment(deliverableId, version.Id, ReviewParticipant.Brand, reviewerName, comment, ReviewCommentVisibility.Shared));
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return await BuildModel(deliverableId, includeInternal: false, cancellationToken);
+        }
+
+        public async Task<ContentReviewModel> BrandAddComment(long deliverableId, string reviewerName, string body, CancellationToken cancellationToken = default)
+        {
+            dbContext.Set<DeliverableReviewComment>().Add(new DeliverableReviewComment(deliverableId, null, ReviewParticipant.Brand, reviewerName, body, ReviewCommentVisibility.Shared));
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return await BuildModel(deliverableId, includeInternal: false, cancellationToken);
+        }
+
         private async Task<DeliverableContentVersion> LoadVersion(long versionId, CancellationToken cancellationToken)
         {
             DeliverableContentVersion? version = await dbContext.Set<DeliverableContentVersion>()

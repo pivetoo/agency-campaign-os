@@ -10,6 +10,9 @@ namespace AgencyCampaign.Application.Services
         Task<ContentReviewModel> RequestChanges(long versionId, string authorName, string comment, CancellationToken cancellationToken = default);
         Task<ContentReviewModel> SendToBrand(long versionId, CancellationToken cancellationToken = default);
         Task<ContentReviewModel> AddComment(long deliverableId, ReviewParticipant role, string authorName, AddReviewCommentRequest request, CancellationToken cancellationToken = default);
+        Task<ContentReviewModel> BrandApprove(long deliverableId, CancellationToken cancellationToken = default);
+        Task<ContentReviewModel> BrandRequestChanges(long deliverableId, string reviewerName, string comment, CancellationToken cancellationToken = default);
+        Task<ContentReviewModel> BrandAddComment(long deliverableId, string reviewerName, string body, CancellationToken cancellationToken = default);
     }
 
     public sealed class ContentReviewModel

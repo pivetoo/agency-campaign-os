@@ -131,6 +131,22 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
+        public static CreateNotificationRequest DeliverableChangesRequestedByBrand(CampaignDeliverable deliverable, string reviewerName, string? comment)
+        {
+            string suffix = string.IsNullOrWhiteSpace(comment) ? string.Empty : $" Comentário: {comment}";
+            return new CreateNotificationRequest
+            {
+                UserId = null,
+                Type = NotificationType.Warning,
+                Title = "Marca solicitou alterações na entrega",
+                Message = $"{reviewerName} solicitou alterações na entrega \"{deliverable.Title}\".{suffix}",
+                Link = $"/campanhas/{deliverable.CampaignId}",
+                Source = "deliverable",
+                ReferenceEntityName = nameof(CampaignDeliverable),
+                ReferenceEntityId = deliverable.Id.ToString()
+            };
+        }
+
         public static CreateNotificationRequest CampaignCreatorConfirmed(CampaignCreator campaignCreator, string creatorName, string campaignName)
         {
             return new CreateNotificationRequest

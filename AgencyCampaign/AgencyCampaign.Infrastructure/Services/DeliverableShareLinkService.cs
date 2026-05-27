@@ -112,11 +112,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly INotificationService notificationService;
+        private readonly IContentReviewService contentReview;
 
-        public DeliverablePublicService(DbContext dbContext, INotificationService notificationService)
+        public DeliverablePublicService(DbContext dbContext, INotificationService notificationService, IContentReviewService contentReview)
         {
             this.dbContext = dbContext;
             this.notificationService = notificationService;
+            this.contentReview = contentReview;
         }
 
         public async Task<DeliverablePublicViewModel?> GetByToken(string token, CancellationToken cancellationToken = default)
@@ -130,17 +132,80 @@ namespace AgencyCampaign.Infrastructure.Services
             shareLink.RegisterView();
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return await BuildViewModel(shareLink.CampaignDeliverableId, cancellationToken);
+            DeliverablePublicViewModel? viewModel = await BuildViewModel(shareLink.CampaignDeliverableId, cancellationToken);
+            if (viewModel is null)
+            {
+                return null;
+            }
+
+            ContentReviewModel review = await contentReview.GetByDeliverable(shareLink.CampaignDeliverableId, cancellationToken);
+            viewModel.Versions = review.Versions;
+            viewModel.Comments = review.Comments.Where(c => c.Visibility == ReviewCommentVisibility.Shared).ToList();
+            return viewModel;
         }
 
         public async Task<DeliverablePublicViewModel> Approve(string token, PublicDeliverableDecisionRequest request, CancellationToken cancellationToken = default)
         {
-            return await SaveDecision(token, request, true, cancellationToken);
+            DeliverablePublicViewModel result = await SaveDecision(token, request, true, cancellationToken);
+            return result;
         }
 
         public async Task<DeliverablePublicViewModel> Reject(string token, PublicDeliverableDecisionRequest request, CancellationToken cancellationToken = default)
         {
             return await SaveDecision(token, request, false, cancellationToken);
+        }
+
+        public async Task<DeliverablePublicViewModel> RequestChanges(string token, PublicDeliverableDecisionRequest request, CancellationToken cancellationToken = default)
+        {
+            DeliverableShareLink? shareLink = await ResolveActiveShareLink(token, cancellationToken);
+            if (shareLink is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            ContentReviewModel review = await contentReview.BrandRequestChanges(shareLink.CampaignDeliverableId, request.ReviewerName, request.Comment ?? string.Empty, cancellationToken);
+
+            CampaignDeliverable? deliverable = await dbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == shareLink.CampaignDeliverableId, cancellationToken);
+
+            if (deliverable is not null)
+            {
+                try
+                {
+                    await notificationService.Create(
+                        KanvasNotifications.DeliverableChangesRequestedByBrand(deliverable, request.ReviewerName, request.Comment),
+                        cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"[DeliverablePublicService] failed to create notification: {exception.Message}");
+                }
+            }
+
+            DeliverablePublicViewModel viewModel = await BuildViewModel(shareLink.CampaignDeliverableId, cancellationToken)
+                ?? throw new InvalidOperationException("record.notFound");
+            viewModel.Versions = review.Versions;
+            viewModel.Comments = review.Comments;
+            return viewModel;
+        }
+
+        public async Task<DeliverablePublicViewModel> AddComment(string token, string body, CancellationToken cancellationToken = default)
+        {
+            DeliverableShareLink? shareLink = await ResolveActiveShareLink(token, cancellationToken);
+            if (shareLink is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            string reviewerName = shareLink.ReviewerName;
+            ContentReviewModel review = await contentReview.BrandAddComment(shareLink.CampaignDeliverableId, reviewerName, body, cancellationToken);
+
+            DeliverablePublicViewModel viewModel = await BuildViewModel(shareLink.CampaignDeliverableId, cancellationToken)
+                ?? throw new InvalidOperationException("record.notFound");
+            viewModel.Versions = review.Versions;
+            viewModel.Comments = review.Comments;
+            return viewModel;
         }
 
         private async Task<DeliverablePublicViewModel> SaveDecision(string token, PublicDeliverableDecisionRequest request, bool approved, CancellationToken cancellationToken)
@@ -175,6 +240,11 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            if (approved)
+            {
+                await contentReview.BrandApprove(shareLink.CampaignDeliverableId, cancellationToken);
+            }
 
             CampaignDeliverable? deliverable = await dbContext.Set<CampaignDeliverable>()
                 .AsNoTracking()

@@ -24,4 +24,15 @@ namespace AgencyCampaign.Application.Requests.DeliverableShareLinks
         [StringLength(2000)]
         public string? Comment { get; set; }
     }
+
+    public sealed class PublicCommentRequest
+    {
+        [Required]
+        [StringLength(150, MinimumLength = 2)]
+        public string ReviewerName { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(2000, MinimumLength = 1)]
+        public string Body { get; set; } = string.Empty;
+    }
 }

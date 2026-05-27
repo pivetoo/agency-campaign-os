@@ -2,6 +2,7 @@ using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Deliverables;
 using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.DeliverableShareLinks;
+using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
@@ -117,6 +118,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     {
         private TestDbContext db = null!;
         private Mock<INotificationService> notifications = null!;
+        private Mock<IContentReviewService> contentReview = null!;
         private DeliverablePublicService service = null!;
 
         [SetUp]
@@ -124,7 +126,14 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             notifications = new Mock<INotificationService>();
-            service = new DeliverablePublicService(db, notifications.Object);
+            contentReview = new Mock<IContentReviewService>();
+            contentReview
+                .Setup(item => item.GetByDeliverable(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((long id, CancellationToken _) => new ContentReviewModel { DeliverableId = id });
+            contentReview
+                .Setup(item => item.BrandApprove(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((long id, CancellationToken _) => new ContentReviewModel { DeliverableId = id });
+            service = new DeliverablePublicService(db, notifications.Object, contentReview.Object);
         }
 
         [TearDown]

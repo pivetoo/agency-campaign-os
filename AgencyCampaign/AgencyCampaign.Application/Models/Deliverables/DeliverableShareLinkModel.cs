@@ -1,3 +1,5 @@
+using AgencyCampaign.Application.Services;
+
 namespace AgencyCampaign.Application.Models.Deliverables
 {
     public sealed class DeliverableShareLinkModel
@@ -30,6 +32,8 @@ namespace AgencyCampaign.Application.Models.Deliverables
         public int Status { get; set; }
         public int? ApprovalStatus { get; set; }
         public string? ApprovalComment { get; set; }
+        public IReadOnlyList<ContentVersionModel> Versions { get; set; } = Array.Empty<ContentVersionModel>();
+        public IReadOnlyList<ReviewCommentModel> Comments { get; set; } = Array.Empty<ReviewCommentModel>();
     }
 
     public sealed class DeliverableApprovalModel

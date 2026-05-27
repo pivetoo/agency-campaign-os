@@ -19,6 +19,10 @@ namespace AgencyCampaign.Application.Services
         Task<DeliverablePublicViewModel> Approve(string token, PublicDeliverableDecisionRequest request, CancellationToken cancellationToken = default);
 
         Task<DeliverablePublicViewModel> Reject(string token, PublicDeliverableDecisionRequest request, CancellationToken cancellationToken = default);
+
+        Task<DeliverablePublicViewModel> RequestChanges(string token, PublicDeliverableDecisionRequest request, CancellationToken cancellationToken = default);
+
+        Task<DeliverablePublicViewModel> AddComment(string token, string body, CancellationToken cancellationToken = default);
     }
 
     public interface IDeliverableApprovalsService
