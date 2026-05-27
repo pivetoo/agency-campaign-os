@@ -49,5 +49,31 @@ namespace AgencyCampaign.Api.Controllers
             var result = await publicService.Reject(token, request, cancellationToken);
             return Http200(result);
         }
+
+        [HttpPost("{token}/request-changes")]
+        public async Task<IActionResult> RequestChanges(string token, [FromBody] PublicDeliverableDecisionRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await publicService.RequestChanges(token, request, cancellationToken);
+            return Http200(result);
+        }
+
+        [HttpPost("{token}/comment")]
+        public async Task<IActionResult> AddComment(string token, [FromBody] PublicCommentRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            var result = await publicService.AddComment(token, request.Body, cancellationToken);
+            return Http200(result);
+        }
     }
 }
