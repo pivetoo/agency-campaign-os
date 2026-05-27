@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw } from 'lucide-react'
+import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
 import { campaignCreatorService } from '../../../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../../../services/campaignDeliverableService'
@@ -20,6 +20,7 @@ import CampaignDocumentSendModal from '../../../../components/modals/CampaignDoc
 import CampaignDocumentGenerateFromTemplateModal from '../../../../components/modals/CampaignDocumentGenerateFromTemplateModal'
 import CampaignDocumentSendForSignatureModal from '../../../../components/modals/CampaignDocumentSendForSignatureModal'
 import CampaignDocumentDetailsModal from '../../../../components/modals/CampaignDocumentDetailsModal'
+import ContentReviewSheet from '../../../../components/sheets/ContentReviewSheet'
 import { formatCurrency } from '../../../../lib/format'
 
 
@@ -51,6 +52,8 @@ export default function CampaignDetail() {
   const [isDocumentGenerateOpen, setIsDocumentGenerateOpen] = useState(false)
   const [isDocumentSignatureOpen, setIsDocumentSignatureOpen] = useState(false)
   const [isDocumentDetailsOpen, setIsDocumentDetailsOpen] = useState(false)
+  const [isContentReviewOpen, setIsContentReviewOpen] = useState(false)
+  const [reviewDeliverableId, setReviewDeliverableId] = useState<number | null>(null)
 
   const campaignStatusLabels: Record<CampaignStatusValue, string> = {
     [CampaignStatus.Draft]: t('campaign.status.draft'),
@@ -266,14 +269,24 @@ export default function CampaignDetail() {
     {
       key: 'actions',
       title: '',
-      width: 48,
+      width: 72,
       render: (_: any, record: CampaignDeliverable) => (
-        <button
-          className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          onClick={() => { setSelectedDeliverable(record); setIsDeliverableFormOpen(true) }}
-        >
-          <Pencil size={14} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            onClick={() => { setReviewDeliverableId(record.id); setIsContentReviewOpen(true) }}
+            title={t('contentReview.open')}
+          >
+            <ClipboardCheck size={14} />
+          </button>
+          <button
+            className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            onClick={() => { setSelectedDeliverable(record); setIsDeliverableFormOpen(true) }}
+            title={t('common.action.edit')}
+          >
+            <Pencil size={14} />
+          </button>
+        </div>
       ),
     },
   ]
@@ -641,6 +654,12 @@ export default function CampaignDetail() {
         open={isDocumentDetailsOpen}
         onOpenChange={setIsDocumentDetailsOpen}
         documentId={selectedDocument?.id ?? null}
+      />
+
+      <ContentReviewSheet
+        open={isContentReviewOpen}
+        onOpenChange={setIsContentReviewOpen}
+        deliverableId={reviewDeliverableId}
       />
     </div>
   )
