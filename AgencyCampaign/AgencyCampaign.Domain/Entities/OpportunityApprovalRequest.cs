@@ -7,9 +7,9 @@ namespace AgencyCampaign.Domain.Entities
     {
         private readonly List<OpportunityApprovalReviewer> reviewers = [];
 
-        public long OpportunityNegotiationId { get; private set; }
+        public long ProposalId { get; private set; }
 
-        public OpportunityNegotiation? OpportunityNegotiation { get; private set; }
+        public Proposal? Proposal { get; private set; }
 
         public OpportunityApprovalType ApprovalType { get; private set; }
 
@@ -37,13 +37,13 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public OpportunityApprovalRequest(long opportunityNegotiationId, OpportunityApprovalType approvalType, string reason, string requestedByUserName, long? requestedByUserId = null)
+        public OpportunityApprovalRequest(long proposalId, OpportunityApprovalType approvalType, string reason, string requestedByUserName, long? requestedByUserId = null)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityNegotiationId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalId);
             ArgumentException.ThrowIfNullOrWhiteSpace(reason);
             ArgumentException.ThrowIfNullOrWhiteSpace(requestedByUserName);
 
-            OpportunityNegotiationId = opportunityNegotiationId;
+            ProposalId = proposalId;
             ApprovalType = approvalType;
             Reason = reason.Trim();
             RequestedByUserId = requestedByUserId;

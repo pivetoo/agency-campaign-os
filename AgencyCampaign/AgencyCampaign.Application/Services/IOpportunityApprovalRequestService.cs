@@ -29,7 +29,7 @@ namespace AgencyCampaign.Application.Services
 
         Task PopulateFromPolicy(long id, CancellationToken cancellationToken = default);
 
-        Task<IReadOnlyCollection<OpportunityApprovalRequest>> GetApprovalsByNegotiationId(long opportunityNegotiationId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<OpportunityApprovalRequest>> GetApprovalsByProposalId(long proposalId, CancellationToken cancellationToken = default);
 
         Task<PagedResult<OpportunityApprovalRequest>> GetAllApprovals(PagedRequest request, CancellationToken cancellationToken = default);
 

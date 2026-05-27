@@ -5,8 +5,8 @@ namespace AgencyCampaign.Application.Services
 {
     public interface IPolicyEvaluator
     {
-        Task<PolicyEvaluationModel> EvaluateNegotiationAsync(OpportunityNegotiation negotiation, CancellationToken cancellationToken = default);
+        Task<PolicyEvaluationModel> EvaluateProposalAsync(Proposal proposal, CancellationToken cancellationToken = default);
 
-        Task<PolicyEvaluationModel> EvaluateNegotiationByIdAsync(long negotiationId, CancellationToken cancellationToken = default);
+        Task<PolicyEvaluationModel> EvaluateProposalByIdAsync(long proposalId, CancellationToken cancellationToken = default);
     }
 }

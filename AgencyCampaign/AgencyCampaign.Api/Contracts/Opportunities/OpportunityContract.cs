@@ -50,8 +50,6 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public List<OpportunityTagReferenceContract> Tags { get; init; } = [];
 
-        public List<OpportunityNegotiationContract> Negotiations { get; init; } = [];
-
         public List<OpportunityFollowUpContract> FollowUps { get; init; } = [];
 
         public List<OpportunityProposalReferenceContract> Proposals { get; init; } = [];
@@ -249,7 +247,7 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
     {
         public long Id { get; init; }
 
-        public long OpportunityNegotiationId { get; init; }
+        public long ProposalId { get; init; }
 
         public OpportunityApprovalType ApprovalType { get; init; }
 
@@ -279,9 +277,9 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public string? OpportunityName { get; init; }
 
-        public string? NegotiationTitle { get; init; }
+        public string? ProposalName { get; init; }
 
-        public decimal? NegotiationAmount { get; init; }
+        public decimal? ProposalTotalValue { get; init; }
 
         public long? BrandId { get; init; }
 

@@ -26,6 +26,11 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.TotalValue)
                 .HasPrecision(18, 2);
 
+            builder.Property(entity => entity.DiscountPercent)
+                .HasPrecision(5, 2);
+
+            builder.Property(entity => entity.PaymentTermDays);
+
             builder.HasOne(entity => entity.Campaign)
                 .WithMany()
                 .HasForeignKey(entity => entity.CampaignId)

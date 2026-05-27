@@ -36,15 +36,10 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<OpportunityApprovalRequest> CreateOpportunityApprovalRequest(CreateOpportunityApprovalRequest request, CancellationToken cancellationToken = default)
         {
-            // Atualizar status da negociacao antes do Insert: Insert (via CrudService.ExecuteInTransaction)
-            // limpa o ChangeTracker no finally, o que detacharia esta entidade e o SaveChanges seguinte
-            // nao persistiria a transicao para PendingApproval.
-            OpportunityNegotiation negotiation = await GetTrackedNegotiation(request.OpportunityNegotiationId, cancellationToken);
-            negotiation.MarkPendingApproval();
-            await DbContext.SaveChangesAsync(cancellationToken);
+            await EnsureProposalExists(request.ProposalId, cancellationToken);
 
             OpportunityApprovalRequest approvalRequest = new(
-                request.OpportunityNegotiationId,
+                request.ProposalId,
                 request.ApprovalType,
                 request.Reason,
                 request.RequestedByUserName,
@@ -67,11 +62,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException(GetErrorMessages());
             }
 
-            // Re-busca approval e negociacao frescos: o Insert limpa o ChangeTracker e destacaria
-            // a negociacao em memoria, fazendo o SaveChanges do auto-populate falhar silenciosamente.
+            // Re-busca approval fresca: o Insert limpa o ChangeTracker, entao o auto-populate
+            // recarrega a entidade rastreada antes de salvar diffs/impactos.
             await PopulateFromPolicy(approvalRequest.Id, cancellationToken);
 
-            (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
+            (long? opportunityId, string opportunityName) = await ResolveOpportunityFromProposalAsync(request.ProposalId, cancellationToken);
 
             if (approvers.Count == 0)
             {
@@ -93,12 +88,9 @@ namespace AgencyCampaign.Infrastructure.Services
             OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
             approvalRequest.Approve(request.ApprovedByUserName, request.DecisionNotes, request.ApprovedByUserId);
 
-            OpportunityNegotiation negotiation = await GetTrackedNegotiation(approvalRequest.OpportunityNegotiationId, cancellationToken);
-            negotiation.Approve();
-
             await DbContext.SaveChangesAsync(cancellationToken);
 
-            (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
+            (long? opportunityId, string opportunityName) = await ResolveOpportunityFromProposalAsync(approvalRequest.ProposalId, cancellationToken);
             await TryNotify(KanvasNotifications.OpportunityApprovalDecided(approvalRequest, opportunityId, opportunityName, approved: true), cancellationToken);
 
             return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
@@ -109,12 +101,9 @@ namespace AgencyCampaign.Infrastructure.Services
             OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
             approvalRequest.Reject(request.ApprovedByUserName, request.DecisionNotes, request.ApprovedByUserId);
 
-            OpportunityNegotiation negotiation = await GetTrackedNegotiation(approvalRequest.OpportunityNegotiationId, cancellationToken);
-            negotiation.Reject();
-
             await DbContext.SaveChangesAsync(cancellationToken);
 
-            (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(negotiation.Id, cancellationToken);
+            (long? opportunityId, string opportunityName) = await ResolveOpportunityFromProposalAsync(approvalRequest.ProposalId, cancellationToken);
             await TryNotify(KanvasNotifications.OpportunityApprovalDecided(approvalRequest, opportunityId, opportunityName, approved: false), cancellationToken);
 
             return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
@@ -139,24 +128,11 @@ namespace AgencyCampaign.Infrastructure.Services
             bool resolvedNow = previousStatus != approvalRequest.Status
                 && (approvalRequest.Status == OpportunityApprovalStatus.Approved || approvalRequest.Status == OpportunityApprovalStatus.Rejected);
 
-            if (resolvedNow)
-            {
-                OpportunityNegotiation negotiation = await GetTrackedNegotiation(approvalRequest.OpportunityNegotiationId, cancellationToken);
-                if (approvalRequest.Status == OpportunityApprovalStatus.Approved)
-                {
-                    negotiation.Approve();
-                }
-                else
-                {
-                    negotiation.Reject();
-                }
-            }
-
             await DbContext.SaveChangesAsync(cancellationToken);
 
             if (resolvedNow)
             {
-                (long? opportunityId, string opportunityName) = await ResolveOpportunityFromNegotiationAsync(approvalRequest.OpportunityNegotiationId, cancellationToken);
+                (long? opportunityId, string opportunityName) = await ResolveOpportunityFromProposalAsync(approvalRequest.ProposalId, cancellationToken);
                 await TryNotify(KanvasNotifications.OpportunityApprovalDecided(approvalRequest, opportunityId, opportunityName, approved: approvalRequest.Status == OpportunityApprovalStatus.Approved), cancellationToken);
             }
 
@@ -195,11 +171,11 @@ namespace AgencyCampaign.Infrastructure.Services
             return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
         }
 
-        private async Task<(long? opportunityId, string opportunityName)> ResolveOpportunityFromNegotiationAsync(long negotiationId, CancellationToken cancellationToken)
+        private async Task<(long? opportunityId, string opportunityName)> ResolveOpportunityFromProposalAsync(long proposalId, CancellationToken cancellationToken)
         {
-            var info = await DbContext.Set<OpportunityNegotiation>()
+            var info = await DbContext.Set<Proposal>()
                 .AsNoTracking()
-                .Where(item => item.Id == negotiationId)
+                .Where(item => item.Id == proposalId)
                 .Select(item => new { item.OpportunityId, OpportunityName = item.Opportunity!.Name })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -218,10 +194,10 @@ namespace AgencyCampaign.Infrastructure.Services
             }
         }
 
-        public async Task<IReadOnlyCollection<OpportunityApprovalRequest>> GetApprovalsByNegotiationId(long opportunityNegotiationId, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<OpportunityApprovalRequest>> GetApprovalsByProposalId(long proposalId, CancellationToken cancellationToken = default)
         {
             return await QueryWithDetails()
-                .Where(item => item.OpportunityNegotiationId == opportunityNegotiationId)
+                .Where(item => item.ProposalId == proposalId)
                 .OrderByDescending(item => item.RequestedAt)
                 .ThenByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
@@ -231,8 +207,8 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             return await DbContext.Set<OpportunityApprovalRequest>()
                 .AsNoTracking()
-                .Include(item => item.OpportunityNegotiation)
-                    .ThenInclude(n => n!.Opportunity)
+                .Include(item => item.Proposal)
+                    .ThenInclude(p => p!.Opportunity)
                         .ThenInclude(o => o!.Brand)
                 .OrderByDescending(item => item.RequestedAt)
                 .ThenByDescending(item => item.Id)
@@ -274,24 +250,25 @@ namespace AgencyCampaign.Infrastructure.Services
             return approvalRequest;
         }
 
-        private async Task<OpportunityNegotiation> GetTrackedNegotiation(long id, CancellationToken cancellationToken)
+        private async Task EnsureProposalExists(long proposalId, CancellationToken cancellationToken)
         {
-            OpportunityNegotiation? negotiation = await DbContext.Set<OpportunityNegotiation>()
-                .AsTracking()
-                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+            bool exists = await DbContext.Set<Proposal>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == proposalId, cancellationToken);
 
-            if (negotiation is null)
+            if (!exists)
             {
                 throw new InvalidOperationException("record.notFound");
             }
-
-            return negotiation;
         }
 
         public async Task PopulateFromPolicy(long id, CancellationToken cancellationToken = default)
         {
             OpportunityApprovalRequest approval = await GetTrackedApproval(id, cancellationToken);
-            OpportunityNegotiation negotiation = await GetTrackedNegotiation(approval.OpportunityNegotiationId, cancellationToken);
+
+            Proposal? proposal = await DbContext.Set<Proposal>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == approval.ProposalId, cancellationToken);
 
             List<OpportunityApprovalDiff> autoDiffs = await DbContext.Set<OpportunityApprovalDiff>()
                 .Where(item => item.OpportunityApprovalRequestId == id && item.IsAutoGenerated)
@@ -305,14 +282,19 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await DbContext.SaveChangesAsync(cancellationToken);
 
-            await AutoPopulateFromPolicyAsync(approval, negotiation, cancellationToken);
+            if (proposal is null)
+            {
+                return;
+            }
+
+            await AutoPopulateFromPolicyAsync(approval, proposal, cancellationToken);
         }
 
-        private async Task AutoPopulateFromPolicyAsync(OpportunityApprovalRequest approval, OpportunityNegotiation negotiation, CancellationToken cancellationToken)
+        private async Task AutoPopulateFromPolicyAsync(OpportunityApprovalRequest approval, Proposal proposal, CancellationToken cancellationToken)
         {
             try
             {
-                PolicyEvaluationModel evaluation = await policyEvaluator.EvaluateNegotiationAsync(negotiation, cancellationToken);
+                PolicyEvaluationModel evaluation = await policyEvaluator.EvaluateProposalAsync(proposal, cancellationToken);
                 if (evaluation.Deviations.Count == 0)
                 {
                     return;
@@ -356,8 +338,8 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             return DbContext.Set<OpportunityApprovalRequest>()
                 .AsNoTracking()
-                .Include(item => item.OpportunityNegotiation)
-                    .ThenInclude(n => n!.Opportunity)
+                .Include(item => item.Proposal)
+                    .ThenInclude(p => p!.Opportunity)
                         .ThenInclude(o => o!.Brand);
         }
     }

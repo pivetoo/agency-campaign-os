@@ -932,9 +932,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Include(item => item.CommercialPipelineStage)
                 .ToListAsync(cancellationToken);
 
-            List<OpportunityNegotiation> negotiations = await DbContext.Set<OpportunityNegotiation>()
+            int proposalsCount = await DbContext.Set<Proposal>()
                 .AsNoTracking()
-                .ToListAsync(cancellationToken);
+                .CountAsync(cancellationToken);
 
             List<OpportunityFollowUp> followUps = await DbContext.Set<OpportunityFollowUp>()
                 .AsNoTracking()
@@ -951,7 +951,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 OpenOpportunities = opportunities.Count(IsOpen),
                 WonOpportunities = opportunities.Count(IsWon),
                 LostOpportunities = opportunities.Count(IsLost),
-                NegotiationsCount = negotiations.Count,
+                ProposalsCount = proposalsCount,
                 PendingFollowUpsCount = followUps.Count(item => !item.IsCompleted),
                 OverdueFollowUpsCount = followUps.Count(item => !item.IsCompleted && item.DueAt < now),
                 TotalPipelineValue = opportunities.Where(IsOpen).Sum(item => item.EstimatedValue),
@@ -1171,8 +1171,6 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Include(item => item.Brand)
                 .Include(item => item.CommercialPipelineStage)
                 .Include(item => item.OpportunitySource)
-                .Include(item => item.Negotiations)
-                    .ThenInclude(item => item.ApprovalRequests)
                 .Include(item => item.FollowUps)
                 .Include(item => item.Proposals)
                 .Include(item => item.TagAssignments)

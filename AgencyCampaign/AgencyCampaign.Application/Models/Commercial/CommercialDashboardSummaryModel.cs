@@ -10,7 +10,7 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public int LostOpportunities { get; init; }
 
-        public int NegotiationsCount { get; init; }
+        public int ProposalsCount { get; init; }
 
         public int PendingFollowUpsCount { get; init; }
 

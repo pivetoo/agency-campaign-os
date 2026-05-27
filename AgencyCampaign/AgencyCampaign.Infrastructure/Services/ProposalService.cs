@@ -2,6 +2,7 @@ using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Notifications;
+using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
@@ -27,8 +28,10 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly INotificationService notificationService;
         private readonly IntegrationPlatformClient integrationPlatformClient;
         private readonly IIntegrationCapabilityService integrationCapabilityService;
+        private readonly IPolicyEvaluator policyEvaluator;
+        private readonly IOpportunityApprovalRequestService approvalRequestService;
 
-        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService) : base(dbContext)
+        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, IPolicyEvaluator policyEvaluator, IOpportunityApprovalRequestService approvalRequestService) : base(dbContext)
         {
             this.currentUser = currentUser;
             this.financialAutoGeneration = financialAutoGeneration;
@@ -36,6 +39,8 @@ namespace AgencyCampaign.Infrastructure.Services
             this.notificationService = notificationService;
             this.integrationPlatformClient = integrationPlatformClient;
             this.integrationCapabilityService = integrationCapabilityService;
+            this.policyEvaluator = policyEvaluator;
+            this.approvalRequestService = approvalRequestService;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -109,7 +114,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.ValidityUntil,
                 request.Notes,
                 currentUser.UserId,
-                currentUser.UserName);
+                currentUser.UserName,
+                request.DiscountPercent,
+                request.PaymentTermDays);
 
             if (!string.IsNullOrWhiteSpace(commercialResponsibleName))
             {
@@ -153,7 +160,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.ValidityUntil,
                 request.Description,
                 request.Notes,
-                request.OpportunityId);
+                request.OpportunityId,
+                request.DiscountPercent,
+                request.PaymentTermDays);
 
             proposal.SetProposalLayout(request.ProposalLayoutId);
 
@@ -168,6 +177,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> MarkAsSent(long id, CancellationToken cancellationToken = default)
         {
+            await EnsureSendApprovedAsync(id, cancellationToken);
+
             Proposal proposal = await CreateSentVersionAsync(id, cancellationToken);
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
             await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
@@ -176,6 +187,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> SendByEmail(long id, SendProposalEmailRequest request, CancellationToken cancellationToken = default)
         {
+            await EnsureSendApprovedAsync(id, cancellationToken);
+
             ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(IntegrationIntents.ProposalSendEmail, cancellationToken);
 
             Proposal proposal = await CreateSentVersionAsync(id, cancellationToken);
@@ -205,6 +218,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> SendByWhatsapp(long id, SendProposalWhatsappRequest request, CancellationToken cancellationToken = default)
         {
+            await EnsureSendApprovedAsync(id, cancellationToken);
+
             ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(IntegrationIntents.ProposalSendWhatsapp, cancellationToken);
 
             Proposal proposal = await CreateSentVersionAsync(id, cancellationToken);
@@ -336,6 +351,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Proposal> ApproveProposal(long id, CancellationToken cancellationToken = default)
         {
+            await EnsureSendApprovedAsync(id, cancellationToken);
+
             Proposal? proposal = await GetAndValidateProposal(id, cancellationToken);
             proposal.Approve(currentUser.UserId, currentUser.UserName);
 
@@ -508,6 +525,77 @@ namespace AgencyCampaign.Infrastructure.Services
                     Reason = item.Reason
                 })
                 .ToArrayAsync(cancellationToken);
+        }
+
+        // Gate de politica comercial: se a proposta tem desvio de desconto/prazo e ainda nao existe
+        // uma aprovacao interna Approved, o envio/aprovacao e bloqueado. Sem aprovacao pendente, cria uma
+        // automaticamente com os diffs/impactos da politica para o aprovador decidir.
+        private async Task EnsureSendApprovedAsync(long proposalId, CancellationToken cancellationToken)
+        {
+            Proposal? proposal = await DbContext.Set<Proposal>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == proposalId, cancellationToken);
+
+            if (proposal is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            PolicyEvaluationModel evaluation = await policyEvaluator.EvaluateProposalAsync(proposal, cancellationToken);
+            if (!evaluation.HasDeviations)
+            {
+                return;
+            }
+
+            bool hasApproved = await DbContext.Set<OpportunityApprovalRequest>()
+                .AsNoTracking()
+                .AnyAsync(item => item.ProposalId == proposalId && item.Status == OpportunityApprovalStatus.Approved, cancellationToken);
+
+            if (hasApproved)
+            {
+                return;
+            }
+
+            bool hasOpenRequest = await DbContext.Set<OpportunityApprovalRequest>()
+                .AsNoTracking()
+                .AnyAsync(item => item.ProposalId == proposalId
+                    && (item.Status == OpportunityApprovalStatus.Pending
+                        || item.Status == OpportunityApprovalStatus.InReview
+                        || item.Status == OpportunityApprovalStatus.ChangesRequested), cancellationToken);
+
+            if (!hasOpenRequest)
+            {
+                await CreateApprovalForDeviationAsync(proposal, evaluation, cancellationToken);
+            }
+
+            throw new InvalidOperationException("proposal.send.approvalRequired");
+        }
+
+        private async Task CreateApprovalForDeviationAsync(Proposal proposal, PolicyEvaluationModel evaluation, CancellationToken cancellationToken)
+        {
+            OpportunityApprovalType approvalType = evaluation.SuggestedApprovalType switch
+            {
+                "deadline" => OpportunityApprovalType.DeadlineApproval,
+                _ => OpportunityApprovalType.DiscountApproval,
+            };
+
+            CreateOpportunityApprovalRequest request = new()
+            {
+                ProposalId = proposal.Id,
+                ApprovalType = approvalType,
+                Reason = "Proposta com desvio da política comercial. Aprovação interna necessária para envio.",
+                RequestedByUserId = currentUser.UserId,
+                RequestedByUserName = currentUser.UserName ?? "Sistema",
+            };
+
+            try
+            {
+                await approvalRequestService.CreateOpportunityApprovalRequest(request, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[ProposalService] failed to auto-create approval for proposal {proposal.Id}: {exception.Message}");
+            }
         }
 
         private async Task<Proposal> GetAndValidateProposal(long id, CancellationToken cancellationToken)

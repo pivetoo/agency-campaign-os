@@ -15,21 +15,21 @@ namespace AgencyCampaign.Infrastructure.Services
             this.dbContext = dbContext;
         }
 
-        public async Task<PolicyEvaluationModel> EvaluateNegotiationByIdAsync(long negotiationId, CancellationToken cancellationToken = default)
+        public async Task<PolicyEvaluationModel> EvaluateProposalByIdAsync(long proposalId, CancellationToken cancellationToken = default)
         {
-            OpportunityNegotiation? negotiation = await dbContext.Set<OpportunityNegotiation>()
+            Proposal? proposal = await dbContext.Set<Proposal>()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(item => item.Id == negotiationId, cancellationToken);
+                .FirstOrDefaultAsync(item => item.Id == proposalId, cancellationToken);
 
-            if (negotiation is null)
+            if (proposal is null)
             {
                 return new PolicyEvaluationModel { HasDeviations = false };
             }
 
-            return await EvaluateNegotiationAsync(negotiation, cancellationToken);
+            return await EvaluateProposalAsync(proposal, cancellationToken);
         }
 
-        public async Task<PolicyEvaluationModel> EvaluateNegotiationAsync(OpportunityNegotiation negotiation, CancellationToken cancellationToken = default)
+        public async Task<PolicyEvaluationModel> EvaluateProposalAsync(Proposal proposal, CancellationToken cancellationToken = default)
         {
             CommercialPolicy? policy = await dbContext.Set<CommercialPolicy>()
                 .AsNoTracking()
@@ -41,14 +41,14 @@ namespace AgencyCampaign.Infrastructure.Services
                 return new PolicyEvaluationModel { HasDeviations = false, PolicyMissing = true };
             }
 
-            // Sempre emite as linhas de comparacao (dentro = Kind 1; violacao = Kind 2/3),
-            // para o aprovador ver todos os termos negociados, nao so os que estouram a politica.
+            // Sempre emite as linhas de comparacao (dentro = Kind 1; violacao = Kind 2),
+            // para o aprovador ver todos os termos da proposta, nao so os que estouram a politica.
             List<PolicyDeviationModel> comparisons = [];
             List<PolicyImpactModel> impacts = [];
 
-            if (policy.MaxDiscountPercent.HasValue && negotiation.DiscountPercent.HasValue)
+            if (policy.MaxDiscountPercent.HasValue && proposal.DiscountPercent.HasValue)
             {
-                decimal requested = negotiation.DiscountPercent.Value;
+                decimal requested = proposal.DiscountPercent.Value;
                 decimal max = policy.MaxDiscountPercent.Value;
                 bool violates = requested > max;
                 comparisons.Add(new PolicyDeviationModel
@@ -63,36 +63,14 @@ namespace AgencyCampaign.Infrastructure.Services
 
                 if (violates)
                 {
-                    decimal lostRevenue = negotiation.Amount * ((requested - max) / 100m);
+                    decimal lostRevenue = proposal.TotalValue * ((requested - max) / 100m);
                     impacts.Add(new PolicyImpactModel { Label = "Receita", Value = $"-{FormatBrl(lostRevenue)}", IsGood = false });
                 }
             }
 
-            if (policy.MinMarginPercent.HasValue && negotiation.MarginPercent.HasValue)
+            if (policy.MaxPaymentTermDays.HasValue && proposal.PaymentTermDays.HasValue)
             {
-                decimal requested = negotiation.MarginPercent.Value;
-                decimal min = policy.MinMarginPercent.Value;
-                bool violates = requested < min;
-                comparisons.Add(new PolicyDeviationModel
-                {
-                    Field = "Margem",
-                    PolicyValue = $"mín {FormatPercent(min)}",
-                    RequestedValue = FormatPercent(requested),
-                    Delta = violates ? $"-{FormatPercentPoints(min - requested)}" : "dentro",
-                    Kind = violates ? 3 : 1,
-                    IsViolation = violates,
-                });
-
-                if (violates)
-                {
-                    decimal lostMargin = negotiation.Amount * ((min - requested) / 100m);
-                    impacts.Add(new PolicyImpactModel { Label = "Margem", Value = $"-{FormatBrl(lostMargin)}", IsGood = false });
-                }
-            }
-
-            if (policy.MaxPaymentTermDays.HasValue && negotiation.PaymentTermDays.HasValue)
-            {
-                int requested = negotiation.PaymentTermDays.Value;
+                int requested = proposal.PaymentTermDays.Value;
                 int max = policy.MaxPaymentTermDays.Value;
                 bool violates = requested > max;
                 comparisons.Add(new PolicyDeviationModel
@@ -115,10 +93,6 @@ namespace AgencyCampaign.Infrastructure.Services
             if (comparisons.Any(d => d.IsViolation && d.Field == "Desconto"))
             {
                 suggestedType = "discount";
-            }
-            else if (comparisons.Any(d => d.IsViolation && d.Field == "Margem"))
-            {
-                suggestedType = "margin";
             }
             else if (comparisons.Any(d => d.IsViolation && d.Field == "Prazo de pagamento"))
             {

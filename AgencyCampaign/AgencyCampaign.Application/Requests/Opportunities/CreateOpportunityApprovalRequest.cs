@@ -7,7 +7,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
     {
         [Required]
         [Range(1, long.MaxValue)]
-        public long OpportunityNegotiationId { get; set; }
+        public long ProposalId { get; set; }
 
         [Required]
         public OpportunityApprovalType ApprovalType { get; set; }

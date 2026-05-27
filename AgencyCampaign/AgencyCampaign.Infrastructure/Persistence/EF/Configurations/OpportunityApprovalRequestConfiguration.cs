@@ -24,9 +24,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.DecisionNotes)
                 .HasMaxLength(1000);
 
-            builder.HasOne(entity => entity.OpportunityNegotiation)
-                .WithMany(entity => entity.ApprovalRequests)
-                .HasForeignKey(entity => entity.OpportunityNegotiationId)
+            builder.HasOne(entity => entity.Proposal)
+                .WithMany()
+                .HasForeignKey(entity => entity.ProposalId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

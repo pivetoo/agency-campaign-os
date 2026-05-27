@@ -53,11 +53,11 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await approvalRequestService.GetApprovalsSummary(cancellationToken));
         }
 
-        [RequireAccess("opportunityApprovals.getByNegotiation.description")]
-        [GetEndpoint("negotiation/{opportunityNegotiationId:long}")]
-        public async Task<IActionResult> GetByNegotiation(long opportunityNegotiationId, CancellationToken cancellationToken)
+        [RequireAccess("opportunityApprovals.getByProposal.description")]
+        [GetEndpoint("proposal/{proposalId:long}")]
+        public async Task<IActionResult> GetByProposal(long proposalId, CancellationToken cancellationToken)
         {
-            IReadOnlyCollection<OpportunityApprovalRequest> approvals = await approvalRequestService.GetApprovalsByNegotiationId(opportunityNegotiationId, cancellationToken);
+            IReadOnlyCollection<OpportunityApprovalRequest> approvals = await approvalRequestService.GetApprovalsByProposalId(proposalId, cancellationToken);
             return Http200(approvals.Select(OpportunityContractExtensions.MapApprovalRequest).ToList());
         }
 
@@ -298,10 +298,10 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("opportunityApprovals.evaluatePolicy.description")]
-        [HttpGet("evaluate-policy/{negotiationId:long}")]
-        public async Task<IActionResult> EvaluatePolicy(long negotiationId, CancellationToken cancellationToken)
+        [HttpGet("evaluate-policy/{proposalId:long}")]
+        public async Task<IActionResult> EvaluatePolicy(long proposalId, CancellationToken cancellationToken)
         {
-            return Http200(await policyEvaluator.EvaluateNegotiationByIdAsync(negotiationId, cancellationToken));
+            return Http200(await policyEvaluator.EvaluateProposalByIdAsync(proposalId, cancellationToken));
         }
 
         [RequireAccess("opportunityApprovals.populateFromPolicy.description")]
