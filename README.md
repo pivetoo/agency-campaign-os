@@ -23,7 +23,7 @@ A plataforma é organizada em três módulos de negócio:
   - [Configurações do comercial](#configurações-do-comercial)
   - [Telas e rotas](#telas-e-rotas)
   - [Principais endpoints](#principais-endpoints)
-- [Módulo Produção](#módulo-produção)
+- [Módulo de Produção](#módulo-de-produção)
 - [Módulo Financeiro](#módulo-financeiro)
 
 ---
@@ -176,7 +176,7 @@ Todos protegidos por `[RequireAccess]`, exceto os públicos de proposta (`[Allow
 
 ---
 
-## Módulo Produção
+## Módulo de Produção
 
 > A documentar. Cobre a execução das campanhas com creators (entregáveis, aprovações de conteúdo, documentos e assinaturas, portal do creator).
 
