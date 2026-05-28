@@ -12,7 +12,7 @@ namespace AgencyCampaign.Testing.Builders
         private string? description;
         private DateTimeOffset? validityUntil;
         private string? notes;
-        private decimal? discountPercent;
+        private decimal? discountAmount;
         private int? paymentTermDays;
         private decimal totalValue = 1000m;
 
@@ -20,13 +20,13 @@ namespace AgencyCampaign.Testing.Builders
         public ProposalBuilder WithOpportunityId(long value) { opportunityId = value; return this; }
         public ProposalBuilder WithName(string value) { name = value; return this; }
         public ProposalBuilder WithInternalOwnerId(long value) { internalOwnerId = value; return this; }
-        public ProposalBuilder WithDiscountPercent(decimal? value) { discountPercent = value; return this; }
+        public ProposalBuilder WithDiscountAmount(decimal? value) { discountAmount = value; return this; }
         public ProposalBuilder WithPaymentTermDays(int? value) { paymentTermDays = value; return this; }
         public ProposalBuilder WithTotalValue(decimal value) { totalValue = value; return this; }
 
         public Proposal Build()
         {
-            Proposal proposal = new(opportunityId, name, internalOwnerId, description, validityUntil, notes, internalOwnerId, "Tester", discountPercent, paymentTermDays);
+            Proposal proposal = new(opportunityId, name, internalOwnerId, description, validityUntil, notes, internalOwnerId, "Tester", discountAmount, paymentTermDays);
             proposal.UpdateTotalValue(totalValue);
             return proposal.WithId(id);
         }

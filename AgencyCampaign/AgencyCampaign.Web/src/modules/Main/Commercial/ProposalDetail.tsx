@@ -76,9 +76,10 @@ export default function CommercialProposalDetail() {
     const loadedGross = proposalItems && proposalItems.length > 0
       ? proposalItems.reduce((sum, item) => sum + item.total, 0)
       : result?.totalValue ?? 0
-    const loadedPercent = result?.discountPercent ?? null
-    setDiscountPercentInput(loadedPercent != null ? String(loadedPercent) : '')
-    setDiscountValueInput(loadedPercent != null ? String(round2((loadedGross * loadedPercent) / 100)) : '')
+    const loadedAmount = result?.discountAmount ?? null
+    const appliedAmount = loadedAmount != null ? Math.min(loadedGross, Math.max(0, loadedAmount)) : null
+    setDiscountValueInput(loadedAmount != null ? String(loadedAmount) : '')
+    setDiscountPercentInput(appliedAmount != null && loadedGross > 0 ? String(round2((appliedAmount / loadedGross) * 100)) : '')
 
     const [evaluation, approvalList] = await Promise.all([
       proposalService.evaluatePolicy(proposalId).catch(() => null),
@@ -101,13 +102,14 @@ export default function CommercialProposalDetail() {
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.total, 0), [items])
   const gross = total || proposal?.totalValue || 0
-  const discountPercent = proposal?.discountPercent ?? 0
-  const discountValue = round2((gross * discountPercent) / 100)
+  const discountAmount = proposal?.discountAmount ?? 0
+  const discountValue = round2(Math.min(gross, Math.max(0, discountAmount)))
+  const discountPercent = gross > 0 ? round2((discountValue / gross) * 100) : 0
   const netTotal = round2(gross - discountValue)
   const hasItems = gross > 0
   const canEditDiscount = hasItems && proposal != null && proposal.status !== ProposalStatus.Converted && proposal.status !== ProposalStatus.Cancelled
 
-  const persistDiscountPercent = async (percent: number | null) => {
+  const persistDiscountAmount = async (amount: number | null) => {
     if (!proposal) return
     await runProposalAction(() => proposalService.update(proposal.id, {
       id: proposal.id,
@@ -117,7 +119,7 @@ export default function CommercialProposalDetail() {
       notes: proposal.notes,
       proposalLayoutId: proposal.proposalLayoutId ?? null,
       paymentTermDays: proposal.paymentTermDays ?? null,
-      discountPercent: percent,
+      discountAmount: amount,
     }))
   }
 
@@ -145,13 +147,13 @@ export default function CommercialProposalDetail() {
 
   const commitDiscount = async () => {
     if (!canEditDiscount) return
-    if (discountPercentInput === '') {
-      if (proposal?.discountPercent != null) await persistDiscountPercent(null)
+    if (discountValueInput === '') {
+      if (proposal?.discountAmount != null) await persistDiscountAmount(null)
       return
     }
-    const percent = clampPercent(round2(Number(discountPercentInput)))
-    if (percent === (proposal?.discountPercent ?? 0)) return
-    await persistDiscountPercent(percent)
+    const amount = round2(Math.min(gross, Math.max(0, Number(discountValueInput))))
+    if (amount === round2(Math.min(gross, Math.max(0, proposal?.discountAmount ?? 0)))) return
+    await persistDiscountAmount(amount)
   }
 
   const campaignOptions = campaigns.map((campaign) => ({

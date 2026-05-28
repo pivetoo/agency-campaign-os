@@ -22,7 +22,9 @@ namespace AgencyCampaign.Api.Contracts.Proposals
 
         public decimal TotalValue { get; init; }
 
-        public decimal? DiscountPercent { get; init; }
+        public decimal? DiscountAmount { get; init; }
+
+        public decimal DiscountPercent { get; init; }
 
         public int? PaymentTermDays { get; init; }
 
@@ -66,6 +68,7 @@ namespace AgencyCampaign.Api.Contracts.Proposals
                     ContactPhone = item.Opportunity.ContactPhone
                 },
             TotalValue = item.TotalValue,
+            DiscountAmount = item.DiscountAmount,
             DiscountPercent = item.DiscountPercent,
             PaymentTermDays = item.PaymentTermDays,
             DiscountValue = item.DiscountValue,

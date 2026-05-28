@@ -65,6 +65,7 @@ export interface Proposal {
   }
   items?: ProposalItem[]
   proposalLayoutId?: number | null
+  discountAmount?: number
   discountPercent?: number
   paymentTermDays?: number
   discountValue: number
@@ -81,7 +82,7 @@ export interface CreateProposalRequest {
   internalOwnerId?: number
   internalOwnerName?: string
   proposalLayoutId?: number | null
-  discountPercent?: number | null
+  discountAmount?: number | null
   paymentTermDays?: number | null
 }
 

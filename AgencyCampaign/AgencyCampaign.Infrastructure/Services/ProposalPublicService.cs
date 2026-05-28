@@ -74,8 +74,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
             }
 
-            decimal discountPercent = proposal?.DiscountPercent ?? 0m;
-            decimal discountValue = Math.Round(version.TotalValue * discountPercent / 100m, 2);
+            decimal? discountAmount = proposal?.DiscountAmount;
+            decimal discountValue = discountAmount.HasValue ? Math.Clamp(discountAmount.Value, 0m, version.TotalValue) : 0m;
+            decimal discountPercent = version.TotalValue > 0m ? discountValue / version.TotalValue * 100m : 0m;
             decimal netTotalValue = version.TotalValue - discountValue;
 
             return new ProposalPublicViewModel
@@ -87,7 +88,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 AgencyName = string.Empty,
                 BrandName = brandName,
                 TotalValue = version.TotalValue,
-                DiscountPercent = proposal?.DiscountPercent,
+                DiscountAmount = discountAmount,
+                DiscountPercent = discountPercent,
                 DiscountValue = discountValue,
                 NetTotalValue = netTotalValue,
                 ValidityUntil = version.ValidityUntil,

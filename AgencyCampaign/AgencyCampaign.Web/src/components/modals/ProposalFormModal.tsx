@@ -83,7 +83,7 @@ export default function ProposalFormModal({ open, onOpenChange, proposal, preset
             id: proposal.id,
             ...formData,
             // desconto é gerenciado no detalhe da proposta; preserva o valor atual no update do modal
-            discountPercent: proposal.discountPercent ?? null,
+            discountAmount: proposal.discountAmount ?? null,
           } satisfies UpdateProposalRequest)
         : proposalService.create(formData),
     )

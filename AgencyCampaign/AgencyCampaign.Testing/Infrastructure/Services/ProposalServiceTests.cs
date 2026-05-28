@@ -332,12 +332,20 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest
             {
                 OpportunityId = opportunity.Id,
-                DiscountPercent = 15m,
+                DiscountAmount = 150m,
                 PaymentTermDays = 45
             });
 
-            proposal.DiscountPercent.Should().Be(15m);
+            proposal.DiscountAmount.Should().Be(150m);
             proposal.PaymentTermDays.Should().Be(45);
+        }
+
+        private async Task SetProposalTotalAsync(long proposalId, decimal totalValue)
+        {
+            Proposal tracked = await db.Set<Proposal>().AsTracking().SingleAsync(item => item.Id == proposalId);
+            tracked.UpdateTotalValue(totalValue);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
         }
 
         [Test]
@@ -350,8 +358,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest
             {
                 OpportunityId = opportunity.Id,
-                DiscountPercent = 30m
+                DiscountAmount = 300m
             });
+            await SetProposalTotalAsync(proposal.Id, 1000m);
 
             Func<Task> act = () => service.MarkAsSent(proposal.Id);
 
@@ -372,8 +381,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest
             {
                 OpportunityId = opportunity.Id,
-                DiscountPercent = 30m
+                DiscountAmount = 300m
             });
+            await SetProposalTotalAsync(proposal.Id, 1000m);
 
             await service.Invoking(s => s.MarkAsSent(proposal.Id)).Should().ThrowAsync<InvalidOperationException>();
             db.ChangeTracker.Clear();
@@ -393,8 +403,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest
             {
                 OpportunityId = opportunity.Id,
-                DiscountPercent = 30m
+                DiscountAmount = 300m
             });
+            await SetProposalTotalAsync(proposal.Id, 1000m);
 
             await service.Invoking(s => s.MarkAsSent(proposal.Id)).Should().ThrowAsync<InvalidOperationException>();
             db.ChangeTracker.Clear();
@@ -421,8 +432,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest
             {
                 OpportunityId = opportunity.Id,
-                DiscountPercent = 10m
+                DiscountAmount = 100m
             });
+            await SetProposalTotalAsync(proposal.Id, 1000m);
 
             await service.MarkAsSent(proposal.Id);
 

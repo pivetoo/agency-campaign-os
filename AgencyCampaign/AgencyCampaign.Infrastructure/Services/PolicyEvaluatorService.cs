@@ -46,9 +46,9 @@ namespace AgencyCampaign.Infrastructure.Services
             List<PolicyDeviationModel> comparisons = [];
             List<PolicyImpactModel> impacts = [];
 
-            if (policy.MaxDiscountPercent.HasValue && proposal.DiscountPercent.HasValue)
+            if (policy.MaxDiscountPercent.HasValue && proposal.DiscountAmount.HasValue)
             {
-                decimal requested = proposal.DiscountPercent.Value;
+                decimal requested = proposal.DiscountPercent;
                 decimal max = policy.MaxDiscountPercent.Value;
                 bool violates = requested > max;
                 comparisons.Add(new PolicyDeviationModel

@@ -21,8 +21,8 @@ namespace AgencyCampaign.Application.Requests.Proposals
 
         public long? ProposalLayoutId { get; set; }
 
-        [Range(0, 100)]
-        public decimal? DiscountPercent { get; set; }
+        [Range(0, 100000000)]
+        public decimal? DiscountAmount { get; set; }
 
         [Range(0, 3650)]
         public int? PaymentTermDays { get; set; }

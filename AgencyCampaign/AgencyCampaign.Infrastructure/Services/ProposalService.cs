@@ -115,7 +115,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Notes,
                 currentUser.UserId,
                 currentUser.UserName,
-                request.DiscountPercent,
+                request.DiscountAmount,
                 request.PaymentTermDays);
 
             if (!string.IsNullOrWhiteSpace(commercialResponsibleName))
@@ -161,7 +161,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Description,
                 request.Notes,
                 request.OpportunityId,
-                request.DiscountPercent,
+                request.DiscountAmount,
                 request.PaymentTermDays);
 
             proposal.SetProposalLayout(request.ProposalLayoutId);

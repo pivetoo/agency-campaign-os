@@ -25,8 +25,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
         private async Task<Proposal> SeedProposalAsync(decimal? discount = null, int? paymentTermDays = null, decimal totalValue = 1000m)
         {
+            decimal? discountAmount = discount.HasValue ? Math.Round(totalValue * discount.Value / 100m, 2) : null;
             Proposal proposal = new ProposalBuilder()
-                .WithDiscountPercent(discount)
+                .WithDiscountAmount(discountAmount)
                 .WithPaymentTermDays(paymentTermDays)
                 .WithTotalValue(totalValue)
                 .Build();

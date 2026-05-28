@@ -35,12 +35,15 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? Notes { get; private set; }
 
-        public decimal? DiscountPercent { get; private set; }
+        public decimal? DiscountAmount { get; private set; }
 
         public int? PaymentTermDays { get; private set; }
 
         [NotMapped]
-        public decimal DiscountValue => Math.Round(TotalValue * (DiscountPercent ?? 0m) / 100m, 2);
+        public decimal DiscountValue => DiscountAmount.HasValue ? Math.Clamp(DiscountAmount.Value, 0m, TotalValue) : 0m;
+
+        [NotMapped]
+        public decimal DiscountPercent => TotalValue > 0m ? DiscountValue / TotalValue * 100m : 0m;
 
         [NotMapped]
         public decimal NetTotalValue => TotalValue - DiscountValue;
@@ -61,7 +64,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public Proposal(long opportunityId, string name, long internalOwnerId, string? description = null, DateTimeOffset? validityUntil = null, string? notes = null, long? createdByUserId = null, string? createdByUserName = null, decimal? discountPercent = null, int? paymentTermDays = null)
+        public Proposal(long opportunityId, string name, long internalOwnerId, string? description = null, DateTimeOffset? validityUntil = null, string? notes = null, long? createdByUserId = null, string? createdByUserName = null, decimal? discountAmount = null, int? paymentTermDays = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityId);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -73,7 +76,7 @@ namespace AgencyCampaign.Domain.Entities
             ValidityUntil = validityUntil?.ToUniversalTime();
             InternalOwnerId = internalOwnerId;
             Notes = Normalize(notes);
-            DiscountPercent = ClampPercent(discountPercent);
+            DiscountAmount = ClampAmount(discountAmount);
             PaymentTermDays = ClampDays(paymentTermDays);
             Status = ProposalStatus.Draft;
             CreatedAt = DateTimeOffset.UtcNow;
@@ -88,7 +91,7 @@ namespace AgencyCampaign.Domain.Entities
             TotalValue = total;
         }
 
-        public void Update(string name, DateTimeOffset? validityUntil, string? description, string? notes, long opportunityId, decimal? discountPercent = null, int? paymentTermDays = null)
+        public void Update(string name, DateTimeOffset? validityUntil, string? description, string? notes, long opportunityId, decimal? discountAmount = null, int? paymentTermDays = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityId);
@@ -98,7 +101,7 @@ namespace AgencyCampaign.Domain.Entities
             ValidityUntil = validityUntil?.ToUniversalTime();
             OpportunityId = opportunityId;
             Notes = Normalize(notes);
-            DiscountPercent = ClampPercent(discountPercent);
+            DiscountAmount = ClampAmount(discountAmount);
             PaymentTermDays = ClampDays(paymentTermDays);
             UpdatedAt = DateTimeOffset.UtcNow;
         }
@@ -240,9 +243,9 @@ namespace AgencyCampaign.Domain.Entities
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
         }
 
-        private static decimal? ClampPercent(decimal? value)
+        private static decimal? ClampAmount(decimal? value)
         {
-            return value.HasValue ? Math.Clamp(value.Value, 0m, 100m) : null;
+            return value.HasValue ? Math.Max(0m, value.Value) : null;
         }
 
         private static int? ClampDays(int? value)
