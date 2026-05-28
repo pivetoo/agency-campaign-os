@@ -20,6 +20,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.Configure<DocumentEmailOptions>(configuration.GetSection("DocumentEmail"));
             services.Configure<WebhookOptions>(configuration.GetSection("Webhooks"));
             services.Configure<ApifyOptions>(configuration.GetSection("Apify"));
+            services.Configure<ContentLicenseOptions>(configuration.GetSection("ContentLicense"));
             services.AddArchonPersistence(configuration, typeof(ServiceCollectionExtensions).Assembly);
             services.RunMigrations(
                 configuration,

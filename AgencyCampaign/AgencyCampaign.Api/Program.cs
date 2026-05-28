@@ -23,6 +23,7 @@ builder.Services.AddArchonApi(builder.Configuration, typeof(AgencyCampaignResour
 builder.Services.AddAgencyCampaignInfrastructure(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
 builder.Services.AddHostedService<SocialSyncJob>();
+builder.Services.AddHostedService<ContentLicenseExpiryJob>();
 builder.Services.AddArchonAuthentication(builder.Configuration);
 
 var app = builder.Build();
