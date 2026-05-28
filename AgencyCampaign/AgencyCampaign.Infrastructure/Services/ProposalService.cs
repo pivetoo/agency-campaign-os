@@ -561,7 +561,7 @@ namespace AgencyCampaign.Infrastructure.Services
             // Qualquer aprovacao em aberto (por desvio de politica ou solicitada manualmente) bloqueia o envio ate ser decidida.
             if (hasOpenRequest)
             {
-                throw new InvalidOperationException("proposal.send.approvalRequired");
+                throw new InvalidOperationException("proposal.send.approvalPending");
             }
 
             // Sem aprovacao em aberto: se a proposta estoura a politica, cria a aprovacao automaticamente e bloqueia.

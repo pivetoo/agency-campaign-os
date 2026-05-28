@@ -193,6 +193,7 @@
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>The proposal must be Sent to be marked as Viewed.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>The proposal must be Sent or Viewed to be Approved.</value></data>
   <data name="proposal.send.approvalRequired" xml:space="preserve"><value>This proposal exceeds the commercial policy and requires internal approval before it can be sent or approved. Use "Request approval".</value></data>
+  <data name="proposal.send.approvalPending" xml:space="preserve"><value>There is an open approval for this proposal. Wait for the decision before sending or approving.</value></data>
   <data name="proposal.reject.notSentOrViewed" xml:space="preserve"><value>The proposal must be Sent or Viewed to be Rejected.</value></data>
   <data name="proposal.convert.notApproved" xml:space="preserve"><value>The proposal must be Approved to be Converted.</value></data>
   <data name="proposal.cancel.alreadyConverted" xml:space="preserve"><value>Cannot cancel a Converted proposal.</value></data>

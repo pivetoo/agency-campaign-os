@@ -193,6 +193,7 @@
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>A proposta precisa ter sido enviada para ser marcada como visualizada.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>A proposta precisa estar enviada ou visualizada para ser aprovada.</value></data>
   <data name="proposal.send.approvalRequired" xml:space="preserve"><value>Esta proposta excede a política comercial e precisa de aprovação interna antes de ser enviada ou aprovada. Use "Solicitar aprovação".</value></data>
+  <data name="proposal.send.approvalPending" xml:space="preserve"><value>Há uma aprovação em aberto para esta proposta. Aguarde a decisão antes de enviar ou aprovar.</value></data>
   <data name="proposal.reject.notSentOrViewed" xml:space="preserve"><value>A proposta precisa estar enviada ou visualizada para ser rejeitada.</value></data>
   <data name="proposal.convert.notApproved" xml:space="preserve"><value>A proposta precisa estar aprovada para ser convertida em campanha.</value></data>
   <data name="proposal.cancel.alreadyConverted" xml:space="preserve"><value>Não é possível cancelar uma proposta já convertida.</value></data>
