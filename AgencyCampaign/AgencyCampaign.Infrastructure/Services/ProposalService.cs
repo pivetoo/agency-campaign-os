@@ -527,9 +527,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ToArrayAsync(cancellationToken);
         }
 
-        // Gate de politica comercial: se a proposta tem desvio de desconto/prazo e ainda nao existe
-        // uma aprovacao interna Approved, o envio/aprovacao e bloqueado. Sem aprovacao pendente, cria uma
-        // automaticamente com os diffs/impactos da politica para o aprovador decidir.
+        // Gate de aprovacao: o envio/aprovacao e bloqueado enquanto houver uma aprovacao interna em aberto
+        // (seja por desvio de politica, seja solicitada manualmente). Sem aprovacao em aberto, se a proposta
+        // estoura a politica de desconto/prazo, cria uma automaticamente com os diffs/impactos para decisao.
+        // Uma aprovacao ja Approved libera o envio.
         private async Task EnsureSendApprovedAsync(long proposalId, CancellationToken cancellationToken)
         {
             Proposal? proposal = await DbContext.Set<Proposal>()
@@ -539,12 +540,6 @@ namespace AgencyCampaign.Infrastructure.Services
             if (proposal is null)
             {
                 throw new InvalidOperationException("record.notFound");
-            }
-
-            PolicyEvaluationModel evaluation = await policyEvaluator.EvaluateProposalAsync(proposal, cancellationToken);
-            if (!evaluation.HasDeviations)
-            {
-                return;
             }
 
             bool hasApproved = await DbContext.Set<OpportunityApprovalRequest>()
@@ -563,12 +558,19 @@ namespace AgencyCampaign.Infrastructure.Services
                         || item.Status == OpportunityApprovalStatus.InReview
                         || item.Status == OpportunityApprovalStatus.ChangesRequested), cancellationToken);
 
-            if (!hasOpenRequest)
+            // Qualquer aprovacao em aberto (por desvio de politica ou solicitada manualmente) bloqueia o envio ate ser decidida.
+            if (hasOpenRequest)
             {
-                await CreateApprovalForDeviationAsync(proposal, evaluation, cancellationToken);
+                throw new InvalidOperationException("proposal.send.approvalRequired");
             }
 
-            throw new InvalidOperationException("proposal.send.approvalRequired");
+            // Sem aprovacao em aberto: se a proposta estoura a politica, cria a aprovacao automaticamente e bloqueia.
+            PolicyEvaluationModel evaluation = await policyEvaluator.EvaluateProposalAsync(proposal, cancellationToken);
+            if (evaluation.HasDeviations)
+            {
+                await CreateApprovalForDeviationAsync(proposal, evaluation, cancellationToken);
+                throw new InvalidOperationException("proposal.send.approvalRequired");
+            }
         }
 
         private async Task CreateApprovalForDeviationAsync(Proposal proposal, PolicyEvaluationModel evaluation, CancellationToken cancellationToken)

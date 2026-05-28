@@ -184,7 +184,7 @@ export default function CommercialProposalDetail() {
 
     const actions: PageAction[] = []
 
-    if (needsApproval && !hasOpenApproval) {
+    if ((status === ProposalStatus.Draft || status === ProposalStatus.Sent || status === ProposalStatus.Viewed) && !hasOpenApproval && !hasApprovedApproval) {
       actions.push({
         key: 'requestApproval',
         label: t('proposalDetail.approval.requestButton'),
@@ -252,7 +252,7 @@ export default function CommercialProposalDetail() {
 
     return actions
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [proposal, actionLoading, proposalId, needsApproval, hasOpenApproval])
+  }, [proposal, actionLoading, proposalId, needsApproval, hasOpenApproval, hasApprovedApproval])
 
   const columns: DataTableColumn<ProposalItem>[] = [
     { key: 'description', title: t('proposalDetail.item.field.item'), dataIndex: 'description' },
