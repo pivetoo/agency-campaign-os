@@ -30,8 +30,14 @@ namespace AgencyCampaign.Infrastructure.Services
                 .OrderBy(item => item.ExpiresAt)
                 .ToListAsync(cancellationToken);
 
+            var info = await dbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .Where(item => item.Id == deliverableId)
+                .Select(item => new { item.CampaignId, item.Title })
+                .FirstOrDefaultAsync(cancellationToken);
+
             DateTimeOffset now = DateTimeOffset.UtcNow;
-            return licenses.Select(item => ToModel(item, now)).ToList();
+            return licenses.Select(item => ToModel(item, now, info?.CampaignId ?? 0, info?.Title)).ToList();
         }
 
         public async Task<ContentLicenseModel> Add(long deliverableId, AddContentLicenseRequest request, CancellationToken cancellationToken = default)
@@ -99,7 +105,19 @@ namespace AgencyCampaign.Infrastructure.Services
                 .OrderBy(item => item.ExpiresAt)
                 .ToListAsync(cancellationToken);
 
-            return licenses.Select(item => ToModel(item, now)).ToList();
+            List<long> deliverableIds = licenses.Select(item => item.CampaignDeliverableId).Distinct().ToList();
+            var infoRows = await dbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .Where(item => deliverableIds.Contains(item.Id))
+                .Select(item => new { item.Id, item.CampaignId, item.Title })
+                .ToListAsync(cancellationToken);
+            Dictionary<long, (long CampaignId, string Title)> infos = infoRows.ToDictionary(item => item.Id, item => (item.CampaignId, item.Title));
+
+            return licenses.Select(item =>
+            {
+                infos.TryGetValue(item.CampaignDeliverableId, out (long CampaignId, string Title) info);
+                return ToModel(item, now, info.CampaignId, info.Title);
+            }).ToList();
         }
 
         public async Task<int> AlertExpiring(IReadOnlyList<int> thresholdsDays, CancellationToken cancellationToken = default)
@@ -175,7 +193,7 @@ namespace AgencyCampaign.Infrastructure.Services
             return license;
         }
 
-        private ContentLicenseModel ToModel(DeliverableContentLicense license, DateTimeOffset now)
+        private ContentLicenseModel ToModel(DeliverableContentLicense license, DateTimeOffset now, long campaignId = 0, string? deliverableTitle = null)
         {
             return new ContentLicenseModel
             {
@@ -189,7 +207,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 Notes = license.Notes,
                 CampaignDocumentId = license.CampaignDocumentId,
                 Status = license.ComputeStatus(now, options.ExpiringSoonDays),
-                DaysUntilExpiry = license.DaysUntilExpiry(now)
+                DaysUntilExpiry = license.DaysUntilExpiry(now),
+                CampaignId = campaignId,
+                DeliverableTitle = deliverableTitle
             };
         }
     }

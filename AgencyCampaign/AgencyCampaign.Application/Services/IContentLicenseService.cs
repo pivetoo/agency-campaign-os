@@ -27,5 +27,7 @@ namespace AgencyCampaign.Application.Services
         public long? CampaignDocumentId { get; init; }
         public ContentLicenseStatus Status { get; init; }
         public int? DaysUntilExpiry { get; init; }
+        public long CampaignId { get; init; }
+        public string? DeliverableTitle { get; init; }
     }
 }

@@ -2235,4 +2235,31 @@
   <data name="proposalDetail.approval.deviationTitle" xml:space="preserve"><value>This proposal exceeds the commercial policy</value></data>
   <data name="proposalDetail.approval.requiredHint" xml:space="preserve"><value>Internal approval is required before sending or approving the proposal.</value></data>
   <data name="proposalDetail.approval.pendingHint" xml:space="preserve"><value>An approval request is already in progress. Sending is blocked until it is approved.</value></data>
+  <data name="contentLicense.title" xml:space="preserve"><value>Usage rights</value></data>
+  <data name="contentLicense.empty" xml:space="preserve"><value>No usage rights yet.</value></data>
+  <data name="contentLicense.open" xml:space="preserve"><value>Usage rights</value></data>
+  <data name="contentLicense.type.ugcReuse" xml:space="preserve"><value>UGC licensing</value></data>
+  <data name="contentLicense.type.paidWhitelisting" xml:space="preserve"><value>Paid / Whitelisting</value></data>
+  <data name="contentLicense.type.exclusivity" xml:space="preserve"><value>Exclusivity</value></data>
+  <data name="contentLicense.type.other" xml:space="preserve"><value>Other</value></data>
+  <data name="contentLicense.status.active" xml:space="preserve"><value>Active</value></data>
+  <data name="contentLicense.status.expiringSoon" xml:space="preserve"><value>Expiring</value></data>
+  <data name="contentLicense.status.expired" xml:space="preserve"><value>Expired</value></data>
+  <data name="contentLicense.field.type" xml:space="preserve"><value>Right type</value></data>
+  <data name="contentLicense.field.channels" xml:space="preserve"><value>Allowed channels</value></data>
+  <data name="contentLicense.field.channelsPlaceholder" xml:space="preserve"><value>e.g. brand Instagram, website, ads</value></data>
+  <data name="contentLicense.field.startsAt" xml:space="preserve"><value>Start</value></data>
+  <data name="contentLicense.field.expiresAt" xml:space="preserve"><value>Expiration</value></data>
+  <data name="contentLicense.field.value" xml:space="preserve"><value>Amount paid</value></data>
+  <data name="contentLicense.field.contract" xml:space="preserve"><value>Linked contract</value></data>
+  <data name="contentLicense.field.noContract" xml:space="preserve"><value>None</value></data>
+  <data name="contentLicense.expiresOn" xml:space="preserve"><value>Expires on {0}</value></data>
+  <data name="contentLicense.noExpiry" xml:space="preserve"><value>No expiry (perpetual)</value></data>
+  <data name="contentLicense.daysLeft" xml:space="preserve"><value>{0} days left</value></data>
+  <data name="contentLicense.action.add" xml:space="preserve"><value>Add right</value></data>
+  <data name="contentLicense.action.edit" xml:space="preserve"><value>Edit right</value></data>
+  <data name="contentLicense.action.applyToCampaign" xml:space="preserve"><value>Apply to whole campaign</value></data>
+  <data name="contentLicense.confirm.delete" xml:space="preserve"><value>Remove this usage right?</value></data>
+  <data name="contentLicense.confirm.apply" xml:space="preserve"><value>Copy this right to all campaign deliverables?</value></data>
+  <data name="contentLicense.dashboard.title" xml:space="preserve"><value>Expiring licenses</value></data>
 </root>

@@ -2235,4 +2235,31 @@
   <data name="modal.proposal.placeholder.discount" xml:space="preserve"><value>ex.: 10</value></data>
   <data name="modal.proposal.field.paymentTerm" xml:space="preserve"><value>Prazo de pagamento (dias)</value></data>
   <data name="modal.proposal.placeholder.paymentTerm" xml:space="preserve"><value>ex.: 30</value></data>
+  <data name="contentLicense.title" xml:space="preserve"><value>Direitos de uso</value></data>
+  <data name="contentLicense.empty" xml:space="preserve"><value>Nenhum direito de uso cadastrado.</value></data>
+  <data name="contentLicense.open" xml:space="preserve"><value>Direitos de uso</value></data>
+  <data name="contentLicense.type.ugcReuse" xml:space="preserve"><value>Licenciamento UGC</value></data>
+  <data name="contentLicense.type.paidWhitelisting" xml:space="preserve"><value>Paid / Whitelisting</value></data>
+  <data name="contentLicense.type.exclusivity" xml:space="preserve"><value>Exclusividade</value></data>
+  <data name="contentLicense.type.other" xml:space="preserve"><value>Outro</value></data>
+  <data name="contentLicense.status.active" xml:space="preserve"><value>Vigente</value></data>
+  <data name="contentLicense.status.expiringSoon" xml:space="preserve"><value>Vencendo</value></data>
+  <data name="contentLicense.status.expired" xml:space="preserve"><value>Vencido</value></data>
+  <data name="contentLicense.field.type" xml:space="preserve"><value>Tipo de direito</value></data>
+  <data name="contentLicense.field.channels" xml:space="preserve"><value>Canais permitidos</value></data>
+  <data name="contentLicense.field.channelsPlaceholder" xml:space="preserve"><value>Ex.: Instagram da marca, site, ads</value></data>
+  <data name="contentLicense.field.startsAt" xml:space="preserve"><value>Início</value></data>
+  <data name="contentLicense.field.expiresAt" xml:space="preserve"><value>Expiração</value></data>
+  <data name="contentLicense.field.value" xml:space="preserve"><value>Valor pago</value></data>
+  <data name="contentLicense.field.contract" xml:space="preserve"><value>Contrato vinculado</value></data>
+  <data name="contentLicense.field.noContract" xml:space="preserve"><value>Nenhum</value></data>
+  <data name="contentLicense.expiresOn" xml:space="preserve"><value>Expira em {0}</value></data>
+  <data name="contentLicense.noExpiry" xml:space="preserve"><value>Sem prazo (perpétuo)</value></data>
+  <data name="contentLicense.daysLeft" xml:space="preserve"><value>{0} dias restantes</value></data>
+  <data name="contentLicense.action.add" xml:space="preserve"><value>Adicionar direito</value></data>
+  <data name="contentLicense.action.edit" xml:space="preserve"><value>Editar direito</value></data>
+  <data name="contentLicense.action.applyToCampaign" xml:space="preserve"><value>Aplicar a toda a campanha</value></data>
+  <data name="contentLicense.confirm.delete" xml:space="preserve"><value>Remover este direito de uso?</value></data>
+  <data name="contentLicense.confirm.apply" xml:space="preserve"><value>Copiar este direito para todas as entregas da campanha?</value></data>
+  <data name="contentLicense.dashboard.title" xml:space="preserve"><value>Licenças vencendo</value></data>
 </root>
