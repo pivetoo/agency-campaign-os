@@ -168,6 +168,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 currentUser.UserName,
                 request.ContactPhone);
 
+            opportunity.ResetProbabilityToStageDefault(initialStage);
+
             if (request.OpportunitySourceId.HasValue)
             {
                 opportunity.SetSource(request.OpportunitySourceId);
