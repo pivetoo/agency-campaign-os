@@ -8,6 +8,8 @@ namespace AgencyCampaign.Application.Services
     {
         Task<CreatorPortalContext> ResolveContext(string token, CancellationToken cancellationToken = default);
         Task<List<CampaignCreator>> GetCampaigns(long creatorId, CancellationToken cancellationToken = default);
+
+        Task<CampaignBriefingModel?> GetCampaignBriefing(long creatorId, long campaignId, CancellationToken cancellationToken = default);
         Task<List<CampaignDocument>> GetDocuments(long creatorId, CancellationToken cancellationToken = default);
         Task<List<CampaignDeliverable>> GetDeliverables(long creatorId, CancellationToken cancellationToken = default);
         Task<CampaignDeliverable> SubmitInsights(long creatorId, long deliverableId, SubmitDeliverableInsightsRequest request, CancellationToken cancellationToken = default);

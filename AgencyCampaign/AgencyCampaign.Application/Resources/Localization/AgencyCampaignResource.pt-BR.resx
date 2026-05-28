@@ -2278,4 +2278,15 @@
   <data name="campaignReport.kpi.attributedOrdersHint" xml:space="preserve"><value>{0} pedidos</value></data>
   <data name="campaignReport.kpi.roi" xml:space="preserve"><value>ROI</value></data>
   <data name="campaignReport.kpi.roiHint" xml:space="preserve"><value>Receita atribuída / investimento</value></data>
+  <data name="campaign.detail.briefingTab" xml:space="preserve"><value>Briefing</value></data>
+  <data name="campaignBriefing.hint" xml:space="preserve"><value>Orientações da campanha visíveis ao creator no portal.</value></data>
+  <data name="campaignBriefing.field.keyMessage" xml:space="preserve"><value>Objetivo / mensagem-chave</value></data>
+  <data name="campaignBriefing.field.dos" xml:space="preserve"><value>Fazer (do's)</value></data>
+  <data name="campaignBriefing.field.donts" xml:space="preserve"><value>Evitar (don'ts)</value></data>
+  <data name="campaignBriefing.field.hashtags" xml:space="preserve"><value>Hashtags obrigatórias</value></data>
+  <data name="campaignBriefing.field.mentions" xml:space="preserve"><value>Perfis a marcar (@)</value></data>
+  <data name="campaignBriefing.field.referenceLinks" xml:space="preserve"><value>Links de referência</value></data>
+  <data name="creatorPortal.briefing.show" xml:space="preserve"><value>Ver briefing</value></data>
+  <data name="creatorPortal.briefing.hide" xml:space="preserve"><value>Ocultar briefing</value></data>
+  <data name="creatorPortal.briefing.empty" xml:space="preserve"><value>Briefing ainda não disponível.</value></data>
 </root>

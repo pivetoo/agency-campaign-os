@@ -3,6 +3,7 @@ import type { CampaignDocument } from '../types/campaignDocument'
 import type { CreatorPayment, PixKeyTypeValue } from '../types/creatorPayment'
 import type { CampaignDeliverable } from '../types/campaignDeliverable'
 import type { ContentReview, ContentAssetInput } from '../types/contentReview'
+import type { CampaignBriefing } from '../types/campaignBriefing'
 
 const BASE = '/CreatorPortal'
 
@@ -68,6 +69,10 @@ export const creatorPortalService = {
   async getCampaigns(token: string): Promise<PortalCampaign[]> {
     const response = await httpClient.get<PortalCampaign[]>(`${BASE}/${token}/campaigns`)
     return response.data ?? []
+  },
+  async getCampaignBriefing(token: string, campaignId: number): Promise<CampaignBriefing | null> {
+    const response = await httpClient.get<CampaignBriefing | null>(`${BASE}/${token}/campaigns/${campaignId}/briefing`)
+    return response.data ?? null
   },
   async getDocuments(token: string): Promise<CampaignDocument[]> {
     const response = await httpClient.get<CampaignDocument[]>(`${BASE}/${token}/documents`)

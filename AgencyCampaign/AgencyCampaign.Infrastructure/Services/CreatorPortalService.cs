@@ -44,6 +44,24 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<CampaignBriefingModel?> GetCampaignBriefing(long creatorId, long campaignId, CancellationToken cancellationToken = default)
+        {
+            bool participates = await dbContext.Set<CampaignCreator>()
+                .AsNoTracking()
+                .AnyAsync(item => item.CreatorId == creatorId && item.CampaignId == campaignId, cancellationToken);
+
+            if (!participates)
+            {
+                throw new InvalidOperationException("creatorPortal.token.invalid");
+            }
+
+            CampaignBriefing? briefing = await dbContext.Set<CampaignBriefing>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.CampaignId == campaignId, cancellationToken);
+
+            return briefing is null ? null : CampaignBriefingModel.FromEntity(briefing);
+        }
+
         public async Task<List<CampaignDocument>> GetDocuments(long creatorId, CancellationToken cancellationToken = default)
         {
             return await dbContext.Set<CampaignDocument>()

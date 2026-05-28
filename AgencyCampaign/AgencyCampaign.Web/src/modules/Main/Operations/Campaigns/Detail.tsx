@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw, ScrollText, TrendingUp } from 'lucide-react'
+import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw, ScrollText, TrendingUp, ClipboardList } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
 import { campaignCreatorService } from '../../../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../../../services/campaignDeliverableService'
@@ -23,6 +23,7 @@ import CampaignDocumentDetailsModal from '../../../../components/modals/Campaign
 import ContentReviewSheet from '../../../../components/sheets/ContentReviewSheet'
 import DeliverableLicensesSheet from '../../../../components/sheets/DeliverableLicensesSheet'
 import CampaignCreatorSalesSheet from '../../../../components/sheets/CampaignCreatorSalesSheet'
+import CampaignBriefingTab from '../../../../components/CampaignBriefingTab'
 import { formatCurrency } from '../../../../lib/format'
 
 
@@ -498,6 +499,10 @@ export default function CampaignDetail() {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="briefing" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+              <ClipboardList size={14} />
+              {t('campaign.detail.briefingTab')}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="creators" className="mt-0">
@@ -601,6 +606,10 @@ export default function CampaignDetail() {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="briefing" className="mt-0">
+            <CampaignBriefingTab campaignId={campaignId} />
           </TabsContent>
         </Tabs>
       </PageLayout>

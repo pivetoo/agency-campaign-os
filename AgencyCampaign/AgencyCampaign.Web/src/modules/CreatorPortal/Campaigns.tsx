@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from 'archon-ui'
 import { creatorPortalService, type PortalCampaign } from '../../services/creatorPortalService'
+import type { CampaignBriefing } from '../../types/campaignBriefing'
 import { usePortalContext } from './hooks'
 
 export default function CreatorPortalCampaigns() {
@@ -55,8 +56,60 @@ export default function CreatorPortalCampaigns() {
             {c.endsAt && <Field label={t('creatorPortal.campaigns.field.endDate')} value={new Date(c.endsAt).toLocaleDateString('pt-BR')} />}
           </div>
           {c.notes && <p className="mt-2 text-xs text-muted-foreground">{c.notes}</p>}
+          <BriefingBlock token={token} campaignId={c.campaignId} />
         </div>
       ))}
+    </div>
+  )
+}
+
+function BriefingBlock({ token, campaignId }: { token: string; campaignId: number }) {
+  const { t } = useI18n()
+  const [open, setOpen] = useState(false)
+  const [briefing, setBriefing] = useState<CampaignBriefing | null>(null)
+  const [loaded, setLoaded] = useState(false)
+
+  async function toggle() {
+    const next = !open
+    setOpen(next)
+    if (next && !loaded) {
+      const res = await creatorPortalService.getCampaignBriefing(token, campaignId)
+      setBriefing(res)
+      setLoaded(true)
+    }
+  }
+
+  const sections: Array<[string, string | null | undefined]> = briefing
+    ? [
+        [t('campaignBriefing.field.keyMessage'), briefing.keyMessage],
+        [t('campaignBriefing.field.dos'), briefing.dos],
+        [t('campaignBriefing.field.donts'), briefing.donts],
+        [t('campaignBriefing.field.hashtags'), briefing.hashtags],
+        [t('campaignBriefing.field.mentions'), briefing.mentions],
+        [t('campaignBriefing.field.referenceLinks'), briefing.referenceLinks],
+      ]
+    : []
+  const filled = sections.filter(([, value]) => value && value.trim())
+
+  return (
+    <div className="mt-2 border-t pt-2">
+      <button type="button" onClick={() => void toggle()} className="text-xs font-medium text-primary hover:underline">
+        {open ? t('creatorPortal.briefing.hide') : t('creatorPortal.briefing.show')}
+      </button>
+      {open && (
+        loaded && filled.length === 0 ? (
+          <p className="mt-2 text-xs text-muted-foreground">{t('creatorPortal.briefing.empty')}</p>
+        ) : (
+          <div className="mt-2 space-y-2">
+            {filled.map(([label, value]) => (
+              <div key={label}>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+                <p className="whitespace-pre-wrap text-xs text-foreground">{value}</p>
+              </div>
+            ))}
+          </div>
+        )
+      )}
     </div>
   )
 }

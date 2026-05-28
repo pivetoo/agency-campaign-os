@@ -95,6 +95,20 @@ namespace AgencyCampaign.Api.Controllers
             }
         }
 
+        [HttpGet("{token}/campaigns/{campaignId:long}/briefing")]
+        public async Task<IActionResult> CampaignBriefing(string token, long campaignId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                CreatorPortalContext ctx = await portalService.ResolveContext(token, cancellationToken);
+                return Http200(await portalService.GetCampaignBriefing(ctx.Creator.Id, campaignId, cancellationToken));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Http401(Localizer[ex.Message]);
+            }
+        }
+
         [HttpGet("{token}/documents")]
         public async Task<IActionResult> Documents(string token, CancellationToken cancellationToken)
         {
