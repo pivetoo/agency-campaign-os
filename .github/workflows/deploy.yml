@@ -43,34 +43,18 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           path: frameworks/archon-ui
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Build backend
-        run: dotnet build "system/agency-campaign-os/AgencyCampaign/AgencyCampaign.Api/AgencyCampaign.Api.csproj" -c Release
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: |
-            frameworks/archon-ui/package-lock.json
-            system/agency-campaign-os/AgencyCampaign/AgencyCampaign.Web/package-lock.json
+          cache-dependency-path: frameworks/archon-ui/package-lock.json
 
       - name: Install Archon UI dependencies
         run: npm --prefix "frameworks/archon-ui" ci
 
       - name: Build Archon UI
         run: npm --prefix "frameworks/archon-ui" run build
-
-      - name: Install frontend dependencies
-        run: npm --prefix "system/agency-campaign-os/AgencyCampaign/AgencyCampaign.Web" ci
-
-      - name: Build frontend
-        run: npm --prefix "system/agency-campaign-os/AgencyCampaign/AgencyCampaign.Web" run build
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -93,6 +77,8 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.API_IMAGE }}:${{ github.sha }}
           build-contexts: |
             archon-framework=frameworks/archon-framework
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
 
       - name: Build and push Web image
         uses: docker/build-push-action@v6
@@ -109,6 +95,8 @@ jobs:
             VITE_OIDC_CLIENT_ID=agency-campaign-prod
           build-contexts: |
             archon-ui=frameworks/archon-ui
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
 
       - name: Copy deploy assets to VPS
         uses: appleboy/scp-action@v0.1.7
