@@ -80,6 +80,59 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetReportByToken_should_compute_emv_from_impressions_when_rate_configured()
+        {
+            await SeedCampaignWithMetricsAsync();
+            AgencySettings settings = new("Acme");
+            settings.Update("Acme", null, null, null, null, null, null, null, 30m);
+            db.Add(settings.WithId(1));
+            await db.SaveChangesAsync();
+
+            CampaignReportModel? report = await service.GetReportByToken("tok123");
+
+            report!.Totals.TotalImpressions.Should().Be(7500);
+            report.Totals.Emv.Should().Be(225m);
+        }
+
+        [Test]
+        public async Task GetReportByToken_should_return_null_emv_when_rate_not_configured()
+        {
+            await SeedCampaignWithMetricsAsync();
+
+            CampaignReportModel? report = await service.GetReportByToken("tok123");
+
+            report!.Totals.Emv.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetReportByToken_should_fallback_to_reach_when_no_impressions()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "Camp", 10000m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new Creator("Foo").WithId(1));
+            db.Add(new DomainEntities.CampaignCreator(10, 1, 1, 100m, 10m).WithId(20));
+            db.Add(new Platform("IG").WithId(1));
+            db.Add(new DeliverableKind("Story").WithId(1));
+
+            CampaignDeliverable deliverable = new(10, 20, "Post", 1, 1, DateTimeOffset.UtcNow.AddDays(5), 1000m, 800m, 100m);
+            deliverable.Publish("https://x/1", null, DateTimeOffset.UtcNow);
+            deliverable.RegisterCreatorInsights(2000, null, null);
+            db.Add(deliverable.WithId(30));
+
+            AgencySettings settings = new("Acme");
+            settings.Update("Acme", null, null, null, null, null, null, null, 50m);
+            db.Add(settings.WithId(1));
+            db.Add(new CampaignReportLink(10, "tok123", null, null).WithId(40));
+            await db.SaveChangesAsync();
+
+            CampaignReportModel? report = await service.GetReportByToken("tok123");
+
+            report!.Totals.TotalImpressions.Should().Be(0);
+            report.Totals.TotalReach.Should().Be(2000);
+            report.Totals.Emv.Should().Be(100m);
+        }
+
+        [Test]
         public async Task GetReportByToken_should_return_null_for_invalid_token()
         {
             await SeedCampaignWithMetricsAsync();

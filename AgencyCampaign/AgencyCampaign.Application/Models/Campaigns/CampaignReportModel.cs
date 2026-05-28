@@ -40,6 +40,8 @@ namespace AgencyCampaign.Application.Models.Campaigns
         public decimal? Cpm { get; init; }
 
         public decimal? CostPerEngagement { get; init; }
+
+        public decimal? Emv { get; init; }
     }
 
     public sealed class CampaignReportGroupItem

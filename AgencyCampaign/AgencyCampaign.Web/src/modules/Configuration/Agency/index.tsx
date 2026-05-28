@@ -18,6 +18,7 @@ export default function AgencyConfiguration() {
   const [primaryEmail, setPrimaryEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
+  const [emvCpmRate, setEmvCpmRate] = useState('')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [logoError, setLogoError] = useState<string | null>(null)
@@ -38,6 +39,7 @@ export default function AgencyConfiguration() {
       setPrimaryEmail(result.primaryEmail ?? '')
       setPhone(result.phone ?? '')
       setAddress(result.address ?? '')
+      setEmvCpmRate(result.emvCpmRate != null ? String(result.emvCpmRate) : '')
     }
   }
 
@@ -94,6 +96,7 @@ export default function AgencyConfiguration() {
         phone: phone.trim() || null,
         address: address.trim() || null,
         defaultEmailConnectorId: settings?.defaultEmailConnectorId ?? null,
+        emvCpmRate: emvCpmRate.trim() === '' ? null : Number(emvCpmRate),
       }),
     )
     if (result !== null) void load()
@@ -195,6 +198,19 @@ export default function AgencyConfiguration() {
               <div className="space-y-2 md:col-span-2">
                 <label className="text-sm font-medium">{t('common.field.address')}</label>
                 <Input value={address} onChange={(e) => setAddress(e.target.value)} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-5 pb-5 space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t('configuration.agency.reportSection')}</h3>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('configuration.agency.emvRate')}</label>
+                <Input type="number" step="0.01" min={0} value={emvCpmRate} onChange={(e) => setEmvCpmRate(e.target.value)} />
+                <p className="text-xs text-muted-foreground">{t('configuration.agency.emvRateHint')}</p>
               </div>
             </div>
           </CardContent>

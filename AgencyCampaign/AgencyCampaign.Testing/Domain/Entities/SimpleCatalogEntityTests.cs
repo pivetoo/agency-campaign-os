@@ -25,7 +25,7 @@ namespace AgencyCampaign.Testing.Domain.Entities
         {
             AgencySettings subject = new("Old");
 
-            subject.Update("New", " trade ", " doc ", " a@x ", " 999 ", " addr ", " logo ", " #fff ");
+            subject.Update("New", " trade ", " doc ", " a@x ", " 999 ", " addr ", " logo ", " #fff ", null);
 
             subject.AgencyName.Should().Be("New");
             subject.TradeName.Should().Be("trade");

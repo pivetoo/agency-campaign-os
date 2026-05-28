@@ -35,7 +35,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Phone,
                 request.Address,
                 request.LogoUrl,
-                request.PrimaryColor);
+                request.PrimaryColor,
+                request.EmvCpmRate);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return Map(settings);
@@ -229,7 +230,8 @@ namespace AgencyCampaign.Infrastructure.Services
             Address = settings.Address,
             LogoUrl = settings.LogoUrl,
             PrimaryColor = settings.PrimaryColor,
-            ProposalHtmlTemplate = settings.ProposalHtmlTemplate
+            ProposalHtmlTemplate = settings.ProposalHtmlTemplate,
+            EmvCpmRate = settings.EmvCpmRate
         };
     }
 }

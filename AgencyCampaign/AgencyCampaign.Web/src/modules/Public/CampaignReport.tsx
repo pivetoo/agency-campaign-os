@@ -80,13 +80,14 @@ export default function PublicCampaignReport() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-7">
           <Kpi label={t('campaignReport.kpi.reach')} value={formatNumber(totals.totalReach)} />
           <Kpi label={t('campaignReport.kpi.impressions')} value={formatNumber(totals.totalImpressions)} />
           <Kpi label={t('campaignReport.kpi.engagement')} value={formatNumber(totals.totalEngagement)} />
           <Kpi label={t('campaignReport.kpi.engagementRate')} value={rate != null ? `${rate.toFixed(2)}%` : '-'} />
           <Kpi label={t('campaignReport.kpi.cpm')} value={totals.cpm != null ? formatCurrency(totals.cpm) : '-'} hint={t('campaignReport.kpi.cpmHint')} />
           <Kpi label={t('campaignReport.kpi.costPerEngagement')} value={totals.costPerEngagement != null ? formatCurrency(totals.costPerEngagement) : '-'} />
+          <Kpi label={t('campaignReport.kpi.emv')} value={totals.emv != null ? formatCurrency(totals.emv) : '-'} hint={t('campaignReport.kpi.emvHint')} />
         </div>
 
         <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border/70 bg-card px-4 py-3 text-sm">

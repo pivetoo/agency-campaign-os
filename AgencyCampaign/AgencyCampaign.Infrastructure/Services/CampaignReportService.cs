@@ -102,6 +102,15 @@ namespace AgencyCampaign.Infrastructure.Services
             decimal? cpm = totalReach > 0 ? Math.Round(investment / totalReach * 1000m, 2) : null;
             decimal? costPerEngagement = totalEngagement > 0 ? Math.Round(investment / totalEngagement, 2) : null;
 
+            decimal? emvRate = await dbContext.Set<AgencySettings>()
+                .AsNoTracking()
+                .Select(item => item.EmvCpmRate)
+                .FirstOrDefaultAsync(cancellationToken);
+            long emvBase = totalImpressions > 0 ? totalImpressions : totalReach;
+            decimal? emv = emvRate.HasValue && emvRate.Value > 0 && emvBase > 0
+                ? Math.Round(emvBase / 1000m * emvRate.Value, 2)
+                : null;
+
             CampaignReportGroupItem[] byPlatform = deliverables
                 .GroupBy(PlatformName)
                 .Select(group => new CampaignReportGroupItem
@@ -162,7 +171,8 @@ namespace AgencyCampaign.Infrastructure.Services
                     AvgEngagementRate = avgRate,
                     Investment = investment,
                     Cpm = cpm,
-                    CostPerEngagement = costPerEngagement
+                    CostPerEngagement = costPerEngagement,
+                    Emv = emv
                 },
                 ByPlatform = byPlatform,
                 ByCreator = byCreator,

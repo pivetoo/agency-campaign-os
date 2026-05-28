@@ -2262,4 +2262,9 @@
   <data name="contentLicense.confirm.delete" xml:space="preserve"><value>Remover este direito de uso?</value></data>
   <data name="contentLicense.confirm.apply" xml:space="preserve"><value>Copiar este direito para todas as entregas da campanha?</value></data>
   <data name="contentLicense.dashboard.title" xml:space="preserve"><value>Licenças vencendo</value></data>
+  <data name="campaignReport.kpi.emv" xml:space="preserve"><value>EMV</value></data>
+  <data name="campaignReport.kpi.emvHint" xml:space="preserve"><value>Valor estimado de mídia espontânea</value></data>
+  <data name="configuration.agency.reportSection" xml:space="preserve"><value>Relatório de campanha</value></data>
+  <data name="configuration.agency.emvRate" xml:space="preserve"><value>Taxa de EMV (R$ por mil impressões)</value></data>
+  <data name="configuration.agency.emvRateHint" xml:space="preserve"><value>Usada para calcular o EMV no relatório da campanha. Deixe em branco para não exibir.</value></data>
 </root>

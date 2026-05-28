@@ -16,6 +16,7 @@ export interface UpdateAgencySettingsRequest {
   logoUrl?: string | null
   primaryColor?: string | null
   defaultEmailConnectorId?: number | null
+  emvCpmRate?: number | null
 }
 
 export const agencySettingsService = {

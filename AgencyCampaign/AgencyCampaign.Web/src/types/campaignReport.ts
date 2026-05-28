@@ -9,6 +9,7 @@ export interface CampaignReportTotals {
   investment: number
   cpm?: number
   costPerEngagement?: number
+  emv?: number
 }
 
 export interface CampaignReportGroupItem {

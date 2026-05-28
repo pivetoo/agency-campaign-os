@@ -22,6 +22,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? ProposalHtmlTemplate { get; private set; }
 
+        public decimal? EmvCpmRate { get; private set; }
+
         private AgencySettings()
         {
         }
@@ -32,9 +34,14 @@ namespace AgencyCampaign.Domain.Entities
             AgencyName = agencyName.Trim();
         }
 
-        public void Update(string agencyName, string? tradeName, string? document, string? primaryEmail, string? phone, string? address, string? logoUrl, string? primaryColor)
+        public void Update(string agencyName, string? tradeName, string? document, string? primaryEmail, string? phone, string? address, string? logoUrl, string? primaryColor, decimal? emvCpmRate)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(agencyName);
+
+            if (emvCpmRate.HasValue && emvCpmRate.Value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(emvCpmRate));
+            }
 
             AgencyName = agencyName.Trim();
             TradeName = Normalize(tradeName);
@@ -44,6 +51,7 @@ namespace AgencyCampaign.Domain.Entities
             Address = Normalize(address);
             LogoUrl = Normalize(logoUrl);
             PrimaryColor = Normalize(primaryColor);
+            EmvCpmRate = emvCpmRate;
         }
 
         public void SetLogo(string? logoUrl)
