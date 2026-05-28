@@ -1,14 +1,14 @@
 # Sistema para Agências de Marketing de Influência
 
-O Kanvas é um sistema operacional completo para agências que trabalham com marketing de influência. Ele cobre o ciclo de ponta a ponta: prospecção comercial, gestão de propostas, operação de campanhas com creators, controle financeiro e auditoria.
+O Kanvas é um sistema operacional completo para agências que trabalham com marketing de influência. Ele cobre o ciclo de ponta a ponta: prospecção comercial, gestão de propostas, produção de campanhas com creators, controle financeiro e auditoria.
 
 A plataforma é organizada em três módulos de negócio:
 
 - **Comercial** — prospecção, pipeline, propostas e aprovações até o fechamento.
-- **Operacional** — execução das campanhas com creators: entregáveis, aprovações de conteúdo e documentos.
+- **Produção** — execução das campanhas com creators: entregáveis, aprovações de conteúdo e documentos.
 - **Financeiro** — contas, lançamentos, conciliação bancária e pagamentos a creators.
 
-> Documentação por módulo em evolução. Esta versão documenta o **Módulo Comercial** em detalhe; **Operacional** e **Financeiro** estão com a estrutura preparada e serão detalhados na sequência.
+> Documentação por módulo em evolução. Esta versão documenta o **Módulo Comercial** em detalhe; **Produção** e **Financeiro** estão com a estrutura preparada e serão detalhados na sequência.
 
 ## Sumário
 
@@ -23,7 +23,7 @@ A plataforma é organizada em três módulos de negócio:
   - [Configurações do comercial](#configurações-do-comercial)
   - [Telas e rotas](#telas-e-rotas)
   - [Principais endpoints](#principais-endpoints)
-- [Módulo Operacional](#módulo-operacional)
+- [Módulo Produção](#módulo-produção)
 - [Módulo Financeiro](#módulo-financeiro)
 
 ---
@@ -176,7 +176,7 @@ Todos protegidos por `[RequireAccess]`, exceto os públicos de proposta (`[Allow
 
 ---
 
-## Módulo Operacional
+## Módulo Produção
 
 > A documentar. Cobre a execução das campanhas com creators (entregáveis, aprovações de conteúdo, documentos e assinaturas, portal do creator).
 

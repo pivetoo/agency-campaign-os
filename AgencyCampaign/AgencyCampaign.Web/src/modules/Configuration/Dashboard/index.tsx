@@ -13,16 +13,16 @@ import type { Automation } from '../../../types/automation'
 import type { FinancialAccount } from '../../../types/financialAccount'
 import type { IntegrationCategory } from '../../../types/integrationPlatform'
 
-function classifyTrigger(trigger: string): 'Comercial' | 'Operação' | 'Financeiro' | 'Outros' {
+function classifyTrigger(trigger: string): 'Comercial' | 'Produção' | 'Financeiro' | 'Outros' {
   if (trigger.startsWith('proposal_') || trigger.startsWith('opportunity_') || trigger === 'follow_up_overdue') return 'Comercial'
-  if (trigger.startsWith('campaign_') || trigger.startsWith('deliverable_')) return 'Operação'
+  if (trigger.startsWith('campaign_') || trigger.startsWith('deliverable_')) return 'Produção'
   if (trigger.startsWith('financial_')) return 'Financeiro'
   return 'Outros'
 }
 
 const moduleColors: Record<string, string> = {
   Comercial: '#6366f1',
-  Operação: '#0ea5e9',
+  Produção: '#0ea5e9',
   Financeiro: '#10b981',
   Outros: '#a1a1aa',
 }
@@ -61,7 +61,7 @@ export default function ConfigurationDashboard() {
   const activeAccounts = useMemo(() => accounts.filter((a) => a.isActive), [accounts])
 
   const automationByModule = useMemo(() => {
-    const buckets: Record<string, number> = { Comercial: 0, Operação: 0, Financeiro: 0, Outros: 0 }
+    const buckets: Record<string, number> = { Comercial: 0, Produção: 0, Financeiro: 0, Outros: 0 }
     for (const auto of activeAutomations) {
       const bucket = classifyTrigger(auto.trigger)
       buckets[bucket] = (buckets[bucket] ?? 0) + 1

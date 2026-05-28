@@ -49,7 +49,7 @@ export const automationTriggerGroups = [
     ],
   },
   {
-    label: 'Operação',
+    label: 'Produção',
     triggers: [
       AutomationTriggers.CampaignCreated,
       AutomationTriggers.DeliverablePublished,

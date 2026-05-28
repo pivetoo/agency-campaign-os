@@ -242,7 +242,7 @@
   <data name="nav.module.configuration" xml:space="preserve"><value>Configuração</value></data>
   <data name="nav.group.general" xml:space="preserve"><value>Geral</value></data>
   <data name="nav.group.commercial" xml:space="preserve"><value>Comercial</value></data>
-  <data name="nav.group.operations" xml:space="preserve"><value>Operação</value></data>
+  <data name="nav.group.operations" xml:space="preserve"><value>Produção</value></data>
   <data name="nav.group.finance" xml:space="preserve"><value>Finanças</value></data>
   <data name="nav.item.dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="nav.item.users" xml:space="preserve"><value>Controle de Acesso</value></data>
@@ -299,7 +299,7 @@
   <data name="dashboard.platforms.empty" xml:space="preserve"><value>Nenhuma entrega cadastrada.</value></data>
   <data name="dashboard.creatorGrowth.title" xml:space="preserve"><value>Crescimento de influenciadores</value></data>
   <data name="dashboard.creatorGrowth.empty" xml:space="preserve"><value>Nenhum influenciador cadastrado.</value></data>
-  <data name="dashboard.operationHealth.title" xml:space="preserve"><value>Saúde da operação</value></data>
+  <data name="dashboard.operationHealth.title" xml:space="preserve"><value>Saúde da produção</value></data>
   <data name="dashboard.operationHealth.empty" xml:space="preserve"><value>Sem dados suficientes.</value></data>
   <data name="common.field.code" xml:space="preserve"><value>Código</value></data>
   <data name="common.field.name" xml:space="preserve"><value>Nome</value></data>
@@ -2172,7 +2172,7 @@
   <data name="creators.detail.action.newHandle" xml:space="preserve"><value>Nova rede social</value></data>
   <data name="creators.detail.action.syncFollowers" xml:space="preserve"><value>Sincronizar seguidores</value></data>
   <data name="creators.detail.followersSynced" xml:space="preserve"><value>{0} rede(s) atualizada(s) com seguidores.</value></data>
-  <data name="campaign.detail.operations" xml:space="preserve"><value>Operação da campanha</value></data>
+  <data name="campaign.detail.operations" xml:space="preserve"><value>Produção da campanha</value></data>
   <data name="campaign.detail.field.agreedAmount" xml:space="preserve"><value>Valor combinado</value></data>
   <data name="campaign.detail.field.agencyFee" xml:space="preserve"><value>Fee agência</value></data>
   <data name="campaign.detail.field.confirmedAt" xml:space="preserve"><value>Confirmado em</value></data>

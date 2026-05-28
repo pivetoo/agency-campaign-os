@@ -41,14 +41,14 @@ const steps: KanvasStep[] = [
     placement: 'right',
     title: 'Sidebar',
     content:
-      'Aqui você navega entre os módulos: Comercial, Operação, Finanças e Configuração. O conteúdo muda conforme o módulo escolhido na topbar.',
+      'Aqui você navega entre os módulos: Comercial, Produção, Finanças e Configuração. O conteúdo muda conforme o módulo escolhido na topbar.',
   },
   {
     target: '[data-tour="module-switcher"]',
     placement: 'bottom',
     title: 'Módulos: Sistema · Configuração · Auditoria',
     content:
-      'Use este botão para alternar entre o operacional do dia-a-dia, os cadastros (configuração) e o histórico de auditoria. A sidebar muda conforme o módulo escolhido.',
+      'Use este botão para alternar entre a produção do dia-a-dia, os cadastros (configuração) e o histórico de auditoria. A sidebar muda conforme o módulo escolhido.',
   },
   {
     target: '[data-tour="notifications-bell"]',
@@ -62,7 +62,7 @@ const steps: KanvasStep[] = [
     placement: 'bottom',
     title: 'Indicadores principais',
     content:
-      'No header da Dashboard você vê em tempo real: campanhas ativas, marcas, creators e entregas pendentes. Visão rápida da saúde da operação.',
+      'No header da Dashboard você vê em tempo real: campanhas ativas, marcas, creators e entregas pendentes. Visão rápida da saúde da produção.',
   },
 
   // ─── Módulo Comercial ───
@@ -138,26 +138,26 @@ const steps: KanvasStep[] = [
     route: '/comercial/followups',
   },
 
-  // ─── Módulo Operação ───
+  // ─── Módulo Produção ───
   {
     target: 'body',
     placement: 'center',
-    title: 'Módulo Operação',
+    title: 'Módulo Produção',
     content:
-      'Agora a Operação: marcas atendidas, base de creators e execução das campanhas. É onde o trabalho acontece depois que a proposta é aprovada.',
+      'Agora a Produção: marcas atendidas, base de creators e execução das campanhas. É onde o trabalho acontece depois que a proposta é aprovada.',
     route: '/marcas',
   },
   {
     target: 'body',
     placement: 'center',
-    title: 'Operação · Marcas',
+    title: 'Produção · Marcas',
     content:
       'Cadastro dos seus clientes (marcas atendidas). Aqui ficam as informações de contato e configuração de cada marca.',
   },
   {
     target: '[data-tour="creators-table"]',
     placement: 'top',
-    title: 'Operação · Creators',
+    title: 'Produção · Creators',
     content:
       'Lista de creators. Cada linha tem o botão "Abrir 360" para o perfil completo.',
     route: '/creators',
@@ -165,7 +165,7 @@ const steps: KanvasStep[] = [
   {
     target: 'body',
     placement: 'center',
-    title: 'Operação · Creator 360',
+    title: 'Produção · Creator 360',
     content:
       'Perfil completo do creator: handles sociais (Instagram, TikTok, YouTube) com seguidores e engajamento, métricas de performance por plataforma, histórico de todas as campanhas em que participou, faturamento gerado e taxa de on-time delivery.',
     resolveRoute: () =>
@@ -177,7 +177,7 @@ const steps: KanvasStep[] = [
   {
     target: 'body',
     placement: 'center',
-    title: 'Operação · Campanhas',
+    title: 'Produção · Campanhas',
     content:
       'Execução real do trabalho com a marca aprovada. Cada campanha tem creators participantes, deliverables com prazos, documentos e contratos.',
     route: '/campanhas',
@@ -185,7 +185,7 @@ const steps: KanvasStep[] = [
   {
     target: 'body',
     placement: 'center',
-    title: 'Operação · Detalhe da campanha',
+    title: 'Produção · Detalhe da campanha',
     content:
       'Tabs internas: Creators (status de participação), Documentos (contratos, briefings) e Entregas (deliverables com prazo, valor combinado, share link de aprovação para a marca, regra obrigatória de aprovação antes de publicar).',
     resolveRoute: () =>
@@ -197,7 +197,7 @@ const steps: KanvasStep[] = [
   {
     target: 'body',
     placement: 'center',
-    title: 'Operação · Aprovações',
+    title: 'Produção · Aprovações',
     content:
       'Entregas que aguardam aprovação da marca. Você gera um link público, a marca aprova ou rejeita pelo navegador, e só depois a entrega pode ser publicada.',
     route: '/operacao/aprovacoes',
@@ -275,7 +275,7 @@ const steps: KanvasStep[] = [
     placement: 'center',
     title: 'Pronto para começar',
     content:
-      'Você concluiu o tour. Use o sino de notificações para acompanhar eventos importantes e o switcher Sistema/Configuração na topbar para alternar entre o operacional e os cadastros.',
+      'Você concluiu o tour. Use o sino de notificações para acompanhar eventos importantes e o switcher Sistema/Configuração na topbar para alternar entre a produção e os cadastros.',
     route: '/',
   },
 ]
