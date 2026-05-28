@@ -165,7 +165,11 @@ export default function CommercialProposalDetail() {
     setPublicLinkUrl(undefined)
     try {
       const links = await proposalService.getShareLinks(proposalId)
-      const active = links.find((link) => link.isActive)
+      let active = links.find((link) => link.isActive)
+      if (!active) {
+        const created = await proposalService.createShareLink(proposalId, {})
+        active = created?.data ?? undefined
+      }
       if (active) {
         setPublicLinkUrl(`${window.location.origin}/p/${active.token}`)
       }
