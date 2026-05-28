@@ -391,6 +391,15 @@ export default function CommercialPipeline() {
       actionsSlot={(
         <div className="flex flex-wrap items-center gap-2">
           <CommercialViewToggle active="kanban" />
+          {hasAnyPermission(['opportunities.analytics', 'opportunities.analyticsOwn']) && (
+            <button
+              type="button"
+              onClick={() => navigate('/comercial/analytics')}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-1.5 text-[13px] font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              <BarChart3 className="h-3.5 w-3.5" /> Analytics
+            </button>
+          )}
           <DensityToggle value={density} onChange={changeDensity} />
         </div>
       )}

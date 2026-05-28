@@ -121,7 +121,6 @@ export default function AgencyCampaignLayout() {
         { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} />, requires: ['opportunities.board', 'opportunities.get'] },
         { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },
         { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} />, requires: ['opportunityApprovals.get'] },
-        { key: 'comercial-analytics', label: 'Analytics', path: '/comercial/analytics', icon: <TrendingUp size={20} />, requires: ['opportunities.analytics', 'opportunities.analyticsOwn'] },
         { key: 'comercial-metas', label: 'Metas', path: '/comercial/metas', icon: <Target size={20} />, requires: ['commercialGoals.get'] },
       ],
     },
