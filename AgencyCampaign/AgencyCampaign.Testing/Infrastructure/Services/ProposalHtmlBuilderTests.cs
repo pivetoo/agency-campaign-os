@@ -207,6 +207,31 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public void Build_should_embed_local_logo_as_base64_ignoring_version_query_string()
+        {
+            string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "agency", "test-tenant");
+            Directory.CreateDirectory(folder);
+            string filePath = Path.Combine(folder, "99.png");
+            byte[] payload = [1, 2, 3, 4];
+            File.WriteAllBytes(filePath, payload);
+
+            try
+            {
+                AgencySettings agency = BuildAgency(logoUrl: "/uploads/agency/test-tenant/99.png?v=1716800000");
+                Proposal proposal = BuildProposal();
+
+                string html = ProposalHtmlBuilder.Build(proposal, agency, explicitTemplate: "{{agency.logo}}");
+
+                html.Should().Contain($"src=\"data:image/png;base64,{Convert.ToBase64String(payload)}\"");
+                html.Should().NotContain("?v=");
+            }
+            finally
+            {
+                File.Delete(filePath);
+            }
+        }
+
+        [Test]
         public void Build_should_render_email_html_when_email_is_present()
         {
             AgencySettings agency = BuildAgency(primaryEmail: "contato@acme.com");

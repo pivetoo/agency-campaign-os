@@ -156,7 +156,9 @@ namespace AgencyCampaign.Infrastructure.Services
             if (!logoUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
                 !logoUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
-                string physicalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", logoUrl.TrimStart('/'));
+                // LogoUrl carrega query de versão (?v=...); remover antes de resolver o caminho físico
+                string relativePath = logoUrl.Split('?')[0].TrimStart('/');
+                string physicalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativePath);
                 if (File.Exists(physicalPath))
                 {
                     byte[] bytes = File.ReadAllBytes(physicalPath);
