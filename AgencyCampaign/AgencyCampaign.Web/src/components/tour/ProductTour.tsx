@@ -71,8 +71,16 @@ const steps: KanvasStep[] = [
     placement: 'center',
     title: 'Módulo Comercial',
     content:
-      'Agora vamos passear pelo Comercial: pipeline de oportunidades, propostas, aprovações e atividades. É onde as vendas começam.',
+      'Agora vamos passear pelo Comercial: marcas (seus clientes), pipeline de oportunidades, propostas, aprovações e atividades. É onde as vendas começam.',
     route: '/comercial/pipeline',
+  },
+  {
+    target: 'body',
+    placement: 'center',
+    title: 'Comercial · Marcas',
+    content:
+      'Cadastro dos seus clientes (marcas atendidas). Aqui ficam as informações de contato e configuração de cada marca.',
+    route: '/marcas',
   },
   {
     target: 'body',
@@ -144,15 +152,8 @@ const steps: KanvasStep[] = [
     placement: 'center',
     title: 'Módulo Produção',
     content:
-      'Agora a Produção: marcas atendidas, base de creators e execução das campanhas. É onde o trabalho acontece depois que a proposta é aprovada.',
-    route: '/marcas',
-  },
-  {
-    target: 'body',
-    placement: 'center',
-    title: 'Produção · Marcas',
-    content:
-      'Cadastro dos seus clientes (marcas atendidas). Aqui ficam as informações de contato e configuração de cada marca.',
+      'Agora a Produção: base de creators e execução das campanhas com entregas, aprovações de conteúdo e contratos. É onde o trabalho acontece depois que a proposta é aprovada.',
+    route: '/creators',
   },
   {
     target: '[data-tour="creators-table"]',
