@@ -58,7 +58,7 @@ namespace AgencyCampaign.Api.Controllers
         public async Task<IActionResult> GetByProposal(long proposalId, CancellationToken cancellationToken)
         {
             IReadOnlyCollection<OpportunityApprovalRequest> approvals = await approvalRequestService.GetApprovalsByProposalId(proposalId, cancellationToken);
-            return Http200(approvals.Select(OpportunityContractExtensions.MapApprovalRequest).ToList());
+            return Http200(approvals.Select(OpportunityContractExtensions.MapApprovalWithDetails).ToList());
         }
 
         [RequireAccess("opportunityApprovals.create.description")]

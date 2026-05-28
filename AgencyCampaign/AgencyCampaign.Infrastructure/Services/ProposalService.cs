@@ -195,23 +195,25 @@ namespace AgencyCampaign.Infrastructure.Services
 
             ProposalShareLink shareLink = await EnsureActiveShareLinkAsync(id, cancellationToken);
 
+            // Persistir versao, share link e status antes de enfileirar o envio, para o token publico ja existir quando o e-mail sair
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+
             string payload = JsonSerializer.Serialize(new
             {
-                proposalId = proposal.Id,
-                proposalName = proposal.Name,
+                proposalId = saved.Id,
+                proposalName = saved.Name,
                 to = new[] { request.RecipientEmail },
                 subject = request.Subject,
                 body = request.Body,
                 isHtml = true,
                 publicToken = shareLink.Token,
-                totalValue = proposal.TotalValue,
-                validityUntil = proposal.ValidityUntil,
+                totalValue = saved.TotalValue,
+                validityUntil = saved.ValidityUntil,
                 sentByUserName = currentUser.UserName
             });
 
             await integrationPlatformClient.EnqueueServiceAsync(capability.ServiceContractIdentifier, capability.ConnectorId, payload, priority: 1, ct: cancellationToken);
 
-            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
             await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
             return saved;
         }
@@ -226,22 +228,24 @@ namespace AgencyCampaign.Infrastructure.Services
 
             ProposalShareLink shareLink = await EnsureActiveShareLinkAsync(id, cancellationToken);
 
+            // Persistir versao, share link e status antes de enfileirar o envio, para o token publico ja existir quando a mensagem sair
+            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+
             string payload = JsonSerializer.Serialize(new
             {
-                proposalId = proposal.Id,
-                proposalName = proposal.Name,
+                proposalId = saved.Id,
+                proposalName = saved.Name,
                 to = request.RecipientPhone,
                 channel = "whatsapp",
                 body = request.Body,
                 publicToken = shareLink.Token,
-                totalValue = proposal.TotalValue,
-                validityUntil = proposal.ValidityUntil,
+                totalValue = saved.TotalValue,
+                validityUntil = saved.ValidityUntil,
                 sentByUserName = currentUser.UserName
             });
 
             await integrationPlatformClient.EnqueueServiceAsync(capability.ServiceContractIdentifier, capability.ConnectorId, payload, priority: 1, ct: cancellationToken);
 
-            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
             await NotifyAutomations(AutomationTriggers.ProposalSent, saved, cancellationToken);
             return saved;
         }
