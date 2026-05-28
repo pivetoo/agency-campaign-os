@@ -5,6 +5,7 @@ import { AlertTriangle, CalendarClock, FileDown, FileText, Sparkles } from 'luci
 import { proposalPublicService, type ProposalPublicSnapshot, type ProposalPublicView } from '../../services/proposalPublicService'
 import { formatDate } from '../../lib/format'
 import { formatCurrency } from '../../lib/format'
+import { resolveUploadUrl } from '../../lib/uploadUrl'
 
 export default function PublicProposal() {
   const { t } = useI18n()
@@ -84,9 +85,13 @@ export default function PublicProposal() {
     <div data-testid="public-proposal-page" className="min-h-screen bg-muted/40 py-12">
       <div className="mx-auto w-full max-w-4xl px-4">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            <Sparkles className="h-5 w-5" />
-          </div>
+          {resolveUploadUrl(view.brandLogoUrl) ? (
+            <img src={resolveUploadUrl(view.brandLogoUrl)} alt={view.brandName} className="h-10 w-10 rounded-lg border border-border/60 bg-white object-contain" />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary">
+              <Sparkles className="h-5 w-5" />
+            </div>
+          )}
           <div>
             <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('public.proposal.title')}</p>
             <h1 className="text-xl font-bold text-foreground">{view.brandName || 'Proposta'}</h1>

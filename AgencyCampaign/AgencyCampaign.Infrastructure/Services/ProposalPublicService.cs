@@ -87,6 +87,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 Description = version.Description,
                 AgencyName = string.Empty,
                 BrandName = brandName,
+                BrandLogoUrl = proposal?.Opportunity?.Brand?.LogoUrl,
                 TotalValue = version.TotalValue,
                 DiscountAmount = discountAmount,
                 DiscountPercent = discountPercent,

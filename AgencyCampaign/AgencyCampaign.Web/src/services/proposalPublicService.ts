@@ -32,6 +32,7 @@ export interface ProposalPublicView {
   description?: string
   agencyName: string
   brandName: string
+  brandLogoUrl?: string
   totalValue: number
   discountPercent?: number
   discountValue: number

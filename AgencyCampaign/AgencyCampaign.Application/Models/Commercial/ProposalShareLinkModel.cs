@@ -39,6 +39,8 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public string BrandName { get; init; } = string.Empty;
 
+        public string? BrandLogoUrl { get; init; }
+
         public decimal TotalValue { get; init; }
 
         public decimal? DiscountAmount { get; init; }
