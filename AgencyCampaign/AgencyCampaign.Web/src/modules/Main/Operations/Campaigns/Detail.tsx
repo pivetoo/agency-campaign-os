@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw, ScrollText } from 'lucide-react'
+import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw, ScrollText, TrendingUp } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
 import { campaignCreatorService } from '../../../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../../../services/campaignDeliverableService'
@@ -22,6 +22,7 @@ import CampaignDocumentSendForSignatureModal from '../../../../components/modals
 import CampaignDocumentDetailsModal from '../../../../components/modals/CampaignDocumentDetailsModal'
 import ContentReviewSheet from '../../../../components/sheets/ContentReviewSheet'
 import DeliverableLicensesSheet from '../../../../components/sheets/DeliverableLicensesSheet'
+import CampaignCreatorSalesSheet from '../../../../components/sheets/CampaignCreatorSalesSheet'
 import { formatCurrency } from '../../../../lib/format'
 
 
@@ -57,6 +58,8 @@ export default function CampaignDetail() {
   const [reviewDeliverableId, setReviewDeliverableId] = useState<number | null>(null)
   const [isLicensesOpen, setIsLicensesOpen] = useState(false)
   const [licensesDeliverableId, setLicensesDeliverableId] = useState<number | null>(null)
+  const [isSalesOpen, setIsSalesOpen] = useState(false)
+  const [salesCampaignCreator, setSalesCampaignCreator] = useState<CampaignCreator | null>(null)
 
   const campaignStatusLabels: Record<CampaignStatusValue, string> = {
     [CampaignStatus.Draft]: t('campaign.status.draft'),
@@ -182,14 +185,24 @@ export default function CampaignDetail() {
     {
       key: 'actions',
       title: '',
-      width: 48,
+      width: 80,
       render: (_: any, record: CampaignCreator) => (
-        <button
-          className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          onClick={() => { setSelectedCampaignCreator(record); setIsCreatorFormOpen(true) }}
-        >
-          <Pencil size={14} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            onClick={() => { setSalesCampaignCreator(record); setIsSalesOpen(true) }}
+            title={t('campaignCreatorSales.open')}
+          >
+            <TrendingUp size={14} />
+          </button>
+          <button
+            className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            onClick={() => { setSelectedCampaignCreator(record); setIsCreatorFormOpen(true) }}
+            title={t('common.action.edit')}
+          >
+            <Pencil size={14} />
+          </button>
+        </div>
       ),
     },
   ]
@@ -677,6 +690,17 @@ export default function CampaignDetail() {
         onOpenChange={setIsLicensesOpen}
         deliverableId={licensesDeliverableId}
         campaignId={campaignId}
+      />
+
+      <CampaignCreatorSalesSheet
+        open={isSalesOpen}
+        onOpenChange={setIsSalesOpen}
+        campaignCreator={salesCampaignCreator}
+        onSuccess={() => {
+          setIsSalesOpen(false)
+          setSalesCampaignCreator(null)
+          void loadCampaignCreators()
+        }}
       />
     </div>
   )

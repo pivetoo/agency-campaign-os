@@ -25,6 +25,14 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
 
         public DateTimeOffset? CancelledAt { get; init; }
 
+        public string? CouponCode { get; init; }
+
+        public string? TrackingUrl { get; init; }
+
+        public int? AttributedOrders { get; init; }
+
+        public decimal? AttributedRevenue { get; init; }
+
         public CampaignCreatorCampaignReferenceContract? Campaign { get; init; }
 
         public CampaignCreatorCreatorReferenceContract? Creator { get; init; }
@@ -47,6 +55,10 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
             Notes = item.Notes,
             ConfirmedAt = item.ConfirmedAt,
             CancelledAt = item.CancelledAt,
+            CouponCode = item.CouponCode,
+            TrackingUrl = item.TrackingUrl,
+            AttributedOrders = item.AttributedOrders,
+            AttributedRevenue = item.AttributedRevenue,
             Campaign = item.Campaign == null ? null : new CampaignCreatorCampaignReferenceContract
             {
                 Id = item.Campaign.Id,

@@ -90,6 +90,23 @@ export default function PublicCampaignReport() {
           <Kpi label={t('campaignReport.kpi.emv')} value={totals.emv != null ? formatCurrency(totals.emv) : '-'} hint={t('campaignReport.kpi.emvHint')} />
         </div>
 
+        {totals.attributedRevenue != null && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">{t('campaignReport.kpi.attributedRevenue')}</p>
+              <p className="mt-1 text-2xl font-bold tracking-tight text-foreground">{formatCurrency(totals.attributedRevenue)}</p>
+              {totals.attributedOrders != null && (
+                <p className="text-[11px] text-muted-foreground">{t('campaignReport.kpi.attributedOrdersHint').replace('{0}', String(totals.attributedOrders))}</p>
+              )}
+            </div>
+            <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary/80">{t('campaignReport.kpi.roi')}</p>
+              <p className="mt-1 text-2xl font-bold tracking-tight text-foreground">{totals.roi != null ? `${totals.roi.toFixed(2)}x` : '-'}</p>
+              <p className="text-[11px] text-muted-foreground">{t('campaignReport.kpi.roiHint')}</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border/70 bg-card px-4 py-3 text-sm">
           <span className="flex items-center gap-1.5 text-muted-foreground"><BarChart3 className="h-4 w-4 text-primary" /> {t('campaignReport.kpi.deliverables')}: <strong className="text-foreground">{totals.publishedCount}/{totals.deliverablesCount}</strong></span>
           <span className="flex items-center gap-1.5 text-muted-foreground"><TrendingUp className="h-4 w-4 text-emerald-600" /> {t('campaignReport.kpi.investment')}: <strong className="text-foreground">{formatCurrency(totals.investment)}</strong></span>

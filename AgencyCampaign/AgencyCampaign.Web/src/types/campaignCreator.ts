@@ -14,6 +14,10 @@ export interface CampaignCreator {
   notes?: string
   confirmedAt?: string
   cancelledAt?: string
+  couponCode?: string | null
+  trackingUrl?: string | null
+  attributedOrders?: number | null
+  attributedRevenue?: number | null
   campaign?: {
     id: number
     name: string

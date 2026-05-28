@@ -128,6 +128,28 @@ namespace AgencyCampaign.Infrastructure.Services
             return await GetCampaignCreatorById(result.Id, cancellationToken) ?? result;
         }
 
+        public async Task<CampaignCreator> SetSalesAttribution(long id, SetCampaignCreatorAttributionRequest request, CancellationToken cancellationToken = default)
+        {
+            CampaignCreator? campaignCreator = await DbContext.Set<CampaignCreator>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (campaignCreator is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            campaignCreator.RegisterSalesAttribution(request.CouponCode, request.TrackingUrl, request.AttributedOrders, request.AttributedRevenue);
+
+            CampaignCreator? result = await Update(campaignCreator, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return await GetCampaignCreatorById(result.Id, cancellationToken) ?? result;
+        }
+
         private async Task TryNotifyStatusChange(CampaignCreator campaignCreator, CampaignCreatorStatus newStatus, CancellationToken cancellationToken)
         {
             if (!newStatus.MarksAsConfirmed && !newStatus.MarksAsCancelled)

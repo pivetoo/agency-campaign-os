@@ -22,6 +22,15 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Notes)
                 .HasMaxLength(1000);
 
+            builder.Property(entity => entity.CouponCode)
+                .HasMaxLength(100);
+
+            builder.Property(entity => entity.TrackingUrl)
+                .HasMaxLength(1000);
+
+            builder.Property(entity => entity.AttributedRevenue)
+                .HasPrecision(18, 2);
+
             builder.HasOne(entity => entity.Campaign)
                 .WithMany(entity => entity.CampaignCreators)
                 .HasForeignKey(entity => entity.CampaignId)

@@ -111,6 +111,17 @@ namespace AgencyCampaign.Infrastructure.Services
                 ? Math.Round(emvBase / 1000m * emvRate.Value, 2)
                 : null;
 
+            List<CampaignCreator> reportCreators = await dbContext.Set<CampaignCreator>()
+                .AsNoTracking()
+                .Where(item => item.CampaignId == campaignId)
+                .ToListAsync(cancellationToken);
+            bool hasAttribution = reportCreators.Any(item => item.AttributedRevenue.HasValue || item.AttributedOrders.HasValue);
+            decimal? attributedRevenue = hasAttribution ? reportCreators.Sum(item => item.AttributedRevenue ?? 0) : null;
+            int? attributedOrders = hasAttribution ? reportCreators.Sum(item => item.AttributedOrders ?? 0) : null;
+            decimal? roi = attributedRevenue.HasValue && attributedRevenue.Value > 0 && investment > 0
+                ? Math.Round(attributedRevenue.Value / investment, 2)
+                : null;
+
             CampaignReportGroupItem[] byPlatform = deliverables
                 .GroupBy(PlatformName)
                 .Select(group => new CampaignReportGroupItem
@@ -172,7 +183,10 @@ namespace AgencyCampaign.Infrastructure.Services
                     Investment = investment,
                     Cpm = cpm,
                     CostPerEngagement = costPerEngagement,
-                    Emv = emv
+                    Emv = emv,
+                    AttributedRevenue = attributedRevenue,
+                    AttributedOrders = attributedOrders,
+                    Roi = roi
                 },
                 ByPlatform = byPlatform,
                 ByCreator = byCreator,

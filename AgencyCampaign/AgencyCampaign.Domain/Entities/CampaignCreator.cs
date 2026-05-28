@@ -30,6 +30,14 @@ namespace AgencyCampaign.Domain.Entities
 
         public DateTimeOffset? CancelledAt { get; private set; }
 
+        public string? CouponCode { get; private set; }
+
+        public string? TrackingUrl { get; private set; }
+
+        public int? AttributedOrders { get; private set; }
+
+        public decimal? AttributedRevenue { get; private set; }
+
         public IReadOnlyCollection<CampaignDeliverable> Deliverables => deliverables.AsReadOnly();
 
         private CampaignCreator()
@@ -83,6 +91,24 @@ namespace AgencyCampaign.Domain.Entities
             }
 
             CancelledAt = null;
+        }
+
+        public void RegisterSalesAttribution(string? couponCode, string? trackingUrl, int? attributedOrders, decimal? attributedRevenue)
+        {
+            if (attributedOrders.HasValue && attributedOrders.Value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(attributedOrders));
+            }
+
+            if (attributedRevenue.HasValue && attributedRevenue.Value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(attributedRevenue));
+            }
+
+            CouponCode = Normalize(couponCode);
+            TrackingUrl = Normalize(trackingUrl);
+            AttributedOrders = attributedOrders;
+            AttributedRevenue = attributedRevenue;
         }
 
         private static decimal CalculateAgencyFeeAmount(decimal agreedAmount, decimal agencyFeePercent)

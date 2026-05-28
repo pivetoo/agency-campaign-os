@@ -85,6 +85,20 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapCampaignCreator(campaignCreator), Localizer["record.updated"]);
         }
 
+        [RequireAccess("campaignCreators.update.description")]
+        [PutEndpoint("attribution/{id:long}")]
+        public async Task<IActionResult> SetAttribution(long id, [FromBody] SetCampaignCreatorAttributionRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            CampaignCreator campaignCreator = await campaignCreatorService.SetSalesAttribution(id, request, cancellationToken);
+            return Http200(MapCampaignCreator(campaignCreator), Localizer["record.updated"]);
+        }
+
         [RequireAccess("campaignCreators.getStatusHistory.description")]
         [GetEndpoint("statushistory/{id:long}")]
         public async Task<IActionResult> GetStatusHistory(long id, CancellationToken cancellationToken)

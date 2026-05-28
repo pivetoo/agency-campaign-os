@@ -120,5 +120,30 @@ namespace AgencyCampaign.Testing.Domain.Entities
             negative.Should().Throw<ArgumentOutOfRangeException>();
             negativeFee.Should().Throw<ArgumentOutOfRangeException>();
         }
+
+        [Test]
+        public void RegisterSalesAttribution_should_normalize_and_store_values()
+        {
+            CampaignCreator subject = new(1, 2, 3, 100m, 10m);
+
+            subject.RegisterSalesAttribution(" CUPOM10 ", " https://x?utm_source=ig ", 12, 3000m);
+
+            subject.CouponCode.Should().Be("CUPOM10");
+            subject.TrackingUrl.Should().Be("https://x?utm_source=ig");
+            subject.AttributedOrders.Should().Be(12);
+            subject.AttributedRevenue.Should().Be(3000m);
+        }
+
+        [Test]
+        public void RegisterSalesAttribution_should_reject_negative_values()
+        {
+            CampaignCreator subject = new(1, 2, 3, 100m, 10m);
+
+            Action negativeOrders = () => subject.RegisterSalesAttribution(null, null, -1, null);
+            Action negativeRevenue = () => subject.RegisterSalesAttribution(null, null, null, -1m);
+
+            negativeOrders.Should().Throw<ArgumentOutOfRangeException>();
+            negativeRevenue.Should().Throw<ArgumentOutOfRangeException>();
+        }
     }
 }

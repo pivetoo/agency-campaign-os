@@ -133,6 +133,33 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetReportByToken_should_aggregate_attributed_sales_and_roi()
+        {
+            await SeedCampaignWithMetricsAsync();
+            CampaignCreator campaignCreator = db.Set<CampaignCreator>().Single();
+            campaignCreator.RegisterSalesAttribution("CUPOM10", "https://x?utm_source=ig", 12, 30000m);
+            await db.SaveChangesAsync();
+
+            CampaignReportModel? report = await service.GetReportByToken("tok123");
+
+            report!.Totals.AttributedRevenue.Should().Be(30000m);
+            report.Totals.AttributedOrders.Should().Be(12);
+            report.Totals.Roi.Should().Be(3.00m);
+        }
+
+        [Test]
+        public async Task GetReportByToken_should_return_null_attribution_when_none_set()
+        {
+            await SeedCampaignWithMetricsAsync();
+
+            CampaignReportModel? report = await service.GetReportByToken("tok123");
+
+            report!.Totals.AttributedRevenue.Should().BeNull();
+            report.Totals.AttributedOrders.Should().BeNull();
+            report.Totals.Roi.Should().BeNull();
+        }
+
+        [Test]
         public async Task GetReportByToken_should_return_null_for_invalid_token()
         {
             await SeedCampaignWithMetricsAsync();

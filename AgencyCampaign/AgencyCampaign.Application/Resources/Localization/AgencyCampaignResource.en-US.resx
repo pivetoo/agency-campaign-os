@@ -2267,4 +2267,15 @@
   <data name="configuration.agency.reportSection" xml:space="preserve"><value>Campaign report</value></data>
   <data name="configuration.agency.emvRate" xml:space="preserve"><value>EMV rate (per 1,000 impressions)</value></data>
   <data name="configuration.agency.emvRateHint" xml:space="preserve"><value>Used to calculate EMV in the campaign report. Leave blank to hide it.</value></data>
+  <data name="campaignCreatorSales.title" xml:space="preserve"><value>Attributed sales</value></data>
+  <data name="campaignCreatorSales.open" xml:space="preserve"><value>Attributed sales</value></data>
+  <data name="campaignCreatorSales.hint" xml:space="preserve"><value>Creator coupon/UTM and the attributed sales figures (manual entry).</value></data>
+  <data name="campaignCreatorSales.field.coupon" xml:space="preserve"><value>Coupon</value></data>
+  <data name="campaignCreatorSales.field.trackingUrl" xml:space="preserve"><value>UTM link</value></data>
+  <data name="campaignCreatorSales.field.orders" xml:space="preserve"><value>Orders</value></data>
+  <data name="campaignCreatorSales.field.revenue" xml:space="preserve"><value>Attributed revenue</value></data>
+  <data name="campaignReport.kpi.attributedRevenue" xml:space="preserve"><value>Attributed revenue</value></data>
+  <data name="campaignReport.kpi.attributedOrdersHint" xml:space="preserve"><value>{0} orders</value></data>
+  <data name="campaignReport.kpi.roi" xml:space="preserve"><value>ROI</value></data>
+  <data name="campaignReport.kpi.roiHint" xml:space="preserve"><value>Attributed revenue / investment</value></data>
 </root>

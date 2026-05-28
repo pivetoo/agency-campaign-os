@@ -42,6 +42,12 @@ namespace AgencyCampaign.Application.Models.Campaigns
         public decimal? CostPerEngagement { get; init; }
 
         public decimal? Emv { get; init; }
+
+        public decimal? AttributedRevenue { get; init; }
+
+        public int? AttributedOrders { get; init; }
+
+        public decimal? Roi { get; init; }
     }
 
     public sealed class CampaignReportGroupItem

@@ -19,6 +19,13 @@ export interface UpdateCampaignCreatorRequest {
   notes?: string
 }
 
+export interface SetCampaignCreatorAttributionRequest {
+  couponCode?: string | null
+  trackingUrl?: string | null
+  attributedOrders?: number | null
+  attributedRevenue?: number | null
+}
+
 export const campaignCreatorService = {
   async getByCampaign(campaignId: number): Promise<CampaignCreator[]> {
     const response = await httpClient.get<CampaignCreator[]>(`${BASE_URL}/campaign/${campaignId}`)
@@ -31,5 +38,9 @@ export const campaignCreatorService = {
 
   update(id: number, data: UpdateCampaignCreatorRequest) {
     return httpClient.put<CampaignCreator>(`${BASE_URL}/Update/${id}`, data)
+  },
+
+  setAttribution(id: number, data: SetCampaignCreatorAttributionRequest) {
+    return httpClient.put<CampaignCreator>(`${BASE_URL}/attribution/${id}`, data)
   },
 }
