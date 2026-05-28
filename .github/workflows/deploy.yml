@@ -77,8 +77,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.API_IMAGE }}:${{ github.sha }}
           build-contexts: |
             archon-framework=frameworks/archon-framework
-          cache-from: type=gha,scope=api
-          cache-to: type=gha,mode=max,scope=api
 
       - name: Build and push Web image
         uses: docker/build-push-action@v6
@@ -95,8 +93,6 @@ jobs:
             VITE_OIDC_CLIENT_ID=agency-campaign-prod
           build-contexts: |
             archon-ui=frameworks/archon-ui
-          cache-from: type=gha,scope=web
-          cache-to: type=gha,mode=max,scope=web
 
       - name: Copy deploy assets to VPS
         uses: appleboy/scp-action@v0.1.7
