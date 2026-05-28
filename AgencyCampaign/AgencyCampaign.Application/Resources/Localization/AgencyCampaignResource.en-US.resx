@@ -387,6 +387,8 @@
   <data name="pipeline.filter.responsible" xml:space="preserve"><value>Owner</value></data>
   <data name="pipeline.filter.brand" xml:space="preserve"><value>Brand</value></data>
   <data name="pipeline.filter.all" xml:space="preserve"><value>All</value></data>
+  <data name="pipeline.filter.allResponsibles" xml:space="preserve"><value>All owners</value></data>
+  <data name="pipeline.filter.allBrands" xml:space="preserve"><value>All brands</value></data>
   <data name="pipeline.filter.riskOnly" xml:space="preserve"><value>At risk only</value></data>
   <data name="pipeline.filter.activeLabel" xml:space="preserve"><value>Active filters</value></data>
   <data name="pipeline.filter.clear" xml:space="preserve"><value>Clear</value></data>

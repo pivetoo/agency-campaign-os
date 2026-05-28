@@ -502,7 +502,7 @@ export default function CommercialPipeline() {
               <SearchableSelect
                 value={responsibleFilter || ALL_SENTINEL}
                 onValueChange={(value) => setResponsibleFilter(value === ALL_SENTINEL ? '' : value)}
-                options={[{ value: ALL_SENTINEL, label: t('pipeline.filter.all') }, ...filterOptions.responsibles]}
+                options={[{ value: ALL_SENTINEL, label: t('pipeline.filter.allResponsibles') }, ...filterOptions.responsibles]}
                 placeholder={t('pipeline.filter.responsible')}
                 searchPlaceholder={t('pipeline.filter.responsible')}
               />
@@ -511,7 +511,7 @@ export default function CommercialPipeline() {
               <SearchableSelect
                 value={brandFilter || ALL_SENTINEL}
                 onValueChange={(value) => setBrandFilter(value === ALL_SENTINEL ? '' : value)}
-                options={[{ value: ALL_SENTINEL, label: t('pipeline.filter.all') }, ...filterOptions.brands]}
+                options={[{ value: ALL_SENTINEL, label: t('pipeline.filter.allBrands') }, ...filterOptions.brands]}
                 placeholder={t('pipeline.filter.brand')}
                 searchPlaceholder={t('pipeline.filter.brand')}
               />
