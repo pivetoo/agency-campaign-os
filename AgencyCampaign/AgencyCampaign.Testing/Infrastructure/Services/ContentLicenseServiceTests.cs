@@ -5,6 +5,8 @@ using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Options;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
+using Archon.Application.Services;
+using Archon.Core.Notifications;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -26,6 +28,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             notifications = new Mock<INotificationService>();
             service = new ContentLicenseService(db, notifications.Object, Options.Create(new ContentLicenseOptions()));
         }
+
+        [TearDown]
+        public void TearDown() => db.Dispose();
 
         [Test]
         public async Task Add_creates_license_for_deliverable()
@@ -76,7 +81,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             first.Should().Be(1);
             second.Should().Be(0);
-            notifications.Verify(item => item.Create(It.IsAny<Application.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            notifications.Verify(item => item.Create(It.IsAny<CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         private async Task<(long campaignId, long deliverableA, long deliverableB)> SeedCampaignWithTwoDeliverables()
@@ -85,7 +90,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(brand);
             await db.SaveChangesAsync();
 
-            Campaign campaign = new(brand.Id, "Campanha", null, null, null);
+            Campaign campaign = new(brand.Id, "Campanha", 0m, DateTimeOffset.UtcNow);
             db.Add(campaign);
             await db.SaveChangesAsync();
 
@@ -93,7 +98,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(creator);
             await db.SaveChangesAsync();
 
-            CampaignCreator campaignCreator = new(campaign.Id, creator.Id, null, null, null, null);
+            CampaignCreator campaignCreator = new(campaign.Id, creator.Id, 1, 0m, 0m);
             db.Add(campaignCreator);
             await db.SaveChangesAsync();
 
@@ -105,9 +110,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(kind);
             await db.SaveChangesAsync();
 
-            CampaignDeliverable a = new(campaign.Id, campaignCreator.Id, "Entrega A", null, kind.Id, platform.Id, DateTimeOffset.UtcNow.AddDays(7), 100m, 20m);
+            CampaignDeliverable a = new(campaign.Id, campaignCreator.Id, "Entrega A", kind.Id, platform.Id, DateTimeOffset.UtcNow.AddDays(7), 100m, 20m, 0m);
             db.Add(a);
-            CampaignDeliverable b = new(campaign.Id, campaignCreator.Id, "Entrega B", null, kind.Id, platform.Id, DateTimeOffset.UtcNow.AddDays(7), 100m, 20m);
+            CampaignDeliverable b = new(campaign.Id, campaignCreator.Id, "Entrega B", kind.Id, platform.Id, DateTimeOffset.UtcNow.AddDays(7), 100m, 20m, 0m);
             db.Add(b);
             await db.SaveChangesAsync();
             db.ChangeTracker.Clear();

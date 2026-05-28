@@ -209,5 +209,20 @@ namespace AgencyCampaign.Application.Notifications
                 ReferenceEntityId = entry.Id.ToString()
             };
         }
+
+        public static CreateNotificationRequest ContentLicenseExpiring(CampaignDeliverable deliverable, int daysUntilExpiry)
+        {
+            return new CreateNotificationRequest
+            {
+                UserId = null,
+                Type = NotificationType.Warning,
+                Title = "Licença de uso vencendo",
+                Message = $"A licença de uso da entrega \"{deliverable.Title}\" vence em {daysUntilExpiry} dia(s).",
+                Link = $"/campanhas/{deliverable.CampaignId}",
+                Source = "contentLicense",
+                ReferenceEntityName = nameof(CampaignDeliverable),
+                ReferenceEntityId = deliverable.Id.ToString()
+            };
+        }
     }
 }
