@@ -13,6 +13,17 @@ export default function PublicProposal() {
   const [snapshot, setSnapshot] = useState<ProposalPublicSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownloadPdf = async () => {
+    if (!token || downloading) return
+    setDownloading(true)
+    try {
+      await proposalPublicService.downloadPdf(token)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   useEffect(() => {
     if (!token) {
@@ -84,14 +95,15 @@ export default function PublicProposal() {
             v{view.versionNumber}
           </span>
           {token && (
-            <a
-              href={`/api/proposal-public/${encodeURIComponent(token)}/pdf`}
-              className="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"
-              download
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={downloading}
+              className="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40 disabled:opacity-60"
             >
               <FileDown className="h-3.5 w-3.5" />
-              Baixar PDF
-            </a>
+              {downloading ? 'Baixando...' : 'Baixar PDF'}
+            </button>
           )}
         </div>
 
