@@ -7,6 +7,7 @@ import { proposalService, ProposalStatus, type Proposal, type ProposalStatusValu
 import { commercialResponsibleService } from '../../../services/commercialResponsibleService'
 import type { CommercialResponsible } from '../../../types/commercialResponsible'
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'
+import DetailsButton from '../../../components/DetailsButton'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 import { formatCurrency } from '../../../lib/format'
 
@@ -219,15 +220,9 @@ export default function CommercialProposals() {
       key: 'actions',
       title: '',
       dataIndex: undefined,
-      width: 56,
+      width: 110,
       render: (_: any, record: Proposal) => (
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); navigate(`/comercial/propostas/${record.id}`) }}
-          className="inline-flex items-center justify-center p-1 rounded hover:bg-accent hover:text-foreground text-muted-foreground transition-colors"
-        >
-          <Eye size={16} />
-        </button>
+        <DetailsButton onClick={(e) => { e.stopPropagation(); navigate(`/comercial/propostas/${record.id}`) }} />
       ),
     },
   ]

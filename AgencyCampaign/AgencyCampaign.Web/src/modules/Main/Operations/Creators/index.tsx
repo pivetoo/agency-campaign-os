@@ -7,6 +7,7 @@ import { Link as LinkIcon, FileSpreadsheet, Download, Upload } from 'lucide-reac
 import { creatorService, resolveCreatorPhotoUrl } from '../../../../services/creatorService'
 import type { Creator } from '../../../../types/creator'
 import CreatorFormModal from '../../../../components/modals/CreatorFormModal'
+import DetailsButton from '../../../../components/DetailsButton'
 import CreatorAccessTokensModal from '../../../../components/modals/CreatorAccessTokensModal'
 import CreatorImportModal from '../../../../components/modals/CreatorImportModal'
 import AuditIconButton from '../../../../components/buttons/AuditIconButton'
@@ -99,15 +100,9 @@ export default function Creators() {
     {
       key: 'actions',
       title: '',
-      width: 96,
+      width: 110,
       render: (_: unknown, record: Creator) => (
-        <button
-          type="button"
-          className="text-xs text-primary hover:underline"
-          onClick={(event) => { event.stopPropagation(); navigate(`/creators/${record.id}`) }}
-        >
-          {t('creators.action.open360')}
-        </button>
+        <DetailsButton onClick={(event) => { event.stopPropagation(); navigate(`/creators/${record.id}`) }} />
       ),
     },
   ]

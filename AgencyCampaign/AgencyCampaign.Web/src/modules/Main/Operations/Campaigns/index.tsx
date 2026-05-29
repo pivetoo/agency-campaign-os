@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { Eye } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
 import type { Campaign } from '../../../../types/campaign'
 import CampaignFormModal from '../../../../components/modals/CampaignFormModal'
+import DetailsButton from '../../../../components/DetailsButton'
 import AuditUtilityBar from '../../../../components/buttons/AuditUtilityBar'
 import { formatCurrency } from '../../../../lib/format'
 
@@ -90,14 +90,9 @@ export default function Campaigns() {
       key: 'actions',
       title: '',
       dataIndex: undefined,
-      width: 56,
+      width: 110,
       render: (_: any, record: Campaign) => (
-        <button
-          className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          onClick={(e) => { e.stopPropagation(); navigate(`/campanhas/${record.id}`) }}
-        >
-          <Eye size={16} />
-        </button>
+        <DetailsButton onClick={(e) => { e.stopPropagation(); navigate(`/campanhas/${record.id}`) }} />
       ),
     },
   ]

@@ -2301,4 +2301,5 @@
   <data name="campaignCalendar.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
   <data name="campaignCalendar.pageTitle" xml:space="preserve"><value>Calendario</value></data>
   <data name="campaignCalendar.pageSubtitle" xml:space="preserve"><value>Entregas de todas las campañas activas</value></data>
+  <data name="common.action.details" xml:space="preserve"><value>Detalles</value></data>
 </root>
