@@ -2302,4 +2302,15 @@
   <data name="campaignCalendar.pageTitle" xml:space="preserve"><value>Calendario</value></data>
   <data name="campaignCalendar.pageSubtitle" xml:space="preserve"><value>Entregas de todas las campañas activas</value></data>
   <data name="common.action.details" xml:space="preserve"><value>Detalles</value></data>
+  <data name="brandContacts.open" xml:space="preserve"><value>Contactos</value></data>
+  <data name="brandContacts.title" xml:space="preserve"><value>Contactos de la marca</value></data>
+  <data name="brandContacts.emails" xml:space="preserve"><value>Emails</value></data>
+  <data name="brandContacts.phones" xml:space="preserve"><value>Teléfonos</value></data>
+  <data name="brandContacts.primary" xml:space="preserve"><value>Principal</value></data>
+  <data name="brandContacts.setPrimary" xml:space="preserve"><value>Marcar como principal</value></data>
+  <data name="brandContacts.empty" xml:space="preserve"><value>Ninguno cargado.</value></data>
+  <data name="brandContacts.confirm.delete" xml:space="preserve"><value>¿Eliminar este contacto?</value></data>
+  <data name="brandContacts.field.email" xml:space="preserve"><value>email@ejemplo.com</value></data>
+  <data name="brandContacts.field.phone" xml:space="preserve"><value>(11) 99999-9999</value></data>
+  <data name="brandContacts.field.label" xml:space="preserve"><value>Etiqueta (ej: comercial, finanzas)</value></data>
 </root>

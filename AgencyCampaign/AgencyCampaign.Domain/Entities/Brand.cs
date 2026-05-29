@@ -58,6 +58,12 @@ namespace AgencyCampaign.Domain.Entities
             LogoUrl = Normalize(logoUrl);
         }
 
+        public void SetContactChannels(string? primaryEmail, string? primaryPhone)
+        {
+            ContactEmail = Normalize(primaryEmail);
+            ContactPhone = Normalize(primaryPhone);
+        }
+
         private static string? Normalize(string? value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();

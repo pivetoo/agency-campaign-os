@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, DataTable, Badge, FilterPanel, useApi, Sheet, SheetContent, SheetPreviewField, SheetPreviewGrid, SheetPreviewHeader, SheetPreviewSection, TableToolbar, useI18n, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { FileSpreadsheet, Download, Upload } from 'lucide-react'
+import { FileSpreadsheet, Download, Upload, Contact } from 'lucide-react'
 
 import { brandService, resolveBrandLogoUrl } from '../../../../services/brandService'
 import type { Brand } from '../../../../types/brand'
 import BrandFormModal from '../../../../components/modals/BrandFormModal'
 import BrandImportModal from '../../../../components/modals/BrandImportModal'
 import AuditIconButton from '../../../../components/buttons/AuditIconButton'
+import BrandContactsSheet from '../../../../components/sheets/BrandContactsSheet'
 
 export default function Brands() {
   const { t } = useI18n()
@@ -21,6 +22,8 @@ export default function Brands() {
   const [previewBrand, setPreviewBrand] = useState<Brand | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
+  const [isContactsOpen, setIsContactsOpen] = useState(false)
+  const [contactsBrand, setContactsBrand] = useState<Brand | null>(null)
   const { execute: fetchBrands, loading, pagination } = useApi<Brand[]>({ showErrorMessage: true })
 
   const loadBrands = async () => {
@@ -92,6 +95,21 @@ export default function Brands() {
         <Badge variant={value ? 'success' : 'destructive'}>
           {value ? t('common.status.activeFemale') : t('common.status.inactiveFemale')}
         </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      title: '',
+      width: 56,
+      render: (_: unknown, record: Brand) => (
+        <button
+          type="button"
+          className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          onClick={(event) => { event.stopPropagation(); setContactsBrand(record); setIsContactsOpen(true) }}
+          title={t('brandContacts.open')}
+        >
+          <Contact size={16} />
+        </button>
       ),
     },
   ]
@@ -173,6 +191,14 @@ export default function Brands() {
           onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
         />
       </PageLayout>
+
+      <BrandContactsSheet
+        open={isContactsOpen}
+        onOpenChange={setIsContactsOpen}
+        brandId={contactsBrand?.id ?? null}
+        brandName={contactsBrand?.name}
+        onChanged={() => void loadBrands()}
+      />
 
       <BrandImportModal
         open={isImportOpen}
