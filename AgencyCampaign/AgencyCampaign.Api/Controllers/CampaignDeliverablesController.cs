@@ -57,6 +57,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(deliverables.Select(MapDeliverable).ToList());
         }
 
+        [RequireAccess("campaignDeliverables.get.description")]
+        [GetEndpoint("calendar")]
+        public async Task<IActionResult> Calendar(CancellationToken cancellationToken)
+        {
+            List<CampaignDeliverable> deliverables = await campaignDeliverableService.GetForCalendar(cancellationToken);
+            return Http200(deliverables.Select(MapDeliverable).ToList());
+        }
+
         [RequireAccess("campaignDeliverables.create.description")]
         [PostEndpoint]
         public async Task<IActionResult> Create([FromBody] CreateCampaignDeliverableRequest request, CancellationToken cancellationToken)

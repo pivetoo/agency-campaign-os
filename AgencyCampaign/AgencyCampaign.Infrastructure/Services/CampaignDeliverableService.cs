@@ -50,6 +50,14 @@ namespace AgencyCampaign.Infrastructure.Services
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<CampaignDeliverable>> GetForCalendar(CancellationToken cancellationToken = default)
+        {
+            return await QueryWithDetails()
+                .Where(item => item.Campaign!.IsActive)
+                .OrderBy(item => item.DueAt)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<CampaignDeliverable> CreateDeliverable(CreateCampaignDeliverableRequest request, CancellationToken cancellationToken = default)
         {
             await EnsureReferencesExist(request.CampaignId, request.CampaignCreatorId, request.DeliverableKindId, request.PlatformId, cancellationToken);

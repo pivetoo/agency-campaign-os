@@ -13,6 +13,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<List<CampaignDeliverable>> GetByCampaign(long campaignId, CancellationToken cancellationToken = default);
 
+        Task<List<CampaignDeliverable>> GetForCalendar(CancellationToken cancellationToken = default);
+
         Task<CampaignDeliverable> CreateDeliverable(CreateCampaignDeliverableRequest request, CancellationToken cancellationToken = default);
 
         Task<CampaignDeliverable> UpdateDeliverable(long id, UpdateCampaignDeliverableRequest request, CancellationToken cancellationToken = default);

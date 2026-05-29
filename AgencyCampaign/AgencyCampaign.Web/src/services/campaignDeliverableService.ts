@@ -49,6 +49,11 @@ export const campaignDeliverableService = {
     return response.data ?? []
   },
 
+  async getForCalendar(): Promise<CampaignDeliverable[]> {
+    const response = await httpClient.get<CampaignDeliverable[]>(`${BASE_URL}/calendar`)
+    return response.data ?? []
+  },
+
   create(data: CreateCampaignDeliverableRequest) {
     return httpClient.post<CampaignDeliverable>(`${BASE_URL}/Create`, data)
   },

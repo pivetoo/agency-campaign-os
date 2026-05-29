@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, UserCog, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
@@ -129,6 +129,7 @@ export default function AgencyCampaignLayout() {
       items: [
         { key: 'creators', label: t('nav.item.creators'), path: '/creators', icon: <Users size={20} />, requires: ['creators.get'] },
         { key: 'campanhas', label: t('nav.item.campaigns'), path: '/campanhas', icon: <Megaphone size={20} />, requires: ['campaigns.get'] },
+        { key: 'operacao-calendario', label: t('campaignCalendar.pageTitle'), path: '/operacao/calendario', icon: <CalendarDays size={20} />, requires: ['campaignDeliverables.get'] },
         { key: 'operacao-aprovacoes', label: t('nav.item.approvals'), path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} />, requires: ['deliverableApprovals.get'] },
       ],
     },

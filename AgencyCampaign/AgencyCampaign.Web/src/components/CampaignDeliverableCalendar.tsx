@@ -6,6 +6,7 @@ import type { CampaignDeliverable } from '../types/campaignDeliverable'
 interface Props {
   deliverables: CampaignDeliverable[]
   onSelectDeliverable: (deliverable: CampaignDeliverable) => void
+  showCampaignName?: boolean
 }
 
 type StatusKind = 'onTime' | 'dueSoon' | 'overdue' | 'published' | 'cancelled'
@@ -45,7 +46,7 @@ function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1)
 }
 
-export default function CampaignDeliverableCalendar({ deliverables, onSelectDeliverable }: Props) {
+export default function CampaignDeliverableCalendar({ deliverables, onSelectDeliverable, showCampaignName = false }: Props) {
   const { t } = useI18n()
   const [cursor, setCursor] = useState(() => { const now = new Date(); return new Date(now.getFullYear(), now.getMonth(), 1) })
   const [mode, setMode] = useState<'month' | 'list'>('month')
@@ -145,7 +146,7 @@ export default function CampaignDeliverableCalendar({ deliverables, onSelectDeli
                                 type="button"
                                 onClick={() => onSelectDeliverable(deliverable)}
                                 className={`block w-full truncate rounded px-1.5 py-0.5 text-left text-[11px] leading-tight ${kindClasses[kind]}`}
-                                title={`${deliverable.title} - ${creatorName(deliverable)}`}
+                                title={`${deliverable.title} - ${creatorName(deliverable)}${showCampaignName && deliverable.campaign?.name ? ` (${deliverable.campaign.name})` : ''}`}
                               >
                                 {deliverable.title}
                                 <span className="opacity-70"> · {creatorName(deliverable)}</span>
@@ -182,7 +183,7 @@ export default function CampaignDeliverableCalendar({ deliverables, onSelectDeli
                     <span className={`h-2 w-2 shrink-0 rounded-full ${kindDot[kind]}`} />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">{deliverable.title}</p>
-                      <p className="truncate text-xs text-muted-foreground">{creatorName(deliverable)} · {deliverable.platform?.name ?? '-'}</p>
+                      <p className="truncate text-xs text-muted-foreground">{showCampaignName && deliverable.campaign?.name ? `${deliverable.campaign.name} · ` : ''}{creatorName(deliverable)} · {deliverable.platform?.name ?? '-'}</p>
                     </div>
                   </div>
                   <div className="shrink-0 text-right">

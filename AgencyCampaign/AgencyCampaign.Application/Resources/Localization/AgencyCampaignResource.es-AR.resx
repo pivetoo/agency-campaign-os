@@ -2299,4 +2299,6 @@
   <data name="campaignCalendar.status.overdue" xml:space="preserve"><value>Atrasada</value></data>
   <data name="campaignCalendar.status.published" xml:space="preserve"><value>Publicada</value></data>
   <data name="campaignCalendar.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
+  <data name="campaignCalendar.pageTitle" xml:space="preserve"><value>Calendario</value></data>
+  <data name="campaignCalendar.pageSubtitle" xml:space="preserve"><value>Entregas de todas las campañas activas</value></data>
 </root>
