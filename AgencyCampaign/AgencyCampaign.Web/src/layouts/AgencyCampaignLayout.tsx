@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { AppLayout, useAuth, useAppNavigation, AuthService, usePermissions, useI18n } from 'archon-ui'
-import type { BreadcrumbItem, NotificationItem } from 'archon-ui'
+import { AppLayout, useAuth, AuthService, usePermissions, useI18n } from 'archon-ui'
+import type { BreadcrumbItem, NotificationItem, ModuleNavConfig } from 'archon-ui'
 import { notificationService } from '../services/notificationService'
 import { profileApiService } from '../services/profileApiService'
 import type { Notification } from '../types/notification'
@@ -19,7 +19,6 @@ export default function AgencyCampaignLayout() {
   const { user: authUser, contract, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
-  const { createMenuGroup } = useAppNavigation({})
   const { isRoot, hasAnyPermission } = usePermissions()
   const { t } = useI18n()
 
@@ -104,116 +103,83 @@ export default function AgencyCampaignLayout() {
     navigate('/notificacoes')
   }, [navigate])
 
-  const systemGroupDefs: { label: string; items: NavItem[] }[] = [
-    {
-      label: t('nav.group.general'),
-      items: [
-        { key: 'dashboard', label: t('nav.item.dashboard'), path: '/', icon: <LayoutDashboard size={20} />, requires: ['dashboard.overview', 'dashboard.charts'] },
-        ...(isRoot
-          ? [{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> }]
-          : []),
-      ],
-    },
-    {
-      label: t('nav.group.commercial'),
-      items: [
-        { key: 'marcas', label: t('nav.item.brands'), path: '/marcas', icon: <Building2 size={20} />, requires: ['brands.get'] },
-        { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} />, requires: ['opportunities.board', 'opportunities.get'] },
-        { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },
-        { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} />, requires: ['opportunityApprovals.get'] },
-        { key: 'comercial-metas', label: 'Metas', path: '/comercial/metas', icon: <Target size={20} />, requires: ['commercialGoals.get'] },
-      ],
-    },
-    {
-      label: t('nav.group.operations'),
-      items: [
-        { key: 'creators', label: t('nav.item.creators'), path: '/creators', icon: <Users size={20} />, requires: ['creators.get'] },
-        { key: 'campanhas', label: t('nav.item.campaigns'), path: '/campanhas', icon: <Megaphone size={20} />, requires: ['campaigns.get'] },
-        { key: 'operacao-calendario', label: t('campaignCalendar.pageTitle'), path: '/operacao/calendario', icon: <CalendarDays size={20} />, requires: ['campaignDeliverables.get'] },
-        { key: 'operacao-aprovacoes', label: t('nav.item.approvals'), path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} />, requires: ['deliverableApprovals.get'] },
-      ],
-    },
-    {
-      label: t('nav.group.finance'),
-      items: [
-        { key: 'financeiro-contas', label: t('nav.item.bankAccounts'), path: '/financeiro/contas', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
-        { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} />, requires: ['financialEntries.get'] },
-        { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} />, requires: ['financialEntries.get'] },
-        { key: 'financeiro-repasses-creators', label: t('nav.item.creatorPayments'), path: '/financeiro/repasses-creators', icon: <HandCoins size={20} />, requires: ['creatorPayments.get'] },
-        { key: 'financeiro-fluxo-caixa', label: t('nav.item.cashFlow'), path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} />, requires: ['financialReports.getCashFlow'] },
-        { key: 'financeiro-aging', label: t('nav.item.aging'), path: '/financeiro/aging', icon: <Hourglass size={20} />, requires: ['financialReports.getAging'] },
-      ],
-    },
+  const opModuleDefs: { key: string; label: string; icon: React.ReactNode; color: 'primary' | 'cyan' | 'purple' | 'green'; items: NavItem[] }[] = [
+    { key: 'geral', label: t('nav.group.general'), icon: <LayoutDashboard size={20} />, color: 'primary', items: [
+      { key: 'dashboard', label: t('nav.item.dashboard'), path: '/', icon: <LayoutDashboard size={20} />, requires: ['dashboard.overview', 'dashboard.charts'] },
+    ] },
+    { key: 'comercial', label: t('nav.group.commercial'), icon: <TrendingUp size={20} />, color: 'cyan', items: [
+      { key: 'marcas', label: t('nav.item.brands'), path: '/marcas', icon: <Building2 size={20} />, requires: ['brands.get'] },
+      { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} />, requires: ['opportunities.board', 'opportunities.get'] },
+      { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },
+      { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} />, requires: ['opportunityApprovals.get'] },
+      { key: 'comercial-metas', label: 'Metas', path: '/comercial/metas', icon: <Target size={20} />, requires: ['commercialGoals.get'] },
+    ] },
+    { key: 'producao', label: t('nav.group.operations'), icon: <Megaphone size={20} />, color: 'purple', items: [
+      { key: 'creators', label: t('nav.item.creators'), path: '/creators', icon: <Users size={20} />, requires: ['creators.get'] },
+      { key: 'campanhas', label: t('nav.item.campaigns'), path: '/campanhas', icon: <Megaphone size={20} />, requires: ['campaigns.get'] },
+      { key: 'operacao-calendario', label: t('campaignCalendar.pageTitle'), path: '/operacao/calendario', icon: <CalendarDays size={20} />, requires: ['campaignDeliverables.get'] },
+      { key: 'operacao-aprovacoes', label: t('nav.item.approvals'), path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} />, requires: ['deliverableApprovals.get'] },
+    ] },
+    { key: 'financas', label: t('nav.group.finance'), icon: <Wallet size={20} />, color: 'green', items: [
+      { key: 'financeiro-contas', label: t('nav.item.bankAccounts'), path: '/financeiro/contas', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
+      { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} />, requires: ['financialEntries.get'] },
+      { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} />, requires: ['financialEntries.get'] },
+      { key: 'financeiro-repasses-creators', label: t('nav.item.creatorPayments'), path: '/financeiro/repasses-creators', icon: <HandCoins size={20} />, requires: ['creatorPayments.get'] },
+      { key: 'financeiro-fluxo-caixa', label: t('nav.item.cashFlow'), path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} />, requires: ['financialReports.getCashFlow'] },
+      { key: 'financeiro-aging', label: t('nav.item.aging'), path: '/financeiro/aging', icon: <Hourglass size={20} />, requires: ['financialReports.getAging'] },
+    ] },
   ]
 
-  const configurationGroupDefs: { label: string; items: NavItem[] }[] = [
-    {
-      label: t('nav.group.general'),
-      items: [
-        { key: 'configuracao-agencia', label: t('nav.item.agency'), path: '/configuracao', icon: <Briefcase size={20} />, requires: ['agencySettings.get'] },
-        { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
-      ],
-    },
-    {
-      label: t('nav.group.commercial'),
-      items: [
-        { key: 'configuracao-pipeline-comercial', label: t('nav.item.commercialFunnel'), path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} />, requires: ['commercialPipelineStages.get'] },
-        { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Compass size={20} />, requires: ['opportunitySources.get'] },
-        { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} />, requires: ['opportunityTags.get'] },
-        { key: 'configuracao-motivos-ganho', label: 'Motivos de ganho', path: '/configuracao/motivos-ganho', icon: <Trophy size={20} />, requires: ['opportunityWinReasons.get'] },
-        { key: 'configuracao-motivos-perda', label: 'Motivos de perda', path: '/configuracao/motivos-perda', icon: <ThumbsDown size={20} />, requires: ['opportunityLossReasons.get'] },
-        { key: 'configuracao-politica-comercial', label: 'Política comercial', path: '/configuracao/politica-comercial', icon: <ShieldCheck size={20} />, requires: ['commercialPolicy.get'] },
-        { key: 'configuracao-itens-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/itens-proposta', icon: <FileSignature size={20} />, requires: ['proposalTemplates.get'] },
-        { key: 'configuracao-layouts-proposta', label: 'Layouts da proposta', path: '/configuracao/layouts-proposta', icon: <Paintbrush size={20} />, requires: ['agencySettings.getProposalTemplateVersions'] },
-      ],
-    },
-    {
-      label: t('nav.group.operations'),
-      items: [
-        { key: 'configuracao-plataformas', label: t('nav.item.socialNetworks'), path: '/configuracao/plataformas', icon: <Share2 size={20} />, requires: ['platforms.get'] },
-        { key: 'configuracao-status-creators', label: t('nav.item.creatorStatus'), path: '/configuracao/status-creators', icon: <UserCheck size={20} />, requires: ['campaignCreatorStatuses.get'] },
-        { key: 'configuracao-tipos-entrega', label: t('nav.item.deliverableKinds'), path: '/configuracao/tipos-entrega', icon: <Package size={20} />, requires: ['deliverableKinds.get'] },
-        { key: 'configuracao-modelos-contrato', label: t('nav.item.contractTemplates'), path: '/configuracao/modelos-contrato', icon: <ScrollText size={20} />, requires: ['campaignDocumentTemplates.get'] },
-      ],
-    },
-    {
-      label: t('nav.group.finance'),
-      items: [
-        { key: 'configuracao-bancos', label: t('nav.item.banks'), path: '/configuracao/bancos', icon: <Landmark size={20} />, requires: ['banks.get'] },
-        { key: 'configuracao-subcategorias-financeiras', label: t('nav.item.financialSubcategories'), path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} />, requires: ['financialSubcategories.get'] },
-      ],
-    },
+  const configSubGroupDefs: { label: string; items: NavItem[] }[] = [
+    { label: t('nav.group.general'), items: [
+      { key: 'configuracao-agencia', label: t('nav.item.agency'), path: '/configuracao', icon: <Briefcase size={20} />, requires: ['agencySettings.get'] },
+      ...(isRoot ? [{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> }] : []),
+    ] },
+    { label: t('nav.group.commercial'), items: [
+      { key: 'configuracao-pipeline-comercial', label: t('nav.item.commercialFunnel'), path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} />, requires: ['commercialPipelineStages.get'] },
+      { key: 'configuracao-origens-oportunidade', label: t('nav.item.opportunitySources'), path: '/configuracao/origens-oportunidade', icon: <Compass size={20} />, requires: ['opportunitySources.get'] },
+      { key: 'configuracao-tags-oportunidade', label: t('nav.item.opportunityTags'), path: '/configuracao/tags-oportunidade', icon: <Tag size={20} />, requires: ['opportunityTags.get'] },
+      { key: 'configuracao-motivos-ganho', label: 'Motivos de ganho', path: '/configuracao/motivos-ganho', icon: <Trophy size={20} />, requires: ['opportunityWinReasons.get'] },
+      { key: 'configuracao-motivos-perda', label: 'Motivos de perda', path: '/configuracao/motivos-perda', icon: <ThumbsDown size={20} />, requires: ['opportunityLossReasons.get'] },
+      { key: 'configuracao-politica-comercial', label: 'Política comercial', path: '/configuracao/politica-comercial', icon: <ShieldCheck size={20} />, requires: ['commercialPolicy.get'] },
+      { key: 'configuracao-itens-proposta', label: t('nav.item.proposalTemplates'), path: '/configuracao/itens-proposta', icon: <FileSignature size={20} />, requires: ['proposalTemplates.get'] },
+      { key: 'configuracao-layouts-proposta', label: 'Layouts da proposta', path: '/configuracao/layouts-proposta', icon: <Paintbrush size={20} />, requires: ['agencySettings.getProposalTemplateVersions'] },
+    ] },
+    { label: t('nav.group.operations'), items: [
+      { key: 'configuracao-plataformas', label: t('nav.item.socialNetworks'), path: '/configuracao/plataformas', icon: <Share2 size={20} />, requires: ['platforms.get'] },
+      { key: 'configuracao-status-creators', label: t('nav.item.creatorStatus'), path: '/configuracao/status-creators', icon: <UserCheck size={20} />, requires: ['campaignCreatorStatuses.get'] },
+      { key: 'configuracao-tipos-entrega', label: t('nav.item.deliverableKinds'), path: '/configuracao/tipos-entrega', icon: <Package size={20} />, requires: ['deliverableKinds.get'] },
+      { key: 'configuracao-modelos-contrato', label: t('nav.item.contractTemplates'), path: '/configuracao/modelos-contrato', icon: <ScrollText size={20} />, requires: ['campaignDocumentTemplates.get'] },
+    ] },
+    { label: t('nav.group.finance'), items: [
+      { key: 'configuracao-bancos', label: t('nav.item.banks'), path: '/configuracao/bancos', icon: <Landmark size={20} />, requires: ['banks.get'] },
+      { key: 'configuracao-subcategorias-financeiras', label: t('nav.item.financialSubcategories'), path: '/configuracao/subcategorias-financeiras', icon: <Tag size={20} />, requires: ['financialSubcategories.get'] },
+    ] },
   ]
 
-  const buildMenuGroups = (defs: { label: string; items: NavItem[] }[]) =>
-    defs
-      .map((group) => ({ label: group.label, items: filterItems(group.items) }))
-      .filter((group) => group.items.length > 0)
-      .map((group) => createMenuGroup(group.label, group.items))
+  const toNavRoutes = (items: NavItem[]) =>
+    filterItems(items).map((i) => ({ key: i.key, label: i.label, path: i.path, icon: i.icon }))
 
-  const systemGroups = buildMenuGroups(systemGroupDefs)
-  const configurationGroups = buildMenuGroups(configurationGroupDefs)
-  const hasConfigurationAccess = configurationGroups.length > 0
+  const opModules = opModuleDefs
+    .map((def) => ({ key: def.key, label: def.label, icon: def.icon, color: def.color, group: 'op' as const, routes: toNavRoutes(def.items) }))
+    .filter((m) => m.routes.length > 0)
+
+  const configSubGroups = configSubGroupDefs
+    .map((g) => ({ label: g.label, routes: toNavRoutes(g.items) }))
+    .filter((g) => g.routes.length > 0)
+
+  const integracoesRoutes = toNavRoutes([
+    { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
+  ])
+
+  const sysModules = [
+    ...(configSubGroups.length > 0 ? [{ key: 'configuracao', label: t('nav.module.configuration'), icon: <Settings size={20} />, color: 'muted' as const, group: 'sys' as const, subGroups: configSubGroups }] : []),
+    ...(integracoesRoutes.length > 0 ? [{ key: 'integracoes', label: t('nav.item.integrations'), icon: <Plug size={20} />, color: 'muted' as const, group: 'sys' as const, routes: integracoesRoutes }] : []),
+  ]
+
+  const moduleNav: ModuleNavConfig = [...opModules, ...sysModules]
 
   const isInConfiguration = location.pathname.startsWith('/configuracao')
-  const currentModule = isInConfiguration ? 'configuracao' : 'sistema'
-  const menuGroups = isInConfiguration ? configurationGroups : systemGroups
-
-  const modules = [
-    { id: 'sistema', name: t('nav.module.panel'), icon: <LayoutDashboard size={16} /> },
-    ...(hasConfigurationAccess
-      ? [{ id: 'configuracao', name: t('nav.module.configuration'), icon: <Settings size={16} /> }]
-      : []),
-  ]
-
-  const handleModuleChange = (moduleId: string) => {
-    if (moduleId === 'configuracao') {
-      navigate('/configuracao')
-    } else {
-      navigate('/')
-    }
-  }
-
   const homePathByModule = isInConfiguration ? '/configuracao' : '/'
 
   const breadcrumbs = useMemo((): BreadcrumbItem[] => {
@@ -332,10 +298,8 @@ export default function AgencyCampaignLayout() {
         }}
         onAvatarUpload={profileApiService.uploadAvatar}
         onLogout={handleLogout}
-        menuGroups={menuGroups}
-        modules={modules}
-        currentModule={currentModule}
-        onModuleChange={handleModuleChange}
+        navMode="module-rail"
+        moduleNav={moduleNav}
         breadcrumbs={breadcrumbs}
         notifications={notificationItems}
         onNotificationRead={handleNotificationRead}
