@@ -103,24 +103,24 @@ export default function AgencyCampaignLayout() {
     navigate('/notificacoes')
   }, [navigate])
 
-  const opModuleDefs: { key: string; label: string; icon: React.ReactNode; color: 'primary' | 'cyan' | 'purple' | 'green'; items: NavItem[] }[] = [
-    { key: 'geral', label: t('nav.group.general'), icon: <LayoutDashboard size={20} />, color: 'primary', items: [
+  const opModuleDefs: { key: string; label: string; icon: React.ReactNode; items: NavItem[] }[] = [
+    { key: 'geral', label: t('nav.group.general'), icon: <LayoutDashboard size={20} />, items: [
       { key: 'dashboard', label: t('nav.item.dashboard'), path: '/', icon: <LayoutDashboard size={20} />, requires: ['dashboard.overview', 'dashboard.charts'] },
     ] },
-    { key: 'comercial', label: t('nav.group.commercial'), icon: <TrendingUp size={20} />, color: 'cyan', items: [
+    { key: 'comercial', label: t('nav.group.commercial'), icon: <TrendingUp size={20} />, items: [
       { key: 'marcas', label: t('nav.item.brands'), path: '/marcas', icon: <Building2 size={20} />, requires: ['brands.get'] },
       { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} />, requires: ['opportunities.board', 'opportunities.get'] },
       { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },
       { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} />, requires: ['opportunityApprovals.get'] },
       { key: 'comercial-metas', label: 'Metas', path: '/comercial/metas', icon: <Target size={20} />, requires: ['commercialGoals.get'] },
     ] },
-    { key: 'producao', label: t('nav.group.operations'), icon: <Megaphone size={20} />, color: 'purple', items: [
+    { key: 'producao', label: t('nav.group.operations'), icon: <Megaphone size={20} />, items: [
       { key: 'creators', label: t('nav.item.creators'), path: '/creators', icon: <Users size={20} />, requires: ['creators.get'] },
       { key: 'campanhas', label: t('nav.item.campaigns'), path: '/campanhas', icon: <Megaphone size={20} />, requires: ['campaigns.get'] },
       { key: 'operacao-calendario', label: t('campaignCalendar.pageTitle'), path: '/operacao/calendario', icon: <CalendarDays size={20} />, requires: ['campaignDeliverables.get'] },
       { key: 'operacao-aprovacoes', label: t('nav.item.approvals'), path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} />, requires: ['deliverableApprovals.get'] },
     ] },
-    { key: 'financas', label: t('nav.group.finance'), icon: <Wallet size={20} />, color: 'green', items: [
+    { key: 'financas', label: t('nav.group.finance'), icon: <Wallet size={20} />, items: [
       { key: 'financeiro-contas', label: t('nav.item.bankAccounts'), path: '/financeiro/contas', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
       { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} />, requires: ['financialEntries.get'] },
       { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} />, requires: ['financialEntries.get'] },
@@ -161,7 +161,7 @@ export default function AgencyCampaignLayout() {
     filterItems(items).map((i) => ({ key: i.key, label: i.label, path: i.path, icon: i.icon }))
 
   const opModules = opModuleDefs
-    .map((def) => ({ key: def.key, label: def.label, icon: def.icon, color: def.color, group: 'op' as const, routes: toNavRoutes(def.items) }))
+    .map((def) => ({ key: def.key, label: def.label, icon: def.icon, group: 'op' as const, routes: toNavRoutes(def.items) }))
     .filter((m) => m.routes.length > 0)
 
   const configSubGroups = configSubGroupDefs
@@ -173,8 +173,8 @@ export default function AgencyCampaignLayout() {
   ])
 
   const sysModules = [
-    ...(configSubGroups.length > 0 ? [{ key: 'configuracao', label: t('nav.module.configuration'), icon: <Settings size={20} />, color: 'muted' as const, group: 'sys' as const, subGroups: configSubGroups }] : []),
-    ...(integracoesRoutes.length > 0 ? [{ key: 'integracoes', label: t('nav.item.integrations'), icon: <Plug size={20} />, color: 'muted' as const, group: 'sys' as const, routes: integracoesRoutes }] : []),
+    ...(configSubGroups.length > 0 ? [{ key: 'configuracao', label: t('nav.module.configuration'), icon: <Settings size={20} />, group: 'sys' as const, subGroups: configSubGroups }] : []),
+    ...(integracoesRoutes.length > 0 ? [{ key: 'integracoes', label: t('nav.item.integrations'), icon: <Plug size={20} />, group: 'sys' as const, routes: integracoesRoutes }] : []),
   ]
 
   const moduleNav: ModuleNavConfig = [...opModules, ...sysModules]
