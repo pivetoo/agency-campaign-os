@@ -82,7 +82,7 @@ function GoalCard({ goal }: { goal: CommercialGoalProgress }) {
         <span className="text-base font-semibold tracking-tight text-foreground">{formatCurrency(goal.achievedAmount)}</span>
         <span className="text-xs text-muted-foreground">{t('commercialGoalsWidget.ofTarget').replace('{0}', formatCurrency(goal.targetAmount))}</span>
       </div>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label={t('commercialGoalsWidget.ofTarget').replace('{0}', formatCurrency(goal.targetAmount))} aria-valuenow={Math.round(percent)} aria-valuemin={0} aria-valuemax={100}>
         <div className={`h-full ${toneClasses[tone].bar} transition-all`} style={{ width: `${percent}%` }} />
       </div>
       <div className="mt-1.5 flex items-center justify-between text-[11px]">

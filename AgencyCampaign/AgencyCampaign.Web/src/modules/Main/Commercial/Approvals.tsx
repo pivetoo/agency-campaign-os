@@ -1123,7 +1123,7 @@ function ReviewersPanel({ approvalId, requesterName, currentUserName, currentUse
               </span>
               {allRequiredApproved && <span className="text-emerald-700">{t('commercialApprovals.reviewers.done')}</span>}
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-border">
+            <div className="h-1.5 overflow-hidden rounded-full bg-border" role="progressbar" aria-label={t('commercialApprovals.reviewers.title')} aria-valuenow={approvedRequiredCount} aria-valuemin={0} aria-valuemax={requiredTotal}>
               <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${Math.round((approvedRequiredCount / requiredTotal) * 100)}%` }} />
             </div>
           </div>

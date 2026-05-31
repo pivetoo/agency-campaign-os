@@ -141,7 +141,7 @@ function ConversionTable({ items }: { items: StageConversion[] }) {
               </span>
               <span className="text-xs text-muted-foreground">{t('commercialAnalytics.entered').replace('{0}', String(item.entered))} · <strong className="text-foreground">{item.conversionRate.toFixed(0)}%</strong> {t('commercialAnalytics.advancedSuffix')}</span>
             </div>
-            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label={item.stageName} aria-valuenow={Math.round(ratio * 100)} aria-valuemin={0} aria-valuemax={100}>
               <div className="h-full bg-primary/50" style={{ width: `${ratio * 100}%` }} />
             </div>
             <div className="mt-1.5 grid grid-cols-3 gap-1 text-[10.5px]">
@@ -175,7 +175,7 @@ function TimeBars({ items }: { items: { stageId: number; stageName: string; stag
               <strong className="text-foreground">{item.averageDays.toFixed(1)}</strong> {item.samples === 1 ? t('commercialAnalytics.daysSamples.one') : t('commercialAnalytics.daysSamples.many').replace('{0}', String(item.samples))}
             </span>
           </div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label={item.stageName} aria-valuenow={Math.round(Math.min(100, (item.averageDays / max) * 100))} aria-valuemin={0} aria-valuemax={100}>
             <div className="h-full bg-amber-500" style={{ width: `${Math.min(100, (item.averageDays / max) * 100)}%` }} />
           </div>
         </div>
@@ -201,7 +201,7 @@ function PerformersList({ items }: { items: { userId?: number; userName: string;
           </div>
           <div className="text-right">
             <p className="font-mono text-sm font-semibold text-foreground">{formatCurrency(item.wonTotal)}</p>
-            <div className="mt-1 h-1 w-24 overflow-hidden rounded-full bg-muted">
+            <div className="mt-1 h-1 w-24 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label={item.userName} aria-valuenow={Math.round(Math.min(100, (item.wonTotal / top) * 100))} aria-valuemin={0} aria-valuemax={100}>
               <div className="h-full bg-emerald-500" style={{ width: `${Math.min(100, (item.wonTotal / top) * 100)}%` }} />
             </div>
           </div>

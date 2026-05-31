@@ -328,6 +328,8 @@ function CommentEvent(props: CommentEventProps) {
           <span className="ml-auto flex gap-1">
             <button
               type="button"
+              aria-label={t('common.action.edit')}
+              title={t('common.action.edit')}
               className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
               onClick={() => onStartEdit(comment)}
             >
@@ -335,6 +337,8 @@ function CommentEvent(props: CommentEventProps) {
             </button>
             <button
               type="button"
+              aria-label={t('common.action.delete')}
+              title={t('common.action.delete')}
               className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
               onClick={() => onDelete(comment.id)}
             >
