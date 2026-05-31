@@ -15,9 +15,9 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 18 / 57 (Fatia A + C3-C7 + D7i, D25i, D26i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 3/29 - E 0/6
-- Fatia D: triagem paralela feita (29 itens, todos com premissa valida; nada ja-resolvido). Lote 1 (backend, TDD): D7i, D25i, D26i. Backend 885 testes verdes.
+- Concluidos: 19 / 57 (Fatia A + C3-C7 + D3i, D7i, D25i, D26i)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 4/29 - E 0/6
+- Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos (backend, TDD): D7i, D25i, D26i, D3i. Backend 886 testes verdes.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
 
@@ -88,7 +88,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 
 - [ ] **D1i - [Alto] Lembrete proativo de follow-up** - vencimento de follow-up nao dispara nada; so aparece se abrir a tela -> job + notificacao/e-mail ao responsavel (infra de jobs ja existe). _(follow-ups)_
 - [ ] **D2i - [Medio] Controle de concorrencia otimista** - transicoes gravam direto (last-write-wins) -> token de versao retornando conflito em vez de sobrescrever. _(oportunidade / proposta)_
-- [ ] **D3i - [Medio] Snapshot de versao completo** - snapshot nao congela desconto nem prazo; link sempre serve a ultima versao -> congelar desconto/prazo/liquido e amarrar o link a uma versao especifica. _(versionamento de proposta)_
+- [x] **D3i - [Medio] Snapshot de versao completo (congelar desconto)** - FEITO: ProposalVersion ganhou colunas `DiscountAmount`/`NetTotalValue` (nullable, migration 202605310001); `CreateSentVersionAsync` congela o desconto da proposta no envio; `ProposalPublicService.GetByToken` le o desconto CONGELADO da versao (fallback ao vivo so para versoes legadas). Editar o desconto depois de enviado nao muda mais o que o cliente ve pelo link. 1 teste TDD. _(versionamento de proposta)_
 - [ ] **D4i - [Medio] Paridade de motivos estruturados no fechamento via kanban** - arrastar para Ganho/Perdido nao coleta motivo estruturado (so texto livre), detalhe coleta -> oferecer os mesmos motivos cadastrados no fechamento pelo kanban. _(kanban)_
 - [ ] **D5i - [Medio] i18n da pagina publica e do modal de envio** - strings hardcoded em pt-BR quebram para clientes es-AR/en-US -> internacionalizar. _(link publico / envio)_
 - [ ] **D6i - [Medio] Tratar falhas silenciosas em pontos sensiveis** - recebivel, aprovacao automatica, notificacoes e resolucao do responsavel engolem excecoes no console -> logar/alertar em vez de seguir em silencio (diretriz do projeto). _(varios services)_
@@ -104,7 +104,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [ ] **D16i - [Medio] Probabilidade manual ajustavel** - dominio suporta mas nenhuma tela expoe; forecast preso a media do estagio -> permitir ajuste manual por oportunidade (opcional). _(oportunidade / forecast)_
 - [ ] **D17i - [Medio] Reforcar escopo "minhas oportunidades" no dado** - isolamento so por permissao; erro de papel expoe a carteira inteira -> reforco por dado/owner alem da permissao. _(oportunidades)_
 - [ ] **D18i - [Medio] Deal rotting (alerta de oportunidade parada)** - ha SLA mas sem alerta proativo -> alertar oportunidades estagnadas. _(pipeline)_
-- [ ] **D19i - [Medio] Endpoint publico serve a versao do link** - hoje sempre serve a ultima versao -> servir a versao referenciada pelo link. _(link publico)_ (pode casar com D3i)
+- [-] **D19i - [Medio] Endpoint publico serve a versao do link** - ADIADO (valor marginal): com o D3i feito (desconto congelado por versao) e o modelo de UM link ativo reusado por proposta (EnsureActiveShareLinkAsync) que mostra a ultima versao enviada, servir "a versao do link" so importa no caso raro de MULTIPLOS links manuais apontando para versoes diferentes - e exigiria FK link->versao + lidar com ID pre-save. Reativar se surgir o cenario multi-link. _(link publico)_
 - [ ] **D20i - [Baixo] Arredondamento monetario consistente no dominio** - falta padrao de arredondamento -> centralizar regra de arredondamento. _(dominio comercial)_
 - [ ] **D21i - [Baixo] Conversao por estagio nao assume funil linear** - calculo assume funil estritamente linear -> tornar robusto a funis nao lineares. _(analytics)_
 - [ ] **D22i - [Baixo] Oportunidades sem data prevista somem do forecast sem contador** - desaparecem silenciosamente -> contabilizar/sinalizar. _(forecast)_
