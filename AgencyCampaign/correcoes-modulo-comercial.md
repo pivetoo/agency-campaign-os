@@ -15,9 +15,9 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 20 / 57 (Fatia A + C3-C7 + D1i, D3i, D7i, D25i, D26i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 5/29 - E 0/6
-- Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos (backend, TDD): D7i, D25i, D26i, D3i, D1i (lembrete de follow-up via job). Backend 887 testes verdes; Api builda.
+- Concluidos: 21 / 57 (Fatia A + C3-C7 + D1i, D3i, D7i, D18i, D25i, D26i)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 6/29 - E 0/6
+- Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos (backend, TDD): D7i, D25i, D26i, D3i, D1i, D18i. 3 jobs comerciais novos (expiracao de proposta, lembrete de follow-up, deal rotting). Backend 888 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
 
@@ -103,7 +103,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [ ] **D15i - [Medio] Remover vocabulario residual de "negociacao"** - termo aposentado ainda aparece na UI de aprovacoes e em rotas -> limpar UI/rotas. _(aprovacoes / rotas)_
 - [ ] **D16i - [Medio] Probabilidade manual ajustavel** - dominio suporta mas nenhuma tela expoe; forecast preso a media do estagio -> permitir ajuste manual por oportunidade (opcional). _(oportunidade / forecast)_
 - [ ] **D17i - [Medio] Reforcar escopo "minhas oportunidades" no dado** - isolamento so por permissao; erro de papel expoe a carteira inteira -> reforco por dado/owner alem da permissao. _(oportunidades)_
-- [ ] **D18i - [Medio] Deal rotting (alerta de oportunidade parada)** - ha SLA mas sem alerta proativo -> alertar oportunidades estagnadas. _(pipeline)_
+- [x] **D18i - [Medio] Deal rotting (alerta de oportunidade parada)** - FEITO: `OpportunityStalledJob` (hosted service, tick 12h, por tenant) chama `OpportunityService.AlertStalled`, que notifica o responsavel quando uma oportunidade ABERTA fica num estagio alem do `SlaInDays` (reusa a logica de stageEnteredAt do GetAlerts). Dedup via `StaleAlertedAt` na entidade (migration 202605310003), resetado ao mudar de estagio -> um alerta por entrada no estagio. 1 teste TDD. _(pipeline)_
 - [-] **D19i - [Medio] Endpoint publico serve a versao do link** - ADIADO (valor marginal): com o D3i feito (desconto congelado por versao) e o modelo de UM link ativo reusado por proposta (EnsureActiveShareLinkAsync) que mostra a ultima versao enviada, servir "a versao do link" so importa no caso raro de MULTIPLOS links manuais apontando para versoes diferentes - e exigiria FK link->versao + lidar com ID pre-save. Reativar se surgir o cenario multi-link. _(link publico)_
 - [ ] **D20i - [Baixo] Arredondamento monetario consistente no dominio** - falta padrao de arredondamento -> centralizar regra de arredondamento. _(dominio comercial)_
 - [ ] **D21i - [Baixo] Conversao por estagio nao assume funil linear** - calculo assume funil estritamente linear -> tornar robusto a funis nao lineares. _(analytics)_
