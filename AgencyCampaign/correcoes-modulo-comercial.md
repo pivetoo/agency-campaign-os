@@ -14,15 +14,21 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 
 ## Progresso geral
 
-- Total de itens: 56
-- Concluidos: 0 / 56
-- Por fatia: A 0/9 - B 0/5 - C 0/7 - D 0/29 - E 0/6
+- Total de itens: 57
+- Concluidos: 0 / 57
+- Por fatia: A 0/10 - B 0/5 - C 0/7 - D 0/29 - E 0/6
+
+## Decisoes operacionais registradas (2026-05-30)
+
+- Cadencia: commit + push por fatia, direto na main (cada fatia = 1 deploy).
+- A1: o liquido vale para o recebivel E para o Budget da campanha gerada.
+- D1 (margem): remover o campo inerte agora (ver A10).
 
 ---
 
 ## Decisoes de produto (resolver antes de implementar os itens marcados [?])
 
-- [ ] **D1 - Margem minima:** remover o campo inerte da politica OU implementar a avaliacao de verdade (exige adicionar custo do creator/proposta para calcular). Bloqueia A9.
+- [x] **D1 - Margem minima:** DECIDIDO - remover o campo inerte da politica por ora (reintroduzir quando a proposta carregar custo do creator). Implementado na Fatia A (A10).
 - [ ] **D2 - Aceite digital:** botao Aceitar/Recusar com data/identidade/versao basta no MVP, OU ja queremos assinatura eletronica vinculante com trilha de auditoria? Bloqueia B1.
 - [ ] **D3 - Valor fechado:** ao ganhar, sobrescrever o `EstimatedValue` da oportunidade pelo liquido da proposta aceita, OU manter estimado vs. fechado em campos separados? Bloqueia B2.
 - [ ] **D4 - Deploy multi-tenant:** confirmar instancia unica compartilhada (entao corrigir resolvendo tenant pelo proprio token publico). Bloqueia C1.
@@ -34,7 +40,7 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 
 Baixo risco, alto impacto. Estanca o "sangramento" financeiro e fecha os furos de governanca mais visiveis.
 
-- [ ] **A1 - [Critico] Liquido no recebivel da conversao** - a geracao do recebivel usa o total BRUTO, ignorando o desconto; todo deal descontado entra inflado no financeiro -> usar o valor liquido (pos-desconto) na geracao do lancamento a receber. _(conversao proposta->campanha)_
+- [ ] **A1 - [Critico] Liquido na conversao (recebivel + Budget)** - recebivel e Budget da campanha usam o total BRUTO, ignorando o desconto; todo deal descontado entra inflado -> usar o valor liquido (pos-desconto) tanto no lancamento a receber quanto no Budget da campanha gerada. _(conversao proposta->campanha)_
 - [ ] **A2 - [Alto] Bloquear o botao Aprovar quando ha desvio de politica sem aprovacao concedida** - o banner avisa "aprovacao obrigatoria" mas o botao continua habilitado, tornando o gate contornavel -> desabilitar o Aprovar usando a flag de "precisa aprovacao" que ja existe. _(tela de propostas / detalhe)_
 - [ ] **A3 - [Alto] Guarda de reabertura no ChangeStage** - mover (inclusive por drag-and-drop) uma oportunidade fechada para estagio aberto zera data de fechamento e apaga motivos, sem aviso -> impedir ou exigir confirmacao explicita e nao apagar dados de fechamento silenciosamente. _(oportunidade / kanban)_
 - [ ] **A4 - [Medio] Mascarar notas internas e custo por creator no snapshot publico** - o payload publico inclui notas internas (margem alvo, estrategia) e preco por creator -> remover/mascarar esses campos da projecao publica. _(link publico /p/:token)_
@@ -42,7 +48,8 @@ Baixo risco, alto impacto. Estanca o "sangramento" financeiro e fecha os furos d
 - [ ] **A6 - [Medio] Validar coerencia da politica + avisar politica vazia** - politica salva sem checar prazo padrao <= maximo e sem avisar que politica vazia desliga o gate -> validar coerencia minima e exibir aviso. _(config politica comercial)_
 - [ ] **A7 - [Baixo] Padronizar formatacao de moeda/data via helpers centralizados** - lista mostra "R$ 1500.00" em vez de "R$ 1.500,00" -> usar `src/lib/format`. _(lista de oportunidades)_
 - [ ] **A8 - [Alto] Sinal "fora da politica" vs "aguarda ok" no inbox de aprovacoes** - distincao so aparece dentro do painel de diffs -> mostrar badge de "fora da politica" na lista/cabecalho. _(inbox de aprovacoes)_
-- [ ] **A9 - [Alto] Testes nos pontos de dinheiro** - zero cobertura em liquido, recebivel na conversao e snapshot -> adicionar testes cobrindo o calculo liquido e a geracao do recebivel. _(testes)_ `[?] relacionado a D1`
+- [ ] **A9 - [Alto] Testes nos pontos de dinheiro** - zero cobertura em liquido, recebivel na conversao e snapshot -> adicionar testes cobrindo o calculo liquido e a geracao do recebivel (recebivel + Budget). _(testes)_
+- [ ] **A10 - [Alto] Remover margem minima inerte da politica** - campo persistido mas nunca avaliado, sugerindo controle inexistente -> remover da UI, do DTO de request, da entidade e dropar a coluna por migration. _(politica comercial)_
 
 ---
 
