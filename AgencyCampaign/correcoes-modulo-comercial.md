@@ -15,8 +15,8 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 22 / 57 (Fatia A + C3-C7 + D1i, D3i, D6i, D7i, D18i, D25i, D26i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 7/29 - E 0/6
+- Concluidos: 24 / 57 (Fatia A + C3-C7 + D1i, D3i, D6i, D7i, D9i, D12i, D18i, D25i, D26i)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 9/29 - E 0/6
 - Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos: D7i, D25i, D26i, D3i, D1i, D18i (TDD) + D6i (logging). 3 jobs comerciais novos. D24i adiado (escopo global). Backend 888 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
@@ -94,10 +94,10 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [x] **D6i - [Medio] Tratar falhas silenciosas em pontos sensiveis** - FEITO: os ~8 `Console.WriteLine` em catches best-effort dos services comerciais (ProposalService, ProposalPublicService, OpportunityApprovalRequestService, OpportunityFollowUpService, OpportunityService) + FinancialAutoGenerationService (skip de recebivel/repasse) viraram `logger?.LogWarning(exception, ...)` estruturado em ingles. `ILogger<T>` injetado como OPCIONAL (DI injeta em producao; testes passam null) -> zero churn de teste. Mantida a semantica best-effort (nao re-lanca), so melhora a observabilidade. _(varios services)_
 - [x] **D7i - [Medio] Reenvio sem guarda de estado** - FEITO: dominio `Proposal.MarkAsSent` so permite enviar de Draft/Sent/Viewed (lanca `proposal.send.invalidStatus` para Approved/Convertida/Rejeitada/Cancelada/Expirada); `CreateSentVersionAsync` valida ANTES de criar a versao (sem versao orfa). 1 teste TDD. _(proposta)_
 - [ ] **D8i - [Medio] Desconto encolhe sozinho ao remover itens** - sem aviso quando o desconto e reduzido por queda do bruto -> avisar o operador. _(proposta)_
-- [ ] **D9i - [Medio] Kanban sem estado de carregamento proprio** - tela em branco que "pisca" no primeiro load -> adicionar loading. _(kanban)_
+- [x] **D9i - [Medio] Kanban sem estado de carregamento proprio** - FEITO: no primeiro load (loading + board vazio) o Pipeline mostra um spinner com texto, em vez de tela em branco que pisca. Usa a chave i18n `pipeline.loading` (ja existente). _(kanban)_
 - [ ] **D10i - [Medio] Mover de etapa no mobile direto na lista** - hoje exige abrir o detalhe -> seletor de etapa inline no mobile. _(kanban mobile)_
 - [ ] **D11i - [Medio] N+1 ao montar aprovacoes/revisores no detalhe** - varias chamadas com erros silenciados -> agregar em uma chamada / tratar erros. _(detalhe oportunidade / aprovacoes)_
-- [ ] **D12i - [Medio] Confirmacao ao excluir item da proposta** - exclusao dispara sem confirmacao -> adicionar confirmacao. _(proposta)_
+- [x] **D12i - [Medio] Confirmacao ao excluir item da proposta** - FEITO: o botao de excluir item agora pede confirmacao (window.confirm com i18n `proposalDetail.item.deleteConfirm`) antes de chamar deleteItem, evitando exclusao acidental. _(proposta)_
 - [ ] **D13i - [Medio] Widgets de forecast/insights: distinguir vazio de erro** - lista vazia = erro = sem dado, indistinguiveis -> estados separados. _(widgets comerciais)_
 - [ ] **D14i - [Medio] Desconto: salvar explicito** - persiste no blur, gerando duvida "ja salvou?" -> botao salvar explicito ou feedback claro de gravacao. _(proposta)_
 - [ ] **D15i - [Medio] Remover vocabulario residual de "negociacao"** - termo aposentado ainda aparece na UI de aprovacoes e em rotas -> limpar UI/rotas. _(aprovacoes / rotas)_

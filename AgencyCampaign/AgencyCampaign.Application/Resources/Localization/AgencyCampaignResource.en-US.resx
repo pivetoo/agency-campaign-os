@@ -2099,6 +2099,7 @@
   <data name="opportunityApproval.decision.reviewersRequired" xml:space="preserve"><value>This approval has required reviewers. The decision must come from the reviewers' votes, not a direct approval.</value></data>
   <data name="opportunityApproval.decision.unauthenticated" xml:space="preserve"><value>You must be authenticated to decide an approval.</value></data>
   <data name="commercialGoal.duplicate" xml:space="preserve"><value>A goal already exists for this owner and period.</value></data>
+  <data name="proposalDetail.item.deleteConfirm" xml:space="preserve"><value>Delete this proposal item?</value></data>
   <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Proposal template</value></data>
   <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>New template</value></data>
   <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Proposal layouts</value></data>

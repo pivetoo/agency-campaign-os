@@ -557,6 +557,13 @@ export default function CommercialPipeline() {
           </div>
         )}
 
+        {loading && board.length === 0 && (
+          <div className="flex items-center justify-center gap-2 py-20 text-sm text-muted-foreground">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-primary" />
+            {t('pipeline.loading')}
+          </div>
+        )}
+
         {/* Mobile: Kanban nao funciona no toque (colunas horizontais + drag). Seletor de etapa + lista vertical. */}
         <div className="md:hidden">
           {displayStages.length > 0 && (

@@ -2106,6 +2106,7 @@
   <data name="opportunityApproval.decision.reviewersRequired" xml:space="preserve"><value>Esta aprovação tem revisores obrigatórios. A decisão deve vir da votação dos revisores, não de aprovação direta.</value></data>
   <data name="opportunityApproval.decision.unauthenticated" xml:space="preserve"><value>É necessário estar autenticado para decidir uma aprovação.</value></data>
   <data name="commercialGoal.duplicate" xml:space="preserve"><value>Já existe uma meta para este responsável e período.</value></data>
+  <data name="proposalDetail.item.deleteConfirm" xml:space="preserve"><value>Excluir este item da proposta?</value></data>
   <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Modelo de proposta</value></data>
   <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>Novo modelo</value></data>
   <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Layouts da proposta</value></data>

@@ -400,7 +400,7 @@ export default function CommercialProposalDetail() {
                         variant="ghost"
                         icon={<Trash2 className="h-3.5 w-3.5" />}
                         disabled={!selectedItem}
-                        onClick={() => selectedItem && void runProposalAction(() => proposalService.deleteItem(selectedItem.id))}
+                        onClick={() => { if (selectedItem && window.confirm(t('proposalDetail.item.deleteConfirm'))) void runProposalAction(() => proposalService.deleteItem(selectedItem.id)) }}
                       >
                         {t('common.action.delete')}
                       </Button>
