@@ -40,13 +40,13 @@ namespace AgencyCampaign.Domain.Entities
         public int? PaymentTermDays { get; private set; }
 
         [NotMapped]
-        public decimal DiscountValue => DiscountAmount.HasValue ? Math.Clamp(DiscountAmount.Value, 0m, TotalValue) : 0m;
+        public decimal DiscountValue => DiscountAmount.HasValue ? Money.Round(Math.Clamp(DiscountAmount.Value, 0m, TotalValue)) : 0m;
 
         [NotMapped]
         public decimal DiscountPercent => TotalValue > 0m ? DiscountValue / TotalValue * 100m : 0m;
 
         [NotMapped]
-        public decimal NetTotalValue => TotalValue - DiscountValue;
+        public decimal NetTotalValue => Money.Round(TotalValue - DiscountValue);
 
         public long? ProposalLayoutId { get; private set; }
 
@@ -240,7 +240,7 @@ namespace AgencyCampaign.Domain.Entities
 
         private void RecalculateTotal()
         {
-            TotalValue = items.Sum(x => x.Total);
+            TotalValue = Money.Round(items.Sum(x => x.Total));
         }
 
         private static string? Normalize(string? value)

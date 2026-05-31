@@ -14,6 +14,13 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void Total_should_round_to_two_decimals()
+        {
+            ProposalItem subject = new(proposalId: 1, description: "x", quantity: 3, unitPrice: 10.005m);
+            subject.Total.Should().Be(30.02m);
+        }
+
+        [Test]
         public void Constructor_should_reject_blank_description()
         {
             Action act = () => _ = new ProposalItem(1, " ", 1, 1m);

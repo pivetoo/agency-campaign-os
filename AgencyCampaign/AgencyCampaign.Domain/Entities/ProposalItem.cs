@@ -25,7 +25,7 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? Observations { get; private set; }
 
-        public decimal Total => Quantity * UnitPrice;
+        public decimal Total => Money.Round(Quantity * UnitPrice);
 
         private ProposalItem()
         {
