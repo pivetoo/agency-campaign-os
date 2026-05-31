@@ -3,6 +3,7 @@ using AgencyCampaign.Application.Requests.Commercial;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Core.Exceptions;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.IdentityManagement;
 using Archon.Infrastructure.Persistence.EF;
@@ -57,6 +58,19 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<CommercialGoalModel> Create(CreateCommercialGoalRequest request, CancellationToken cancellationToken = default)
         {
             CommercialGoal goal = new(request.UserId, (CommercialGoalPeriodType)request.PeriodType, request.PeriodStart, request.TargetAmount, request.Notes);
+
+            long userKey = goal.UserId ?? 0;
+            bool duplicate = await dbContext.Set<CommercialGoal>()
+                .AsNoTracking()
+                .AnyAsync(item => (item.UserId ?? 0) == userKey
+                    && item.PeriodType == goal.PeriodType
+                    && item.PeriodStart == goal.PeriodStart, cancellationToken);
+
+            if (duplicate)
+            {
+                throw new ConflictException("commercialGoal.duplicate");
+            }
+
             dbContext.Set<CommercialGoal>().Add(goal);
             await dbContext.SaveChangesAsync(cancellationToken);
             return (await EnrichWithUserNames([goal], cancellationToken))[0];

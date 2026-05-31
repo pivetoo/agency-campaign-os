@@ -87,7 +87,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            dbContext.Set<OpportunitySource>().Remove(source);
+            source.Update(source.Name, source.Color, source.DisplayOrder, false);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 

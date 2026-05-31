@@ -263,6 +263,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            proposal.MarkAsSent(currentUser.UserId, currentUser.UserName);
+
             int nextVersion = await DbContext.Set<ProposalVersion>()
                 .Where(item => item.ProposalId == proposalId)
                 .CountAsync(cancellationToken) + 1;
@@ -281,8 +283,6 @@ namespace AgencyCampaign.Infrastructure.Services
                 currentUser.UserName);
 
             DbContext.Set<ProposalVersion>().Add(version);
-
-            proposal.MarkAsSent(currentUser.UserId, currentUser.UserName);
 
             return proposal;
         }

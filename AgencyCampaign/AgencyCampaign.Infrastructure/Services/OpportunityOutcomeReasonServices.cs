@@ -85,7 +85,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            dbContext.Set<OpportunityWinReason>().Remove(reason);
+            reason.Update(reason.Name, reason.Color, reason.DisplayOrder, false);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
@@ -176,7 +176,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            dbContext.Set<OpportunityLossReason>().Remove(reason);
+            reason.Update(reason.Name, reason.Color, reason.DisplayOrder, false);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 

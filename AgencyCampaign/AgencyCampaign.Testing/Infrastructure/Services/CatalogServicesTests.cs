@@ -102,7 +102,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task Delete_should_remove_source()
+        public async Task Delete_should_soft_delete_source_preserving_history()
         {
             OpportunitySource source = new("Old", "#fff", 1);
             db.Add(source);
@@ -110,7 +110,10 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             await service.Delete(source.Id);
 
-            (await db.Set<OpportunitySource>().CountAsync()).Should().Be(0);
+            db.ChangeTracker.Clear();
+            OpportunitySource stored = await db.Set<OpportunitySource>().AsNoTracking().SingleAsync();
+            stored.IsActive.Should().BeFalse();
+            (await service.GetAll(new PagedRequest(), search: null, includeInactive: false)).Items.Should().BeEmpty();
         }
     }
 

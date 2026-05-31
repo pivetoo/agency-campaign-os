@@ -119,6 +119,11 @@ namespace AgencyCampaign.Domain.Entities
 
         public void MarkAsSent(long? changedByUserId = null, string? changedByUserName = null, string? reason = null)
         {
+            if (Status != ProposalStatus.Draft && Status != ProposalStatus.Sent && Status != ProposalStatus.Viewed)
+            {
+                throw new InvalidOperationException("proposal.send.invalidStatus");
+            }
+
             ApplyStatusChange(ProposalStatus.Sent, changedByUserId, changedByUserName, reason);
         }
 

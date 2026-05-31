@@ -515,5 +515,21 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == overdue.Id)).Status.Should().Be(ProposalStatus.Expired);
             (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == future.Id)).Status.Should().Be(ProposalStatus.Sent);
         }
+
+        [Test]
+        public async Task MarkAsSent_should_reject_resend_of_already_approved_proposal_without_new_version()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(proposal.Id);
+            await service.ApproveProposal(proposal.Id);
+            db.ChangeTracker.Clear();
+
+            await service.Invoking(s => s.MarkAsSent(proposal.Id)).Should().ThrowAsync<InvalidOperationException>();
+
+            db.ChangeTracker.Clear();
+            (await db.Set<ProposalVersion>().CountAsync(item => item.ProposalId == proposal.Id)).Should().Be(1);
+            (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == proposal.Id)).Status.Should().Be(ProposalStatus.Approved);
+        }
     }
 }
