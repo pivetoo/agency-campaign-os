@@ -70,6 +70,17 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task CreateShareLink_should_default_expiry_when_not_provided()
+        {
+            Proposal proposal = await SeedProposalAsync();
+
+            ProposalShareLinkModel link = await service.CreateShareLink(proposal.Id, new CreateProposalShareLinkRequest());
+
+            link.ExpiresAt.Should().NotBeNull();
+            link.ExpiresAt!.Value.Should().BeAfter(DateTimeOffset.UtcNow);
+        }
+
+        [Test]
         public async Task RevokeShareLink_should_throw_when_not_found()
         {
             Func<Task> act = () => service.RevokeShareLink(1, 99);

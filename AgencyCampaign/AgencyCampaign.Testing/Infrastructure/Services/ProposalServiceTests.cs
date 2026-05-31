@@ -494,5 +494,26 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == proposal.Id)).Status.Should().Be(ProposalStatus.Sent);
             (await db.Set<OpportunityApprovalRequest>().CountAsync(item => item.ProposalId == proposal.Id)).Should().Be(0);
         }
+
+        [Test]
+        public async Task ExpireOverdue_should_expire_only_sent_proposals_past_validity()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+
+            Proposal overdue = new(opportunity.Id, "Overdue", 1, validityUntil: DateTimeOffset.UtcNow.AddDays(-1));
+            overdue.MarkAsSent();
+            Proposal future = new(opportunity.Id, "Future", 1, validityUntil: DateTimeOffset.UtcNow.AddDays(5));
+            future.MarkAsSent();
+            db.Add(overdue);
+            db.Add(future);
+            await db.SaveChangesAsync();
+
+            int count = await service.ExpireOverdue();
+
+            count.Should().Be(1);
+            db.ChangeTracker.Clear();
+            (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == overdue.Id)).Status.Should().Be(ProposalStatus.Expired);
+            (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == future.Id)).Status.Should().Be(ProposalStatus.Sent);
+        }
     }
 }

@@ -99,30 +99,81 @@ namespace AgencyCampaign.Infrastructure.Services
                 ?? new AgencySettings("Minha agência");
         }
 
+        private static readonly SemaphoreSlim BrowserInitLock = new(1, 1);
+        private static readonly SemaphoreSlim RenderConcurrency = new(3, 3);
+        private const int RenderTimeoutMs = 30_000;
+        private static IBrowser? sharedBrowser;
+
+        // Reusa um unico navegador entre requisicoes (relanca se cair), em vez de subir e
+        // descartar um Chromium por PDF. Protege memoria/CPU do servidor sob acessos simultaneos.
+        private static async Task<IBrowser> GetBrowserAsync()
+        {
+            if (sharedBrowser is { IsConnected: true })
+            {
+                return sharedBrowser;
+            }
+
+            await BrowserInitLock.WaitAsync();
+            try
+            {
+                if (sharedBrowser is { IsConnected: true })
+                {
+                    return sharedBrowser;
+                }
+
+                if (sharedBrowser is not null)
+                {
+                    try
+                    {
+                        await sharedBrowser.DisposeAsync();
+                    }
+                    catch
+                    {
+                        // navegador ja morto; segue para relancar
+                    }
+                }
+
+                sharedBrowser = await Puppeteer.LaunchAsync(BuildLaunchOptions());
+                return sharedBrowser;
+            }
+            finally
+            {
+                BrowserInitLock.Release();
+            }
+        }
+
         private static async Task<byte[]> RenderToPdfAsync(string html)
         {
-            LaunchOptions options = BuildLaunchOptions();
-
-            await using IBrowser browser = await Puppeteer.LaunchAsync(options);
-            await using IPage page = await browser.NewPageAsync();
-
-            await page.SetContentAsync(html, new NavigationOptions
+            await RenderConcurrency.WaitAsync();
+            try
             {
-                WaitUntil = [WaitUntilNavigation.Load]
-            });
+                IBrowser browser = await GetBrowserAsync();
+                await using IPage page = await browser.NewPageAsync();
+                page.DefaultTimeout = RenderTimeoutMs;
 
-            return await page.PdfDataAsync(new PdfOptions
-            {
-                Format = PaperFormat.A4,
-                PrintBackground = true,
-                MarginOptions = new MarginOptions
+                await page.SetContentAsync(html, new NavigationOptions
                 {
-                    Top = "0",
-                    Bottom = "0",
-                    Left = "0",
-                    Right = "0"
-                }
-            });
+                    WaitUntil = [WaitUntilNavigation.Load],
+                    Timeout = RenderTimeoutMs
+                });
+
+                return await page.PdfDataAsync(new PdfOptions
+                {
+                    Format = PaperFormat.A4,
+                    PrintBackground = true,
+                    MarginOptions = new MarginOptions
+                    {
+                        Top = "0",
+                        Bottom = "0",
+                        Left = "0",
+                        Right = "0"
+                    }
+                });
+            }
+            finally
+            {
+                RenderConcurrency.Release();
+            }
         }
 
         private static LaunchOptions BuildLaunchOptions()

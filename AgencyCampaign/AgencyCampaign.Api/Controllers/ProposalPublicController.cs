@@ -2,10 +2,12 @@ using AgencyCampaign.Application.Services;
 using Archon.Api.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace AgencyCampaign.Api.Controllers
 {
     [AllowAnonymous]
+    [EnableRateLimiting("public")]
     [Route("api/proposal-public")]
     public sealed class ProposalPublicController : ApiControllerBase
     {
@@ -28,6 +30,7 @@ namespace AgencyCampaign.Api.Controllers
             return result is null ? Http404("Link inválido ou expirado.") : Http200(result);
         }
 
+        [EnableRateLimiting("public-pdf")]
         [HttpGet("{token}/pdf")]
         public async Task<IActionResult> GetPdfByToken(string token, CancellationToken cancellationToken)
         {

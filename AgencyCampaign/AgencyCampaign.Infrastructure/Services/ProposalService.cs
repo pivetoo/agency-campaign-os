@@ -442,6 +442,36 @@ namespace AgencyCampaign.Infrastructure.Services
             return saved;
         }
 
+        public async Task<int> ExpireOverdue(CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
+            List<Proposal> candidates = await DbContext.Set<Proposal>()
+                .AsTracking()
+                .Where(item => item.Status == ProposalStatus.Sent
+                    && item.ValidityUntil != null
+                    && item.ValidityUntil < now)
+                .ToListAsync(cancellationToken);
+
+            int expired = 0;
+            foreach (Proposal proposal in candidates)
+            {
+                ProposalStatus before = proposal.Status;
+                proposal.Expire();
+                if (proposal.Status != before)
+                {
+                    expired++;
+                }
+            }
+
+            if (expired > 0)
+            {
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return expired;
+        }
+
         private async Task ApplyPostConversionAsync(Proposal saved, long campaignId, CancellationToken cancellationToken)
         {
             try

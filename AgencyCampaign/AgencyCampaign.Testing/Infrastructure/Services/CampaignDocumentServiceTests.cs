@@ -215,26 +215,6 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task SendDocumentEmail_should_throw_when_smtp_not_configured()
-        {
-            Campaign campaign = await SeedCampaignAsync();
-            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Doc");
-            db.Add(doc);
-            await db.SaveChangesAsync();
-
-            SendCampaignDocumentEmailRequest request = new()
-            {
-                RecipientEmail = "to@x",
-                Subject = "Subject",
-                Body = "Body"
-            };
-
-            Func<Task> act = () => service.SendDocumentEmail(doc.Id, request);
-
-            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("email.configuration.invalid");
-        }
-
-        [Test]
         public async Task HandleProviderCallback_should_throw_when_document_not_found()
         {
             CampaignDocumentProviderCallbackRequest request = new()

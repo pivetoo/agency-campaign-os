@@ -53,7 +53,8 @@ namespace AgencyCampaign.Infrastructure.Services
             await EnsureProposalCanBeShared(proposalId, cancellationToken);
 
             string token = GenerateToken();
-            ProposalShareLink shareLink = new(proposalId, token, request.ExpiresAt, currentUser.UserId, currentUser.UserName);
+            DateTimeOffset? expiresAt = request.ExpiresAt ?? DateTimeOffset.UtcNow.AddDays(30);
+            ProposalShareLink shareLink = new(proposalId, token, expiresAt, currentUser.UserId, currentUser.UserName);
 
             dbContext.Set<ProposalShareLink>().Add(shareLink);
             await dbContext.SaveChangesAsync(cancellationToken);
