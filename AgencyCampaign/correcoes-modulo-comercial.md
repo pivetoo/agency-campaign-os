@@ -15,10 +15,10 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 16 / 57 (Fatia A completa + Fatia C exceto C1)
-- Por fatia: A 10/10 - B 0/5 - C 6/7 - D 0/29 - E 0/6
+- Concluidos: 15 / 57 (Fatia A completa + C3, C4, C5, C6, C7)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 0/29 - E 0/6
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
-- Fatia C: C2, C3, C4, C5, C6, C7 feitos (backend 882 testes verdes, 0 falhas; build do Api OK). Itens de infra (rate limit, pool PDF, job) verificados por build - sem teste unitario (exigiriam integracao/Chromium). CORS NAO mexido (decisao do usuario). C1 (multi-tenant do link) bloqueado por D4.
+- Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
 
 ## Decisoes operacionais registradas (2026-05-30)
 
@@ -72,7 +72,7 @@ Transforma "registro manual" em "funil rastreavel". Itens com decisao de produto
 Pre-requisito para mais de uma agencia no mesmo deploy e para nao ficar exposto a exaustao de recursos.
 
 - [ ] **C1 - [Alto] Resolver link publico multi-tenant** `[?] D4` - endpoints publicos anonimos nao carregam tenant e caem no primeiro tenant configurado; link so funciona para a 1a agencia -> resolver tenant pelo proprio token. _(endpoints publicos)_
-- [x] **C2 - [Alto] Rate limiting nos endpoints publicos** - FEITO: rate limiter nativo do .NET 10 (`AddRateLimiter`/`UseRateLimiter`) com policies por IP aplicadas ao `ProposalPublicController` - 60/min na visualizacao e 10/min no PDF (vetor mais caro). CORS NAO mexido (decisao do usuario: nao priorizar agora). Sem teste unitario (config de middleware; exigiria teste de integracao). _(API publica)_
+- [ ] **C2 - [Alto] Rate limiting nos endpoints publicos** - REMOVIDO (2026-05-31): a versao simples (fixed-window por IP, .NET nativo) foi removida a pedido do usuario, que vai implementar algo mais robusto. CAVEAT para a nova versao: atras de proxy/Docker, ler o IP real via `X-Forwarded-For` (`UseForwardedHeaders`) - senao o limite por IP fica inocuo (todos caem no IP do proxy). Considerar tambem sliding window/token bucket e limites em `appsettings`. CORS segue nao priorizado. _(API publica)_
 - [x] **C3 - [Alto] Pool/fila/timeout para o Chromium do PDF** - FEITO: o `ProposalPdfService` agora reusa um unico navegador Chromium (estatico, lazy, com health-check e relancamento se cair) em vez de subir/descartar um por requisicao; concorrencia limitada por `SemaphoreSlim` (3 simultaneos) e timeout de 30s no render. Sem teste unitario (render real exige Chromium). _(geracao de PDF)_
 - [x] **C4 - [Alto] Reforcar o gate de aprovacao no backend** - FEITO: Approve/Reject/RequestChanges agora derivam a autoria do usuario autenticado (`currentUser`), ignorando o nome do corpo (sem mais forja de aprovador); dominio bloqueia Approve/Reject direto quando ha revisores obrigatorios (forca a votacao); GetTrackedApproval passa a incluir Reviewers. 2 testes TDD. PARCIAL: alcada por papel/threshold (ex.: so gestor aprova acima de X) nao implementada - hoje o `[RequireAccess]` do controller gateia quem pode chamar; alcada granular fica como follow-up. _(aprovacoes)_
 - [x] **C5 - [Medio] Fechar reabertura pos-merge / reenvio bloqueado** - FEITO: o gate de envio agora conta aprovacao `Merged` como valida (alem de `Approved`), entao reenviar apos "marcar como aplicada" passa sem recriar aprovacao. BONUS: descoberto e corrigido bug pre-existente - `GetTrackedApproval` exigia `Pending`, quebrando `MarkMerged`/`Resubmit` (nunca testados); guard de Pending movido para o dominio (Approve/Reject), liberando as transicoes corretas. 1 teste TDD (reenvio pos-merge). _(aprovacoes / envio)_
