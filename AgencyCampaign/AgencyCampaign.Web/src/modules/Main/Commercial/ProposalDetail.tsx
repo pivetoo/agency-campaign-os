@@ -108,6 +108,9 @@ export default function CommercialProposalDetail() {
   const netTotal = round2(gross - discountValue)
   const hasItems = gross > 0
   const canEditDiscount = hasItems && proposal != null && proposal.status !== ProposalStatus.Converted && proposal.status !== ProposalStatus.Cancelled
+  const persistedDiscount = proposal?.discountAmount == null ? null : round2(Math.min(gross, Math.max(0, proposal.discountAmount)))
+  const pendingDiscount = discountValueInput === '' ? null : round2(Math.min(gross, Math.max(0, Number(discountValueInput))))
+  const discountDirty = canEditDiscount && pendingDiscount !== persistedDiscount
 
   const persistDiscountAmount = async (amount: number | null) => {
     if (!proposal) return
@@ -458,7 +461,6 @@ export default function CommercialProposalDetail() {
                             value={discountValueInput}
                             disabled={!canEditDiscount || actionLoading}
                             onChange={(e) => handleDiscountValueChange(e.target.value)}
-                            onBlur={() => void commitDiscount()}
                             placeholder="0,00"
                           />
                         </div>
@@ -472,11 +474,20 @@ export default function CommercialProposalDetail() {
                             value={discountPercentInput}
                             disabled={!canEditDiscount || actionLoading}
                             onChange={(e) => handleDiscountPercentChange(e.target.value)}
-                            onBlur={() => void commitDiscount()}
                             placeholder="0"
                           />
                         </div>
                       </div>
+                      {canEditDiscount && (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={`text-xs font-medium ${discountDirty ? 'text-amber-600' : 'text-emerald-600'}`}>
+                            {discountDirty ? t('proposalDetail.discount.unsaved') : t('proposalDetail.discount.saved')}
+                          </span>
+                          <Button type="button" size="sm" variant="outline" disabled={!discountDirty || actionLoading} onClick={() => void commitDiscount()}>
+                            {actionLoading ? t('common.action.saving') : t('proposalDetail.discount.save')}
+                          </Button>
+                        </div>
+                      )}
                       <div className="flex flex-col gap-1 rounded-md border border-border/70 bg-muted/20 px-4 py-3 text-sm">
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground">{t('proposalDetail.values.gross')}</span>

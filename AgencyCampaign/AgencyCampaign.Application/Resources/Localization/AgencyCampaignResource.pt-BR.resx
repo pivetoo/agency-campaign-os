@@ -596,6 +596,9 @@
   <data name="proposalDetail.discount.needsItems" xml:space="preserve"><value>Adicione itens à proposta para aplicar um desconto.</value></data>
   <data name="proposalDetail.discount.fieldValue" xml:space="preserve"><value>Desconto (R$)</value></data>
   <data name="proposalDetail.discount.fieldPercent" xml:space="preserve"><value>Desconto (%)</value></data>
+  <data name="proposalDetail.discount.save" xml:space="preserve"><value>Salvar desconto</value></data>
+  <data name="proposalDetail.discount.unsaved" xml:space="preserve"><value>Alteracoes nao salvas</value></data>
+  <data name="proposalDetail.discount.saved" xml:space="preserve"><value>Desconto salvo</value></data>
   <data name="proposalDetail.convert.title" xml:space="preserve"><value>Conversão em campanha</value></data>
   <data name="proposalDetail.convert.description" xml:space="preserve"><value>Vincule esta proposta aprovada a uma campanha existente. Os itens já cadastrados serão referenciados pela campanha.</value></data>
   <data name="proposalDetail.convert.campaignPlaceholder" xml:space="preserve"><value>Selecione uma campanha</value></data>

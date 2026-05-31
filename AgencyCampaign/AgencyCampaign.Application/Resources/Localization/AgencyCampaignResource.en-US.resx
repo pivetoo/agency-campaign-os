@@ -591,6 +591,9 @@
   <data name="proposalDetail.discount.needsItems" xml:space="preserve"><value>Add items to the proposal to apply a discount.</value></data>
   <data name="proposalDetail.discount.fieldValue" xml:space="preserve"><value>Discount (amount)</value></data>
   <data name="proposalDetail.discount.fieldPercent" xml:space="preserve"><value>Discount (%)</value></data>
+  <data name="proposalDetail.discount.save" xml:space="preserve"><value>Save discount</value></data>
+  <data name="proposalDetail.discount.unsaved" xml:space="preserve"><value>Unsaved changes</value></data>
+  <data name="proposalDetail.discount.saved" xml:space="preserve"><value>Discount saved</value></data>
   <data name="proposalDetail.convert.title" xml:space="preserve"><value>Convert to campaign</value></data>
   <data name="proposalDetail.convert.description" xml:space="preserve"><value>Link this approved proposal to an existing campaign. Items already registered will be referenced by the campaign.</value></data>
   <data name="proposalDetail.convert.campaignPlaceholder" xml:space="preserve"><value>Select a campaign</value></data>
