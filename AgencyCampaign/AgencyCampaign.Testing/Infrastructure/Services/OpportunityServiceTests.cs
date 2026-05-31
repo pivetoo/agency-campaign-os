@@ -18,13 +18,15 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     public sealed class OpportunityServiceTests
     {
         private TestDbContext db = null!;
+        private Mock<Archon.Application.Services.INotificationService> notifications = null!;
         private OpportunityService service = null!;
 
         [SetUp]
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new OpportunityService(db, CurrentUserMock.Create(), IdentityClientFactory.CreateInert());
+            notifications = new();
+            service = new OpportunityService(db, CurrentUserMock.Create(), IdentityClientFactory.CreateInert(), notifications.Object);
         }
 
         [TearDown]
@@ -420,6 +422,35 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             IReadOnlyCollection<CommercialAlertModel> result = await service.GetAlerts();
 
             result.Should().Contain(item => item.Type == "expectedclose");
+        }
+
+        [Test]
+        public async Task AlertStalled_should_notify_open_opportunities_past_stage_sla_once()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new CommercialPipelineStageBuilder().WithId(1).WithSlaInDays(3).Build());
+            await db.SaveChangesAsync();
+
+            Opportunity stalled = new(1, 1, "Parada", 0m, responsibleUserId: 7, responsibleUserName: "Owner");
+            Opportunity fresh = new(1, 1, "Recente", 0m);
+            db.Add(stalled);
+            db.Add(fresh);
+            await db.SaveChangesAsync();
+
+            // Sem stage history -> AlertStalled cai no fallback CreatedAt; backdata a parada alem do SLA.
+            db.Set<OpportunityStageHistory>().RemoveRange(db.Set<OpportunityStageHistory>());
+            stalled.SetCreatedAt(DateTimeOffset.UtcNow.AddDays(-10));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            int count = await service.AlertStalled();
+
+            count.Should().Be(1);
+            notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            db.ChangeTracker.Clear();
+            (await db.Set<Opportunity>().AsNoTracking().SingleAsync(item => item.Id == stalled.Id)).StaleAlertedAt.Should().NotBeNull();
+
+            (await service.AlertStalled()).Should().Be(0);
         }
 
         [Test]
