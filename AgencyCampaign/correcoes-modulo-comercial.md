@@ -15,8 +15,8 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 24 / 57 (Fatia A + C3-C7 + D1i, D3i, D6i, D7i, D9i, D12i, D18i, D25i, D26i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 9/29 - E 0/6
+- Concluidos: 26 / 57 (Fatia A + C3-C7 + D1i, D3i, D4i, D6i, D7i, D9i, D12i, D13i, D18i, D25i, D26i)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 11/29 - E 0/6
 - Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos: D7i, D25i, D26i, D3i, D1i, D18i (TDD) + D6i (logging). 3 jobs comerciais novos. D24i adiado (escopo global). Backend 888 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
@@ -89,7 +89,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [x] **D1i - [Alto] Lembrete proativo de follow-up** - FEITO: `FollowUpReminderJob` (hosted service, tick 6h, por tenant) chama `OpportunityFollowUpService.RemindDue`, que notifica o responsavel (KanvasNotifications.FollowUpDue) dos follow-ups vencidos ou que vencem hoje, de oportunidades ABERTAS. Dedup via `ReminderSentAt` na entidade (migration 202605310002), resetado ao remarcar a data - um lembrete por vencimento, sem spam. 1 teste TDD. _(follow-ups)_
 - [ ] **D2i - [Medio] Controle de concorrencia otimista** - transicoes gravam direto (last-write-wins) -> token de versao retornando conflito em vez de sobrescrever. _(oportunidade / proposta)_
 - [x] **D3i - [Medio] Snapshot de versao completo (congelar desconto)** - FEITO: ProposalVersion ganhou colunas `DiscountAmount`/`NetTotalValue` (nullable, migration 202605310001); `CreateSentVersionAsync` congela o desconto da proposta no envio; `ProposalPublicService.GetByToken` le o desconto CONGELADO da versao (fallback ao vivo so para versoes legadas). Editar o desconto depois de enviado nao muda mais o que o cliente ve pelo link. 1 teste TDD. _(versionamento de proposta)_
-- [ ] **D4i - [Medio] Paridade de motivos estruturados no fechamento via kanban** - arrastar para Ganho/Perdido nao coleta motivo estruturado (so texto livre), detalhe coleta -> oferecer os mesmos motivos cadastrados no fechamento pelo kanban. _(kanban)_
+- [x] **D4i - [Medio] Paridade de motivos estruturados no fechamento via kanban** - arrastar para Ganho/Perdido nao coleta motivo estruturado (so texto livre), detalhe coleta -> oferecer os mesmos motivos cadastrados no fechamento pelo kanban. _(kanban)_
 - [ ] **D5i - [Medio] i18n da pagina publica e do modal de envio** - strings hardcoded em pt-BR quebram para clientes es-AR/en-US -> internacionalizar. _(link publico / envio)_
 - [x] **D6i - [Medio] Tratar falhas silenciosas em pontos sensiveis** - FEITO: os ~8 `Console.WriteLine` em catches best-effort dos services comerciais (ProposalService, ProposalPublicService, OpportunityApprovalRequestService, OpportunityFollowUpService, OpportunityService) + FinancialAutoGenerationService (skip de recebivel/repasse) viraram `logger?.LogWarning(exception, ...)` estruturado em ingles. `ILogger<T>` injetado como OPCIONAL (DI injeta em producao; testes passam null) -> zero churn de teste. Mantida a semantica best-effort (nao re-lanca), so melhora a observabilidade. _(varios services)_
 - [x] **D7i - [Medio] Reenvio sem guarda de estado** - FEITO: dominio `Proposal.MarkAsSent` so permite enviar de Draft/Sent/Viewed (lanca `proposal.send.invalidStatus` para Approved/Convertida/Rejeitada/Cancelada/Expirada); `CreateSentVersionAsync` valida ANTES de criar a versao (sem versao orfa). 1 teste TDD. _(proposta)_
@@ -98,7 +98,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [ ] **D10i - [Medio] Mover de etapa no mobile direto na lista** - hoje exige abrir o detalhe -> seletor de etapa inline no mobile. _(kanban mobile)_
 - [ ] **D11i - [Medio] N+1 ao montar aprovacoes/revisores no detalhe** - varias chamadas com erros silenciados -> agregar em uma chamada / tratar erros. _(detalhe oportunidade / aprovacoes)_
 - [x] **D12i - [Medio] Confirmacao ao excluir item da proposta** - FEITO: o botao de excluir item agora pede confirmacao (window.confirm com i18n `proposalDetail.item.deleteConfirm`) antes de chamar deleteItem, evitando exclusao acidental. _(proposta)_
-- [ ] **D13i - [Medio] Widgets de forecast/insights: distinguir vazio de erro** - lista vazia = erro = sem dado, indistinguiveis -> estados separados. _(widgets comerciais)_
+- [x] **D13i - [Medio] Widgets de forecast/insights: distinguir vazio de erro** - lista vazia = erro = sem dado, indistinguiveis -> estados separados. _(widgets comerciais)_
 - [ ] **D14i - [Medio] Desconto: salvar explicito** - persiste no blur, gerando duvida "ja salvou?" -> botao salvar explicito ou feedback claro de gravacao. _(proposta)_
 - [ ] **D15i - [Medio] Remover vocabulario residual de "negociacao"** - termo aposentado ainda aparece na UI de aprovacoes e em rotas -> limpar UI/rotas. _(aprovacoes / rotas)_
 - [ ] **D16i - [Medio] Probabilidade manual ajustavel** - dominio suporta mas nenhuma tela expoe; forecast preso a media do estagio -> permitir ajuste manual por oportunidade (opcional). _(oportunidade / forecast)_

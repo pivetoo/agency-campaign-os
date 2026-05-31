@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions, useToast } from 'archon-ui'
 import { AlertTriangle, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, Rows3, Search, Target, UserRound, X } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
+import { opportunityWinReasonService, opportunityLossReasonService } from '../../../services/opportunityOutcomeReasonService'
+import type { OpportunityWinReason, OpportunityLossReason } from '../../../types/opportunityOutcomeReason'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import CommercialViewToggle from '../../../components/buttons/CommercialViewToggle'
 import CommercialGoalsWidget from './CommercialGoalsWidget'
@@ -161,6 +163,9 @@ export default function CommercialPipeline() {
   const [movingOpportunityId, setMovingOpportunityId] = useState<number | null>(null)
   const [pendingFinal, setPendingFinal] = useState<PendingFinalMove | null>(null)
   const [finalNotes, setFinalNotes] = useState('')
+  const [finalReasonId, setFinalReasonId] = useState<number | null>(null)
+  const [winReasons, setWinReasons] = useState<OpportunityWinReason[]>([])
+  const [lossReasons, setLossReasons] = useState<OpportunityLossReason[]>([])
   const [density, setDensity] = useState<'comfortable' | 'compact'>(() => (localStorage.getItem('pipeline.density') === 'compact' ? 'compact' : 'comfortable'))
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -182,6 +187,11 @@ export default function CommercialPipeline() {
 
   useEffect(() => {
     void loadBoard()
+  }, [])
+
+  useEffect(() => {
+    void opportunityWinReasonService.getAll({ pageSize: 200 }).then((result) => setWinReasons(result.data ?? [])).catch(() => setWinReasons([]))
+    void opportunityLossReasonService.getAll({ pageSize: 200 }).then((result) => setLossReasons(result.data ?? [])).catch(() => setLossReasons([]))
   }, [])
 
   const stages = useMemo(() => {
@@ -304,6 +314,7 @@ export default function CommercialPipeline() {
     if (targetColumn && targetColumn.finalBehavior === 1) {
       setPendingFinal({ item: draggedItem, targetStage: targetColumn, kind: 'won' })
       setFinalNotes('')
+      setFinalReasonId(null)
       setDragOverStage(null)
       setDraggedItem(null)
       return
@@ -312,6 +323,7 @@ export default function CommercialPipeline() {
     if (targetColumn && targetColumn.finalBehavior === 2) {
       setPendingFinal({ item: draggedItem, targetStage: targetColumn, kind: 'lost' })
       setFinalNotes('')
+      setFinalReasonId(null)
       setDragOverStage(null)
       setDraggedItem(null)
       return
@@ -375,16 +387,17 @@ export default function CommercialPipeline() {
     const { item, kind } = pendingFinal
     const trimmedNotes = finalNotes.trim()
 
-    if (kind === 'lost' && trimmedNotes.length === 0) return
+    if (kind === 'lost' && trimmedNotes.length === 0 && finalReasonId === null) return
 
     const result = await runFinalClose(() =>
       kind === 'won'
-        ? opportunityService.closeAsWon(item.id, trimmedNotes ? { wonNotes: trimmedNotes } : {})
-        : opportunityService.closeAsLost(item.id, { lossReason: trimmedNotes }),
+        ? opportunityService.closeAsWon(item.id, { wonNotes: trimmedNotes || undefined, winReasonId: finalReasonId ?? undefined })
+        : opportunityService.closeAsLost(item.id, { lossReason: trimmedNotes || lossReasons.find((reason) => reason.id === finalReasonId)?.name || t('pipeline.finalMove.defaultLossReason'), lossReasonId: finalReasonId ?? undefined }),
     )
     if (result !== null) {
       setPendingFinal(null)
       setFinalNotes('')
+      setFinalReasonId(null)
       void loadBoard()
     }
   }
@@ -392,6 +405,7 @@ export default function CommercialPipeline() {
   const cancelFinalMove = () => {
     setPendingFinal(null)
     setFinalNotes('')
+    setFinalReasonId(null)
   }
 
   return (
@@ -716,6 +730,28 @@ export default function CommercialPipeline() {
               {t('pipeline.finalMove.movingPrefix')}<strong>{pendingFinal?.item.name}</strong>{t('pipeline.finalMove.movingTo')}<strong>{pendingFinal?.targetStage.name}</strong>.
               {pendingFinal?.kind === 'lost' ? t('pipeline.finalMove.lostHint') : t('pipeline.finalMove.wonHint')}
             </p>
+            {((pendingFinal?.kind === 'won' ? winReasons : lossReasons) as (OpportunityWinReason | OpportunityLossReason)[]).length > 0 && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('pipeline.finalMove.reasonLabel')}</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {((pendingFinal?.kind === 'won' ? winReasons : lossReasons) as (OpportunityWinReason | OpportunityLossReason)[]).map((reason) => {
+                    const selected = finalReasonId === reason.id
+                    return (
+                      <button
+                        key={reason.id}
+                        type="button"
+                        onClick={() => setFinalReasonId(selected ? null : reason.id)}
+                        className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
+                        style={selected ? { borderColor: reason.color, backgroundColor: `${reason.color}1a`, color: reason.color } : { borderColor: 'hsl(var(--border))', color: 'hsl(var(--muted-foreground))' }}
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: reason.color }} />
+                        {reason.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
             <div className="space-y-2">
               <label className="text-sm font-medium">
                 {pendingFinal?.kind === 'won' ? t('pipeline.finalMove.wonNotesLabel') : t('pipeline.finalMove.lostReasonLabel')}
@@ -736,7 +772,7 @@ export default function CommercialPipeline() {
               type="button"
               variant={pendingFinal?.kind === 'lost' ? 'danger' : 'primary'}
               onClick={() => void confirmFinalMove()}
-              disabled={closing || (pendingFinal?.kind === 'lost' && finalNotes.trim().length === 0)}
+              disabled={closing || (pendingFinal?.kind === 'lost' && finalNotes.trim().length === 0 && finalReasonId === null)}
             >
               {closing ? t('common.action.saving') : t('common.action.confirm')}
             </Button>

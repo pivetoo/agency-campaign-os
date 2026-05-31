@@ -16,13 +16,15 @@ export default function CommercialInsightsLists({ scope = 'all', onNavigate }: P
   const navigate = useNavigate()
   const [data, setData] = useState<CommercialOpportunityInsights | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
+    setError(false)
     opportunityService.getInsights(scope, { agingThresholdDays: 14, take: 5 })
       .then((result) => { if (!cancelled) setData(result) })
-      .catch(() => { if (!cancelled) setData(null) })
+      .catch(() => { if (!cancelled) { setData(null); setError(true) } })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [scope])
@@ -35,6 +37,12 @@ export default function CommercialInsightsLists({ scope = 'all', onNavigate }: P
   if (loading) {
     return (
       <div className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-6 text-center text-sm text-muted-foreground">{t('commercialInsights.loading')}</div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-dashed border-rose-300/60 bg-rose-50/50 px-4 py-6 text-center text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">{t('commercialInsights.error')}</div>
     )
   }
 

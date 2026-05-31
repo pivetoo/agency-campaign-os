@@ -13,14 +13,16 @@ export default function CommercialForecastWidget({ scope = 'all' }: CommercialFo
   const { t } = useI18n()
   const [forecast, setForecast] = useState<CommercialForecast | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
+    setError(false)
     const promise = scope === 'mine' ? opportunityService.getForecastMine() : opportunityService.getForecast()
     promise
       .then((data) => { if (!cancelled) setForecast(data) })
-      .catch(() => { if (!cancelled) setForecast(null) })
+      .catch(() => { if (!cancelled) { setForecast(null); setError(true) } })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [scope])
@@ -29,6 +31,14 @@ export default function CommercialForecastWidget({ scope = 'all' }: CommercialFo
     return (
       <div className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
         {t('commercialForecast.loading')}
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-dashed border-rose-300/60 bg-rose-50/50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+        {t('commercialForecast.error')}
       </div>
     )
   }

@@ -1781,6 +1781,7 @@
   <data name="commercialGoals.deleteConfirm" xml:space="preserve"><value>Delete the goal for {0} ({1} · {2})?</value></data>
   <data name="commercialGoals.sellerFallback" xml:space="preserve"><value>salesperson #{0}</value></data>
   <data name="commercialForecast.loading" xml:space="preserve"><value>Loading forecast…</value></data>
+  <data name="commercialForecast.error" xml:space="preserve"><value>Could not load the forecast.</value></data>
   <data name="commercialForecast.header" xml:space="preserve"><value>Forecast · {0}</value></data>
   <data name="commercialForecast.openCount.one" xml:space="preserve"><value>1 open</value></data>
   <data name="commercialForecast.openCount.many" xml:space="preserve"><value>{0} open</value></data>
@@ -1804,6 +1805,7 @@
   <data name="commercialGoalsWidget.deals.many" xml:space="preserve"><value>{0} deals</value></data>
   <data name="commercialGoalsWidget.goalReached" xml:space="preserve"><value>goal reached</value></data>
   <data name="commercialInsights.loading" xml:space="preserve"><value>Loading insights…</value></data>
+  <data name="commercialInsights.error" xml:space="preserve"><value>Could not load the insights.</value></data>
   <data name="commercialInsights.upcomingTitle" xml:space="preserve"><value>Upcoming closings</value></data>
   <data name="commercialInsights.top" xml:space="preserve"><value>top {0}</value></data>
   <data name="commercialInsights.upcomingEmpty" xml:space="preserve"><value>No opportunity with an expected closing date.</value></data>
@@ -1836,6 +1838,8 @@
   <data name="pipeline.finalMove.lostReasonLabel" xml:space="preserve"><value>Loss reason</value></data>
   <data name="pipeline.finalMove.wonPlaceholder" xml:space="preserve"><value>E.g.: Client approved the full budget.</value></data>
   <data name="pipeline.finalMove.lostPlaceholder" xml:space="preserve"><value>E.g.: Client chose a competitor.</value></data>
+  <data name="pipeline.finalMove.reasonLabel" xml:space="preserve"><value>Reason (optional)</value></data>
+  <data name="pipeline.finalMove.defaultLossReason" xml:space="preserve"><value>No reason given</value></data>
   <data name="opportunityDetail.pendingApprovals.one" xml:space="preserve"><value>1 pending approval</value></data>
   <data name="opportunityDetail.pendingApprovals.many" xml:space="preserve"><value>{0} pending approvals</value></data>
   <data name="opportunityDetail.opportunityNumber" xml:space="preserve"><value>Opportunity #{0}</value></data>
