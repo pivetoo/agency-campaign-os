@@ -15,9 +15,9 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 19 / 57 (Fatia A + C3-C7 + D3i, D7i, D25i, D26i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 4/29 - E 0/6
-- Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos (backend, TDD): D7i, D25i, D26i, D3i. Backend 886 testes verdes.
+- Concluidos: 20 / 57 (Fatia A + C3-C7 + D1i, D3i, D7i, D25i, D26i)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 5/29 - E 0/6
+- Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos (backend, TDD): D7i, D25i, D26i, D3i, D1i (lembrete de follow-up via job). Backend 887 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
 
@@ -86,7 +86,7 @@ Pre-requisito para mais de uma agencia no mesmo deploy e para nao ficar exposto 
 
 Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e polimento.
 
-- [ ] **D1i - [Alto] Lembrete proativo de follow-up** - vencimento de follow-up nao dispara nada; so aparece se abrir a tela -> job + notificacao/e-mail ao responsavel (infra de jobs ja existe). _(follow-ups)_
+- [x] **D1i - [Alto] Lembrete proativo de follow-up** - FEITO: `FollowUpReminderJob` (hosted service, tick 6h, por tenant) chama `OpportunityFollowUpService.RemindDue`, que notifica o responsavel (KanvasNotifications.FollowUpDue) dos follow-ups vencidos ou que vencem hoje, de oportunidades ABERTAS. Dedup via `ReminderSentAt` na entidade (migration 202605310002), resetado ao remarcar a data - um lembrete por vencimento, sem spam. 1 teste TDD. _(follow-ups)_
 - [ ] **D2i - [Medio] Controle de concorrencia otimista** - transicoes gravam direto (last-write-wins) -> token de versao retornando conflito em vez de sobrescrever. _(oportunidade / proposta)_
 - [x] **D3i - [Medio] Snapshot de versao completo (congelar desconto)** - FEITO: ProposalVersion ganhou colunas `DiscountAmount`/`NetTotalValue` (nullable, migration 202605310001); `CreateSentVersionAsync` congela o desconto da proposta no envio; `ProposalPublicService.GetByToken` le o desconto CONGELADO da versao (fallback ao vivo so para versoes legadas). Editar o desconto depois de enviado nao muda mais o que o cliente ve pelo link. 1 teste TDD. _(versionamento de proposta)_
 - [ ] **D4i - [Medio] Paridade de motivos estruturados no fechamento via kanban** - arrastar para Ganho/Perdido nao coleta motivo estruturado (so texto livre), detalhe coleta -> oferecer os mesmos motivos cadastrados no fechamento pelo kanban. _(kanban)_
