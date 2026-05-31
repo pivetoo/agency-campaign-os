@@ -74,7 +74,7 @@ export default function PublicProposal() {
           <AlertTriangle className="mx-auto h-10 w-10 text-amber-500" />
           <h1 className="mt-4 text-lg font-semibold text-foreground">{t('public.proposal.invalidLink.title')}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Esta proposta pode ter sido revogada ou o link já expirou. Entre em contato com a agência para receber um novo acesso.
+            {t('public.proposal.invalidLink.body')}
           </p>
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function PublicProposal() {
           )}
           <div>
             <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('public.proposal.title')}</p>
-            <h1 className="text-xl font-bold text-foreground">{view.brandName || 'Proposta'}</h1>
+            <h1 className="text-xl font-bold text-foreground">{view.brandName || t('public.proposal.fallbackName')}</h1>
           </div>
           <span className="ml-auto rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
             v{view.versionNumber}
@@ -107,7 +107,7 @@ export default function PublicProposal() {
               className="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40 disabled:opacity-60"
             >
               <FileDown className="h-3.5 w-3.5" />
-              {downloading ? 'Baixando...' : 'Baixar PDF'}
+              {downloading ? t('public.proposal.downloading') : t('public.proposal.downloadPdf')}
             </button>
           )}
         </div>
@@ -121,13 +121,13 @@ export default function PublicProposal() {
             <div className="flex flex-wrap gap-4 pt-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <CalendarClock className="h-3.5 w-3.5" />
-                Enviada em {formatDate(view.sentAt)}
+                {t('public.proposal.sentAt').replace('{0}', formatDate(view.sentAt))}
               </span>
               {view.validityUntil ? (
                 <span className={`flex items-center gap-1.5 ${expired ? 'text-destructive' : ''}`}>
                   <FileText className="h-3.5 w-3.5" />
-                  Válida até {formatDate(view.validityUntil)}
-                  {expired ? ' (expirada)' : ''}
+                  {t('public.proposal.validUntil').replace('{0}', formatDate(view.validityUntil))}
+                  {expired ? ` ${t('public.proposal.expiredSuffix')}` : ''}
                 </span>
               ) : null}
             </div>
@@ -139,7 +139,7 @@ export default function PublicProposal() {
                   <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3">{t('public.proposal.field.creatorItem')}</th>
-                      <th className="px-4 py-3">Descrição</th>
+                      <th className="px-4 py-3">{t('public.proposal.field.description')}</th>
                       <th className="px-4 py-3 text-right">{t('public.proposal.field.qty')}</th>
                       <th className="px-4 py-3 text-right">{t('public.proposal.field.unitPrice')}</th>
                       <th className="px-4 py-3 text-right">{t('public.proposal.field.total')}</th>
@@ -155,7 +155,7 @@ export default function PublicProposal() {
                           <div>{item.description}</div>
                           {item.deliveryDeadline ? (
                             <div className="text-xs text-muted-foreground">
-                              Entrega até {formatDate(item.deliveryDeadline)}
+                              {t('public.proposal.deliveryBy').replace('{0}', formatDate(item.deliveryDeadline))}
                             </div>
                           ) : null}
                           {item.observations ? (
@@ -173,7 +173,7 @@ export default function PublicProposal() {
                       <>
                         <tr>
                           <td colSpan={4} className="px-4 py-2 text-right text-sm text-muted-foreground">
-                            Total bruto
+                            {t('public.proposal.grossTotal')}
                           </td>
                           <td className="px-4 py-2 text-right text-sm text-foreground">
                             {formatCurrency(view.totalValue)}
@@ -181,7 +181,7 @@ export default function PublicProposal() {
                         </tr>
                         <tr>
                           <td colSpan={4} className="px-4 py-2 text-right text-sm text-muted-foreground">
-                            Desconto ({view.discountPercent}%)
+                            {t('public.proposal.discount').replace('{0}', String(view.discountPercent))}
                           </td>
                           <td className="px-4 py-2 text-right text-sm text-destructive">
                             - {formatCurrency(view.discountValue)}
@@ -191,7 +191,7 @@ export default function PublicProposal() {
                     ) : null}
                     <tr>
                       <td colSpan={4} className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                        Total da proposta
+                        {t('public.proposal.netTotal')}
                       </td>
                       <td className="px-4 py-3 text-right text-lg font-bold text-foreground">
                         {formatCurrency(view.netTotalValue)}
@@ -202,13 +202,13 @@ export default function PublicProposal() {
               </div>
             ) : (
               <div className="rounded-md border border-dashed border-border/70 p-6 text-center text-sm text-muted-foreground">
-                Esta proposta não tem itens cadastrados.
+                {t('public.proposal.empty')}
               </div>
             )}
 
             {snapshot?.notes ? (
               <div className="rounded-md border border-border/70 bg-muted/20 p-4">
-                <h3 className="mb-2 text-sm font-semibold text-foreground">Observações</h3>
+                <h3 className="mb-2 text-sm font-semibold text-foreground">{t('public.proposal.notes')}</h3>
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
                   {snapshot.notes}
                 </p>
@@ -218,7 +218,7 @@ export default function PublicProposal() {
         </Card>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Documento gerado automaticamente. Para dúvidas ou aprovação, fale com a agência.
+          {t('public.proposal.footer')}
         </p>
       </div>
     </div>

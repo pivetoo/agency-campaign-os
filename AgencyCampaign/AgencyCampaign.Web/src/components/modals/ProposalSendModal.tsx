@@ -30,21 +30,27 @@ interface ChannelBindingState {
 
 const INITIAL_BINDING: ChannelBindingState = { loading: true, configured: false, isActive: false }
 
-function buildDefaultSubject(proposalName: string): string {
-  return `Proposta: ${proposalName}`
+type Translate = (key: string) => string
+
+function buildDefaultSubject(t: Translate, proposalName: string): string {
+  return t('proposalSend.template.subject').replace('{0}', proposalName)
 }
 
-function buildDefaultEmailBody(proposalName: string, agencyName: string | undefined, publicLinkUrl: string | undefined): string {
-  const greeting = 'Olá,'
-  const intro = `Segue a proposta "${proposalName}"${agencyName ? ` da ${agencyName}` : ''} para sua avaliação.`
-  const link = publicLinkUrl ? `\n\nAcesse pelo link:\n${publicLinkUrl}` : ''
-  const closing = '\n\nFico à disposição para quaisquer dúvidas.'
+function buildDefaultEmailBody(t: Translate, proposalName: string, agencyName: string | undefined, publicLinkUrl: string | undefined): string {
+  const greeting = t('proposalSend.template.greeting')
+  const intro = (agencyName
+    ? t('proposalSend.template.introWithAgency').replace('{1}', agencyName)
+    : t('proposalSend.template.intro')).replace('{0}', proposalName)
+  const link = publicLinkUrl ? `\n\n${t('proposalSend.template.emailLink')}\n${publicLinkUrl}` : ''
+  const closing = `\n\n${t('proposalSend.template.closing')}`
   return `${greeting}\n\n${intro}${link}${closing}`
 }
 
-function buildDefaultWhatsappBody(proposalName: string, agencyName: string | undefined, publicLinkUrl: string | undefined): string {
-  const intro = `Olá! Segue a proposta "${proposalName}"${agencyName ? ` da ${agencyName}` : ''} para sua avaliação.`
-  const link = publicLinkUrl ? `\n\nLink: ${publicLinkUrl}` : ''
+function buildDefaultWhatsappBody(t: Translate, proposalName: string, agencyName: string | undefined, publicLinkUrl: string | undefined): string {
+  const intro = (agencyName
+    ? t('proposalSend.template.whatsappIntroWithAgency').replace('{1}', agencyName)
+    : t('proposalSend.template.whatsappIntro')).replace('{0}', proposalName)
+  const link = publicLinkUrl ? `\n\n${t('proposalSend.template.whatsappLink')} ${publicLinkUrl}` : ''
   return `${intro}${link}`
 }
 
@@ -78,10 +84,10 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
     if (!open) return
 
     setRecipientEmail(defaultRecipientEmail ?? '')
-    setSubject(buildDefaultSubject(proposalName))
-    setEmailBody(buildDefaultEmailBody(proposalName, agencyName, publicLinkUrl))
+    setSubject(buildDefaultSubject(t, proposalName))
+    setEmailBody(buildDefaultEmailBody(t, proposalName, agencyName, publicLinkUrl))
     setRecipientPhone(defaultRecipientPhone ?? '')
-    setWhatsappBody(buildDefaultWhatsappBody(proposalName, agencyName, publicLinkUrl))
+    setWhatsappBody(buildDefaultWhatsappBody(t, proposalName, agencyName, publicLinkUrl))
     setChannel('email')
 
     void loadBindings()
@@ -134,7 +140,7 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '580px', width: '95vw' }}>
         <ModalHeader>
-          <ModalTitle>Enviar proposta</ModalTitle>
+          <ModalTitle>{t('proposalSend.title')}</ModalTitle>
         </ModalHeader>
         <form onSubmit={submit} className="space-y-5">
           <ProposalChip name={proposalName} agencyName={agencyName} />
@@ -152,13 +158,13 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
           {currentBinding.configured && currentBinding.isActive ? (
             channel === 'email' ? (
               <div className="space-y-4">
-                <FieldRow label="Destinatário">
+                <FieldRow label={t('proposalSend.field.recipient')}>
                   <Input type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} required />
                 </FieldRow>
-                <FieldRow label="Assunto">
+                <FieldRow label={t('proposalSend.field.subject')}>
                   <Input value={subject} onChange={(e) => setSubject(e.target.value)} required />
                 </FieldRow>
-                <FieldRow label="Mensagem" hint="Pode incluir o link público da proposta">
+                <FieldRow label={t('proposalSend.field.message')} hint={t('proposalSend.field.messageHint')}>
                   <textarea
                     className="min-h-[160px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     value={emailBody}
@@ -169,10 +175,10 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
               </div>
             ) : (
               <div className="space-y-4">
-                <FieldRow label="Telefone do destinatário">
+                <FieldRow label={t('proposalSend.field.phone')}>
                   <Input type="tel" placeholder="+55 11 99999-9999" value={recipientPhone} onChange={(e) => setRecipientPhone(e.target.value)} required />
                 </FieldRow>
-                <FieldRow label="Mensagem">
+                <FieldRow label={t('proposalSend.field.message')}>
                   <textarea
                     className="min-h-[140px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     value={whatsappBody}
@@ -189,7 +195,7 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
           <ModalFooter className="flex w-full items-center justify-between gap-3 sm:flex-row">
             <p className="hidden truncate text-xs text-muted-foreground sm:block">
               {currentBinding.configured && currentBinding.isActive && recipientPreview ? (
-                <>Será enviado para <span className="font-semibold text-foreground">{recipientPreview}</span></>
+                <>{t('proposalSend.willSendTo')} <span className="font-semibold text-foreground">{recipientPreview}</span></>
               ) : null}
             </p>
             <div className="flex flex-shrink-0 items-center gap-2">
@@ -197,7 +203,7 @@ export default function ProposalSendModal({ open, onOpenChange, proposalId, prop
               {currentBinding.configured && currentBinding.isActive && (
                 <Button type="submit" disabled={sending || !canSubmit}>
                   <Send size={14} className="mr-1.5" />
-                  {sending ? t('common.action.sending') : channel === 'email' ? 'Enviar email' : 'Enviar WhatsApp'}
+                  {sending ? t('common.action.sending') : channel === 'email' ? t('proposalSend.send.email') : t('proposalSend.send.whatsapp')}
                 </Button>
               )}
             </div>
@@ -218,11 +224,12 @@ function buildBindingState(summary: IntegrationCapabilitySummary[], intentKey: s
     loading: false,
     configured: true,
     isActive: item.isActive,
-    connectorName: connector?.name ?? `Conta #${item.configuredConnectorId}`,
+    connectorName: connector?.name ?? `#${item.configuredConnectorId}`,
   }
 }
 
 function ProposalChip({ name, agencyName }: { name: string; agencyName?: string }) {
+  const { t } = useI18n()
   return (
     <div className="flex items-center gap-3 rounded-[10px] border border-border bg-muted/30 px-3.5 py-2.5">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-rose-100 text-rose-700">
@@ -230,7 +237,7 @@ function ProposalChip({ name, agencyName }: { name: string; agencyName?: string 
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-foreground">{name}</p>
-        <p className="truncate text-[11.5px] text-muted-foreground">Proposta comercial{agencyName ? ` · ${agencyName}` : ''}</p>
+        <p className="truncate text-[11.5px] text-muted-foreground">{t('proposalSend.chip.subtitle')}{agencyName ? ` · ${agencyName}` : ''}</p>
       </div>
     </div>
   )
@@ -244,20 +251,21 @@ interface SegmentedControlProps {
 }
 
 function SegmentedControl({ channel, emailBinding, whatsappBinding, onSelect }: SegmentedControlProps) {
+  const { t } = useI18n()
   return (
     <div className="inline-flex w-full gap-1 rounded-[10px] bg-muted p-1" role="tablist">
       <SegmentedButton
         active={channel === 'email'}
         onClick={() => onSelect('email')}
         icon={<Mail size={16} />}
-        label="Email"
+        label={t('email')}
         binding={emailBinding}
       />
       <SegmentedButton
         active={channel === 'whatsapp'}
         onClick={() => onSelect('whatsapp')}
         icon={<MessageCircle size={16} />}
-        label="WhatsApp"
+        label={t('whatsapp')}
         binding={whatsappBinding}
       />
     </div>
@@ -273,14 +281,15 @@ interface SegmentedButtonProps {
 }
 
 function SegmentedButton({ active, onClick, icon, label, binding }: SegmentedButtonProps) {
+  const { t } = useI18n()
   const unavailable = !binding.configured || !binding.isActive
   const badge = binding.loading
     ? null
     : !binding.configured
-      ? { label: 'Não configurado', tone: 'amber' as const }
+      ? { label: t('proposalSend.badge.notConfigured'), tone: 'amber' as const }
       : !binding.isActive
-        ? { label: 'Pausado', tone: 'amber' as const }
-        : { label: 'Pronto', tone: 'green' as const }
+        ? { label: t('proposalSend.badge.paused'), tone: 'amber' as const }
+        : { label: t('proposalSend.badge.ready'), tone: 'green' as const }
 
   return (
     <button
@@ -288,7 +297,7 @@ function SegmentedButton({ active, onClick, icon, label, binding }: SegmentedBut
       onClick={onClick}
       role="tab"
       aria-selected={active}
-      title={unavailable ? 'Canal indisponível — clique para ver como configurar' : undefined}
+      title={unavailable ? t('proposalSend.channelUnavailable') : undefined}
       className={[
         'group relative flex flex-1 items-center justify-center gap-2 rounded-[7px] px-3 py-2.5 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
         active
@@ -321,15 +330,16 @@ function SegmentedButton({ active, onClick, icon, label, binding }: SegmentedBut
 }
 
 function CaptionStatus({ binding, channel }: { binding: ChannelBindingState; channel: Channel }) {
+  const { t } = useI18n()
   if (binding.loading) {
-    return <p className="mt-2 text-xs text-muted-foreground">Verificando configuração…</p>
+    return <p className="mt-2 text-xs text-muted-foreground">{t('proposalSend.status.checking')}</p>
   }
 
   if (!binding.configured) {
     return (
       <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
         <AlertTriangle size={13} />
-        {channel === 'email' ? 'Email' : 'WhatsApp'} sem conta configurada
+        {t('proposalSend.status.noAccount').replace('{0}', channel === 'email' ? t('email') : t('whatsapp'))}
       </p>
     )
   }
@@ -338,7 +348,7 @@ function CaptionStatus({ binding, channel }: { binding: ChannelBindingState; cha
     return (
       <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
         <AlertTriangle size={13} />
-        Conta <span className="font-semibold">{binding.connectorName}</span> está pausada
+        {t('proposalSend.status.pausedPrefix')} <span className="font-semibold">{binding.connectorName}</span> {t('proposalSend.status.pausedSuffix')}
       </p>
     )
   }
@@ -346,7 +356,7 @@ function CaptionStatus({ binding, channel }: { binding: ChannelBindingState; cha
   return (
     <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
       <CheckCircle2 size={13} className="text-emerald-600" />
-      Enviando via <span className="font-semibold text-foreground">{binding.connectorName}</span>
+      {t('proposalSend.status.sendingVia')} <span className="font-semibold text-foreground">{binding.connectorName}</span>
     </p>
   )
 }
@@ -371,10 +381,11 @@ interface ChannelMissingNoticeProps {
 }
 
 function ChannelMissingNotice({ binding, goToIntegrations, onMarkAsSent, markingSent }: ChannelMissingNoticeProps) {
-  const title = !binding.configured ? 'Canal não configurado' : 'Canal pausado'
+  const { t } = useI18n()
+  const title = !binding.configured ? t('proposalSend.notice.titleNotConfigured') : t('proposalSend.notice.titlePaused')
   const description = !binding.configured
-    ? 'Configure uma conta em Configurações → Integrações → Ações para liberar este canal, ou marque a proposta como enviada manualmente.'
-    : `A conta ${binding.connectorName} está vinculada mas pausada. Reative em Configurações → Integrações → Ações.`
+    ? t('proposalSend.notice.descNotConfigured')
+    : t('proposalSend.notice.descPaused').replace('{0}', binding.connectorName ?? '')
 
   return (
     <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 p-4">
@@ -387,10 +398,10 @@ function ChannelMissingNotice({ binding, goToIntegrations, onMarkAsSent, marking
       </div>
       <div className="flex flex-wrap gap-2 pl-8">
         <Button type="button" size="sm" variant="outline" onClick={goToIntegrations}>
-          <ExternalLink className="mr-1 h-3.5 w-3.5" /> Configurar Integrações
+          <ExternalLink className="mr-1 h-3.5 w-3.5" /> {t('proposalSend.notice.configure')}
         </Button>
         <Button type="button" size="sm" variant="outline-primary" onClick={onMarkAsSent} disabled={markingSent}>
-          {markingSent ? 'Salvando…' : 'Marcar como enviada mesmo assim'}
+          {markingSent ? t('common.action.saving') : t('proposalSend.notice.markSent')}
         </Button>
       </div>
     </div>

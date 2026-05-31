@@ -858,6 +858,55 @@
   <data name="public.proposal.loading" xml:space="preserve"><value>Cargando propuesta...</value></data>
   <data name="public.proposal.invalidLink.title" xml:space="preserve"><value>Enlace inválido o expirado</value></data>
   <data name="public.proposal.title" xml:space="preserve"><value>Propuesta comercial</value></data>
+  <data name="public.proposal.invalidLink.body" xml:space="preserve"><value>Esta propuesta puede haber sido revocada o el enlace ya expiró. Contactá a la agencia para recibir un nuevo acceso.</value></data>
+  <data name="public.proposal.fallbackName" xml:space="preserve"><value>Propuesta</value></data>
+  <data name="public.proposal.downloading" xml:space="preserve"><value>Descargando...</value></data>
+  <data name="public.proposal.downloadPdf" xml:space="preserve"><value>Descargar PDF</value></data>
+  <data name="public.proposal.sentAt" xml:space="preserve"><value>Enviada el {0}</value></data>
+  <data name="public.proposal.validUntil" xml:space="preserve"><value>Válida hasta {0}</value></data>
+  <data name="public.proposal.expiredSuffix" xml:space="preserve"><value>(expirada)</value></data>
+  <data name="public.proposal.field.description" xml:space="preserve"><value>Descripción</value></data>
+  <data name="public.proposal.deliveryBy" xml:space="preserve"><value>Entrega hasta {0}</value></data>
+  <data name="public.proposal.grossTotal" xml:space="preserve"><value>Total bruto</value></data>
+  <data name="public.proposal.discount" xml:space="preserve"><value>Descuento ({0}%)</value></data>
+  <data name="public.proposal.netTotal" xml:space="preserve"><value>Total de la propuesta</value></data>
+  <data name="public.proposal.empty" xml:space="preserve"><value>Esta propuesta no tiene ítems cargados.</value></data>
+  <data name="public.proposal.notes" xml:space="preserve"><value>Observaciones</value></data>
+  <data name="public.proposal.footer" xml:space="preserve"><value>Documento generado automáticamente. Para dudas o aprobación, contactá a la agencia.</value></data>
+  <data name="proposalSend.template.subject" xml:space="preserve"><value>Propuesta: {0}</value></data>
+  <data name="proposalSend.template.greeting" xml:space="preserve"><value>Hola,</value></data>
+  <data name="proposalSend.template.intro" xml:space="preserve"><value>Adjuntamos la propuesta "{0}" para tu evaluación.</value></data>
+  <data name="proposalSend.template.introWithAgency" xml:space="preserve"><value>Adjuntamos la propuesta "{0}" de {1} para tu evaluación.</value></data>
+  <data name="proposalSend.template.emailLink" xml:space="preserve"><value>Accedé desde el enlace:</value></data>
+  <data name="proposalSend.template.closing" xml:space="preserve"><value>Quedo a disposición para cualquier consulta.</value></data>
+  <data name="proposalSend.template.whatsappIntro" xml:space="preserve"><value>¡Hola! Adjuntamos la propuesta "{0}" para tu evaluación.</value></data>
+  <data name="proposalSend.template.whatsappIntroWithAgency" xml:space="preserve"><value>¡Hola! Adjuntamos la propuesta "{0}" de {1} para tu evaluación.</value></data>
+  <data name="proposalSend.template.whatsappLink" xml:space="preserve"><value>Enlace:</value></data>
+  <data name="proposalSend.title" xml:space="preserve"><value>Enviar propuesta</value></data>
+  <data name="proposalSend.field.recipient" xml:space="preserve"><value>Destinatario</value></data>
+  <data name="proposalSend.field.subject" xml:space="preserve"><value>Asunto</value></data>
+  <data name="proposalSend.field.message" xml:space="preserve"><value>Mensaje</value></data>
+  <data name="proposalSend.field.messageHint" xml:space="preserve"><value>Podés incluir el enlace público de la propuesta</value></data>
+  <data name="proposalSend.field.phone" xml:space="preserve"><value>Teléfono del destinatario</value></data>
+  <data name="proposalSend.willSendTo" xml:space="preserve"><value>Se enviará a</value></data>
+  <data name="proposalSend.send.email" xml:space="preserve"><value>Enviar email</value></data>
+  <data name="proposalSend.send.whatsapp" xml:space="preserve"><value>Enviar WhatsApp</value></data>
+  <data name="proposalSend.chip.subtitle" xml:space="preserve"><value>Propuesta comercial</value></data>
+  <data name="proposalSend.badge.notConfigured" xml:space="preserve"><value>Sin configurar</value></data>
+  <data name="proposalSend.badge.paused" xml:space="preserve"><value>Pausado</value></data>
+  <data name="proposalSend.badge.ready" xml:space="preserve"><value>Listo</value></data>
+  <data name="proposalSend.channelUnavailable" xml:space="preserve"><value>Canal no disponible — hacé clic para ver cómo configurar</value></data>
+  <data name="proposalSend.status.checking" xml:space="preserve"><value>Verificando configuración…</value></data>
+  <data name="proposalSend.status.noAccount" xml:space="preserve"><value>{0} sin cuenta configurada</value></data>
+  <data name="proposalSend.status.pausedPrefix" xml:space="preserve"><value>Cuenta</value></data>
+  <data name="proposalSend.status.pausedSuffix" xml:space="preserve"><value>está pausada</value></data>
+  <data name="proposalSend.status.sendingVia" xml:space="preserve"><value>Enviando por</value></data>
+  <data name="proposalSend.notice.titleNotConfigured" xml:space="preserve"><value>Canal no configurado</value></data>
+  <data name="proposalSend.notice.titlePaused" xml:space="preserve"><value>Canal pausado</value></data>
+  <data name="proposalSend.notice.descNotConfigured" xml:space="preserve"><value>Configurá una cuenta en Configuración → Integraciones → Acciones para habilitar este canal, o marcá la propuesta como enviada manualmente.</value></data>
+  <data name="proposalSend.notice.descPaused" xml:space="preserve"><value>La cuenta {0} está vinculada pero pausada. Reactivala en Configuración → Integraciones → Acciones.</value></data>
+  <data name="proposalSend.notice.configure" xml:space="preserve"><value>Configurar Integraciones</value></data>
+  <data name="proposalSend.notice.markSent" xml:space="preserve"><value>Marcar como enviada de todos modos</value></data>
   <data name="public.proposal.field.creatorItem" xml:space="preserve"><value>Influencer / ítem</value></data>
   <data name="public.proposal.field.qty" xml:space="preserve"><value>Cant.</value></data>
   <data name="public.proposal.field.unitPrice" xml:space="preserve"><value>Unitario</value></data>
