@@ -22,9 +22,13 @@ builder.Services.AddAuthorization();
 builder.Services.AddArchonApi(builder.Configuration, typeof(AgencyCampaignResource));
 builder.Services.AddAgencyCampaignInfrastructure(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
+
+#region Background jobs
 builder.Services.AddHostedService<SocialSyncJob>();
 builder.Services.AddHostedService<ContentLicenseExpiryJob>();
 builder.Services.AddHostedService<ProposalExpiryJob>();
+#endregion
+
 builder.Services.AddArchonAuthentication(builder.Configuration);
 
 var app = builder.Build();
