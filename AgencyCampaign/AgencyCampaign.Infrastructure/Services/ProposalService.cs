@@ -548,7 +548,9 @@ namespace AgencyCampaign.Infrastructure.Services
 
             bool hasApproved = await DbContext.Set<OpportunityApprovalRequest>()
                 .AsNoTracking()
-                .AnyAsync(item => item.ProposalId == proposalId && item.Status == OpportunityApprovalStatus.Approved, cancellationToken);
+                .AnyAsync(item => item.ProposalId == proposalId
+                    && (item.Status == OpportunityApprovalStatus.Approved
+                        || item.Status == OpportunityApprovalStatus.Merged), cancellationToken);
 
             if (hasApproved)
             {

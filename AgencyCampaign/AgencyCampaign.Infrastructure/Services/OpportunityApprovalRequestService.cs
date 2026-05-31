@@ -243,11 +243,6 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            if (approvalRequest.Status != OpportunityApprovalStatus.Pending)
-            {
-                throw new InvalidOperationException("opportunityApproval.notPending");
-            }
-
             return approvalRequest;
         }
 

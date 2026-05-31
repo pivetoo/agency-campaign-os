@@ -443,6 +443,38 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task MarkAsSent_should_succeed_after_approval_is_merged_without_creating_new_approval()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            await db.SaveChangesAsync();
+
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest
+            {
+                OpportunityId = opportunity.Id,
+                DiscountAmount = 300m
+            });
+            await SetProposalTotalAsync(proposal.Id, 1000m);
+
+            await service.Invoking(s => s.MarkAsSent(proposal.Id)).Should().ThrowAsync<InvalidOperationException>();
+            db.ChangeTracker.Clear();
+
+            OpportunityApprovalRequest approval = await db.Set<OpportunityApprovalRequest>()
+                .AsTracking()
+                .SingleAsync(item => item.ProposalId == proposal.Id);
+            await approvalRequestService.Approve(approval.Id, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Boss" });
+            db.ChangeTracker.Clear();
+            await approvalRequestService.MarkMerged(approval.Id);
+            db.ChangeTracker.Clear();
+
+            await service.MarkAsSent(proposal.Id);
+
+            db.ChangeTracker.Clear();
+            (await db.Set<OpportunityApprovalRequest>().CountAsync(item => item.ProposalId == proposal.Id)).Should().Be(1);
+            (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == proposal.Id)).Status.Should().Be(ProposalStatus.Sent);
+        }
+
+        [Test]
         public async Task MarkAsSent_should_succeed_when_proposal_within_policy()
         {
             Opportunity opportunity = await SeedOpportunityAsync();

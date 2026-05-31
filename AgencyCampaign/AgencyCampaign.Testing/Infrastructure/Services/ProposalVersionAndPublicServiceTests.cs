@@ -137,7 +137,16 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GetByToken_should_strip_internal_notes_from_public_snapshot()
         {
-            Proposal proposal = new(1, "P", 1);
+            Brand brand = new("Acme");
+            db.Add(brand);
+            await db.SaveChangesAsync();
+            CommercialPipelineStage stage = new("Q", 1, "#fff");
+            db.Add(stage);
+            await db.SaveChangesAsync();
+            Opportunity opportunity = new(brand.Id, stage.Id, "deal", 0m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+            Proposal proposal = new(opportunity.Id, "P", 1);
             db.Add(proposal);
             await db.SaveChangesAsync();
             string snapshot = "{\"name\":\"Proposta\",\"notes\":\"segredo interno da agencia\",\"items\":[]}";
@@ -150,6 +159,34 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             viewModel.Should().NotBeNull();
             viewModel!.SnapshotJson.Should().NotContain("segredo interno");
             viewModel.SnapshotJson.Should().NotContain("notes");
+        }
+
+        [Test]
+        public async Task GetByToken_should_return_null_when_proposal_is_rejected()
+        {
+            Proposal proposal = new(1, "P", 1);
+            proposal.MarkAsSent();
+            proposal.Reject();
+            db.Add(proposal);
+            await db.SaveChangesAsync();
+            db.Add(new ProposalVersion(proposal.Id, 1, "v1", null, 100m, null, "{}", null, null));
+            db.Add(new ProposalShareLink(proposal.Id, "tok", null, null, null));
+            await db.SaveChangesAsync();
+
+            (await service.GetByToken("tok", null, null)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetByToken_should_return_null_when_proposal_validity_passed()
+        {
+            Proposal proposal = new(1, "P", 1, validityUntil: DateTimeOffset.UtcNow.AddDays(-1));
+            db.Add(proposal);
+            await db.SaveChangesAsync();
+            db.Add(new ProposalVersion(proposal.Id, 1, "v1", null, 100m, null, "{}", null, null));
+            db.Add(new ProposalShareLink(proposal.Id, "tok", null, null, null));
+            await db.SaveChangesAsync();
+
+            (await service.GetByToken("tok", null, null)).Should().BeNull();
         }
     }
 }

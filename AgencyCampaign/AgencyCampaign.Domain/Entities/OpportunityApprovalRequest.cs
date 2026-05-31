@@ -56,6 +56,7 @@ namespace AgencyCampaign.Domain.Entities
         public void Approve(string approvedByUserName, string? decisionNotes = null, long? approvedByUserId = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(approvedByUserName);
+            EnsurePendingForDirectDecision();
             EnsureNoRequiredReviewers();
 
             Status = OpportunityApprovalStatus.Approved;
@@ -69,6 +70,7 @@ namespace AgencyCampaign.Domain.Entities
         public void Reject(string approvedByUserName, string? decisionNotes = null, long? approvedByUserId = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(approvedByUserName);
+            EnsurePendingForDirectDecision();
             EnsureNoRequiredReviewers();
 
             Status = OpportunityApprovalStatus.Rejected;
@@ -199,6 +201,14 @@ namespace AgencyCampaign.Domain.Entities
             DecisionNotes = decider.DecisionNotes;
             DecidedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        private void EnsurePendingForDirectDecision()
+        {
+            if (Status != OpportunityApprovalStatus.Pending)
+            {
+                throw new InvalidOperationException("opportunityApproval.notPending");
+            }
         }
 
         private void EnsureNoRequiredReviewers()

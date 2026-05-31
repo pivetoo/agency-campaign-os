@@ -2,6 +2,7 @@ using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Nodes;
@@ -58,7 +59,12 @@ namespace AgencyCampaign.Infrastructure.Services
                     .ThenInclude(opp => opp!.Brand)
                 .FirstOrDefaultAsync(item => item.Id == shareLink.ProposalId, cancellationToken);
 
-            string brandName = proposal?.Opportunity?.Brand?.Name ?? string.Empty;
+            if (proposal is null || !IsPubliclyAccessible(proposal, now))
+            {
+                return null;
+            }
+
+            string brandName = proposal.Opportunity?.Brand?.Name ?? string.Empty;
 
             shareLink.RegisterView(ipAddress, userAgent);
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -98,6 +104,23 @@ namespace AgencyCampaign.Infrastructure.Services
                 SentAt = version.SentAt,
                 SnapshotJson = SanitizePublicSnapshot(version.SnapshotJson)
             };
+        }
+
+        private static bool IsPubliclyAccessible(Proposal proposal, DateTimeOffset now)
+        {
+            if (proposal.Status == ProposalStatus.Rejected
+                || proposal.Status == ProposalStatus.Cancelled
+                || proposal.Status == ProposalStatus.Expired)
+            {
+                return false;
+            }
+
+            if (proposal.ValidityUntil.HasValue && proposal.ValidityUntil.Value < now)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static string SanitizePublicSnapshot(string snapshotJson)

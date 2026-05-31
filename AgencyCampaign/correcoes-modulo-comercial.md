@@ -15,10 +15,10 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 12 / 57 (Fatia A completa + C4, C6)
-- Por fatia: A 10/10 - B 0/5 - C 2/7 - D 0/29 - E 0/6
+- Concluidos: 13 / 57 (Fatia A completa + C4, C5, C6) + C7 parcial
+- Por fatia: A 10/10 - B 0/5 - C 3/7 - D 0/29 - E 0/6
 - Fatia A verificada: backend 874 testes verdes (1 falha pre-existente de SMTP, fora do comercial; +7 testes novos TDD); frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
-- Fatia C em andamento: C4 + C6 feitos (backend 878 testes, +4 novos TDD; tsc -b limpo). Faltam C2 (rate limit), C3 (pool PDF), C5 (reenvio pos-merge), C7 (expiracao). C1 bloqueado por D4.
+- Fatia C em andamento: C4, C5, C6 + C7 (parte 1) feitos (backend 880 testes, +9 novos TDD; tsc -b limpo). Faltam C2 (rate limit), C3 (pool PDF) - infra; C7 parte 2 (job de expiracao) + parte 3 (expiry default no link). C1 bloqueado por D4.
 
 ## Decisoes operacionais registradas (2026-05-30)
 
@@ -75,9 +75,9 @@ Pre-requisito para mais de uma agencia no mesmo deploy e para nao ficar exposto 
 - [ ] **C2 - [Alto] Rate limiting nos endpoints publicos + revisar CORS** - ausencia total de rate limit e CORS aberto ampliam a superficie -> aplicar rate limit nos endpoints anonimos e restringir CORS. _(API publica)_
 - [ ] **C3 - [Alto] Pool/fila/timeout para o Chromium do PDF** - cada PDF sobe e descarta um navegador inteiro, sincrono, sem limite -> reusar instancia (pool), enfileirar, aplicar timeout e propagar cancelamento. _(geracao de PDF)_
 - [x] **C4 - [Alto] Reforcar o gate de aprovacao no backend** - FEITO: Approve/Reject/RequestChanges agora derivam a autoria do usuario autenticado (`currentUser`), ignorando o nome do corpo (sem mais forja de aprovador); dominio bloqueia Approve/Reject direto quando ha revisores obrigatorios (forca a votacao); GetTrackedApproval passa a incluir Reviewers. 2 testes TDD. PARCIAL: alcada por papel/threshold (ex.: so gestor aprova acima de X) nao implementada - hoje o `[RequireAccess]` do controller gateia quem pode chamar; alcada granular fica como follow-up. _(aprovacoes)_
-- [ ] **C5 - [Medio] Fechar reabertura pos-merge / reenvio bloqueado** - apos "marcar como aplicada", reenviar a mesma proposta cria nova aprovacao e bloqueia de novo -> permitir reenvio a partir do estado merged sem recriar aprovacao redundante. _(aprovacoes / envio)_
+- [x] **C5 - [Medio] Fechar reabertura pos-merge / reenvio bloqueado** - FEITO: o gate de envio agora conta aprovacao `Merged` como valida (alem de `Approved`), entao reenviar apos "marcar como aplicada" passa sem recriar aprovacao. BONUS: descoberto e corrigido bug pre-existente - `GetTrackedApproval` exigia `Pending`, quebrando `MarkMerged`/`Resubmit` (nunca testados); guard de Pending movido para o dominio (Approve/Reject), liberando as transicoes corretas. 1 teste TDD (reenvio pos-merge). _(aprovacoes / envio)_
 - [x] **C6 - [Medio] IDOR intra-tenant na revogacao de share link** - FEITO: revoke aninhado sob o proposal (rota `{id}/share-links/{shareLinkId}/Revoke`) e query valida que o link pertence ao proposal antes de revogar; service/interface/controller/front/ProposalShareTab atualizados. 1 teste TDD (IDOR). _(share link)_
-- [ ] **C7 - [Medio] Expiracao de proposta e de link publico** - status "expirada" e codigo morto (nenhum job invoca) e o link nasce perpetuo -> implementar expiracao (job) e data de expiracao no link; bloquear acesso publico a propostas vencidas/rejeitadas/canceladas. _(proposta / link publico)_
+- [~] **C7 - [Medio] Expiracao de proposta e de link publico** - PARTE 1 FEITA: o acesso publico (`GetByToken`) agora bloqueia (retorna null) propostas Rejeitadas/Canceladas/Expiradas e propostas com `ValidityUntil` vencido - nao serve mais proposta vencida/morta. 2 testes TDD. FALTA: parte 2 (job que marca propostas como Expired ao vencer) e parte 3 (data de expiracao default no link gerado no envio). _(proposta / link publico)_
 
 ---
 
