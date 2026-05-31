@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from 'archon-ui'
-import { TrendingUp, CheckCircle2, XCircle, Hourglass } from 'lucide-react'
+import { TrendingUp, CheckCircle2, XCircle, Hourglass, CalendarClock } from 'lucide-react'
 import { opportunityService } from '../../../services/opportunityService'
 import type { CommercialForecast } from '../../../types/commercialForecast'
 import { formatCurrency } from '../../../lib/format'
@@ -79,6 +79,15 @@ export default function CommercialForecastWidget({ scope = 'all' }: CommercialFo
         <Stat label={t('commercialForecast.statWeighted')} value={formatCurrency(projected)} tone="primary" icon={<Hourglass className="h-3 w-3" />} hint={t('commercialForecast.statWeightedHint').replace('{0}', formatCurrency(forecast.unweightedTotal))} />
         <Stat label={t('commercialForecast.statLost')} value={formatCurrency(lost)} tone="rose" icon={<XCircle className="h-3 w-3" />} />
       </div>
+
+      {forecast.noDateCount > 0 && (
+        <div className="mt-2 flex items-center gap-1.5 rounded-md border border-dashed border-amber-300/60 bg-amber-50/50 px-2.5 py-1.5 text-[11px] text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+          <CalendarClock className="h-3 w-3 shrink-0" />
+          <span>{forecast.noDateCount === 1
+            ? t('commercialForecast.noDate.one').replace('{0}', formatCurrency(forecast.noDateTotal))
+            : t('commercialForecast.noDate.many').replace('{0}', String(forecast.noDateCount)).replace('{1}', formatCurrency(forecast.noDateTotal))}</span>
+        </div>
+      )}
     </div>
   )
 }

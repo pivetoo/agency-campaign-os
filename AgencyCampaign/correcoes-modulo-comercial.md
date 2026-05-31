@@ -15,8 +15,8 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 31 / 57 (Fatia A + C3-C7 + D1i, D3i, D4i, D6i, D7i, D8i, D9i, D11i, D12i, D13i, D14i, D15i, D17i, D18i, D25i, D26i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 16/29 - E 0/6
+- Concluidos: 32 / 57 (Fatia A + C3-C7 + D1i, D3i, D4i, D6i, D7i, D8i, D9i, D11i, D12i, D13i, D14i, D15i, D17i, D18i, D22i, D25i, D26i)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 17/29 - E 0/6
 - Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos: D7i, D25i, D26i, D3i, D1i, D18i (TDD) + D6i (logging). 3 jobs comerciais novos. D24i adiado (escopo global). Backend 888 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
@@ -107,7 +107,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [-] **D19i - [Medio] Endpoint publico serve a versao do link** - ADIADO (valor marginal): com o D3i feito (desconto congelado por versao) e o modelo de UM link ativo reusado por proposta (EnsureActiveShareLinkAsync) que mostra a ultima versao enviada, servir "a versao do link" so importa no caso raro de MULTIPLOS links manuais apontando para versoes diferentes - e exigiria FK link->versao + lidar com ID pre-save. Reativar se surgir o cenario multi-link. _(link publico)_
 - [ ] **D20i - [Baixo] Arredondamento monetario consistente no dominio** - falta padrao de arredondamento -> centralizar regra de arredondamento. _(dominio comercial)_
 - [ ] **D21i - [Baixo] Conversao por estagio nao assume funil linear** - calculo assume funil estritamente linear -> tornar robusto a funis nao lineares. _(analytics)_
-- [ ] **D22i - [Baixo] Oportunidades sem data prevista somem do forecast sem contador** - desaparecem silenciosamente -> contabilizar/sinalizar. _(forecast)_
+- [x] **D22i - [Baixo] Oportunidades sem data prevista somem do forecast sem contador** - FEITO: o forecast filtra por `ExpectedCloseAt` no periodo, entao oportunidades ABERTAS sem data nunca entram em nenhuma projecao e sumiam sem aviso. Agora `GetForecast` conta essas (abertas, nao-final, sem data, mesmo escopo de usuario) e devolve `NoDateCount`/`NoDateTotal` no modelo (serializado direto, sem DTO). O widget de forecast mostra um aviso ambar tracejado ("N oportunidades abertas sem data prevista (R$ X) fora da projecao") quando ha alguma. 1 teste TDD; tsc verde; 38 testes do service verdes. _(forecast)_
 - [ ] **D23i - [Baixo] Conversao em nova campanha com modal de revisao** - usa confirm nativo e cria "as cegas" -> modal padrao do produto revisando nome/datas. _(conversao)_
 - [-] **D24i - [Baixo] "Nao encontrado" retornar 404 (nao 400)** - ADIADO (escopo global, nao comercial): `record.notFound` e lancado como `InvalidOperationException` (-> 400 no middleware do Archon) em dezenas de services de TODO o codebase, nao so no comercial. O Archon ja tem `NotFoundException` (-> 404); o fix correto e uma passada GLOBAL trocando o padrao (todos os `record.notFound` -> NotFoundException), nao piecemeal no comercial (criaria inconsistencia de status entre modulos). Fazer como tarefa dedicada cross-modulo. _(API / global)_
 - [x] **D25i - [Baixo] Soft delete de fontes/motivos** - FEITO: Delete de OpportunitySource/WinReason/LossReason agora faz soft-delete (IsActive=false) em vez de Remove fisico, preservando o vinculo nas oportunidades historicas (GetAll ja filtra inativos). Tags ficaram de fora (join table, nao quebra analytics igual). 2 testes TDD. _(fontes / motivos)_

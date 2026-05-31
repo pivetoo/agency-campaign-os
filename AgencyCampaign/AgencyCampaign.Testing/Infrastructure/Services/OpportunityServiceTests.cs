@@ -592,5 +592,23 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Should().BeNull();
             (await db.Set<Opportunity>().FindAsync(13L)).Should().NotBeNull();
         }
+
+        [Test]
+        public async Task GetForecast_should_count_open_opportunities_without_expected_date()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Sem data", 700m).WithId(20));
+            db.Add(new Opportunity(1, 1, "Com data", 300m, expectedCloseAt: new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.Zero)).WithId(21));
+            await db.SaveChangesAsync();
+
+            CommercialForecastModel forecast = await service.GetForecast(
+                new DateTimeOffset(2026, 6, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2026, 7, 1, 0, 0, 0, TimeSpan.Zero),
+                restrictToCurrentUser: false,
+                userId: null);
+
+            forecast.NoDateCount.Should().Be(1);
+            forecast.NoDateTotal.Should().Be(700m);
+        }
     }
 }

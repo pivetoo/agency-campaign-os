@@ -548,6 +548,22 @@ namespace AgencyCampaign.Infrastructure.Services
 
             List<Opportunity> all = await query.ToListAsync(cancellationToken);
 
+            IQueryable<Opportunity> noDateQuery = DbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Include(item => item.CommercialPipelineStage)
+                .Where(item => item.ExpectedCloseAt == null
+                    && (item.CommercialPipelineStage == null || item.CommercialPipelineStage.FinalBehavior == CommercialPipelineStageFinalBehavior.None));
+
+            if (scopeUserId.HasValue)
+            {
+                long target = scopeUserId.Value;
+                noDateQuery = noDateQuery.Where(item => item.ResponsibleUserId == target);
+            }
+
+            List<Opportunity> noDate = await noDateQuery.ToListAsync(cancellationToken);
+            int noDateCount = noDate.Count;
+            decimal noDateTotal = noDate.Sum(item => item.EstimatedValue);
+
             decimal weightedTotal = 0m;
             decimal unweightedTotal = 0m;
             decimal wonTotal = 0m;
@@ -607,6 +623,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 OpenCount = openCount,
                 WonCount = wonCount,
                 LostCount = lostCount,
+                NoDateCount = noDateCount,
+                NoDateTotal = Math.Round(noDateTotal, 2),
                 ByStage = byStage
             };
         }

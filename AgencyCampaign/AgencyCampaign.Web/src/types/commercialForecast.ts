@@ -19,5 +19,7 @@ export interface CommercialForecast {
   openCount: number
   wonCount: number
   lostCount: number
+  noDateCount: number
+  noDateTotal: number
   byStage: CommercialForecastStageBreakdown[]
 }

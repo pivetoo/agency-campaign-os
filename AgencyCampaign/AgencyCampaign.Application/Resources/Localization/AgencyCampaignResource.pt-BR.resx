@@ -1792,6 +1792,8 @@
   <data name="commercialGoals.sellerFallback" xml:space="preserve"><value>vendedor #{0}</value></data>
   <data name="commercialForecast.loading" xml:space="preserve"><value>Carregando previsão…</value></data>
   <data name="commercialForecast.error" xml:space="preserve"><value>Não foi possível carregar o forecast.</value></data>
+  <data name="commercialForecast.noDate.one" xml:space="preserve"><value>1 oportunidade aberta sem data prevista ({0}) fora da projecao</value></data>
+  <data name="commercialForecast.noDate.many" xml:space="preserve"><value>{0} oportunidades abertas sem data prevista ({1}) fora da projecao</value></data>
   <data name="commercialForecast.header" xml:space="preserve"><value>Previsão · {0}</value></data>
   <data name="commercialForecast.openCount.one" xml:space="preserve"><value>1 aberta</value></data>
   <data name="commercialForecast.openCount.many" xml:space="preserve"><value>{0} abertas</value></data>

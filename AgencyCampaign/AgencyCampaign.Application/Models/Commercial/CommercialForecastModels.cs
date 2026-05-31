@@ -22,6 +22,10 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public int LostCount { get; init; }
 
+        public int NoDateCount { get; init; }
+
+        public decimal NoDateTotal { get; init; }
+
         public IReadOnlyCollection<CommercialForecastStageBreakdown> ByStage { get; init; } = Array.Empty<CommercialForecastStageBreakdown>();
     }
 
