@@ -18,6 +18,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public DateTimeOffset? CompletedAt { get; private set; }
 
+        public DateTimeOffset? ReminderSentAt { get; private set; }
+
         private OpportunityFollowUp()
         {
         }
@@ -39,9 +41,21 @@ namespace AgencyCampaign.Domain.Entities
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(subject);
 
+            DateTimeOffset normalizedDueAt = dueAt.ToUniversalTime();
+            if (normalizedDueAt != DueAt)
+            {
+                ReminderSentAt = null;
+            }
+
             Subject = subject.Trim();
-            DueAt = dueAt.ToUniversalTime();
+            DueAt = normalizedDueAt;
             Notes = Normalize(notes);
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        public void MarkReminderSent()
+        {
+            ReminderSentAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 

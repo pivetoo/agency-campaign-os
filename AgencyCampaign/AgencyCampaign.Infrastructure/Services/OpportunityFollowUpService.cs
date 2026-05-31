@@ -1,8 +1,10 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Opportunities;
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using Archon.Application.Services;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +14,48 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class OpportunityFollowUpService : CrudService<OpportunityFollowUp>, IOpportunityFollowUpService
     {
+        private readonly INotificationService notificationService;
 
-        public OpportunityFollowUpService(DbContext dbContext) : base(dbContext)
+        public OpportunityFollowUpService(DbContext dbContext, INotificationService notificationService) : base(dbContext)
         {
+            this.notificationService = notificationService;
+        }
+
+        public async Task<int> RemindDue(CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset cutoff = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero).AddDays(1).AddTicks(-1);
+
+            List<OpportunityFollowUp> due = await DbContext.Set<OpportunityFollowUp>()
+                .AsTracking()
+                .Include(item => item.Opportunity)
+                .Where(item => !item.IsCompleted
+                    && item.ReminderSentAt == null
+                    && item.DueAt <= cutoff
+                    && item.Opportunity != null
+                    && item.Opportunity.ClosedAt == null)
+                .ToListAsync(cancellationToken);
+
+            int reminded = 0;
+            foreach (OpportunityFollowUp followUp in due)
+            {
+                try
+                {
+                    await notificationService.Create(KanvasNotifications.FollowUpDue(followUp, followUp.Opportunity!), cancellationToken);
+                    followUp.MarkReminderSent();
+                    reminded++;
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"[OpportunityFollowUpService] failed to remind follow-up {followUp.Id}: {exception.Message}");
+                }
+            }
+
+            if (reminded > 0)
+            {
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return reminded;
         }
 
         public async Task<OpportunityFollowUp?> GetOpportunityFollowUpById(long id, CancellationToken cancellationToken = default)

@@ -100,6 +100,21 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
+        public static CreateNotificationRequest FollowUpDue(OpportunityFollowUp followUp, Opportunity opportunity)
+        {
+            return new CreateNotificationRequest
+            {
+                UserId = opportunity.ResponsibleUserId,
+                Type = NotificationType.Warning,
+                Title = "Follow-up pendente",
+                Message = $"O follow-up \"{followUp.Subject}\" da oportunidade \"{opportunity.Name}\" está vencido.",
+                Link = $"/comercial/oportunidades/{opportunity.Id}?tab=followups",
+                Source = "opportunity",
+                ReferenceEntityName = nameof(OpportunityFollowUp),
+                ReferenceEntityId = followUp.Id.ToString()
+            };
+        }
+
         public static CreateNotificationRequest DeliverableApprovedByBrand(CampaignDeliverable deliverable, string reviewerName)
         {
             return new CreateNotificationRequest

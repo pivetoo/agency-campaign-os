@@ -15,13 +15,15 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     public sealed class OpportunityFollowUpServiceTests
     {
         private TestDbContext db = null!;
+        private Mock<Archon.Application.Services.INotificationService> notifications = null!;
         private OpportunityFollowUpService service = null!;
 
         [SetUp]
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new OpportunityFollowUpService(db);
+            notifications = new();
+            service = new OpportunityFollowUpService(db, notifications.Object);
         }
 
         [TearDown]
@@ -50,6 +52,31 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             Func<Task> act = () => service.CreateOpportunityFollowUp(request);
             await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task RemindDue_should_notify_overdue_open_followups_once_and_skip_others()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+
+            OpportunityFollowUp overdue = new(opportunity.Id, "Ligar para o cliente", DateTimeOffset.UtcNow.AddDays(-1));
+            OpportunityFollowUp future = new(opportunity.Id, "Reuniao futura", DateTimeOffset.UtcNow.AddDays(5));
+            OpportunityFollowUp completed = new(opportunity.Id, "Ja feito", DateTimeOffset.UtcNow.AddDays(-2));
+            completed.Complete();
+            db.Add(overdue);
+            db.Add(future);
+            db.Add(completed);
+            await db.SaveChangesAsync();
+
+            int count = await service.RemindDue();
+
+            count.Should().Be(1);
+            notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            db.ChangeTracker.Clear();
+            (await db.Set<OpportunityFollowUp>().AsNoTracking().SingleAsync(item => item.Id == overdue.Id)).ReminderSentAt.Should().NotBeNull();
+
+            (await service.RemindDue()).Should().Be(0);
         }
 
         [Test]

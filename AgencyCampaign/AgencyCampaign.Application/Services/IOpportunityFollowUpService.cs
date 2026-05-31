@@ -22,5 +22,7 @@ namespace AgencyCampaign.Application.Services
         Task<IReadOnlyCollection<OpportunityFollowUp>> GetAllFollowUps(string? status, CancellationToken cancellationToken = default);
 
         Task<FollowUpSummaryModel> GetFollowUpsSummary(CancellationToken cancellationToken = default);
+
+        Task<int> RemindDue(CancellationToken cancellationToken = default);
     }
 }

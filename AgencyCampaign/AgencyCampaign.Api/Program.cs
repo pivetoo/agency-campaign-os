@@ -27,6 +27,7 @@ builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
 builder.Services.AddHostedService<SocialSyncJob>();
 builder.Services.AddHostedService<ContentLicenseExpiryJob>();
 builder.Services.AddHostedService<ProposalExpiryJob>();
+builder.Services.AddHostedService<FollowUpReminderJob>();
 #endregion
 
 builder.Services.AddArchonAuthentication(builder.Configuration);
