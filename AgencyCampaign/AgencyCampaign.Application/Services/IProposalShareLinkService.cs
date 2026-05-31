@@ -9,7 +9,7 @@ namespace AgencyCampaign.Application.Services
 
         Task<ProposalShareLinkModel> CreateShareLink(long proposalId, CreateProposalShareLinkRequest request, CancellationToken cancellationToken = default);
 
-        Task<ProposalShareLinkModel> RevokeShareLink(long shareLinkId, CancellationToken cancellationToken = default);
+        Task<ProposalShareLinkModel> RevokeShareLink(long proposalId, long shareLinkId, CancellationToken cancellationToken = default);
     }
 
     public interface IProposalVersionService

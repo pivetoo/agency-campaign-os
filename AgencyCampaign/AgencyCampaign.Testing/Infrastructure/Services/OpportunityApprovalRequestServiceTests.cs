@@ -121,6 +121,39 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task Approve_should_record_authenticated_user_not_request_body()
+        {
+            Proposal proposal = await SeedProposalAsync();
+
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            db.Add(approval);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            OpportunityApprovalRequestService boss = new(db, notifications.Object, policyEvaluator.Object, CurrentUserMock.Create(userId: 7, userName: "Aprovador Real"));
+            OpportunityApprovalRequest result = await boss.Approve(approval.Id, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Nome Forjado", ApprovedByUserId = 999 });
+
+            result.ApprovedByUserName.Should().Be("Aprovador Real");
+            result.ApprovedByUserId.Should().Be(7);
+        }
+
+        [Test]
+        public async Task Approve_should_throw_when_required_reviewers_exist()
+        {
+            Proposal proposal = await SeedProposalAsync();
+
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            approval.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            db.Add(approval);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.Approve(approval.Id, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Boss" });
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
         public async Task Reject_should_set_status_rejected()
         {
             Proposal proposal = await SeedProposalAsync();

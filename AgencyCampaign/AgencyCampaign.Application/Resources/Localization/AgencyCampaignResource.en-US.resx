@@ -2096,6 +2096,8 @@
   <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>The default payment term cannot be greater than the maximum term.</value></data>
   <data name="opportunities.move.failed" xml:space="preserve"><value>Could not move the opportunity. Please try again.</value></data>
   <data name="commercialApprovals.badge.outsidePolicy" xml:space="preserve"><value>Outside policy</value></data>
+  <data name="opportunityApproval.decision.reviewersRequired" xml:space="preserve"><value>This approval has required reviewers. The decision must come from the reviewers' votes, not a direct approval.</value></data>
+  <data name="opportunityApproval.decision.unauthenticated" xml:space="preserve"><value>You must be authenticated to decide an approval.</value></data>
   <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Proposal template</value></data>
   <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>New template</value></data>
   <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Proposal layouts</value></data>

@@ -2102,6 +2102,8 @@
   <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>El plazo de pago predeterminado no puede ser mayor que el plazo máximo.</value></data>
   <data name="opportunities.move.failed" xml:space="preserve"><value>No se pudo mover la oportunidad. Intentá de nuevo.</value></data>
   <data name="commercialApprovals.badge.outsidePolicy" xml:space="preserve"><value>Fuera de la política</value></data>
+  <data name="opportunityApproval.decision.reviewersRequired" xml:space="preserve"><value>Esta aprobación tiene revisores obligatorios. La decisión debe venir de la votación de los revisores, no de una aprobación directa.</value></data>
+  <data name="opportunityApproval.decision.unauthenticated" xml:space="preserve"><value>Tenés que estar autenticado para decidir una aprobación.</value></data>
   <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Plantilla de propuesta</value></data>
   <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>Nueva plantilla</value></data>
   <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Diseños de propuesta</value></data>

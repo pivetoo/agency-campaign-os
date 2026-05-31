@@ -59,7 +59,7 @@ export default function ProposalShareTab({ proposalId, proposalStatus }: Proposa
 
   const revokeLink = async () => {
     if (!linkToRevokeId) return
-    const result = await runMutation(() => proposalService.revokeShareLink(linkToRevokeId))
+    const result = await runMutation(() => proposalService.revokeShareLink(proposalId, linkToRevokeId))
     if (result !== null) {
       setLinkToRevokeId(null)
       await reload()

@@ -56,6 +56,7 @@ namespace AgencyCampaign.Domain.Entities
         public void Approve(string approvedByUserName, string? decisionNotes = null, long? approvedByUserId = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(approvedByUserName);
+            EnsureNoRequiredReviewers();
 
             Status = OpportunityApprovalStatus.Approved;
             ApprovedByUserId = approvedByUserId;
@@ -68,6 +69,7 @@ namespace AgencyCampaign.Domain.Entities
         public void Reject(string approvedByUserName, string? decisionNotes = null, long? approvedByUserId = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(approvedByUserName);
+            EnsureNoRequiredReviewers();
 
             Status = OpportunityApprovalStatus.Rejected;
             ApprovedByUserId = approvedByUserId;
@@ -197,6 +199,14 @@ namespace AgencyCampaign.Domain.Entities
             DecisionNotes = decider.DecisionNotes;
             DecidedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        private void EnsureNoRequiredReviewers()
+        {
+            if (reviewers.Any(item => item.Required))
+            {
+                throw new InvalidOperationException("opportunityApproval.decision.reviewersRequired");
+            }
         }
 
         private static string? Normalize(string? value)

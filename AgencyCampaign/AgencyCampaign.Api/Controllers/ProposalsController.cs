@@ -205,10 +205,10 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("proposals.revokeShareLink.description")]
-        [HttpPost("share-links/{shareLinkId:long}/Revoke")]
-        public async Task<IActionResult> RevokeShareLink(long shareLinkId, CancellationToken cancellationToken)
+        [HttpPost("{id:long}/share-links/{shareLinkId:long}/Revoke")]
+        public async Task<IActionResult> RevokeShareLink(long id, long shareLinkId, CancellationToken cancellationToken)
         {
-            var link = await shareLinkService.RevokeShareLink(shareLinkId, cancellationToken);
+            var link = await shareLinkService.RevokeShareLink(id, shareLinkId, cancellationToken);
             return Http200(link, Localizer["record.updated"]);
         }
 

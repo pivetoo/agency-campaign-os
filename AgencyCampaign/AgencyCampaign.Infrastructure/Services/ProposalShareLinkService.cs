@@ -61,11 +61,11 @@ namespace AgencyCampaign.Infrastructure.Services
             return Map(shareLink, DateTimeOffset.UtcNow);
         }
 
-        public async Task<ProposalShareLinkModel> RevokeShareLink(long shareLinkId, CancellationToken cancellationToken = default)
+        public async Task<ProposalShareLinkModel> RevokeShareLink(long proposalId, long shareLinkId, CancellationToken cancellationToken = default)
         {
             ProposalShareLink? shareLink = await dbContext.Set<ProposalShareLink>()
                 .AsTracking()
-                .FirstOrDefaultAsync(item => item.Id == shareLinkId, cancellationToken);
+                .FirstOrDefaultAsync(item => item.Id == shareLinkId && item.ProposalId == proposalId, cancellationToken);
 
             if (shareLink is null)
             {

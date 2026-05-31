@@ -15,9 +15,10 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 10 / 57 (Fatia A completa)
-- Por fatia: A 10/10 - B 0/5 - C 0/7 - D 0/29 - E 0/6
+- Concluidos: 12 / 57 (Fatia A completa + C4, C6)
+- Por fatia: A 10/10 - B 0/5 - C 2/7 - D 0/29 - E 0/6
 - Fatia A verificada: backend 874 testes verdes (1 falha pre-existente de SMTP, fora do comercial; +7 testes novos TDD); frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
+- Fatia C em andamento: C4 + C6 feitos (backend 878 testes, +4 novos TDD; tsc -b limpo). Faltam C2 (rate limit), C3 (pool PDF), C5 (reenvio pos-merge), C7 (expiracao). C1 bloqueado por D4.
 
 ## Decisoes operacionais registradas (2026-05-30)
 
@@ -73,9 +74,9 @@ Pre-requisito para mais de uma agencia no mesmo deploy e para nao ficar exposto 
 - [ ] **C1 - [Alto] Resolver link publico multi-tenant** `[?] D4` - endpoints publicos anonimos nao carregam tenant e caem no primeiro tenant configurado; link so funciona para a 1a agencia -> resolver tenant pelo proprio token. _(endpoints publicos)_
 - [ ] **C2 - [Alto] Rate limiting nos endpoints publicos + revisar CORS** - ausencia total de rate limit e CORS aberto ampliam a superficie -> aplicar rate limit nos endpoints anonimos e restringir CORS. _(API publica)_
 - [ ] **C3 - [Alto] Pool/fila/timeout para o Chromium do PDF** - cada PDF sobe e descarta um navegador inteiro, sincrono, sem limite -> reusar instancia (pool), enfileirar, aplicar timeout e propagar cancelamento. _(geracao de PDF)_
-- [ ] **C4 - [Alto] Reforcar o gate de aprovacao no backend** - aprovacao direta aceita nome do corpo e nao valida autoria/alcada; decisao direta ignora gating de revisores obrigatorios -> derivar aprovador do usuario autenticado, validar papel/alcada e impor o gating de revisores. _(aprovacoes)_
+- [x] **C4 - [Alto] Reforcar o gate de aprovacao no backend** - FEITO: Approve/Reject/RequestChanges agora derivam a autoria do usuario autenticado (`currentUser`), ignorando o nome do corpo (sem mais forja de aprovador); dominio bloqueia Approve/Reject direto quando ha revisores obrigatorios (forca a votacao); GetTrackedApproval passa a incluir Reviewers. 2 testes TDD. PARCIAL: alcada por papel/threshold (ex.: so gestor aprova acima de X) nao implementada - hoje o `[RequireAccess]` do controller gateia quem pode chamar; alcada granular fica como follow-up. _(aprovacoes)_
 - [ ] **C5 - [Medio] Fechar reabertura pos-merge / reenvio bloqueado** - apos "marcar como aplicada", reenviar a mesma proposta cria nova aprovacao e bloqueia de novo -> permitir reenvio a partir do estado merged sem recriar aprovacao redundante. _(aprovacoes / envio)_
-- [ ] **C6 - [Medio] IDOR intra-tenant na revogacao de share link** - revoga por id sem validar posse -> validar que o link pertence ao recurso/usuario antes de revogar. _(share link)_
+- [x] **C6 - [Medio] IDOR intra-tenant na revogacao de share link** - FEITO: revoke aninhado sob o proposal (rota `{id}/share-links/{shareLinkId}/Revoke`) e query valida que o link pertence ao proposal antes de revogar; service/interface/controller/front/ProposalShareTab atualizados. 1 teste TDD (IDOR). _(share link)_
 - [ ] **C7 - [Medio] Expiracao de proposta e de link publico** - status "expirada" e codigo morto (nenhum job invoca) e o link nasce perpetuo -> implementar expiracao (job) e data de expiracao no link; bloquear acesso publico a propostas vencidas/rejeitadas/canceladas. _(proposta / link publico)_
 
 ---

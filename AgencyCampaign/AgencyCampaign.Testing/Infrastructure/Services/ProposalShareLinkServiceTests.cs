@@ -72,7 +72,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task RevokeShareLink_should_throw_when_not_found()
         {
-            Func<Task> act = () => service.RevokeShareLink(99);
+            Func<Task> act = () => service.RevokeShareLink(1, 99);
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
 
@@ -85,10 +85,25 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await db.SaveChangesAsync();
             db.ChangeTracker.Clear();
 
-            ProposalShareLinkModel result = await service.RevokeShareLink(link.Id);
+            ProposalShareLinkModel result = await service.RevokeShareLink(proposal.Id, link.Id);
 
             result.RevokedAt.Should().NotBeNull();
             result.IsActive.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task RevokeShareLink_should_throw_when_link_belongs_to_another_proposal()
+        {
+            Proposal owner = await SeedProposalAsync();
+            Proposal other = await SeedProposalAsync();
+            ProposalShareLink link = new(owner.Id, "tok", null, null, null);
+            db.Add(link);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.RevokeShareLink(other.Id, link.Id);
+
+            await act.Should().ThrowAsync<InvalidOperationException>();
         }
 
         [Test]

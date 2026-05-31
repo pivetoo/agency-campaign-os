@@ -86,7 +86,7 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<OpportunityApprovalRequest> Approve(long id, DecideOpportunityApprovalRequest request, CancellationToken cancellationToken = default)
         {
             OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
-            approvalRequest.Approve(request.ApprovedByUserName, request.DecisionNotes, request.ApprovedByUserId);
+            approvalRequest.Approve(RequireCurrentUserName(), request.DecisionNotes, currentUser.UserId);
 
             await DbContext.SaveChangesAsync(cancellationToken);
 
@@ -99,7 +99,7 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<OpportunityApprovalRequest> Reject(long id, DecideOpportunityApprovalRequest request, CancellationToken cancellationToken = default)
         {
             OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
-            approvalRequest.Reject(request.ApprovedByUserName, request.DecisionNotes, request.ApprovedByUserId);
+            approvalRequest.Reject(RequireCurrentUserName(), request.DecisionNotes, currentUser.UserId);
 
             await DbContext.SaveChangesAsync(cancellationToken);
 
@@ -150,7 +150,7 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<OpportunityApprovalRequest> RequestChanges(long id, DecideOpportunityApprovalRequest request, CancellationToken cancellationToken = default)
         {
             OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
-            approvalRequest.RequestChanges(request.ApprovedByUserName, request.DecisionNotes, request.ApprovedByUserId);
+            approvalRequest.RequestChanges(RequireCurrentUserName(), request.DecisionNotes, currentUser.UserId);
             await DbContext.SaveChangesAsync(cancellationToken);
             return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
         }
@@ -235,6 +235,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             OpportunityApprovalRequest? approvalRequest = await DbContext.Set<OpportunityApprovalRequest>()
                 .AsTracking()
+                .Include(item => item.Reviewers)
                 .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
             if (approvalRequest is null)
@@ -248,6 +249,16 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return approvalRequest;
+        }
+
+        private string RequireCurrentUserName()
+        {
+            if (string.IsNullOrWhiteSpace(currentUser.UserName))
+            {
+                throw new InvalidOperationException("opportunityApproval.decision.unauthenticated");
+            }
+
+            return currentUser.UserName;
         }
 
         private async Task EnsureProposalExists(long proposalId, CancellationToken cancellationToken)

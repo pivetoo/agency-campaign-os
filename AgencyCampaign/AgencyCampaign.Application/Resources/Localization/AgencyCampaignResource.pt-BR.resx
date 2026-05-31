@@ -2103,6 +2103,8 @@
   <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>O prazo padrão de pagamento não pode ser maior que o prazo máximo.</value></data>
   <data name="opportunities.move.failed" xml:space="preserve"><value>Não foi possível mover a oportunidade. Tente novamente.</value></data>
   <data name="commercialApprovals.badge.outsidePolicy" xml:space="preserve"><value>Fora da política</value></data>
+  <data name="opportunityApproval.decision.reviewersRequired" xml:space="preserve"><value>Esta aprovação tem revisores obrigatórios. A decisão deve vir da votação dos revisores, não de aprovação direta.</value></data>
+  <data name="opportunityApproval.decision.unauthenticated" xml:space="preserve"><value>É necessário estar autenticado para decidir uma aprovação.</value></data>
   <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Modelo de proposta</value></data>
   <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>Novo modelo</value></data>
   <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Layouts da proposta</value></data>

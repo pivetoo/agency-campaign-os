@@ -265,8 +265,8 @@ export const proposalService = {
     return httpClient.post<ProposalShareLink>(`${BASE_URL}/${proposalId}/share-links/Create`, data)
   },
 
-  revokeShareLink(shareLinkId: number) {
-    return httpClient.post<ProposalShareLink>(`${BASE_URL}/share-links/${shareLinkId}/Revoke`, {})
+  revokeShareLink(proposalId: number, shareLinkId: number) {
+    return httpClient.post<ProposalShareLink>(`${BASE_URL}/${proposalId}/share-links/${shareLinkId}/Revoke`, {})
   },
 
   async getApprovalRequests(proposalId: number): Promise<OpportunityApprovalRequest[]> {
