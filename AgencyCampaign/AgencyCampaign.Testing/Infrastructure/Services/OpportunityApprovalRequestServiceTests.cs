@@ -351,5 +351,22 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             result.Select(item => item.Id).Should().Equal(2, 1);
         }
+
+        [Test]
+        public async Task GetApprovalsByProposalId_should_include_reviewers()
+        {
+            Proposal proposal = await SeedProposalAsync();
+
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester");
+            approval.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            db.Add(approval);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            IReadOnlyCollection<OpportunityApprovalRequest> result = await service.GetApprovalsByProposalId(proposal.Id);
+
+            result.Should().ContainSingle();
+            result.Single().Reviewers.Should().ContainSingle(reviewer => reviewer.UserName == "Ana");
+        }
     }
 }

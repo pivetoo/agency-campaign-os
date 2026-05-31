@@ -347,6 +347,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             return DbContext.Set<OpportunityApprovalRequest>()
                 .AsNoTracking()
+                .Include(item => item.Reviewers)
                 .Include(item => item.Proposal)
                     .ThenInclude(p => p!.Opportunity)
                         .ThenInclude(o => o!.Brand);

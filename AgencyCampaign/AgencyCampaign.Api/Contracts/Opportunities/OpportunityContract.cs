@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using System.Linq.Expressions;
@@ -204,6 +205,8 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
         public string? BrandName { get; init; }
 
         public string? BrandLogoUrl { get; init; }
+
+        public List<OpportunityApprovalReviewerModel> Reviewers { get; init; } = [];
     }
 
     public sealed class OpportunityFollowUpContract

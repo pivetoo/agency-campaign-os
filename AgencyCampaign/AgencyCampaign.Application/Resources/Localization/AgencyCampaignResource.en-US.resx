@@ -1969,6 +1969,7 @@
   <data name="opportunityDetail.proposal.createdOn" xml:space="preserve"><value>on {0}</value></data>
   <data name="opportunityDetail.approval.heading" xml:space="preserve"><value>Internal approvals</value></data>
   <data name="opportunityDetail.approval.subtitle" xml:space="preserve"><value>Exception requests (deadline, discount) linked to the proposal that triggered them.</value></data>
+  <data name="opportunityDetail.approvals.loadError" xml:space="preserve"><value>Could not load all approvals for this opportunity.</value></data>
   <data name="opportunityDetail.approval.waitingBanner.one" xml:space="preserve"><value>1 approval waiting for you</value></data>
   <data name="opportunityDetail.approval.waitingBanner.many" xml:space="preserve"><value>{0} approvals waiting for you</value></data>
   <data name="opportunityDetail.approval.waitingBannerSub.one" xml:space="preserve"><value>Proposal paused until your decision.</value></data>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n, useToast } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Activity, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
@@ -20,6 +20,7 @@ import { formatCurrency } from '../../../lib/format'
 
 export default function OpportunityDetail() {
   const { t } = useI18n()
+  const { toast } = useToast()
   const { id } = useParams<{ id: string }>()
   const opportunityId = Number(id || 0)
   const navigate = useNavigate()
@@ -48,7 +49,6 @@ export default function OpportunityDetail() {
   const [approvalRequests, setApprovalRequests] = useState<OpportunityApprovalRequest[]>([])
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
   const [, setSelectedApprovalRequest] = useState<OpportunityApprovalRequest | null>(null)
-  const [reviewersByApproval, setReviewersByApproval] = useState<Record<number, OpportunityApprovalReviewer[]>>({})
   const [selectedFollowUp, setSelectedFollowUp] = useState<OpportunityFollowUp | null>(null)
   const [isOpportunityFormOpen, setIsOpportunityFormOpen] = useState(false)
   const [isApprovalRequestFormOpen, setIsApprovalRequestFormOpen] = useState(false)
@@ -69,8 +69,11 @@ export default function OpportunityDetail() {
       setApprovalRequests([])
       return
     }
-    const lists = await Promise.all(proposals.map((p) => proposalService.getApprovalRequests(p.id).catch(() => [])))
-    setApprovalRequests(lists.flat())
+    const results = await Promise.allSettled(proposals.map((p) => proposalService.getApprovalRequests(p.id)))
+    setApprovalRequests(results.flatMap((result) => (result.status === 'fulfilled' ? result.value : [])))
+    if (results.some((result) => result.status === 'rejected')) {
+      toast({ title: t('opportunityDetail.approvals.loadError'), variant: 'destructive' })
+    }
   }
 
   const loadOpportunity = async () => {
@@ -190,19 +193,10 @@ export default function OpportunityDetail() {
 
   const pendingApprovalsCount = approvalRequests.filter((item) => item.status === OpportunityApprovalStatus.Pending).length
 
-  const pendingApprovalIds = useMemo(() => approvalRequests.filter((item) => item.status === OpportunityApprovalStatus.Pending).map((item) => item.id).join(','), [approvalRequests])
-
-  useEffect(() => {
-    const ids = pendingApprovalIds ? pendingApprovalIds.split(',').map(Number) : []
-    if (ids.length === 0) {
-      setReviewersByApproval({})
-      return
-    }
-    let active = true
-    void Promise.all(ids.map(async (id) => [id, await opportunityService.getApprovalReviewers(id).catch(() => [])] as const))
-      .then((entries) => { if (active) setReviewersByApproval(Object.fromEntries(entries)) })
-    return () => { active = false }
-  }, [pendingApprovalIds])
+  const reviewersByApproval = useMemo<Record<number, OpportunityApprovalReviewer[]>>(
+    () => Object.fromEntries(approvalRequests.map((approval) => [approval.id, approval.reviewers ?? []])),
+    [approvalRequests],
+  )
 
   const isMyPendingApproval = (approvalId: number): boolean => (reviewersByApproval[approvalId] ?? []).some((reviewer) => reviewer.status === OpportunityApprovalReviewerStatus.Pending && ((authUser?.id != null && reviewer.userId === authUser.id) || (reviewer.userId == null && reviewer.userName === authUser?.name)))
 

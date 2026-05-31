@@ -15,8 +15,8 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 29 / 57 (Fatia A + C3-C7 + D1i, D3i, D4i, D6i, D7i, D8i, D9i, D12i, D13i, D15i, D17i, D18i, D25i, D26i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 14/29 - E 0/6
+- Concluidos: 30 / 57 (Fatia A + C3-C7 + D1i, D3i, D4i, D6i, D7i, D8i, D9i, D11i, D12i, D13i, D15i, D17i, D18i, D25i, D26i)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 15/29 - E 0/6
 - Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos: D7i, D25i, D26i, D3i, D1i, D18i (TDD) + D6i (logging). 3 jobs comerciais novos. D24i adiado (escopo global). Backend 888 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
@@ -96,7 +96,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [x] **D8i - [Medio] Desconto encolhe sozinho ao remover itens** - FEITO: ao remover um item da proposta, se o desconto absoluto (`discountAmount`) for maior que o bruto projetado pos-remocao, o confirm passa a avisar explicitamente que o desconto sera reduzido para no maximo o novo bruto (chave i18n `proposalDetail.item.deleteDiscountWarning` com o valor clampado). Sem mudanca silenciosa: o operador decide com o aviso na frente. _(proposta)_
 - [x] **D9i - [Medio] Kanban sem estado de carregamento proprio** - FEITO: no primeiro load (loading + board vazio) o Pipeline mostra um spinner com texto, em vez de tela em branco que pisca. Usa a chave i18n `pipeline.loading` (ja existente). _(kanban)_
 - [ ] **D10i - [Medio] Mover de etapa no mobile direto na lista** - hoje exige abrir o detalhe -> seletor de etapa inline no mobile. _(kanban mobile)_
-- [ ] **D11i - [Medio] N+1 ao montar aprovacoes/revisores no detalhe** - varias chamadas com erros silenciados -> agregar em uma chamada / tratar erros. _(detalhe oportunidade / aprovacoes)_
+- [x] **D11i - [Medio] N+1 ao montar aprovacoes/revisores no detalhe** - FEITO: o detalhe fazia 1 chamada de revisores POR aprovacao (loop M com `.catch(() => [])` silencioso) alem de 1 de aprovacoes por proposta. Agora os revisores vem EMBUTIDOS no payload da aprovacao: backend inclui `.Include(Reviewers)` no `QueryWithDetails`, o contrato ganhou `List<OpportunityApprovalReviewerModel> Reviewers` e o `MapApprovalWithDetails` mapeia (sem novo endpoint nem nova permissao). No frontend `reviewersByApproval` virou `useMemo` sobre as aprovacoes ja carregadas - o loop de fetch de revisores foi REMOVIDO por completo. O loop de aprovacoes por proposta (N pequeno) passou a usar `Promise.allSettled` + toast (`opportunityDetail.approvals.loadError`) em vez de engolir erro. 1 teste TDD (revisores embutidos); suite 893 verdes; tsc e Api verdes. _(detalhe oportunidade / aprovacoes)_
 - [x] **D12i - [Medio] Confirmacao ao excluir item da proposta** - FEITO: o botao de excluir item agora pede confirmacao (window.confirm com i18n `proposalDetail.item.deleteConfirm`) antes de chamar deleteItem, evitando exclusao acidental. _(proposta)_
 - [x] **D13i - [Medio] Widgets de forecast/insights: distinguir vazio de erro** - lista vazia = erro = sem dado, indistinguiveis -> estados separados. _(widgets comerciais)_
 - [ ] **D14i - [Medio] Desconto: salvar explicito** - persiste no blur, gerando duvida "ja salvou?" -> botao salvar explicito ou feedback claro de gravacao. _(proposta)_

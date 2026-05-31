@@ -54,6 +54,7 @@ export interface OpportunityApprovalRequest {
   brandId?: number
   brandName?: string
   brandLogoUrl?: string
+  reviewers?: OpportunityApprovalReviewer[]
 }
 
 export interface ApprovalSummary {

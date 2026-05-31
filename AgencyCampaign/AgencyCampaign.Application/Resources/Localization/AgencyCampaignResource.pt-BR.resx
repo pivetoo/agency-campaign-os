@@ -1976,6 +1976,7 @@
   <data name="opportunityDetail.proposal.createdOn" xml:space="preserve"><value>em {0}</value></data>
   <data name="opportunityDetail.approval.heading" xml:space="preserve"><value>Aprovações internas</value></data>
   <data name="opportunityDetail.approval.subtitle" xml:space="preserve"><value>Solicitações de exceção (prazo, desconto) ligadas à proposta que motivou.</value></data>
+  <data name="opportunityDetail.approvals.loadError" xml:space="preserve"><value>Nao foi possivel carregar todas as aprovacoes desta oportunidade.</value></data>
   <data name="opportunityDetail.approval.waitingBanner.one" xml:space="preserve"><value>1 aprovação esperando você</value></data>
   <data name="opportunityDetail.approval.waitingBanner.many" xml:space="preserve"><value>{0} aprovações esperando você</value></data>
   <data name="opportunityDetail.approval.waitingBannerSub.one" xml:space="preserve"><value>Proposta pausada até sua decisão.</value></data>

@@ -1,5 +1,6 @@
 using AgencyCampaign.Api.Contracts.Opportunities;
 using AgencyCampaign.Application.Localization;
+using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
@@ -361,7 +362,22 @@ namespace AgencyCampaign.Api.Controllers
                 BrandId = approval.Proposal?.Opportunity?.BrandId,
                 BrandName = approval.Proposal?.Opportunity?.Brand?.Name,
                 BrandLogoUrl = approval.Proposal?.Opportunity?.Brand?.LogoUrl,
+                Reviewers = approval.Reviewers.Select(MapReviewer).ToList(),
             };
         }
+
+        private static OpportunityApprovalReviewerModel MapReviewer(OpportunityApprovalReviewer reviewer) => new()
+        {
+            Id = reviewer.Id,
+            OpportunityApprovalRequestId = reviewer.OpportunityApprovalRequestId,
+            UserId = reviewer.UserId,
+            UserName = reviewer.UserName,
+            Role = reviewer.Role,
+            Required = reviewer.Required,
+            Status = (int)reviewer.Status,
+            DecidedAt = reviewer.DecidedAt,
+            DecisionNotes = reviewer.DecisionNotes,
+            CreatedAt = reviewer.CreatedAt,
+        };
     }
 }
