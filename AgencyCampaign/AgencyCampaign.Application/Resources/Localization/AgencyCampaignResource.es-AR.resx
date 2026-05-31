@@ -452,7 +452,7 @@
   <data name="proposal.status.expired" xml:space="preserve"><value>Expirada</value></data>
   <data name="proposal.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
   <data name="opportunities.title" xml:space="preserve"><value>Oportunidades</value></data>
-  <data name="opportunities.subtitle" xml:space="preserve"><value>Gestione el funnel comercial y siga propuestas, negociaciones y follow-ups</value></data>
+  <data name="opportunities.subtitle" xml:space="preserve"><value>Gestione el funnel comercial y siga propuestas y follow-ups</value></data>
   <data name="opportunities.empty" xml:space="preserve"><value>No hay oportunidades registradas</value></data>
   <data name="opportunities.empty.filtered" xml:space="preserve"><value>No se encontraron oportunidades con los filtros actuales</value></data>
   <data name="opportunities.search.placeholder" xml:space="preserve"><value>Buscar por nombre, marca, contacto o email...</value></data>
@@ -1619,7 +1619,7 @@
   <data name="commercialApprovals.action.decisionRecordedNote" xml:space="preserve"><value>Tu decisión queda registrada en el historial de la oportunidad, con fecha y hora.</value></data>
   <data name="commercialApprovals.action.delete" xml:space="preserve"><value>Eliminar</value></data>
   <data name="commercialApprovals.action.markApplied" xml:space="preserve"><value>Marcar como aplicada</value></data>
-  <data name="commercialApprovals.action.markAppliedHint" xml:space="preserve"><value>Usá esto cuando la excepción se refleje en la negociación real.</value></data>
+  <data name="commercialApprovals.action.markAppliedHint" xml:space="preserve"><value>Usá esto cuando la excepción se refleje en la propuesta real.</value></data>
   <data name="commercialApprovals.action.reject" xml:space="preserve"><value>Rechazar</value></data>
   <data name="commercialApprovals.action.remove" xml:space="preserve"><value>Quitar</value></data>
   <data name="commercialApprovals.action.resubmit" xml:space="preserve"><value>Reenviar para aprobación</value></data>
@@ -1648,7 +1648,7 @@
   <data name="commercialApprovals.diff.autoDetectedTooltip" xml:space="preserve"><value>Detectado automáticamente por la política comercial</value></data>
   <data name="commercialApprovals.diff.autoRequirements" xml:space="preserve"><value>Para detectar automáticamente, es necesario:</value></data>
   <data name="commercialApprovals.diff.column.field" xml:space="preserve"><value>Campo</value></data>
-  <data name="commercialApprovals.diff.column.negotiated" xml:space="preserve"><value>Negociado</value></data>
+  <data name="commercialApprovals.diff.column.negotiated" xml:space="preserve"><value>Propuesto</value></data>
   <data name="commercialApprovals.diff.column.policy" xml:space="preserve"><value>Política</value></data>
   <data name="commercialApprovals.diff.column.status" xml:space="preserve"><value>Estado</value></data>
   <data name="commercialApprovals.diff.deltaPlaceholder" xml:space="preserve"><value>Δ delta (ej.: +5pp, -30d)</value></data>
@@ -1662,8 +1662,8 @@
   <data name="commercialApprovals.diff.policyPlaceholder" xml:space="preserve"><value>Política estándar</value></data>
   <data name="commercialApprovals.diff.removeConfirm" xml:space="preserve"><value>¿Quitar este cambio?</value></data>
   <data name="commercialApprovals.diff.requestedPlaceholder" xml:space="preserve"><value>Solicitado</value></data>
-  <data name="commercialApprovals.diff.requirementNegotiationFields" xml:space="preserve"><value>Descuento / Margen / Plazo</value></data>
-  <data name="commercialApprovals.diff.requirementNegotiationPrefix" xml:space="preserve"><value>Negociación con</value></data>
+  <data name="commercialApprovals.diff.requirementNegotiationFields" xml:space="preserve"><value>Descuento / Plazo</value></data>
+  <data name="commercialApprovals.diff.requirementNegotiationPrefix" xml:space="preserve"><value>Propuesta con</value></data>
   <data name="commercialApprovals.diff.requirementNegotiationSuffix" xml:space="preserve"><value>completados</value></data>
   <data name="commercialApprovals.diff.requirementPolicyPrefix" xml:space="preserve"><value>Política comercial configurada en</value></data>
   <data name="commercialApprovals.diff.requirementPolicySettings" xml:space="preserve"><value>Configuración</value></data>
@@ -1692,7 +1692,7 @@
   <data name="commercialApprovals.linked.noTitle" xml:space="preserve"><value>Sin título</value></data>
   <data name="commercialApprovals.linked.opportunity" xml:space="preserve"><value>Oportunidad</value></data>
   <data name="commercialApprovals.linked.title" xml:space="preserve"><value>Vinculado a</value></data>
-  <data name="commercialApprovals.merged.appliedSuffix" xml:space="preserve"><value>y aplicada a la negociación.</value></data>
+  <data name="commercialApprovals.merged.appliedSuffix" xml:space="preserve"><value>y aplicada a la propuesta.</value></data>
   <data name="commercialApprovals.merged.approvedByPrefix" xml:space="preserve"><value>Aprobada por</value></data>
   <data name="commercialApprovals.panel.decision" xml:space="preserve"><value>Decisión</value></data>
   <data name="commercialApprovals.panel.justification" xml:space="preserve"><value>Justificación</value></data>
@@ -1861,7 +1861,7 @@
   <data name="opportunityDetail.summary.nextStep" xml:space="preserve"><value>Próximo paso</value></data>
   <data name="opportunityDetail.summary.banner.one" xml:space="preserve"><value>Hay una aprobación esperando tu decisión</value></data>
   <data name="opportunityDetail.summary.banner.many" xml:space="preserve"><value>Hay {0} aprobaciones esperando tu decisión</value></data>
-  <data name="opportunityDetail.summary.banner.subtitle" xml:space="preserve"><value>Tu aprobación es necesaria para que la negociación avance.</value></data>
+  <data name="opportunityDetail.summary.banner.subtitle" xml:space="preserve"><value>Tu aprobación es necesaria para que la propuesta avance.</value></data>
   <data name="opportunityDetail.summary.banner.review" xml:space="preserve"><value>Revisar ahora</value></data>
   <data name="opportunityDetail.nextFollowUp.overduePrefix" xml:space="preserve"><value>Venció el </value></data>
   <data name="opportunityDetail.nextFollowUp.scheduledPrefix" xml:space="preserve"><value>Agendado para </value></data>
@@ -1974,13 +1974,13 @@
   <data name="opportunityDetail.proposal.opportunityCreated" xml:space="preserve"><value>Oportunidad creada</value></data>
   <data name="opportunityDetail.proposal.createdOn" xml:space="preserve"><value>el {0}</value></data>
   <data name="opportunityDetail.approval.heading" xml:space="preserve"><value>Aprobaciones internas</value></data>
-  <data name="opportunityDetail.approval.subtitle" xml:space="preserve"><value>Solicitudes de excepción (margen, plazo, descuento) vinculadas a la negociación que las motivó.</value></data>
+  <data name="opportunityDetail.approval.subtitle" xml:space="preserve"><value>Solicitudes de excepción (plazo, descuento) vinculadas a la propuesta que las motivó.</value></data>
   <data name="opportunityDetail.approval.waitingBanner.one" xml:space="preserve"><value>1 aprobación esperándote</value></data>
   <data name="opportunityDetail.approval.waitingBanner.many" xml:space="preserve"><value>{0} aprobaciones esperándote</value></data>
-  <data name="opportunityDetail.approval.waitingBannerSub.one" xml:space="preserve"><value>Negociación pausada hasta tu decisión.</value></data>
-  <data name="opportunityDetail.approval.waitingBannerSub.many" xml:space="preserve"><value>Negociaciones pausadas hasta tu decisión.</value></data>
+  <data name="opportunityDetail.approval.waitingBannerSub.one" xml:space="preserve"><value>Propuesta pausada hasta tu decisión.</value></data>
+  <data name="opportunityDetail.approval.waitingBannerSub.many" xml:space="preserve"><value>Propuestas pausadas hasta tu decisión.</value></data>
   <data name="opportunityDetail.approval.emptyTitle" xml:space="preserve"><value>Ninguna aprobación solicitada</value></data>
-  <data name="opportunityDetail.approval.emptyHint" xml:space="preserve"><value>Las aprobaciones se crean cuando una negociación se desvía de la política. Para crear una, abrí la negociación en "Negociaciones" y hacé clic en "Solicitar aprobación".</value></data>
+  <data name="opportunityDetail.approval.emptyHint" xml:space="preserve"><value>Las aprobaciones se crean cuando una propuesta se desvía de la política. Para crear una, abrí la propuesta y hacé clic en "Solicitar aprobación".</value></data>
   <data name="opportunityDetail.approval.type.discount" xml:space="preserve"><value>Excepción de descuento</value></data>
   <data name="opportunityDetail.approval.type.margin" xml:space="preserve"><value>Excepción de margen</value></data>
   <data name="opportunityDetail.approval.type.deadline" xml:space="preserve"><value>Excepción de plazo</value></data>
@@ -2083,8 +2083,8 @@
   <data name="configuration.opportunityOutcomeReasons.empty" xml:space="preserve"><value>Ningún motivo registrado.</value></data>
   <data name="configuration.opportunityOutcomeReasons.confirm.delete" xml:space="preserve"><value>¿Eliminar el motivo "{0}"?</value></data>
   <data name="configuration.commercialPolicy.title" xml:space="preserve"><value>Política comercial</value></data>
-  <data name="configuration.commercialPolicy.subtitle" xml:space="preserve"><value>Límites usados para detectar cuándo una negociación requiere aprobación.</value></data>
-  <data name="configuration.commercialPolicy.intro" xml:space="preserve"><value>Cuando una negociación se crea o edita con valores **fuera de estos límites**, Kanvas avisa al operador y prepopula la aprobación con el diff y el impacto financiero estimado.</value></data>
+  <data name="configuration.commercialPolicy.subtitle" xml:space="preserve"><value>Límites usados para detectar cuándo una propuesta requiere aprobación.</value></data>
+  <data name="configuration.commercialPolicy.intro" xml:space="preserve"><value>Cuando una propuesta se crea o edita con valores **fuera de estos límites**, Kanvas avisa al operador y prepopula la aprobación con el diff y el impacto financiero estimado.</value></data>
   <data name="configuration.commercialPolicy.action.save" xml:space="preserve"><value>Guardar política</value></data>
   <data name="configuration.commercialPolicy.field.maxDiscount.label" xml:space="preserve"><value>Descuento máximo permitido (%)</value></data>
   <data name="configuration.commercialPolicy.field.maxDiscount.hint" xml:space="preserve"><value>Un descuento mayor a este requiere aprobación.</value></data>

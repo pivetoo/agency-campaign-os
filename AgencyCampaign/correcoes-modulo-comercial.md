@@ -15,8 +15,8 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 27 / 57 (Fatia A + C3-C7 + D1i, D3i, D4i, D6i, D7i, D8i, D9i, D12i, D13i, D18i, D25i, D26i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 12/29 - E 0/6
+- Concluidos: 28 / 57 (Fatia A + C3-C7 + D1i, D3i, D4i, D6i, D7i, D8i, D9i, D12i, D13i, D15i, D18i, D25i, D26i)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 13/29 - E 0/6
 - Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos: D7i, D25i, D26i, D3i, D1i, D18i (TDD) + D6i (logging). 3 jobs comerciais novos. D24i adiado (escopo global). Backend 888 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
@@ -100,7 +100,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [x] **D12i - [Medio] Confirmacao ao excluir item da proposta** - FEITO: o botao de excluir item agora pede confirmacao (window.confirm com i18n `proposalDetail.item.deleteConfirm`) antes de chamar deleteItem, evitando exclusao acidental. _(proposta)_
 - [x] **D13i - [Medio] Widgets de forecast/insights: distinguir vazio de erro** - lista vazia = erro = sem dado, indistinguiveis -> estados separados. _(widgets comerciais)_
 - [ ] **D14i - [Medio] Desconto: salvar explicito** - persiste no blur, gerando duvida "ja salvou?" -> botao salvar explicito ou feedback claro de gravacao. _(proposta)_
-- [ ] **D15i - [Medio] Remover vocabulario residual de "negociacao"** - termo aposentado ainda aparece na UI de aprovacoes e em rotas -> limpar UI/rotas. _(aprovacoes / rotas)_
+- [x] **D15i - [Medio] Remover vocabulario residual de "negociacao"** - FEITO: as 13 chaves i18n ATIVAS cujo valor ainda dizia "negociacao" (subtitle das oportunidades, intro/subtitle da politica comercial, hints e subtitles da aba de Aprovacoes, banners de espera, coluna/prefixo do diff, sufixo de aplicada) foram reescritas para o vocabulario de "proposta" nas 3 linguas (pt-BR/en-US/es-AR), removendo de quebra o termo "margem" tambem aposentado. Mantido de proposito: "Negociacao" como NOME de estagio do funil (legitimo). As chaves 100% orfas da feature removida (opportunityNegotiation.*, modal.opportunityNegotiation.*, opportunityDetail.negotiations.*, opportunities.*Negotiation.description) ficaram no resx por nao serem superficie ativa do frontend e por algumas descricoes de permissao poderem ser lidas pelo catalogo do backend - limpeza dessas e tarefa de backend separada. Rota legada `comercial/negociacoes` ja redireciona para oportunidades (back-compat, mantida). _(aprovacoes / rotas)_
 - [ ] **D16i - [Medio] Probabilidade manual ajustavel** - dominio suporta mas nenhuma tela expoe; forecast preso a media do estagio -> permitir ajuste manual por oportunidade (opcional). _(oportunidade / forecast)_
 - [ ] **D17i - [Medio] Reforcar escopo "minhas oportunidades" no dado** - isolamento so por permissao; erro de papel expoe a carteira inteira -> reforco por dado/owner alem da permissao. _(oportunidades)_
 - [x] **D18i - [Medio] Deal rotting (alerta de oportunidade parada)** - FEITO: `OpportunityStalledJob` (hosted service, tick 12h, por tenant) chama `OpportunityService.AlertStalled`, que notifica o responsavel quando uma oportunidade ABERTA fica num estagio alem do `SlaInDays` (reusa a logica de stageEnteredAt do GetAlerts). Dedup via `StaleAlertedAt` na entidade (migration 202605310003), resetado ao mudar de estagio -> um alerta por entrada no estagio. 1 teste TDD. _(pipeline)_
