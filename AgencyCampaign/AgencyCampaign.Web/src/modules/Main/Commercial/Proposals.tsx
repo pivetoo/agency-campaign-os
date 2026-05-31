@@ -340,8 +340,8 @@ function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkVi
 
       <span aria-hidden className="hidden h-6 w-px bg-border md:inline-block" />
 
-      <Button size="sm" variant="ghost" onClick={onEdit} disabled={!canEdit} className="hidden md:inline-flex">
-        <Pencil className="mr-1.5 h-3.5 w-3.5" /> {t('common.action.edit')}
+      <Button size="sm" variant="ghost" onClick={onEdit} disabled={!canEdit} title={t('common.action.edit')} className="hidden md:inline-flex">
+        <Pencil className="h-3.5 w-3.5 2xl:mr-1.5" /><span className="hidden 2xl:inline">{t('common.action.edit')}</span>
       </Button>
 
       {/* Mobile: acoes de status agrupadas num menu */}
@@ -398,6 +398,7 @@ function SegmentedAction({ icon, label, active, disabled, tone, last, onClick }:
       type="button"
       onClick={onClick}
       disabled={disabled}
+      title={label}
       className={[
         'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-colors',
         last ? '' : 'border-r border-border',
@@ -409,7 +410,7 @@ function SegmentedAction({ icon, label, active, disabled, tone, last, onClick }:
       ].join(' ')}
     >
       {icon}
-      <span>{label}</span>
+      <span className="hidden 2xl:inline">{label}</span>
     </button>
   )
 }
