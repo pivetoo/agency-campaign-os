@@ -3,7 +3,6 @@ import type { CommercialPolicy } from '../types/commercialPolicy'
 
 export interface UpsertCommercialPolicyRequest {
   maxDiscountPercent?: number | null
-  minMarginPercent?: number | null
   defaultPaymentTermDays?: number | null
   maxPaymentTermDays?: number | null
   notes?: string

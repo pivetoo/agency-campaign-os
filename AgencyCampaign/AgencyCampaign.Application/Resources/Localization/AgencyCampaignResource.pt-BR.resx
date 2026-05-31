@@ -2097,6 +2097,12 @@
   <data name="configuration.commercialPolicy.field.maxPaymentTerm.placeholder" xml:space="preserve"><value>Ex.: 60</value></data>
   <data name="configuration.commercialPolicy.field.notes.label" xml:space="preserve"><value>Notas internas (opcional)</value></data>
   <data name="configuration.commercialPolicy.field.notes.placeholder" xml:space="preserve"><value>Contexto da política (ex.: válida a partir de Q2/2026, aprovada pela diretoria)</value></data>
+  <data name="configuration.commercialPolicy.warning.emptyPolicy" xml:space="preserve"><value>Política sem limites definidos. Enquanto estiver vazia, nenhuma proposta exige aprovação por desconto ou prazo (o gate fica desligado).</value></data>
+  <data name="configuration.commercialPolicy.validation.termOrder" xml:space="preserve"><value>O prazo padrão não pode ser maior que o prazo máximo.</value></data>
+  <data name="opportunity.reopen.confirmationRequired" xml:space="preserve"><value>Esta oportunidade está fechada. Confirme a reabertura antes de movê-la para uma etapa aberta (isso apaga os dados de fechamento).</value></data>
+  <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>O prazo padrão de pagamento não pode ser maior que o prazo máximo.</value></data>
+  <data name="opportunities.move.failed" xml:space="preserve"><value>Não foi possível mover a oportunidade. Tente novamente.</value></data>
+  <data name="commercialApprovals.badge.outsidePolicy" xml:space="preserve"><value>Fora da política</value></data>
   <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Modelo de proposta</value></data>
   <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>Novo modelo</value></data>
   <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Layouts da proposta</value></data>

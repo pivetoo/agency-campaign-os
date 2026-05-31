@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions } from 'archon-ui'
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions, useToast } from 'archon-ui'
 import { AlertTriangle, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, Rows3, Search, Target, UserRound, X } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
@@ -151,6 +151,7 @@ function DensityToggle({ value, onChange }: { value: 'comfortable' | 'compact'; 
 
 export default function CommercialPipeline() {
   const { t } = useI18n()
+  const { toast } = useToast()
   const navigate = useNavigate()
   const [board, setBoard] = useState<OpportunityBoardStage[]>([])
   const [insightsOpen, setInsightsOpen] = useState<boolean>(() => localStorage.getItem('pipeline.insights.open') === 'true')
@@ -316,6 +317,14 @@ export default function CommercialPipeline() {
       return
     }
 
+    const sourceColumn = board.find((column) => column.commercialPipelineStageId === draggedItem.commercialPipelineStageId)
+    const isReopening = sourceColumn?.finalBehavior === 1 || sourceColumn?.finalBehavior === 2
+    if (isReopening && !window.confirm(t('opportunity.reopen.confirmationRequired'))) {
+      setDragOverStage(null)
+      setDraggedItem(null)
+      return
+    }
+
     const previousBoard = board
     const updatedItem = {
       ...draggedItem,
@@ -351,9 +360,10 @@ export default function CommercialPipeline() {
     })
 
     try {
-      await opportunityService.changeStage(draggedItem.id, { commercialPipelineStageId: targetStage })
+      await opportunityService.changeStage(draggedItem.id, { commercialPipelineStageId: targetStage, allowReopen: isReopening })
     } catch {
       setBoard(previousBoard)
+      toast({ title: t('opportunities.move.failed'), variant: 'destructive' })
     } finally {
       setMovingOpportunityId(null)
       setDraggedItem(null)

@@ -18,6 +18,10 @@ const approvalTypeKeys: Record<number, string> = {
   4: 'approvals.type.exception',
 }
 
+function isPolicyDeviation(approvalType: number): boolean {
+  return approvalType === 1 || approvalType === 2 || approvalType === 3
+}
+
 type FilterTab = 'pending' | 'approved' | 'rejected' | 'all'
 
 function hoursSince(iso: string): number {
@@ -419,7 +423,12 @@ function InboxRow({ approval, selected, onClick, t }: { approval: OpportunityApp
         {approval.proposalName || t('commercialApprovals.request.noProposal')} · {t('commercialApprovals.request.byUser').replace('{0}', approval.requestedByUserName)}
       </p>
       <div className="flex items-center justify-between pt-0.5">
-        <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusBadge.bg} ${statusBadge.text}`}>{statusBadge.label}</span>
+        <div className="flex items-center gap-1.5">
+          <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusBadge.bg} ${statusBadge.text}`}>{statusBadge.label}</span>
+          {isPolicyDeviation(approval.approvalType) && (
+            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">{t('commercialApprovals.badge.outsidePolicy')}</span>
+          )}
+        </div>
         <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-foreground" />
       </div>
     </button>

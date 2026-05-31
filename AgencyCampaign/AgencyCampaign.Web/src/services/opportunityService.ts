@@ -252,6 +252,7 @@ export interface UpdateOpportunityRequest extends CreateOpportunityRequest {
 export interface ChangeOpportunityStageRequest {
   commercialPipelineStageId: number
   reason?: string
+  allowReopen?: boolean
 }
 
 export interface CloseOpportunityAsWonRequest {

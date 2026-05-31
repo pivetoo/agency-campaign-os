@@ -2090,6 +2090,12 @@
   <data name="configuration.commercialPolicy.field.maxPaymentTerm.placeholder" xml:space="preserve"><value>E.g.: 60</value></data>
   <data name="configuration.commercialPolicy.field.notes.label" xml:space="preserve"><value>Internal notes (optional)</value></data>
   <data name="configuration.commercialPolicy.field.notes.placeholder" xml:space="preserve"><value>Policy context (e.g.: valid from Q2/2026, approved by the board)</value></data>
+  <data name="configuration.commercialPolicy.warning.emptyPolicy" xml:space="preserve"><value>No limits defined. While empty, no proposal requires discount or term approval (the gate is off).</value></data>
+  <data name="configuration.commercialPolicy.validation.termOrder" xml:space="preserve"><value>The default term cannot be greater than the maximum term.</value></data>
+  <data name="opportunity.reopen.confirmationRequired" xml:space="preserve"><value>This opportunity is closed. Confirm reopening before moving it to an open stage (this clears the closing data).</value></data>
+  <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>The default payment term cannot be greater than the maximum term.</value></data>
+  <data name="opportunities.move.failed" xml:space="preserve"><value>Could not move the opportunity. Please try again.</value></data>
+  <data name="commercialApprovals.badge.outsidePolicy" xml:space="preserve"><value>Outside policy</value></data>
   <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Proposal template</value></data>
   <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>New template</value></data>
   <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Proposal layouts</value></data>

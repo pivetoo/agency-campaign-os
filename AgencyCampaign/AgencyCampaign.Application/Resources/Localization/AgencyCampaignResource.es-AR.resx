@@ -2096,6 +2096,12 @@
   <data name="configuration.commercialPolicy.field.maxPaymentTerm.placeholder" xml:space="preserve"><value>Ej.: 60</value></data>
   <data name="configuration.commercialPolicy.field.notes.label" xml:space="preserve"><value>Notas internas (opcional)</value></data>
   <data name="configuration.commercialPolicy.field.notes.placeholder" xml:space="preserve"><value>Contexto de la política (ej.: válida desde Q2/2026, aprobada por la dirección)</value></data>
+  <data name="configuration.commercialPolicy.warning.emptyPolicy" xml:space="preserve"><value>Política sin límites definidos. Mientras esté vacía, ninguna propuesta requiere aprobación por descuento o plazo (el control está desactivado).</value></data>
+  <data name="configuration.commercialPolicy.validation.termOrder" xml:space="preserve"><value>El plazo predeterminado no puede ser mayor que el plazo máximo.</value></data>
+  <data name="opportunity.reopen.confirmationRequired" xml:space="preserve"><value>Esta oportunidad está cerrada. Confirmá la reapertura antes de moverla a una etapa abierta (esto borra los datos de cierre).</value></data>
+  <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>El plazo de pago predeterminado no puede ser mayor que el plazo máximo.</value></data>
+  <data name="opportunities.move.failed" xml:space="preserve"><value>No se pudo mover la oportunidad. Intentá de nuevo.</value></data>
+  <data name="commercialApprovals.badge.outsidePolicy" xml:space="preserve"><value>Fuera de la política</value></data>
   <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Plantilla de propuesta</value></data>
   <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>Nueva plantilla</value></data>
   <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Diseños de propuesta</value></data>

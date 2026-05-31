@@ -226,7 +226,7 @@ export default function CommercialProposalDetail() {
         label: t('proposals.action.approve'),
         icon: <CheckCircle className="h-4 w-4" />,
         variant: 'outline-success',
-        disabled: actionLoading,
+        disabled: actionLoading || needsApproval,
         onClick: () => void runProposalAction(() => proposalService.approve(proposalId)),
       })
       actions.push({

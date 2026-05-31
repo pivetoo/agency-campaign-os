@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Button, Input, PageLayout, useApi, useI18n } from 'archon-ui'
-import { ShieldCheck } from 'lucide-react'
+import { ShieldCheck, AlertTriangle } from 'lucide-react'
 import { commercialPolicyService, type UpsertCommercialPolicyRequest } from '../../../services/commercialPolicyService'
 
 const initialFormData: UpsertCommercialPolicyRequest = {
   maxDiscountPercent: null,
-  minMarginPercent: null,
   defaultPaymentTermDays: null,
   maxPaymentTermDays: null,
   notes: '',
@@ -23,7 +22,6 @@ export default function CommercialPolicyAdmin() {
     if (result) {
       setFormData({
         maxDiscountPercent: result.maxDiscountPercent ?? null,
-        minMarginPercent: result.minMarginPercent ?? null,
         defaultPaymentTermDays: result.defaultPaymentTermDays ?? null,
         maxPaymentTermDays: result.maxPaymentTermDays ?? null,
         notes: result.notes ?? '',
@@ -37,8 +35,21 @@ export default function CommercialPolicyAdmin() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const termError =
+    formData.defaultPaymentTermDays != null &&
+    formData.maxPaymentTermDays != null &&
+    formData.defaultPaymentTermDays > formData.maxPaymentTermDays
+
+  const isEmptyPolicy =
+    formData.maxDiscountPercent == null &&
+    formData.defaultPaymentTermDays == null &&
+    formData.maxPaymentTermDays == null
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (termError) {
+      return
+    }
     await save(() => commercialPolicyService.upsert({ ...formData, notes: formData.notes?.trim() || undefined }))
   }
 
@@ -61,12 +72,16 @@ export default function CommercialPolicyAdmin() {
           </div>
         </div>
 
+        {isEmptyPolicy && (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div>{t('configuration.commercialPolicy.warning.emptyPolicy')}</div>
+          </div>
+        )}
+
         <section className="grid gap-4 rounded-lg border border-border bg-card p-5 sm:grid-cols-2">
           <Field label={t('configuration.commercialPolicy.field.maxDiscount.label')} hint={t('configuration.commercialPolicy.field.maxDiscount.hint')}>
             <Input type="number" min={0} max={100} step="0.1" placeholder={t('configuration.commercialPolicy.field.maxDiscount.placeholder')} value={formData.maxDiscountPercent ?? ''} onChange={(e) => handleNumberChange('maxDiscountPercent', e.target.value)} disabled={loading} />
-          </Field>
-          <Field label={t('configuration.commercialPolicy.field.minMargin.label')} hint={t('configuration.commercialPolicy.field.minMargin.hint')}>
-            <Input type="number" min={0} max={100} step="0.1" placeholder={t('configuration.commercialPolicy.field.minMargin.placeholder')} value={formData.minMarginPercent ?? ''} onChange={(e) => handleNumberChange('minMarginPercent', e.target.value)} disabled={loading} />
           </Field>
           <Field label={t('configuration.commercialPolicy.field.defaultPaymentTerm.label')} hint={t('configuration.commercialPolicy.field.defaultPaymentTerm.hint')}>
             <Input type="number" min={0} max={3650} step="1" placeholder={t('configuration.commercialPolicy.field.defaultPaymentTerm.placeholder')} value={formData.defaultPaymentTermDays ?? ''} onChange={(e) => handleNumberChange('defaultPaymentTermDays', e.target.value)} disabled={loading} />
@@ -75,6 +90,10 @@ export default function CommercialPolicyAdmin() {
             <Input type="number" min={0} max={3650} step="1" placeholder={t('configuration.commercialPolicy.field.maxPaymentTerm.placeholder')} value={formData.maxPaymentTermDays ?? ''} onChange={(e) => handleNumberChange('maxPaymentTermDays', e.target.value)} disabled={loading} />
           </Field>
         </section>
+
+        {termError && (
+          <p className="text-xs text-red-600 dark:text-red-400">{t('configuration.commercialPolicy.validation.termOrder')}</p>
+        )}
 
         <section className="space-y-2 rounded-lg border border-border bg-card p-5">
           <label className="text-sm font-medium">{t('configuration.commercialPolicy.field.notes.label')}</label>
@@ -87,7 +106,7 @@ export default function CommercialPolicyAdmin() {
         </section>
 
         <div className="flex justify-end gap-2">
-          <Button type="submit" variant="primary" disabled={saving || !loaded}>{saving ? t('common.action.saving') : t('configuration.commercialPolicy.action.save')}</Button>
+          <Button type="submit" variant="primary" disabled={saving || !loaded || termError}>{saving ? t('common.action.saving') : t('configuration.commercialPolicy.action.save')}</Button>
         </div>
       </form>
     </PageLayout>

@@ -15,9 +15,9 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 2 / 57 (A1, A4) + 3 backend-prontos aguardando UI (A3, A6, A10)
-- Por fatia: A 2/10 - B 0/5 - C 0/7 - D 0/29 - E 0/6
-- Backend Fatia A: suite verde (874 passam; 1 falha pre-existente de SMTP fora do comercial). +7 testes novos (TDD). Nada commitado/deployado ainda (cadencia = por fatia, falta o front).
+- Concluidos: 10 / 57 (Fatia A completa)
+- Por fatia: A 10/10 - B 0/5 - C 0/7 - D 0/29 - E 0/6
+- Fatia A verificada: backend 874 testes verdes (1 falha pre-existente de SMTP, fora do comercial; +7 testes novos TDD); frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 
 ## Decisoes operacionais registradas (2026-05-30)
 
@@ -42,15 +42,15 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 Baixo risco, alto impacto. Estanca o "sangramento" financeiro e fecha os furos de governanca mais visiveis.
 
 - [x] **A1 - [Critico] Liquido na conversao (recebivel + Budget)** - recebivel e Budget da campanha usavam o total BRUTO, ignorando o desconto -> agora usam `NetTotalValue` no recebivel (FinancialAutoGenerationService) e no Budget da campanha (ProposalService.ConvertToNewCampaign). Coberto por 2 testes novos (TDD: RED->GREEN). _(conversao proposta->campanha)_
-- [ ] **A2 - [Alto] Bloquear o botao Aprovar quando ha desvio de politica sem aprovacao concedida** - o banner avisa "aprovacao obrigatoria" mas o botao continua habilitado, tornando o gate contornavel -> desabilitar o Aprovar usando a flag de "precisa aprovacao" que ja existe. _(tela de propostas / detalhe)_
-- [~] **A3 - [Alto] Guarda de reabertura no ChangeStage** - BACKEND PRONTO: dominio exige `allowReopen` explicito (lanca `opportunity.reopen.confirmationRequired`), e a reabertura confirmada limpa data/motivos/ids orfaos; DTO + service threadam o flag; 2 testes TDD. Falta UI: dialogo de confirmacao no kanban/detalhe passando o flag. _(oportunidade / kanban)_
+- [x] **A2 - [Alto] Bloquear o botao Aprovar quando ha desvio de politica sem aprovacao concedida** - o banner avisa "aprovacao obrigatoria" mas o botao continua habilitado, tornando o gate contornavel -> desabilitar o Aprovar usando a flag de "precisa aprovacao" que ja existe. _(tela de propostas / detalhe)_
+- [x] **A3 - [Alto] Guarda de reabertura no ChangeStage** - BACKEND PRONTO: dominio exige `allowReopen` explicito (lanca `opportunity.reopen.confirmationRequired`), e a reabertura confirmada limpa data/motivos/ids orfaos; DTO + service threadam o flag; 2 testes TDD. UI: confirmacao no kanban ao reabrir (com toast de erro no move); no detalhe a reabertura ja fica bloqueada pelo backend. _(oportunidade / kanban)_
 - [x] **A4 - [Medio] Mascarar notas internas no snapshot publico** - BACKEND: o snapshot publico agora remove a chave `notes` (notas internas) na fronteira do servico publico; teste TDD. NOTA: a premissa de "custo por creator" NAO se confirmou - itens de proposta so tem preco de venda (unitPrice/total), que o cliente deve ver mesmo; proposta nao carrega custo. Verificar na UI publica se nao sobra bloco vazio de notas. _(link publico /p/:token)_
-- [ ] **A5 - [Medio] Toast de erro ao falhar o move no kanban** - em erro de rede/permissao o card "volta sozinho" sem feedback -> exibir toast de erro como ja ocorre no fechamento final. _(kanban)_
-- [~] **A6 - [Medio] Validar coerencia da politica + avisar politica vazia** - BACKEND PRONTO: dominio lanca `commercialPolicy.paymentTerm.defaultExceedsMax` quando prazo padrao > maximo (3 testes TDD). Falta UI: validar no form + avisar que politica vazia desliga o gate. _(config politica comercial)_
-- [ ] **A7 - [Baixo] Padronizar formatacao de moeda/data via helpers centralizados** - lista mostra "R$ 1500.00" em vez de "R$ 1.500,00" -> usar `src/lib/format`. _(lista de oportunidades)_
-- [ ] **A8 - [Alto] Sinal "fora da politica" vs "aguarda ok" no inbox de aprovacoes** - distincao so aparece dentro do painel de diffs -> mostrar badge de "fora da politica" na lista/cabecalho. _(inbox de aprovacoes)_
-- [ ] **A9 - [Alto] Testes nos pontos de dinheiro** - zero cobertura em liquido, recebivel na conversao e snapshot -> adicionar testes cobrindo o calculo liquido e a geracao do recebivel (recebivel + Budget). _(testes)_
-- [~] **A10 - [Alto] Remover margem minima inerte da politica** - BACKEND PRONTO: removida da entidade, EF config, model, request e service; migration 202605300001 dropa a coluna `minmarginpercent`; testes ajustados (teste "ignora margem" deletado por obsolescencia). Falta UI: remover o campo de margem da tela de politica (CommercialPolicy/index.tsx + type + service). _(politica comercial)_
+- [x] **A5 - [Medio] Toast de erro ao falhar o move no kanban** - em erro de rede/permissao o card "volta sozinho" sem feedback -> exibir toast de erro como ja ocorre no fechamento final. _(kanban)_
+- [x] **A6 - [Medio] Validar coerencia da politica + avisar politica vazia** - BACKEND PRONTO: dominio lanca `commercialPolicy.paymentTerm.defaultExceedsMax` quando prazo padrao > maximo (3 testes TDD). UI: validacao inline de prazo (bloqueia salvar) + aviso de politica vazia na tela. _(config politica comercial)_
+- [x] **A7 - [Baixo] Padronizar formatacao de moeda/data via helpers centralizados** - lista mostra "R$ 1500.00" em vez de "R$ 1.500,00" -> usar `src/lib/format`. _(lista de oportunidades)_
+- [x] **A8 - [Alto] Sinal "fora da politica" vs "aguarda ok" no inbox de aprovacoes** - distincao so aparece dentro do painel de diffs -> mostrar badge de "fora da politica" na lista/cabecalho. _(inbox de aprovacoes)_
+- [x] **A9 - [Alto] Testes nos pontos de dinheiro** - coberto pelos testes do A1 (recebivel liquido + Budget liquido) e do A4 (snapshot publico sem notas). +7 testes novos no total da fatia. _(testes)_
+- [x] **A10 - [Alto] Remover margem minima inerte da politica** - BACKEND PRONTO: removida da entidade, EF config, model, request e service; migration 202605300001 dropa a coluna `minmarginpercent`; testes ajustados (teste "ignora margem" deletado por obsolescencia). UI: campo de margem removido da tela + type + service do front. _(politica comercial)_
 
 ---
 

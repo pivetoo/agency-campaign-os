@@ -11,6 +11,7 @@ import OpportunityFormModal from '../../../components/modals/OpportunityFormModa
 import DetailsButton from '../../../components/DetailsButton'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 import CommercialViewToggle from '../../../components/buttons/CommercialViewToggle'
+import { formatCurrency, formatDate } from '../../../lib/format'
 
 const STATUS_ALL = ''
 
@@ -124,8 +125,8 @@ export default function CommercialOpportunities() {
     { key: 'id', title: t('common.field.code'), dataIndex: 'id', width: 72, render: (value: number) => <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{value}</code> },
     { key: 'name', title: t('opportunities.field.opportunity'), dataIndex: 'name' },
     { key: 'brand', title: t('campaign.field.brand'), dataIndex: 'brand', render: (value?: Opportunity['brand']) => value?.name || '-' },
-    { key: 'estimatedValue', title: t('opportunities.field.estimatedValue'), dataIndex: 'estimatedValue', hiddenBelow: 'md', render: (value: number) => `R$ ${value.toFixed(2)}` },
-    { key: 'expectedCloseAt', title: t('opportunities.field.expectedCloseAt'), dataIndex: 'expectedCloseAt', hiddenBelow: 'md', render: (value?: string) => value ? new Date(value).toLocaleDateString('pt-BR') : '-' },
+    { key: 'estimatedValue', title: t('opportunities.field.estimatedValue'), dataIndex: 'estimatedValue', hiddenBelow: 'md', render: (value: number) => formatCurrency(value) },
+    { key: 'expectedCloseAt', title: t('opportunities.field.expectedCloseAt'), dataIndex: 'expectedCloseAt', hiddenBelow: 'md', render: (value?: string) => formatDate(value) },
     {
       key: 'stage',
       title: t('opportunities.field.stage'),
