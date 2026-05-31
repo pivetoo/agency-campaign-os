@@ -401,6 +401,7 @@
   <data name="pipeline.stage.defaultDescription" xml:space="preserve"><value>Estágio configurável do funil comercial.</value></data>
   <data name="pipeline.stage.empty" xml:space="preserve"><value>Nenhuma oportunidade neste estágio.</value></data>
   <data name="pipeline.loading" xml:space="preserve"><value>Carregando pipeline comercial...</value></data>
+  <data name="pipeline.mobile.moveTo" xml:space="preserve"><value>Mover para...</value></data>
   <data name="pipeline.empty.title" xml:space="preserve"><value>Nenhuma oportunidade no pipeline</value></data>
   <data name="pipeline.empty.description" xml:space="preserve"><value>Cadastre leads para visualizar o funil comercial por estágio, valor estimado e follow-ups.</value></data>
   <data name="pipeline.card.noForecast" xml:space="preserve"><value>Sem previsão</value></data>

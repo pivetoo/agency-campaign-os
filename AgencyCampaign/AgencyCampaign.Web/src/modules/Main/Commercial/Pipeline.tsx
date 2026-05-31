@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions, useToast } from 'archon-ui'
-import { AlertTriangle, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, Rows3, Search, Target, UserRound, X } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, Rows3, Search, Target, UserRound, X } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import { opportunityWinReasonService, opportunityLossReasonService } from '../../../services/opportunityOutcomeReasonService'
 import type { OpportunityWinReason, OpportunityLossReason } from '../../../types/opportunityOutcomeReason'
@@ -303,8 +303,8 @@ export default function CommercialPipeline() {
     return displayStages.find((stage) => stage.commercialPipelineStageId === mobileStageId) ?? displayStages[0]
   }, [displayStages, mobileStageId])
 
-  const moveOpportunity = async (targetStage: number) => {
-    if (!draggedItem || draggedItem.commercialPipelineStageId === targetStage || movingOpportunityId) {
+  const moveOpportunity = async (movingItem: OpportunityBoardItem, targetStage: number) => {
+    if (movingItem.commercialPipelineStageId === targetStage || movingOpportunityId) {
       setDragOverStage(null)
       return
     }
@@ -312,7 +312,7 @@ export default function CommercialPipeline() {
     const targetColumn = board.find((column) => column.commercialPipelineStageId === targetStage)
 
     if (targetColumn && targetColumn.finalBehavior === 1) {
-      setPendingFinal({ item: draggedItem, targetStage: targetColumn, kind: 'won' })
+      setPendingFinal({ item: movingItem, targetStage: targetColumn, kind: 'won' })
       setFinalNotes('')
       setFinalReasonId(null)
       setDragOverStage(null)
@@ -321,7 +321,7 @@ export default function CommercialPipeline() {
     }
 
     if (targetColumn && targetColumn.finalBehavior === 2) {
-      setPendingFinal({ item: draggedItem, targetStage: targetColumn, kind: 'lost' })
+      setPendingFinal({ item: movingItem, targetStage: targetColumn, kind: 'lost' })
       setFinalNotes('')
       setFinalReasonId(null)
       setDragOverStage(null)
@@ -329,7 +329,7 @@ export default function CommercialPipeline() {
       return
     }
 
-    const sourceColumn = board.find((column) => column.commercialPipelineStageId === draggedItem.commercialPipelineStageId)
+    const sourceColumn = board.find((column) => column.commercialPipelineStageId === movingItem.commercialPipelineStageId)
     const isReopening = sourceColumn?.finalBehavior === 1 || sourceColumn?.finalBehavior === 2
     if (isReopening && !window.confirm(t('opportunity.reopen.confirmationRequired'))) {
       setDragOverStage(null)
@@ -339,13 +339,13 @@ export default function CommercialPipeline() {
 
     const previousBoard = board
     const updatedItem = {
-      ...draggedItem,
+      ...movingItem,
       commercialPipelineStageId: targetStage,
-      commercialPipelineStageName: targetColumn?.name || draggedItem.commercialPipelineStageName,
-      commercialPipelineStageColor: targetColumn?.color || draggedItem.commercialPipelineStageColor,
+      commercialPipelineStageName: targetColumn?.name || movingItem.commercialPipelineStageName,
+      commercialPipelineStageColor: targetColumn?.color || movingItem.commercialPipelineStageColor,
     }
 
-    setMovingOpportunityId(draggedItem.id)
+    setMovingOpportunityId(movingItem.id)
     setDragOverStage(null)
     setBoard((currentBoard) => {
       const boardByStage = new Map<number, OpportunityBoardItem[]>()
@@ -355,7 +355,7 @@ export default function CommercialPipeline() {
       })
 
       currentBoard.forEach((stage) => {
-        boardByStage.set(stage.commercialPipelineStageId, stage.items.filter((item) => item.id !== draggedItem.id))
+        boardByStage.set(stage.commercialPipelineStageId, stage.items.filter((item) => item.id !== movingItem.id))
       })
 
       boardByStage.set(targetStage, [updatedItem, ...(boardByStage.get(targetStage) ?? [])])
@@ -372,7 +372,7 @@ export default function CommercialPipeline() {
     })
 
     try {
-      await opportunityService.changeStage(draggedItem.id, { commercialPipelineStageId: targetStage, allowReopen: isReopening, expectedVersion: draggedItem.version })
+      await opportunityService.changeStage(movingItem.id, { commercialPipelineStageId: targetStage, allowReopen: isReopening, expectedVersion: movingItem.version })
     } catch (error) {
       setBoard(previousBoard)
       const status = (error as { status?: number } | null)?.status
@@ -609,14 +609,36 @@ export default function CommercialPipeline() {
               </div>
 
               {activeMobileStage.items.map((item) => (
-                <OpportunityCard
-                  key={item.id}
-                  item={item}
-                  density="comfortable"
-                  isDragging={false}
-                  onDragStart={() => {}}
-                  onDragEnd={() => {}}
-                />
+                <div key={item.id} className="space-y-1.5">
+                  <OpportunityCard
+                    item={item}
+                    density="comfortable"
+                    isDragging={movingOpportunityId === item.id}
+                    onDragStart={() => {}}
+                    onDragEnd={() => {}}
+                  />
+                  <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-1.5">
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <select
+                      value=""
+                      disabled={movingOpportunityId != null}
+                      onChange={(event) => {
+                        const target = Number(event.target.value)
+                        if (target) {
+                          void moveOpportunity(item, target)
+                        }
+                      }}
+                      className="w-full bg-transparent text-xs font-medium text-foreground focus:outline-none disabled:opacity-60"
+                    >
+                      <option value="">{t('pipeline.mobile.moveTo')}</option>
+                      {displayStages
+                        .filter((stage) => stage.commercialPipelineStageId !== item.commercialPipelineStageId)
+                        .map((stage) => (
+                          <option key={stage.commercialPipelineStageId} value={stage.commercialPipelineStageId}>{stage.name}</option>
+                        ))}
+                    </select>
+                  </div>
+                </div>
               ))}
 
               {!loading && activeMobileStage.items.length === 0 && (
@@ -648,7 +670,9 @@ export default function CommercialPipeline() {
                 }}
                 onDrop={(event) => {
                   event.preventDefault()
-                  void moveOpportunity(stage.commercialPipelineStageId)
+                  if (draggedItem) {
+                    void moveOpportunity(draggedItem, stage.commercialPipelineStageId)
+                  }
                 }}
                 className={`rounded-2xl border p-3 transition ${dragOverStage === stage.commercialPipelineStageId ? 'border-primary bg-primary/5 shadow-sm' : 'border-border bg-muted/30'}`}
                 style={{ borderTopWidth: '4px', borderTopColor: stage.color }}

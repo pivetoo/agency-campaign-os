@@ -401,6 +401,7 @@
   <data name="pipeline.stage.defaultDescription" xml:space="preserve"><value>Configurable stage of the commercial funnel.</value></data>
   <data name="pipeline.stage.empty" xml:space="preserve"><value>No opportunities in this stage.</value></data>
   <data name="pipeline.loading" xml:space="preserve"><value>Loading commercial pipeline...</value></data>
+  <data name="pipeline.mobile.moveTo" xml:space="preserve"><value>Move to...</value></data>
   <data name="pipeline.empty.title" xml:space="preserve"><value>No opportunities in the pipeline</value></data>
   <data name="pipeline.empty.description" xml:space="preserve"><value>Register leads to see the commercial funnel by stage, estimated value and follow-ups.</value></data>
   <data name="pipeline.card.noForecast" xml:space="preserve"><value>No forecast</value></data>

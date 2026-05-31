@@ -401,6 +401,7 @@
   <data name="pipeline.stage.defaultDescription" xml:space="preserve"><value>Etapa configurable del funnel comercial.</value></data>
   <data name="pipeline.stage.empty" xml:space="preserve"><value>No hay oportunidades en esta etapa.</value></data>
   <data name="pipeline.loading" xml:space="preserve"><value>Cargando pipeline comercial...</value></data>
+  <data name="pipeline.mobile.moveTo" xml:space="preserve"><value>Mover a...</value></data>
   <data name="pipeline.empty.title" xml:space="preserve"><value>No hay oportunidades en el pipeline</value></data>
   <data name="pipeline.empty.description" xml:space="preserve"><value>Registre leads para visualizar el funnel comercial por etapa, valor estimado y follow-ups.</value></data>
   <data name="pipeline.card.noForecast" xml:space="preserve"><value>Sin previsión</value></data>
