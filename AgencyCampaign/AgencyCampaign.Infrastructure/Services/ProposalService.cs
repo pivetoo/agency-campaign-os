@@ -426,7 +426,7 @@ namespace AgencyCampaign.Infrastructure.Services
             Campaign campaign = new(
                 opportunity.BrandId,
                 opportunity.Name,
-                proposal.TotalValue,
+                proposal.NetTotalValue,
                 DateTimeOffset.UtcNow,
                 description: proposal.Description,
                 internalOwnerName: proposal.InternalOwnerName);

@@ -117,7 +117,7 @@ namespace AgencyCampaign.Domain.Entities
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void ChangeStage(CommercialPipelineStage stage, long? changedByUserId = null, string? changedByUserName = null, string? reason = null)
+        public void ChangeStage(CommercialPipelineStage stage, long? changedByUserId = null, string? changedByUserName = null, string? reason = null, bool allowReopen = false)
         {
             ArgumentNullException.ThrowIfNull(stage);
 
@@ -130,6 +130,12 @@ namespace AgencyCampaign.Domain.Entities
             if (fromStageId == stage.Id)
             {
                 return;
+            }
+
+            bool isReopening = IsClosed() && stage.FinalBehavior == CommercialPipelineStageFinalBehavior.None;
+            if (isReopening && !allowReopen)
+            {
+                throw new InvalidOperationException("opportunity.reopen.confirmationRequired");
             }
 
             CommercialPipelineStageId = stage.Id;
@@ -286,7 +292,9 @@ namespace AgencyCampaign.Domain.Entities
             }
 
             WonNotes = null;
+            WinReasonId = null;
             LossReason = null;
+            LossReasonId = null;
             ClosedAt = null;
         }
 

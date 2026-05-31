@@ -7,9 +7,6 @@ namespace AgencyCampaign.Application.Requests.Commercial
         [Range(0, 100)]
         public decimal? MaxDiscountPercent { get; set; }
 
-        [Range(0, 100)]
-        public decimal? MinMarginPercent { get; set; }
-
         [Range(0, 3650)]
         public int? DefaultPaymentTermDays { get; set; }
 

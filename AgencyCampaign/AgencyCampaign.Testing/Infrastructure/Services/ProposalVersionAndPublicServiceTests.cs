@@ -133,5 +133,23 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             viewModel.BrandName.Should().Be("Acme");
             notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
+
+        [Test]
+        public async Task GetByToken_should_strip_internal_notes_from_public_snapshot()
+        {
+            Proposal proposal = new(1, "P", 1);
+            db.Add(proposal);
+            await db.SaveChangesAsync();
+            string snapshot = "{\"name\":\"Proposta\",\"notes\":\"segredo interno da agencia\",\"items\":[]}";
+            db.Add(new ProposalVersion(proposal.Id, 1, "v1", null, 100m, null, snapshot, null, null));
+            db.Add(new ProposalShareLink(proposal.Id, "tok", null, null, null));
+            await db.SaveChangesAsync();
+
+            ProposalPublicViewModel? viewModel = await service.GetByToken("tok", null, null);
+
+            viewModel.Should().NotBeNull();
+            viewModel!.SnapshotJson.Should().NotContain("segredo interno");
+            viewModel.SnapshotJson.Should().NotContain("notes");
+        }
     }
 }

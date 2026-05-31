@@ -34,13 +34,13 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (existing is null)
             {
-                CommercialPolicy created = new(request.MaxDiscountPercent, request.MinMarginPercent, request.DefaultPaymentTermDays, request.MaxPaymentTermDays, request.Notes);
+                CommercialPolicy created = new(request.MaxDiscountPercent, request.DefaultPaymentTermDays, request.MaxPaymentTermDays, request.Notes);
                 dbContext.Set<CommercialPolicy>().Add(created);
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return Map(created);
             }
 
-            existing.Update(request.MaxDiscountPercent, request.MinMarginPercent, request.DefaultPaymentTermDays, request.MaxPaymentTermDays, request.Notes);
+            existing.Update(request.MaxDiscountPercent, request.DefaultPaymentTermDays, request.MaxPaymentTermDays, request.Notes);
             await dbContext.SaveChangesAsync(cancellationToken);
             return Map(existing);
         }
@@ -49,7 +49,6 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Id = policy.Id,
             MaxDiscountPercent = policy.MaxDiscountPercent,
-            MinMarginPercent = policy.MinMarginPercent,
             DefaultPaymentTermDays = policy.DefaultPaymentTermDays,
             MaxPaymentTermDays = policy.MaxPaymentTermDays,
             Notes = policy.Notes,

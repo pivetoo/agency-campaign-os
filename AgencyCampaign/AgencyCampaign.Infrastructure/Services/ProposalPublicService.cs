@@ -4,6 +4,7 @@ using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Nodes;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -95,8 +96,25 @@ namespace AgencyCampaign.Infrastructure.Services
                 NetTotalValue = netTotalValue,
                 ValidityUntil = version.ValidityUntil,
                 SentAt = version.SentAt,
-                SnapshotJson = version.SnapshotJson
+                SnapshotJson = SanitizePublicSnapshot(version.SnapshotJson)
             };
+        }
+
+        private static string SanitizePublicSnapshot(string snapshotJson)
+        {
+            if (string.IsNullOrWhiteSpace(snapshotJson))
+            {
+                return snapshotJson;
+            }
+
+            JsonNode? node = JsonNode.Parse(snapshotJson);
+            if (node is JsonObject snapshot)
+            {
+                snapshot.Remove("notes");
+                return snapshot.ToJsonString();
+            }
+
+            return snapshotJson;
         }
     }
 }

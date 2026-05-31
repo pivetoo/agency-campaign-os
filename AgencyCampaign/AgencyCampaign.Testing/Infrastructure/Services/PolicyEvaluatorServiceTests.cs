@@ -58,7 +58,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task EvaluateProposal_should_flag_discount_violation()
         {
-            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, defaultPaymentTermDays: null, maxPaymentTermDays: null));
             Proposal proposal = await SeedProposalAsync(discount: 25m);
 
             PolicyEvaluationModel result = await service.EvaluateProposalAsync(proposal);
@@ -71,7 +71,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task EvaluateProposal_should_flag_payment_term_violation()
         {
-            db.Add(new CommercialPolicy(maxDiscountPercent: null, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: 30));
+            db.Add(new CommercialPolicy(maxDiscountPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: 30));
             Proposal proposal = await SeedProposalAsync(paymentTermDays: 90);
 
             PolicyEvaluationModel result = await service.EvaluateProposalAsync(proposal);
@@ -84,25 +84,13 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task EvaluateProposal_should_not_flag_when_within_policy()
         {
-            db.Add(new CommercialPolicy(maxDiscountPercent: 30m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: 60));
+            db.Add(new CommercialPolicy(maxDiscountPercent: 30m, defaultPaymentTermDays: null, maxPaymentTermDays: 60));
             Proposal proposal = await SeedProposalAsync(discount: 10m, paymentTermDays: 30);
 
             PolicyEvaluationModel result = await service.EvaluateProposalAsync(proposal);
 
             result.HasDeviations.Should().BeFalse();
             result.Deviations.Should().OnlyContain(item => !item.IsViolation);
-        }
-
-        [Test]
-        public async Task EvaluateProposal_should_not_evaluate_margin()
-        {
-            db.Add(new CommercialPolicy(maxDiscountPercent: 30m, minMarginPercent: 40m, defaultPaymentTermDays: null, maxPaymentTermDays: null));
-            Proposal proposal = await SeedProposalAsync(discount: 10m);
-
-            PolicyEvaluationModel result = await service.EvaluateProposalAsync(proposal);
-
-            result.HasDeviations.Should().BeFalse();
-            result.Deviations.Should().NotContain(item => item.Field == "Margem");
         }
     }
 }

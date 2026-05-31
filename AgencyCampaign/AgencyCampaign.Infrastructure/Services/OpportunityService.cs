@@ -246,7 +246,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
             CommercialPipelineStage stage = await ResolveStage(request.CommercialPipelineStageId, cancellationToken);
-            opportunity.ChangeStage(stage, currentUser.UserId, currentUser.UserName, request.Reason);
+            opportunity.ChangeStage(stage, currentUser.UserId, currentUser.UserName, request.Reason, request.AllowReopen);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }

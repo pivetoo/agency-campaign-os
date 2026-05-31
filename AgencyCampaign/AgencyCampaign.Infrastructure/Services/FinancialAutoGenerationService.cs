@@ -42,7 +42,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 FinancialEntryType.Receivable,
                 FinancialEntryCategory.BrandReceivable,
                 $"Recebível da proposta {proposal.Name}",
-                proposal.TotalValue,
+                proposal.NetTotalValue,
                 dueAt,
                 DateTimeOffset.UtcNow,
                 paymentMethod: null,

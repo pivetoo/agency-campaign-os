@@ -6,8 +6,6 @@ namespace AgencyCampaign.Domain.Entities
     {
         public decimal? MaxDiscountPercent { get; private set; }
 
-        public decimal? MinMarginPercent { get; private set; }
-
         public int? DefaultPaymentTermDays { get; private set; }
 
         public int? MaxPaymentTermDays { get; private set; }
@@ -18,25 +16,32 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public CommercialPolicy(decimal? maxDiscountPercent, decimal? minMarginPercent, int? defaultPaymentTermDays, int? maxPaymentTermDays, string? notes = null)
+        public CommercialPolicy(decimal? maxDiscountPercent, int? defaultPaymentTermDays, int? maxPaymentTermDays, string? notes = null)
         {
-            MaxDiscountPercent = ClampPercent(maxDiscountPercent);
-            MinMarginPercent = ClampPercent(minMarginPercent);
-            DefaultPaymentTermDays = ClampDays(defaultPaymentTermDays);
-            MaxPaymentTermDays = ClampDays(maxPaymentTermDays);
-            Notes = Normalize(notes);
+            Apply(maxDiscountPercent, defaultPaymentTermDays, maxPaymentTermDays, notes);
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        public void Update(decimal? maxDiscountPercent, decimal? minMarginPercent, int? defaultPaymentTermDays, int? maxPaymentTermDays, string? notes)
+        public void Update(decimal? maxDiscountPercent, int? defaultPaymentTermDays, int? maxPaymentTermDays, string? notes)
         {
-            MaxDiscountPercent = ClampPercent(maxDiscountPercent);
-            MinMarginPercent = ClampPercent(minMarginPercent);
-            DefaultPaymentTermDays = ClampDays(defaultPaymentTermDays);
-            MaxPaymentTermDays = ClampDays(maxPaymentTermDays);
-            Notes = Normalize(notes);
+            Apply(maxDiscountPercent, defaultPaymentTermDays, maxPaymentTermDays, notes);
             UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        private void Apply(decimal? maxDiscountPercent, int? defaultPaymentTermDays, int? maxPaymentTermDays, string? notes)
+        {
+            int? defaultDays = ClampDays(defaultPaymentTermDays);
+            int? maxDays = ClampDays(maxPaymentTermDays);
+            if (defaultDays.HasValue && maxDays.HasValue && defaultDays.Value > maxDays.Value)
+            {
+                throw new InvalidOperationException("commercialPolicy.paymentTerm.defaultExceedsMax");
+            }
+
+            MaxDiscountPercent = ClampPercent(maxDiscountPercent);
+            DefaultPaymentTermDays = defaultDays;
+            MaxPaymentTermDays = maxDays;
+            Notes = Normalize(notes);
         }
 
         private static decimal? ClampPercent(decimal? value)

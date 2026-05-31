@@ -200,6 +200,26 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task ConvertToNewCampaign_should_set_campaign_budget_to_net_total()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest
+            {
+                OpportunityId = opportunity.Id,
+                DiscountAmount = 200m
+            });
+            await SetProposalTotalAsync(proposal.Id, 1000m);
+            await service.MarkAsSent(proposal.Id);
+            await service.ApproveProposal(proposal.Id);
+
+            await service.ConvertToNewCampaign(proposal.Id);
+
+            db.ChangeTracker.Clear();
+            Campaign campaign = await db.Set<Campaign>().AsNoTracking().SingleAsync();
+            campaign.Budget.Should().Be(800m);
+        }
+
+        [Test]
         public async Task CancelProposal_should_persist_cancelled_status()
         {
             Opportunity opportunity = await SeedOpportunityAsync();
@@ -352,7 +372,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public async Task MarkAsSent_should_block_and_create_approval_when_proposal_deviates_from_policy()
         {
             Opportunity opportunity = await SeedOpportunityAsync();
-            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, defaultPaymentTermDays: null, maxPaymentTermDays: null));
             await db.SaveChangesAsync();
 
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest
@@ -375,7 +395,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public async Task MarkAsSent_should_not_duplicate_approval_when_one_is_already_pending()
         {
             Opportunity opportunity = await SeedOpportunityAsync();
-            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, defaultPaymentTermDays: null, maxPaymentTermDays: null));
             await db.SaveChangesAsync();
 
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest
@@ -397,7 +417,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public async Task MarkAsSent_should_succeed_after_internal_approval_is_approved()
         {
             Opportunity opportunity = await SeedOpportunityAsync();
-            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            db.Add(new CommercialPolicy(maxDiscountPercent: 10m, defaultPaymentTermDays: null, maxPaymentTermDays: null));
             await db.SaveChangesAsync();
 
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest
@@ -426,7 +446,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public async Task MarkAsSent_should_succeed_when_proposal_within_policy()
         {
             Opportunity opportunity = await SeedOpportunityAsync();
-            db.Add(new CommercialPolicy(maxDiscountPercent: 30m, minMarginPercent: null, defaultPaymentTermDays: null, maxPaymentTermDays: null));
+            db.Add(new CommercialPolicy(maxDiscountPercent: 30m, defaultPaymentTermDays: null, maxPaymentTermDays: null));
             await db.SaveChangesAsync();
 
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest

@@ -6,8 +6,6 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public decimal? MaxDiscountPercent { get; init; }
 
-        public decimal? MinMarginPercent { get; init; }
-
         public int? DefaultPaymentTermDays { get; init; }
 
         public int? MaxPaymentTermDays { get; init; }

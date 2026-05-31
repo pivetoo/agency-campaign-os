@@ -100,6 +100,29 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GenerateForConvertedProposal_should_use_net_total_when_proposal_has_discount()
+        {
+            FinancialAccount account = NewAccount();
+            db.Add(account);
+
+            Brand brand = new("Acme");
+            db.Add(brand);
+            await db.SaveChangesAsync();
+
+            Campaign campaign = new(brandId: brand.Id, name: "Camp", budget: 0, startsAt: DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+
+            Proposal proposal = new Proposal(opportunityId: 1, name: "Proposta com desconto", internalOwnerId: 1, discountAmount: 200m).WithId(20);
+            proposal.UpdateTotalValue(1000m);
+
+            await service.GenerateForConvertedProposal(proposal, campaignId: campaign.Id);
+
+            FinancialEntry entry = await db.Set<FinancialEntry>().SingleAsync();
+            entry.Amount.Should().Be(800m);
+        }
+
+        [Test]
         public async Task GenerateForConvertedProposal_should_use_default_due_date_when_validity_missing()
         {
             FinancialAccount account = NewAccount();

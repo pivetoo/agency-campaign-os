@@ -119,6 +119,36 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void ChangeStage_should_block_reopening_a_closed_opportunity_without_confirmation()
+        {
+            Opportunity subject = BuildDefault();
+            CommercialPipelineStage wonStage = new CommercialPipelineStageBuilder().WithId(20).AsFinal(CommercialPipelineStageFinalBehavior.Won).Build();
+            CommercialPipelineStage openStage = new CommercialPipelineStageBuilder().WithId(30).Build();
+            subject.ChangeStage(wonStage);
+
+            Action act = () => subject.ChangeStage(openStage);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("opportunity.reopen.confirmationRequired");
+            subject.ClosedAt.Should().NotBeNull();
+            subject.WonNotes.Should().NotBeNullOrWhiteSpace();
+        }
+
+        [Test]
+        public void ChangeStage_should_clear_closing_data_when_reopen_is_confirmed()
+        {
+            Opportunity subject = BuildDefault();
+            CommercialPipelineStage lostStage = new CommercialPipelineStageBuilder().WithId(21).AsFinal(CommercialPipelineStageFinalBehavior.Lost).Build();
+            CommercialPipelineStage openStage = new CommercialPipelineStageBuilder().WithId(30).Build();
+            subject.CloseAsLost(lostStage, "preço", lossReasonId: 7);
+
+            subject.ChangeStage(openStage, allowReopen: true);
+
+            subject.ClosedAt.Should().BeNull();
+            subject.LossReason.Should().BeNull();
+            subject.LossReasonId.Should().BeNull();
+        }
+
+        [Test]
         public void ChangeStage_should_apply_default_probability_when_not_manual()
         {
             Opportunity subject = BuildDefault();

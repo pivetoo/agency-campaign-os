@@ -10,5 +10,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
 
         [MaxLength(500)]
         public string? Reason { get; set; }
+
+        public bool AllowReopen { get; set; }
     }
 }
