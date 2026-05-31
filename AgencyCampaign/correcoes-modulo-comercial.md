@@ -15,9 +15,9 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 21 / 57 (Fatia A + C3-C7 + D1i, D3i, D7i, D18i, D25i, D26i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 6/29 - E 0/6
-- Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos (backend, TDD): D7i, D25i, D26i, D3i, D1i, D18i. 3 jobs comerciais novos (expiracao de proposta, lembrete de follow-up, deal rotting). Backend 888 testes verdes; Api builda.
+- Concluidos: 22 / 57 (Fatia A + C3-C7 + D1i, D3i, D6i, D7i, D18i, D25i, D26i)
+- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 7/29 - E 0/6
+- Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos: D7i, D25i, D26i, D3i, D1i, D18i (TDD) + D6i (logging). 3 jobs comerciais novos. D24i adiado (escopo global). Backend 888 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
 
@@ -91,7 +91,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [x] **D3i - [Medio] Snapshot de versao completo (congelar desconto)** - FEITO: ProposalVersion ganhou colunas `DiscountAmount`/`NetTotalValue` (nullable, migration 202605310001); `CreateSentVersionAsync` congela o desconto da proposta no envio; `ProposalPublicService.GetByToken` le o desconto CONGELADO da versao (fallback ao vivo so para versoes legadas). Editar o desconto depois de enviado nao muda mais o que o cliente ve pelo link. 1 teste TDD. _(versionamento de proposta)_
 - [ ] **D4i - [Medio] Paridade de motivos estruturados no fechamento via kanban** - arrastar para Ganho/Perdido nao coleta motivo estruturado (so texto livre), detalhe coleta -> oferecer os mesmos motivos cadastrados no fechamento pelo kanban. _(kanban)_
 - [ ] **D5i - [Medio] i18n da pagina publica e do modal de envio** - strings hardcoded em pt-BR quebram para clientes es-AR/en-US -> internacionalizar. _(link publico / envio)_
-- [ ] **D6i - [Medio] Tratar falhas silenciosas em pontos sensiveis** - recebivel, aprovacao automatica, notificacoes e resolucao do responsavel engolem excecoes no console -> logar/alertar em vez de seguir em silencio (diretriz do projeto). _(varios services)_
+- [x] **D6i - [Medio] Tratar falhas silenciosas em pontos sensiveis** - FEITO: os ~8 `Console.WriteLine` em catches best-effort dos services comerciais (ProposalService, ProposalPublicService, OpportunityApprovalRequestService, OpportunityFollowUpService, OpportunityService) + FinancialAutoGenerationService (skip de recebivel/repasse) viraram `logger?.LogWarning(exception, ...)` estruturado em ingles. `ILogger<T>` injetado como OPCIONAL (DI injeta em producao; testes passam null) -> zero churn de teste. Mantida a semantica best-effort (nao re-lanca), so melhora a observabilidade. _(varios services)_
 - [x] **D7i - [Medio] Reenvio sem guarda de estado** - FEITO: dominio `Proposal.MarkAsSent` so permite enviar de Draft/Sent/Viewed (lanca `proposal.send.invalidStatus` para Approved/Convertida/Rejeitada/Cancelada/Expirada); `CreateSentVersionAsync` valida ANTES de criar a versao (sem versao orfa). 1 teste TDD. _(proposta)_
 - [ ] **D8i - [Medio] Desconto encolhe sozinho ao remover itens** - sem aviso quando o desconto e reduzido por queda do bruto -> avisar o operador. _(proposta)_
 - [ ] **D9i - [Medio] Kanban sem estado de carregamento proprio** - tela em branco que "pisca" no primeiro load -> adicionar loading. _(kanban)_
@@ -109,7 +109,7 @@ Mantem o operador usando e o funil confiavel. Inclui performance, consistencia e
 - [ ] **D21i - [Baixo] Conversao por estagio nao assume funil linear** - calculo assume funil estritamente linear -> tornar robusto a funis nao lineares. _(analytics)_
 - [ ] **D22i - [Baixo] Oportunidades sem data prevista somem do forecast sem contador** - desaparecem silenciosamente -> contabilizar/sinalizar. _(forecast)_
 - [ ] **D23i - [Baixo] Conversao em nova campanha com modal de revisao** - usa confirm nativo e cria "as cegas" -> modal padrao do produto revisando nome/datas. _(conversao)_
-- [ ] **D24i - [Baixo] "Nao encontrado" retornar 404 (nao 400)** - ciclo de vida retorna 400 -> corrigir status. _(API)_
+- [-] **D24i - [Baixo] "Nao encontrado" retornar 404 (nao 400)** - ADIADO (escopo global, nao comercial): `record.notFound` e lancado como `InvalidOperationException` (-> 400 no middleware do Archon) em dezenas de services de TODO o codebase, nao so no comercial. O Archon ja tem `NotFoundException` (-> 404); o fix correto e uma passada GLOBAL trocando o padrao (todos os `record.notFound` -> NotFoundException), nao piecemeal no comercial (criaria inconsistencia de status entre modulos). Fazer como tarefa dedicada cross-modulo. _(API / global)_
 - [x] **D25i - [Baixo] Soft delete de fontes/motivos** - FEITO: Delete de OpportunitySource/WinReason/LossReason agora faz soft-delete (IsActive=false) em vez de Remove fisico, preservando o vinculo nas oportunidades historicas (GetAll ja filtra inativos). Tags ficaram de fora (join table, nao quebra analytics igual). 2 testes TDD. _(fontes / motivos)_
 - [x] **D26i - [Baixo] Meta duplicada com erro tratado** - FEITO: `CommercialGoalService.Create` faz pre-check (mesmo responsavel/periodo, com COALESCE(userid,0) e PeriodStart normalizado) e lanca `ConflictException` (409 tratado) com chave i18n `commercialGoal.duplicate`, em vez do erro cru 500. 1 teste TDD. _(metas)_
 - [ ] **D27i - [Baixo] Polimento diverso** - follow-up irreversivel pela UI; lista de aprovacoes 200 fixos sem paginacao; probabilidade do estagio nao exibida no card; papeis de revisor i18n -> ajustes pontuais. _(varios)_
