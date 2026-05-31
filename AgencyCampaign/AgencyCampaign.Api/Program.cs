@@ -23,7 +23,7 @@ builder.Services.AddArchonApi(builder.Configuration, typeof(AgencyCampaignResour
 builder.Services.AddAgencyCampaignInfrastructure(builder.Configuration);
 builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
 
-#region Background jobs
+#region Background Jobs
 builder.Services.AddHostedService<SocialSyncJob>();
 builder.Services.AddHostedService<ContentLicenseExpiryJob>();
 builder.Services.AddHostedService<ProposalExpiryJob>();
