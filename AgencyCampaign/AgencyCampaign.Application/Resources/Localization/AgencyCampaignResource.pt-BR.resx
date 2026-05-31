@@ -2111,6 +2111,7 @@
   <data name="opportunityApproval.decision.unauthenticated" xml:space="preserve"><value>É necessário estar autenticado para decidir uma aprovação.</value></data>
   <data name="commercialGoal.duplicate" xml:space="preserve"><value>Já existe uma meta para este responsável e período.</value></data>
   <data name="proposalDetail.item.deleteConfirm" xml:space="preserve"><value>Excluir este item da proposta?</value></data>
+  <data name="proposalDetail.item.deleteDiscountWarning" xml:space="preserve"><value>Remover este item vai reduzir o desconto para no maximo {0} (o valor bruto ficara menor). Deseja continuar?</value></data>
   <data name="configuration.proposalTemplates.entityLabel" xml:space="preserve"><value>Modelo de proposta</value></data>
   <data name="configuration.proposalTemplates.addLabel" xml:space="preserve"><value>Novo modelo</value></data>
   <data name="configuration.proposalLayouts.title" xml:space="preserve"><value>Layouts da proposta</value></data>

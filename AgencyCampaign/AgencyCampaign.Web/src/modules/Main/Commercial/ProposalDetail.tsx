@@ -156,6 +156,17 @@ export default function CommercialProposalDetail() {
     await persistDiscountAmount(amount)
   }
 
+  const handleDeleteItem = async () => {
+    if (!selectedItem) return
+    const projectedGross = round2(gross - selectedItem.total)
+    const discountWillShrink = discountAmount > 0 && projectedGross < discountAmount
+    const message = discountWillShrink
+      ? t('proposalDetail.item.deleteDiscountWarning').replace('{0}', formatCurrency(Math.max(0, projectedGross)))
+      : t('proposalDetail.item.deleteConfirm')
+    if (!window.confirm(message)) return
+    await runProposalAction(() => proposalService.deleteItem(selectedItem.id))
+  }
+
   const campaignOptions = campaigns.map((campaign) => ({
     value: String(campaign.id),
     label: campaign.name,
@@ -400,7 +411,7 @@ export default function CommercialProposalDetail() {
                         variant="ghost"
                         icon={<Trash2 className="h-3.5 w-3.5" />}
                         disabled={!selectedItem}
-                        onClick={() => { if (selectedItem && window.confirm(t('proposalDetail.item.deleteConfirm'))) void runProposalAction(() => proposalService.deleteItem(selectedItem.id)) }}
+                        onClick={() => void handleDeleteItem()}
                       >
                         {t('common.action.delete')}
                       </Button>
