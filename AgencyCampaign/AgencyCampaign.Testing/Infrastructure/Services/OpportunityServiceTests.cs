@@ -610,5 +610,32 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             forecast.NoDateCount.Should().Be(1);
             forecast.NoDateTotal.Should().Be(700m);
         }
+
+        [Test]
+        public async Task ChangeStage_should_throw_conflict_when_expected_version_is_stale()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Deal", 100m, responsibleUserId: 1).WithId(30));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.ChangeStage(30, new ChangeOpportunityStageRequest { CommercialPipelineStageId = 2, ExpectedVersion = 5 });
+
+            await act.Should().ThrowAsync<ConflictException>();
+        }
+
+        [Test]
+        public async Task ChangeStage_should_increment_version_on_success()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Deal", 100m, responsibleUserId: 1).WithId(31));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            await service.ChangeStage(31, new ChangeOpportunityStageRequest { CommercialPipelineStageId = 2, ExpectedVersion = 0 });
+
+            Opportunity? reloaded = await service.GetOpportunityById(31);
+            reloaded!.Version.Should().Be(1);
+        }
     }
 }

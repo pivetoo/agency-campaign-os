@@ -39,5 +39,7 @@ namespace AgencyCampaign.Application.Models.Commercial
         public int? DaysInStage { get; init; }
 
         public string SlaStatus { get; init; } = "ok";
+
+        public int Version { get; init; }
     }
 }

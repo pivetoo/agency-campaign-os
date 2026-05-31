@@ -240,6 +240,14 @@ namespace AgencyCampaign.Infrastructure.Services
             }
         }
 
+        private static void EnsureExpectedVersion(Opportunity opportunity, int? expectedVersion)
+        {
+            if (expectedVersion.HasValue && expectedVersion.Value != opportunity.Version)
+            {
+                throw new ConflictException("opportunity.concurrency.conflict");
+            }
+        }
+
         public async Task<Opportunity> CreateOpportunity(CreateOpportunityRequest request, CancellationToken cancellationToken = default)
         {
             await EnsureBrandExists(request.BrandId, cancellationToken);
@@ -307,6 +315,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             EnsureOwnership(opportunity, restrictToCurrentUser);
+            EnsureExpectedVersion(opportunity, request.ExpectedVersion);
 
             await EnsureBrandExists(request.BrandId, cancellationToken);
             CommercialPipelineStage stage = await ResolveStage(request.CommercialPipelineStageId ?? opportunity.CommercialPipelineStageId, cancellationToken);
@@ -335,6 +344,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 opportunity.ReplaceTags(request.TagIds);
             }
 
+            opportunity.IncrementVersion();
+
             Opportunity? result = await Update(opportunity, cancellationToken);
             if (result is null)
             {
@@ -353,8 +364,10 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
             EnsureOwnership(opportunity, restrictToCurrentUser);
+            EnsureExpectedVersion(opportunity, request.ExpectedVersion);
             CommercialPipelineStage stage = await ResolveStage(request.CommercialPipelineStageId, cancellationToken);
             opportunity.ChangeStage(stage, currentUser.UserId, currentUser.UserName, request.Reason, request.AllowReopen);
+            opportunity.IncrementVersion();
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -370,6 +383,7 @@ namespace AgencyCampaign.Infrastructure.Services
             EnsureOwnership(opportunity, restrictToCurrentUser);
             CommercialPipelineStage wonStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Won, cancellationToken);
             opportunity.CloseAsWon(wonStage, request.WonNotes, request.WinReasonId, currentUser.UserId, currentUser.UserName);
+            opportunity.IncrementVersion();
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -385,6 +399,7 @@ namespace AgencyCampaign.Infrastructure.Services
             EnsureOwnership(opportunity, restrictToCurrentUser);
             CommercialPipelineStage lostStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Lost, cancellationToken);
             opportunity.CloseAsLost(lostStage, request.LossReason, request.LossReasonId, currentUser.UserId, currentUser.UserName);
+            opportunity.IncrementVersion();
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
@@ -505,7 +520,8 @@ namespace AgencyCampaign.Infrastructure.Services
                                 StageEnteredAt = stageEnteredAt,
                                 StageSlaInDays = slaInDays,
                                 DaysInStage = daysInStage,
-                                SlaStatus = slaStatus
+                                SlaStatus = slaStatus,
+                                Version = item.Version
                             };
                         })
                         .ToList();

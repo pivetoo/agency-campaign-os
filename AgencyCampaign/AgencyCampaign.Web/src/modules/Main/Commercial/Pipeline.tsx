@@ -372,10 +372,17 @@ export default function CommercialPipeline() {
     })
 
     try {
-      await opportunityService.changeStage(draggedItem.id, { commercialPipelineStageId: targetStage, allowReopen: isReopening })
-    } catch {
+      await opportunityService.changeStage(draggedItem.id, { commercialPipelineStageId: targetStage, allowReopen: isReopening, expectedVersion: draggedItem.version })
+    } catch (error) {
       setBoard(previousBoard)
-      toast({ title: t('opportunities.move.failed'), variant: 'destructive' })
+      const status = (error as { status?: number } | null)?.status
+      if (status === 409) {
+        const message = (error as { message?: string } | null)?.message
+        toast({ title: message || t('opportunities.move.conflict'), variant: 'destructive' })
+        void loadBoard()
+      } else {
+        toast({ title: t('opportunities.move.failed'), variant: 'destructive' })
+      }
     } finally {
       setMovingOpportunityId(null)
       setDraggedItem(null)

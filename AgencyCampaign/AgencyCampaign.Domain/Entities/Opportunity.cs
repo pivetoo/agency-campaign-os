@@ -59,6 +59,13 @@ namespace AgencyCampaign.Domain.Entities
 
         public long? WinReasonId { get; private set; }
 
+        public int Version { get; private set; }
+
+        public void IncrementVersion()
+        {
+            Version++;
+        }
+
         public IReadOnlyCollection<OpportunityFollowUp> FollowUps => followUps.AsReadOnly();
 
         public IReadOnlyCollection<Proposal> Proposals => proposals.AsReadOnly();

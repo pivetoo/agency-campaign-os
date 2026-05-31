@@ -91,6 +91,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         ? opportunityService.update(opportunity.id, {
             id: opportunity.id,
             ...cleaned,
+            expectedVersion: opportunity.version,
           } satisfies UpdateOpportunityRequest)
         : opportunityService.create(cleaned)
     ))

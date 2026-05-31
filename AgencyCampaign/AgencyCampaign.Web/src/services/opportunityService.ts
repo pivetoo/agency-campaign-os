@@ -122,6 +122,7 @@ export interface Opportunity {
   proposals: OpportunityProposalReference[]
   createdAt: string
   updatedAt?: string
+  version: number
 }
 
 export interface OpportunitySourceReference {
@@ -156,6 +157,7 @@ export interface OpportunityBoardItem {
   stageSlaInDays?: number
   daysInStage?: number
   slaStatus: 'ok' | 'warning' | 'breached'
+  version: number
 }
 
 export interface OpportunityBoardStage {
@@ -248,12 +250,14 @@ export interface CreateOpportunityRequest {
 
 export interface UpdateOpportunityRequest extends CreateOpportunityRequest {
   id: number
+  expectedVersion?: number
 }
 
 export interface ChangeOpportunityStageRequest {
   commercialPipelineStageId: number
   reason?: string
   allowReopen?: boolean
+  expectedVersion?: number
 }
 
 export interface CloseOpportunityAsWonRequest {

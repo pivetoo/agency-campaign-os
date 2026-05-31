@@ -59,9 +59,12 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public DateTimeOffset? UpdatedAt { get; init; }
 
+        public int Version { get; init; }
+
         public static Expression<Func<Opportunity, OpportunityContract>> Projection => item => new OpportunityContract
         {
             Id = item.Id,
+            Version = item.Version,
             BrandId = item.BrandId,
             Name = item.Name,
             Description = item.Description,

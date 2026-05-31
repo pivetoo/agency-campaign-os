@@ -47,5 +47,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         public long? OpportunitySourceId { get; set; }
 
         public IReadOnlyCollection<long>? TagIds { get; set; }
+
+        public int? ExpectedVersion { get; set; }
     }
 }

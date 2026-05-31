@@ -453,6 +453,7 @@
   <data name="proposal.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
   <data name="opportunities.title" xml:space="preserve"><value>Oportunidades</value></data>
   <data name="opportunities.subtitle" xml:space="preserve"><value>Gerencie o funil comercial e acompanhe propostas e follow-ups</value></data>
+  <data name="opportunity.concurrency.conflict" xml:space="preserve"><value>Esta oportunidade foi alterada por outra pessoa enquanto voce editava. Recarregue para ver a versao atual e tente novamente.</value></data>
   <data name="opportunities.empty" xml:space="preserve"><value>Nenhuma oportunidade cadastrada</value></data>
   <data name="opportunities.empty.filtered" xml:space="preserve"><value>Nenhuma oportunidade encontrada com os filtros atuais</value></data>
   <data name="opportunities.search.placeholder" xml:space="preserve"><value>Buscar por nome, marca, contato ou e-mail...</value></data>
@@ -2112,6 +2113,7 @@
   <data name="opportunity.reopen.confirmationRequired" xml:space="preserve"><value>Esta oportunidade está fechada. Confirme a reabertura antes de movê-la para uma etapa aberta (isso apaga os dados de fechamento).</value></data>
   <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>O prazo padrão de pagamento não pode ser maior que o prazo máximo.</value></data>
   <data name="opportunities.move.failed" xml:space="preserve"><value>Não foi possível mover a oportunidade. Tente novamente.</value></data>
+  <data name="opportunities.move.conflict" xml:space="preserve"><value>A oportunidade foi alterada por outra pessoa. O quadro foi atualizado; tente mover novamente.</value></data>
   <data name="commercialApprovals.badge.outsidePolicy" xml:space="preserve"><value>Fora da política</value></data>
   <data name="opportunityApproval.decision.reviewersRequired" xml:space="preserve"><value>Esta aprovação tem revisores obrigatórios. A decisão deve vir da votação dos revisores, não de aprovação direta.</value></data>
   <data name="opportunityApproval.decision.unauthenticated" xml:space="preserve"><value>É necessário estar autenticado para decidir uma aprovação.</value></data>

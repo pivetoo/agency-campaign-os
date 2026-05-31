@@ -12,5 +12,7 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         public string? Reason { get; set; }
 
         public bool AllowReopen { get; set; }
+
+        public int? ExpectedVersion { get; set; }
     }
 }
