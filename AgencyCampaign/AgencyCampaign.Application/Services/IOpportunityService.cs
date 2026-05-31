@@ -39,5 +39,7 @@ namespace AgencyCampaign.Application.Services
         Task<IReadOnlyCollection<CommercialAlertModel>> GetAlerts(CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<OpportunityStageHistoryModel>> GetStageHistory(long opportunityId, CancellationToken cancellationToken = default);
+
+        Task<int> AlertStalled(CancellationToken cancellationToken = default);
     }
 }

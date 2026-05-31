@@ -115,6 +115,21 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
+        public static CreateNotificationRequest OpportunityStalled(Opportunity opportunity, int daysInStage, int slaInDays, string stageName)
+        {
+            return new CreateNotificationRequest
+            {
+                UserId = opportunity.ResponsibleUserId,
+                Type = NotificationType.Warning,
+                Title = "Oportunidade parada",
+                Message = $"A oportunidade \"{opportunity.Name}\" está há {daysInStage} dias em \"{stageName}\" (SLA do estágio: {slaInDays} dias).",
+                Link = $"/comercial/oportunidades/{opportunity.Id}",
+                Source = "opportunity",
+                ReferenceEntityName = nameof(Opportunity),
+                ReferenceEntityId = opportunity.Id.ToString()
+            };
+        }
+
         public static CreateNotificationRequest DeliverableApprovedByBrand(CampaignDeliverable deliverable, string reviewerName)
         {
             return new CreateNotificationRequest

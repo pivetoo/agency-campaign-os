@@ -49,6 +49,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public DateTimeOffset? ClosedAt { get; private set; }
 
+        public DateTimeOffset? StaleAlertedAt { get; private set; }
+
         public string? LossReason { get; private set; }
 
         public long? LossReasonId { get; private set; }
@@ -139,12 +141,19 @@ namespace AgencyCampaign.Domain.Entities
             }
 
             CommercialPipelineStageId = stage.Id;
+            StaleAlertedAt = null;
             ApplyStageFinalBehavior(stage, null);
             ApplyStageProbability(stage);
             UpdatedAt = DateTimeOffset.UtcNow;
 
             stageHistory.Add(new OpportunityStageHistory(
                 Id, fromStageId, stage.Id, changedByUserId, changedByUserName, reason));
+        }
+
+        public void MarkStaleAlerted()
+        {
+            StaleAlertedAt = DateTimeOffset.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
 
         public void SetSource(long? opportunitySourceId)

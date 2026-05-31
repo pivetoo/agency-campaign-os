@@ -1,10 +1,12 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Commercial;
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
+using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.IdentityManagement;
 using Archon.Infrastructure.Persistence.EF;
@@ -18,11 +20,74 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly ICurrentUser currentUser;
         private readonly IdentityUsersClient identityUsersClient;
+        private readonly INotificationService notificationService;
 
-        public OpportunityService(DbContext dbContext, ICurrentUser currentUser, IdentityUsersClient identityUsersClient) : base(dbContext)
+        public OpportunityService(DbContext dbContext, ICurrentUser currentUser, IdentityUsersClient identityUsersClient, INotificationService notificationService) : base(dbContext)
         {
             this.currentUser = currentUser;
             this.identityUsersClient = identityUsersClient;
+            this.notificationService = notificationService;
+        }
+
+        public async Task<int> AlertStalled(CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
+            List<Opportunity> candidates = await DbContext.Set<Opportunity>()
+                .AsTracking()
+                .Include(item => item.CommercialPipelineStage)
+                .Where(item => item.ClosedAt == null
+                    && item.StaleAlertedAt == null
+                    && item.CommercialPipelineStage != null
+                    && item.CommercialPipelineStage.SlaInDays != null
+                    && item.CommercialPipelineStage.SlaInDays > 0)
+                .ToListAsync(cancellationToken);
+
+            if (candidates.Count == 0)
+            {
+                return 0;
+            }
+
+            long[] ids = candidates.Select(item => item.Id).ToArray();
+            Dictionary<long, DateTimeOffset> stageEnteredAt = await DbContext.Set<OpportunityStageHistory>()
+                .AsNoTracking()
+                .Where(history => ids.Contains(history.OpportunityId))
+                .GroupBy(history => history.OpportunityId)
+                .Select(group => new { OpportunityId = group.Key, LastChangedAt = group.Max(history => history.ChangedAt) })
+                .ToDictionaryAsync(item => item.OpportunityId, item => item.LastChangedAt, cancellationToken);
+
+            int alerted = 0;
+            foreach (Opportunity opportunity in candidates)
+            {
+                int slaInDays = opportunity.CommercialPipelineStage!.SlaInDays!.Value;
+                DateTimeOffset enteredAt = stageEnteredAt.TryGetValue(opportunity.Id, out DateTimeOffset entered) ? entered : opportunity.CreatedAt;
+                int daysInStage = (int)Math.Floor((now - enteredAt).TotalDays);
+
+                if (daysInStage < slaInDays)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    await notificationService.Create(
+                        KanvasNotifications.OpportunityStalled(opportunity, daysInStage, slaInDays, opportunity.CommercialPipelineStage.Name),
+                        cancellationToken);
+                    opportunity.MarkStaleAlerted();
+                    alerted++;
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"[OpportunityService] failed to alert stalled opportunity {opportunity.Id}: {exception.Message}");
+                }
+            }
+
+            if (alerted > 0)
+            {
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return alerted;
         }
 
         private async Task<string?> ResolveResponsibleUserName(long? userId, CancellationToken cancellationToken)
