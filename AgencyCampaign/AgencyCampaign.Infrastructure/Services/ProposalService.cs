@@ -16,6 +16,7 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace AgencyCampaign.Infrastructure.Services
@@ -30,8 +31,9 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IIntegrationCapabilityService integrationCapabilityService;
         private readonly IPolicyEvaluator policyEvaluator;
         private readonly IOpportunityApprovalRequestService approvalRequestService;
+        private readonly ILogger<ProposalService>? logger;
 
-        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, IPolicyEvaluator policyEvaluator, IOpportunityApprovalRequestService approvalRequestService) : base(dbContext)
+        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, IPolicyEvaluator policyEvaluator, IOpportunityApprovalRequestService approvalRequestService, ILogger<ProposalService>? logger = null) : base(dbContext)
         {
             this.currentUser = currentUser;
             this.financialAutoGeneration = financialAutoGeneration;
@@ -41,6 +43,7 @@ namespace AgencyCampaign.Infrastructure.Services
             this.integrationCapabilityService = integrationCapabilityService;
             this.policyEvaluator = policyEvaluator;
             this.approvalRequestService = approvalRequestService;
+            this.logger = logger;
         }
 
         public async Task<PagedResult<Proposal>> GetProposals(PagedRequest request, ProposalListFilters filters, CancellationToken cancellationToken = default)
@@ -482,7 +485,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[ProposalService] failed to generate financial entry for proposal {saved.Id}: {exception.Message}");
+                logger?.LogWarning(exception, "Failed to generate financial entry for converted proposal {ProposalId}.", saved.Id);
             }
 
             await NotifyAutomations(AutomationTriggers.ProposalConverted, saved, cancellationToken);
@@ -497,7 +500,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[ProposalService] failed to create notification: {exception.Message}");
+                logger?.LogWarning(exception, "Failed to create proposal notification.");
             }
         }
 
@@ -522,7 +525,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[ProposalService] failed to dispatch automation for {trigger}: {exception.Message}");
+                logger?.LogWarning(exception, "Failed to dispatch automation {Trigger}.", trigger);
             }
         }
 
@@ -634,7 +637,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[ProposalService] failed to auto-create approval for proposal {proposal.Id}: {exception.Message}");
+                logger?.LogWarning(exception, "Failed to auto-create approval for proposal {ProposalId}.", proposal.Id);
             }
         }
 

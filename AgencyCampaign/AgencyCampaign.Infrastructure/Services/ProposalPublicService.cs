@@ -5,6 +5,7 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Text.Json.Nodes;
 
 namespace AgencyCampaign.Infrastructure.Services
@@ -13,11 +14,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly INotificationService notificationService;
+        private readonly ILogger<ProposalPublicService>? logger;
 
-        public ProposalPublicService(DbContext dbContext, INotificationService notificationService)
+        public ProposalPublicService(DbContext dbContext, INotificationService notificationService, ILogger<ProposalPublicService>? logger = null)
         {
             this.dbContext = dbContext;
             this.notificationService = notificationService;
+            this.logger = logger;
         }
 
         public async Task<ProposalPublicViewModel?> GetByToken(string token, string? ipAddress, string? userAgent, CancellationToken cancellationToken = default)
@@ -77,7 +80,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine($"[ProposalPublicService] failed to create notification: {exception.Message}");
+                    logger?.LogWarning(exception, "Failed to create proposal-viewed notification.");
                 }
             }
 

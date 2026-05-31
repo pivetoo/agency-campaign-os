@@ -9,16 +9,19 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class OpportunityFollowUpService : CrudService<OpportunityFollowUp>, IOpportunityFollowUpService
     {
         private readonly INotificationService notificationService;
+        private readonly ILogger<OpportunityFollowUpService>? logger;
 
-        public OpportunityFollowUpService(DbContext dbContext, INotificationService notificationService) : base(dbContext)
+        public OpportunityFollowUpService(DbContext dbContext, INotificationService notificationService, ILogger<OpportunityFollowUpService>? logger = null) : base(dbContext)
         {
             this.notificationService = notificationService;
+            this.logger = logger;
         }
 
         public async Task<int> RemindDue(CancellationToken cancellationToken = default)
@@ -46,7 +49,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine($"[OpportunityFollowUpService] failed to remind follow-up {followUp.Id}: {exception.Message}");
+                    logger?.LogWarning(exception, "Failed to remind follow-up {FollowUpId}.", followUp.Id);
                 }
             }
 

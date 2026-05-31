@@ -13,6 +13,7 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -21,12 +22,14 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly ICurrentUser currentUser;
         private readonly IdentityUsersClient identityUsersClient;
         private readonly INotificationService notificationService;
+        private readonly ILogger<OpportunityService>? logger;
 
-        public OpportunityService(DbContext dbContext, ICurrentUser currentUser, IdentityUsersClient identityUsersClient, INotificationService notificationService) : base(dbContext)
+        public OpportunityService(DbContext dbContext, ICurrentUser currentUser, IdentityUsersClient identityUsersClient, INotificationService notificationService, ILogger<OpportunityService>? logger = null) : base(dbContext)
         {
             this.currentUser = currentUser;
             this.identityUsersClient = identityUsersClient;
             this.notificationService = notificationService;
+            this.logger = logger;
         }
 
         public async Task<int> AlertStalled(CancellationToken cancellationToken = default)
@@ -78,7 +81,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine($"[OpportunityService] failed to alert stalled opportunity {opportunity.Id}: {exception.Message}");
+                    logger?.LogWarning(exception, "Failed to alert stalled opportunity {OpportunityId}.", opportunity.Id);
                 }
             }
 

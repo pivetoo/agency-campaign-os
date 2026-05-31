@@ -2,16 +2,19 @@ using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class FinancialAutoGenerationService : IFinancialAutoGeneration
     {
         private readonly DbContext dbContext;
+        private readonly ILogger<FinancialAutoGenerationService>? logger;
 
-        public FinancialAutoGenerationService(DbContext dbContext)
+        public FinancialAutoGenerationService(DbContext dbContext, ILogger<FinancialAutoGenerationService>? logger = null)
         {
             this.dbContext = dbContext;
+            this.logger = logger;
         }
 
         public async Task GenerateForConvertedProposal(Proposal proposal, long campaignId, CancellationToken cancellationToken = default)
@@ -30,7 +33,7 @@ namespace AgencyCampaign.Infrastructure.Services
             long? accountId = await ResolveDefaultAccountIdAsync(cancellationToken);
             if (!accountId.HasValue)
             {
-                Console.WriteLine($"[FinancialAutoGeneration] No active account configured; skipping receivable for proposal {proposal.Id}.");
+                logger?.LogWarning("No active financial account configured; skipping receivable for proposal {ProposalId}.", proposal.Id);
                 return;
             }
 
@@ -82,7 +85,7 @@ namespace AgencyCampaign.Infrastructure.Services
             long? accountId = await ResolveDefaultAccountIdAsync(cancellationToken);
             if (!accountId.HasValue)
             {
-                Console.WriteLine($"[FinancialAutoGeneration] No active account configured; skipping payable for deliverable {deliverable.Id}.");
+                logger?.LogWarning("No active financial account configured; skipping payable for deliverable {DeliverableId}.", deliverable.Id);
                 return;
             }
 

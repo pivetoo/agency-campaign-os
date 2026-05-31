@@ -12,6 +12,7 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -20,12 +21,14 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly INotificationService notificationService;
         private readonly IPolicyEvaluator policyEvaluator;
         private readonly ICurrentUser currentUser;
+        private readonly ILogger<OpportunityApprovalRequestService>? logger;
 
-        public OpportunityApprovalRequestService(DbContext dbContext, INotificationService notificationService, IPolicyEvaluator policyEvaluator, ICurrentUser currentUser) : base(dbContext)
+        public OpportunityApprovalRequestService(DbContext dbContext, INotificationService notificationService, IPolicyEvaluator policyEvaluator, ICurrentUser currentUser, ILogger<OpportunityApprovalRequestService>? logger = null) : base(dbContext)
         {
             this.notificationService = notificationService;
             this.policyEvaluator = policyEvaluator;
             this.currentUser = currentUser;
+            this.logger = logger;
         }
 
         public async Task<OpportunityApprovalRequest?> GetOpportunityApprovalRequestById(long id, CancellationToken cancellationToken = default)
@@ -190,7 +193,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[OpportunityApprovalRequestService] failed to create notification: {exception.Message}");
+                logger?.LogWarning(exception, "Failed to create opportunity-approval notification.");
             }
         }
 
