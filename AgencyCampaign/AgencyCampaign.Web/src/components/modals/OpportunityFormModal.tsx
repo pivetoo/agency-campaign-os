@@ -39,6 +39,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
   const [responsibles, setResponsibles] = useState<CommercialResponsible[]>([])
   const [sources, setSources] = useState<OpportunitySource[]>([])
   const [tags, setTags] = useState<OpportunityTag[]>([])
+  const [manualProbability, setManualProbability] = useState<number | null>(null)
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
@@ -65,10 +66,12 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         opportunitySourceId: opportunity.opportunitySourceId,
         tagIds: opportunity.tags?.map((tag) => tag.id) ?? [],
       })
+      setManualProbability(opportunity.probabilityIsManual ? opportunity.probability : null)
       return
     }
 
     setFormData(initialFormData)
+    setManualProbability(null)
   }, [opportunity, open])
 
   const toggleTag = (tagId: number) => {
@@ -92,6 +95,8 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
             id: opportunity.id,
             ...cleaned,
             expectedVersion: opportunity.version,
+            probabilityIsManual: manualProbability != null,
+            probability: manualProbability ?? undefined,
           } satisfies UpdateOpportunityRequest)
         : opportunityService.create(cleaned)
     ))
@@ -139,6 +144,30 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
               <label htmlFor="opportunity-expected-close-at" className="text-sm font-medium">{t('modal.opportunity.field.expectedClose')}</label>
               <Input id="opportunity-expected-close-at" type="date" value={isoToDateInput(formData.expectedCloseAt)} onChange={(e) => setFormData((prev) => ({ ...prev, expectedCloseAt: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
             </div>
+
+            {isEditing && (
+              <div className="space-y-2" style={{ gridColumn: '1 / -1' }}>
+                <label className="text-sm font-medium">{t('modal.opportunity.field.probability')}</label>
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={manualProbability != null}
+                      onChange={(e) => setManualProbability(e.target.checked ? (opportunity?.probability ?? 50) : null)}
+                    />
+                    {t('modal.opportunity.field.probabilityManual')}
+                  </label>
+                  {manualProbability != null ? (
+                    <div className="flex items-center gap-1.5">
+                      <Input type="number" min={0} max={100} value={manualProbability} onChange={(e) => setManualProbability(Math.min(100, Math.max(0, Number(e.target.value))))} className="w-24" />
+                      <span className="text-sm text-muted-foreground">%</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">{t('modal.opportunity.field.probabilityAuto')}</span>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.opportunity.field.responsible')}</label>

@@ -1166,6 +1166,8 @@
   <data name="modal.opportunity.title.new" xml:space="preserve"><value>New opportunity</value></data>
   <data name="modal.opportunity.field.name" xml:space="preserve"><value>Opportunity name</value></data>
   <data name="modal.opportunity.field.estimatedValue" xml:space="preserve"><value>Estimated value</value></data>
+  <data name="modal.opportunity.field.probabilityManual" xml:space="preserve"><value>Set manually</value></data>
+  <data name="modal.opportunity.field.probabilityAuto" xml:space="preserve"><value>Automatic (stage average)</value></data>
   <data name="modal.opportunity.field.expectedClose" xml:space="preserve"><value>Expected close date</value></data>
   <data name="modal.opportunity.field.responsible" xml:space="preserve"><value>Sales responsible</value></data>
   <data name="modal.opportunity.action.createContinue" xml:space="preserve"><value>Create and continue</value></data>

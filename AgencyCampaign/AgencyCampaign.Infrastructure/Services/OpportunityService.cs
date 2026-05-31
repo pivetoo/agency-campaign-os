@@ -337,6 +337,15 @@ namespace AgencyCampaign.Infrastructure.Services
 
             opportunity.ChangeStage(stage, currentUser.UserId, currentUser.UserName);
 
+            if (request.ProbabilityIsManual == true && request.Probability.HasValue)
+            {
+                opportunity.SetProbability(request.Probability.Value);
+            }
+            else if (request.ProbabilityIsManual == false)
+            {
+                opportunity.ResetProbabilityToStageDefault(stage);
+            }
+
             opportunity.SetSource(request.OpportunitySourceId);
 
             if (request.TagIds is not null)

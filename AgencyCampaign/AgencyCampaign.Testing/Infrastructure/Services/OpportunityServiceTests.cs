@@ -637,5 +637,53 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Opportunity? reloaded = await service.GetOpportunityById(31);
             reloaded!.Version.Should().Be(1);
         }
+
+        [Test]
+        public async Task UpdateOpportunity_should_set_manual_probability()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Deal", 100m, responsibleUserId: 1).WithId(40));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            await service.UpdateOpportunity(40, new UpdateOpportunityRequest
+            {
+                Id = 40,
+                BrandId = 1,
+                Name = "Deal",
+                EstimatedValue = 100m,
+                CommercialPipelineStageId = 1,
+                ProbabilityIsManual = true,
+                Probability = 80m,
+            });
+
+            Opportunity? reloaded = await service.GetOpportunityById(40);
+            reloaded!.Probability.Should().Be(80m);
+            reloaded.ProbabilityIsManual.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task UpdateOpportunity_should_reset_probability_to_stage_default()
+        {
+            await SeedBaseAsync();
+            Opportunity seed = new(1, 1, "Deal", 100m, responsibleUserId: 1);
+            seed.SetProbability(90m);
+            db.Add(seed.WithId(41));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            await service.UpdateOpportunity(41, new UpdateOpportunityRequest
+            {
+                Id = 41,
+                BrandId = 1,
+                Name = "Deal",
+                EstimatedValue = 100m,
+                CommercialPipelineStageId = 1,
+                ProbabilityIsManual = false,
+            });
+
+            Opportunity? reloaded = await service.GetOpportunityById(41);
+            reloaded!.ProbabilityIsManual.Should().BeFalse();
+        }
     }
 }

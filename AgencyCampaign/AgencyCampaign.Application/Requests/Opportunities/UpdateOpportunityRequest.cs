@@ -49,5 +49,9 @@ namespace AgencyCampaign.Application.Requests.Opportunities
         public IReadOnlyCollection<long>? TagIds { get; set; }
 
         public int? ExpectedVersion { get; set; }
+
+        public decimal? Probability { get; set; }
+
+        public bool? ProbabilityIsManual { get; set; }
     }
 }

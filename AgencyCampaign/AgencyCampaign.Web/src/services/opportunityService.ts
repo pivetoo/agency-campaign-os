@@ -251,6 +251,8 @@ export interface CreateOpportunityRequest {
 export interface UpdateOpportunityRequest extends CreateOpportunityRequest {
   id: number
   expectedVersion?: number
+  probability?: number
+  probabilityIsManual?: boolean
 }
 
 export interface ChangeOpportunityStageRequest {
