@@ -221,8 +221,8 @@ export const proposalService = {
     return httpClient.post<Proposal>(`${BASE_URL}/${id}/ConvertToCampaign`, { campaignId })
   },
 
-  convertToNewCampaign(id: number) {
-    return httpClient.post<Proposal>(`${BASE_URL}/${id}/ConvertToNewCampaign`, {})
+  convertToNewCampaign(id: number, payload?: { name?: string; startDate?: string }) {
+    return httpClient.post<Proposal>(`${BASE_URL}/${id}/ConvertToNewCampaign`, payload ?? {})
   },
 
   cancel(id: number) {

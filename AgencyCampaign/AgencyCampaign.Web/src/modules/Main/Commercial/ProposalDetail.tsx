@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Input, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, PageAction } from 'archon-ui'
 import { AlertTriangle, CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Percent, Send, ShieldCheck, Trash2, Wallet, XCircle } from 'lucide-react'
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'
@@ -55,6 +55,9 @@ export default function CommercialProposalDetail() {
   const [isApplyTemplateOpen, setIsApplyTemplateOpen] = useState(false)
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
   const [isApprovalRequestOpen, setIsApprovalRequestOpen] = useState(false)
+  const [isConvertModalOpen, setIsConvertModalOpen] = useState(false)
+  const [convertName, setConvertName] = useState('')
+  const [convertStartDate, setConvertStartDate] = useState('')
   const [publicLinkUrl, setPublicLinkUrl] = useState<string | undefined>(undefined)
   const [campaignId, setCampaignId] = useState<string>('')
   const [policyEvaluation, setPolicyEvaluation] = useState<PolicyEvaluation | null>(null)
@@ -522,8 +525,9 @@ export default function CommercialProposalDetail() {
                     <Button
                       disabled={actionLoading}
                       onClick={() => {
-                        if (!window.confirm(t('proposalDetail.convert.confirmNewCampaign'))) return
-                        void runProposalAction(() => proposalService.convertToNewCampaign(proposalId))
+                        setConvertName(proposal?.opportunity?.name ?? proposal?.name ?? '')
+                        setConvertStartDate(new Date().toISOString().slice(0, 10))
+                        setIsConvertModalOpen(true)
                       }}
                     >
                       <FileCheck className="mr-2 h-4 w-4" /> {t('proposalDetail.convert.newCampaignButton')}
@@ -617,6 +621,41 @@ export default function CommercialProposalDetail() {
           void loadProposal()
         }}
       />
+
+      <Modal open={isConvertModalOpen} onOpenChange={setIsConvertModalOpen}>
+        <ModalContent size="form">
+          <ModalHeader>
+            <ModalTitle>{t('proposalDetail.convert.newCampaignButton')}</ModalTitle>
+          </ModalHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">{t('proposalDetail.convert.modalDescription')}</p>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">{t('proposalDetail.convert.campaignName')}</label>
+              <Input value={convertName} onChange={(e) => setConvertName(e.target.value)} placeholder={proposal?.opportunity?.name ?? ''} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">{t('proposalDetail.convert.startDate')}</label>
+              <Input type="date" value={convertStartDate} onChange={(e) => setConvertStartDate(e.target.value)} />
+            </div>
+          </div>
+          <ModalFooter>
+            <Button type="button" variant="outline" onClick={() => setIsConvertModalOpen(false)} disabled={actionLoading}>{t('common.action.cancel')}</Button>
+            <Button
+              type="button"
+              disabled={actionLoading}
+              onClick={() => {
+                setIsConvertModalOpen(false)
+                void runProposalAction(() => proposalService.convertToNewCampaign(proposalId, {
+                  name: convertName.trim() || undefined,
+                  startDate: convertStartDate || undefined,
+                }))
+              }}
+            >
+              <FileCheck className="mr-2 h-4 w-4" /> {t('proposalDetail.convert.button')}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </PageLayout>
   )
 }

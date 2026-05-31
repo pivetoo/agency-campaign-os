@@ -200,6 +200,23 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task ConvertToNewCampaign_should_apply_name_and_start_date_overrides()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(proposal.Id);
+            await service.ApproveProposal(proposal.Id);
+
+            DateTimeOffset start = new(2026, 7, 1, 0, 0, 0, TimeSpan.Zero);
+            await service.ConvertToNewCampaign(proposal.Id, "Campanha de Inverno", start);
+
+            db.ChangeTracker.Clear();
+            Campaign campaign = await db.Set<Campaign>().AsNoTracking().SingleAsync();
+            campaign.Name.Should().Be("Campanha de Inverno");
+            campaign.StartsAt.Should().Be(start);
+        }
+
+        [Test]
         public async Task ConvertToNewCampaign_should_set_campaign_budget_to_net_total()
         {
             Opportunity opportunity = await SeedOpportunityAsync();

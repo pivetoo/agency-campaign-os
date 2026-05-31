@@ -403,7 +403,7 @@ namespace AgencyCampaign.Infrastructure.Services
             return saved;
         }
 
-        public async Task<Proposal> ConvertToNewCampaign(long id, CancellationToken cancellationToken = default)
+        public async Task<Proposal> ConvertToNewCampaign(long id, string? name = null, DateTimeOffset? startDate = null, CancellationToken cancellationToken = default)
         {
             Proposal? proposal = await DbContext.Set<Proposal>()
                 .AsTracking()
@@ -428,11 +428,14 @@ namespace AgencyCampaign.Infrastructure.Services
             Opportunity opportunity = proposal.Opportunity
                 ?? throw new InvalidOperationException("record.notFound");
 
+            string campaignName = string.IsNullOrWhiteSpace(name) ? opportunity.Name : name.Trim();
+            DateTimeOffset campaignStart = startDate ?? DateTimeOffset.UtcNow;
+
             Campaign campaign = new(
                 opportunity.BrandId,
-                opportunity.Name,
+                campaignName,
                 proposal.NetTotalValue,
-                DateTimeOffset.UtcNow,
+                campaignStart,
                 description: proposal.Description,
                 internalOwnerName: proposal.InternalOwnerName);
             campaign.AttachOrigin(proposal.OpportunityId, proposal.Id);

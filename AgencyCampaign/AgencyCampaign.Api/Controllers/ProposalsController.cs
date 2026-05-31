@@ -153,9 +153,9 @@ namespace AgencyCampaign.Api.Controllers
 
         [RequireAccess("proposals.convertToCampaign.description")]
         [HttpPost("{id:long}/ConvertToNewCampaign")]
-        public async Task<IActionResult> ConvertToNewCampaign(long id, CancellationToken cancellationToken)
+        public async Task<IActionResult> ConvertToNewCampaign(long id, [FromBody] ConvertToNewCampaignRequest? request, CancellationToken cancellationToken)
         {
-            Proposal proposal = await proposalService.ConvertToNewCampaign(id, cancellationToken);
+            Proposal proposal = await proposalService.ConvertToNewCampaign(id, request?.Name, request?.StartDate, cancellationToken);
             return Http200(MapProposal(proposal), Localizer["record.updated"]);
         }
 

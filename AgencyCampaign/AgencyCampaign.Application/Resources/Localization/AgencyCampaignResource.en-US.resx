@@ -1879,6 +1879,9 @@
   <data name="proposals.action.new" xml:space="preserve"><value>New proposal</value></data>
   <data name="proposalDetail.convert.confirmNewCampaign" xml:space="preserve"><value>Create a new campaign from this proposal? It will inherit the brand, name and value of the proposal.</value></data>
   <data name="proposalDetail.convert.newCampaignButton" xml:space="preserve"><value>Create new campaign</value></data>
+  <data name="proposalDetail.convert.modalDescription" xml:space="preserve"><value>Review the campaign name and start date before creating it.</value></data>
+  <data name="proposalDetail.convert.campaignName" xml:space="preserve"><value>Campaign name</value></data>
+  <data name="proposalDetail.convert.startDate" xml:space="preserve"><value>Start date</value></data>
   <data name="proposalDetail.convert.orLinkExisting" xml:space="preserve"><value>or link to an existing one</value></data>
   <data name="pipeline.insights.openAria" xml:space="preserve"><value>Open pipeline insights</value></data>
   <data name="pipeline.insights.title" xml:space="preserve"><value>Pipeline insights</value></data>

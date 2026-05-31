@@ -1886,6 +1886,9 @@
   <data name="proposals.action.new" xml:space="preserve"><value>Nova proposta</value></data>
   <data name="proposalDetail.convert.confirmNewCampaign" xml:space="preserve"><value>Criar uma nova campanha a partir desta proposta? Ela herdara a marca, o nome e o valor da proposta.</value></data>
   <data name="proposalDetail.convert.newCampaignButton" xml:space="preserve"><value>Criar nova campanha</value></data>
+  <data name="proposalDetail.convert.modalDescription" xml:space="preserve"><value>Revise o nome e a data de inicio da campanha antes de criar.</value></data>
+  <data name="proposalDetail.convert.campaignName" xml:space="preserve"><value>Nome da campanha</value></data>
+  <data name="proposalDetail.convert.startDate" xml:space="preserve"><value>Data de inicio</value></data>
   <data name="proposalDetail.convert.orLinkExisting" xml:space="preserve"><value>ou vincular a uma existente</value></data>
   <data name="pipeline.insights.openAria" xml:space="preserve"><value>Abrir insights do funil</value></data>
   <data name="pipeline.insights.title" xml:space="preserve"><value>Insights do funil</value></data>
