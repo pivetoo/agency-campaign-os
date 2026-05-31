@@ -280,7 +280,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 proposal.ValidityUntil,
                 snapshotJson,
                 currentUser.UserId,
-                currentUser.UserName);
+                currentUser.UserName,
+                proposal.DiscountAmount,
+                proposal.NetTotalValue);
 
             DbContext.Set<ProposalVersion>().Add(version);
 

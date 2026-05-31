@@ -81,10 +81,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
             }
 
-            decimal? discountAmount = proposal?.DiscountAmount;
+            // Le o desconto congelado na versao enviada (imune a edicoes posteriores na proposta viva).
+            // Versoes legadas (sem congelamento) caem no fallback para o desconto atual da proposta.
+            bool hasFrozenDiscount = version.NetTotalValue.HasValue;
+            decimal? discountAmount = hasFrozenDiscount ? version.DiscountAmount : proposal?.DiscountAmount;
             decimal discountValue = discountAmount.HasValue ? Math.Clamp(discountAmount.Value, 0m, version.TotalValue) : 0m;
             decimal discountPercent = version.TotalValue > 0m ? discountValue / version.TotalValue * 100m : 0m;
-            decimal netTotalValue = version.TotalValue - discountValue;
+            decimal netTotalValue = hasFrozenDiscount ? version.NetTotalValue!.Value : version.TotalValue - discountValue;
 
             return new ProposalPublicViewModel
             {

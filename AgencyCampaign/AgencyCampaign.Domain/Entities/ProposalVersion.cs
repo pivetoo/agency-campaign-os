@@ -26,11 +26,15 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? SentByUserName { get; private set; }
 
+        public decimal? DiscountAmount { get; private set; }
+
+        public decimal? NetTotalValue { get; private set; }
+
         private ProposalVersion()
         {
         }
 
-        public ProposalVersion(long proposalId, int versionNumber, string name, string? description, decimal totalValue, DateTimeOffset? validityUntil, string snapshotJson, long? sentByUserId, string? sentByUserName)
+        public ProposalVersion(long proposalId, int versionNumber, string name, string? description, decimal totalValue, DateTimeOffset? validityUntil, string snapshotJson, long? sentByUserId, string? sentByUserName, decimal? discountAmount = null, decimal? netTotalValue = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalId);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(versionNumber);
@@ -47,6 +51,8 @@ namespace AgencyCampaign.Domain.Entities
             SentAt = DateTimeOffset.UtcNow;
             SentByUserId = sentByUserId;
             SentByUserName = string.IsNullOrWhiteSpace(sentByUserName) ? null : sentByUserName.Trim();
+            DiscountAmount = discountAmount;
+            NetTotalValue = netTotalValue;
             CreatedAt = SentAt;
             UpdatedAt = SentAt;
         }

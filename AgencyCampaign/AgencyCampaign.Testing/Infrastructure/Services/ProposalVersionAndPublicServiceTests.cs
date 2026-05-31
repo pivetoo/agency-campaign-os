@@ -188,5 +188,32 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             (await service.GetByToken("tok", null, null)).Should().BeNull();
         }
+
+        [Test]
+        public async Task GetByToken_should_use_frozen_discount_from_version_not_live_proposal()
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            await db.SaveChangesAsync();
+            CommercialPipelineStage stage = new("Q", 1, "#fff");
+            db.Add(stage);
+            await db.SaveChangesAsync();
+            Opportunity opportunity = new(brand.Id, stage.Id, "deal", 0m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+            Proposal proposal = new(opportunity.Id, "P", 1, discountAmount: 500m);
+            proposal.UpdateTotalValue(1000m);
+            db.Add(proposal);
+            await db.SaveChangesAsync();
+            db.Add(new ProposalVersion(proposal.Id, 1, "v1", null, 1000m, null, "{}", null, null, discountAmount: 200m, netTotalValue: 800m));
+            db.Add(new ProposalShareLink(proposal.Id, "tok", null, null, null));
+            await db.SaveChangesAsync();
+
+            ProposalPublicViewModel? viewModel = await service.GetByToken("tok", null, null);
+
+            viewModel.Should().NotBeNull();
+            viewModel!.NetTotalValue.Should().Be(800m);
+            viewModel.DiscountValue.Should().Be(200m);
+        }
     }
 }
