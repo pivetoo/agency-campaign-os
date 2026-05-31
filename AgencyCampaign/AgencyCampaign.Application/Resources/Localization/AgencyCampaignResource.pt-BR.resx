@@ -243,7 +243,7 @@
   <data name="nav.group.general" xml:space="preserve"><value>Geral</value></data>
   <data name="nav.group.commercial" xml:space="preserve"><value>Comercial</value></data>
   <data name="nav.group.operations" xml:space="preserve"><value>Produção</value></data>
-  <data name="nav.group.finance" xml:space="preserve"><value>Finanças</value></data>
+  <data name="nav.group.finance" xml:space="preserve"><value>Financeiro</value></data>
   <data name="nav.item.dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="nav.item.users" xml:space="preserve"><value>Controle de Acesso</value></data>
   <data name="nav.item.pipeline" xml:space="preserve"><value>Pipeline</value></data>
