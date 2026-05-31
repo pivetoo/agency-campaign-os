@@ -14,15 +14,27 @@ namespace AgencyCampaign.Application.Services
 
         Task<Opportunity?> GetOpportunityById(long id, CancellationToken cancellationToken = default);
 
+        Task<Opportunity?> GetOpportunityById(long id, bool restrictToCurrentUser, CancellationToken cancellationToken = default);
+
         Task<Opportunity> CreateOpportunity(CreateOpportunityRequest request, CancellationToken cancellationToken = default);
 
         Task<Opportunity> UpdateOpportunity(long id, UpdateOpportunityRequest request, CancellationToken cancellationToken = default);
 
+        Task<Opportunity> UpdateOpportunity(long id, UpdateOpportunityRequest request, bool restrictToCurrentUser, CancellationToken cancellationToken = default);
+
         Task<Opportunity> ChangeStage(long id, ChangeOpportunityStageRequest request, CancellationToken cancellationToken = default);
+
+        Task<Opportunity> ChangeStage(long id, ChangeOpportunityStageRequest request, bool restrictToCurrentUser, CancellationToken cancellationToken = default);
 
         Task<Opportunity> CloseAsWon(long id, CloseOpportunityAsWonRequest request, CancellationToken cancellationToken = default);
 
+        Task<Opportunity> CloseAsWon(long id, CloseOpportunityAsWonRequest request, bool restrictToCurrentUser, CancellationToken cancellationToken = default);
+
         Task<Opportunity> CloseAsLost(long id, CloseOpportunityAsLostRequest request, CancellationToken cancellationToken = default);
+
+        Task<Opportunity> CloseAsLost(long id, CloseOpportunityAsLostRequest request, bool restrictToCurrentUser, CancellationToken cancellationToken = default);
+
+        Task<Opportunity?> Delete(long id, bool restrictToCurrentUser, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoard(CancellationToken cancellationToken = default);
 

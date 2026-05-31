@@ -61,7 +61,7 @@ namespace AgencyCampaign.Api.Controllers
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
         {
-            Opportunity? opportunity = await opportunityService.GetOpportunityById(id, cancellationToken);
+            Opportunity? opportunity = await opportunityService.GetOpportunityById(id, RestrictToOwn(), cancellationToken);
             return opportunity is null ? Http404(Localizer["record.notFound"]) : Http200(MapOpportunity(opportunity));
         }
 
@@ -131,6 +131,18 @@ namespace AgencyCampaign.Api.Controllers
             DateTimeOffset start = periodStart?.ToUniversalTime() ?? new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
             DateTimeOffset end = periodEnd?.ToUniversalTime() ?? start.AddMonths(1);
             return (start, end);
+        }
+
+        private bool RestrictToOwn()
+        {
+            if (User.HasClaim("root", "true"))
+            {
+                return false;
+            }
+
+            bool canAccessAll = User.HasClaim("permission", "opportunities.get")
+                || User.HasClaim("permission", "opportunities.board");
+            return !canAccessAll;
         }
 
         [RequireAccess("opportunities.dashboard.description")]
@@ -222,7 +234,7 @@ namespace AgencyCampaign.Api.Controllers
                 return validationResult;
             }
 
-            Opportunity opportunity = await opportunityService.UpdateOpportunity(id, request, cancellationToken);
+            Opportunity opportunity = await opportunityService.UpdateOpportunity(id, request, RestrictToOwn(), cancellationToken);
             return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
         }
 
@@ -230,7 +242,7 @@ namespace AgencyCampaign.Api.Controllers
         [HttpPost("{id:long}/ChangeStage")]
         public async Task<IActionResult> ChangeStage(long id, [FromBody] ChangeOpportunityStageRequest request, CancellationToken cancellationToken)
         {
-            Opportunity opportunity = await opportunityService.ChangeStage(id, request, cancellationToken);
+            Opportunity opportunity = await opportunityService.ChangeStage(id, request, RestrictToOwn(), cancellationToken);
             return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
         }
 
@@ -244,7 +256,7 @@ namespace AgencyCampaign.Api.Controllers
                 return validationResult;
             }
 
-            Opportunity opportunity = await opportunityService.CloseAsWon(id, request, cancellationToken);
+            Opportunity opportunity = await opportunityService.CloseAsWon(id, request, RestrictToOwn(), cancellationToken);
             return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
         }
 
@@ -258,7 +270,7 @@ namespace AgencyCampaign.Api.Controllers
                 return validationResult;
             }
 
-            Opportunity opportunity = await opportunityService.CloseAsLost(id, request, cancellationToken);
+            Opportunity opportunity = await opportunityService.CloseAsLost(id, request, RestrictToOwn(), cancellationToken);
             return Http200(MapOpportunity(opportunity), Localizer["record.updated"]);
         }
 
@@ -266,7 +278,7 @@ namespace AgencyCampaign.Api.Controllers
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
         {
-            Opportunity? opportunity = await opportunityService.Delete(id, cancellationToken);
+            Opportunity? opportunity = await opportunityService.Delete(id, RestrictToOwn(), cancellationToken);
             return opportunity is null ? Http404(Localizer["record.notFound"]) : Http204();
         }
 

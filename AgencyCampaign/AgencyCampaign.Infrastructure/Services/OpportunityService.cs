@@ -7,6 +7,7 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
 using Archon.Application.Services;
+using Archon.Core.Exceptions;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.IdentityManagement;
 using Archon.Infrastructure.Persistence.EF;
@@ -207,10 +208,36 @@ namespace AgencyCampaign.Infrastructure.Services
             return query;
         }
 
-        public async Task<Opportunity?> GetOpportunityById(long id, CancellationToken cancellationToken = default)
+        public Task<Opportunity?> GetOpportunityById(long id, CancellationToken cancellationToken = default)
         {
-            return await QueryWithDetails()
+            return GetOpportunityById(id, restrictToCurrentUser: false, cancellationToken);
+        }
+
+        public async Task<Opportunity?> GetOpportunityById(long id, bool restrictToCurrentUser, CancellationToken cancellationToken = default)
+        {
+            Opportunity? opportunity = await QueryWithDetails()
                 .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (opportunity is not null && restrictToCurrentUser && !IsAccessibleToCurrentUser(opportunity))
+            {
+                return null;
+            }
+
+            return opportunity;
+        }
+
+        private bool IsAccessibleToCurrentUser(Opportunity opportunity)
+        {
+            long? userId = currentUser.UserId;
+            return userId.HasValue && opportunity.ResponsibleUserId == userId.Value;
+        }
+
+        private void EnsureOwnership(Opportunity opportunity, bool restrictToCurrentUser)
+        {
+            if (restrictToCurrentUser && !IsAccessibleToCurrentUser(opportunity))
+            {
+                throw new NotFoundException("record.notFound");
+            }
         }
 
         public async Task<Opportunity> CreateOpportunity(CreateOpportunityRequest request, CancellationToken cancellationToken = default)
@@ -257,7 +284,12 @@ namespace AgencyCampaign.Infrastructure.Services
             return await GetOpportunityById(opportunity.Id, cancellationToken) ?? opportunity;
         }
 
-        public async Task<Opportunity> UpdateOpportunity(long id, UpdateOpportunityRequest request, CancellationToken cancellationToken = default)
+        public Task<Opportunity> UpdateOpportunity(long id, UpdateOpportunityRequest request, CancellationToken cancellationToken = default)
+        {
+            return UpdateOpportunity(id, request, restrictToCurrentUser: false, cancellationToken);
+        }
+
+        public async Task<Opportunity> UpdateOpportunity(long id, UpdateOpportunityRequest request, bool restrictToCurrentUser, CancellationToken cancellationToken = default)
         {
             if (id != request.Id)
             {
@@ -273,6 +305,8 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 throw new InvalidOperationException("record.notFound");
             }
+
+            EnsureOwnership(opportunity, restrictToCurrentUser);
 
             await EnsureBrandExists(request.BrandId, cancellationToken);
             CommercialPipelineStage stage = await ResolveStage(request.CommercialPipelineStageId ?? opportunity.CommercialPipelineStageId, cancellationToken);
@@ -310,31 +344,66 @@ namespace AgencyCampaign.Infrastructure.Services
             return await GetOpportunityById(result.Id, cancellationToken) ?? result;
         }
 
-        public async Task<Opportunity> ChangeStage(long id, ChangeOpportunityStageRequest request, CancellationToken cancellationToken = default)
+        public Task<Opportunity> ChangeStage(long id, ChangeOpportunityStageRequest request, CancellationToken cancellationToken = default)
+        {
+            return ChangeStage(id, request, restrictToCurrentUser: false, cancellationToken);
+        }
+
+        public async Task<Opportunity> ChangeStage(long id, ChangeOpportunityStageRequest request, bool restrictToCurrentUser, CancellationToken cancellationToken = default)
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
+            EnsureOwnership(opportunity, restrictToCurrentUser);
             CommercialPipelineStage stage = await ResolveStage(request.CommercialPipelineStageId, cancellationToken);
             opportunity.ChangeStage(stage, currentUser.UserId, currentUser.UserName, request.Reason, request.AllowReopen);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
 
-        public async Task<Opportunity> CloseAsWon(long id, CloseOpportunityAsWonRequest request, CancellationToken cancellationToken = default)
+        public Task<Opportunity> CloseAsWon(long id, CloseOpportunityAsWonRequest request, CancellationToken cancellationToken = default)
+        {
+            return CloseAsWon(id, request, restrictToCurrentUser: false, cancellationToken);
+        }
+
+        public async Task<Opportunity> CloseAsWon(long id, CloseOpportunityAsWonRequest request, bool restrictToCurrentUser, CancellationToken cancellationToken = default)
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
+            EnsureOwnership(opportunity, restrictToCurrentUser);
             CommercialPipelineStage wonStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Won, cancellationToken);
             opportunity.CloseAsWon(wonStage, request.WonNotes, request.WinReasonId, currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(opportunity, cancellationToken);
         }
 
-        public async Task<Opportunity> CloseAsLost(long id, CloseOpportunityAsLostRequest request, CancellationToken cancellationToken = default)
+        public Task<Opportunity> CloseAsLost(long id, CloseOpportunityAsLostRequest request, CancellationToken cancellationToken = default)
+        {
+            return CloseAsLost(id, request, restrictToCurrentUser: false, cancellationToken);
+        }
+
+        public async Task<Opportunity> CloseAsLost(long id, CloseOpportunityAsLostRequest request, bool restrictToCurrentUser, CancellationToken cancellationToken = default)
         {
             Opportunity opportunity = await GetTrackedOpportunity(id, cancellationToken);
+            EnsureOwnership(opportunity, restrictToCurrentUser);
             CommercialPipelineStage lostStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Lost, cancellationToken);
             opportunity.CloseAsLost(lostStage, request.LossReason, request.LossReasonId, currentUser.UserId, currentUser.UserName);
 
             return await SaveAndReturn(opportunity, cancellationToken);
+        }
+
+        public async Task<Opportunity?> Delete(long id, bool restrictToCurrentUser, CancellationToken cancellationToken = default)
+        {
+            if (restrictToCurrentUser)
+            {
+                Opportunity? existing = await DbContext.Set<Opportunity>()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+                if (existing is not null && !IsAccessibleToCurrentUser(existing))
+                {
+                    return null;
+                }
+            }
+
+            return await Delete(id, cancellationToken);
         }
 
         public Task<IReadOnlyCollection<OpportunityBoardStageModel>> GetBoard(CancellationToken cancellationToken = default)

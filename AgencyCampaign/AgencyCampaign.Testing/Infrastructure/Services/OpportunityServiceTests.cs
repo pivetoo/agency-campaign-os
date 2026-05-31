@@ -6,6 +6,7 @@ using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.Builders;
 using AgencyCampaign.Testing.TestSupport;
+using Archon.Core.Exceptions;
 using Archon.Core.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -540,6 +541,56 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             bySource.Items.Should().ContainSingle(item => item.Name == "a");
             byTag.Items.Should().ContainSingle(item => item.Name == "a");
+        }
+
+        [Test]
+        public async Task GetOpportunityById_restricted_should_return_null_when_not_owner()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Alheia", 500m, responsibleUserId: 2).WithId(10));
+            await db.SaveChangesAsync();
+
+            Opportunity? result = await service.GetOpportunityById(10, restrictToCurrentUser: true);
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetOpportunityById_restricted_should_return_opportunity_when_owner()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Minha", 500m, responsibleUserId: 1).WithId(11));
+            await db.SaveChangesAsync();
+
+            Opportunity? result = await service.GetOpportunityById(11, restrictToCurrentUser: true);
+
+            result.Should().NotBeNull();
+            result!.Id.Should().Be(11);
+        }
+
+        [Test]
+        public async Task ChangeStage_restricted_should_throw_NotFound_when_not_owner()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Alheia", 500m, responsibleUserId: 2).WithId(12));
+            await db.SaveChangesAsync();
+
+            Func<Task> act = () => service.ChangeStage(12, new ChangeOpportunityStageRequest { CommercialPipelineStageId = 2 }, restrictToCurrentUser: true);
+
+            await act.Should().ThrowAsync<NotFoundException>();
+        }
+
+        [Test]
+        public async Task Delete_restricted_should_keep_record_when_not_owner()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Alheia", 500m, responsibleUserId: 2).WithId(13));
+            await db.SaveChangesAsync();
+
+            Opportunity? result = await service.Delete(13, restrictToCurrentUser: true);
+
+            result.Should().BeNull();
+            (await db.Set<Opportunity>().FindAsync(13L)).Should().NotBeNull();
         }
     }
 }
