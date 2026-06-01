@@ -2444,4 +2444,14 @@
   <data name="proposalShare.engagement.device.tablet" xml:space="preserve"><value>Tablet</value></data>
   <data name="proposalShare.engagement.device.desktop" xml:space="preserve"><value>Computador</value></data>
   <data name="proposalShare.engagement.device.unknown" xml:space="preserve"><value>Dispositivo desconhecido</value></data>
+  <data name="modal.proposalItem.field.pricingModel" xml:space="preserve"><value>Modelo de preço</value></data>
+  <data name="modal.proposalItem.pricing.fixed" xml:space="preserve"><value>Fixo</value></data>
+  <data name="modal.proposalItem.pricing.commission" xml:space="preserve"><value>Comissão</value></data>
+  <data name="modal.proposalItem.pricing.performance" xml:space="preserve"><value>Performance</value></data>
+  <data name="modal.proposalItem.field.variableRate" xml:space="preserve"><value>Taxa (%)</value></data>
+  <data name="modal.proposalItem.field.variableBasis" xml:space="preserve"><value>Base estimada</value></data>
+  <data name="modal.proposalItem.variable.basisPlaceholder" xml:space="preserve"><value>Ex.: vendas estimadas</value></data>
+  <data name="modal.proposalItem.variable.estimateNote" xml:space="preserve"><value>Valor estimado:</value></data>
+  <data name="public.proposal.variablePricing" xml:space="preserve"><value>Variável</value></data>
+  <data name="public.proposal.estimate" xml:space="preserve"><value>estimativa</value></data>
 </root>

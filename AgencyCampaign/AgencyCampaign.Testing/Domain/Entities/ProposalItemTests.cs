@@ -40,6 +40,36 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void Commission_item_total_should_be_rate_over_basis()
+        {
+            ProposalItem subject = new(1, "Comissao de vendas", 1, 0m, pricingModel: ProposalItemPricingModel.Commission, variableRate: 10m, variableBasis: 50000m);
+
+            subject.IsVariable.Should().BeTrue();
+            subject.Total.Should().Be(5000m);
+            subject.VariableRate.Should().Be(10m);
+            subject.VariableBasis.Should().Be(50000m);
+        }
+
+        [Test]
+        public void Fixed_item_should_not_carry_variable_fields()
+        {
+            ProposalItem subject = new(1, "Reel", 2, 1500m, pricingModel: ProposalItemPricingModel.Fixed, variableRate: 10m, variableBasis: 50000m);
+
+            subject.IsVariable.Should().BeFalse();
+            subject.VariableRate.Should().BeNull();
+            subject.VariableBasis.Should().BeNull();
+            subject.Total.Should().Be(3000m);
+        }
+
+        [Test]
+        public void Variable_item_with_missing_basis_should_total_zero()
+        {
+            ProposalItem subject = new(1, "Performance", 1, 0m, pricingModel: ProposalItemPricingModel.Performance, variableRate: 15m, variableBasis: null);
+
+            subject.Total.Should().Be(0m);
+        }
+
+        [Test]
         public void Constructor_should_reject_blank_description()
         {
             Action act = () => _ = new ProposalItem(1, " ", 1, 1m);

@@ -1,6 +1,7 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +85,33 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.ChangeTracker.Clear();
             Proposal persisted = await db.Set<Proposal>().AsNoTracking().SingleAsync();
             persisted.TotalValue.Should().Be(250m);
+        }
+
+        [Test]
+        public async Task CreateProposalItem_should_persist_commission_pricing_and_use_estimate_in_total()
+        {
+            Proposal proposal = await SeedProposalAsync();
+
+            await service.CreateProposalItem(new CreateProposalItemRequest
+            {
+                ProposalId = proposal.Id,
+                Description = "Comissao de vendas",
+                Quantity = 1,
+                UnitPrice = 0m,
+                PricingModel = ProposalItemPricingModel.Commission,
+                VariableRate = 10m,
+                VariableBasis = 50000m
+            });
+
+            db.ChangeTracker.Clear();
+            ProposalItem item = await db.Set<ProposalItem>().AsNoTracking().SingleAsync();
+            item.PricingModel.Should().Be(ProposalItemPricingModel.Commission);
+            item.VariableRate.Should().Be(10m);
+            item.VariableBasis.Should().Be(50000m);
+            item.Total.Should().Be(5000m);
+
+            Proposal persisted = await db.Set<Proposal>().AsNoTracking().SingleAsync();
+            persisted.TotalValue.Should().Be(5000m);
         }
 
         [Test]

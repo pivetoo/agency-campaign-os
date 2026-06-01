@@ -343,7 +343,11 @@ namespace AgencyCampaign.Infrastructure.Services
                     status = (int)item.Status,
                     kind = (int)item.Kind,
                     usageDurationMonths = item.UsageDurationMonths,
-                    usageScope = item.UsageScope
+                    usageScope = item.UsageScope,
+                    pricingModel = (int)item.PricingModel,
+                    variableRate = item.VariableRate,
+                    variableBasis = item.VariableBasis,
+                    isVariable = item.IsVariable
                 }).ToArray()
             };
 

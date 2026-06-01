@@ -35,10 +35,15 @@ export interface ProposalItem {
   kind: number
   usageDurationMonths?: number
   usageScope?: string
+  pricingModel: number
+  variableRate?: number
+  variableBasis?: number
+  isVariable: boolean
   total: number
 }
 
 export const ProposalItemKind = { Deliverable: 0, UsageRights: 1 } as const
+export const ProposalItemPricingModel = { Fixed: 0, Commission: 1, Performance: 2 } as const
 
 export interface Proposal {
   id: number
@@ -106,6 +111,9 @@ export interface CreateProposalItemRequest {
   kind?: number
   usageDurationMonths?: number
   usageScope?: string
+  pricingModel?: number
+  variableRate?: number
+  variableBasis?: number
 }
 
 export interface UpdateProposalItemRequest {
@@ -117,6 +125,9 @@ export interface UpdateProposalItemRequest {
   kind?: number
   usageDurationMonths?: number
   usageScope?: string
+  pricingModel?: number
+  variableRate?: number
+  variableBasis?: number
 }
 
 export interface ProposalListFilters {

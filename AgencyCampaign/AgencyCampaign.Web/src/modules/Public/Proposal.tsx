@@ -191,6 +191,11 @@ export default function PublicProposal() {
                                 {item.usageScope ? ` · ${item.usageScope}` : ''}
                               </span>
                             )}
+                            {item.isVariable && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+                                {item.variableRate != null ? `${item.variableRate}% · ` : ''}{t('public.proposal.variablePricing')}
+                              </span>
+                            )}
                           </div>
                           {item.deliveryDeadline ? (
                             <div className="text-xs text-muted-foreground">
@@ -201,9 +206,12 @@ export default function PublicProposal() {
                             <div className="text-xs italic text-muted-foreground">{item.observations}</div>
                           ) : null}
                         </td>
-                        <td className="px-4 py-3 text-right text-foreground">{item.quantity}</td>
-                        <td className="px-4 py-3 text-right text-foreground">{formatCurrency(item.unitPrice)}</td>
-                        <td className="px-4 py-3 text-right font-semibold text-foreground">{formatCurrency(item.total)}</td>
+                        <td className="px-4 py-3 text-right text-foreground">{item.isVariable ? '—' : item.quantity}</td>
+                        <td className="px-4 py-3 text-right text-foreground">{item.isVariable ? '—' : formatCurrency(item.unitPrice)}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-foreground">
+                          {formatCurrency(item.total)}
+                          {item.isVariable ? <div className="text-[10px] font-normal text-muted-foreground">{t('public.proposal.estimate')}</div> : null}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

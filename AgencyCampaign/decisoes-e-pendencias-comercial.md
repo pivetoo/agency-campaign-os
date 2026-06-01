@@ -54,7 +54,7 @@ As features de diferenciação (usage rights, rate cards, modelos híbridos) ent
 
 ### Fatia E — Diferenciação de nicho _(depende de **D5**)_
 - [x] **E1 — Usage rights / licenciamento** como linha precificável (item ganhou Kind/UsageDurationMonths/UsageScope)
-- [ ] **E2 — Modelos híbridos de remuneração** (base + comissão/afiliado/performance)
+- [x] **E2 — Modelos híbridos de remuneração** (base + comissão/afiliado/performance) — FEITO (modelo A, por item): ProposalItem ganhou PricingModel (Fixed/Commission/Performance) + taxa% + base estimada; total variável entra como estimativa. Integra com E5.
 - [x] **E3 — Rate cards reutilizáveis** por creator/entregável (RateCardItem + picker na proposta)
 - [x] **E4 — Tracking de engajamento da proposta** (abriu / tempo por seção) — FEITO: painel de engajamento com total de aberturas, primeiro/último acesso e timeline por device. Tempo por seção fica como evolução futura.
 - [x] **E5 — Payout de creator ligado ao fechamento** (comercial ↔ financeiro) — FEITO (modelo A): conversão gera repasse de creator planejado (FinancialEntry CreatorPayout Pending) por item com creator; idempotente; execução por entrega suprimida quando há planejado. Forecast de margem desde o dia 1.

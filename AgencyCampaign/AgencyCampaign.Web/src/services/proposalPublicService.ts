@@ -16,6 +16,10 @@ export interface ProposalPublicItem {
   kind?: number
   usageDurationMonths?: number
   usageScope?: string
+  pricingModel?: number
+  variableRate?: number
+  variableBasis?: number
+  isVariable?: boolean
 }
 
 export interface ProposalPublicSnapshot {

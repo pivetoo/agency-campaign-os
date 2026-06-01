@@ -104,6 +104,13 @@ namespace AgencyCampaign.Api.Contracts.Proposals
                 Status = x.Status,
                 Observations = x.Observations,
                 CreatorId = x.CreatorId,
+                Kind = x.Kind,
+                UsageDurationMonths = x.UsageDurationMonths,
+                UsageScope = x.UsageScope,
+                PricingModel = x.PricingModel,
+                VariableRate = x.VariableRate,
+                VariableBasis = x.VariableBasis,
+                IsVariable = x.IsVariable,
                 Creator = x.Creator == null
                     ? null
                     : new CreatorReferenceContract
@@ -147,6 +154,14 @@ namespace AgencyCampaign.Api.Contracts.Proposals
 
         public string? UsageScope { get; init; }
 
+        public ProposalItemPricingModel PricingModel { get; init; }
+
+        public decimal? VariableRate { get; init; }
+
+        public decimal? VariableBasis { get; init; }
+
+        public bool IsVariable { get; init; }
+
         public decimal Total { get; init; }
 
         public static Expression<Func<ProposalItem, ProposalItemContract>> Projection => item => new ProposalItemContract
@@ -163,6 +178,10 @@ namespace AgencyCampaign.Api.Contracts.Proposals
             Kind = item.Kind,
             UsageDurationMonths = item.UsageDurationMonths,
             UsageScope = item.UsageScope,
+            PricingModel = item.PricingModel,
+            VariableRate = item.VariableRate,
+            VariableBasis = item.VariableBasis,
+            IsVariable = item.IsVariable,
             Creator = item.Creator == null
                 ? null
                 : new CreatorReferenceContract

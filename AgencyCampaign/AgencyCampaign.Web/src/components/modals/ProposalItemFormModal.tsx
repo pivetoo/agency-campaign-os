@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { creatorService } from '../../services/creatorService'
-import { proposalService, ProposalItemKind, type CreateProposalItemRequest, type ProposalItem, type UpdateProposalItemRequest } from '../../services/proposalService'
+import { proposalService, ProposalItemKind, ProposalItemPricingModel, type CreateProposalItemRequest, type ProposalItem, type UpdateProposalItemRequest } from '../../services/proposalService'
 import type { Creator } from '../../types/creator'
 import { rateCardItemService, type RateCardItem } from '../../services/rateCardItemService'
 import { dateInputToIso, isoToDateInput, formatCurrency } from '../../lib/format'
@@ -23,6 +23,7 @@ const initialFormData: CreateProposalItemRequest = {
   creatorId: undefined,
   observations: '',
   kind: ProposalItemKind.Deliverable,
+  pricingModel: ProposalItemPricingModel.Fixed,
 }
 
 export default function ProposalItemFormModal({ open, onOpenChange, proposalId, item, onSuccess }: ProposalItemFormModalProps) {
@@ -59,6 +60,9 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
         kind: item.kind,
         usageDurationMonths: item.usageDurationMonths,
         usageScope: item.usageScope,
+        pricingModel: item.pricingModel,
+        variableRate: item.variableRate,
+        variableBasis: item.variableBasis,
       })
       return
     }
@@ -80,6 +84,9 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
             kind: formData.kind,
             usageDurationMonths: formData.usageDurationMonths,
             usageScope: formData.usageScope,
+            pricingModel: formData.pricingModel,
+            variableRate: formData.variableRate,
+            variableBasis: formData.variableBasis,
           } satisfies UpdateProposalItemRequest)
         : proposalService.createItem(proposalId, formData)
     ))
@@ -88,6 +95,15 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
       onSuccess()
     }
   }
+
+  const isVariable = (formData.pricingModel ?? ProposalItemPricingModel.Fixed) !== ProposalItemPricingModel.Fixed
+  const estimatedVariableTotal = (formData.variableBasis || 0) * (formData.variableRate || 0) / 100
+
+  const pricingOptions = [
+    { value: ProposalItemPricingModel.Fixed, label: t('modal.proposalItem.pricing.fixed') },
+    { value: ProposalItemPricingModel.Commission, label: t('modal.proposalItem.pricing.commission') },
+    { value: ProposalItemPricingModel.Performance, label: t('modal.proposalItem.pricing.performance') },
+  ]
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
@@ -111,19 +127,57 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
             </div>
 
             <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium">{t('modal.proposalItem.field.pricingModel')}</label>
+              <div className="inline-flex rounded-lg bg-muted p-0.5">
+                {pricingOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, pricingModel: option.value }))}
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${(formData.pricingModel ?? ProposalItemPricingModel.Fixed) === option.value ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">{t('common.field.description')}</label>
               <Input value={formData.description} onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))} required />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t('modal.proposalItem.field.quantity')}</label>
-              <Input type="number" min="1" value={formData.quantity} onChange={(event) => setFormData((prev) => ({ ...prev, quantity: Number(event.target.value) }))} required />
-            </div>
+            {!isVariable && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t('modal.proposalItem.field.quantity')}</label>
+                  <Input type="number" min="1" value={formData.quantity} onChange={(event) => setFormData((prev) => ({ ...prev, quantity: Number(event.target.value) }))} required />
+                </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t('modal.proposalItem.field.unitPrice')}</label>
-              <Input type="number" min="0" step="0.01" value={formData.unitPrice === 0 ? '' : formData.unitPrice} onChange={(event) => setFormData((prev) => ({ ...prev, unitPrice: event.target.value === '' ? 0 : Number(event.target.value) }))} required />
-            </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t('modal.proposalItem.field.unitPrice')}</label>
+                  <Input type="number" min="0" step="0.01" value={formData.unitPrice === 0 ? '' : formData.unitPrice} onChange={(event) => setFormData((prev) => ({ ...prev, unitPrice: event.target.value === '' ? 0 : Number(event.target.value) }))} required />
+                </div>
+              </>
+            )}
+
+            {isVariable && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t('modal.proposalItem.field.variableRate')}</label>
+                  <Input type="number" min="0" max="100" step="0.01" value={formData.variableRate ?? ''} onChange={(event) => setFormData((prev) => ({ ...prev, variableRate: event.target.value === '' ? undefined : Number(event.target.value) }))} placeholder="%" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t('modal.proposalItem.field.variableBasis')}</label>
+                  <Input type="number" min="0" step="0.01" value={formData.variableBasis ?? ''} onChange={(event) => setFormData((prev) => ({ ...prev, variableBasis: event.target.value === '' ? undefined : Number(event.target.value) }))} placeholder={t('modal.proposalItem.variable.basisPlaceholder')} />
+                </div>
+
+                <div className="md:col-span-2 rounded-md border border-dashed border-border/70 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+                  {t('modal.proposalItem.variable.estimateNote')} <strong className="text-foreground">{formatCurrency(estimatedVariableTotal)}</strong>
+                </div>
+              </>
+            )}
 
             {formData.kind === ProposalItemKind.UsageRights && (
               <>
