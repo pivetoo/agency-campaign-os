@@ -630,6 +630,8 @@
   <data name="opportunityDetail.overdueSingle" xml:space="preserve"><value>{0} atrasado</value></data>
   <data name="opportunityDetail.overdueMany" xml:space="preserve"><value>{0} atrasados</value></data>
   <data name="opportunityDetail.kpi.estimatedValue" xml:space="preserve"><value>Valor estimado</value></data>
+  <data name="opportunityDetail.kpi.closedValue" xml:space="preserve"><value>Valor fechado</value></data>
+  <data name="opportunityDetail.kpi.estimatedSub" xml:space="preserve"><value>estimado: {0}</value></data>
   <data name="opportunityDetail.kpi.forecast" xml:space="preserve"><value>Previsão</value></data>
   <data name="opportunityDetail.kpi.pendingFollowUps" xml:space="preserve"><value>Follow-ups pendentes</value></data>
   <data name="opportunityDetail.summary.source" xml:space="preserve"><value>Origem</value></data>

@@ -123,6 +123,7 @@ export interface Opportunity {
   createdAt: string
   updatedAt?: string
   version: number
+  closedValue?: number
 }
 
 export interface OpportunitySourceReference {

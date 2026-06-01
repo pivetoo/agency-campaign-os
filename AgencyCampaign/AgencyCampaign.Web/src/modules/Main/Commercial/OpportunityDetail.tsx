@@ -396,9 +396,10 @@ export default function OpportunityDetail() {
 
                 <div className="grid grid-cols-2 gap-0 overflow-hidden rounded-xl border border-border bg-card md:grid-cols-4">
                   <KpiCell
-                    icon={<CircleDollarSign className="h-3.5 w-3.5 text-indigo-600" />}
-                    label={t('opportunityDetail.kpi.estimatedValue')}
-                    value={formatCurrency(opportunity?.estimatedValue ?? 0)}
+                    icon={<CircleDollarSign className={`h-3.5 w-3.5 ${opportunity?.closedValue != null ? 'text-emerald-600' : 'text-indigo-600'}`} />}
+                    label={opportunity?.closedValue != null ? t('opportunityDetail.kpi.closedValue') : t('opportunityDetail.kpi.estimatedValue')}
+                    value={opportunity?.closedValue != null ? formatCurrency(opportunity.closedValue) : formatCurrency(opportunity?.estimatedValue ?? 0)}
+                    sub={opportunity?.closedValue != null ? t('opportunityDetail.kpi.estimatedSub').replace('{0}', formatCurrency(opportunity?.estimatedValue ?? 0)) : undefined}
                   />
                   <KpiCell
                     icon={<Calendar className="h-3.5 w-3.5 text-violet-600" />}

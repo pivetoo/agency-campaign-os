@@ -47,7 +47,7 @@ As features de diferenciação (usage rights, rate cards, modelos híbridos) ent
 
 ### Fatia B — Fechamento real (o coração do MVP comercial)
 - [x] **B1 — Aceite digital no link público** — FEITO (D2=A): cliente aceita/recusa no link com trilha (nome, e-mail, data, versão, hash do conteúdo); promove a proposta e notifica o operador. _(commit do B1)_
-- [ ] **B2 — Reconciliação do valor fechado** — metas/forecast/analytics usam o estimado, nunca o líquido negociado. _(depende de **D3**)_
+- [x] **B2 — Reconciliação do valor fechado** — FEITO (D3=B): novo campo `ClosedValue` na oportunidade, setado no ganho a partir da proposta aceita (sem tocar no estimado); metas/forecast/analytics/dashboard passam a usar o fechado nas ganhas. _(Fatia B FECHADA)_
 
 ### Fatia C — Go-to-market
 - [ ] **C1 — Link público multi-tenant** — endpoints públicos caem no 1º tenant; link só funciona para a 1ª agência. _(depende de **D4**)_

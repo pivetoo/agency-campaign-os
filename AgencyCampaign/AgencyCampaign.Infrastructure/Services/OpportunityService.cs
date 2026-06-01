@@ -392,6 +392,7 @@ namespace AgencyCampaign.Infrastructure.Services
             EnsureOwnership(opportunity, restrictToCurrentUser);
             CommercialPipelineStage wonStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Won, cancellationToken);
             opportunity.CloseAsWon(wonStage, request.WonNotes, request.WinReasonId, currentUser.UserId, currentUser.UserName);
+            opportunity.SetClosedValue(await ResolveAcceptedProposalValueAsync(opportunity.Id, cancellationToken));
             opportunity.IncrementVersion();
 
             return await SaveAndReturn(opportunity, cancellationToken);
@@ -603,7 +604,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 CommercialPipelineStageFinalBehavior behavior = opportunity.CommercialPipelineStage?.FinalBehavior ?? CommercialPipelineStageFinalBehavior.None;
                 if (behavior == CommercialPipelineStageFinalBehavior.Won)
                 {
-                    wonTotal += opportunity.EstimatedValue;
+                    wonTotal += opportunity.ClosedValue ?? opportunity.EstimatedValue;
                     wonCount++;
                     continue;
                 }
@@ -1010,7 +1011,7 @@ namespace AgencyCampaign.Infrastructure.Services
                         ReasonName = name,
                         ReasonColor = color,
                         Count = group.Count(),
-                        TotalValue = Math.Round(group.Sum(item => item.EstimatedValue), 2)
+                        TotalValue = Math.Round(group.Sum(item => item.ClosedValue ?? item.EstimatedValue), 2)
                     };
                 })
                 .OrderByDescending(item => item.Count)
@@ -1045,7 +1046,7 @@ namespace AgencyCampaign.Infrastructure.Services
                         ReasonName = name,
                         ReasonColor = color,
                         Count = group.Count(),
-                        TotalValue = Math.Round(group.Sum(item => item.EstimatedValue), 2)
+                        TotalValue = Math.Round(group.Sum(item => item.ClosedValue ?? item.EstimatedValue), 2)
                     };
                 })
                 .OrderByDescending(item => item.Count)
@@ -1066,7 +1067,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 {
                     UserId = group.Key,
                     WonCount = group.Count(),
-                    WonTotal = Math.Round(group.Sum(item => item.EstimatedValue), 2)
+                    WonTotal = Math.Round(group.Sum(item => item.ClosedValue ?? item.EstimatedValue), 2)
                 })
                 .OrderByDescending(item => item.WonTotal)
                 .Take(10)
@@ -1122,7 +1123,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 PendingFollowUpsCount = followUps.Count(item => !item.IsCompleted),
                 OverdueFollowUpsCount = followUps.Count(item => !item.IsCompleted && item.DueAt < now),
                 TotalPipelineValue = opportunities.Where(IsOpen).Sum(item => item.EstimatedValue),
-                WonValue = opportunities.Where(IsWon).Sum(item => item.EstimatedValue)
+                WonValue = opportunities.Where(IsWon).Sum(item => item.ClosedValue ?? item.EstimatedValue)
             };
         }
 
@@ -1329,6 +1330,18 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return await GetOpportunityById(opportunity.Id, cancellationToken) ?? opportunity;
+        }
+
+        private async Task<decimal?> ResolveAcceptedProposalValueAsync(long opportunityId, CancellationToken cancellationToken)
+        {
+            Proposal? accepted = await DbContext.Set<Proposal>()
+                .AsNoTracking()
+                .Where(item => item.OpportunityId == opportunityId
+                    && (item.Status == ProposalStatus.Approved || item.Status == ProposalStatus.Converted))
+                .OrderByDescending(item => item.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return accepted?.NetTotalValue;
         }
 
         private IQueryable<Opportunity> QueryWithDetails()

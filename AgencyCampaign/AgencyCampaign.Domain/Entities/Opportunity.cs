@@ -59,11 +59,19 @@ namespace AgencyCampaign.Domain.Entities
 
         public long? WinReasonId { get; private set; }
 
+        public decimal? ClosedValue { get; private set; }
+
         public int Version { get; private set; }
 
         public void IncrementVersion()
         {
             Version++;
+        }
+
+        public void SetClosedValue(decimal? value)
+        {
+            ClosedValue = value.HasValue ? Money.Round(value.Value) : null;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
 
         public IReadOnlyCollection<OpportunityFollowUp> FollowUps => followUps.AsReadOnly();

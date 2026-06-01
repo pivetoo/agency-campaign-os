@@ -61,10 +61,13 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public int Version { get; init; }
 
+        public decimal? ClosedValue { get; init; }
+
         public static Expression<Func<Opportunity, OpportunityContract>> Projection => item => new OpportunityContract
         {
             Id = item.Id,
             Version = item.Version,
+            ClosedValue = item.ClosedValue,
             BrandId = item.BrandId,
             Name = item.Name,
             Description = item.Description,

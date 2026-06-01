@@ -639,6 +639,27 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task CloseAsWon_should_capture_closed_value_from_accepted_proposal()
+        {
+            await SeedBaseAsync();
+            Opportunity opp = await service.CreateOpportunity(new CreateOpportunityRequest { BrandId = 1, Name = "Deal", EstimatedValue = 500m });
+
+            Proposal proposal = new(opp.Id, "P", 1);
+            proposal.UpdateTotalValue(1200m);
+            proposal.MarkAsSent();
+            proposal.Approve();
+            db.Add(proposal);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            await service.CloseAsWon(opp.Id, new CloseOpportunityAsWonRequest { WonNotes = "ok" });
+
+            Opportunity? reloaded = await service.GetOpportunityById(opp.Id);
+            reloaded!.ClosedValue.Should().Be(1200m);
+            reloaded.EstimatedValue.Should().Be(500m);
+        }
+
+        [Test]
         public async Task GetAnalytics_conversion_should_count_opportunity_that_advanced_then_regressed()
         {
             await SeedBaseAsync();

@@ -167,7 +167,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     won = won.Where(opp => opp.ResponsibleUserId == target);
                 }
 
-                decimal achievedAmount = await won.SumAsync(opp => (decimal?)opp.EstimatedValue ?? 0m, cancellationToken);
+                decimal achievedAmount = await won.SumAsync(opp => (decimal?)(opp.ClosedValue ?? opp.EstimatedValue) ?? 0m, cancellationToken);
                 int achievedCount = await won.CountAsync(cancellationToken);
 
                 decimal percent = goal.TargetAmount > 0 ? Math.Round((achievedAmount / goal.TargetAmount) * 100m, 2) : 0m;

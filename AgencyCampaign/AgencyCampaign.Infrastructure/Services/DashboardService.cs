@@ -98,7 +98,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 {
                     Name = group.Key,
                     Oportunidades = group.Count(),
-                    Valor = group.Sum(item => item.EstimatedValue)
+                    Valor = group.Sum(item => item.ClosedValue ?? item.EstimatedValue)
                 })
                 .ToArray();
         }
