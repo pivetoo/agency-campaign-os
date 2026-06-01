@@ -869,6 +869,7 @@
   <data name="public.proposal.empty" xml:space="preserve"><value>This proposal has no items.</value></data>
   <data name="public.proposal.notes" xml:space="preserve"><value>Notes</value></data>
   <data name="public.proposal.footer" xml:space="preserve"><value>Automatically generated document. For questions or approval, contact the agency.</value></data>
+  <data name="public.proposal.privacyNote" xml:space="preserve"><value>For security, access to this link is logged (timestamp and anonymized IP). No data is shared with third parties.</value></data>
   <data name="proposalSend.template.subject" xml:space="preserve"><value>Proposal: {0}</value></data>
   <data name="proposalSend.template.greeting" xml:space="preserve"><value>Hello,</value></data>
   <data name="proposalSend.template.intro" xml:space="preserve"><value>Here is the proposal "{0}" for your review.</value></data>

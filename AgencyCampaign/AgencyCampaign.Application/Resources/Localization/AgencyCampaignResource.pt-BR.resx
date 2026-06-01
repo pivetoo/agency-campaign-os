@@ -874,6 +874,7 @@
   <data name="public.proposal.empty" xml:space="preserve"><value>Esta proposta não tem itens cadastrados.</value></data>
   <data name="public.proposal.notes" xml:space="preserve"><value>Observações</value></data>
   <data name="public.proposal.footer" xml:space="preserve"><value>Documento gerado automaticamente. Para dúvidas ou aprovação, fale com a agência.</value></data>
+  <data name="public.proposal.privacyNote" xml:space="preserve"><value>Para seguranca, o acesso a este link e registrado (data/hora e IP anonimizado). Nenhum dado e compartilhado com terceiros.</value></data>
   <data name="proposalSend.template.subject" xml:space="preserve"><value>Proposta: {0}</value></data>
   <data name="proposalSend.template.greeting" xml:space="preserve"><value>Olá,</value></data>
   <data name="proposalSend.template.intro" xml:space="preserve"><value>Segue a proposta "{0}" para sua avaliação.</value></data>

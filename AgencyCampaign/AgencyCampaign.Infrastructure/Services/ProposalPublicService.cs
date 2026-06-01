@@ -69,7 +69,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             string brandName = proposal.Opportunity?.Brand?.Name ?? string.Empty;
 
-            shareLink.RegisterView(ipAddress, userAgent);
+            shareLink.RegisterView(IpAnonymizer.Anonymize(ipAddress), userAgent);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             if (shareLink.ViewCount == 1 && proposal is not null)

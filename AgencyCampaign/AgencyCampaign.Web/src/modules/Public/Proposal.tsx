@@ -220,6 +220,9 @@ export default function PublicProposal() {
         <p className="mt-6 text-center text-xs text-muted-foreground">
           {t('public.proposal.footer')}
         </p>
+        <p className="mt-2 text-center text-[11px] text-muted-foreground/70">
+          {t('public.proposal.privacyNote')}
+        </p>
       </div>
     </div>
   )
