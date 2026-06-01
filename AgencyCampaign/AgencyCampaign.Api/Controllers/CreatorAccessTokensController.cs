@@ -46,10 +46,10 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("creatorAccessTokens.revoke.description")]
-        [PostEndpoint("{id:long}/revoke")]
-        public async Task<IActionResult> Revoke(long id, CancellationToken cancellationToken)
+        [PostEndpoint("creator/{creatorId:long}/{id:long}/revoke")]
+        public async Task<IActionResult> Revoke(long creatorId, long id, CancellationToken cancellationToken)
         {
-            bool revoked = await accessTokenService.Revoke(id, cancellationToken);
+            bool revoked = await accessTokenService.Revoke(creatorId, id, cancellationToken);
             return revoked ? Http200(new { revoked = true }, Localizer["record.updated"]) : Http404(Localizer["record.notFound"]);
         }
     }

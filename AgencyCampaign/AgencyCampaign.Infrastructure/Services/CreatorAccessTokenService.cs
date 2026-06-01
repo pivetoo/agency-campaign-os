@@ -93,11 +93,11 @@ namespace AgencyCampaign.Infrastructure.Services
             return entity;
         }
 
-        public async Task<bool> Revoke(long id, CancellationToken cancellationToken = default)
+        public async Task<bool> Revoke(long creatorId, long id, CancellationToken cancellationToken = default)
         {
             CreatorAccessToken? token = await DbContext.Set<CreatorAccessToken>()
                 .AsTracking()
-                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(item => item.Id == id && item.CreatorId == creatorId, cancellationToken);
 
             if (token is null)
             {

@@ -59,7 +59,7 @@ export default function CreatorAccessTokensModal({ open, onOpenChange, creator }
 
   const confirmRevoke = async () => {
     if (!tokenToRevoke) return
-    const result = await revokeToken(() => creatorAccessTokenService.revoke(tokenToRevoke.id))
+    const result = await revokeToken(() => creatorAccessTokenService.revoke(creator.id, tokenToRevoke.id))
     if (result !== null) {
       setTokenToRevoke(null)
       void load()

@@ -19,7 +19,7 @@ export const creatorAccessTokenService = {
     return httpClient.post<CreatorAccessToken>(`${BASE_URL}/Issue`, data)
   },
 
-  revoke(id: number) {
-    return httpClient.post<{ revoked: boolean }>(`${BASE_URL}/Revoke/${id}/revoke`, {})
+  revoke(creatorId: number, id: number) {
+    return httpClient.post<{ revoked: boolean }>(`${BASE_URL}/creator/${creatorId}/${id}/revoke`, {})
   },
 }

@@ -9,6 +9,6 @@ namespace AgencyCampaign.Application.Services
         Task<CreatorAccessToken> Issue(IssueCreatorAccessTokenRequest request, CancellationToken cancellationToken = default);
         Task<List<CreatorAccessToken>> GetByCreator(long creatorId, CancellationToken cancellationToken = default);
         Task<CreatorAccessToken?> ValidateToken(string token, CancellationToken cancellationToken = default);
-        Task<bool> Revoke(long id, CancellationToken cancellationToken = default);
+        Task<bool> Revoke(long creatorId, long id, CancellationToken cancellationToken = default);
     }
 }

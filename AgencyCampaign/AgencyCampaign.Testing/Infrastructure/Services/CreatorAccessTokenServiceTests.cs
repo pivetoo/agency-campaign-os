@@ -189,7 +189,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task Revoke_should_return_false_when_not_found()
         {
-            (await service.Revoke(99)).Should().BeFalse();
+            (await service.Revoke(1, 99)).Should().BeFalse();
         }
 
         [Test]
@@ -199,12 +199,27 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(token);
             await db.SaveChangesAsync();
 
-            bool result = await service.Revoke(token.Id);
+            bool result = await service.Revoke(1, token.Id);
 
             result.Should().BeTrue();
             db.ChangeTracker.Clear();
             CreatorAccessToken persisted = await db.Set<CreatorAccessToken>().SingleAsync();
             persisted.RevokedAt.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task Revoke_should_not_revoke_token_of_another_creator()
+        {
+            CreatorAccessToken token = new(1, "abc");
+            db.Add(token);
+            await db.SaveChangesAsync();
+
+            bool result = await service.Revoke(2, token.Id);
+
+            result.Should().BeFalse();
+            db.ChangeTracker.Clear();
+            CreatorAccessToken persisted = await db.Set<CreatorAccessToken>().SingleAsync();
+            persisted.RevokedAt.Should().BeNull();
         }
     }
 }
