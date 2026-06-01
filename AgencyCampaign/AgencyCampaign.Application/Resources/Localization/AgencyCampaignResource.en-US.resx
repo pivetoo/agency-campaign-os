@@ -441,7 +441,7 @@
   <data name="modal.proposalSend.placeholder.configureConnector" xml:space="preserve"><value>Configure a connector first</value></data>
   <data name="modal.proposalSend.placeholder.noPipelines" xml:space="preserve"><value>No pipeline configured</value></data>
   <data name="proposals.action.markViewed" xml:space="preserve"><value>Mark viewed</value></data>
-  <data name="proposals.action.approve" xml:space="preserve"><value>Approve</value></data>
+  <data name="proposals.action.approve" xml:space="preserve"><value>Approve proposal</value></data>
   <data name="proposals.action.reject" xml:space="preserve"><value>Reject</value></data>
   <data name="proposals.action.cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="proposal.status.draft" xml:space="preserve"><value>Draft</value></data>
@@ -1665,7 +1665,7 @@
   <data name="opportunityApproval.voteRegistered" xml:space="preserve"><value>Your vote was registered. Waiting for the remaining approvers.</value></data>
   <data name="commercialApprovals.action.add" xml:space="preserve"><value>Add</value></data>
   <data name="commercialApprovals.action.adding" xml:space="preserve"><value>Adding…</value></data>
-  <data name="commercialApprovals.action.approve" xml:space="preserve"><value>Approve</value></data>
+  <data name="commercialApprovals.action.approve" xml:space="preserve"><value>Approve exception</value></data>
   <data name="commercialApprovals.action.cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="commercialApprovals.action.decisionRecordedNote" xml:space="preserve"><value>Your decision is recorded in the opportunity history, with date and time.</value></data>
   <data name="commercialApprovals.action.delete" xml:space="preserve"><value>Delete</value></data>
