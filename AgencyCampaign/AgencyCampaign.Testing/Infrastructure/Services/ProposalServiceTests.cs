@@ -267,6 +267,23 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task ConvertToNewCampaign_should_propagate_financial_failure_instead_of_swallowing()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(proposal.Id);
+            await service.ApproveProposal(proposal.Id);
+
+            financial
+                .Setup(item => item.GenerateForConvertedProposal(It.IsAny<Proposal>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("financial boom"));
+
+            Func<Task> act = () => service.ConvertToNewCampaign(proposal.Id);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("financial boom");
+        }
+
+        [Test]
         public async Task CancelProposal_should_persist_cancelled_status()
         {
             Opportunity opportunity = await SeedOpportunityAsync();
