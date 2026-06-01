@@ -244,5 +244,79 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             viewModel!.NetTotalValue.Should().Be(800m);
             viewModel.DiscountValue.Should().Be(200m);
         }
+
+        private async Task<Proposal> SeedSentProposalWithLinkAsync(string token)
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            await db.SaveChangesAsync();
+            CommercialPipelineStage stage = new("Q", 1, "#fff");
+            db.Add(stage);
+            await db.SaveChangesAsync();
+            Opportunity opportunity = new(brand.Id, stage.Id, "deal", 0m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+            Proposal proposal = new(opportunity.Id, "P", 1);
+            proposal.MarkAsSent();
+            db.Add(proposal);
+            await db.SaveChangesAsync();
+            db.Add(new ProposalVersion(proposal.Id, 1, "v1", null, 100m, null, "{}", null, null));
+            db.Add(new ProposalShareLink(proposal.Id, token, null, null, null));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+            return proposal;
+        }
+
+        [Test]
+        public async Task RegisterClientDecision_accept_should_approve_and_record_evidence()
+        {
+            Proposal proposal = await SeedSentProposalWithLinkAsync("tok");
+
+            ProposalClientDecisionResult result = await service.RegisterClientDecision("tok", accept: true, "Maria", "maria@brand.com", "tudo certo");
+
+            result.Should().Be(ProposalClientDecisionResult.Success);
+            db.ChangeTracker.Clear();
+            Proposal reloaded = await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == proposal.Id);
+            reloaded.Status.Should().Be(ProposalStatus.Approved);
+            reloaded.ClientDecisionByName.Should().Be("Maria");
+            reloaded.ClientDecisionByEmail.Should().Be("maria@brand.com");
+            reloaded.ClientDecisionVersionNumber.Should().Be(1);
+            reloaded.ClientDecisionContentHash.Should().NotBeNullOrEmpty();
+        }
+
+        [Test]
+        public async Task RegisterClientDecision_reject_should_set_rejected()
+        {
+            Proposal proposal = await SeedSentProposalWithLinkAsync("tok");
+
+            ProposalClientDecisionResult result = await service.RegisterClientDecision("tok", accept: false, "Maria", null, "fora do orcamento");
+
+            result.Should().Be(ProposalClientDecisionResult.Success);
+            db.ChangeTracker.Clear();
+            Proposal reloaded = await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == proposal.Id);
+            reloaded.Status.Should().Be(ProposalStatus.Rejected);
+        }
+
+        [Test]
+        public async Task RegisterClientDecision_should_be_invalid_when_name_blank()
+        {
+            await SeedSentProposalWithLinkAsync("tok");
+
+            ProposalClientDecisionResult result = await service.RegisterClientDecision("tok", accept: true, "  ", null, null);
+
+            result.Should().Be(ProposalClientDecisionResult.Invalid);
+        }
+
+        [Test]
+        public async Task RegisterClientDecision_should_return_already_decided_when_accepted_twice()
+        {
+            await SeedSentProposalWithLinkAsync("tok");
+            await service.RegisterClientDecision("tok", accept: true, "Maria", null, null);
+            db.ChangeTracker.Clear();
+
+            ProposalClientDecisionResult second = await service.RegisterClientDecision("tok", accept: true, "Joao", null, null);
+
+            second.Should().Be(ProposalClientDecisionResult.AlreadyDecided);
+        }
     }
 }

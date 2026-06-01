@@ -869,6 +869,18 @@
   <data name="public.proposal.empty" xml:space="preserve"><value>This proposal has no items.</value></data>
   <data name="public.proposal.notes" xml:space="preserve"><value>Notes</value></data>
   <data name="public.proposal.footer" xml:space="preserve"><value>Automatically generated document. For questions or approval, contact the agency.</value></data>
+  <data name="public.proposal.decision.prompt" xml:space="preserve"><value>What is your decision on this proposal?</value></data>
+  <data name="public.proposal.decision.namePlaceholder" xml:space="preserve"><value>Your full name</value></data>
+  <data name="public.proposal.decision.emailPlaceholder" xml:space="preserve"><value>Your email (optional)</value></data>
+  <data name="public.proposal.decision.notesPlaceholder" xml:space="preserve"><value>Comment (optional)</value></data>
+  <data name="public.proposal.decision.accept" xml:space="preserve"><value>Accept proposal</value></data>
+  <data name="public.proposal.decision.reject" xml:space="preserve"><value>Decline</value></data>
+  <data name="public.proposal.decision.nameRequired" xml:space="preserve"><value>Enter your name to confirm.</value></data>
+  <data name="public.proposal.decision.failed" xml:space="preserve"><value>Could not register your decision. Please try again.</value></data>
+  <data name="public.proposal.decision.acceptedTitle" xml:space="preserve"><value>Proposal accepted!</value></data>
+  <data name="public.proposal.decision.acceptedHint" xml:space="preserve"><value>The agency has been notified and will follow up. Thank you!</value></data>
+  <data name="public.proposal.decision.rejectedTitle" xml:space="preserve"><value>Response recorded</value></data>
+  <data name="public.proposal.decision.rejectedHint" xml:space="preserve"><value>The agency has been notified of your decision.</value></data>
   <data name="public.proposal.privacyNote" xml:space="preserve"><value>For security, access to this link is logged (timestamp and anonymized IP). No data is shared with third parties.</value></data>
   <data name="proposalSend.template.subject" xml:space="preserve"><value>Proposal: {0}</value></data>
   <data name="proposalSend.template.greeting" xml:space="preserve"><value>Hello,</value></data>

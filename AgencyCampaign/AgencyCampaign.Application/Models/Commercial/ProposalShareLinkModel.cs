@@ -56,5 +56,13 @@ namespace AgencyCampaign.Application.Models.Commercial
         public DateTimeOffset SentAt { get; init; }
 
         public string SnapshotJson { get; init; } = string.Empty;
+
+        public bool CanDecide { get; init; }
+
+        public string? Decision { get; init; }
+
+        public string? DecidedByName { get; init; }
+
+        public DateTimeOffset? DecidedAt { get; init; }
     }
 }

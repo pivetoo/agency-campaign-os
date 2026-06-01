@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, useI18n } from 'archon-ui'
-import { AlertTriangle, CalendarClock, FileDown, FileText, Sparkles } from 'lucide-react'
+import { AlertTriangle, CalendarClock, CheckCircle2, FileDown, FileText, Sparkles } from 'lucide-react'
 import { proposalPublicService, type ProposalPublicSnapshot, type ProposalPublicView } from '../../services/proposalPublicService'
 import { formatDate } from '../../lib/format'
 import { formatCurrency } from '../../lib/format'
@@ -15,6 +15,35 @@ export default function PublicProposal() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [downloading, setDownloading] = useState(false)
+  const [decisionName, setDecisionName] = useState('')
+  const [decisionEmail, setDecisionEmail] = useState('')
+  const [decisionNotes, setDecisionNotes] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [decisionError, setDecisionError] = useState<string | null>(null)
+  const [localDecision, setLocalDecision] = useState<'accepted' | 'rejected' | null>(null)
+
+  const submitDecision = async (accept: boolean) => {
+    if (!token) return
+    if (!decisionName.trim()) {
+      setDecisionError(t('public.proposal.decision.nameRequired'))
+      return
+    }
+    setSubmitting(true)
+    setDecisionError(null)
+    try {
+      const input = { name: decisionName.trim(), email: decisionEmail.trim() || undefined, notes: decisionNotes.trim() || undefined }
+      if (accept) {
+        await proposalPublicService.accept(token, input)
+      } else {
+        await proposalPublicService.reject(token, input)
+      }
+      setLocalDecision(accept ? 'accepted' : 'rejected')
+    } catch {
+      setDecisionError(t('public.proposal.decision.failed'))
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   const handleDownloadPdf = async () => {
     if (!token || downloading) return
@@ -216,6 +245,37 @@ export default function PublicProposal() {
             ) : null}
           </CardContent>
         </Card>
+
+        {(localDecision === 'accepted' || (!localDecision && view.decision === 'accepted')) ? (
+          <div className="mt-6 rounded-lg border border-emerald-300 bg-emerald-50 p-5 text-center">
+            <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-600" />
+            <p className="mt-2 text-sm font-semibold text-emerald-800">{t('public.proposal.decision.acceptedTitle')}</p>
+            <p className="text-xs text-emerald-700">{t('public.proposal.decision.acceptedHint')}</p>
+          </div>
+        ) : localDecision === 'rejected' ? (
+          <div className="mt-6 rounded-lg border border-border bg-muted/30 p-5 text-center">
+            <p className="text-sm font-semibold text-foreground">{t('public.proposal.decision.rejectedTitle')}</p>
+            <p className="text-xs text-muted-foreground">{t('public.proposal.decision.rejectedHint')}</p>
+          </div>
+        ) : view.canDecide && !expired ? (
+          <div className="mt-6 rounded-lg border border-border bg-card p-5 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">{t('public.proposal.decision.prompt')}</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <input className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder={t('public.proposal.decision.namePlaceholder')} value={decisionName} onChange={(e) => setDecisionName(e.target.value)} />
+              <input className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder={t('public.proposal.decision.emailPlaceholder')} value={decisionEmail} onChange={(e) => setDecisionEmail(e.target.value)} />
+            </div>
+            <textarea className="mt-3 min-h-[70px] w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder={t('public.proposal.decision.notesPlaceholder')} value={decisionNotes} onChange={(e) => setDecisionNotes(e.target.value)} />
+            {decisionError && <p className="mt-2 text-xs text-destructive">{decisionError}</p>}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" disabled={submitting} onClick={() => void submitDecision(true)} className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60">
+                <CheckCircle2 className="h-4 w-4" /> {t('public.proposal.decision.accept')}
+              </button>
+              <button type="button" disabled={submitting} onClick={() => void submitDecision(false)} className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive disabled:opacity-60">
+                {t('public.proposal.decision.reject')}
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           {t('public.proposal.footer')}

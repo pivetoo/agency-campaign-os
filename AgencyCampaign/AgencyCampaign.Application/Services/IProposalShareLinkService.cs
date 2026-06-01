@@ -22,5 +22,7 @@ namespace AgencyCampaign.Application.Services
     public interface IProposalPublicService
     {
         Task<ProposalPublicViewModel?> GetByToken(string token, string? ipAddress, string? userAgent, CancellationToken cancellationToken = default);
+
+        Task<ProposalClientDecisionResult> RegisterClientDecision(string token, bool accept, string clientName, string? clientEmail, string? notes, CancellationToken cancellationToken = default);
     }
 }

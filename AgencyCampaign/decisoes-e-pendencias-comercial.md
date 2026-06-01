@@ -13,7 +13,7 @@ que você quer que eu faça. O detalhe técnico do que já foi feito está em `c
 
 ### D2 — Aceite digital do cliente  _(destrava B1)_
 Como o cliente aceita/recusa a proposta direto no link público?
-- [ ] **A (MVP):** botão Aceitar / Recusar / Comentar, capturando data + identidade + versão
+- [X] **A (MVP):** botão Aceitar / Recusar / Comentar, capturando data + identidade + versão
 - [ ] **B:** assinatura eletrônica vinculante com trilha de auditoria completa
 - [ ] Outro: ______________________________
 
@@ -46,7 +46,7 @@ As features de diferenciação (usage rights, rate cards, modelos híbridos) ent
 ## 2. O que falta construir (bloqueado pelas decisões acima)
 
 ### Fatia B — Fechamento real (o coração do MVP comercial)
-- [ ] **B1 — Aceite digital no link público** — a página é só leitura; aceitar/recusar é feito a mão pelo operador. _(depende de **D2**)_
+- [x] **B1 — Aceite digital no link público** — FEITO (D2=A): cliente aceita/recusa no link com trilha (nome, e-mail, data, versão, hash do conteúdo); promove a proposta e notifica o operador. _(commit do B1)_
 - [ ] **B2 — Reconciliação do valor fechado** — metas/forecast/analytics usam o estimado, nunca o líquido negociado. _(depende de **D3**)_
 
 ### Fatia C — Go-to-market

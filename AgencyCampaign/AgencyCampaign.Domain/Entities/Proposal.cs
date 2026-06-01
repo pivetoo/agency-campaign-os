@@ -39,6 +39,16 @@ namespace AgencyCampaign.Domain.Entities
 
         public int? PaymentTermDays { get; private set; }
 
+        public string? ClientDecisionByName { get; private set; }
+
+        public string? ClientDecisionByEmail { get; private set; }
+
+        public DateTimeOffset? ClientDecisionAt { get; private set; }
+
+        public int? ClientDecisionVersionNumber { get; private set; }
+
+        public string? ClientDecisionContentHash { get; private set; }
+
         [NotMapped]
         public decimal DiscountValue => DiscountAmount.HasValue ? Money.Round(Math.Clamp(DiscountAmount.Value, 0m, TotalValue)) : 0m;
 
@@ -155,6 +165,39 @@ namespace AgencyCampaign.Domain.Entities
             }
 
             ApplyStatusChange(ProposalStatus.Rejected, changedByUserId, changedByUserName, reason);
+        }
+
+        public void AcceptByClient(string clientName, string? clientEmail, int versionNumber, string contentHash, string? notes = null)
+        {
+            EnsureClientDecidable();
+            RecordClientDecision(clientName, clientEmail, versionNumber, contentHash);
+            ApplyStatusChange(ProposalStatus.Approved, null, ClientDecisionByName, string.IsNullOrWhiteSpace(notes) ? "Aceita pelo cliente" : notes.Trim());
+        }
+
+        public void RejectByClient(string clientName, string? clientEmail, int versionNumber, string contentHash, string reason)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+            EnsureClientDecidable();
+            RecordClientDecision(clientName, clientEmail, versionNumber, contentHash);
+            ApplyStatusChange(ProposalStatus.Rejected, null, ClientDecisionByName, reason.Trim());
+        }
+
+        private void EnsureClientDecidable()
+        {
+            if (Status != ProposalStatus.Sent && Status != ProposalStatus.Viewed)
+            {
+                throw new InvalidOperationException("proposal.clientDecision.notDecidable");
+            }
+        }
+
+        private void RecordClientDecision(string clientName, string? clientEmail, int versionNumber, string contentHash)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(clientName);
+            ClientDecisionByName = clientName.Trim();
+            ClientDecisionByEmail = Normalize(clientEmail);
+            ClientDecisionAt = DateTimeOffset.UtcNow;
+            ClientDecisionVersionNumber = versionNumber;
+            ClientDecisionContentHash = contentHash;
         }
 
         public void ConvertToCampaign(long campaignId, long? changedByUserId = null, string? changedByUserName = null)

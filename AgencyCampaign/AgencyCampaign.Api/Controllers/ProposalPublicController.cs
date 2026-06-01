@@ -1,3 +1,5 @@
+using AgencyCampaign.Application.Models.Commercial;
+using AgencyCampaign.Application.Requests.Proposals;
 using AgencyCampaign.Application.Services;
 using Archon.Api.Controllers;
 using Microsoft.AspNetCore.Authorization;
@@ -33,6 +35,32 @@ namespace AgencyCampaign.Api.Controllers
         {
             byte[]? bytes = await pdfService.GenerateForShareTokenAsync(token, cancellationToken);
             return bytes is null ? Http404("Link inválido ou expirado.") : File(bytes, "application/pdf", $"proposta-{token}.pdf");
+        }
+
+        [HttpPost("{token}/accept")]
+        public Task<IActionResult> Accept(string token, [FromBody] ProposalClientDecisionRequest request, CancellationToken cancellationToken)
+        {
+            return Decide(token, accept: true, request, cancellationToken);
+        }
+
+        [HttpPost("{token}/reject")]
+        public Task<IActionResult> Reject(string token, [FromBody] ProposalClientDecisionRequest request, CancellationToken cancellationToken)
+        {
+            return Decide(token, accept: false, request, cancellationToken);
+        }
+
+        private async Task<IActionResult> Decide(string token, bool accept, ProposalClientDecisionRequest request, CancellationToken cancellationToken)
+        {
+            ProposalClientDecisionResult result = await publicService.RegisterClientDecision(
+                token, accept, request?.Name ?? string.Empty, request?.Email, request?.Notes, cancellationToken);
+
+            return result switch
+            {
+                ProposalClientDecisionResult.Success => Http200(new { ok = true }),
+                ProposalClientDecisionResult.NotFound => Http404("Link inválido ou expirado."),
+                ProposalClientDecisionResult.AlreadyDecided => Http409("Esta proposta já recebeu uma decisão."),
+                _ => Http400("Informe seu nome para confirmar a decisão."),
+            };
         }
     }
 }

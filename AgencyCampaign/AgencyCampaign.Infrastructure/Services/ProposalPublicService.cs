@@ -121,8 +121,97 @@ namespace AgencyCampaign.Infrastructure.Services
                 NetTotalValue = netTotalValue,
                 ValidityUntil = version.ValidityUntil,
                 SentAt = version.SentAt,
-                SnapshotJson = SanitizePublicSnapshot(version.SnapshotJson)
+                SnapshotJson = SanitizePublicSnapshot(version.SnapshotJson),
+                CanDecide = proposal.Status == ProposalStatus.Sent || proposal.Status == ProposalStatus.Viewed,
+                Decision = proposal.Status == ProposalStatus.Approved ? "accepted" : proposal.Status == ProposalStatus.Rejected ? "rejected" : null,
+                DecidedByName = proposal.ClientDecisionByName,
+                DecidedAt = proposal.ClientDecisionAt
             };
+        }
+
+        public async Task<ProposalClientDecisionResult> RegisterClientDecision(string token, bool accept, string clientName, string? clientEmail, string? notes, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(clientName))
+            {
+                return ProposalClientDecisionResult.Invalid;
+            }
+
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
+            ProposalShareLink? shareLink = await dbContext.Set<ProposalShareLink>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Token == token, cancellationToken);
+
+            if (shareLink is null || !shareLink.IsActive(now))
+            {
+                return ProposalClientDecisionResult.NotFound;
+            }
+
+            ProposalVersion? version = await dbContext.Set<ProposalVersion>()
+                .AsNoTracking()
+                .Where(item => item.ProposalId == shareLink.ProposalId)
+                .OrderByDescending(item => item.VersionNumber)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (version is null)
+            {
+                return ProposalClientDecisionResult.NotFound;
+            }
+
+            Proposal? proposal = await dbContext.Set<Proposal>()
+                .AsTracking()
+                .Include(item => item.Opportunity)
+                    .ThenInclude(opp => opp!.Brand)
+                .FirstOrDefaultAsync(item => item.Id == shareLink.ProposalId, cancellationToken);
+
+            if (proposal is null || !IsPubliclyAccessible(proposal, now))
+            {
+                return ProposalClientDecisionResult.NotFound;
+            }
+
+            if (proposal.Status != ProposalStatus.Sent && proposal.Status != ProposalStatus.Viewed)
+            {
+                return ProposalClientDecisionResult.AlreadyDecided;
+            }
+
+            string contentHash = ComputeContentHash(version.SnapshotJson);
+
+            try
+            {
+                if (accept)
+                {
+                    proposal.AcceptByClient(clientName, clientEmail, version.VersionNumber, contentHash, notes);
+                }
+                else
+                {
+                    proposal.RejectByClient(clientName, clientEmail, version.VersionNumber, contentHash, string.IsNullOrWhiteSpace(notes) ? "Recusada pelo cliente" : notes);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return ProposalClientDecisionResult.AlreadyDecided;
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            try
+            {
+                await notificationService.Create(
+                    accept ? KanvasNotifications.ProposalApproved(proposal) : KanvasNotifications.ProposalRejected(proposal),
+                    cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                logger?.LogWarning(exception, "Failed to create proposal client-decision notification.");
+            }
+
+            return ProposalClientDecisionResult.Success;
+        }
+
+        private static string ComputeContentHash(string? content)
+        {
+            byte[] hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(content ?? string.Empty));
+            return Convert.ToHexString(hash);
         }
 
         private static bool IsPubliclyAccessible(Proposal proposal, DateTimeOffset now)

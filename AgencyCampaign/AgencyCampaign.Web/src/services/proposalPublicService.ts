@@ -40,6 +40,16 @@ export interface ProposalPublicView {
   validityUntil?: string
   sentAt: string
   snapshotJson: string
+  canDecide: boolean
+  decision?: 'accepted' | 'rejected' | null
+  decidedByName?: string
+  decidedAt?: string
+}
+
+export interface ProposalClientDecisionInput {
+  name: string
+  email?: string
+  notes?: string
 }
 
 export const proposalPublicService = {
@@ -50,6 +60,14 @@ export const proposalPublicService = {
     } catch {
       return null
     }
+  },
+
+  accept(token: string, input: ProposalClientDecisionInput) {
+    return httpClient.post(`${BASE_URL}/${encodeURIComponent(token)}/accept`, input)
+  },
+
+  reject(token: string, input: ProposalClientDecisionInput) {
+    return httpClient.post(`${BASE_URL}/${encodeURIComponent(token)}/reject`, input)
   },
 
   async downloadPdf(token: string): Promise<void> {

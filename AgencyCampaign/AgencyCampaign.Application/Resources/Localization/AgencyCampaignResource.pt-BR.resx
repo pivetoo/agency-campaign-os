@@ -874,6 +874,18 @@
   <data name="public.proposal.empty" xml:space="preserve"><value>Esta proposta não tem itens cadastrados.</value></data>
   <data name="public.proposal.notes" xml:space="preserve"><value>Observações</value></data>
   <data name="public.proposal.footer" xml:space="preserve"><value>Documento gerado automaticamente. Para dúvidas ou aprovação, fale com a agência.</value></data>
+  <data name="public.proposal.decision.prompt" xml:space="preserve"><value>O que voce decide sobre esta proposta?</value></data>
+  <data name="public.proposal.decision.namePlaceholder" xml:space="preserve"><value>Seu nome completo</value></data>
+  <data name="public.proposal.decision.emailPlaceholder" xml:space="preserve"><value>Seu e-mail (opcional)</value></data>
+  <data name="public.proposal.decision.notesPlaceholder" xml:space="preserve"><value>Comentario (opcional)</value></data>
+  <data name="public.proposal.decision.accept" xml:space="preserve"><value>Aceitar proposta</value></data>
+  <data name="public.proposal.decision.reject" xml:space="preserve"><value>Recusar</value></data>
+  <data name="public.proposal.decision.nameRequired" xml:space="preserve"><value>Informe seu nome para confirmar.</value></data>
+  <data name="public.proposal.decision.failed" xml:space="preserve"><value>Nao foi possivel registrar sua decisao. Tente novamente.</value></data>
+  <data name="public.proposal.decision.acceptedTitle" xml:space="preserve"><value>Proposta aceita!</value></data>
+  <data name="public.proposal.decision.acceptedHint" xml:space="preserve"><value>A agencia foi avisada e dara sequencia. Obrigado!</value></data>
+  <data name="public.proposal.decision.rejectedTitle" xml:space="preserve"><value>Resposta registrada</value></data>
+  <data name="public.proposal.decision.rejectedHint" xml:space="preserve"><value>A agencia foi avisada da sua decisao.</value></data>
   <data name="public.proposal.privacyNote" xml:space="preserve"><value>Para seguranca, o acesso a este link e registrado (data/hora e IP anonimizado). Nenhum dado e compartilhado com terceiros.</value></data>
   <data name="proposalSend.template.subject" xml:space="preserve"><value>Proposta: {0}</value></data>
   <data name="proposalSend.template.greeting" xml:space="preserve"><value>Olá,</value></data>
