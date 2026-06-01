@@ -172,7 +172,10 @@ export default function AgencyCampaignLayout() {
   ])
 
   const controleAcessoRoutes = isRoot
-    ? toNavRoutes([{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> }])
+    ? toNavRoutes([
+        { key: 'usuarios', label: 'Usuários', path: '/usuarios', icon: <UserCog size={20} /> },
+        { key: 'usuarios-perfis', label: 'Perfis', path: '/usuarios/perfis', icon: <ShieldCheck size={20} /> },
+      ])
     : []
 
   const sysModules = [
