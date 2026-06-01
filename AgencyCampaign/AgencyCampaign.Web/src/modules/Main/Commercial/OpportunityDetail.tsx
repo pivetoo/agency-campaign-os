@@ -7,11 +7,10 @@ import { commercialPipelineStageService } from '../../../services/commercialPipe
 import { opportunityWinReasonService, opportunityLossReasonService } from '../../../services/opportunityOutcomeReasonService'
 import type { OpportunityWinReason, OpportunityLossReason } from '../../../types/opportunityOutcomeReason'
 import { opportunityService, OpportunityApprovalStatus, type Opportunity, type OpportunityApprovalRequest, type OpportunityFollowUp } from '../../../services/opportunityService'
-import { proposalService, type Proposal } from '../../../services/proposalService'
+import { proposalService } from '../../../services/proposalService'
 import { OpportunityApprovalReviewerStatus, type OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
 import OpportunityFormModal from '../../../components/modals/OpportunityFormModal'
 import OpportunityFollowUpFormModal from '../../../components/modals/OpportunityFollowUpFormModal'
-import OpportunityApprovalRequestFormModal from '../../../components/modals/OpportunityApprovalRequestFormModal'
 import OpportunityActivityTab from './OpportunityActivityTab'
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
@@ -47,11 +46,9 @@ export default function OpportunityDetail() {
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
   const [stages, setStages] = useState<Array<{ id: number; name: string; finalBehavior: number; displayOrder?: number; color?: string }>>([])
   const [approvalRequests, setApprovalRequests] = useState<OpportunityApprovalRequest[]>([])
-  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null)
   const [, setSelectedApprovalRequest] = useState<OpportunityApprovalRequest | null>(null)
   const [selectedFollowUp, setSelectedFollowUp] = useState<OpportunityFollowUp | null>(null)
   const [isOpportunityFormOpen, setIsOpportunityFormOpen] = useState(false)
-  const [isApprovalRequestFormOpen, setIsApprovalRequestFormOpen] = useState(false)
   const [isFollowUpFormOpen, setIsFollowUpFormOpen] = useState(false)
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
   const [, setSelectedStage] = useState<string>('1')
@@ -672,17 +669,6 @@ export default function OpportunityDetail() {
         onSuccess={() => {
           setIsFollowUpFormOpen(false)
           setSelectedFollowUp(null)
-          void loadOpportunity()
-        }}
-      />
-
-      <OpportunityApprovalRequestFormModal
-        open={isApprovalRequestFormOpen}
-        onOpenChange={setIsApprovalRequestFormOpen}
-        proposal={selectedProposal}
-        onSuccess={() => {
-          setIsApprovalRequestFormOpen(false)
-          setSelectedProposal(null)
           void loadOpportunity()
         }}
       />

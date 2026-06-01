@@ -15,8 +15,8 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 ## Progresso geral
 
 - Total de itens: 57
-- Concluidos: 39 / 57 (Fatia A + C3-C7 + D1i, D2i, D3i, D4i, D5i, D6i, D7i, D8i, D9i, D10i, D11i, D12i, D13i, D14i, D15i, D16i, D17i, D18i, D20i, D22i, D23i, D25i, D26i, D28i)
-- Por fatia: A 10/10 - B 0/5 - C 5/7 - D 24/29 - E 0/6
+- Concluidos: 40 / 57 (Fatia A + B5 + C3-C7 + D1i, D2i, D3i, D4i, D5i, D6i, D7i, D8i, D9i, D10i, D11i, D12i, D13i, D14i, D15i, D16i, D17i, D18i, D20i, D22i, D23i, D25i, D26i, D28i)
+- Por fatia: A 10/10 - B 1/5 - C 5/7 - D 24/29 - E 0/6
 - Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos: D7i, D25i, D26i, D3i, D1i, D18i (TDD) + D6i (logging). 3 jobs comerciais novos. D24i adiado (escopo global). Backend 888 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
@@ -64,7 +64,7 @@ Transforma "registro manual" em "funil rastreavel". Itens com decisao de produto
 - [ ] **B2 - [Alto] Reconciliacao do valor negociado** `[?] D3` - metas/forecast/analytics usam o valor estimado inicial, nunca o liquido negociado -> reconciliar o liquido da proposta aceita de volta na oportunidade e nas metricas. _(oportunidade / analytics / metas)_
 - [ ] **B3 - [Alto] "Visualizada" automatica a partir do acesso real ao link** - hoje "visualizada" e clique manual do operador -> promover o status quando o cliente abre o link e notificar o operador ("cliente abriu"). _(link publico + proposta)_
 - [ ] **B4 - [Alto] Clarear os dois modelos de "aprovar"** - aprovar a PROPOSTA (status) e aprovar o PEDIDO de excecao (revisores) se confundem -> diferenciar rotulos/fluxo na UI para o operador nao misturar. _(propostas / aprovacoes)_
-- [ ] **B5 - [Medio] "Solicitar aprovacao" a partir da oportunidade** - o modal existe mas nenhum botao o aciona (codigo morto) -> ligar o botao na oportunidade OU remover o codigo morto. _(detalhe da oportunidade)_
+- [x] **B5 - [Medio] "Solicitar aprovacao" a partir da oportunidade** - FEITO (remocao): no OpportunityDetail o `OpportunityApprovalRequestFormModal` era codigo morto - `setIsApprovalRequestFormOpen(true)` nunca era chamado e `selectedProposal` ficava sempre null (o modal abriria com proposta nula). Como o fluxo de "Solicitar aprovacao" ja existe e funciona no ProposalDetail (com a proposta selecionada) e aprovacao agora pende da Proposta (negociacao aposentada), duplicar na oportunidade so confundiria. Removidos: o bloco do modal, os estados `isApprovalRequestFormOpen`/`selectedProposal` e os imports orfaos (`OpportunityApprovalRequestFormModal`, type `Proposal`). tsc verde. _(detalhe da oportunidade)_
 
 ---
 
