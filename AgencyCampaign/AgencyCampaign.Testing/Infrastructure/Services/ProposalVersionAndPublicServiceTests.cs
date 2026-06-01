@@ -1,6 +1,7 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
 using Archon.Application.Services;
@@ -132,6 +133,34 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             viewModel!.VersionNumber.Should().Be(1);
             viewModel.BrandName.Should().Be("Acme");
             notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetByToken_should_promote_sent_proposal_to_viewed()
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            await db.SaveChangesAsync();
+            CommercialPipelineStage stage = new("Q", 1, "#fff");
+            db.Add(stage);
+            await db.SaveChangesAsync();
+            Opportunity opportunity = new(brand.Id, stage.Id, "deal", 0m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+            Proposal proposal = new(opportunity.Id, "P", 1);
+            proposal.MarkAsSent();
+            db.Add(proposal);
+            await db.SaveChangesAsync();
+            db.Add(new ProposalVersion(proposal.Id, 1, "v1", null, 100m, null, "{}", null, null));
+            db.Add(new ProposalShareLink(proposal.Id, "tok", null, null, null));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            await service.GetByToken("tok", null, null);
+
+            db.ChangeTracker.Clear();
+            Proposal reloaded = await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == proposal.Id);
+            reloaded.Status.Should().Be(ProposalStatus.Viewed);
         }
 
         [Test]

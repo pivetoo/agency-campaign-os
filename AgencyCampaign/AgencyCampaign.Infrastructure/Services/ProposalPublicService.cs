@@ -84,6 +84,19 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
             }
 
+            if (proposal.Status == ProposalStatus.Sent)
+            {
+                Proposal? trackedProposal = await dbContext.Set<Proposal>()
+                    .AsTracking()
+                    .FirstOrDefaultAsync(item => item.Id == proposal.Id, cancellationToken);
+
+                if (trackedProposal is not null && trackedProposal.Status == ProposalStatus.Sent)
+                {
+                    trackedProposal.MarkAsViewed();
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+            }
+
             // Le o desconto congelado na versao enviada (imune a edicoes posteriores na proposta viva).
             // Versoes legadas (sem congelamento) caem no fallback para o desconto atual da proposta.
             bool hasFrozenDiscount = version.NetTotalValue.HasValue;
