@@ -16,7 +16,7 @@ Cada item segue o formato: **[Severidade]** Titulo - problema -> correcao preten
 
 - Total de itens: 57
 - Concluidos: 48 / 57 (Fatia A + B (5/5) + C1, C3-C7 + D1i, D2i, D3i, D4i, D5i, D6i, D7i, D8i, D9i, D10i, D11i, D12i, D13i, D14i, D15i, D16i, D17i, D18i, D20i, D21i, D22i, D23i, D25i, D26i, D27i, D28i, D29i)
-- Por fatia: A 10/10 - B 5/5 (FECHADA) - C 6/7 (so falta C2, removido a pedido) - D 27/29 (D19i/D24i adiados = D nao-adiado 100%) - E 0/6
+- Por fatia: A 10/10 - B 5/5 (FECHADA) - C 6/7 (so falta C2, removido a pedido) - D 27/29 (D19i/D24i adiados = D nao-adiado 100%) - E 1/6 (E3 feito)
 - Fatia D: triagem paralela feita (29 itens, premissas validas). Lotes feitos: D7i, D25i, D26i, D3i, D1i, D18i (TDD) + D6i (logging). 3 jobs comerciais novos. D24i adiado (escopo global). Backend 888 testes verdes; Api builda.
 - Fatia A verificada: backend 874 testes verdes; frontend `tsc -b` limpo. Build vite local bloqueado por binario nativo do rolldown (ambiente), CI builda normal.
 - Fatia C: C3, C4, C5, C6, C7 feitos (backend 882 testes verdes; build do Api OK). C2 (rate limit) REMOVIDO a pedido do usuario - ele fara algo mais robusto. CORS nao mexido. C1 (multi-tenant do link) bloqueado por D4.
@@ -126,7 +126,7 @@ Coloca o Kanvas no nivel das ferramentas especificas de marketing de influencia.
 
 - [ ] **E1 - Usage rights / licenciamento como linha precificavel** - hoje so desconto global; mercado trata como linha obrigatoria. _(proposta)_
 - [ ] **E2 - Modelos hibridos de remuneracao** - base + comissao/afiliado/performance, alem do flat-fee por item. _(proposta)_
-- [ ] **E3 - Rate cards reutilizaveis** - valor unitario digitado a cada vez; mercado usa rate card por creator/entregavel. _(catalogo / proposta)_ -- BACKEND FEITO: entity `RateCardItem` (creator + label + unitPrice + displayOrder + isActive, migration 202605310007), service CRUD (`GetByCreator`, create/update/delete soft) + `RateCardItemsController` (area/permissoes `rateCardItems.*`), 3 testes TDD (919 verdes). FALTA: frontend (tela de gestao + picker no form de item da proposta).
+- [x] **E3 - Rate cards reutilizaveis** - FEITO (backend + frontend): entity `RateCardItem` (creator + label + unitPrice + displayOrder + isActive, migration 202605310007), service CRUD (`GetByCreator`, create/update/delete soft) + `RateCardItemsController` (area/permissoes `rateCardItems.*`). Frontend: aba "Rate card" no detalhe do creator (adicionar/editar/excluir) + picker no form de item da proposta (escolher do catalogo preenche descricao + preco). 3 testes TDD; suite 919 verdes; tsc/Api verdes. _(catalogo / proposta)_
 - [ ] **E4 - Tracking de engajamento da proposta** - abriu/tempo por secao; "visualizada" hoje e manual. _(link publico)_
 - [ ] **E5 - Pagamento/payout de creator ligado ao fechamento** - padrao no nicho; hoje ausente no comercial. _(comercial <-> financeiro)_
 - [ ] **E6 - Expiracao automatica + lembretes da proposta** - reforco do C7 com cadencia de lembrete ao cliente. _(proposta)_

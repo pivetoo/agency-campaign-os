@@ -2416,4 +2416,12 @@
   <data name="opportunities.reopenFollowUp.description" xml:space="preserve"><value>Allows reopening a completed follow-up.</value></data>
   <data name="opportunityFollowUp.notCompleted" xml:space="preserve"><value>The follow-up is not completed.</value></data>
   <data name="commercialApprovals.capReached" xml:space="preserve"><value>Showing the first {0} approvals. Use search to find others.</value></data>
+  <data name="creators.detail.tab.rateCard" xml:space="preserve"><value>Rate card</value></data>
+  <data name="rateCard.hint" xml:space="preserve"><value>Standard prices for this creator. When building a proposal, pick from the catalog instead of typing.</value></data>
+  <data name="rateCard.label" xml:space="preserve"><value>Deliverable</value></data>
+  <data name="rateCard.labelPlaceholder" xml:space="preserve"><value>e.g. Reel, Stories 3x, Combo</value></data>
+  <data name="rateCard.price" xml:space="preserve"><value>Price</value></data>
+  <data name="rateCard.empty" xml:space="preserve"><value>No rate card items yet.</value></data>
+  <data name="rateCard.deleteConfirm" xml:space="preserve"><value>Remove this rate card item?</value></data>
+  <data name="rateCard.pickFromCard" xml:space="preserve"><value>Pick from rate card</value></data>
 </root>

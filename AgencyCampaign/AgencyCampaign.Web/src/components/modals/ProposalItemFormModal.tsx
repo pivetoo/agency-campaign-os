@@ -3,7 +3,8 @@ import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitl
 import { creatorService } from '../../services/creatorService'
 import { proposalService, type CreateProposalItemRequest, type ProposalItem, type UpdateProposalItemRequest } from '../../services/proposalService'
 import type { Creator } from '../../types/creator'
-import { dateInputToIso, isoToDateInput } from '../../lib/format'
+import { rateCardItemService, type RateCardItem } from '../../services/rateCardItemService'
+import { dateInputToIso, isoToDateInput, formatCurrency } from '../../lib/format'
 
 interface ProposalItemFormModalProps {
   open: boolean
@@ -28,12 +29,21 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
   const isEditing = !!item
   const [formData, setFormData] = useState<CreateProposalItemRequest>({ ...initialFormData, proposalId })
   const [creators, setCreators] = useState<Creator[]>([])
+  const [rateCardItems, setRateCardItems] = useState<RateCardItem[]>([])
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
     if (!open) return
     void creatorService.getAll({ pageSize: 10 }).then((r) => setCreators(r.data ?? []))
   }, [open])
+
+  useEffect(() => {
+    if (!open || !formData.creatorId) {
+      setRateCardItems([])
+      return
+    }
+    void rateCardItemService.getByCreator(formData.creatorId).then(setRateCardItems).catch(() => setRateCardItems([]))
+  }, [open, formData.creatorId])
 
   useEffect(() => {
     if (item) {
@@ -118,6 +128,24 @@ export default function ProposalItemFormModal({ open, onOpenChange, proposalId, 
                 }}
               />
             </div>
+
+            {rateCardItems.length > 0 && (
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-xs font-medium text-muted-foreground">{t('rateCard.pickFromCard')}</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {rateCardItems.map((rateItem) => (
+                    <button
+                      key={rateItem.id}
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, description: rateItem.label, unitPrice: rateItem.unitPrice }))}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                    >
+                      {rateItem.label} · {formatCurrency(rateItem.unitPrice)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">{t('modal.proposalItem.field.observations')}</label>

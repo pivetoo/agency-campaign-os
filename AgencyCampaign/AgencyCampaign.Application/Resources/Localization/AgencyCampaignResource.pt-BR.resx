@@ -2416,4 +2416,12 @@
   <data name="opportunities.reopenFollowUp.description" xml:space="preserve"><value>Permite reabrir um follow-up concluido.</value></data>
   <data name="opportunityFollowUp.notCompleted" xml:space="preserve"><value>O follow-up nao esta concluido.</value></data>
   <data name="commercialApprovals.capReached" xml:space="preserve"><value>Mostrando as primeiras {0} aprovacoes. Use a busca para encontrar outras.</value></data>
+  <data name="creators.detail.tab.rateCard" xml:space="preserve"><value>Rate card</value></data>
+  <data name="rateCard.hint" xml:space="preserve"><value>Precos padrao deste creator. Ao montar uma proposta, voce escolhe do catalogo em vez de digitar.</value></data>
+  <data name="rateCard.label" xml:space="preserve"><value>Entregavel</value></data>
+  <data name="rateCard.labelPlaceholder" xml:space="preserve"><value>Ex.: Reel, Stories 3x, Combo</value></data>
+  <data name="rateCard.price" xml:space="preserve"><value>Preco</value></data>
+  <data name="rateCard.empty" xml:space="preserve"><value>Nenhum item no rate card ainda.</value></data>
+  <data name="rateCard.deleteConfirm" xml:space="preserve"><value>Remover este item do rate card?</value></data>
+  <data name="rateCard.pickFromCard" xml:space="preserve"><value>Escolher do rate card</value></data>
 </root>

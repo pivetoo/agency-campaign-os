@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PageLayout, Card, CardContent, Badge, DataTable, Tabs, TabsList, TabsTrigger, TabsContent, Button, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { ExternalLink, Plus, Pencil, Trash2, Users, Activity, Megaphone, RefreshCw } from 'lucide-react'
+import { ExternalLink, Plus, Pencil, Trash2, Users, Activity, Megaphone, RefreshCw, DollarSign } from 'lucide-react'
+import RateCardTab from './RateCardTab'
 import { creatorService, resolveCreatorPhotoUrl } from '../../../../services/creatorService'
 import { creatorSocialHandleService } from '../../../../services/creatorSocialHandleService'
 import type { Creator } from '../../../../types/creator'
@@ -266,6 +267,10 @@ export default function CreatorDetail() {
               <Activity size={14} />
               {t('creators.detail.tab.platformPerformance')}
             </TabsTrigger>
+            <TabsTrigger value="ratecard" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+              <DollarSign size={14} />
+              {t('creators.detail.tab.rateCard')}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="handles" className="mt-0">
@@ -322,6 +327,10 @@ export default function CreatorDetail() {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="ratecard" className="mt-0">
+            <RateCardTab creatorId={creatorId} />
           </TabsContent>
         </Tabs>
       </PageLayout>
