@@ -33,7 +33,7 @@ As features de diferenciação (usage rights, rate cards, modelos híbridos) ent
 - [ ] **Pós-MVP** (deixar a Fatia E para depois do lançamento)
 
 ### D6 — Política de arredondamento financeiro  _(do nosso papo da auditoria)_
-- [ ] Manter **`AwayFromZero`** (arredondamento comercial — já é o padrão do código)
+- [X] Manter **`AwayFromZero`** (arredondamento comercial — já é o padrão do código)
 - [ ] Trocar para **`ToEven`** (bancário, reduz viés cumulativo)
 
 ### D7 — IP de visitantes / LGPD  _(do nosso papo)_
