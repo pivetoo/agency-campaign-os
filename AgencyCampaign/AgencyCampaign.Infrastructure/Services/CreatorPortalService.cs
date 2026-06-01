@@ -125,6 +125,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            bool bankInfoChanged = creator.PixKey != request.PixKey
+                || creator.PixKeyType != request.PixKeyType
+                || (request.Document is not null && request.Document != creator.Document);
+
             creator.Update(
                 creator.Name,
                 creator.StageName,
@@ -140,10 +144,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 creator.DefaultAgencyFeePercent,
                 creator.IsActive);
 
-            dbContext.Set<CreatorEvent>().Add(new CreatorEvent(
-                creatorId,
-                CreatorEventType.BankInfoChanged,
-                "Dados bancarios (Pix) alterados via portal pelo creator."));
+            if (bankInfoChanged)
+            {
+                dbContext.Set<CreatorEvent>().Add(new CreatorEvent(
+                    creatorId,
+                    CreatorEventType.BankInfoChanged,
+                    "Dados bancarios (Pix) alterados via portal pelo creator."));
+            }
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return creator;

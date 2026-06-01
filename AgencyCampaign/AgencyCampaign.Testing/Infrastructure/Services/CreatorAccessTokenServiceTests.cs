@@ -98,6 +98,44 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task Issue_should_reset_expiry_when_requested_in_the_past()
+        {
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorAccessToken token = await service.Issue(new IssueCreatorAccessTokenRequest { CreatorId = creator.Id, ExpiresAt = DateTimeOffset.UtcNow.AddDays(-5) });
+
+            token.ExpiresAt!.Value.Should().BeAfter(DateTimeOffset.UtcNow);
+        }
+
+        [Test]
+        public async Task ValidateToken_should_match_full_prefixed_token_and_reject_random_only()
+        {
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorAccessToken issued = await service.Issue(new IssueCreatorAccessTokenRequest { CreatorId = creator.Id });
+            string fullToken = issued.Token;
+            string randomOnly = fullToken[(fullToken.IndexOf('~') + 1)..];
+            db.ChangeTracker.Clear();
+
+            (await service.ValidateToken(fullToken)).Should().NotBeNull();
+            (await service.ValidateToken(randomOnly)).Should().BeNull();
+        }
+
+        [Test]
+        public async Task ValidateToken_should_return_null_when_creator_record_missing()
+        {
+            CreatorAccessToken token = new(999, "orphan", expiresAt: DateTimeOffset.UtcNow.AddDays(1));
+            db.Add(token);
+            await db.SaveChangesAsync();
+
+            (await service.ValidateToken("orphan")).Should().BeNull();
+        }
+
+        [Test]
         public async Task Issue_should_cap_expiry_beyond_maximum()
         {
             Creator creator = new("Foo");
