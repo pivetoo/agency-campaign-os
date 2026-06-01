@@ -150,6 +150,21 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task ValidateToken_should_return_null_when_creator_is_inactive()
+        {
+            Creator creator = new("Foo");
+            creator.Update(creator.Name, creator.StageName, creator.Email, creator.Phone, creator.Document, creator.PixKey, creator.PixKeyType, creator.PrimaryNiche, creator.City, creator.State, creator.Notes, creator.DefaultAgencyFeePercent, false);
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorAccessToken token = new(creator.Id, "abc", expiresAt: DateTimeOffset.UtcNow.AddDays(1));
+            db.Add(token);
+            await db.SaveChangesAsync();
+
+            (await service.ValidateToken("abc")).Should().BeNull();
+        }
+
+        [Test]
         public async Task ValidateToken_should_increment_usage_for_valid_token()
         {
             Creator creator = new("Foo");

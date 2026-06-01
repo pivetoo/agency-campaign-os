@@ -82,6 +82,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 return null;
             }
 
+            if (entity.Creator is not null && !entity.Creator.IsActive)
+            {
+                return null;
+            }
+
             entity.RegisterUse();
             await DbContext.SaveChangesAsync(cancellationToken);
 
