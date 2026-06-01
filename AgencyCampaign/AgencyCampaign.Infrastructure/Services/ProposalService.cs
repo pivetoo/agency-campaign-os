@@ -1,5 +1,4 @@
 using AgencyCampaign.Application.Catalogs;
-using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Commercial;
 using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.Opportunities;
@@ -9,13 +8,11 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Clients;
 using Archon.Application.Abstractions;
-using Archon.Application.Integrations;
 using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
