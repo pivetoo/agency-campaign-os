@@ -13,6 +13,9 @@ export interface ProposalPublicItem {
   deliveryDeadline?: string
   observations?: string
   status: number
+  kind?: number
+  usageDurationMonths?: number
+  usageScope?: string
 }
 
 export interface ProposalPublicSnapshot {

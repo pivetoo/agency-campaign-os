@@ -2424,4 +2424,14 @@
   <data name="rateCard.empty" xml:space="preserve"><value>Nenhum item no rate card ainda.</value></data>
   <data name="rateCard.deleteConfirm" xml:space="preserve"><value>Remover este item do rate card?</value></data>
   <data name="rateCard.pickFromCard" xml:space="preserve"><value>Escolher do rate card</value></data>
+  <data name="modal.proposalItem.field.kind" xml:space="preserve"><value>Tipo</value></data>
+  <data name="modal.proposalItem.kind.deliverable" xml:space="preserve"><value>Entrega</value></data>
+  <data name="modal.proposalItem.kind.usageRights" xml:space="preserve"><value>Usage rights</value></data>
+  <data name="modal.proposalItem.field.usageDuration" xml:space="preserve"><value>Prazo (meses)</value></data>
+  <data name="modal.proposalItem.field.usageScope" xml:space="preserve"><value>Escopo</value></data>
+  <data name="modal.proposalItem.usage.perpetual" xml:space="preserve"><value>Perpetuo (deixe vazio)</value></data>
+  <data name="modal.proposalItem.usage.scopePlaceholder" xml:space="preserve"><value>Ex.: Impulsionamento, Midia propria, Todas as midias</value></data>
+  <data name="public.proposal.usageRights" xml:space="preserve"><value>Usage rights</value></data>
+  <data name="public.proposal.usageMonths" xml:space="preserve"><value>{0} meses</value></data>
+  <data name="public.proposal.usagePerpetual" xml:space="preserve"><value>Perpetuo</value></data>
 </root>

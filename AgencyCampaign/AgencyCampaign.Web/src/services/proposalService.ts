@@ -32,8 +32,13 @@ export interface ProposalItem {
     name: string
     stageName?: string
   }
+  kind: number
+  usageDurationMonths?: number
+  usageScope?: string
   total: number
 }
+
+export const ProposalItemKind = { Deliverable: 0, UsageRights: 1 } as const
 
 export interface Proposal {
   id: number
@@ -98,6 +103,9 @@ export interface CreateProposalItemRequest {
   deliveryDeadline?: string
   creatorId?: number
   observations?: string
+  kind?: number
+  usageDurationMonths?: number
+  usageScope?: string
 }
 
 export interface UpdateProposalItemRequest {
@@ -106,6 +114,9 @@ export interface UpdateProposalItemRequest {
   unitPrice: number
   deliveryDeadline?: string
   observations?: string
+  kind?: number
+  usageDurationMonths?: number
+  usageScope?: string
 }
 
 export interface ProposalListFilters {

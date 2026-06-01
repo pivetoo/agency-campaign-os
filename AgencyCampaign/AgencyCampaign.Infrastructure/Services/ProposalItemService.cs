@@ -37,7 +37,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.UnitPrice,
                 request.DeliveryDeadline,
                 request.CreatorId,
-                request.Observations);
+                request.Observations,
+                request.Kind,
+                request.UsageDurationMonths,
+                request.UsageScope);
 
             bool success = await Insert(cancellationToken, item);
             if (!success)
@@ -68,7 +71,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Quantity,
                 request.UnitPrice,
                 request.DeliveryDeadline,
-                request.Observations);
+                request.Observations,
+                request.Kind,
+                request.UsageDurationMonths,
+                request.UsageScope);
 
             ProposalItem? result = await Update(item, cancellationToken);
             if (result is null)

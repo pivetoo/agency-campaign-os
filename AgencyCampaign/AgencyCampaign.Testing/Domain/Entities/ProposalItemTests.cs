@@ -21,6 +21,25 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void UsageRights_item_should_keep_duration_and_scope()
+        {
+            ProposalItem subject = new(1, "Usage rights", 1, 5000m, kind: ProposalItemKind.UsageRights, usageDurationMonths: 6, usageScope: "Paid social");
+
+            subject.Kind.Should().Be(ProposalItemKind.UsageRights);
+            subject.UsageDurationMonths.Should().Be(6);
+            subject.UsageScope.Should().Be("Paid social");
+        }
+
+        [Test]
+        public void Deliverable_item_should_not_carry_usage_fields()
+        {
+            ProposalItem subject = new(1, "Reel", 1, 3000m, kind: ProposalItemKind.Deliverable, usageDurationMonths: 6, usageScope: "Paid social");
+
+            subject.UsageDurationMonths.Should().BeNull();
+            subject.UsageScope.Should().BeNull();
+        }
+
+        [Test]
         public void Constructor_should_reject_blank_description()
         {
             Action act = () => _ = new ProposalItem(1, " ", 1, 1m);

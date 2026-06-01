@@ -1,3 +1,4 @@
+using AgencyCampaign.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 
 namespace AgencyCampaign.Application.Requests.Proposals
@@ -20,5 +21,13 @@ namespace AgencyCampaign.Application.Requests.Proposals
 
         [StringLength(1000)]
         public string? Observations { get; set; }
+
+        public ProposalItemKind Kind { get; set; } = ProposalItemKind.Deliverable;
+
+        [Range(1, 600)]
+        public int? UsageDurationMonths { get; set; }
+
+        [StringLength(160)]
+        public string? UsageScope { get; set; }
     }
 }

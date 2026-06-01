@@ -181,7 +181,17 @@ export default function PublicProposal() {
                           {item.creatorName || '—'}
                         </td>
                         <td className="px-4 py-3 text-foreground">
-                          <div>{item.description}</div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span>{item.description}</span>
+                            {item.kind === 1 && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                                {t('public.proposal.usageRights')}
+                                {' · '}
+                                {item.usageDurationMonths ? t('public.proposal.usageMonths').replace('{0}', String(item.usageDurationMonths)) : t('public.proposal.usagePerpetual')}
+                                {item.usageScope ? ` · ${item.usageScope}` : ''}
+                              </span>
+                            )}
+                          </div>
                           {item.deliveryDeadline ? (
                             <div className="text-xs text-muted-foreground">
                               {t('public.proposal.deliveryBy').replace('{0}', formatDate(item.deliveryDeadline))}

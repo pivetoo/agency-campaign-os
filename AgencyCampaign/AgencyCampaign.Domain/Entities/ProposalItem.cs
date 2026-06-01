@@ -25,13 +25,19 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? Observations { get; private set; }
 
+        public ProposalItemKind Kind { get; private set; } = ProposalItemKind.Deliverable;
+
+        public int? UsageDurationMonths { get; private set; }
+
+        public string? UsageScope { get; private set; }
+
         public decimal Total => Money.Round(Quantity * UnitPrice);
 
         private ProposalItem()
         {
         }
 
-        public ProposalItem(long proposalId, string description, int quantity, decimal unitPrice, DateTimeOffset? deliveryDeadline = null, long? creatorId = null, string? observations = null)
+        public ProposalItem(long proposalId, string description, int quantity, decimal unitPrice, DateTimeOffset? deliveryDeadline = null, long? creatorId = null, string? observations = null, ProposalItemKind kind = ProposalItemKind.Deliverable, int? usageDurationMonths = null, string? usageScope = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalId);
             ArgumentException.ThrowIfNullOrWhiteSpace(description);
@@ -46,9 +52,10 @@ namespace AgencyCampaign.Domain.Entities
             CreatorId = creatorId;
             Observations = Normalize(observations);
             Status = ProposalItemStatus.Pending;
+            SetUsage(kind, usageDurationMonths, usageScope);
         }
 
-        public void Update(string description, int quantity, decimal unitPrice, DateTimeOffset? deliveryDeadline, string? observations)
+        public void Update(string description, int quantity, decimal unitPrice, DateTimeOffset? deliveryDeadline, string? observations, ProposalItemKind kind = ProposalItemKind.Deliverable, int? usageDurationMonths = null, string? usageScope = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(description);
             ArgumentOutOfRangeException.ThrowIfNegative(quantity);
@@ -59,6 +66,22 @@ namespace AgencyCampaign.Domain.Entities
             UnitPrice = unitPrice;
             DeliveryDeadline = deliveryDeadline?.ToUniversalTime();
             Observations = Normalize(observations);
+            SetUsage(kind, usageDurationMonths, usageScope);
+        }
+
+        private void SetUsage(ProposalItemKind kind, int? usageDurationMonths, string? usageScope)
+        {
+            Kind = kind;
+            if (kind == ProposalItemKind.UsageRights)
+            {
+                UsageDurationMonths = usageDurationMonths.HasValue && usageDurationMonths.Value > 0 ? usageDurationMonths : null;
+                UsageScope = Normalize(usageScope);
+            }
+            else
+            {
+                UsageDurationMonths = null;
+                UsageScope = null;
+            }
         }
 
         public void AssignCreator(long creatorId)

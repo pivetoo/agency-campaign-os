@@ -340,7 +340,10 @@ namespace AgencyCampaign.Infrastructure.Services
                     total = item.Total,
                     deliveryDeadline = item.DeliveryDeadline,
                     observations = item.Observations,
-                    status = (int)item.Status
+                    status = (int)item.Status,
+                    kind = (int)item.Kind,
+                    usageDurationMonths = item.UsageDurationMonths,
+                    usageScope = item.UsageScope
                 }).ToArray()
             };
 

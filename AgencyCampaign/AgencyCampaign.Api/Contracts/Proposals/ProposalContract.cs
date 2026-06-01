@@ -141,6 +141,12 @@ namespace AgencyCampaign.Api.Contracts.Proposals
 
         public CreatorReferenceContract? Creator { get; init; }
 
+        public ProposalItemKind Kind { get; init; }
+
+        public int? UsageDurationMonths { get; init; }
+
+        public string? UsageScope { get; init; }
+
         public decimal Total { get; init; }
 
         public static Expression<Func<ProposalItem, ProposalItemContract>> Projection => item => new ProposalItemContract
@@ -154,6 +160,9 @@ namespace AgencyCampaign.Api.Contracts.Proposals
             Status = item.Status,
             Observations = item.Observations,
             CreatorId = item.CreatorId,
+            Kind = item.Kind,
+            UsageDurationMonths = item.UsageDurationMonths,
+            UsageScope = item.UsageScope,
             Creator = item.Creator == null
                 ? null
                 : new CreatorReferenceContract
