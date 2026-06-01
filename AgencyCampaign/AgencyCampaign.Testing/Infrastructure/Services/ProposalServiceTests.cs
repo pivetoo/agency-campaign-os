@@ -237,6 +237,36 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task ConvertToNewCampaign_should_seed_campaign_creators_from_proposal_items()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            db.Add(new CampaignCreatorStatusBuilder().WithId(1).AsInitial().Build());
+            Creator creatorA = new("Ana");
+            Creator creatorB = new("Bru");
+            db.Add(creatorA);
+            db.Add(creatorB);
+            await db.SaveChangesAsync();
+
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            db.Add(new ProposalItem(proposal.Id, "Post", 1, 500m, creatorId: creatorA.Id));
+            db.Add(new ProposalItem(proposal.Id, "Story", 1, 300m, creatorId: creatorA.Id));
+            db.Add(new ProposalItem(proposal.Id, "Reel", 2, 100m, creatorId: creatorB.Id));
+            db.Add(new ProposalItem(proposal.Id, "Sem creator", 1, 50m));
+            await db.SaveChangesAsync();
+            await service.MarkAsSent(proposal.Id);
+            await service.ApproveProposal(proposal.Id);
+
+            Proposal converted = await service.ConvertToNewCampaign(proposal.Id);
+
+            long campaignId = converted.CampaignId!.Value;
+            db.ChangeTracker.Clear();
+            List<CampaignCreator> seeded = await db.Set<CampaignCreator>().AsNoTracking().Where(item => item.CampaignId == campaignId).ToListAsync();
+            seeded.Should().HaveCount(2);
+            seeded.Single(item => item.CreatorId == creatorA.Id).AgreedAmount.Should().Be(800m);
+            seeded.Single(item => item.CreatorId == creatorB.Id).AgreedAmount.Should().Be(200m);
+        }
+
+        [Test]
         public async Task CancelProposal_should_persist_cancelled_status()
         {
             Opportunity opportunity = await SeedOpportunityAsync();

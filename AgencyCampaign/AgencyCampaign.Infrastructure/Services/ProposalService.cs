@@ -403,6 +403,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
 
+            await SeedCampaignCreatorsAsync(saved.Id, campaignId, cancellationToken);
             await ApplyPostConversionAsync(saved, campaignId, cancellationToken);
             return saved;
         }
@@ -450,6 +451,7 @@ namespace AgencyCampaign.Infrastructure.Services
             proposal.ConvertToCampaign(campaign.Id, currentUser.UserId, currentUser.UserName);
             Proposal saved = await SaveAndReturn(proposal, cancellationToken);
 
+            await SeedCampaignCreatorsAsync(saved.Id, campaign.Id, cancellationToken);
             await ApplyPostConversionAsync(saved, campaign.Id, cancellationToken);
             return saved;
         }
@@ -520,6 +522,64 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return reminded;
+        }
+
+        private async Task SeedCampaignCreatorsAsync(long proposalId, long campaignId, CancellationToken cancellationToken)
+        {
+            List<ProposalItem> items = await DbContext.Set<ProposalItem>()
+                .AsNoTracking()
+                .Where(item => item.ProposalId == proposalId && item.CreatorId != null)
+                .ToListAsync(cancellationToken);
+
+            if (items.Count == 0)
+            {
+                return;
+            }
+
+            Dictionary<long, decimal> agreedByCreator = items
+                .GroupBy(item => item.CreatorId!.Value)
+                .ToDictionary(group => group.Key, group => group.Sum(item => item.Total));
+
+            HashSet<long> existing = (await DbContext.Set<CampaignCreator>()
+                .AsNoTracking()
+                .Where(item => item.CampaignId == campaignId)
+                .Select(item => item.CreatorId)
+                .ToListAsync(cancellationToken))
+                .ToHashSet();
+
+            List<long> creatorIds = agreedByCreator.Keys.Where(creatorId => !existing.Contains(creatorId)).ToList();
+            if (creatorIds.Count == 0)
+            {
+                return;
+            }
+
+            long statusId = await ResolveInitialCampaignCreatorStatusId(cancellationToken);
+
+            Dictionary<long, decimal> feeByCreator = await DbContext.Set<Creator>()
+                .AsNoTracking()
+                .Where(creator => creatorIds.Contains(creator.Id))
+                .ToDictionaryAsync(creator => creator.Id, creator => creator.DefaultAgencyFeePercent, cancellationToken);
+
+            foreach (long creatorId in creatorIds)
+            {
+                decimal fee = feeByCreator.TryGetValue(creatorId, out decimal value) ? value : 0m;
+                CampaignCreator campaignCreator = new(campaignId, creatorId, statusId, agreedByCreator[creatorId], fee);
+                DbContext.Set<CampaignCreator>().Add(campaignCreator);
+            }
+
+            await DbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task<long> ResolveInitialCampaignCreatorStatusId(CancellationToken cancellationToken)
+        {
+            long? statusId = await DbContext.Set<AgencyCampaign.Domain.Entities.CampaignCreatorStatus>()
+                .AsNoTracking()
+                .Where(status => status.IsActive && status.IsInitial)
+                .OrderBy(status => status.DisplayOrder)
+                .Select(status => (long?)status.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return statusId ?? throw new InvalidOperationException("campaignCreator.initialStatus.missing");
         }
 
         private async Task ApplyPostConversionAsync(Proposal saved, long campaignId, CancellationToken cancellationToken)
