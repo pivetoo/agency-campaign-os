@@ -21,7 +21,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new ProposalShareLinkService(db, CurrentUserMock.Create());
+            service = new ProposalShareLinkService(db, CurrentUserMock.Create(), TenantContextMock.Create());
         }
 
         [TearDown]

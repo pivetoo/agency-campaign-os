@@ -1,4 +1,5 @@
 using AgencyCampaign.Api.BackgroundJobs;
+using AgencyCampaign.Api.MultiTenancy;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Infrastructure.DependencyInjection;
 using Archon.Api.DependencyInjection;
@@ -48,6 +49,7 @@ app.UseStaticFiles();
 app.UseArchonApi();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UsePublicTenantResolution();
 app.UseSessionValidation();
 
 app.MapControllers();

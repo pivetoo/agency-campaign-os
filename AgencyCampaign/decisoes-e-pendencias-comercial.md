@@ -50,7 +50,7 @@ As features de diferenciação (usage rights, rate cards, modelos híbridos) ent
 - [x] **B2 — Reconciliação do valor fechado** — FEITO (D3=B): novo campo `ClosedValue` na oportunidade, setado no ganho a partir da proposta aceita (sem tocar no estimado); metas/forecast/analytics/dashboard passam a usar o fechado nas ganhas. _(Fatia B FECHADA)_
 
 ### Fatia C — Go-to-market
-- [ ] **C1 — Link público multi-tenant** — endpoints públicos caem no 1º tenant; link só funciona para a 1ª agência. _(depende de **D4**)_
+- [x] **C1 — Link público multi-tenant** — FEITO (D4, abordagem #1): token embute o tenant; middleware próprio do AgencyCampaign resolve o banco certo a partir do token, só nas rotas públicas e só quando não há tenant. Sem mexer no framework Archon. _(Fatia C: só falta C2, removido a seu pedido)_
 
 ### Fatia E — Diferenciação de nicho _(depende de **D5**)_
 - [ ] **E1 — Usage rights / licenciamento** como linha precificável (hoje só desconto global)

@@ -5,6 +5,7 @@ using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
+using Archon.Application.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -14,11 +15,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICurrentUser currentUser;
+        private readonly ITenantContext tenantContext;
 
-        public ProposalShareLinkService(DbContext dbContext, ICurrentUser currentUser)
+        public ProposalShareLinkService(DbContext dbContext, ICurrentUser currentUser, ITenantContext tenantContext)
         {
             this.dbContext = dbContext;
             this.currentUser = currentUser;
+            this.tenantContext = tenantContext;
         }
 
         public async Task<IReadOnlyCollection<ProposalShareLinkModel>> GetByProposalId(long proposalId, CancellationToken cancellationToken = default)
@@ -52,7 +55,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             await EnsureProposalCanBeShared(proposalId, cancellationToken);
 
-            string token = GenerateToken();
+            string token = PublicLinkToken.Compose(tenantContext.TenantId, GenerateToken());
             DateTimeOffset? expiresAt = request.ExpiresAt ?? DateTimeOffset.UtcNow.AddDays(30);
             ProposalShareLink shareLink = new(proposalId, token, expiresAt, currentUser.UserId, currentUser.UserName);
 
