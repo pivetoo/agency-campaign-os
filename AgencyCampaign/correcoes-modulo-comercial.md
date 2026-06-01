@@ -126,7 +126,7 @@ Coloca o Kanvas no nivel das ferramentas especificas de marketing de influencia.
 
 - [ ] **E1 - Usage rights / licenciamento como linha precificavel** - hoje so desconto global; mercado trata como linha obrigatoria. _(proposta)_
 - [ ] **E2 - Modelos hibridos de remuneracao** - base + comissao/afiliado/performance, alem do flat-fee por item. _(proposta)_
-- [ ] **E3 - Rate cards reutilizaveis** - valor unitario digitado a cada vez; mercado usa rate card por creator/entregavel. _(catalogo / proposta)_
+- [ ] **E3 - Rate cards reutilizaveis** - valor unitario digitado a cada vez; mercado usa rate card por creator/entregavel. _(catalogo / proposta)_ -- BACKEND FEITO: entity `RateCardItem` (creator + label + unitPrice + displayOrder + isActive, migration 202605310007), service CRUD (`GetByCreator`, create/update/delete soft) + `RateCardItemsController` (area/permissoes `rateCardItems.*`), 3 testes TDD (919 verdes). FALTA: frontend (tela de gestao + picker no form de item da proposta).
 - [ ] **E4 - Tracking de engajamento da proposta** - abriu/tempo por secao; "visualizada" hoje e manual. _(link publico)_
 - [ ] **E5 - Pagamento/payout de creator ligado ao fechamento** - padrao no nicho; hoje ausente no comercial. _(comercial <-> financeiro)_
 - [ ] **E6 - Expiracao automatica + lembretes da proposta** - reforco do C7 com cadencia de lembrete ao cliente. _(proposta)_

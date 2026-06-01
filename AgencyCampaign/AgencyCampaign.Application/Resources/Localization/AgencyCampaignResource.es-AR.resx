@@ -1622,6 +1622,11 @@
   <data name="opportunityLossReasons.get.description" xml:space="preserve"><value>Permite listar los motivos de pérdida registrados.</value></data>
   <data name="opportunityLossReasons.update.description" xml:space="preserve"><value>Permite actualizar un motivo de pérdida de oportunidad.</value></data>
   <data name="opportunitySources.area" xml:space="preserve"><value>Opportunity sources</value></data>
+  <data name="rateCardItems.area" xml:space="preserve"><value>Rate cards</value></data>
+  <data name="rateCardItems.getByCreator.description" xml:space="preserve"><value>Permite listar los items de rate card de un creator.</value></data>
+  <data name="rateCardItems.create.description" xml:space="preserve"><value>Permite crear un item de rate card.</value></data>
+  <data name="rateCardItems.update.description" xml:space="preserve"><value>Permite actualizar un item de rate card.</value></data>
+  <data name="rateCardItems.delete.description" xml:space="preserve"><value>Permite eliminar un item de rate card.</value></data>
   <data name="opportunitySources.create.description" xml:space="preserve"><value>Permite cadastrar uma tag de oportunidade.</value></data>
   <data name="opportunitySources.delete.description" xml:space="preserve"><value>Permite excluir uma tag de oportunidade.</value></data>
   <data name="opportunitySources.get.description" xml:space="preserve"><value>Permite listar as tags de oportunidades cadastradas.</value></data>
