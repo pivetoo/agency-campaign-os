@@ -15,6 +15,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<OpportunityFollowUp> CompleteOpportunityFollowUp(long id, CancellationToken cancellationToken = default);
 
+        Task<OpportunityFollowUp> ReopenOpportunityFollowUp(long id, CancellationToken cancellationToken = default);
+
         Task DeleteOpportunityFollowUp(long id, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<OpportunityFollowUp>> GetFollowUpsByOpportunityId(long opportunityId, CancellationToken cancellationToken = default);

@@ -131,6 +131,28 @@ namespace AgencyCampaign.Infrastructure.Services
             return await GetOpportunityFollowUpById(id, cancellationToken) ?? followUp;
         }
 
+        public async Task<OpportunityFollowUp> ReopenOpportunityFollowUp(long id, CancellationToken cancellationToken = default)
+        {
+            OpportunityFollowUp? followUp = await DbContext.Set<OpportunityFollowUp>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (followUp is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            followUp.Reopen();
+
+            OpportunityFollowUp? result = await Update(followUp, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return await GetOpportunityFollowUpById(id, cancellationToken) ?? followUp;
+        }
+
         public async Task DeleteOpportunityFollowUp(long id, CancellationToken cancellationToken = default)
         {
             OpportunityFollowUp? followUp = await DbContext.Set<OpportunityFollowUp>()

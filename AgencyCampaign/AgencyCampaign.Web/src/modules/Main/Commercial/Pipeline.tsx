@@ -98,6 +98,9 @@ function OpportunityCard({ item, isDragging, density = 'comfortable', onDragStar
       <div className={`flex items-center gap-2 font-semibold text-foreground ${compact ? 'mt-2 text-[13px]' : 'mt-4 text-sm'}`}>
         <DollarSign className={compact ? 'h-3.5 w-3.5 text-emerald-500' : 'h-4 w-4 text-emerald-500'} />
         {formatCurrency(item.estimatedValue)}
+        {item.probability > 0 && (
+          <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary" title={t('pipeline.card.probability')}>{Math.round(item.probability)}%</span>
+        )}
       </div>
 
       {!compact && (

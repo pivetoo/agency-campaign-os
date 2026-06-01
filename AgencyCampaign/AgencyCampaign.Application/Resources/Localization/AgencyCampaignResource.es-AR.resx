@@ -2391,4 +2391,9 @@
   <data name="brandContacts.field.email" xml:space="preserve"><value>email@ejemplo.com</value></data>
   <data name="brandContacts.field.phone" xml:space="preserve"><value>(11) 99999-9999</value></data>
   <data name="brandContacts.field.label" xml:space="preserve"><value>Etiqueta (ej: comercial, finanzas)</value></data>
+  <data name="followups.reopen.title" xml:space="preserve"><value>Reabrir follow-up</value></data>
+  <data name="pipeline.card.probability" xml:space="preserve"><value>Probabilidad de cierre</value></data>
+  <data name="opportunities.reopenFollowUp.description" xml:space="preserve"><value>Permite reabrir un follow-up completado.</value></data>
+  <data name="opportunityFollowUp.notCompleted" xml:space="preserve"><value>El follow-up no esta completado.</value></data>
+  <data name="commercialApprovals.capReached" xml:space="preserve"><value>Mostrando las primeras {0} aprobaciones. Usa la busqueda para encontrar otras.</value></data>
 </root>

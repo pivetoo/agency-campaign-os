@@ -360,6 +360,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapFollowUp(followUp), Localizer["record.updated"]);
         }
 
+        [RequireAccess("opportunities.reopenFollowUp.description")]
+        [PostEndpoint("followups/{id:long}/[action]")]
+        public async Task<IActionResult> ReopenFollowUp(long id, CancellationToken cancellationToken)
+        {
+            OpportunityFollowUp followUp = await followUpService.ReopenOpportunityFollowUp(id, cancellationToken);
+            return Http200(MapFollowUp(followUp), Localizer["record.updated"]);
+        }
+
         [RequireAccess("opportunities.deleteFollowUp.description")]
         [DeleteEndpoint("followups/{id:long}")]
         public async Task<IActionResult> DeleteFollowUp(long id, CancellationToken cancellationToken)

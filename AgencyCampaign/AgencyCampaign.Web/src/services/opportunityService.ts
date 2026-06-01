@@ -158,6 +158,7 @@ export interface OpportunityBoardItem {
   daysInStage?: number
   slaStatus: 'ok' | 'warning' | 'breached'
   version: number
+  probability: number
 }
 
 export interface OpportunityBoardStage {
@@ -598,6 +599,10 @@ export const opportunityService = {
 
   completeFollowUp(id: number) {
     return httpClient.post<OpportunityFollowUp>(`${BASE_URL}/followups/${id}/Complete`, {})
+  },
+
+  reopenFollowUp(id: number) {
+    return httpClient.post<OpportunityFollowUp>(`${BASE_URL}/followups/${id}/ReopenFollowUp`, {})
   },
 
   deleteFollowUp(id: number) {

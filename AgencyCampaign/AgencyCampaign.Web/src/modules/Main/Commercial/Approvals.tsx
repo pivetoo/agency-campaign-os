@@ -11,6 +11,8 @@ import CommentInputWithMentions, { type MentionableUser } from '../../../compone
 import { formatDate } from '../../../lib/format'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 
+const APPROVALS_PAGE_SIZE = 200
+
 const approvalTypeKeys: Record<number, string> = {
   1: 'approvals.type.discount',
   2: 'approvals.type.margin',
@@ -97,14 +99,18 @@ export default function CommercialApprovals() {
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const isMobile = useIsMobile()
   const [reviewerRefreshKey, setReviewerRefreshKey] = useState(0)
+  const [capReached, setCapReached] = useState(false)
   const [requestChangesOpen, setRequestChangesOpen] = useState(false)
   const [requestChangesNotes, setRequestChangesNotes] = useState('')
   const { execute: fetchApprovals, loading } = useApi<OpportunityApprovalRequest[]>({ showErrorMessage: true })
   const { execute: executeAction, loading: actionLoading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   const loadData = async () => {
-    const result = await fetchApprovals(() => opportunityService.getAllApprovals({ page: 1, pageSize: 200 }))
-    if (result) setApprovals(result)
+    const result = await fetchApprovals(() => opportunityService.getAllApprovals({ page: 1, pageSize: APPROVALS_PAGE_SIZE }))
+    if (result) {
+      setApprovals(result)
+      setCapReached(result.length >= APPROVALS_PAGE_SIZE)
+    }
   }
 
   useEffect(() => {
@@ -221,6 +227,11 @@ export default function CommercialApprovals() {
       showDefaultActions={false}
     >
       <div className="overflow-hidden rounded-xl border border-border bg-card">
+        {capReached && (
+          <div className="border-b border-amber-300/60 bg-amber-50/70 px-4 py-2 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+            {t('commercialApprovals.capReached').replace('{0}', String(APPROVALS_PAGE_SIZE))}
+          </div>
+        )}
         <div className="grid h-[calc(100vh-200px)] min-h-[600px] grid-cols-1 md:grid-cols-[360px_1fr]">
           <InboxColumn
             counts={counts}

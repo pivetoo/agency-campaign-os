@@ -530,7 +530,8 @@ namespace AgencyCampaign.Infrastructure.Services
                                 StageSlaInDays = slaInDays,
                                 DaysInStage = daysInStage,
                                 SlaStatus = slaStatus,
-                                Version = item.Version
+                                Version = item.Version,
+                                Probability = item.Probability
                             };
                         })
                         .ToList();

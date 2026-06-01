@@ -71,6 +71,18 @@ namespace AgencyCampaign.Domain.Entities
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
+        public void Reopen()
+        {
+            if (!IsCompleted)
+            {
+                throw new InvalidOperationException("opportunityFollowUp.notCompleted");
+            }
+
+            IsCompleted = false;
+            CompletedAt = null;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
         private static string? Normalize(string? value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();

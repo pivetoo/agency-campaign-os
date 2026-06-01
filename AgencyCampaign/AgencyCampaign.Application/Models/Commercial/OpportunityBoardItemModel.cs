@@ -41,5 +41,7 @@ namespace AgencyCampaign.Application.Models.Commercial
         public string SlaStatus { get; init; } = "ok";
 
         public int Version { get; init; }
+
+        public decimal Probability { get; init; }
     }
 }

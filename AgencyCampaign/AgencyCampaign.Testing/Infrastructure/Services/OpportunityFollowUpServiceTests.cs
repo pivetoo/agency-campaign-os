@@ -124,6 +124,22 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task ReopenOpportunityFollowUp_should_clear_completion()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            OpportunityFollowUp followUp = new(opportunity.Id, "call", DateTimeOffset.UtcNow);
+            followUp.Complete();
+            db.Add(followUp);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            OpportunityFollowUp result = await service.ReopenOpportunityFollowUp(followUp.Id);
+
+            result.IsCompleted.Should().BeFalse();
+            result.CompletedAt.Should().BeNull();
+        }
+
+        [Test]
         public async Task CompleteOpportunityFollowUp_should_throw_when_not_found()
         {
             Func<Task> act = () => service.CompleteOpportunityFollowUp(99);

@@ -80,7 +80,9 @@ export default function CommercialFollowUps() {
   const completeActivity = async (activity: OpportunityFollowUp) => {
     setCompletingId(activity.id)
     try {
-      const result = await opportunityService.completeFollowUp(activity.id)
+      const result = activity.isCompleted
+        ? await opportunityService.reopenFollowUp(activity.id)
+        : await opportunityService.completeFollowUp(activity.id)
       if (result !== null) await loadData(selectedStatus)
     } finally {
       setCompletingId(null)
@@ -159,17 +161,17 @@ export default function CommercialFollowUps() {
                 >
                   <button
                     type="button"
-                    disabled={activity.isCompleted || isCompleting}
+                    disabled={isCompleting}
                     onClick={(event) => {
                       event.stopPropagation()
                       void completeActivity(activity)
                     }}
-                    title={activity.isCompleted ? t('followups.markComplete.alreadyDone') : t('followups.markComplete.title')}
-                    aria-label={activity.isCompleted ? t('followups.markComplete.alreadyDone') : t('followups.markComplete.title')}
+                    title={activity.isCompleted ? t('followups.reopen.title') : t('followups.markComplete.title')}
+                    aria-label={activity.isCompleted ? t('followups.reopen.title') : t('followups.markComplete.title')}
                     className={[
                       'mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors',
                       activity.isCompleted
-                        ? 'border-emerald-500 bg-emerald-500 text-white'
+                        ? 'border-emerald-500 bg-emerald-500 text-white hover:border-emerald-600 hover:bg-emerald-600'
                         : 'border-muted-foreground/40 hover:border-primary hover:bg-primary/5',
                     ].join(' ')}
                   >
