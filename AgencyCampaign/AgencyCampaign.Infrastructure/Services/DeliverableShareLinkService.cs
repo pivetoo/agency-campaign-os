@@ -166,7 +166,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            ContentReviewModel review = await contentReview.BrandRequestChanges(shareLink.CampaignDeliverableId, request.ReviewerName, request.Comment ?? string.Empty, cancellationToken);
+            string reviewerName = shareLink.ReviewerName;
+            ContentReviewModel review = await contentReview.BrandRequestChanges(shareLink.CampaignDeliverableId, reviewerName, request.Comment ?? string.Empty, cancellationToken);
 
             CampaignDeliverable? deliverable = await dbContext.Set<CampaignDeliverable>()
                 .AsNoTracking()
@@ -177,7 +178,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 try
                 {
                     await notificationService.Create(
-                        KanvasNotifications.DeliverableChangesRequestedByBrand(deliverable, request.ReviewerName, request.Comment),
+                        KanvasNotifications.DeliverableChangesRequestedByBrand(deliverable, reviewerName, request.Comment),
                         cancellationToken);
                 }
                 catch (Exception exception)
@@ -223,14 +224,16 @@ namespace AgencyCampaign.Infrastructure.Services
                 .AsTracking()
                 .FirstOrDefaultAsync(item => item.CampaignDeliverableId == shareLink.CampaignDeliverableId && item.ApprovalType == DeliverableApprovalType.Brand, cancellationToken);
 
+            string reviewerName = shareLink.ReviewerName;
+
             if (approval is null)
             {
-                approval = new DeliverableApproval(shareLink.CampaignDeliverableId, DeliverableApprovalType.Brand, request.ReviewerName, request.Comment);
+                approval = new DeliverableApproval(shareLink.CampaignDeliverableId, DeliverableApprovalType.Brand, reviewerName, request.Comment);
                 dbContext.Set<DeliverableApproval>().Add(approval);
             }
             else
             {
-                approval.UpdateReviewer(request.ReviewerName);
+                approval.UpdateReviewer(reviewerName);
             }
 
             if (approved)
@@ -258,8 +261,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 try
                 {
                     var notification = approved
-                        ? KanvasNotifications.DeliverableApprovedByBrand(deliverable, request.ReviewerName)
-                        : KanvasNotifications.DeliverableRejectedByBrand(deliverable, request.ReviewerName, request.Comment);
+                        ? KanvasNotifications.DeliverableApprovedByBrand(deliverable, reviewerName)
+                        : KanvasNotifications.DeliverableRejectedByBrand(deliverable, reviewerName, request.Comment);
                     await notificationService.Create(notification, cancellationToken);
                 }
                 catch (Exception exception)

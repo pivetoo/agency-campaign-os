@@ -224,6 +224,17 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task Approve_should_record_reviewer_from_share_link_not_request_body()
+        {
+            await SeedAsync();
+
+            await service.Approve("tok", new PublicDeliverableDecisionRequest { ReviewerName = "Nome Forjado", Comment = "ok" });
+
+            DeliverableApproval approval = await db.Set<DeliverableApproval>().AsNoTracking().SingleAsync();
+            approval.ReviewerName.Should().Be("Brand");
+        }
+
+        [Test]
         public async Task Reject_should_update_existing_brand_approval()
         {
             (CampaignDeliverable deliverable, _) = await SeedAsync();
