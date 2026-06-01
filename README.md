@@ -15,11 +15,15 @@ A plataforma é organizada em três módulos de negócio:
 - [Módulo Comercial](#módulo-comercial)
   - [Pipeline e oportunidades](#pipeline-e-oportunidades)
   - [Propostas](#propostas)
+  - [Itens: tipos, direitos de uso e precificação](#itens-tipos-direitos-de-uso-e-precificação)
   - [Desconto, prazo e total líquido](#desconto-prazo-e-total-líquido)
   - [Aprovações (desconto e prazo)](#aprovações-desconto-e-prazo)
+  - [Aceite do cliente no link público](#aceite-do-cliente-no-link-público)
+  - [Engajamento da proposta](#engajamento-da-proposta)
   - [Follow-ups](#follow-ups)
   - [Metas comerciais](#metas-comerciais)
   - [Painel, forecast e analytics](#painel-forecast-e-analytics)
+  - [Rotinas automáticas](#rotinas-automáticas)
   - [Configurações do comercial](#configurações-do-comercial)
   - [Telas e rotas](#telas-e-rotas)
   - [Principais endpoints](#principais-endpoints)
@@ -30,7 +34,7 @@ A plataforma é organizada em três módulos de negócio:
 
 ## Módulo Comercial
 
-Cobre todo o funil comercial: da entrada do lead ao fechamento (ganho/perdido) e à conversão da proposta em campanha. Reúne pipeline visual, gestão de oportunidades, propostas com desconto/prazo e total líquido, versionamento, link público e PDF, gate de aprovação por política comercial, follow-ups, metas e analytics.
+Cobre todo o funil comercial: da entrada do lead ao fechamento (ganho/perdido) e à conversão da proposta em campanha. Reúne pipeline visual, gestão de oportunidades, propostas com itens tipados (entregável/direitos de uso) e precificação fixa ou variável (comissão/performance), desconto/prazo e total líquido, versionamento, link público com PDF e **aceite eletrônico do cliente**, painel de engajamento, gate de aprovação por política comercial, follow-ups, metas, analytics e geração automática de lançamentos financeiros no fechamento.
 
 O modelo é **centrado na proposta**: as condições comerciais (desconto e prazo de pagamento) e a aprovação vivem na própria proposta. Não há entidade de negociação separada nem probabilidade/margem digitadas manualmente.
 
@@ -62,14 +66,14 @@ O modelo é **centrado na proposta**: as condições comerciais (desconto e praz
 **Funcionalidades**
 
 - Lista de propostas com paginação, busca e filtros (status, responsável). A lista exibe o **total líquido** (com o total bruto riscado quando há desconto).
-- Detalhe da proposta com os itens, o cartão de **desconto/prazo** e o painel de **compartilhamento** (links públicos e versões).
-- Itens da proposta com creator opcional, quantidade, valor unitário, prazo de entrega e total calculado; o total bruto da proposta é a soma dos itens.
+- Detalhe da proposta com os itens, o cartão de **desconto/prazo** e o painel de **compartilhamento** (links públicos, engajamento e versões).
+- Itens da proposta com creator opcional, prazo de entrega e total calculado; cada item tem um **tipo** (entregável ou direitos de uso) e um **modelo de preço** (fixo por quantidade × valor unitário, ou variável por comissão/performance). O total bruto da proposta é a soma dos itens (itens variáveis entram como estimativa). Detalhes em [Itens: tipos, direitos de uso e precificação](#itens-tipos-direitos-de-uso-e-precificação).
 - **Templates de proposta** reutilizáveis, aplicáveis a uma proposta via modal.
 - **Versionamento**: cada envio registra uma versão com snapshot completo (JSON) para rastreabilidade.
-- **Link público**: gera um link com token (sem login) para o cliente visualizar a proposta, com expiração opcional, revogação e contagem de visualizações (IP/user agent). Página pública em `/p/:token`.
+- **Link público**: gera um link com token (sem login) para o cliente visualizar a proposta, com expiração opcional e revogação. O token carrega o tenant de origem, permitindo que os endpoints públicos anônimos resolvam o banco correto em ambiente multi-tenant. A página pública (`/p/:token`) permite ao cliente **aceitar ou recusar** a proposta (ver [Aceite do cliente no link público](#aceite-do-cliente-no-link-público)) e alimenta o [painel de engajamento](#engajamento-da-proposta).
 - **PDF**: geração do PDF da proposta via navegador headless (PuppeteerSharp), com a **logo da agência** embutida e o layout do template ativo. Disponível tanto no detalhe autenticado quanto no link público (botão "Baixar PDF").
 - **Envio** por e-mail ou WhatsApp (cria/garante o link público, marca a proposta como enviada e enfileira o envio no IntegrationPlatform).
-- **Conversão**: proposta aprovada pode ser convertida em uma campanha existente ou gerar uma nova campanha.
+- **Conversão**: proposta aprovada pode ser convertida em uma campanha existente ou gerar uma nova campanha. A conversão também gera, no módulo financeiro, o **recebível da marca** (total líquido) e um **repasse de creator planejado** por item com creator associado (valor estimado), dando visibilidade de margem desde o início da campanha.
 
 **Ciclo de vida (`ProposalStatus`)**
 
@@ -81,6 +85,25 @@ Draft → Sent → Viewed → Approved → Converted
 
 - `Draft` (rascunho) → `Sent` (enviada) → `Viewed` (visualizada) → `Approved` (aprovada) → `Converted` (virou campanha).
 - `Expired` (validade vencida), `Rejected` (rejeitada) e `Cancelled` (cancelada) são terminais.
+- A passagem para `Approved`/`Rejected` pode vir tanto de uma ação interna (botão Aprovar/Rejeitar no detalhe) quanto da **decisão do próprio cliente no link público** (ver [Aceite do cliente no link público](#aceite-do-cliente-no-link-público)).
+
+### Itens: tipos, direitos de uso e precificação
+
+Cada item da proposta tem um **tipo** (`ProposalItemKind`) e um **modelo de preço** (`ProposalItemPricingModel`), além do creator opcional, prazo de entrega e observações.
+
+**Tipo do item (`ProposalItemKind`)**
+
+- `Deliverable` (entregável): o item representa uma entrega (ex.: Reels, Stories).
+- `UsageRights` (direitos de uso): o item representa licenciamento de uso do conteúdo, com **duração** em meses (`UsageDurationMonths`; vazio = perpétuo) e **escopo** (`UsageScope`, ex.: "paid social"). Exibido com selo próprio na proposta pública.
+
+**Modelo de preço (`ProposalItemPricingModel`)**
+
+- `Fixed` (fixo): total = `quantidade × valor unitário` (modelo padrão).
+- `Commission` (comissão) e `Performance` (performance): remuneração **variável**, calculada como `taxa% × base estimada` (`VariableRate` × `VariableBasis`). O total do item é uma **estimativa**, marcada como tal na proposta pública (selo "Variável" com a taxa, e o total identificado como estimativa). Permite modelos híbridos (ex.: fee fixo de um item + comissão de outro) na mesma proposta.
+
+**Rate cards**
+
+- Cada creator pode ter um **rate card** reutilizável (`RateCardItem`: rótulo + valor unitário). No modal de item da proposta, ao selecionar o creator, seus itens de rate card aparecem como atalhos que preenchem descrição e valor — evitando redigitar preços recorrentes.
 
 ### Desconto, prazo e total líquido
 
@@ -116,6 +139,24 @@ Quando o desconto ou o prazo de uma proposta extrapola a política comercial, en
 - **Comentários** (`OpportunityApprovalComment`) permitem discussão durante a revisão, com menções a usuários.
 - A tela de Aprovações é uma caixa de **Solicitações** (master-detail): lista à esquerda com filtros (pendentes/aprovadas/rejeitadas/todas) e o detalhe à direita (no mobile, o detalhe abre como bottom-sheet ao tocar na solicitação).
 
+### Aceite do cliente no link público
+
+Diferente da aprovação **interna** (gate de política, acima), o cliente final pode **aceitar ou recusar** a proposta diretamente no link público, sem login.
+
+- Enquanto a proposta está `Sent` ou `Viewed`, a página pública (`/p/:token`) oferece as ações de **aceitar** e **recusar**.
+- É um aceite eletrônico do tipo **clickwrap**: o cliente confirma informando o **nome** (e-mail e observação são opcionais).
+- A decisão registra, na proposta: quem decidiu (`ClientDecisionByName`/`ClientDecisionByEmail`), quando (`ClientDecisionAt`), o **número da versão** decidida (`ClientDecisionVersionNumber`) e um **hash SHA-256 do snapshot enviado** (`ClientDecisionContentHash`) — prova de exatamente o que foi acordado, imune a edições posteriores na proposta viva.
+- Aceitar leva a proposta a `Approved`; recusar leva a `Rejected`. Em ambos os casos o responsável é notificado.
+- A operação é **idempotente**: uma proposta que já recebeu decisão (ou que esteja `Approved`/`Rejected`/`Cancelled`/`Expired`) não é mais decidível pelo link, e uma nova tentativa responde com conflito (HTTP 409).
+
+### Engajamento da proposta
+
+O painel de **compartilhamento** (aba do detalhe da proposta) consolida o engajamento de **todos** os links públicos da proposta.
+
+- Métricas: total de aberturas, links ativos, primeiro e último acesso.
+- **Linha do tempo** dos últimos acessos (até 50 eventos), cada um classificado por dispositivo (celular/tablet/computador) a partir do user agent. Os IPs são anonimizados.
+- O **primeiro acesso** ao link marca a proposta como `Viewed` automaticamente e notifica o responsável (a marcação manual continua disponível).
+
 ### Follow-ups
 
 - Agendamento de ações de acompanhamento por oportunidade: assunto, data de vencimento e notas; marcação de concluído.
@@ -130,9 +171,19 @@ Quando o desconto ou o prazo de uma proposta extrapola a política comercial, en
 ### Painel, forecast e analytics
 
 - **Board (kanban)**: oportunidades agrupadas por estágio, com contagem e valor por coluna.
-- **Forecast**: previsão de receita do período combinando o **ganho** (oportunidades já fechadas, valor cheio) com o **ponderado em aberto** (soma de `valor estimado × probabilidade/100` das oportunidades abertas), além da quebra por estágio (quantidade, valor, valor ponderado e probabilidade média).
+- **Forecast**: previsão de receita do período combinando o **ganho** (oportunidades já fechadas, pelo **valor fechado real**) com o **ponderado em aberto** (soma de `valor estimado × probabilidade/100` das oportunidades abertas), além da quebra por estágio (quantidade, valor, valor ponderado e probabilidade média).
+- **Valor fechado** (`ClosedValue`): ao fechar uma oportunidade como ganha, o sistema captura o **total líquido da proposta aceita** como valor fechado da oportunidade. As métricas (forecast, analytics, metas) usam o valor fechado quando disponível e caem para o valor estimado quando não há proposta aceita — o que reflete a receita real, e não só a expectativa inicial.
 - **Analytics**: oportunidades fechadas (ganhas/perdidas), taxa de ganho, ciclo médio, conversão e tempo médio por estágio, top performers e motivos de ganho/perda.
 - **Insights**: próximos fechamentos e oportunidades em risco (aging), além de alertas comerciais.
+
+### Rotinas automáticas
+
+Tarefas em segundo plano (hosted services) rodam por tenant e mantêm o funil em dia sem ação manual:
+
+- **Expiração de propostas**: marca como `Expired` as propostas enviadas cuja validade venceu.
+- **Lembrete de expiração**: avisa o responsável quando uma proposta enviada/visualizada está perto de expirar (janela de alguns dias), para fazer follow-up ou estender a validade. Um lembrete por ciclo de envio (reenviar a proposta rearma o lembrete).
+- **Follow-up vencido**: notifica o responsável quando um follow-up agendado passa do vencimento.
+- **Oportunidade parada**: notifica quando uma oportunidade ultrapassa o SLA do estágio (tempo parado além do previsto).
 
 ### Configurações do comercial
 
@@ -151,12 +202,12 @@ Quando o desconto ou o prazo de uma proposta extrapola a política comercial, en
 | `/comercial/oportunidades` | `Opportunities.tsx` | Lista de oportunidades |
 | `/comercial/oportunidades/:id` | `OpportunityDetail.tsx` | Detalhe com abas (`?tab=`) |
 | `/comercial/propostas` | `Proposals.tsx` | Lista de propostas |
-| `/comercial/propostas/:id` | `ProposalDetail.tsx` | Detalhe da proposta (itens, desconto/prazo, compartilhamento) |
+| `/comercial/propostas/:id` | `ProposalDetail.tsx` | Detalhe da proposta (itens, desconto/prazo, compartilhamento e engajamento) |
 | `/comercial/aprovacoes` | `Approvals.tsx` | Caixa de solicitações de aprovação |
 | `/comercial/followups` | `FollowUps.tsx` | Follow-ups por situação |
 | `/comercial/metas` | `Goals.tsx` | Metas comerciais |
 | `/comercial/analytics` | `Analytics.tsx` | Indicadores e análises do funil |
-| `/p/:token` | `Public/Proposal.tsx` | Visualização pública de proposta (sem login) |
+| `/p/:token` | `Public/Proposal.tsx` | Visualização, aceite e recusa pública da proposta (sem login) |
 
 Principais modais: criar/editar oportunidade, follow-up, solicitação de aprovação (na proposta), proposta, item de proposta, envio de proposta, aplicação de template, meta comercial e configuração de estágio/motivos.
 
@@ -165,8 +216,8 @@ Principais modais: criar/editar oportunidade, follow-up, solicitação de aprova
 Todos protegidos por `[RequireAccess]`, exceto os públicos de proposta (`[AllowAnonymous]`). Rotas relativas à API do AgencyCampaign.
 
 - **Oportunidades** (`/opportunities`): listar, `mine`, detalhe, `board`, `forecast`, `analytics`, `insights`, `StageHistory`; criar, atualizar, excluir; `ChangeStage`, `CloseAsWon`, `CloseAsLost`. O mesmo controller agrupa, como sub-recursos da oportunidade, os comentários e os follow-ups. A probabilidade não tem endpoint nem campo de entrada: é derivada do estágio e usada só para ponderar o forecast.
-- **Propostas** (`/proposals`): listar, detalhe, `pdf/{id}`; criar, atualizar (incluindo desconto/prazo); itens (criar/editar/remover); `SendByEmail`, `SendByWhatsapp`, `MarkAsSent`, `MarkAsViewed`, `Approve`, `Reject`, `ConvertToCampaign`, `ConvertToNewCampaign`, `Cancel`, `StatusHistory`; links de compartilhamento (criar/listar/revogar) e versões (listar). Não há exclusão de proposta pela API.
-- **Proposta pública** (`/proposal-public/{token}` e `/proposal-public/{token}/pdf`): acesso anônimo por token; a consulta registra a visualização e o PDF é gerado sob demanda.
+- **Propostas** (`/proposals`): listar, detalhe, `pdf/{id}`; criar, atualizar (incluindo desconto/prazo); itens (criar/editar/remover, com tipo e modelo de preço); `SendByEmail`, `SendByWhatsapp`, `MarkAsSent`, `MarkAsViewed`, `Approve`, `Reject`, `ConvertToCampaign`, `ConvertToNewCampaign`, `Cancel`, `StatusHistory`; links de compartilhamento (criar/listar/revogar), engajamento (`engagement/Get`) e versões (listar). Não há exclusão de proposta pela API.
+- **Proposta pública** (`/proposal-public/{token}`, `/proposal-public/{token}/pdf`, `/proposal-public/{token}/accept`, `/proposal-public/{token}/reject`): acesso anônimo por token (o token carrega o tenant, resolvendo o banco correto em multi-tenant). A consulta registra a visualização e o PDF é gerado sob demanda; `accept`/`reject` registram a decisão do cliente de forma idempotente.
 - **Aprovações** (`/opportunityApprovals`): listar, por proposta; criar; `Approve`, `Reject`, `MarkInReview`, `RequestChanges`, `Resubmit`, `MarkMerged`; decisão de revisor (`Reviewers/Decision`); `Comments` (CRUD); `Reviewers`, `Diffs` e `Impacts` (gerenciáveis); `evaluate-policy` e `PopulateFromPolicy` (avaliam/regeneram os desvios pela política).
 - **Política comercial** (`/commercialPolicy`): obter e atualizar (upsert).
 - **Estágios** (`/commercialPipelineStages`): listar, `active`, detalhe, criar/atualizar/excluir.
