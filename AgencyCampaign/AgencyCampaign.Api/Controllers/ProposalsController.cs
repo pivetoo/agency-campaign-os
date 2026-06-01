@@ -196,6 +196,13 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await shareLinkService.GetByProposalId(id, cancellationToken));
         }
 
+        [RequireAccess("proposals.getShareLinks.description")]
+        [HttpGet("{id:long}/engagement/Get")]
+        public async Task<IActionResult> GetEngagement(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await shareLinkService.GetEngagement(id, cancellationToken));
+        }
+
         [RequireAccess("proposals.createShareLink.description")]
         [HttpPost("{id:long}/share-links/Create")]
         public async Task<IActionResult> CreateShareLink(long id, [FromBody] CreateProposalShareLinkRequest request, CancellationToken cancellationToken)

@@ -2434,4 +2434,14 @@
   <data name="public.proposal.usageRights" xml:space="preserve"><value>Usage rights</value></data>
   <data name="public.proposal.usageMonths" xml:space="preserve"><value>{0} months</value></data>
   <data name="public.proposal.usagePerpetual" xml:space="preserve"><value>Perpetual</value></data>
+  <data name="proposalShare.engagement.title" xml:space="preserve"><value>Engagement</value></data>
+  <data name="proposalShare.engagement.totalViews" xml:space="preserve"><value>Views</value></data>
+  <data name="proposalShare.engagement.activeLinks" xml:space="preserve"><value>Active links</value></data>
+  <data name="proposalShare.engagement.firstView" xml:space="preserve"><value>First view</value></data>
+  <data name="proposalShare.engagement.lastView" xml:space="preserve"><value>Last view</value></data>
+  <data name="proposalShare.engagement.timeline" xml:space="preserve"><value>Timeline</value></data>
+  <data name="proposalShare.engagement.device.mobile" xml:space="preserve"><value>Mobile</value></data>
+  <data name="proposalShare.engagement.device.tablet" xml:space="preserve"><value>Tablet</value></data>
+  <data name="proposalShare.engagement.device.desktop" xml:space="preserve"><value>Desktop</value></data>
+  <data name="proposalShare.engagement.device.unknown" xml:space="preserve"><value>Unknown device</value></data>
 </root>

@@ -163,6 +163,21 @@ export interface CreateProposalShareLinkRequest {
   expiresAt?: string
 }
 
+export interface ProposalViewEvent {
+  viewedAt: string
+  device: string
+  ipAddress?: string
+}
+
+export interface ProposalEngagement {
+  proposalId: number
+  totalViews: number
+  activeLinks: number
+  firstViewedAt?: string
+  lastViewedAt?: string
+  events: ProposalViewEvent[]
+}
+
 export interface SendProposalEmailRequest {
   recipientEmail: string
   subject: string
@@ -270,6 +285,11 @@ export const proposalService = {
   async getShareLinks(proposalId: number): Promise<ProposalShareLink[]> {
     const response = await httpClient.get<ProposalShareLink[]>(`${BASE_URL}/${proposalId}/share-links/Get`)
     return response.data ?? []
+  },
+
+  async getEngagement(proposalId: number): Promise<ProposalEngagement> {
+    const response = await httpClient.get<ProposalEngagement>(`${BASE_URL}/${proposalId}/engagement/Get`)
+    return response.data
   },
 
   createShareLink(proposalId: number, data: CreateProposalShareLinkRequest) {

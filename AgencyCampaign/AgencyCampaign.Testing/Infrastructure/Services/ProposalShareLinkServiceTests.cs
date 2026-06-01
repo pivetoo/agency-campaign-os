@@ -125,6 +125,41 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetEngagement_should_aggregate_views_across_links_with_timeline()
+        {
+            Proposal proposal = await SeedProposalAsync();
+
+            ProposalShareLink link = new(proposal.Id, "tok", null, null, null);
+            link.RegisterView("1.2.3.0", "Mozilla/5.0 (iPhone; CPU iPhone OS) Mobile Safari");
+            link.RegisterView("4.5.6.0", "Mozilla/5.0 (Windows NT 10.0) Chrome");
+            db.Add(link);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            ProposalEngagementModel result = await service.GetEngagement(proposal.Id);
+
+            result.TotalViews.Should().Be(2);
+            result.ActiveLinks.Should().Be(1);
+            result.Events.Should().HaveCount(2);
+            result.FirstViewedAt.Should().NotBeNull();
+            result.LastViewedAt.Should().NotBeNull();
+            result.Events.Should().Contain(item => item.Device == "mobile");
+            result.Events.Should().Contain(item => item.Device == "desktop");
+        }
+
+        [Test]
+        public async Task GetEngagement_should_return_empty_when_no_views()
+        {
+            Proposal proposal = await SeedProposalAsync();
+
+            ProposalEngagementModel result = await service.GetEngagement(proposal.Id);
+
+            result.TotalViews.Should().Be(0);
+            result.Events.Should().BeEmpty();
+            result.FirstViewedAt.Should().BeNull();
+        }
+
+        [Test]
         public async Task GetByProposalId_should_compute_is_active_from_state()
         {
             Proposal proposal = await SeedProposalAsync();

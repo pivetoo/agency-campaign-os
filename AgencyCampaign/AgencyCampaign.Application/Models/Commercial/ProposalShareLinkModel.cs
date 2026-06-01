@@ -25,6 +25,30 @@ namespace AgencyCampaign.Application.Models.Commercial
         public int ViewCount { get; init; }
     }
 
+    public sealed class ProposalEngagementModel
+    {
+        public long ProposalId { get; init; }
+
+        public int TotalViews { get; init; }
+
+        public int ActiveLinks { get; init; }
+
+        public DateTimeOffset? FirstViewedAt { get; init; }
+
+        public DateTimeOffset? LastViewedAt { get; init; }
+
+        public IReadOnlyCollection<ProposalViewEventModel> Events { get; init; } = [];
+    }
+
+    public sealed class ProposalViewEventModel
+    {
+        public DateTimeOffset ViewedAt { get; init; }
+
+        public string Device { get; init; } = string.Empty;
+
+        public string? IpAddress { get; init; }
+    }
+
     public sealed class ProposalPublicViewModel
     {
         public long ProposalId { get; init; }

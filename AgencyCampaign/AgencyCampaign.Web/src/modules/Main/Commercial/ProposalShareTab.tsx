@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, ConfirmModal, Input, useApi, useToast, useI18n } from 'archon-ui'
-import { AlertTriangle, Copy, Eye, Link as LinkIcon, Link2, ShieldOff } from 'lucide-react'
-import { ProposalStatus, proposalService, type ProposalShareLink, type ProposalStatusValue, type ProposalVersion } from '../../../services/proposalService'
+import { Activity, AlertTriangle, Copy, Eye, Link as LinkIcon, Link2, Monitor, ShieldOff, Smartphone, Tablet } from 'lucide-react'
+import { ProposalStatus, proposalService, type ProposalEngagement, type ProposalShareLink, type ProposalStatusValue, type ProposalVersion } from '../../../services/proposalService'
 import { formatDateTime } from '../../../lib/format'
 
 interface ProposalShareTabProps {
@@ -21,6 +21,7 @@ export default function ProposalShareTab({ proposalId, proposalStatus }: Proposa
   const { t } = useI18n()
   const canShare = proposalStatus !== ProposalStatus.Draft
   const [shareLinks, setShareLinks] = useState<ProposalShareLink[]>([])
+  const [engagement, setEngagement] = useState<ProposalEngagement | null>(null)
   const [versions, setVersions] = useState<ProposalVersion[]>([])
   const [expiresAt, setExpiresAt] = useState('')
   const [linkToRevokeId, setLinkToRevokeId] = useState<number | null>(null)
@@ -30,12 +31,14 @@ export default function ProposalShareTab({ proposalId, proposalStatus }: Proposa
   const { toast } = useToast()
 
   const reload = async () => {
-    const [links, versionList] = await Promise.all([
+    const [links, versionList, engagementData] = await Promise.all([
       proposalService.getShareLinks(proposalId),
       proposalService.getVersions(proposalId),
+      proposalService.getEngagement(proposalId),
     ])
     setShareLinks(links)
     setVersions(versionList)
+    setEngagement(engagementData)
   }
 
   useEffect(() => {
@@ -76,6 +79,13 @@ export default function ProposalShareTab({ proposalId, proposalStatus }: Proposa
     }
   }
 
+  const deviceIcon = (device: string) => {
+    if (device === 'mobile') return <Smartphone className="h-3.5 w-3.5" />
+    if (device === 'tablet') return <Tablet className="h-3.5 w-3.5" />
+    if (device === 'desktop') return <Monitor className="h-3.5 w-3.5" />
+    return <Eye className="h-3.5 w-3.5" />
+  }
+
   const statusBadge = (link: ProposalShareLink) => {
     if (link.revokedAt) return <Badge variant="destructive">{t('proposalShare.status.revoked')}</Badge>
     if (!link.isActive) return <Badge variant="warning">{t('proposalShare.status.expired')}</Badge>
@@ -93,6 +103,51 @@ export default function ProposalShareTab({ proposalId, proposalStatus }: Proposa
       loading={mutating}
     />
     <div className="space-y-4">
+      {engagement && engagement.totalViews > 0 ? (
+        <Card>
+          <CardHeader className="border-b bg-muted/20 py-3">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Activity className="h-4 w-4 text-primary" />
+              {t('proposalShare.engagement.title')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 p-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="rounded-md border border-border/60 bg-muted/10 p-3">
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{t('proposalShare.engagement.totalViews')}</div>
+                <div className="mt-1 text-lg font-semibold text-foreground">{engagement.totalViews}</div>
+              </div>
+              <div className="rounded-md border border-border/60 bg-muted/10 p-3">
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{t('proposalShare.engagement.activeLinks')}</div>
+                <div className="mt-1 text-lg font-semibold text-foreground">{engagement.activeLinks}</div>
+              </div>
+              <div className="rounded-md border border-border/60 bg-muted/10 p-3">
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{t('proposalShare.engagement.firstView')}</div>
+                <div className="mt-1 text-xs font-medium text-foreground">{engagement.firstViewedAt ? formatDateTime(engagement.firstViewedAt) : '-'}</div>
+              </div>
+              <div className="rounded-md border border-border/60 bg-muted/10 p-3">
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{t('proposalShare.engagement.lastView')}</div>
+                <div className="mt-1 text-xs font-medium text-foreground">{engagement.lastViewedAt ? formatDateTime(engagement.lastViewedAt) : '-'}</div>
+              </div>
+            </div>
+            {engagement.events.length > 0 ? (
+              <div>
+                <div className="mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">{t('proposalShare.engagement.timeline')}</div>
+                <ol className="space-y-1.5">
+                  {engagement.events.map((event, index) => (
+                    <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">{deviceIcon(event.device)}</span>
+                      <span className="text-foreground">{formatDateTime(event.viewedAt)}</span>
+                      <span>{t(`proposalShare.engagement.device.${event.device}`)}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
+
       <Card>
         <CardHeader className="border-b bg-muted/20 py-3">
           <CardTitle className="flex items-center gap-2 text-sm">
