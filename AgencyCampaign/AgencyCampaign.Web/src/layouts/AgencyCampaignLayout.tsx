@@ -133,7 +133,6 @@ export default function AgencyCampaignLayout() {
   const configSubGroupDefs: { label: string; items: NavItem[] }[] = [
     { label: t('nav.group.general'), items: [
       { key: 'configuracao-agencia', label: t('nav.item.agency'), path: '/configuracao', icon: <Briefcase size={20} />, requires: ['agencySettings.get'] },
-      ...(isRoot ? [{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> }] : []),
     ] },
     { label: t('nav.group.commercial'), items: [
       { key: 'configuracao-pipeline-comercial', label: t('nav.item.commercialFunnel'), path: '/configuracao/pipeline-comercial', icon: <Columns3 size={20} />, requires: ['commercialPipelineStages.get'] },
@@ -172,8 +171,13 @@ export default function AgencyCampaignLayout() {
     { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
   ])
 
+  const controleAcessoRoutes = isRoot
+    ? toNavRoutes([{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <UserCog size={20} /> }])
+    : []
+
   const sysModules = [
     ...(configSubGroups.length > 0 ? [{ key: 'configuracao', label: t('nav.module.configuration'), icon: <Settings size={20} />, group: 'sys' as const, subGroups: configSubGroups }] : []),
+    ...(controleAcessoRoutes.length > 0 ? [{ key: 'controle-acesso', label: t('nav.item.users'), icon: <UserCog size={20} />, group: 'sys' as const, routes: controleAcessoRoutes }] : []),
     ...(integracoesRoutes.length > 0 ? [{ key: 'integracoes', label: t('nav.item.integrations'), icon: <Plug size={20} />, group: 'sys' as const, routes: integracoesRoutes }] : []),
   ]
 
