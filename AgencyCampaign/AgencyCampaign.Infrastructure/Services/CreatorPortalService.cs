@@ -140,6 +140,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 creator.DefaultAgencyFeePercent,
                 creator.IsActive);
 
+            dbContext.Set<CreatorEvent>().Add(new CreatorEvent(
+                creatorId,
+                CreatorEventType.BankInfoChanged,
+                "Dados bancarios (Pix) alterados via portal pelo creator."));
+
             await dbContext.SaveChangesAsync(cancellationToken);
             return creator;
         }

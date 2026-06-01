@@ -89,6 +89,21 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task UpdateBankInfo_should_record_audit_event()
+        {
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            await service.UpdateBankInfo(creator.Id, new UpdateCreatorBankInfoRequest { PixKey = "foo@x", PixKeyType = PixKeyType.Email });
+
+            CreatorEvent auditEvent = await db.Set<CreatorEvent>().AsNoTracking().SingleAsync();
+            auditEvent.CreatorId.Should().Be(creator.Id);
+            auditEvent.EventType.Should().Be(CreatorEventType.BankInfoChanged);
+        }
+
+        [Test]
         public async Task UploadInvoice_should_throw_when_payment_not_found_or_not_owned()
         {
             CreatorPayment payment = new(1, 7, 100m, 0m, PaymentMethod.Pix);
