@@ -36,5 +36,13 @@ namespace AgencyCampaign.Application.Requests.Proposals
 
         [StringLength(160)]
         public string? UsageScope { get; set; }
+
+        public ProposalItemPricingModel PricingModel { get; set; } = ProposalItemPricingModel.Fixed;
+
+        [Range(0, 100)]
+        public decimal? VariableRate { get; set; }
+
+        [Range(0, double.MaxValue)]
+        public decimal? VariableBasis { get; set; }
     }
 }
