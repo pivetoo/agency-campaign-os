@@ -12,4 +12,8 @@ export const profileApiService = {
   async removeAvatar(): Promise<void> {
     await httpClient.delete('/Profile/RemoveAvatar')
   },
+  async updateProfile(payload: { name: string }): Promise<{ name?: string; username?: string; email?: string; avatarUrl?: string }> {
+    const response = await httpClient.put<{ name?: string; username?: string; email?: string; avatarUrl?: string }>('/Profile/UpdateProfile', payload)
+    return response.data ?? {}
+  },
 }

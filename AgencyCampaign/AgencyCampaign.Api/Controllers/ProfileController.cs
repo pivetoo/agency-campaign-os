@@ -63,5 +63,40 @@ namespace AgencyCampaign.Api.Controllers
 
             return Http200(new { });
         }
+
+        [RequireAccess("profile.updateProfile.description")]
+        [PutEndpoint]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request, CancellationToken cancellationToken)
+        {
+            if (CurrentUserId is null)
+            {
+                return Http401();
+            }
+
+            if (request is null || string.IsNullOrWhiteSpace(request.Name))
+            {
+                return Http400("Nome não informado.");
+            }
+
+            string name = request.Name.Trim();
+            await identityUsersClient.UpdateUserAsync(CurrentUserId.Value, name, null, true, cancellationToken);
+
+            IdentityUserDto? user = await identityUsersClient.GetUserByIdAsync(CurrentUserId.Value, cancellationToken);
+
+            return Http200(new
+            {
+                id = user?.Id ?? CurrentUserId.Value,
+                username = user?.Username,
+                email = user?.Email,
+                name = user?.Name ?? name,
+                avatarUrl = user?.AvatarUrl,
+                isActive = user?.IsActive ?? true
+            });
+        }
+    }
+
+    public sealed class UpdateProfileRequest
+    {
+        public string Name { get; set; } = string.Empty;
     }
 }

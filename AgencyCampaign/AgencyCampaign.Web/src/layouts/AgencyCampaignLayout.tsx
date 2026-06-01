@@ -298,6 +298,7 @@ export default function AgencyCampaignLayout() {
         }}
         onAvatarUpload={profileApiService.uploadAvatar}
         onAvatarRemove={profileApiService.removeAvatar}
+        onUpdateProfile={profileApiService.updateProfile}
         onLogout={handleLogout}
         navMode="module-rail"
         moduleNav={moduleNav}
