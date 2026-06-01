@@ -49,6 +49,13 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? ClientDecisionContentHash { get; private set; }
 
+        public DateTimeOffset? ExpiryReminderSentAt { get; private set; }
+
+        public void MarkExpiryReminderSent()
+        {
+            ExpiryReminderSentAt = DateTimeOffset.UtcNow;
+        }
+
         [NotMapped]
         public decimal DiscountValue => DiscountAmount.HasValue ? Money.Round(Math.Clamp(DiscountAmount.Value, 0m, TotalValue)) : 0m;
 
@@ -134,6 +141,7 @@ namespace AgencyCampaign.Domain.Entities
                 throw new InvalidOperationException("proposal.send.invalidStatus");
             }
 
+            ExpiryReminderSentAt = null;
             ApplyStatusChange(ProposalStatus.Sent, changedByUserId, changedByUserName, reason);
         }
 

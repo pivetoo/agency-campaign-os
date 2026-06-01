@@ -28,6 +28,7 @@ builder.Services.AddServicesFromAssembly(typeof(Program).Assembly);
 builder.Services.AddHostedService<SocialSyncJob>();
 builder.Services.AddHostedService<ContentLicenseExpiryJob>();
 builder.Services.AddHostedService<ProposalExpiryJob>();
+builder.Services.AddHostedService<ProposalExpiryReminderJob>();
 builder.Services.AddHostedService<FollowUpReminderJob>();
 builder.Services.AddHostedService<OpportunityStalledJob>();
 #endregion

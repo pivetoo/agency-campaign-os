@@ -23,6 +23,22 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
+        public static CreateNotificationRequest ProposalExpiringSoon(Proposal proposal, int daysLeft)
+        {
+            string when = daysLeft <= 0 ? "hoje" : daysLeft == 1 ? "amanha" : $"em {daysLeft} dias";
+            return new CreateNotificationRequest
+            {
+                UserId = proposal.InternalOwnerId,
+                Type = NotificationType.Warning,
+                Title = "Proposta perto de expirar",
+                Message = $"A proposta \"{proposal.Name}\" expira {when}. Faca follow-up com o cliente ou estenda a validade.",
+                Link = $"/comercial/propostas/{proposal.Id}",
+                Source = "proposal",
+                ReferenceEntityName = nameof(Proposal),
+                ReferenceEntityId = proposal.Id.ToString()
+            };
+        }
+
         public static CreateNotificationRequest ProposalApproved(Proposal proposal)
         {
             return new CreateNotificationRequest

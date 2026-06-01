@@ -37,5 +37,7 @@ namespace AgencyCampaign.Application.Services
         Task<IReadOnlyCollection<ProposalStatusHistoryModel>> GetStatusHistory(long proposalId, CancellationToken cancellationToken = default);
 
         Task<int> ExpireOverdue(CancellationToken cancellationToken = default);
+
+        Task<int> RemindExpiringSoon(int daysAhead, CancellationToken cancellationToken = default);
     }
 }

@@ -534,6 +534,33 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task RemindExpiringSoon_should_remind_once_for_proposals_within_window()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+
+            Proposal expiringSoon = new(opportunity.Id, "Expiring", 1, validityUntil: DateTimeOffset.UtcNow.AddDays(2));
+            expiringSoon.MarkAsSent();
+            Proposal farOut = new(opportunity.Id, "Far", 1, validityUntil: DateTimeOffset.UtcNow.AddDays(10));
+            farOut.MarkAsSent();
+            Proposal alreadyExpired = new(opportunity.Id, "Past", 1, validityUntil: DateTimeOffset.UtcNow.AddDays(-1));
+            alreadyExpired.MarkAsSent();
+            db.Add(expiringSoon);
+            db.Add(farOut);
+            db.Add(alreadyExpired);
+            await db.SaveChangesAsync();
+
+            int reminded = await service.RemindExpiringSoon(3);
+
+            reminded.Should().Be(1);
+            notifications.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            db.ChangeTracker.Clear();
+            (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == expiringSoon.Id)).ExpiryReminderSentAt.Should().NotBeNull();
+
+            int second = await service.RemindExpiringSoon(3);
+            second.Should().Be(0);
+        }
+
+        [Test]
         public async Task MarkAsSent_should_reject_resend_of_already_approved_proposal_without_new_version()
         {
             Opportunity opportunity = await SeedOpportunityAsync();

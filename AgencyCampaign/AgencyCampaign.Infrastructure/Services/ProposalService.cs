@@ -483,6 +483,44 @@ namespace AgencyCampaign.Infrastructure.Services
             return expired;
         }
 
+        public async Task<int> RemindExpiringSoon(int daysAhead, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset threshold = now.AddDays(daysAhead <= 0 ? 3 : daysAhead);
+
+            List<Proposal> candidates = await DbContext.Set<Proposal>()
+                .AsTracking()
+                .Where(item => (item.Status == ProposalStatus.Sent || item.Status == ProposalStatus.Viewed)
+                    && item.ValidityUntil != null
+                    && item.ValidityUntil >= now
+                    && item.ValidityUntil <= threshold
+                    && item.ExpiryReminderSentAt == null)
+                .ToListAsync(cancellationToken);
+
+            int reminded = 0;
+            foreach (Proposal proposal in candidates)
+            {
+                int daysLeft = (int)Math.Ceiling((proposal.ValidityUntil!.Value - now).TotalDays);
+                try
+                {
+                    await notificationService.Create(KanvasNotifications.ProposalExpiringSoon(proposal, daysLeft), cancellationToken);
+                    proposal.MarkExpiryReminderSent();
+                    reminded++;
+                }
+                catch (Exception exception)
+                {
+                    logger?.LogWarning(exception, "Failed to remind expiring proposal {ProposalId}.", proposal.Id);
+                }
+            }
+
+            if (reminded > 0)
+            {
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return reminded;
+        }
+
         private async Task ApplyPostConversionAsync(Proposal saved, long campaignId, CancellationToken cancellationToken)
         {
             try

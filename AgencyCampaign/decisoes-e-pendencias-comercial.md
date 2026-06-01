@@ -53,12 +53,12 @@ As features de diferenciação (usage rights, rate cards, modelos híbridos) ent
 - [x] **C1 — Link público multi-tenant** — FEITO (D4, abordagem #1): token embute o tenant; middleware próprio do AgencyCampaign resolve o banco certo a partir do token, só nas rotas públicas e só quando não há tenant. Sem mexer no framework Archon. _(Fatia C: só falta C2, removido a seu pedido)_
 
 ### Fatia E — Diferenciação de nicho _(depende de **D5**)_
-- [ ] **E1 — Usage rights / licenciamento** como linha precificável (hoje só desconto global)
+- [x] **E1 — Usage rights / licenciamento** como linha precificável (item ganhou Kind/UsageDurationMonths/UsageScope)
 - [ ] **E2 — Modelos híbridos de remuneração** (base + comissão/afiliado/performance)
-- [ ] **E3 — Rate cards reutilizáveis** por creator/entregável (hoje digita valor toda vez)
+- [x] **E3 — Rate cards reutilizáveis** por creator/entregável (RateCardItem + picker na proposta)
 - [ ] **E4 — Tracking de engajamento da proposta** (abriu / tempo por seção)
 - [ ] **E5 — Payout de creator ligado ao fechamento** (comercial ↔ financeiro)
-- [ ] **E6 — Expiração automática + lembretes ao cliente** (cadência de lembrete)
+- [x] **E6 — Expiração automática + lembretes ao cliente** (cadência de lembrete) — FEITO: job avisa o responsável antes da proposta expirar (janela 3 dias); e-mail direto ao cliente fica como evolução futura.
 
 ---
 
