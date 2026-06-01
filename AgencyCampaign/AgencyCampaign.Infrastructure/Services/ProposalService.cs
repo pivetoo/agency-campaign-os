@@ -399,12 +399,25 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            proposal.ConvertToCampaign(campaignId, currentUser.UserId, currentUser.UserName);
+            await using (var transaction = await DbContext.Database.BeginTransactionAsync(cancellationToken))
+            {
+                try
+                {
+                    proposal.ConvertToCampaign(campaignId, currentUser.UserId, currentUser.UserName);
+                    await DbContext.SaveChangesAsync(cancellationToken);
+                    await SeedCampaignCreatorsAsync(proposal.Id, campaignId, cancellationToken);
+                    await GenerateConversionFinancialsAsync(proposal, campaignId, cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
+            }
 
-            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
-
-            await SeedCampaignCreatorsAsync(saved.Id, campaignId, cancellationToken);
-            await ApplyPostConversionAsync(saved, campaignId, cancellationToken);
+            Proposal saved = await GetProposalById(proposal.Id, cancellationToken) ?? proposal;
+            await NotifyConversionAsync(saved, campaignId, cancellationToken);
             return saved;
         }
 
@@ -436,23 +449,39 @@ namespace AgencyCampaign.Infrastructure.Services
             string campaignName = string.IsNullOrWhiteSpace(name) ? opportunity.Name : name.Trim();
             DateTimeOffset campaignStart = startDate ?? DateTimeOffset.UtcNow;
 
-            Campaign campaign = new(
-                opportunity.BrandId,
-                campaignName,
-                proposal.NetTotalValue,
-                campaignStart,
-                description: proposal.Description,
-                internalOwnerName: proposal.InternalOwnerName);
-            campaign.AttachOrigin(proposal.OpportunityId, proposal.Id);
+            long campaignId;
+            await using (var transaction = await DbContext.Database.BeginTransactionAsync(cancellationToken))
+            {
+                try
+                {
+                    Campaign campaign = new(
+                        opportunity.BrandId,
+                        campaignName,
+                        proposal.NetTotalValue,
+                        campaignStart,
+                        description: proposal.Description,
+                        internalOwnerName: proposal.InternalOwnerName);
+                    campaign.AttachOrigin(proposal.OpportunityId, proposal.Id);
 
-            DbContext.Set<Campaign>().Add(campaign);
-            await DbContext.SaveChangesAsync(cancellationToken);
+                    DbContext.Set<Campaign>().Add(campaign);
+                    await DbContext.SaveChangesAsync(cancellationToken);
+                    campaignId = campaign.Id;
 
-            proposal.ConvertToCampaign(campaign.Id, currentUser.UserId, currentUser.UserName);
-            Proposal saved = await SaveAndReturn(proposal, cancellationToken);
+                    proposal.ConvertToCampaign(campaignId, currentUser.UserId, currentUser.UserName);
+                    await DbContext.SaveChangesAsync(cancellationToken);
+                    await SeedCampaignCreatorsAsync(proposal.Id, campaignId, cancellationToken);
+                    await GenerateConversionFinancialsAsync(proposal, campaignId, cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
+            }
 
-            await SeedCampaignCreatorsAsync(saved.Id, campaign.Id, cancellationToken);
-            await ApplyPostConversionAsync(saved, campaign.Id, cancellationToken);
+            Proposal saved = await GetProposalById(proposal.Id, cancellationToken) ?? proposal;
+            await NotifyConversionAsync(saved, campaignId, cancellationToken);
             return saved;
         }
 
@@ -582,26 +611,18 @@ namespace AgencyCampaign.Infrastructure.Services
             return statusId ?? throw new InvalidOperationException("campaignCreator.initialStatus.missing");
         }
 
-        private async Task ApplyPostConversionAsync(Proposal saved, long campaignId, CancellationToken cancellationToken)
+        // Geracao financeira da conversao: roda DENTRO da transacao da conversao.
+        // Nao engole excecao - se falhar, a conversao inteira (campanha + creators + financeiro)
+        // e revertida e o erro propaga, em vez de deixar a venda meio-convertida sem recebivel/repasse.
+        private async Task GenerateConversionFinancialsAsync(Proposal proposal, long campaignId, CancellationToken cancellationToken)
         {
-            try
-            {
-                await financialAutoGeneration.GenerateForConvertedProposal(saved, campaignId, cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                logger?.LogWarning(exception, "Failed to generate financial entry for converted proposal {ProposalId}.", saved.Id);
-            }
+            await financialAutoGeneration.GenerateForConvertedProposal(proposal, campaignId, cancellationToken);
+            await financialAutoGeneration.GenerateCreatorPayoutsForConvertedProposal(proposal, campaignId, cancellationToken);
+        }
 
-            try
-            {
-                await financialAutoGeneration.GenerateCreatorPayoutsForConvertedProposal(saved, campaignId, cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                logger?.LogWarning(exception, "Failed to generate creator payouts for converted proposal {ProposalId}.", saved.Id);
-            }
-
+        // Efeitos best-effort pos-commit (automacao + notificacao): nao revertem a conversao se falharem.
+        private async Task NotifyConversionAsync(Proposal saved, long campaignId, CancellationToken cancellationToken)
+        {
             await NotifyAutomations(AutomationTriggers.ProposalConverted, saved, cancellationToken);
             await TryNotify(KanvasNotifications.ProposalConverted(saved, campaignId), cancellationToken);
         }
