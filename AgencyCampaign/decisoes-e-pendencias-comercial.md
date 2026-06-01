@@ -29,7 +29,7 @@ Ao ganhar a oportunidade, qual valor vira a "fonte da verdade" para metas/foreca
 
 ### D5 — Roadmap de nicho  _(define a Fatia E)_
 As features de diferenciação (usage rights, rate cards, modelos híbridos) entram quando?
-- [ ] **No pré-lançamento** (agendar a Fatia E agora)
+- [X] **No pré-lançamento** (agendar a Fatia E agora)
 - [ ] **Pós-MVP** (deixar a Fatia E para depois do lançamento)
 
 ### D6 — Política de arredondamento financeiro  _(do nosso papo da auditoria)_
