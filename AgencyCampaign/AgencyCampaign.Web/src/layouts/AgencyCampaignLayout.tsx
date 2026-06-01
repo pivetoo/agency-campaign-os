@@ -297,6 +297,7 @@ export default function AgencyCampaignLayout() {
           avatarUrl: authUser?.avatarUrl,
         }}
         onAvatarUpload={profileApiService.uploadAvatar}
+        onAvatarRemove={profileApiService.removeAvatar}
         onLogout={handleLogout}
         navMode="module-rail"
         moduleNav={moduleNav}

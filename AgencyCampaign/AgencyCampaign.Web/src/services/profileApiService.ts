@@ -9,4 +9,7 @@ export const profileApiService = {
     })
     return response.data!.url
   },
+  async removeAvatar(): Promise<void> {
+    await httpClient.delete('/Profile/RemoveAvatar')
+  },
 }

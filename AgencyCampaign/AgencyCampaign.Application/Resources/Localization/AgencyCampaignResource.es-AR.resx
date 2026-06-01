@@ -1640,6 +1640,7 @@
   <data name="platforms.update.description" xml:space="preserve"><value>Permite atualizar os dados de uma plataforma.</value></data>
   <data name="profile.area" xml:space="preserve"><value>Profile</value></data>
   <data name="profile.uploadAvatar.description" xml:space="preserve"><value>Permite enviar foto de perfil do usuário.</value></data>
+  <data name="profile.removeAvatar.description" xml:space="preserve"><value>Permite remover foto de perfil do usuário.</value></data>
   <data name="proposalTemplates.applyToProposal.description" xml:space="preserve"><value>Permite aplicar um template a uma proposta existente.</value></data>
   <data name="proposalTemplates.area" xml:space="preserve"><value>Proposal templates</value></data>
   <data name="proposalTemplates.create.description" xml:space="preserve"><value>Permite cadastrar um template de proposta.</value></data>

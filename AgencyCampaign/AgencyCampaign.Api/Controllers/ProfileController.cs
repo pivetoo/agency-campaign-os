@@ -1,6 +1,7 @@
 using AgencyCampaign.Application.Services;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using Archon.Infrastructure.IdentityManagement;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgencyCampaign.Api.Controllers
@@ -11,10 +12,12 @@ namespace AgencyCampaign.Api.Controllers
         private const long MaxAvatarBytes = 2 * 1024 * 1024;
 
         private readonly IImageUploadStorage imageStorage;
+        private readonly IdentityUsersClient identityUsersClient;
 
-        public ProfileController(IImageUploadStorage imageStorage)
+        public ProfileController(IImageUploadStorage imageStorage, IdentityUsersClient identityUsersClient)
         {
             this.imageStorage = imageStorage;
+            this.identityUsersClient = identityUsersClient;
         }
 
         [RequireAccess("profile.uploadAvatar.description")]
@@ -41,7 +44,24 @@ namespace AgencyCampaign.Api.Controllers
             await using Stream stream = file.OpenReadStream();
             string url = await imageStorage.SaveAsync("profiles", CurrentUserId.Value, stream, file.ContentType, cancellationToken);
 
+            await identityUsersClient.UpdateUserAvatarAsync(CurrentUserId.Value, url, cancellationToken);
+
             return Http200(new { url });
+        }
+
+        [RequireAccess("profile.removeAvatar.description")]
+        [DeleteEndpoint]
+        public async Task<IActionResult> RemoveAvatar(CancellationToken cancellationToken)
+        {
+            if (CurrentUserId is null)
+            {
+                return Http401();
+            }
+
+            await imageStorage.RemoveAsync("profiles", CurrentUserId.Value, cancellationToken);
+            await identityUsersClient.DeleteUserAvatarAsync(CurrentUserId.Value, cancellationToken);
+
+            return Http200(new { });
         }
     }
 }
