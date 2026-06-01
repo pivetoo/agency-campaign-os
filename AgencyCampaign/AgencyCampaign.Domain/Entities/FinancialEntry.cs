@@ -21,6 +21,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public Proposal? SourceProposal { get; private set; }
 
+        public long? SourceProposalItemId { get; private set; }
+
         public FinancialEntryType Type { get; private set; }
 
         public FinancialEntryCategory Category { get; private set; }
@@ -119,6 +121,14 @@ namespace AgencyCampaign.Domain.Entities
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalId);
             SourceProposalId = proposalId;
+        }
+
+        public void LinkToProposalItem(long proposalId, long proposalItemId)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalItemId);
+            SourceProposalId = proposalId;
+            SourceProposalItemId = proposalItemId;
         }
 
         public void SetSubcategory(long? subcategoryId)

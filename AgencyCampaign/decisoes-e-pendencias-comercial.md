@@ -57,7 +57,7 @@ As features de diferenciação (usage rights, rate cards, modelos híbridos) ent
 - [ ] **E2 — Modelos híbridos de remuneração** (base + comissão/afiliado/performance)
 - [x] **E3 — Rate cards reutilizáveis** por creator/entregável (RateCardItem + picker na proposta)
 - [x] **E4 — Tracking de engajamento da proposta** (abriu / tempo por seção) — FEITO: painel de engajamento com total de aberturas, primeiro/último acesso e timeline por device. Tempo por seção fica como evolução futura.
-- [ ] **E5 — Payout de creator ligado ao fechamento** (comercial ↔ financeiro)
+- [x] **E5 — Payout de creator ligado ao fechamento** (comercial ↔ financeiro) — FEITO (modelo A): conversão gera repasse de creator planejado (FinancialEntry CreatorPayout Pending) por item com creator; idempotente; execução por entrega suprimida quando há planejado. Forecast de margem desde o dia 1.
 - [x] **E6 — Expiração automática + lembretes ao cliente** (cadência de lembrete) — FEITO: job avisa o responsável antes da proposta expirar (janela 3 dias); e-mail direto ao cliente fica como evolução futura.
 
 ---

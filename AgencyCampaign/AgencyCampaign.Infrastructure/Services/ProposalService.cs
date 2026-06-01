@@ -532,6 +532,15 @@ namespace AgencyCampaign.Infrastructure.Services
                 logger?.LogWarning(exception, "Failed to generate financial entry for converted proposal {ProposalId}.", saved.Id);
             }
 
+            try
+            {
+                await financialAutoGeneration.GenerateCreatorPayoutsForConvertedProposal(saved, campaignId, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                logger?.LogWarning(exception, "Failed to generate creator payouts for converted proposal {ProposalId}.", saved.Id);
+            }
+
             await NotifyAutomations(AutomationTriggers.ProposalConverted, saved, cancellationToken);
             await TryNotify(KanvasNotifications.ProposalConverted(saved, campaignId), cancellationToken);
         }

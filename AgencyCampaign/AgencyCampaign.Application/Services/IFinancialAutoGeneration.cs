@@ -6,6 +6,8 @@ namespace AgencyCampaign.Application.Services
     {
         Task GenerateForConvertedProposal(Proposal proposal, long campaignId, CancellationToken cancellationToken = default);
 
+        Task GenerateCreatorPayoutsForConvertedProposal(Proposal proposal, long campaignId, CancellationToken cancellationToken = default);
+
         Task GenerateForPublishedDeliverable(CampaignDeliverable deliverable, CancellationToken cancellationToken = default);
     }
 }
