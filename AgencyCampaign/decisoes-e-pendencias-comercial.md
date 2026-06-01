@@ -20,11 +20,11 @@ Como o cliente aceita/recusa a proposta direto no link público?
 ### D3 — Valor fechado  _(destrava B2)_
 Ao ganhar a oportunidade, qual valor vira a "fonte da verdade" para metas/forecast/analytics?
 - [ ] **A:** sobrescrever o `EstimatedValue` da oportunidade pelo líquido da proposta aceita
-- [ ] **B (recomendado):** manter **estimado vs. fechado** em campos separados (preserva histórico)
+- [X] **B (recomendado):** manter **estimado vs. fechado** em campos separados (preserva histórico)
 - [ ] Outro: ______________________________
 
 ### D4 — Deploy multi-tenant  _(destrava C1)_
-- [ ] Confirmar **instância única compartilhada** (aí resolvo o tenant pelo próprio token público)
+- [X] Confirmar **instância única compartilhada** (aí resolvo o tenant pelo próprio token público)
 - [ ] Outro modelo de deploy: ______________________________
 
 ### D5 — Roadmap de nicho  _(define a Fatia E)_
@@ -37,7 +37,7 @@ As features de diferenciação (usage rights, rate cards, modelos híbridos) ent
 - [ ] Trocar para **`ToEven`** (bancário, reduz viés cumulativo)
 
 ### D7 — IP de visitantes / LGPD  _(do nosso papo)_
-- [ ] Manter **anonimizado** (como está hoje)
+- [X] Manter **anonimizado** (como está hoje)
 - [ ] **IP completo** + base legal (segurança) + nota + job de retenção/expurgo
 - [ ] **Não logar IP**
 
