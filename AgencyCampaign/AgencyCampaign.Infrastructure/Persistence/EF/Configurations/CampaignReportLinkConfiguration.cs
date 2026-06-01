@@ -10,7 +10,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
         {
             builder.ToTable("campaignreportlink");
 
-            builder.Property(entity => entity.Token).IsRequired().HasMaxLength(80);
+            builder.Property(entity => entity.Token).IsRequired().HasMaxLength(128);
             builder.Property(entity => entity.CreatedByUserName).HasMaxLength(150);
 
             builder.HasOne(entity => entity.Campaign)

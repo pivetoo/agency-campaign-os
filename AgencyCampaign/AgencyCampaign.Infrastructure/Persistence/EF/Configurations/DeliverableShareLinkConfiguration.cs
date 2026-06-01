@@ -10,7 +10,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
         {
             builder.ToTable("deliverablesharelink");
 
-            builder.Property(entity => entity.Token).IsRequired().HasMaxLength(80);
+            builder.Property(entity => entity.Token).IsRequired().HasMaxLength(128);
             builder.Property(entity => entity.ReviewerName).IsRequired().HasMaxLength(150);
             builder.Property(entity => entity.CreatedByUserName).HasMaxLength(150);
 

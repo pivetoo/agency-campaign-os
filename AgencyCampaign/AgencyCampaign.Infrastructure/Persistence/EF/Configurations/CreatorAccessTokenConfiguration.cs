@@ -12,7 +12,7 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
 
             builder.Property(entity => entity.Token)
                 .IsRequired()
-                .HasMaxLength(64);
+                .HasMaxLength(128);
 
             builder.Property(entity => entity.Note)
                 .HasMaxLength(500);
