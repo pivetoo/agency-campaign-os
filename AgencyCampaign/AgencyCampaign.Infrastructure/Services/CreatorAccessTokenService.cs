@@ -2,21 +2,29 @@ using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CreatorAccessTokens;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
+using Archon.Application.MultiTenancy;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using System.Security.Cryptography;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CreatorAccessTokenService : CrudService<CreatorAccessToken>, ICreatorAccessTokenService
     {
-        private readonly ICurrentUser currentUser;
+        private const int DefaultTokenLifetimeDays = 30;
+        private const int MaxTokenLifetimeDays = 90;
 
-        public CreatorAccessTokenService(DbContext dbContext, ICurrentUser currentUser) : base(dbContext)
+        private readonly ICurrentUser currentUser;
+        private readonly ITenantContext tenantContext;
+
+        public CreatorAccessTokenService(DbContext dbContext, ICurrentUser currentUser, ITenantContext tenantContext) : base(dbContext)
         {
             this.currentUser = currentUser;
+            this.tenantContext = tenantContext;
         }
 
         public async Task<CreatorAccessToken> Issue(IssueCreatorAccessTokenRequest request, CancellationToken cancellationToken = default)
@@ -30,11 +38,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            string tokenValue = Guid.NewGuid().ToString("N");
+            string tokenValue = PublicLinkToken.Compose(tenantContext.TenantId, GenerateToken());
             CreatorAccessToken token = new(
                 request.CreatorId,
                 tokenValue,
-                request.ExpiresAt,
+                ResolveExpiry(request.ExpiresAt),
                 request.Note,
                 currentUser.UserId,
                 currentUser.UserName);
@@ -94,6 +102,28 @@ namespace AgencyCampaign.Infrastructure.Services
             token.Revoke();
             await DbContext.SaveChangesAsync(cancellationToken);
             return true;
+        }
+
+        private static string GenerateToken()
+        {
+            byte[] bytes = RandomNumberGenerator.GetBytes(32);
+            return Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        }
+
+        private static DateTimeOffset ResolveExpiry(DateTimeOffset? requested)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset maxExpiry = now.AddDays(MaxTokenLifetimeDays);
+            DateTimeOffset expiresAt = requested?.ToUniversalTime() ?? now.AddDays(DefaultTokenLifetimeDays);
+            if (expiresAt <= now)
+            {
+                expiresAt = now.AddDays(DefaultTokenLifetimeDays);
+            }
+            if (expiresAt > maxExpiry)
+            {
+                expiresAt = maxExpiry;
+            }
+            return expiresAt;
         }
     }
 }

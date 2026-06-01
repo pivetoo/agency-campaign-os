@@ -1,6 +1,7 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CreatorAccessTokens;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new CreatorAccessTokenService(db, CurrentUserMock.Create());
+            service = new CreatorAccessTokenService(db, CurrentUserMock.Create(), TenantContextMock.Create());
         }
 
         [TearDown]
@@ -56,6 +57,56 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             token.CreatedByUserName.Should().Be("Tester");
 
             (await db.Set<CreatorAccessToken>().CountAsync()).Should().Be(1);
+        }
+
+        [Test]
+        public async Task Issue_should_compose_tenant_prefix_in_token()
+        {
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorAccessToken token = await service.Issue(new IssueCreatorAccessTokenRequest { CreatorId = creator.Id });
+
+            PublicLinkToken.ExtractTenantId(token.Token).Should().Be("tenant-1");
+        }
+
+        [Test]
+        public async Task Issue_should_generate_strong_random_token()
+        {
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorAccessToken token = await service.Issue(new IssueCreatorAccessTokenRequest { CreatorId = creator.Id });
+
+            string random = token.Token.Contains('~') ? token.Token[(token.Token.IndexOf('~') + 1)..] : token.Token;
+            random.Length.Should().BeGreaterThanOrEqualTo(40);
+        }
+
+        [Test]
+        public async Task Issue_should_default_expiry_when_not_provided()
+        {
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorAccessToken token = await service.Issue(new IssueCreatorAccessTokenRequest { CreatorId = creator.Id });
+
+            token.ExpiresAt.Should().NotBeNull();
+            token.ExpiresAt!.Value.Should().BeAfter(DateTimeOffset.UtcNow);
+        }
+
+        [Test]
+        public async Task Issue_should_cap_expiry_beyond_maximum()
+        {
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorAccessToken token = await service.Issue(new IssueCreatorAccessTokenRequest { CreatorId = creator.Id, ExpiresAt = DateTimeOffset.UtcNow.AddDays(1000) });
+
+            token.ExpiresAt!.Value.Should().BeOnOrBefore(DateTimeOffset.UtcNow.AddDays(91));
         }
 
         [Test]

@@ -13,7 +13,8 @@ namespace AgencyCampaign.Api.MultiTenancy
         {
             "/api/proposal-public/",
             "/api/campaign-report-public/",
-            "/api/deliverable-public/"
+            "/api/deliverable-public/",
+            "/api/creatorportal/"
         };
 
         private readonly RequestDelegate next;
