@@ -25,7 +25,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new DeliverableShareLinkService(db, CurrentUserMock.Create());
+            service = new DeliverableShareLinkService(db, CurrentUserMock.Create(), TenantContextMock.Create());
         }
 
         [TearDown]
@@ -65,6 +65,16 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             a.Token.Should().NotBe(b.Token);
             a.Token.Should().NotBeNullOrWhiteSpace();
             a.IsActive.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Create_should_compose_tenant_prefix_in_token()
+        {
+            CampaignDeliverable deliverable = await SeedDeliverableAsync();
+
+            DeliverableShareLinkModel link = await service.Create(new CreateDeliverableShareLinkRequest { CampaignDeliverableId = deliverable.Id, ReviewerName = "Brand" });
+
+            PublicLinkToken.ExtractTenantId(link.Token).Should().Be("tenant-1");
         }
 
         [Test]

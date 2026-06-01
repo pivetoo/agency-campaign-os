@@ -6,6 +6,7 @@ using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
+using Archon.Application.MultiTenancy;
 using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -17,11 +18,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICurrentUser currentUser;
+        private readonly ITenantContext tenantContext;
 
-        public DeliverableShareLinkService(DbContext dbContext, ICurrentUser currentUser)
+        public DeliverableShareLinkService(DbContext dbContext, ICurrentUser currentUser, ITenantContext tenantContext)
         {
             this.dbContext = dbContext;
             this.currentUser = currentUser;
+            this.tenantContext = tenantContext;
         }
 
         public async Task<IReadOnlyCollection<DeliverableShareLinkModel>> GetByDeliverable(long deliverableId, CancellationToken cancellationToken = default)
@@ -58,7 +61,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            string token = GenerateToken();
+            string token = PublicLinkToken.Compose(tenantContext.TenantId, GenerateToken());
 
             DeliverableShareLink shareLink = new(
                 request.CampaignDeliverableId,

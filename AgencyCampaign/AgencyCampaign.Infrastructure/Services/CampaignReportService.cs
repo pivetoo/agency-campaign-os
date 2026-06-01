@@ -3,6 +3,7 @@ using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Abstractions;
+using Archon.Application.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
@@ -12,11 +13,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ICurrentUser currentUser;
+        private readonly ITenantContext tenantContext;
 
-        public CampaignReportService(DbContext dbContext, ICurrentUser currentUser)
+        public CampaignReportService(DbContext dbContext, ICurrentUser currentUser, ITenantContext tenantContext)
         {
             this.dbContext = dbContext;
             this.currentUser = currentUser;
+            this.tenantContext = tenantContext;
         }
 
         public async Task<CampaignReportLinkModel> CreateOrGetLink(long campaignId, CancellationToken cancellationToken = default)
@@ -37,7 +40,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (link is null)
             {
-                link = new CampaignReportLink(campaignId, GenerateToken(), currentUser.UserId, currentUser.UserName);
+                string token = PublicLinkToken.Compose(tenantContext.TenantId, GenerateToken());
+                link = new CampaignReportLink(campaignId, token, currentUser.UserId, currentUser.UserName);
                 dbContext.Set<CampaignReportLink>().Add(link);
                 await dbContext.SaveChangesAsync(cancellationToken);
             }

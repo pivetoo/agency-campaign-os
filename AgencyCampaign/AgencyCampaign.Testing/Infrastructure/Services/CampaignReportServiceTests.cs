@@ -17,11 +17,23 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new CampaignReportService(db, CurrentUserMock.Create());
+            service = new CampaignReportService(db, CurrentUserMock.Create(), TenantContextMock.Create());
         }
 
         [TearDown]
         public void TearDown() => db.Dispose();
+
+        [Test]
+        public async Task CreateOrGetLink_should_compose_tenant_prefix_in_token()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "Camp", 10000m, DateTimeOffset.UtcNow).WithId(10));
+            await db.SaveChangesAsync();
+
+            CampaignReportLinkModel link = await service.CreateOrGetLink(10);
+
+            PublicLinkToken.ExtractTenantId(link.Token).Should().Be("tenant-1");
+        }
 
         private async Task SeedCampaignWithMetricsAsync()
         {
