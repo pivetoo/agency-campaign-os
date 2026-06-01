@@ -91,6 +91,40 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task UpdateDeliverable_should_preserve_metrics_not_sent_in_request()
+        {
+            await SeedReferencesAsync();
+            CampaignDeliverable deliverable = await service.CreateDeliverable(BuildCreateRequest());
+
+            CampaignDeliverable tracked = await db.Set<CampaignDeliverable>().AsTracking().FirstAsync(item => item.Id == deliverable.Id);
+            tracked.RegisterCreatorInsights(5000, 4000, 30);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCampaignDeliverableRequest request = new()
+            {
+                Id = deliverable.Id,
+                Title = "Story 1",
+                DeliverableKindId = 1,
+                PlatformId = 1,
+                DueAt = DateTimeOffset.UtcNow.AddDays(5),
+                GrossAmount = 1000m,
+                CreatorAmount = 800m,
+                AgencyFeeAmount = 100m,
+                Status = DeliverableStatus.Pending,
+                Likes = 500
+            };
+            await service.UpdateDeliverable(deliverable.Id, request);
+
+            db.ChangeTracker.Clear();
+            CampaignDeliverable updated = await db.Set<CampaignDeliverable>().AsNoTracking().FirstAsync(item => item.Id == deliverable.Id);
+            updated.Likes.Should().Be(500);
+            updated.Reach.Should().Be(5000);
+            updated.Impressions.Should().Be(4000);
+            updated.Saves.Should().Be(30);
+        }
+
+        [Test]
         public async Task CreateDeliverable_with_published_status_should_require_brand_approval()
         {
             await SeedReferencesAsync();
