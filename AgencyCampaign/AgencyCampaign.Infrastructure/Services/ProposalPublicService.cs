@@ -84,7 +84,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
             }
 
-            if (proposal.Status == ProposalStatus.Sent)
+            if (proposal is not null && proposal.Status == ProposalStatus.Sent)
             {
                 Proposal? trackedProposal = await dbContext.Set<Proposal>()
                     .AsTracking()

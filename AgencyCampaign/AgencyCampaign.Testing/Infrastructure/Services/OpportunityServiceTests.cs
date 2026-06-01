@@ -639,6 +639,26 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetAnalytics_conversion_should_count_opportunity_that_advanced_then_regressed()
+        {
+            await SeedBaseAsync();
+            Opportunity opp = await service.CreateOpportunity(new CreateOpportunityRequest { BrandId = 1, Name = "Deal", EstimatedValue = 100m });
+            await service.ChangeStage(opp.Id, new ChangeOpportunityStageRequest { CommercialPipelineStageId = 2 });
+            await service.ChangeStage(opp.Id, new ChangeOpportunityStageRequest { CommercialPipelineStageId = 1 });
+
+            CommercialAnalyticsModel analytics = await service.GetAnalytics(
+                new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2027, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                restrictToCurrentUser: false,
+                userId: null);
+
+            StageConversionModel stageOne = analytics.ConversionByStage.Single(item => item.StageId == 1);
+            stageOne.Entered.Should().Be(1);
+            stageOne.Advanced.Should().Be(1);
+            stageOne.ConversionRate.Should().Be(100m);
+        }
+
+        [Test]
         public async Task UpdateOpportunity_should_set_manual_probability()
         {
             await SeedBaseAsync();

@@ -834,7 +834,6 @@ namespace AgencyCampaign.Infrastructure.Services
                 .OrderBy(stage => stage.DisplayOrder)
                 .ToList();
 
-            Dictionary<long, CommercialPipelineStageFinalBehavior> stageBehavior = stages.ToDictionary(stage => stage.Id, stage => stage.FinalBehavior);
             Dictionary<long, int> stageOrder = stages.ToDictionary(stage => stage.Id, stage => stage.DisplayOrder);
             HashSet<long> wonOpportunityIds = closed
                 .Where(opp => opp.CommercialPipelineStage?.FinalBehavior == CommercialPipelineStageFinalBehavior.Won)
@@ -878,34 +877,19 @@ namespace AgencyCampaign.Infrastructure.Services
                         continue;
                     }
 
-                    if (openCurrentStageById.TryGetValue(opportunityId, out long currentStageId))
+                    // Robusto a funis nao lineares / idas e vindas: considera avancado se em ALGUM momento
+                    // (historico) a oportunidade visitou um estagio posterior a este na ordem do funil, e nao
+                    // apenas se o estagio ATUAL e posterior (o que perdia quem avancou e depois recuou).
+                    bool reachedLaterStage = stagesVisitedByOpportunity.TryGetValue(opportunityId, out List<long>? visitedStages)
+                        && visitedStages.Any(visitedStageId => stageOrder.TryGetValue(visitedStageId, out int order) && order > stageDisplayOrder);
+
+                    if (reachedLaterStage)
                     {
-                        if (currentStageId == stageId)
-                        {
-                            stuck++;
-                            continue;
-                        }
-
-                        if (stageOrder.TryGetValue(currentStageId, out int currentOrder) && currentOrder > stageDisplayOrder)
-                        {
-                            advanced++;
-                            continue;
-                        }
-
-                        if (stageBehavior.TryGetValue(currentStageId, out CommercialPipelineStageFinalBehavior behavior))
-                        {
-                            if (behavior == CommercialPipelineStageFinalBehavior.Won)
-                            {
-                                advanced++;
-                                continue;
-                            }
-                            if (behavior == CommercialPipelineStageFinalBehavior.Lost)
-                            {
-                                lost++;
-                                continue;
-                            }
-                        }
+                        advanced++;
+                        continue;
                     }
+
+                    stuck++;
                 }
 
                 decimal conversionRate = entered > 0 ? Math.Round((decimal)advanced / entered * 100m, 2) : 0m;
