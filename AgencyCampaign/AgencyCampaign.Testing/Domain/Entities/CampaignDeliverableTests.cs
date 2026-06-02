@@ -74,6 +74,56 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void ChangeStatus_should_allow_transitions_among_active_states()
+        {
+            CampaignDeliverable subject = BuildDefault();
+
+            subject.ChangeStatus(DeliverableStatus.InReview);
+            subject.Status.Should().Be(DeliverableStatus.InReview);
+            subject.ChangeStatus(DeliverableStatus.Approved);
+            subject.Status.Should().Be(DeliverableStatus.Approved);
+            subject.ChangeStatus(DeliverableStatus.Pending);
+            subject.Status.Should().Be(DeliverableStatus.Pending);
+        }
+
+        [Test]
+        public void ChangeStatus_should_block_reverting_a_published_deliverable_to_active()
+        {
+            CampaignDeliverable subject = BuildDefault();
+            subject.Publish("https://x", null, DateTimeOffset.UtcNow);
+
+            Action toApproved = () => subject.ChangeStatus(DeliverableStatus.Approved);
+            Action toPending = () => subject.ChangeStatus(DeliverableStatus.Pending);
+
+            toApproved.Should().Throw<InvalidOperationException>();
+            toPending.Should().Throw<InvalidOperationException>();
+            subject.Status.Should().Be(DeliverableStatus.Published);
+        }
+
+        [Test]
+        public void ChangeStatus_should_block_reopening_a_cancelled_deliverable()
+        {
+            CampaignDeliverable subject = BuildDefault();
+            subject.ChangeStatus(DeliverableStatus.Cancelled);
+
+            Action reopen = () => subject.ChangeStatus(DeliverableStatus.Pending);
+
+            reopen.Should().Throw<InvalidOperationException>();
+            subject.Status.Should().Be(DeliverableStatus.Cancelled);
+        }
+
+        [Test]
+        public void Publish_should_be_blocked_from_a_cancelled_deliverable()
+        {
+            CampaignDeliverable subject = BuildDefault();
+            subject.ChangeStatus(DeliverableStatus.Cancelled);
+
+            Action act = () => subject.Publish("https://x", null, DateTimeOffset.UtcNow);
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
         public void SlaStatus_should_be_overdue_when_past_due_and_not_published()
         {
             CampaignDeliverable subject = BuildDefault(dueAt: DateTimeOffset.UtcNow.AddDays(-2));

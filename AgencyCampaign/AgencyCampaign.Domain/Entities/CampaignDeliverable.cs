@@ -162,6 +162,7 @@ namespace AgencyCampaign.Domain.Entities
         public void Publish(string publishedUrl, string? evidenceUrl, DateTimeOffset publishedAt)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(publishedUrl);
+            EnsureTransitionAllowed(DeliverableStatus.Published);
 
             PublishedUrl = publishedUrl.Trim();
             EvidenceUrl = Normalize(evidenceUrl);
@@ -176,6 +177,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public void ChangeStatus(DeliverableStatus status)
         {
+            EnsureTransitionAllowed(status);
+
             Status = status;
 
             if (status != DeliverableStatus.Published)
@@ -183,6 +186,36 @@ namespace AgencyCampaign.Domain.Entities
                 PublishedAt = null;
                 PublishedUrl = null;
             }
+        }
+
+        // Maquina de estados do entregavel (D3i): estados ativos (Pending/InReview/Approved) transitam
+        // livremente entre si, para Published (com gate de aprovacao separado) ou Cancelled. Published e
+        // terminal exceto por Cancelamento - NAO pode reverter para estado ativo (lastro/repasse ja
+        // podem ter ocorrido). Cancelled e terminal (nao reabre).
+        private void EnsureTransitionAllowed(DeliverableStatus target)
+        {
+            if (!IsTransitionAllowed(Status, target))
+            {
+                throw new InvalidOperationException("deliverable.status.invalidTransition");
+            }
+        }
+
+        private static bool IsTransitionAllowed(DeliverableStatus from, DeliverableStatus to)
+        {
+            if (from == to)
+            {
+                return true;
+            }
+
+            return from switch
+            {
+                DeliverableStatus.Pending => to is DeliverableStatus.InReview or DeliverableStatus.Approved or DeliverableStatus.Published or DeliverableStatus.Cancelled,
+                DeliverableStatus.InReview => to is DeliverableStatus.Pending or DeliverableStatus.Approved or DeliverableStatus.Published or DeliverableStatus.Cancelled,
+                DeliverableStatus.Approved => to is DeliverableStatus.Pending or DeliverableStatus.InReview or DeliverableStatus.Published or DeliverableStatus.Cancelled,
+                DeliverableStatus.Published => to is DeliverableStatus.Cancelled,
+                DeliverableStatus.Cancelled => false,
+                _ => false,
+            };
         }
 
         public void RegisterMetrics(int? likes, int? comments, long? views, long? reach, long? impressions, int? saves, int? shares, DeliverableMetricsSource source)
