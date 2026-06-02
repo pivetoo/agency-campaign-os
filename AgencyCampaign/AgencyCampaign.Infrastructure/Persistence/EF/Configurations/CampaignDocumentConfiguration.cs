@@ -29,6 +29,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.SignedDocumentUrl)
                 .HasMaxLength(1000);
 
+            builder.Property(entity => entity.ContentHash)
+                .HasMaxLength(64);
+
             builder.Property(entity => entity.RecipientEmail)
                 .HasMaxLength(150);
 

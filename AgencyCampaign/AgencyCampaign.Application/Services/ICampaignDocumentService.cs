@@ -1,5 +1,6 @@
 using AgencyCampaign.Application.Requests.CampaignDocuments;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Application.Services;
 using Archon.Core.Pagination;
 
@@ -19,5 +20,6 @@ namespace AgencyCampaign.Application.Services
         Task<CampaignDocument> SendForSignature(long id, SendCampaignDocumentForSignatureRequest request, CancellationToken cancellationToken = default);
         Task<CampaignDocument> HandleProviderCallback(CampaignDocumentProviderCallbackRequest request, CancellationToken cancellationToken = default);
         Task<CampaignDocument> MarkAsSigned(long id, MarkCampaignDocumentSignedRequest request, CancellationToken cancellationToken = default);
+        Task<DocumentIntegrityStatus> VerifyContentIntegrity(long id, CancellationToken cancellationToken = default);
     }
 }

@@ -10,6 +10,7 @@ namespace AgencyCampaign.Domain.ValueObjects
         Signed = 6,
         Rejected = 7,
         Cancelled = 8,
-        ProviderSyncError = 9
+        ProviderSyncError = 9,
+        ContentSealed = 10
     }
 }

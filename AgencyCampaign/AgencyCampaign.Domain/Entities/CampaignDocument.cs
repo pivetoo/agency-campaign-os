@@ -1,5 +1,7 @@
 using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Entities;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace AgencyCampaign.Domain.Entities
 {
@@ -33,6 +35,8 @@ namespace AgencyCampaign.Domain.Entities
         public string? ProviderDocumentId { get; private set; }
 
         public string? SignedDocumentUrl { get; private set; }
+
+        public string? ContentHash { get; private set; }
 
         public CampaignDocumentStatus Status { get; private set; } = CampaignDocumentStatus.Draft;
 
@@ -86,6 +90,44 @@ namespace AgencyCampaign.Domain.Entities
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(body);
             Body = body;
+        }
+
+        // Lastro de nao-adulteracao (D1i): no envio para assinatura, sela o hash SHA-256 do corpo
+        // do documento. O selo e imutavel - representa exatamente o que foi enviado para assinatura.
+        // Retorna o hash selado, ou null se nao ha corpo para selar (ex: documento so com PDF/URL).
+        public string? SealContentForSignature()
+        {
+            if (!string.IsNullOrWhiteSpace(ContentHash))
+            {
+                return ContentHash;
+            }
+
+            if (string.IsNullOrWhiteSpace(Body))
+            {
+                return null;
+            }
+
+            ContentHash = ComputeSha256Hex(Body);
+            return ContentHash;
+        }
+
+        public DocumentIntegrityStatus VerifyContentIntegrity()
+        {
+            if (string.IsNullOrWhiteSpace(ContentHash))
+            {
+                return DocumentIntegrityStatus.NotSealed;
+            }
+
+            string current = ComputeSha256Hex(Body ?? string.Empty);
+            return string.Equals(current, ContentHash, StringComparison.Ordinal)
+                ? DocumentIntegrityStatus.Intact
+                : DocumentIntegrityStatus.Tampered;
+        }
+
+        private static string ComputeSha256Hex(string content)
+        {
+            byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(content));
+            return Convert.ToHexString(hash).ToLowerInvariant();
         }
 
         public void MarkReadyToSend()

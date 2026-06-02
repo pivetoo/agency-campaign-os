@@ -317,6 +317,32 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task VerifyContentIntegrity_should_throw_when_not_found()
+        {
+            Func<Task> act = () => service.VerifyContentIntegrity(99);
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("record.notFound");
+        }
+
+        [Test]
+        public async Task VerifyContentIntegrity_should_report_intact_then_tampered()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Doc", body: "conteudo selado");
+            doc.SealContentForSignature();
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            (await service.VerifyContentIntegrity(doc.Id)).Should().Be(DocumentIntegrityStatus.Intact);
+
+            db.ChangeTracker.Clear();
+            CampaignDocument tracked = await db.Set<CampaignDocument>().AsTracking().SingleAsync(item => item.Id == doc.Id);
+            tracked.UpdateBody("conteudo adulterado");
+            await db.SaveChangesAsync();
+
+            (await service.VerifyContentIntegrity(doc.Id)).Should().Be(DocumentIntegrityStatus.Tampered);
+        }
+
+        [Test]
         public async Task HandleProviderCallback_should_throw_when_document_not_found()
         {
             CampaignDocumentProviderCallbackRequest request = new()

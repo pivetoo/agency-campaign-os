@@ -326,6 +326,12 @@ namespace AgencyCampaign.Infrastructure.Services
             document.MarkReadyToSend();
             document.RegisterEvent(CampaignDocumentEventType.Sent, $"Enviado para assinatura via conector {capability.ConnectorId}.");
 
+            string? contentHash = document.SealContentForSignature();
+            if (contentHash is not null)
+            {
+                document.RegisterEvent(CampaignDocumentEventType.ContentSealed, $"Hash SHA-256 do conteudo selado para assinatura: {contentHash}");
+            }
+
             CampaignDocument? result = await Update(document, cancellationToken);
             if (result is null)
             {
@@ -462,6 +468,20 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return await GetDocumentById(result.Id, cancellationToken) ?? result;
+        }
+
+        public async Task<DocumentIntegrityStatus> VerifyContentIntegrity(long id, CancellationToken cancellationToken = default)
+        {
+            CampaignDocument? document = await DbContext.Set<CampaignDocument>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (document is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            return document.VerifyContentIntegrity();
         }
 
         private async Task PromoteCampaignCreatorOnSign(CampaignDocument document, DateTimeOffset signedAt, CancellationToken cancellationToken)

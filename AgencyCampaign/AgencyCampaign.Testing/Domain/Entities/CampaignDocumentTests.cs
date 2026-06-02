@@ -177,5 +177,74 @@ namespace AgencyCampaign.Testing.Domain.Entities
 
             subject.Events.Should().HaveCount(2);
         }
+
+        private static CampaignDocument BuildWithBody(string body)
+        {
+            return new CampaignDocument(campaignId: 1, documentType: CampaignDocumentType.CreatorAgreement, title: "Contrato", body: body).WithId(1);
+        }
+
+        [Test]
+        public void SealContentForSignature_should_store_sha256_hex_of_body()
+        {
+            CampaignDocument subject = BuildWithBody("Conteudo do contrato");
+
+            string? hash = subject.SealContentForSignature();
+
+            hash.Should().NotBeNullOrEmpty();
+            subject.ContentHash.Should().Be(hash);
+            subject.ContentHash.Should().HaveLength(64).And.MatchRegex("^[0-9a-f]{64}$");
+        }
+
+        [Test]
+        public void SealContentForSignature_should_be_immutable_once_sealed()
+        {
+            CampaignDocument subject = BuildWithBody("Conteudo original");
+            string original = subject.SealContentForSignature()!;
+
+            subject.UpdateBody("Conteudo adulterado");
+            string? resealed = subject.SealContentForSignature();
+
+            resealed.Should().Be(original);
+            subject.ContentHash.Should().Be(original);
+        }
+
+        [Test]
+        public void SealContentForSignature_should_no_op_without_body()
+        {
+            CampaignDocument subject = BuildDefault();
+
+            string? hash = subject.SealContentForSignature();
+
+            hash.Should().BeNull();
+            subject.ContentHash.Should().BeNull();
+        }
+
+        [Test]
+        public void VerifyContentIntegrity_should_be_not_sealed_before_sealing()
+        {
+            CampaignDocument subject = BuildWithBody("Conteudo");
+
+            subject.VerifyContentIntegrity().Should().Be(DocumentIntegrityStatus.NotSealed);
+        }
+
+        [Test]
+        public void VerifyContentIntegrity_should_be_intact_when_body_unchanged()
+        {
+            CampaignDocument subject = BuildWithBody("Conteudo");
+            subject.SealContentForSignature();
+
+            subject.VerifyContentIntegrity().Should().Be(DocumentIntegrityStatus.Intact);
+        }
+
+        [Test]
+        public void VerifyContentIntegrity_should_detect_tampering_after_seal()
+        {
+            CampaignDocument subject = BuildWithBody("Conteudo original");
+            subject.SealContentForSignature();
+
+            subject.UpdateBody("Conteudo adulterado");
+
+            subject.VerifyContentIntegrity().Should().Be(DocumentIntegrityStatus.Tampered);
+        }
     }
 }

@@ -49,6 +49,13 @@ namespace AgencyCampaign.Api.Controllers
             return document is null ? Http404(Localizer["record.notFound"]) : Http200(MapDocument(document));
         }
 
+        [RequireAccess("campaignDocuments.getById.description")]
+        [GetEndpoint("verify-integrity/{id:long}")]
+        public async Task<IActionResult> VerifyIntegrity(long id, CancellationToken cancellationToken)
+        {
+            return Http200(await campaignDocumentService.VerifyContentIntegrity(id, cancellationToken));
+        }
+
         [RequireAccess("campaignDocuments.getByCampaign.description")]
         [GetEndpoint("campaign/{campaignId:long}")]
         public async Task<IActionResult> GetByCampaign(long campaignId, CancellationToken cancellationToken)
