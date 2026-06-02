@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, DataTable, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, ConfirmModal, DataTable, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, PageAction } from 'archon-ui'
 import { AlertTriangle, CalendarClock, CheckCircle, Eye, FileCheck, FileDown, Pencil, Percent, Send, ShieldCheck, Trash2, Wallet, XCircle } from 'lucide-react'
 import ProposalFormModal from '../../../components/modals/ProposalFormModal'
@@ -50,6 +50,7 @@ export default function CommercialProposalDetail() {
   const [items, setItems] = useState<ProposalItem[]>([])
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [selectedItem, setSelectedItem] = useState<ProposalItem | null>(null)
+  const [confirmDeleteItemOpen, setConfirmDeleteItemOpen] = useState(false)
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
   const [isItemFormOpen, setIsItemFormOpen] = useState(false)
   const [isApplyTemplateOpen, setIsApplyTemplateOpen] = useState(false)
@@ -162,15 +163,24 @@ export default function CommercialProposalDetail() {
     await persistDiscountAmount(amount)
   }
 
-  const handleDeleteItem = async () => {
-    if (!selectedItem) return
+  const deleteItemMessage = useMemo(() => {
+    if (!selectedItem) return ''
     const projectedGross = round2(gross - selectedItem.total)
     const discountWillShrink = discountAmount > 0 && projectedGross < discountAmount
-    const message = discountWillShrink
+    return discountWillShrink
       ? t('proposalDetail.item.deleteDiscountWarning').replace('{0}', formatCurrency(Math.max(0, projectedGross)))
       : t('proposalDetail.item.deleteConfirm')
-    if (!window.confirm(message)) return
+  }, [selectedItem, gross, discountAmount, t])
+
+  const handleDeleteItem = () => {
+    if (!selectedItem) return
+    setConfirmDeleteItemOpen(true)
+  }
+
+  const confirmDeleteItem = async () => {
+    if (!selectedItem) return
     await runProposalAction(() => proposalService.deleteItem(selectedItem.id))
+    setConfirmDeleteItemOpen(false)
   }
 
   const campaignOptions = campaigns.map((campaign) => ({
@@ -439,7 +449,7 @@ export default function CommercialProposalDetail() {
                         variant="ghost"
                         icon={<Trash2 className="h-3.5 w-3.5" />}
                         disabled={!selectedItem}
-                        onClick={() => void handleDeleteItem()}
+                        onClick={handleDeleteItem}
                       >
                         {t('common.action.delete')}
                       </Button>
@@ -672,6 +682,15 @@ export default function CommercialProposalDetail() {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <ConfirmModal
+        open={confirmDeleteItemOpen}
+        onOpenChange={setConfirmDeleteItemOpen}
+        description={deleteItemMessage}
+        variant="danger"
+        onConfirm={() => void confirmDeleteItem()}
+        loading={actionLoading}
+      />
     </PageLayout>
   )
 }

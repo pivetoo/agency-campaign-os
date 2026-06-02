@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, useI18n } from 'archon-ui'
+import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Button, useI18n, useToast } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Link as LinkIcon, ExternalLink, ShieldCheck } from 'lucide-react'
 import { deliverableApprovalsService, deliverableShareLinkService } from '../../../services/deliverableShareLinkService'
@@ -9,6 +9,7 @@ import type { PendingApproval } from '../../../types/deliverableShareLink'
 
 export default function OperationsApprovals() {
   const { t } = useI18n()
+  const { toast } = useToast()
 
   const deliverableStatusLabels: Record<number, string> = {
     1: t('deliverable.status.pending'),
@@ -57,7 +58,7 @@ export default function OperationsApprovals() {
         // ignore clipboard failure
       }
       await load()
-      window.alert(t('operations.approvals.linkCopied').replace('{0}', url))
+      toast({ title: t('operations.approvals.linkCopied').replace('{0}', url), variant: 'success' })
     }
   }
 

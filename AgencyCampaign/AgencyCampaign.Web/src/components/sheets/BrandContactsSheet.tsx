@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge, Button, Input, useApi, useI18n } from 'archon-ui'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge, Button, Input, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import { Mail, Phone, Plus, Pencil, Trash2, Star, Contact } from 'lucide-react'
 import { brandContactService } from '../../services/brandContactService'
 import type { BrandContact, BrandContactType } from '../../types/brandContact'
@@ -19,6 +19,7 @@ export default function BrandContactsSheet({ open, onOpenChange, brandId, brandN
   const [editingId, setEditingId] = useState<number | null>(null)
   const [value, setValue] = useState('')
   const [label, setLabel] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
   const { execute: fetchContacts, loading } = useApi<BrandContact[]>({ showErrorMessage: true })
   const { execute: runSave, loading: saving } = useApi({ showErrorMessage: true, showSuccessMessage: true })
@@ -74,9 +75,14 @@ export default function BrandContactsSheet({ open, onOpenChange, brandId, brandN
     }
   }
 
-  async function handleRemove(contact: BrandContact) {
-    if (!window.confirm(t('brandContacts.confirm.delete'))) return
-    const result = await runMutate(() => brandContactService.remove(contact.id))
+  function handleRemove(contact: BrandContact) {
+    setConfirmDeleteId(contact.id)
+  }
+
+  async function confirmRemove() {
+    if (confirmDeleteId === null) return
+    const result = await runMutate(() => brandContactService.remove(confirmDeleteId))
+    setConfirmDeleteId(null)
     if (result !== null) {
       await load()
       onChanged?.()
@@ -170,6 +176,14 @@ export default function BrandContactsSheet({ open, onOpenChange, brandId, brandN
           )}
         </div>
       </SheetContent>
+
+      <ConfirmModal
+        open={confirmDeleteId !== null}
+        onOpenChange={(value) => { if (!value) setConfirmDeleteId(null) }}
+        description={t('brandContacts.confirm.delete')}
+        variant="danger"
+        onConfirm={() => void confirmRemove()}
+      />
     </Sheet>
   )
 }

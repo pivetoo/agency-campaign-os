@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions, useToast } from 'archon-ui'
+import { Button, ConfirmModal, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions, useToast } from 'archon-ui'
 import { AlertTriangle, ArrowRight, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, Rows3, Search, Target, UserRound, X } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import { opportunityWinReasonService, opportunityLossReasonService } from '../../../services/opportunityOutcomeReasonService'
@@ -20,6 +20,12 @@ interface PendingFinalMove {
   item: OpportunityBoardItem
   targetStage: OpportunityBoardStage
   kind: 'won' | 'lost'
+}
+
+interface PendingReopen {
+  item: OpportunityBoardItem
+  targetStage: number
+  targetColumn?: OpportunityBoardStage
 }
 
 function getContrastColor(hexColor: string) {
@@ -165,6 +171,7 @@ export default function CommercialPipeline() {
   const [dragOverStage, setDragOverStage] = useState<number | null>(null)
   const [movingOpportunityId, setMovingOpportunityId] = useState<number | null>(null)
   const [pendingFinal, setPendingFinal] = useState<PendingFinalMove | null>(null)
+  const [pendingReopen, setPendingReopen] = useState<PendingReopen | null>(null)
   const [finalNotes, setFinalNotes] = useState('')
   const [finalReasonId, setFinalReasonId] = useState<number | null>(null)
   const [winReasons, setWinReasons] = useState<OpportunityWinReason[]>([])
@@ -334,12 +341,17 @@ export default function CommercialPipeline() {
 
     const sourceColumn = board.find((column) => column.commercialPipelineStageId === movingItem.commercialPipelineStageId)
     const isReopening = sourceColumn?.finalBehavior === 1 || sourceColumn?.finalBehavior === 2
-    if (isReopening && !window.confirm(t('opportunity.reopen.confirmationRequired'))) {
+    if (isReopening) {
+      setPendingReopen({ item: movingItem, targetStage, targetColumn })
       setDragOverStage(null)
       setDraggedItem(null)
       return
     }
 
+    await applyMove(movingItem, targetStage, targetColumn, false)
+  }
+
+  const applyMove = async (movingItem: OpportunityBoardItem, targetStage: number, targetColumn: OpportunityBoardStage | undefined, isReopening: boolean) => {
     const previousBoard = board
     const updatedItem = {
       ...movingItem,
@@ -390,6 +402,15 @@ export default function CommercialPipeline() {
       setMovingOpportunityId(null)
       setDraggedItem(null)
     }
+  }
+
+  const confirmReopen = async () => {
+    if (!pendingReopen) {
+      return
+    }
+    const { item, targetStage, targetColumn } = pendingReopen
+    setPendingReopen(null)
+    await applyMove(item, targetStage, targetColumn, true)
   }
 
   const confirmFinalMove = async () => {
@@ -743,6 +764,14 @@ export default function CommercialPipeline() {
           setIsFormOpen(false)
           void loadBoard()
         }}
+      />
+
+      <ConfirmModal
+        open={!!pendingReopen}
+        onOpenChange={(open) => { if (!open) setPendingReopen(null) }}
+        description={t('opportunity.reopen.confirmationRequired')}
+        variant="warning"
+        onConfirm={() => void confirmReopen()}
       />
 
       <Modal open={!!pendingFinal} onOpenChange={(open) => { if (!open) cancelFinalMove() }}>

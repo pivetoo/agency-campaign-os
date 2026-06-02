@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SearchableSelect, useApi, useI18n } from 'archon-ui'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SearchableSelect, ConfirmModal, useApi, useI18n } from 'archon-ui'
 import { ScrollText, Plus, Pencil, Trash2, CopyPlus } from 'lucide-react'
 import { contentLicenseService } from '../../services/contentLicenseService'
 import { campaignDocumentService } from '../../services/campaignDocumentService'
@@ -54,10 +54,12 @@ export default function DeliverableLicensesSheet({ open, onOpenChange, deliverab
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
+  const [deleteTarget, setDeleteTarget] = useState<ContentLicense | null>(null)
+  const [applyTarget, setApplyTarget] = useState<ContentLicense | null>(null)
 
   const { execute: fetchLicenses, loading: loadingLicenses } = useApi<ContentLicense[]>({ showErrorMessage: true })
   const { execute: runSave, loading: saving } = useApi({ showErrorMessage: true, showSuccessMessage: true })
-  const { execute: runDelete } = useApi({ showErrorMessage: true, showSuccessMessage: true })
+  const { execute: runDelete, loading: deleting } = useApi({ showErrorMessage: true, showSuccessMessage: true })
   const { execute: runApply, loading: applying } = useApi({ showErrorMessage: true, showSuccessMessage: true })
 
   useEffect(() => {
@@ -128,17 +130,19 @@ export default function DeliverableLicensesSheet({ open, onOpenChange, deliverab
     }
   }
 
-  async function handleDelete(license: ContentLicense) {
-    if (!window.confirm(t('contentLicense.confirm.delete'))) return
-    const result = await runDelete(() => contentLicenseService.remove(license.id))
+  async function confirmDelete() {
+    if (!deleteTarget) return
+    const result = await runDelete(() => contentLicenseService.remove(deleteTarget.id))
     if (result !== null) {
       void loadLicenses()
     }
+    setDeleteTarget(null)
   }
 
-  async function handleApply(license: ContentLicense) {
-    if (!window.confirm(t('contentLicense.confirm.apply'))) return
-    await runApply(() => contentLicenseService.applyToCampaign(license.id))
+  async function confirmApply() {
+    if (!applyTarget) return
+    await runApply(() => contentLicenseService.applyToCampaign(applyTarget.id))
+    setApplyTarget(null)
   }
 
   const documentOptions = [{ value: NO_CONTRACT, label: t('contentLicense.field.noContract') }, ...documents.map((d) => ({ value: String(d.id), label: d.title }))]
@@ -172,13 +176,13 @@ export default function DeliverableLicensesSheet({ open, onOpenChange, deliverab
                       <Badge variant={statusVariant(license.status)}>{statusLabel(license.status, t)}</Badge>
                     </div>
                     <div className="flex items-center gap-1">
-                      <button type="button" className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title={t('contentLicense.action.applyToCampaign')} disabled={applying} onClick={() => void handleApply(license)}>
+                      <button type="button" className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title={t('contentLicense.action.applyToCampaign')} disabled={applying} onClick={() => setApplyTarget(license)}>
                         <CopyPlus size={14} />
                       </button>
                       <button type="button" className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title={t('common.action.edit')} onClick={() => openEdit(license)}>
                         <Pencil size={14} />
                       </button>
-                      <button type="button" className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-destructive hover:bg-accent transition-colors" title={t('common.action.delete')} onClick={() => void handleDelete(license)}>
+                      <button type="button" className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-destructive hover:bg-accent transition-colors" title={t('common.action.delete')} onClick={() => setDeleteTarget(license)}>
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -260,6 +264,24 @@ export default function DeliverableLicensesSheet({ open, onOpenChange, deliverab
           )}
         </div>
       </SheetContent>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        onOpenChange={(value) => { if (!value) setDeleteTarget(null) }}
+        description={t('contentLicense.confirm.delete')}
+        variant="danger"
+        loading={deleting}
+        onConfirm={() => void confirmDelete()}
+      />
+
+      <ConfirmModal
+        open={applyTarget !== null}
+        onOpenChange={(value) => { if (!value) setApplyTarget(null) }}
+        description={t('contentLicense.confirm.apply')}
+        variant="primary"
+        loading={applying}
+        onConfirm={() => void confirmApply()}
+      />
     </Sheet>
   )
 }

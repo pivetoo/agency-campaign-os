@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { PageLayout, Card, CardContent, Badge, DataTable, Tabs, TabsList, TabsTrigger, TabsContent, Button, ConfirmModal, useApi, useI18n } from 'archon-ui'
+import { PageLayout, Card, CardContent, Badge, DataTable, Tabs, TabsList, TabsTrigger, TabsContent, Button, ConfirmModal, useApi, useI18n, useToast } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { ExternalLink, Plus, Pencil, Trash2, Users, Activity, Megaphone, RefreshCw, DollarSign } from 'lucide-react'
 import RateCardTab from './RateCardTab'
@@ -14,6 +14,7 @@ import { formatCurrency, formatPercent } from '../../../../lib/format'
 
 export default function CreatorDetail() {
   const { t } = useI18n()
+  const { toast } = useToast()
   const { id } = useParams<{ id: string }>()
   const creatorId = Number(id || 0)
   const navigate = useNavigate()
@@ -76,7 +77,7 @@ export default function CreatorDetail() {
     const result = await syncFollowers(() => creatorService.syncAudience(creatorId))
     if (result?.data) {
       await loadHandles()
-      window.alert(t('creators.detail.followersSynced').replace('{0}', String(result.data.synced)))
+      toast({ title: t('creators.detail.followersSynced').replace('{0}', String(result.data.synced)), variant: 'success' })
     }
   }
 

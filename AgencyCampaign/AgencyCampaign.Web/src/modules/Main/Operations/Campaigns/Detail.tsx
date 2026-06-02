@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n } from 'archon-ui'
+import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n, useToast } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw, ScrollText, TrendingUp, ClipboardList, CalendarDays } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
@@ -39,6 +39,7 @@ function getContrastColor(hexColor: string): string {
 
 export default function CampaignDetail() {
   const { t } = useI18n()
+  const { toast } = useToast()
   const { id } = useParams<{ id: string }>()
   const campaignId = Number(id || 0)
 
@@ -404,7 +405,7 @@ export default function CampaignDetail() {
       } catch {
         // ignore clipboard failure
       }
-      window.alert(t('campaignReport.linkCopied').replace('{0}', url))
+      toast({ title: t('campaignReport.linkCopied').replace('{0}', url), variant: 'success' })
     }
   }
 
@@ -412,7 +413,7 @@ export default function CampaignDetail() {
     const result = await syncMetrics(() => campaignDeliverableService.syncCampaignMetrics(campaignId))
     if (result?.data) {
       await loadDeliverables()
-      window.alert(t('campaignReport.metricsSynced').replace('{0}', String(result.data.synced)))
+      toast({ title: t('campaignReport.metricsSynced').replace('{0}', String(result.data.synced)), variant: 'success' })
     }
   }
 

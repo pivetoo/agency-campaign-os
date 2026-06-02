@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Card, CardContent, Input, useI18n } from 'archon-ui'
+import { Button, Card, CardContent, ConfirmModal, Input, useI18n } from 'archon-ui'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { rateCardItemService, type RateCardItem } from '../../../../services/rateCardItemService'
 import { formatCurrency } from '../../../../lib/format'
@@ -11,6 +11,8 @@ export default function RateCardTab({ creatorId }: { creatorId: number }) {
   const [price, setPrice] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const load = async () => {
     setItems(await rateCardItemService.getByCreator(creatorId))
@@ -55,15 +57,27 @@ export default function RateCardTab({ creatorId }: { creatorId: number }) {
     setPrice(String(item.unitPrice))
   }
 
-  const remove = async (id: number) => {
-    if (window.confirm(t('rateCard.deleteConfirm'))) {
-      await rateCardItemService.delete(id)
+  const remove = (id: number) => {
+    setConfirmDeleteId(id)
+  }
+
+  const confirmRemove = async () => {
+    if (confirmDeleteId == null) {
+      return
+    }
+    setDeleting(true)
+    try {
+      await rateCardItemService.delete(confirmDeleteId)
       await load()
+      setConfirmDeleteId(null)
+    } finally {
+      setDeleting(false)
     }
   }
 
   return (
-    <Card>
+    <>
+      <Card>
       <CardContent className="space-y-4 pt-4">
         <p className="text-xs text-muted-foreground">{t('rateCard.hint')}</p>
         <div className="flex flex-wrap items-end gap-2">
@@ -91,13 +105,23 @@ export default function RateCardTab({ creatorId }: { creatorId: number }) {
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-sm text-foreground">{formatCurrency(item.unitPrice)}</span>
                   <button type="button" aria-label={t('common.action.edit')} title={t('common.action.edit')} onClick={() => startEdit(item)} className="text-muted-foreground transition-colors hover:text-foreground"><Pencil size={14} /></button>
-                  <button type="button" aria-label={t('common.action.delete')} title={t('common.action.delete')} onClick={() => void remove(item.id)} className="text-muted-foreground transition-colors hover:text-destructive"><Trash2 size={14} /></button>
+                  <button type="button" aria-label={t('common.action.delete')} title={t('common.action.delete')} onClick={() => remove(item.id)} className="text-muted-foreground transition-colors hover:text-destructive"><Trash2 size={14} /></button>
                 </div>
               </div>
             ))}
           </div>
         )}
       </CardContent>
-    </Card>
+      </Card>
+
+      <ConfirmModal
+        open={confirmDeleteId != null}
+        onOpenChange={(open) => { if (!open) { setConfirmDeleteId(null) } }}
+        description={t('rateCard.deleteConfirm')}
+        variant="danger"
+        onConfirm={() => void confirmRemove()}
+        loading={deleting}
+      />
+    </>
   )
 }
