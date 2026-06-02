@@ -111,6 +111,15 @@ namespace AgencyCampaign.Domain.Entities
             AttributedRevenue = attributedRevenue;
         }
 
+        // Zera o fee da agencia para exposicao no portal do creator (o creator ve apenas o
+        // proprio cache em AgreedAmount). Uso somente em entidades destacadas/somente-leitura;
+        // nao deve ser chamado em instancia rastreada que sera persistida.
+        public void RedactAgencyFee()
+        {
+            AgencyFeePercent = 0m;
+            AgencyFeeAmount = 0m;
+        }
+
         private static decimal CalculateAgencyFeeAmount(decimal agreedAmount, decimal agencyFeePercent)
         {
             return Math.Round(agreedAmount * agencyFeePercent / 100m, 2, MidpointRounding.AwayFromZero);

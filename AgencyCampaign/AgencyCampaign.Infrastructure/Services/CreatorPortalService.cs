@@ -34,7 +34,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<List<CampaignCreator>> GetCampaigns(long creatorId, CancellationToken cancellationToken = default)
         {
-            return await dbContext.Set<CampaignCreator>()
+            List<CampaignCreator> campaigns = await dbContext.Set<CampaignCreator>()
                 .AsNoTracking()
                 .Include(item => item.Campaign)
                     .ThenInclude(item => item!.Brand)
@@ -42,6 +42,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Where(item => item.CreatorId == creatorId)
                 .OrderByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
+
+            foreach (CampaignCreator campaign in campaigns)
+            {
+                campaign.RedactAgencyFee();
+            }
+
+            return campaigns;
         }
 
         public async Task<CampaignBriefingModel?> GetCampaignBriefing(long creatorId, long campaignId, CancellationToken cancellationToken = default)
@@ -64,7 +71,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<List<CampaignDocument>> GetDocuments(long creatorId, CancellationToken cancellationToken = default)
         {
-            return await dbContext.Set<CampaignDocument>()
+            List<CampaignDocument> documents = await dbContext.Set<CampaignDocument>()
                 .AsNoTracking()
                 .Include(item => item.Campaign)
                 .Include(item => item.CampaignCreator)
@@ -72,11 +79,18 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Where(item => item.CampaignCreator != null && item.CampaignCreator.CreatorId == creatorId)
                 .OrderByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
+
+            foreach (CampaignDocument document in documents)
+            {
+                document.CampaignCreator?.RedactAgencyFee();
+            }
+
+            return documents;
         }
 
         public async Task<List<CampaignDeliverable>> GetDeliverables(long creatorId, CancellationToken cancellationToken = default)
         {
-            return await dbContext.Set<CampaignDeliverable>()
+            List<CampaignDeliverable> deliverables = await dbContext.Set<CampaignDeliverable>()
                 .AsNoTracking()
                 .Include(item => item.Platform)
                 .Include(item => item.Campaign)
@@ -84,6 +98,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Where(item => item.CampaignCreator != null && item.CampaignCreator.CreatorId == creatorId)
                 .OrderByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
+
+            foreach (CampaignDeliverable deliverable in deliverables)
+            {
+                deliverable.CampaignCreator?.RedactAgencyFee();
+            }
+
+            return deliverables;
         }
 
         public async Task<CampaignDeliverable> SubmitInsights(long creatorId, long deliverableId, SubmitDeliverableInsightsRequest request, CancellationToken cancellationToken = default)
@@ -100,18 +121,32 @@ namespace AgencyCampaign.Infrastructure.Services
 
             deliverable.RegisterCreatorInsights(request.Reach, request.Impressions, request.Saves);
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            if (deliverable.CampaignCreator is not null)
+            {
+                dbContext.Entry(deliverable.CampaignCreator).State = EntityState.Detached;
+                deliverable.CampaignCreator.RedactAgencyFee();
+            }
+
             return deliverable;
         }
 
         public async Task<List<CreatorPayment>> GetPayments(long creatorId, CancellationToken cancellationToken = default)
         {
-            return await dbContext.Set<CreatorPayment>()
+            List<CreatorPayment> payments = await dbContext.Set<CreatorPayment>()
                 .AsNoTracking()
                 .Include(item => item.CampaignCreator)
                     .ThenInclude(item => item!.Campaign)
                 .Where(item => item.CreatorId == creatorId)
                 .OrderByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
+
+            foreach (CreatorPayment payment in payments)
+            {
+                payment.CampaignCreator?.RedactAgencyFee();
+            }
+
+            return payments;
         }
 
         public async Task<Creator> UpdateBankInfo(long creatorId, UpdateCreatorBankInfoRequest request, CancellationToken cancellationToken = default)

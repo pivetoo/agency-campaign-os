@@ -178,6 +178,23 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetCampaigns_should_hide_agency_fee_but_keep_creator_cache()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "C", 0m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new AgencyCampaign.Domain.Entities.CampaignCreatorStatus("S", 1, "#fff").WithId(50));
+            db.Add(new CampaignCreator(10, 7, 50, 100m, 10m).WithId(100));
+            await db.SaveChangesAsync();
+
+            List<CampaignCreator> result = await service.GetCampaigns(7);
+
+            result.Should().HaveCount(1);
+            result[0].AgreedAmount.Should().Be(100m);
+            result[0].AgencyFeePercent.Should().Be(0m);
+            result[0].AgencyFeeAmount.Should().Be(0m);
+        }
+
+        [Test]
         public async Task GetDocuments_should_return_creator_documents_only()
         {
             db.Add(new Brand("Acme").WithId(1));
