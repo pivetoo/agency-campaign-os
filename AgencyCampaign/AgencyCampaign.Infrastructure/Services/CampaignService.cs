@@ -68,6 +68,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Notes);
 
             campaign.ChangeStatus(request.Status);
+            campaign.SetRequiresDeliverableApproval(request.RequiresDeliverableApproval);
 
             bool success = await Insert(cancellationToken, campaign);
             if (!success)
@@ -115,6 +116,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 internalOwnerName,
                 request.Notes,
                 request.IsActive);
+            campaign.SetRequiresDeliverableApproval(request.RequiresDeliverableApproval);
 
             Campaign? result = await Update(campaign, cancellationToken);
             if (result is null)

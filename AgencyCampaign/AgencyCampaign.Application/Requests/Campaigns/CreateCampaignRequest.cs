@@ -37,5 +37,7 @@ namespace AgencyCampaign.Application.Requests.Campaigns
         public string? Notes { get; set; }
 
         public CampaignStatus Status { get; set; } = CampaignStatus.Draft;
+
+        public bool RequiresDeliverableApproval { get; set; } = true;
     }
 }

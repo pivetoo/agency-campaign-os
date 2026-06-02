@@ -75,7 +75,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Description,
                 request.Notes);
 
-            ApplyPublishing(deliverable, request.Status, request.PublishedUrl, request.EvidenceUrl);
+            await ApplyPublishing(deliverable, request.Status, request.PublishedUrl, request.EvidenceUrl, cancellationToken);
 
             bool success = await Insert(cancellationToken, deliverable);
             if (!success)
@@ -123,7 +123,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Description,
                 request.Notes);
 
-            ApplyPublishing(deliverable, request.Status, request.PublishedUrl, request.EvidenceUrl);
+            await ApplyPublishing(deliverable, request.Status, request.PublishedUrl, request.EvidenceUrl, cancellationToken);
             ApplyMetrics(deliverable, request);
 
             CampaignDeliverable? result = await Update(deliverable, cancellationToken);
@@ -245,7 +245,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
         }
 
-        private void ApplyPublishing(CampaignDeliverable deliverable, DeliverableStatus status, string? publishedUrl, string? evidenceUrl)
+        private async Task ApplyPublishing(CampaignDeliverable deliverable, DeliverableStatus status, string? publishedUrl, string? evidenceUrl, CancellationToken cancellationToken)
         {
             if (status == DeliverableStatus.Published)
             {
@@ -254,7 +254,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     throw new InvalidOperationException("deliverable.publishedUrl.required");
                 }
 
-                EnsureBrandApprovalExists(deliverable);
+                await EnsureBrandApprovalAllowedAsync(deliverable, cancellationToken);
 
                 deliverable.Publish(publishedUrl, evidenceUrl, DateTimeOffset.UtcNow);
                 return;
@@ -264,8 +264,21 @@ namespace AgencyCampaign.Infrastructure.Services
             deliverable.UpdateEvidence(evidenceUrl);
         }
 
-        private void EnsureBrandApprovalExists(CampaignDeliverable deliverable)
+        // Gate de aprovacao para publicar: exige um DeliverableApproval Brand Approved, A NAO SER que a
+        // campanha tenha o gate desligado (RequiresDeliverableApproval = false). Default obrigatorio.
+        private async Task EnsureBrandApprovalAllowedAsync(CampaignDeliverable deliverable, CancellationToken cancellationToken)
         {
+            bool requiresApproval = await DbContext.Set<Campaign>()
+                .AsNoTracking()
+                .Where(item => item.Id == deliverable.CampaignId)
+                .Select(item => (bool?)item.RequiresDeliverableApproval)
+                .FirstOrDefaultAsync(cancellationToken) ?? true;
+
+            if (!requiresApproval)
+            {
+                return;
+            }
+
             bool hasBrandApproval = deliverable.Approvals.Any(item =>
                 item.ApprovalType == DeliverableApprovalType.Brand &&
                 item.Status == DeliverableApprovalStatus.Approved);

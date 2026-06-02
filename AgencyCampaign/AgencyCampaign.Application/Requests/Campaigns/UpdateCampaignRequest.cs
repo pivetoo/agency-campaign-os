@@ -42,5 +42,7 @@ namespace AgencyCampaign.Application.Requests.Campaigns
         public string? Notes { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        public bool RequiresDeliverableApproval { get; set; } = true;
     }
 }

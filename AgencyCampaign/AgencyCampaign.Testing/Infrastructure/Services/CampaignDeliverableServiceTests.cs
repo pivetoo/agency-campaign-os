@@ -134,6 +134,24 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task CreateDeliverable_published_should_skip_approval_when_campaign_does_not_require_it()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            Campaign campaign = new Campaign(1, "C", 0m, DateTimeOffset.UtcNow).WithId(10);
+            campaign.SetRequiresDeliverableApproval(false);
+            db.Add(campaign);
+            db.Add(new Creator("Foo").WithId(1));
+            db.Add(new DomainEntities.CampaignCreator(10, 1, 1, 100m, 10m).WithId(20));
+            db.Add(new Platform("IG").WithId(1));
+            db.Add(new DeliverableKind("Story").WithId(1));
+            await db.SaveChangesAsync();
+
+            CampaignDeliverable result = await service.CreateDeliverable(BuildCreateRequest(DeliverableStatus.Published, "https://x"));
+
+            result.Status.Should().Be(DeliverableStatus.Published);
+        }
+
+        [Test]
         public async Task UpdateDeliverable_promoting_to_published_should_trigger_payout_once()
         {
             await SeedReferencesAsync();

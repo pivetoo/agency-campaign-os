@@ -34,6 +34,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public bool IsActive { get; private set; } = true;
 
+        // Gate de aprovacao: por padrao, publicar um entregavel exige aprovacao da marca. A agencia
+        // pode desligar o gate por campanha (ex.: conteudo simples que nao precisa de aprovacao).
+        public bool RequiresDeliverableApproval { get; private set; } = true;
+
         public long? OpportunityId { get; private set; }
 
         public long? SourceProposalId { get; private set; }
@@ -82,6 +86,11 @@ namespace AgencyCampaign.Domain.Entities
             InternalOwnerName = Normalize(internalOwnerName);
             Notes = Normalize(notes);
             IsActive = isActive;
+        }
+
+        public void SetRequiresDeliverableApproval(bool value)
+        {
+            RequiresDeliverableApproval = value;
         }
 
         public void ChangeStatus(CampaignStatus status)
