@@ -202,6 +202,39 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GenerateForPublishedDeliverable_should_generate_when_only_another_creator_has_planned_payout()
+        {
+            db.Add(NewAccount("Conta"));
+            Creator creatorA = new("A");
+            Creator creatorB = new("B");
+            db.Add(creatorA);
+            db.Add(creatorB);
+            await db.SaveChangesAsync();
+
+            FinancialAccount account = await db.Set<FinancialAccount>().AsNoTracking().FirstAsync();
+            CampaignCreator ccB = new(campaignId: 1, creatorId: creatorB.Id, campaignCreatorStatusId: 1, agreedAmount: 800m, agencyFeePercent: 10m);
+            db.Add(ccB);
+
+            FinancialEntry plannedA = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout,
+                "Previsto A", 500m, DateTimeOffset.UtcNow.AddDays(10), DateTimeOffset.UtcNow, campaignId: 1);
+            plannedA.LinkToProposalItem(99, 1);
+            plannedA.LinkToCreator(creatorA.Id);
+            db.Add(plannedA);
+            await db.SaveChangesAsync();
+
+            CampaignDeliverable deliverableB = new CampaignDeliverable(
+                campaignId: 1, campaignCreatorId: ccB.Id, title: "Story B", deliverableKindId: 1, platformId: 1,
+                dueAt: DateTimeOffset.UtcNow, grossAmount: 1000m, creatorAmount: 800m, agencyFeeAmount: 100m).WithId(7);
+            deliverableB.Publish("https://x", null, DateTimeOffset.UtcNow);
+
+            await service.GenerateForPublishedDeliverable(deliverableB);
+
+            bool hasPayoutForB = await db.Set<FinancialEntry>().AsNoTracking()
+                .AnyAsync(item => item.CreatorId == creatorB.Id && item.Category == FinancialEntryCategory.CreatorPayout);
+            hasPayoutForB.Should().BeTrue();
+        }
+
+        [Test]
         public async Task GenerateForPublishedDeliverable_should_create_payable_with_creator_stage_name()
         {
             FinancialAccount account = NewAccount("Conta");

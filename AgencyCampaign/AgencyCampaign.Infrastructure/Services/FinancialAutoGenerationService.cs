@@ -155,19 +155,30 @@ namespace AgencyCampaign.Infrastructure.Services
                 return;
             }
 
-            // Nao duplicar: se a campanha ja tem repasses de creator PLANEJADOS a partir da proposta,
-            // a execucao por entrega e suprimida (o planejado cobre o custo do creator no fechamento).
-            bool hasPlannedFromProposal = await dbContext.Set<FinancialEntry>()
+            var creatorInfo = await dbContext.Set<CampaignCreator>()
                 .AsNoTracking()
-                .AnyAsync(item =>
-                    item.CampaignId == deliverable.CampaignId &&
-                    item.Category == FinancialEntryCategory.CreatorPayout &&
-                    item.SourceProposalItemId != null,
-                    cancellationToken);
+                .Where(item => item.Id == deliverable.CampaignCreatorId)
+                .Select(item => new { item.CreatorId, Name = item.Creator!.StageName ?? item.Creator!.Name })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (hasPlannedFromProposal)
+            // Nao duplicar: se ESTE creator ja tem repasse PLANEJADO (da proposta) na campanha, a execucao
+            // por entrega e suprimida. Creators adicionados depois da proposta (sem planejado) geram repasse
+            // normalmente - a supressao e por creator, nao pela campanha inteira.
+            if (creatorInfo is not null)
             {
-                return;
+                bool hasPlannedForCreator = await dbContext.Set<FinancialEntry>()
+                    .AsNoTracking()
+                    .AnyAsync(item =>
+                        item.CampaignId == deliverable.CampaignId &&
+                        item.CreatorId == creatorInfo.CreatorId &&
+                        item.Category == FinancialEntryCategory.CreatorPayout &&
+                        item.SourceProposalItemId != null,
+                        cancellationToken);
+
+                if (hasPlannedForCreator)
+                {
+                    return;
+                }
             }
 
             long? accountId = await ResolveDefaultAccountIdAsync(cancellationToken);
@@ -176,12 +187,6 @@ namespace AgencyCampaign.Infrastructure.Services
                 logger?.LogWarning("No active financial account configured; skipping payable for deliverable {DeliverableId}.", deliverable.Id);
                 return;
             }
-
-            var creatorInfo = await dbContext.Set<CampaignCreator>()
-                .AsNoTracking()
-                .Where(item => item.Id == deliverable.CampaignCreatorId)
-                .Select(item => new { item.CreatorId, Name = item.Creator!.StageName ?? item.Creator!.Name })
-                .FirstOrDefaultAsync(cancellationToken);
 
             DateTimeOffset dueAt = (deliverable.PublishedAt ?? DateTimeOffset.UtcNow).AddDays(15);
 
