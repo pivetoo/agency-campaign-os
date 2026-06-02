@@ -400,12 +400,15 @@ export default function CampaignDetail() {
     const result = await createReportLink(() => campaignReportService.createOrGetLink(campaignId))
     if (result?.data) {
       const url = `${window.location.origin}/r/${result.data.token}`
+      let copied = true
       try {
         await navigator.clipboard.writeText(url)
       } catch {
-        // ignore clipboard failure
+        copied = false
       }
-      toast({ title: t('campaignReport.linkCopied').replace('{0}', url), variant: 'success' })
+      toast(copied
+        ? { title: t('campaignReport.linkCopied').replace('{0}', url), variant: 'success' }
+        : { title: `Nao foi possivel copiar. Link: ${url}`, variant: 'warning' })
     }
   }
 

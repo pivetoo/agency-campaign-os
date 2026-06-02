@@ -52,13 +52,16 @@ export default function OperationsApprovals() {
     )
     if (result?.data) {
       const url = `${window.location.origin}/d/${result.data.token}`
+      let copied = true
       try {
         await navigator.clipboard.writeText(url)
       } catch {
-        // ignore clipboard failure
+        copied = false
       }
       await load()
-      toast({ title: t('operations.approvals.linkCopied').replace('{0}', url), variant: 'success' })
+      toast(copied
+        ? { title: t('operations.approvals.linkCopied').replace('{0}', url), variant: 'success' }
+        : { title: `Nao foi possivel copiar. Link: ${url}`, variant: 'warning' })
     }
   }
 
