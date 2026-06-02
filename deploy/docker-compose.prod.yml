@@ -8,6 +8,7 @@ services:
     volumes:
       - ./config/appsettings.Production.json:/app/appsettings.Production.json:ro
       - ./uploads:/app/wwwroot/uploads
+      - ./private-uploads:/app/private-uploads
 
   web:
     image: ghcr.io/pivetoo/agency-campaign-web:latest
