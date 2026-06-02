@@ -155,14 +155,17 @@ namespace AgencyCampaign.Infrastructure.Services
                 return;
             }
 
+            // Merge: so sobrescreve a metrica que veio no request; campos ausentes (null) preservam o
+            // valor atual, evitando que uma edicao manual de um campo zere os insights enviados pelo
+            // creator ou coletados pelo Apify.
             deliverable.RegisterMetrics(
-                request.Likes,
-                request.Comments,
-                request.Views,
-                request.Reach,
-                request.Impressions,
-                request.Saves,
-                request.Shares,
+                request.Likes ?? deliverable.Likes,
+                request.Comments ?? deliverable.Comments,
+                request.Views ?? deliverable.Views,
+                request.Reach ?? deliverable.Reach,
+                request.Impressions ?? deliverable.Impressions,
+                request.Saves ?? deliverable.Saves,
+                request.Shares ?? deliverable.Shares,
                 DeliverableMetricsSource.Manual);
         }
 
