@@ -222,11 +222,15 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
                       {version.assets.map((asset, idx) => {
                         if (asset.type === 1) {
                           const src = resolveUploadUrl(asset.url)
-                          return src ? (
+                          if (!src) return null
+                          if (/\.(mp4|mov|webm)$/i.test(asset.fileName ?? '')) {
+                            return <video key={idx} src={src} controls className="h-24 w-auto rounded border" />
+                          }
+                          return (
                             <a key={idx} href={src} target="_blank" rel="noopener noreferrer">
                               <img src={src} alt={asset.fileName ?? ''} className="h-24 w-auto rounded border object-cover" />
                             </a>
-                          ) : null
+                          )
                         }
                         return (
                           <a key={idx} href={asset.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-primary underline underline-offset-2">
@@ -337,7 +341,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/*"
+                      accept="image/*,video/mp4,video/quicktime,video/webm,application/pdf"
                       className="hidden"
                       onChange={(e) => setSubmitFile(e.target.files?.[0] ?? null)}
                     />

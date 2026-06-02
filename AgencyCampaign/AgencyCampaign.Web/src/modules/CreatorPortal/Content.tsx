@@ -183,11 +183,15 @@ function VersionList({ review }: VersionListProps) {
               {version.assets.map((asset, idx) => {
                 if (asset.type === 1) {
                   const src = resolveUploadUrl(asset.url)
-                  return src ? (
+                  if (!src) return null
+                  if (/\.(mp4|mov|webm)$/i.test(asset.fileName ?? '')) {
+                    return <video key={idx} src={src} controls className="h-20 w-auto rounded border" />
+                  }
+                  return (
                     <a key={idx} href={src} target="_blank" rel="noreferrer">
                       <img src={src} alt={asset.fileName ?? ''} className="h-20 w-20 rounded border object-cover" />
                     </a>
-                  ) : null
+                  )
                 }
                 return (
                   <a key={idx} href={asset.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
@@ -355,10 +359,12 @@ function SubmitVersionForm({ token, deliverableId, onSubmitted }: SubmitVersionF
             {imageFile ? imageFile.name : t('common.action.attach')}
           </button>
           {imagePreview && (
-            <img src={imagePreview} alt="" className="h-10 w-10 rounded border object-cover" />
+            imageFile?.type.startsWith('video')
+              ? <video src={imagePreview} className="h-10 w-10 rounded border object-cover" />
+              : <img src={imagePreview} alt="" className="h-10 w-10 rounded border object-cover" />
           )}
         </div>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+        <input ref={fileRef} type="file" accept="image/*,video/mp4,video/quicktime,video/webm" className="hidden" onChange={handleFile} />
       </div>
 
       <div>
