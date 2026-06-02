@@ -57,6 +57,8 @@ export default function CreatorPortalLayout() {
     )
   }
 
+  const expiryWarning = buildExpiryWarning(session.token.expiresAt)
+
   return (
     <div data-testid="public-creator-portal-page" className="flex min-h-screen flex-col bg-background">
       <header className="border-b bg-primary/5 px-4 py-3">
@@ -69,6 +71,11 @@ export default function CreatorPortalLayout() {
             <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">{session.creator.primaryNiche}</span>
           )}
         </div>
+        {expiryWarning && (
+          <div className="mx-auto mt-2 max-w-3xl rounded-md border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs font-medium text-warning">
+            {expiryWarning}
+          </div>
+        )}
       </header>
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-4 pb-24">
@@ -76,7 +83,7 @@ export default function CreatorPortalLayout() {
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 border-t bg-background">
-        <div className="mx-auto flex max-w-3xl items-stretch justify-around">
+        <div className="mx-auto flex max-w-3xl items-stretch justify-around overflow-x-auto">
           <PortalNavItem to={`/portal/${token}`} end icon={<Home size={18} />} label={t('creatorPortal.layout.nav.home')} />
           <PortalNavItem to={`/portal/${token}/campanhas`} testId="portal-tab-campanhas" icon={<Calendar size={18} />} label={t('creatorPortal.layout.nav.campaigns')} />
           <PortalNavItem to={`/portal/${token}/resultados`} testId="portal-tab-resultados" icon={<BarChart3 size={18} />} label={t('creatorPortal.layout.nav.results')} />
@@ -90,6 +97,26 @@ export default function CreatorPortalLayout() {
   )
 }
 
+function buildExpiryWarning(expiresAt?: string): string | null {
+  if (!expiresAt) {
+    return null
+  }
+  const expiry = new Date(expiresAt)
+  if (Number.isNaN(expiry.getTime())) {
+    return null
+  }
+  const now = new Date()
+  const diffMs = expiry.getTime() - now.getTime()
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000
+  if (diffMs > sevenDaysMs) {
+    return null
+  }
+  if (diffMs <= 0) {
+    return 'Seu link de acesso expirou - solicite um novo à agência.'
+  }
+  return 'Seu link de acesso expira em breve - solicite um novo à agência.'
+}
+
 function PortalNavItem({ to, icon, label, end, testId }: { to: string; icon: React.ReactNode; label: string; end?: boolean; testId?: string }) {
   return (
     <NavLink
@@ -97,13 +124,13 @@ function PortalNavItem({ to, icon, label, end, testId }: { to: string; icon: Rea
       end={end}
       data-testid={testId}
       className={({ isActive }) =>
-        `flex flex-1 flex-col items-center gap-0.5 px-1 py-2 text-[10px] transition-colors ${
+        `flex min-w-[3rem] flex-1 shrink-0 flex-col items-center gap-0.5 px-1 py-2 text-center text-[10px] leading-tight transition-colors ${
           isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
         }`
       }
     >
       {icon}
-      <span>{label}</span>
+      <span className="max-w-full truncate">{label}</span>
     </NavLink>
   )
 }
