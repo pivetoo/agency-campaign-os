@@ -21,6 +21,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.Configure<WebhookOptions>(configuration.GetSection("Webhooks"));
             services.Configure<ApifyOptions>(configuration.GetSection("Apify"));
             services.Configure<ContentLicenseOptions>(configuration.GetSection("ContentLicense"));
+            services.Configure<MediaStorageOptions>(configuration.GetSection("MediaStorage"));
             services.AddArchonPersistence(configuration, typeof(ServiceCollectionExtensions).Assembly);
             services.RunMigrations(
                 configuration,
@@ -36,6 +37,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();
             services.AddScoped<IImageUploadStorage, ImageUploadStorage>();
             services.AddScoped<IContentFileStorage, ContentFileStorage>();
+            services.AddScoped<IMediaAccessTokenService, MediaAccessTokenService>();
             services.AddHttpContextAccessor();
             services.AddScoped<IPermissionChecker, PermissionChecker>();
 
