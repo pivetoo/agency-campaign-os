@@ -14,11 +14,13 @@ namespace AgencyCampaign.Api.Controllers
 
         private readonly IContentReviewService service;
         private readonly IContentFileStorage fileStorage;
+        private readonly IMediaAccessTokenService mediaTokens;
 
-        public ContentReviewController(IContentReviewService service, IContentFileStorage fileStorage)
+        public ContentReviewController(IContentReviewService service, IContentFileStorage fileStorage, IMediaAccessTokenService mediaTokens)
         {
             this.service = service;
             this.fileStorage = fileStorage;
+            this.mediaTokens = mediaTokens;
         }
 
         [RequireAccess("campaigns.getById.description")]
@@ -36,7 +38,7 @@ namespace AgencyCampaign.Api.Controllers
         {
             await using Stream stream = file.OpenReadStream();
             ContentFileResult result = await fileStorage.SaveAsync(deliverableId, stream, file.FileName, file.ContentType, cancellationToken);
-            return Http200(result);
+            return Http200(new { storageKey = result.StorageKey, previewUrl = mediaTokens.BuildSignedUrl(result.StorageKey), result.FileName, result.ContentType });
         }
 
         [RequireAccess("campaigns.update.description")]

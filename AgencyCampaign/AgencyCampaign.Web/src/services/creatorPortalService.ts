@@ -108,6 +108,6 @@ export const creatorPortalService = {
   uploadReviewFile(token: string, deliverableId: number, file: File) {
     const form = new FormData()
     form.append('file', file)
-    return httpClient.post<{ url: string; fileName: string; contentType: string }>(`${BASE}/${token}/deliverables/${deliverableId}/upload`, form)
+    return httpClient.post<{ storageKey: string; previewUrl: string; fileName: string; contentType: string }>(`${BASE}/${token}/deliverables/${deliverableId}/upload`, form)
   },
 }

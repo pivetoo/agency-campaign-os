@@ -20,7 +20,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            contentReview = new ContentReviewService(db);
+            contentReview = new ContentReviewService(db, MediaTokenTestFactory.Create());
             accessTokenMock = new Mock<ICreatorAccessTokenService>();
             portalService = new CreatorPortalService(db, accessTokenMock.Object, contentReview);
         }

@@ -21,15 +21,17 @@ namespace AgencyCampaign.Api.Controllers
 
         private readonly ICreatorPortalService portalService;
         private readonly IContentFileStorage fileStorage;
+        private readonly IMediaAccessTokenService mediaTokens;
         private new IStringLocalizer<AgencyCampaignResource> Localizer { get; }
         private static readonly Func<CampaignDocument, CampaignDocumentContract> MapDocument = CampaignDocumentContract.Projection.Compile();
         private static readonly Func<CreatorPayment, CreatorPaymentContract> MapPayment = CreatorPaymentContract.Projection.Compile();
         private static readonly Func<CampaignDeliverable, CampaignDeliverableContract> MapDeliverable = CampaignDeliverableContract.Projection.Compile();
 
-        public CreatorPortalController(ICreatorPortalService portalService, IContentFileStorage fileStorage, IStringLocalizer<AgencyCampaignResource> localizer)
+        public CreatorPortalController(ICreatorPortalService portalService, IContentFileStorage fileStorage, IMediaAccessTokenService mediaTokens, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.portalService = portalService;
             this.fileStorage = fileStorage;
+            this.mediaTokens = mediaTokens;
             Localizer = localizer;
         }
 
@@ -278,7 +280,7 @@ namespace AgencyCampaign.Api.Controllers
                 await portalService.EnsureCreatorOwnsDeliverable(ctx.Creator.Id, deliverableId, cancellationToken);
                 await using Stream stream = file.OpenReadStream();
                 ContentFileResult result = await fileStorage.SaveAsync(deliverableId, stream, file.FileName, file.ContentType, cancellationToken);
-                return Http200(result);
+                return Http200(new { storageKey = result.StorageKey, previewUrl = mediaTokens.BuildSignedUrl(result.StorageKey), result.FileName, result.ContentType });
             }
             catch (InvalidOperationException ex)
             {

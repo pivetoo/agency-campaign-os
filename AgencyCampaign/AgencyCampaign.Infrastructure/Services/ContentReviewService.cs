@@ -9,10 +9,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class ContentReviewService : IContentReviewService
     {
         private readonly DbContext dbContext;
+        private readonly IMediaAccessTokenService mediaTokens;
 
-        public ContentReviewService(DbContext dbContext)
+        public ContentReviewService(DbContext dbContext, IMediaAccessTokenService mediaTokens)
         {
             this.dbContext = dbContext;
+            this.mediaTokens = mediaTokens;
         }
 
         public async Task<ContentReviewModel> GetByDeliverable(long deliverableId, CancellationToken cancellationToken = default)
@@ -135,6 +137,31 @@ namespace AgencyCampaign.Infrastructure.Services
             return version;
         }
 
+        // Converte a chave de armazenamento privada (sign-on-read) em URL assinada /api/media.
+        private string SignAssetUrl(string? storedValue)
+        {
+            if (string.IsNullOrWhiteSpace(storedValue))
+            {
+                return string.Empty;
+            }
+
+            // Compatibilidade: assets antigos guardaram URL publica (/uploads/...) ou externa; mantem.
+            if (storedValue.StartsWith("/", StringComparison.Ordinal) || storedValue.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                return storedValue;
+            }
+
+            try
+            {
+                return mediaTokens.BuildSignedUrl(storedValue);
+            }
+            catch (InvalidOperationException)
+            {
+                // Segredo de midia nao configurado: nao derruba a leitura da revisao (midia so nao exibe).
+                return storedValue;
+            }
+        }
+
         private async Task<ContentReviewModel> BuildModel(long deliverableId, bool includeInternal, CancellationToken cancellationToken)
         {
             List<DeliverableContentVersion> versions = await dbContext.Set<DeliverableContentVersion>()
@@ -169,7 +196,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     Assets = version.Assets.OrderBy(asset => asset.DisplayOrder).Select(asset => new ContentAssetModel
                     {
                         Type = asset.Type,
-                        Url = asset.Url,
+                        Url = SignAssetUrl(asset.Url),
                         FileName = asset.FileName
                     }).ToList()
                 }).ToList(),

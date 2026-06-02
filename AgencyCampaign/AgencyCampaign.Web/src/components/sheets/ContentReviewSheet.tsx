@@ -105,7 +105,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
     if (submitFile) {
       const uploadRes = await runUpload(() => contentReviewService.uploadFile(deliverableId, submitFile))
       if (!uploadRes) return
-      assets.push({ type: 1, url: uploadRes.url, fileName: uploadRes.fileName, contentType: uploadRes.contentType })
+      assets.push({ type: 1, url: uploadRes.storageKey, fileName: uploadRes.fileName, contentType: uploadRes.contentType })
     }
 
     if (submitUrl.trim()) {

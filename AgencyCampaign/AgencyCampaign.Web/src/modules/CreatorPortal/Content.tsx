@@ -307,7 +307,7 @@ function SubmitVersionForm({ token, deliverableId, onSubmitted }: SubmitVersionF
       const uploadResponse = await creatorPortalService.uploadReviewFile(token, deliverableId, imageFile)
       const uploaded = uploadResponse.data
       if (uploaded) {
-        assets.push({ type: 1, url: uploaded.url, fileName: uploaded.fileName, contentType: uploaded.contentType })
+        assets.push({ type: 1, url: uploaded.storageKey, fileName: uploaded.fileName, contentType: uploaded.contentType })
       }
     }
 
