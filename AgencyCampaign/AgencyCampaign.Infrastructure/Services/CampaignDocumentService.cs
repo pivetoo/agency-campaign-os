@@ -508,6 +508,15 @@ namespace AgencyCampaign.Infrastructure.Services
                     .FirstOrDefaultAsync(item => item.Id == campaignCreatorId.Value, cancellationToken);
             }
 
+            // Consolidacao do briefing (D5): o briefing estruturado e a fonte de verdade; o campo
+            // livre legado da campanha so e usado como fallback para campanhas antigas sem estrutura.
+            CampaignBriefing? structuredBriefing = await DbContext.Set<CampaignBriefing>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.CampaignId == campaignId, cancellationToken);
+            string? briefingText = !string.IsNullOrWhiteSpace(structuredBriefing?.KeyMessage)
+                ? structuredBriefing!.KeyMessage
+                : campaign?.Briefing;
+
             CultureInfo culture = CultureInfo.GetCultureInfo("pt-BR");
             Dictionary<string, object?> values = new(StringComparer.OrdinalIgnoreCase)
             {
@@ -516,7 +525,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 ["campaignName"] = campaign?.Name,
                 ["campaignDescription"] = campaign?.Description,
                 ["campaignObjective"] = campaign?.Objective,
-                ["campaignBriefing"] = campaign?.Briefing,
+                ["campaignBriefing"] = briefingText,
                 ["campaignStartDate"] = campaign?.StartsAt.ToString("dd/MM/yyyy", culture),
                 ["campaignEndDate"] = campaign?.EndsAt?.ToString("dd/MM/yyyy", culture),
                 ["campaignBudget"] = campaign?.Budget.ToString("C", culture),

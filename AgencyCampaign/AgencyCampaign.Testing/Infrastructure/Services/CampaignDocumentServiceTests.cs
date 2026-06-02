@@ -229,6 +229,52 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GenerateFromTemplate_should_prefer_structured_briefing_over_free_text()
+        {
+            db.Add(new Brand("Acme"));
+            await db.SaveChangesAsync();
+            Campaign campaign = new(1, "C", 0m, DateTimeOffset.UtcNow, briefing: "briefing livre antigo");
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+            db.Add(new CampaignBriefing(campaign.Id, "Mensagem estruturada", null, null, null, null, null));
+            CampaignDocumentTemplate template = new("Contrato", CampaignDocumentType.CreatorAgreement, "Briefing: {{campaignBriefing}}.");
+            db.Add(template);
+            await db.SaveChangesAsync();
+
+            CampaignDocument document = await service.GenerateFromTemplate(new GenerateCampaignDocumentFromTemplateRequest
+            {
+                CampaignId = campaign.Id,
+                TemplateId = template.Id,
+                Title = "Doc"
+            });
+
+            document.Body.Should().Contain("Mensagem estruturada");
+            document.Body.Should().NotContain("briefing livre antigo");
+        }
+
+        [Test]
+        public async Task GenerateFromTemplate_should_fallback_to_free_briefing_when_no_structured()
+        {
+            db.Add(new Brand("Acme"));
+            await db.SaveChangesAsync();
+            Campaign campaign = new(1, "C", 0m, DateTimeOffset.UtcNow, briefing: "briefing livre");
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+            CampaignDocumentTemplate template = new("Contrato", CampaignDocumentType.CreatorAgreement, "Briefing: {{campaignBriefing}}.");
+            db.Add(template);
+            await db.SaveChangesAsync();
+
+            CampaignDocument document = await service.GenerateFromTemplate(new GenerateCampaignDocumentFromTemplateRequest
+            {
+                CampaignId = campaign.Id,
+                TemplateId = template.Id,
+                Title = "Doc"
+            });
+
+            document.Body.Should().Contain("briefing livre");
+        }
+
+        [Test]
         public async Task GenerateFromTemplate_should_accept_variables_supplied_via_overrides()
         {
             Campaign campaign = await SeedCampaignAsync();
