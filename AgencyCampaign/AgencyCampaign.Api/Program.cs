@@ -31,6 +31,7 @@ builder.Services.AddHostedService<ProposalExpiryJob>();
 builder.Services.AddHostedService<ProposalExpiryReminderJob>();
 builder.Services.AddHostedService<FollowUpReminderJob>();
 builder.Services.AddHostedService<OpportunityStalledJob>();
+builder.Services.AddHostedService<DeliverableDeadlineJob>();
 #endregion
 
 builder.Services.AddArchonAuthentication(builder.Configuration);

@@ -146,6 +146,24 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
+        public static CreateNotificationRequest DeliverableDueSoon(CampaignDeliverable deliverable, int daysUntilDue)
+        {
+            string when = daysUntilDue < 0
+                ? "está vencida"
+                : daysUntilDue == 0 ? "vence hoje" : $"vence em {daysUntilDue} dia(s)";
+            return new CreateNotificationRequest
+            {
+                UserId = null,
+                Type = NotificationType.Warning,
+                Title = "Prazo de entrega próximo",
+                Message = $"A entrega \"{deliverable.Title}\" {when}.",
+                Link = $"/campanhas/{deliverable.CampaignId}",
+                Source = "deliverable",
+                ReferenceEntityName = nameof(CampaignDeliverable),
+                ReferenceEntityId = deliverable.Id.ToString()
+            };
+        }
+
         public static CreateNotificationRequest DeliverableApprovedByBrand(CampaignDeliverable deliverable, string reviewerName)
         {
             return new CreateNotificationRequest

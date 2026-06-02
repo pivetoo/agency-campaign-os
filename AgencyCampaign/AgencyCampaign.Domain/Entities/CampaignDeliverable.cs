@@ -96,6 +96,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public DeliverableMetricsSource MetricsSource { get; private set; } = DeliverableMetricsSource.None;
 
+        public DateTimeOffset? DeadlineReminderSentAt { get; private set; }
+
         public IReadOnlyCollection<DeliverableApproval> Approvals => approvals.AsReadOnly();
 
         private CampaignDeliverable()
@@ -141,11 +143,20 @@ namespace AgencyCampaign.Domain.Entities
             Description = Normalize(description);
             DeliverableKindId = deliverableKindId;
             PlatformId = platformId;
+            if (DueAt != dueAt.ToUniversalTime())
+            {
+                DeadlineReminderSentAt = null;
+            }
             DueAt = dueAt.ToUniversalTime();
             GrossAmount = grossAmount;
             CreatorAmount = creatorAmount;
             AgencyFeeAmount = agencyFeeAmount;
             Notes = Normalize(notes);
+        }
+
+        public void MarkDeadlineReminderSent()
+        {
+            DeadlineReminderSentAt = DateTimeOffset.UtcNow;
         }
 
         public void Publish(string publishedUrl, string? evidenceUrl, DateTimeOffset publishedAt)

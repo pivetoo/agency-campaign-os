@@ -169,6 +169,46 @@ namespace AgencyCampaign.Infrastructure.Services
                 DeliverableMetricsSource.Manual);
         }
 
+        // Lembrete proativo de prazo: notifica (agency-wide) entregaveis nao publicados/cancelados com
+        // prazo vencido ou a vencer dentro da janela, deduplicando por DeadlineReminderSentAt (resetado
+        // quando o prazo e remarcado). Espelha o lembrete de follow-up do comercial.
+        public async Task<int> RemindDueDeliverables(int daysAhead, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset cutoff = now.AddDays(daysAhead <= 0 ? 3 : daysAhead);
+
+            List<CampaignDeliverable> due = await DbContext.Set<CampaignDeliverable>()
+                .AsTracking()
+                .Where(item => item.Status != DeliverableStatus.Published
+                    && item.Status != DeliverableStatus.Cancelled
+                    && item.DeadlineReminderSentAt == null
+                    && item.DueAt <= cutoff)
+                .ToListAsync(cancellationToken);
+
+            int reminded = 0;
+            foreach (CampaignDeliverable deliverable in due)
+            {
+                try
+                {
+                    int daysUntilDue = (int)Math.Ceiling((deliverable.DueAt - now).TotalDays);
+                    await notificationService.Create(KanvasNotifications.DeliverableDueSoon(deliverable, daysUntilDue), cancellationToken);
+                    deliverable.MarkDeadlineReminderSent();
+                    reminded++;
+                }
+                catch (Exception exception)
+                {
+                    logger.LogWarning(exception, "Failed to remind deadline for deliverable {Id}.", deliverable.Id);
+                }
+            }
+
+            if (reminded > 0)
+            {
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return reminded;
+        }
+
         private async Task TryGenerateCreatorPayout(CampaignDeliverable deliverable, CancellationToken cancellationToken)
         {
             try

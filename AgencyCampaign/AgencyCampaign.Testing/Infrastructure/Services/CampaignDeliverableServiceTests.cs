@@ -82,6 +82,42 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task RemindDueDeliverables_should_notify_due_and_skip_far_future()
+        {
+            await SeedReferencesAsync();
+            Mock<Archon.Application.Services.INotificationService> notification = new();
+            service = new CampaignDeliverableService(db, LocalizerMock.Create<AgencyCampaignResource>(), financial.Object, notification.Object, NullLogger<CampaignDeliverableService>.Instance);
+
+            CampaignDeliverable dueSoon = new(10, 20, "Due soon", 1, 1, DateTimeOffset.UtcNow.AddDays(1), 100m, 50m, 0m);
+            CampaignDeliverable farFuture = new(10, 20, "Far", 1, 1, DateTimeOffset.UtcNow.AddDays(30), 100m, 50m, 0m);
+            db.Add(dueSoon);
+            db.Add(farFuture);
+            await db.SaveChangesAsync();
+
+            int reminded = await service.RemindDueDeliverables(3);
+
+            reminded.Should().Be(1);
+            notification.Verify(item => item.Create(It.IsAny<Archon.Core.Notifications.CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            db.ChangeTracker.Clear();
+            CampaignDeliverable persisted = await db.Set<CampaignDeliverable>().AsNoTracking().FirstAsync(item => item.Id == dueSoon.Id);
+            persisted.DeadlineReminderSentAt.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task RemindDueDeliverables_should_not_remind_the_same_deliverable_twice()
+        {
+            await SeedReferencesAsync();
+            CampaignDeliverable dueSoon = new(10, 20, "Due", 1, 1, DateTimeOffset.UtcNow.AddDays(1), 100m, 50m, 0m);
+            db.Add(dueSoon);
+            await db.SaveChangesAsync();
+
+            await service.RemindDueDeliverables(3);
+            int second = await service.RemindDueDeliverables(3);
+
+            second.Should().Be(0);
+        }
+
+        [Test]
         public async Task CreateDeliverable_with_published_status_should_require_url()
         {
             await SeedReferencesAsync();

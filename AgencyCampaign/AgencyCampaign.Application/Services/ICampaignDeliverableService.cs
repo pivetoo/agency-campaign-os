@@ -18,5 +18,7 @@ namespace AgencyCampaign.Application.Services
         Task<CampaignDeliverable> CreateDeliverable(CreateCampaignDeliverableRequest request, CancellationToken cancellationToken = default);
 
         Task<CampaignDeliverable> UpdateDeliverable(long id, UpdateCampaignDeliverableRequest request, CancellationToken cancellationToken = default);
+
+        Task<int> RemindDueDeliverables(int daysAhead, CancellationToken cancellationToken = default);
     }
 }
