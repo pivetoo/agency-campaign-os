@@ -19,7 +19,6 @@ const initialFormData: CreateCampaignRequest = {
   name: '',
   description: '',
   objective: '',
-  briefing: '',
   budget: 0,
   startsAt: '',
   endsAt: '',
@@ -59,7 +58,6 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
         name: campaign.name,
         description: campaign.description || '',
         objective: campaign.objective || '',
-        briefing: campaign.briefing || '',
         budget: campaign.budget,
         startsAt: campaign.startsAt.slice(0, 10),
         endsAt: campaign.endsAt ? campaign.endsAt.slice(0, 10) : '',
@@ -88,7 +86,6 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
       endsAt: formData.endsAt || undefined,
       description: formData.description || undefined,
       objective: formData.objective || undefined,
-      briefing: formData.briefing || undefined,
       responsibleUserId: formData.responsibleUserId,
       notes: formData.notes || undefined,
     }
@@ -173,11 +170,6 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.objective')}</label>
               <Input value={formData.objective || ''} onChange={(e) => setFormData((prev) => ({ ...prev, objective: e.target.value }))} />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t('common.field.briefing')}</label>
-              <Input value={formData.briefing || ''} onChange={(e) => setFormData((prev) => ({ ...prev, briefing: e.target.value }))} />
             </div>
 
             <div className="space-y-2">
