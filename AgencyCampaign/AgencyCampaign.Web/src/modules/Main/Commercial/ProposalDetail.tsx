@@ -201,6 +201,28 @@ export default function CommercialProposalDetail() {
     if (result !== null) await loadProposal()
   }
 
+  const handleConvertToExistingCampaign = async () => {
+    const targetCampaignId = Number(campaignId)
+    if (!targetCampaignId) return
+    const result = await executeAction(() => proposalService.convertToCampaign(proposalId, targetCampaignId))
+    if (result !== null) navigate(`/campanhas/${targetCampaignId}`)
+  }
+
+  const handleConvertToNewCampaign = async () => {
+    setIsConvertModalOpen(false)
+    const result = (await executeAction(() => proposalService.convertToNewCampaign(proposalId, {
+      name: convertName.trim() || undefined,
+      startDate: convertStartDate || undefined,
+    }))) as { data?: Proposal } | null
+    if (result === null) return
+    const newCampaignId = result.data?.campaignId
+    if (newCampaignId) {
+      navigate(`/campanhas/${newCampaignId}`)
+    } else {
+      await loadProposal()
+    }
+  }
+
   const headerActions: PageAction[] = useMemo(() => {
     if (!proposal) return []
     const status = proposal.status
@@ -552,7 +574,7 @@ export default function CommercialProposalDetail() {
                       </div>
                       <Button
                         disabled={!campaignId || actionLoading}
-                        onClick={() => void runProposalAction(() => proposalService.convertToCampaign(proposalId, Number(campaignId)))}
+                        onClick={() => void handleConvertToExistingCampaign()}
                       >
                         <FileCheck className="mr-2 h-4 w-4" /> {t('proposalDetail.convert.button')}
                       </Button>
@@ -643,13 +665,7 @@ export default function CommercialProposalDetail() {
             <Button
               type="button"
               disabled={actionLoading}
-              onClick={() => {
-                setIsConvertModalOpen(false)
-                void runProposalAction(() => proposalService.convertToNewCampaign(proposalId, {
-                  name: convertName.trim() || undefined,
-                  startDate: convertStartDate || undefined,
-                }))
-              }}
+              onClick={() => void handleConvertToNewCampaign()}
             >
               <FileCheck className="mr-2 h-4 w-4" /> {t('proposalDetail.convert.button')}
             </Button>
