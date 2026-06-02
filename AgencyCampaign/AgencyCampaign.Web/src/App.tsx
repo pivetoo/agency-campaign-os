@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { AuthProvider, ThemeProvider, GlobalLoaderProvider, I18nProvider, useGlobalLoader, setGlobalLoaderContext, Toaster, setApiBaseURL, setIdentityManagementURL } from 'archon-ui'
 import AppRoutes from './routes'
+import ErrorBoundary from './components/ErrorBoundary'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 const identityManagementApiUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL
@@ -22,7 +23,9 @@ function AppContent() {
 
   return (
     <AuthProvider>
-      <AppRoutes />
+      <ErrorBoundary>
+        <AppRoutes />
+      </ErrorBoundary>
       <Toaster />
     </AuthProvider>
   )
