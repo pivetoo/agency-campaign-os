@@ -75,5 +75,17 @@ namespace AgencyCampaign.Domain.Entities
 
             Status = ContentVersionStatus.Approved;
         }
+
+        // Aprovacao interna da agencia: aprova o conteudo sem precisar enviar para a marca
+        // (conteudo simples que dispensa aprovacao do cliente).
+        public void ApproveInternally()
+        {
+            if (Status != ContentVersionStatus.PendingInternalReview)
+            {
+                throw new InvalidOperationException("contentReview.version.invalidTransition");
+            }
+
+            Status = ContentVersionStatus.Approved;
+        }
     }
 }

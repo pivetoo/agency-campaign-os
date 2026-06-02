@@ -64,6 +64,14 @@ namespace AgencyCampaign.Infrastructure.Services
             return await BuildModel(version.CampaignDeliverableId, includeInternal: true, cancellationToken);
         }
 
+        public async Task<ContentReviewModel> AgencyApprove(long versionId, CancellationToken cancellationToken = default)
+        {
+            DeliverableContentVersion version = await LoadVersion(versionId, cancellationToken);
+            version.ApproveInternally();
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return await BuildModel(version.CampaignDeliverableId, includeInternal: true, cancellationToken);
+        }
+
         public async Task<ContentReviewModel> AddComment(long deliverableId, ReviewParticipant role, string authorName, AddReviewCommentRequest request, CancellationToken cancellationToken = default)
         {
             dbContext.Set<DeliverableReviewComment>().Add(new DeliverableReviewComment(deliverableId, request.VersionId, role, authorName, request.Body, request.Visibility));

@@ -61,6 +61,13 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("campaigns.update.description")]
+        [PostEndpoint("version/{versionId:long}/agency-approve")]
+        public async Task<IActionResult> AgencyApprove(long versionId, CancellationToken cancellationToken)
+        {
+            return Http200(await service.AgencyApprove(versionId, cancellationToken));
+        }
+
+        [RequireAccess("campaigns.update.description")]
         [PostEndpoint("deliverable/{deliverableId:long}/comment")]
         public async Task<IActionResult> AddComment(long deliverableId, [FromBody] AddReviewCommentRequest request, CancellationToken cancellationToken)
         {

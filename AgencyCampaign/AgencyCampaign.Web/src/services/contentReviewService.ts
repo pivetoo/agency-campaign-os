@@ -27,6 +27,10 @@ export const contentReviewService = {
     return httpClient.post<ContentReview>(`${BASE}/version/${versionId}/send-to-brand`, {})
   },
 
+  agencyApprove(versionId: number) {
+    return httpClient.post<ContentReview>(`${BASE}/version/${versionId}/agency-approve`, {})
+  },
+
   addComment(deliverableId: number, body: string, visibility: 1 | 2, versionId?: number) {
     return httpClient.post<ContentReview>(`${BASE}/deliverable/${deliverableId}/comment`, { versionId, body, visibility })
   },

@@ -59,6 +59,27 @@ namespace AgencyCampaign.Testing.Domain
         }
 
         [Test]
+        public void ApproveInternally_from_internal_review_sets_approved()
+        {
+            DeliverableContentVersion version = NewVersion();
+
+            version.ApproveInternally();
+
+            version.Status.Should().Be(ContentVersionStatus.Approved);
+        }
+
+        [Test]
+        public void ApproveInternally_requires_internal_review()
+        {
+            DeliverableContentVersion version = NewVersion();
+            version.SendToBrand();
+
+            Action act = () => version.ApproveInternally();
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
         public void RequestChanges_is_terminal_for_the_version()
         {
             DeliverableContentVersion version = NewVersion();

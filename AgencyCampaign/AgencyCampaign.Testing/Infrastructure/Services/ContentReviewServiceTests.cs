@@ -66,6 +66,18 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task AgencyApprove_should_approve_internal_version_without_sending_to_brand()
+        {
+            long deliverableId = await SeedDeliverableAsync();
+            ContentReviewModel v1 = await service.AddVersion(deliverableId, ReviewParticipant.Agency, "Maria", BuildVersionRequest(), CancellationToken.None);
+            long versionId = v1.Versions[0].Id;
+
+            ContentReviewModel result = await service.AgencyApprove(versionId, CancellationToken.None);
+
+            result.Versions[0].Status.Should().Be(ContentVersionStatus.Approved);
+        }
+
+        [Test]
         public async Task AddVersion_after_request_changes_should_increment_to_round2()
         {
             long deliverableId = await SeedDeliverableAsync();

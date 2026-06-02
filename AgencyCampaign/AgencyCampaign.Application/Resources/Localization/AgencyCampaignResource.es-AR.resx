@@ -2458,4 +2458,5 @@
   <data name="public.proposal.estimate" xml:space="preserve"><value>estimación</value></data>
   <data name="modal.deliverable.amountsExceedGross" xml:space="preserve"><value>El pago + fee no puede superar el valor bruto</value></data>
   <data name="modal.campaign.field.requiresDeliverableApproval" xml:space="preserve"><value>Exigir aprobacion de la marca para publicar entregables</value></data>
+  <data name="contentReview.action.agencyApprove" xml:space="preserve"><value>Aprobar internamente</value></data>
 </root>

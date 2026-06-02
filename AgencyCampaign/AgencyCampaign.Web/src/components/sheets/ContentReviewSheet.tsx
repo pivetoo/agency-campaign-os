@@ -54,6 +54,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
   const { execute: runAddVersion, loading: addingVersion } = useApi({ showErrorMessage: true, showSuccessMessage: true })
   const { execute: runRequestChanges, loading: requestingChanges } = useApi({ showErrorMessage: true, showSuccessMessage: true })
   const { execute: runSendToBrand, loading: sendingToBrand } = useApi({ showErrorMessage: true, showSuccessMessage: true })
+  const { execute: runAgencyApprove, loading: approvingInternally } = useApi({ showErrorMessage: true, showSuccessMessage: true })
   const { execute: runAddComment, loading: addingComment } = useApi({ showErrorMessage: true })
   const { execute: runCopyLink, loading: copyingLink } = useApi({ showErrorMessage: true })
 
@@ -95,6 +96,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
   const canSubmitVersion = !latestVersion || latestVersion.status === 3
   const canRequestChanges = latestVersion?.status === 1
   const canSendToBrand = latestVersion?.status === 1
+  const canAgencyApprove = latestVersion?.status === 1
 
   async function handleAddVersion() {
     if (!deliverableId) return
@@ -129,6 +131,14 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
   async function handleSendToBrand() {
     if (!latestVersion) return
     const res = await runSendToBrand(() => contentReviewService.sendToBrand(latestVersion.id))
+    if (res) {
+      setReview(res)
+    }
+  }
+
+  async function handleAgencyApprove() {
+    if (!latestVersion) return
+    const res = await runAgencyApprove(() => contentReviewService.agencyApprove(latestVersion.id))
     if (res) {
       setReview(res)
     }
@@ -383,6 +393,12 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
             <Button size="sm" variant="outline" className="w-full" disabled={sendingToBrand} onClick={() => void handleSendToBrand()}>
               <Send size={13} className="mr-1.5" />
               {t('contentReview.action.sendToBrand')}
+            </Button>
+          )}
+
+          {canAgencyApprove && (
+            <Button size="sm" variant="outline" className="w-full" disabled={approvingInternally} onClick={() => void handleAgencyApprove()}>
+              {t('contentReview.action.agencyApprove')}
             </Button>
           )}
 
