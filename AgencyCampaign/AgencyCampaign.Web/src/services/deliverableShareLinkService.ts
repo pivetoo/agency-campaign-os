@@ -1,4 +1,5 @@
 import { httpClient } from 'archon-ui'
+import { publicClient } from '../lib/publicClient'
 import type { DeliverablePublicView, DeliverableShareLink, PendingApproval } from '../types/deliverableShareLink'
 
 export interface CreateDeliverableShareLinkRequest {
@@ -42,7 +43,7 @@ const PUBLIC_BASE = '/deliverable-public'
 export const deliverablePublicService = {
   async getByToken(token: string): Promise<DeliverablePublicView | null> {
     try {
-      const response = await httpClient.get<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}`)
+      const response = await publicClient.get<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}`)
       return response.data ?? null
     } catch {
       return null
@@ -50,18 +51,18 @@ export const deliverablePublicService = {
   },
 
   approve(token: string, request: PublicDecisionRequest) {
-    return httpClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/approve`, request)
+    return publicClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/approve`, request)
   },
 
   reject(token: string, request: PublicDecisionRequest) {
-    return httpClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/reject`, request)
+    return publicClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/reject`, request)
   },
 
   requestChanges(token: string, request: { reviewerName: string; comment?: string }) {
-    return httpClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/request-changes`, request)
+    return publicClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/request-changes`, request)
   },
 
   addComment(token: string, body: string) {
-    return httpClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/comment`, { body })
+    return publicClient.post<DeliverablePublicView>(`${PUBLIC_BASE}/${encodeURIComponent(token)}/comment`, { body })
   },
 }

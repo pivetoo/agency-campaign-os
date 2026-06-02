@@ -1,4 +1,4 @@
-import { httpClient } from 'archon-ui'
+import { publicClient } from '../lib/publicClient'
 import type { CampaignDocument } from '../types/campaignDocument'
 import type { CreatorPayment, PixKeyTypeValue } from '../types/creatorPayment'
 import type { CampaignDeliverable } from '../types/campaignDeliverable'
@@ -63,30 +63,30 @@ export interface SubmitInsightsPayload {
 
 export const creatorPortalService = {
   async me(token: string): Promise<PortalSession | null> {
-    const response = await httpClient.get<PortalSession>(`${BASE}/${token}/me`)
+    const response = await publicClient.get<PortalSession>(`${BASE}/${token}/me`)
     return response.data ?? null
   },
   async getCampaigns(token: string): Promise<PortalCampaign[]> {
-    const response = await httpClient.get<PortalCampaign[]>(`${BASE}/${token}/campaigns`)
+    const response = await publicClient.get<PortalCampaign[]>(`${BASE}/${token}/campaigns`)
     return response.data ?? []
   },
   async getCampaignBriefing(token: string, campaignId: number): Promise<CampaignBriefing | null> {
-    const response = await httpClient.get<CampaignBriefing | null>(`${BASE}/${token}/campaigns/${campaignId}/briefing`)
+    const response = await publicClient.get<CampaignBriefing | null>(`${BASE}/${token}/campaigns/${campaignId}/briefing`)
     return response.data ?? null
   },
   async getDocuments(token: string): Promise<CampaignDocument[]> {
-    const response = await httpClient.get<CampaignDocument[]>(`${BASE}/${token}/documents`)
+    const response = await publicClient.get<CampaignDocument[]>(`${BASE}/${token}/documents`)
     return response.data ?? []
   },
   async getPayments(token: string): Promise<CreatorPayment[]> {
-    const response = await httpClient.get<CreatorPayment[]>(`${BASE}/${token}/payments`)
+    const response = await publicClient.get<CreatorPayment[]>(`${BASE}/${token}/payments`)
     return response.data ?? []
   },
   updateBankInfo(token: string, payload: UpdateBankInfoPayload) {
-    return httpClient.post(`${BASE}/${token}/bank-info`, payload)
+    return publicClient.post(`${BASE}/${token}/bank-info`, payload)
   },
   uploadInvoice(token: string, payload: UploadInvoicePayload) {
-    return httpClient.post<CreatorPayment>(`${BASE}/${token}/invoice`, payload)
+    return publicClient.post<CreatorPayment>(`${BASE}/${token}/invoice`, payload)
   },
   uploadInvoiceFile(token: string, creatorPaymentId: number, file: File, invoiceNumber?: string, issuedAt?: string) {
     const form = new FormData()
@@ -94,28 +94,28 @@ export const creatorPortalService = {
     if (invoiceNumber) form.append('invoiceNumber', invoiceNumber)
     if (issuedAt) form.append('issuedAt', issuedAt)
     form.append('file', file)
-    return httpClient.post<CreatorPayment>(`${BASE}/${token}/invoice/upload`, form)
+    return publicClient.post<CreatorPayment>(`${BASE}/${token}/invoice/upload`, form)
   },
   async getDeliverables(token: string): Promise<CampaignDeliverable[]> {
-    const response = await httpClient.get<CampaignDeliverable[]>(`${BASE}/${token}/deliverables`)
+    const response = await publicClient.get<CampaignDeliverable[]>(`${BASE}/${token}/deliverables`)
     return response.data ?? []
   },
   submitInsights(token: string, deliverableId: number, payload: SubmitInsightsPayload) {
-    return httpClient.post<CampaignDeliverable>(`${BASE}/${token}/deliverables/${deliverableId}/insights`, payload)
+    return publicClient.post<CampaignDeliverable>(`${BASE}/${token}/deliverables/${deliverableId}/insights`, payload)
   },
   async getDeliverableReview(token: string, deliverableId: number): Promise<ContentReview | null> {
-    const response = await httpClient.get<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/review`)
+    const response = await publicClient.get<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/review`)
     return response.data ?? null
   },
   submitContentVersion(token: string, deliverableId: number, assets: ContentAssetInput[], note?: string) {
-    return httpClient.post<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/version`, { assets, note })
+    return publicClient.post<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/version`, { assets, note })
   },
   addReviewComment(token: string, deliverableId: number, body: string) {
-    return httpClient.post<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/comment`, { body })
+    return publicClient.post<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/comment`, { body })
   },
   uploadReviewFile(token: string, deliverableId: number, file: File) {
     const form = new FormData()
     form.append('file', file)
-    return httpClient.post<{ storageKey: string; previewUrl: string; fileName: string; contentType: string }>(`${BASE}/${token}/deliverables/${deliverableId}/upload`, form)
+    return publicClient.post<{ storageKey: string; previewUrl: string; fileName: string; contentType: string }>(`${BASE}/${token}/deliverables/${deliverableId}/upload`, form)
   },
 }

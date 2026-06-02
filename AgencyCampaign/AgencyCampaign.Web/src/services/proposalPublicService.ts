@@ -1,4 +1,4 @@
-import { httpClient } from 'archon-ui'
+import { publicClient } from '../lib/publicClient'
 
 const BASE_URL = '/proposal-public'
 
@@ -62,7 +62,7 @@ export interface ProposalClientDecisionInput {
 export const proposalPublicService = {
   async getByToken(token: string): Promise<ProposalPublicView | null> {
     try {
-      const response = await httpClient.get<ProposalPublicView>(`${BASE_URL}/${encodeURIComponent(token)}`)
+      const response = await publicClient.get<ProposalPublicView>(`${BASE_URL}/${encodeURIComponent(token)}`)
       return response.data ?? null
     } catch {
       return null
@@ -70,15 +70,15 @@ export const proposalPublicService = {
   },
 
   accept(token: string, input: ProposalClientDecisionInput) {
-    return httpClient.post(`${BASE_URL}/${encodeURIComponent(token)}/accept`, input)
+    return publicClient.post(`${BASE_URL}/${encodeURIComponent(token)}/accept`, input)
   },
 
   reject(token: string, input: ProposalClientDecisionInput) {
-    return httpClient.post(`${BASE_URL}/${encodeURIComponent(token)}/reject`, input)
+    return publicClient.post(`${BASE_URL}/${encodeURIComponent(token)}/reject`, input)
   },
 
   async downloadPdf(token: string): Promise<void> {
-    const response = await httpClient.get<Blob>(`${BASE_URL}/${encodeURIComponent(token)}/pdf`, { responseType: 'blob' })
+    const response = await publicClient.get<Blob>(`${BASE_URL}/${encodeURIComponent(token)}/pdf`, { responseType: 'blob' })
     const blob = response.data
     if (!blob) return
     const url = window.URL.createObjectURL(blob as Blob)

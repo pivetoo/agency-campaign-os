@@ -1,4 +1,5 @@
 import { httpClient } from 'archon-ui'
+import { publicClient } from '../lib/publicClient'
 import type { CampaignReport, CampaignReportLink } from '../types/campaignReport'
 
 const BASE = '/CampaignReports'
@@ -15,7 +16,7 @@ export const campaignReportService = {
 
   async getByToken(token: string): Promise<CampaignReport | null> {
     try {
-      const response = await httpClient.get<CampaignReport>(`${PUBLIC_BASE}/${encodeURIComponent(token)}`)
+      const response = await publicClient.get<CampaignReport>(`${PUBLIC_BASE}/${encodeURIComponent(token)}`)
       return response.data ?? null
     } catch {
       return null
