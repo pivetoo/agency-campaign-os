@@ -144,8 +144,7 @@ function AppRoutes() {
           <Route path="configuracao" element={<AgencyConfiguration />} />
           <Route path="configuracao/layouts-proposta" element={<ProposalLayouts />} />
           <Route path="configuracao/layouts-proposta/:id" element={<ProposalLayoutEditor />} />
-          <Route path="usuarios" element={<UsersManagementPage initialTab="users" hideTabs title="Usuários" subtitle="Gerencie os usuários do contrato ativo" />} />
-          <Route path="usuarios/perfis" element={<UsersManagementPage initialTab="roles" hideTabs title="Perfis" subtitle="Gerencie os perfis de acesso do contrato ativo" />} />
+          <Route path="usuarios" element={<UsersManagementPage />} />
         </Route>
 
         <Route path="*" element={<div>Página não encontrada</div>} />
