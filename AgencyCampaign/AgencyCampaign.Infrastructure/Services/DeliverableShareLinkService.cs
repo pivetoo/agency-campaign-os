@@ -10,6 +10,7 @@ using Archon.Application.MultiTenancy;
 using Archon.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 
 namespace AgencyCampaign.Infrastructure.Services
@@ -116,12 +117,14 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly DbContext dbContext;
         private readonly INotificationService notificationService;
         private readonly IContentReviewService contentReview;
+        private readonly ILogger<DeliverablePublicService>? logger;
 
-        public DeliverablePublicService(DbContext dbContext, INotificationService notificationService, IContentReviewService contentReview)
+        public DeliverablePublicService(DbContext dbContext, INotificationService notificationService, IContentReviewService contentReview, ILogger<DeliverablePublicService>? logger = null)
         {
             this.dbContext = dbContext;
             this.notificationService = notificationService;
             this.contentReview = contentReview;
+            this.logger = logger;
         }
 
         public async Task<DeliverablePublicViewModel?> GetByToken(string token, CancellationToken cancellationToken = default)
@@ -183,7 +186,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine($"[DeliverablePublicService] failed to create notification: {exception.Message}");
+                    logger?.LogWarning(exception, "Failed to create brand-decision notification for deliverable.");
                 }
             }
 
@@ -267,7 +270,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine($"[DeliverablePublicService] failed to create notification: {exception.Message}");
+                    logger?.LogWarning(exception, "Failed to create brand-decision notification for deliverable.");
                 }
             }
 

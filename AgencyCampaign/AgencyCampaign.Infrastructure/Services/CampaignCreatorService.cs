@@ -10,6 +10,7 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -17,11 +18,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly ICurrentUser currentUser;
         private readonly INotificationService notificationService;
+        private readonly ILogger<CampaignCreatorService>? logger;
 
-        public CampaignCreatorService(DbContext dbContext, ICurrentUser currentUser, INotificationService notificationService) : base(dbContext)
+        public CampaignCreatorService(DbContext dbContext, ICurrentUser currentUser, INotificationService notificationService, ILogger<CampaignCreatorService>? logger = null) : base(dbContext)
         {
             this.currentUser = currentUser;
             this.notificationService = notificationService;
+            this.logger = logger;
         }
 
         public async Task<PagedResult<CampaignCreator>> GetCampaignCreators(PagedRequest request, CancellationToken cancellationToken = default)
@@ -182,7 +185,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[CampaignCreatorService] failed to create notification: {exception.Message}");
+                logger?.LogWarning(exception, "Failed to create campaign creator status-change notification.");
             }
         }
 
