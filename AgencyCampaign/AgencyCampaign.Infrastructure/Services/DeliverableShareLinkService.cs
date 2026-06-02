@@ -377,6 +377,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Select(item => new PendingApprovalModel
                 {
                     DeliverableId = item.Id,
+                    CampaignId = item.CampaignId,
                     DeliverableTitle = item.Title,
                     CampaignName = item.Campaign?.Name,
                     BrandName = item.Campaign?.Brand?.Name,

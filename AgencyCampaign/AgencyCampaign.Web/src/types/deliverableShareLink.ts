@@ -33,6 +33,7 @@ export interface DeliverableApproval {
 
 export interface PendingApproval {
   deliverableId: number
+  campaignId?: number | null
   deliverableTitle: string
   campaignName?: string | null
   brandName?: string | null

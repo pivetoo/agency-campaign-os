@@ -51,6 +51,7 @@ namespace AgencyCampaign.Application.Models.Deliverables
     public sealed class PendingApprovalModel
     {
         public long DeliverableId { get; set; }
+        public long? CampaignId { get; set; }
         public string DeliverableTitle { get; set; } = string.Empty;
         public string? CampaignName { get; set; }
         public string? BrandName { get; set; }

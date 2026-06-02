@@ -123,7 +123,7 @@ export default function OperationsApprovals() {
             <LinkIcon size={14} className="mr-1.5" />
             {record.hasActiveShareLink ? t('operations.approvals.action.newLink') : t('operations.approvals.action.generateLink')}
           </Button>
-          <Button size="sm" variant="outline" onClick={() => navigate(`/campanhas`)}>
+          <Button size="sm" variant="outline" onClick={() => navigate(record.campaignId ? `/campanhas/${record.campaignId}` : '/campanhas')}>
             <ExternalLink size={14} />
           </Button>
         </div>
