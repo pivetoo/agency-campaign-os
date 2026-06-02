@@ -31,6 +31,26 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GenerateCreatorPayoutsForConvertedProposal_should_stamp_creator_id_on_payout()
+        {
+            db.Add(NewAccount());
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            Proposal proposal = new Proposal(1, "P", 1).WithId(30);
+            db.Add(proposal);
+            db.Add(new ProposalItem(proposal.Id, "Post", 1, 500m, creatorId: creator.Id));
+            await db.SaveChangesAsync();
+
+            await service.GenerateCreatorPayoutsForConvertedProposal(proposal, campaignId: 1);
+
+            FinancialEntry entry = await db.Set<FinancialEntry>().AsNoTracking()
+                .SingleAsync(item => item.Category == FinancialEntryCategory.CreatorPayout);
+            entry.CreatorId.Should().Be(creator.Id);
+        }
+
+        [Test]
         public async Task GenerateForConvertedProposal_should_be_no_op_when_entry_already_exists()
         {
             FinancialAccount account = NewAccount();

@@ -23,6 +23,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public long? SourceProposalItemId { get; private set; }
 
+        public long? CreatorId { get; private set; }
+
         public FinancialEntryType Type { get; private set; }
 
         public FinancialEntryCategory Category { get; private set; }
@@ -129,6 +131,14 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalItemId);
             SourceProposalId = proposalId;
             SourceProposalItemId = proposalItemId;
+        }
+
+        // Vincula o repasse (CreatorPayout) ao creator, permitindo a baixa automatica quando o
+        // CreatorPayment executado e marcado como pago (conciliacao previsto x executado).
+        public void LinkToCreator(long creatorId)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(creatorId);
+            CreatorId = creatorId;
         }
 
         public void SetSubcategory(long? subcategoryId)

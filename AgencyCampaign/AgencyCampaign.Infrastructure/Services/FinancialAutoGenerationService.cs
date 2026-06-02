@@ -121,6 +121,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     campaignId: campaignId);
 
                 entry.LinkToProposalItem(proposal.Id, item.Id);
+                entry.LinkToCreator(item.CreatorId!.Value);
 
                 dbContext.Set<FinancialEntry>().Add(entry);
                 added = true;
@@ -176,10 +177,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 return;
             }
 
-            string? creatorName = await dbContext.Set<CampaignCreator>()
+            var creatorInfo = await dbContext.Set<CampaignCreator>()
                 .AsNoTracking()
                 .Where(item => item.Id == deliverable.CampaignCreatorId)
-                .Select(item => item.Creator!.StageName ?? item.Creator!.Name)
+                .Select(item => new { item.CreatorId, Name = item.Creator!.StageName ?? item.Creator!.Name })
                 .FirstOrDefaultAsync(cancellationToken);
 
             DateTimeOffset dueAt = (deliverable.PublishedAt ?? DateTimeOffset.UtcNow).AddDays(15);
@@ -194,10 +195,15 @@ namespace AgencyCampaign.Infrastructure.Services
                 DateTimeOffset.UtcNow,
                 paymentMethod: null,
                 referenceCode: null,
-                counterpartyName: creatorName,
+                counterpartyName: creatorInfo?.Name,
                 notes: $"Gerado automaticamente após publicação da entrega #{deliverable.Id}.",
                 campaignId: deliverable.CampaignId,
                 campaignDeliverableId: deliverable.Id);
+
+            if (creatorInfo is not null)
+            {
+                entry.LinkToCreator(creatorInfo.CreatorId);
+            }
 
             dbContext.Set<FinancialEntry>().Add(entry);
             await dbContext.SaveChangesAsync(cancellationToken);

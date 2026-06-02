@@ -178,6 +178,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             payment.MarkPaid(request.PaidAt);
             payment.RegisterEvent(CreatorPaymentEventType.Paid, "Marcado manualmente como pago.", null, request.PaidAt);
+            await SettlePlannedPayoutsAsync(payment, request.PaidAt, cancellationToken);
 
             CreatorPayment? result = await Update(payment, cancellationToken);
             if (result is null)
@@ -310,6 +311,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 case "transfer.completed":
                     payment.MarkPaid(occurredAt);
                     payment.RegisterEvent(CreatorPaymentEventType.Paid, request.EventType, request.Metadata, occurredAt);
+                    await SettlePlannedPayoutsAsync(payment, occurredAt, cancellationToken);
                     break;
 
                 case "failed":
@@ -336,6 +338,49 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return await GetPaymentById(result.Id, cancellationToken) ?? result;
+        }
+
+        // Baixa automatica (conciliacao): ao marcar um CreatorPayment como pago, da baixa nos repasses
+        // PREVISTOS (FinancialEntry CreatorPayout, Pending/Overdue) do mesmo campanha+creator. Avisa,
+        // via evento, quando a soma do previsto diverge do valor liquido efetivamente pago.
+        private async Task SettlePlannedPayoutsAsync(CreatorPayment payment, DateTimeOffset paidAt, CancellationToken cancellationToken)
+        {
+            long? campaignId = await DbContext.Set<CampaignCreator>()
+                .AsNoTracking()
+                .Where(item => item.Id == payment.CampaignCreatorId)
+                .Select(item => (long?)item.CampaignId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (!campaignId.HasValue)
+            {
+                return;
+            }
+
+            List<FinancialEntry> planned = await DbContext.Set<FinancialEntry>()
+                .AsTracking()
+                .Where(item => item.CampaignId == campaignId
+                    && item.CreatorId == payment.CreatorId
+                    && item.Type == FinancialEntryType.Payable
+                    && item.Category == FinancialEntryCategory.CreatorPayout
+                    && (item.Status == FinancialEntryStatus.Pending || item.Status == FinancialEntryStatus.Overdue))
+                .ToListAsync(cancellationToken);
+
+            if (planned.Count == 0)
+            {
+                return;
+            }
+
+            foreach (FinancialEntry entry in planned)
+            {
+                entry.ChangeStatus(FinancialEntryStatus.Paid, paidAt);
+            }
+
+            decimal plannedTotal = planned.Sum(item => item.Amount);
+            string description = plannedTotal == payment.NetAmount
+                ? $"Baixa automatica de {planned.Count} repasse(s) previsto(s) (R$ {plannedTotal:0.00})."
+                : $"Baixa automatica de {planned.Count} repasse(s) previsto(s) (R$ {plannedTotal:0.00}); valor pago R$ {payment.NetAmount:0.00} diverge do previsto.";
+
+            payment.RegisterEvent(CreatorPaymentEventType.PlannedPayoutSettled, description);
         }
 
         private IQueryable<CreatorPayment> QueryWithDetails()

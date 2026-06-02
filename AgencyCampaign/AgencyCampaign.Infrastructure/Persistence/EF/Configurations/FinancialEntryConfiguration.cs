@@ -70,6 +70,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
 
             builder.HasIndex(entity => entity.CampaignDeliverableId)
                 .HasDatabaseName("ixfinancialentrycampaigndeliverableid");
+
+            builder.HasIndex(entity => new { entity.CampaignId, entity.CreatorId })
+                .HasDatabaseName("ixfinancialentrycampaignidcreatorid");
         }
     }
 }

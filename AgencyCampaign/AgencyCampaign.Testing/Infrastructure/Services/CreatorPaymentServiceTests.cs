@@ -155,6 +155,28 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task MarkPaid_should_settle_planned_creator_payouts_for_same_campaign_and_creator()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#fff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            FinancialEntry planned = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout,
+                "Repasse previsto", 100m, DateTimeOffset.UtcNow.AddDays(10), DateTimeOffset.UtcNow, campaignId: cc.CampaignId);
+            planned.LinkToCreator(cc.CreatorId);
+            db.Add(planned);
+            await db.SaveChangesAsync();
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+            await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            db.ChangeTracker.Clear();
+            FinancialEntry settled = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == planned.Id);
+            settled.Status.Should().Be(FinancialEntryStatus.Paid);
+        }
+
+        [Test]
         public async Task MarkPaid_should_throw_when_not_found()
         {
             Func<Task> act = () => service.MarkPaid(99, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
