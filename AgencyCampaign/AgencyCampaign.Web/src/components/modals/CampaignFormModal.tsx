@@ -25,6 +25,7 @@ const initialFormData: CreateCampaignRequest = {
   endsAt: '',
   notes: '',
   status: 1,
+  requiresDeliverableApproval: true,
 }
 
 export default function CampaignFormModal({ open, onOpenChange, campaign, onSuccess }: CampaignFormModalProps) {
@@ -65,6 +66,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
         responsibleUserId: campaign.responsibleUserId,
         notes: campaign.notes || '',
         status: campaign.status,
+        requiresDeliverableApproval: campaign.requiresDeliverableApproval,
       })
       setIsActive(campaign.isActive)
       return
@@ -200,13 +202,17 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
           </div>
 
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+            <div className="space-y-2">
               {isEditing && (
                 <div className="flex items-center gap-2">
                   <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(!!checked)} />
                   <span className="text-sm">{t('common.status.activeFemale')}</span>
                 </div>
               )}
+              <div className="flex items-center gap-2">
+                <Checkbox checked={formData.requiresDeliverableApproval} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, requiresDeliverableApproval: !!checked }))} />
+                <span className="text-sm">{t('modal.campaign.field.requiresDeliverableApproval')}</span>
+              </div>
             </div>
 
             <ModalFooter>

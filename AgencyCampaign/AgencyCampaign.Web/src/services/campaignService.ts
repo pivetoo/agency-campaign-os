@@ -16,6 +16,7 @@ export interface CreateCampaignRequest {
   responsibleUserId?: number
   notes?: string
   status: number
+  requiresDeliverableApproval: boolean
 }
 
 export interface UpdateCampaignRequest extends CreateCampaignRequest {

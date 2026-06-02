@@ -32,6 +32,8 @@ namespace AgencyCampaign.Api.Contracts.Campaigns
 
         public bool IsActive { get; init; }
 
+        public bool RequiresDeliverableApproval { get; init; }
+
         public BrandReferenceContract? Brand { get; init; }
 
         public DateTimeOffset CreatedAt { get; init; }
@@ -53,6 +55,7 @@ namespace AgencyCampaign.Api.Contracts.Campaigns
             InternalOwnerName = item.InternalOwnerName,
             Notes = item.Notes,
             IsActive = item.IsActive,
+            RequiresDeliverableApproval = item.RequiresDeliverableApproval,
             Brand = item.Brand == null
                 ? null
                 : new BrandReferenceContract

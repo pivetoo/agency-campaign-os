@@ -259,6 +259,10 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
             </div>
           </div>
 
+          {formData.creatorAmount + formData.agencyFeeAmount > formData.grossAmount && (
+            <p className="text-xs text-destructive">{t('modal.deliverable.amountsExceedGross')}</p>
+          )}
+
           {isEditing && (
             <div className="space-y-3 rounded-lg border border-border/60 bg-muted/20 p-4">
               <div>
@@ -278,7 +282,7 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
 
           <ModalFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.action.cancel')}</Button>
-            <Button type="submit" disabled={loading || !formData.campaignCreatorId || !formData.deliverableKindId || !formData.platformId}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
+            <Button type="submit" disabled={loading || !formData.campaignCreatorId || !formData.deliverableKindId || !formData.platformId || formData.creatorAmount + formData.agencyFeeAmount > formData.grossAmount}>{loading ? t('common.action.saving') : t('common.action.save')}</Button>
           </ModalFooter>
         </form>
       </ModalContent>

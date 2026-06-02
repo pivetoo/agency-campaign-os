@@ -2456,4 +2456,6 @@
   <data name="modal.proposalItem.variable.estimateNote" xml:space="preserve"><value>Estimated value:</value></data>
   <data name="public.proposal.variablePricing" xml:space="preserve"><value>Variable</value></data>
   <data name="public.proposal.estimate" xml:space="preserve"><value>estimate</value></data>
+  <data name="modal.deliverable.amountsExceedGross" xml:space="preserve"><value>Creator payout + fee cannot exceed the gross amount</value></data>
+  <data name="modal.campaign.field.requiresDeliverableApproval" xml:space="preserve"><value>Require brand approval to publish deliverables</value></data>
 </root>
