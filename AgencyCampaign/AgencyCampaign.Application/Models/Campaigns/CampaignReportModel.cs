@@ -35,7 +35,7 @@ namespace AgencyCampaign.Application.Models.Campaigns
 
         public decimal? AvgEngagementRate { get; init; }
 
-        public decimal Investment { get; init; }
+        public decimal? Investment { get; init; }
 
         public decimal? Cpm { get; init; }
 

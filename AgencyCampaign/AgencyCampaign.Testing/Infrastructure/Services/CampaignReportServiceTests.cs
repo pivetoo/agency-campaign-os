@@ -72,9 +72,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             report.Totals.PublishedCount.Should().Be(2);
             report.Totals.TotalReach.Should().Be(5000);
             report.Totals.TotalEngagement.Should().Be(230);
-            report.Totals.Investment.Should().Be(10000m);
-            report.Totals.Cpm.Should().Be(2000m);
-            report.Totals.CostPerEngagement.Should().Be(43.48m);
+            report.Totals.Investment.Should().BeNull();
+            report.Totals.Cpm.Should().BeNull();
+            report.Totals.CostPerEngagement.Should().BeNull();
             report.ByPlatform.Should().HaveCount(1);
             report.Deliverables.Should().HaveCount(2);
         }

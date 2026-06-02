@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card, CardContent, BarChart, useI18n } from 'archon-ui'
-import { Activity, BarChart3, Eye, ExternalLink, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Activity, BarChart3, Eye, ExternalLink, AlertTriangle } from 'lucide-react'
 import { campaignReportService } from '../../services/campaignReportService'
 import type { CampaignReport } from '../../types/campaignReport'
 import { formatNumber, formatCurrency, formatDate } from '../../lib/format'
@@ -80,13 +80,11 @@ export default function PublicCampaignReport() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-7">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
           <Kpi label={t('campaignReport.kpi.reach')} value={formatNumber(totals.totalReach)} />
           <Kpi label={t('campaignReport.kpi.impressions')} value={formatNumber(totals.totalImpressions)} />
           <Kpi label={t('campaignReport.kpi.engagement')} value={formatNumber(totals.totalEngagement)} />
           <Kpi label={t('campaignReport.kpi.engagementRate')} value={rate != null ? `${rate.toFixed(2)}%` : '-'} />
-          <Kpi label={t('campaignReport.kpi.cpm')} value={totals.cpm != null ? formatCurrency(totals.cpm) : '-'} hint={t('campaignReport.kpi.cpmHint')} />
-          <Kpi label={t('campaignReport.kpi.costPerEngagement')} value={totals.costPerEngagement != null ? formatCurrency(totals.costPerEngagement) : '-'} />
           <Kpi label={t('campaignReport.kpi.emv')} value={totals.emv != null ? formatCurrency(totals.emv) : '-'} hint={t('campaignReport.kpi.emvHint')} />
         </div>
 
@@ -109,7 +107,6 @@ export default function PublicCampaignReport() {
 
         <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border/70 bg-card px-4 py-3 text-sm">
           <span className="flex items-center gap-1.5 text-muted-foreground"><BarChart3 className="h-4 w-4 text-primary" /> {t('campaignReport.kpi.deliverables')}: <strong className="text-foreground">{totals.publishedCount}/{totals.deliverablesCount}</strong></span>
-          <span className="flex items-center gap-1.5 text-muted-foreground"><TrendingUp className="h-4 w-4 text-emerald-600" /> {t('campaignReport.kpi.investment')}: <strong className="text-foreground">{formatCurrency(totals.investment)}</strong></span>
         </div>
 
         {platformData.length > 0 && (

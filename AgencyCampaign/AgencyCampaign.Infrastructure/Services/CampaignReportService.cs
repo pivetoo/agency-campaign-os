@@ -123,9 +123,9 @@ namespace AgencyCampaign.Infrastructure.Services
             List<decimal> rates = deliverables.Where(item => item.EngagementRate.HasValue).Select(item => item.EngagementRate!.Value).ToList();
             decimal? avgRate = rates.Count > 0 ? Math.Round(rates.Average(), 2) : null;
 
+            // Lastro de custo usado apenas para calcular o ROI internamente; nao e exposto no
+            // relatorio publico (a marca ve ROI/EMV/receita, mas nao o custo/margem da agencia).
             decimal investment = campaign.Budget;
-            decimal? cpm = totalReach > 0 ? Math.Round(investment / totalReach * 1000m, 2) : null;
-            decimal? costPerEngagement = totalEngagement > 0 ? Math.Round(investment / totalEngagement, 2) : null;
 
             decimal? emvRate = await dbContext.Set<AgencySettings>()
                 .AsNoTracking()
@@ -205,9 +205,9 @@ namespace AgencyCampaign.Infrastructure.Services
                     TotalViews = totalViews,
                     TotalEngagement = totalEngagement,
                     AvgEngagementRate = avgRate,
-                    Investment = investment,
-                    Cpm = cpm,
-                    CostPerEngagement = costPerEngagement,
+                    Investment = null,
+                    Cpm = null,
+                    CostPerEngagement = null,
                     Emv = emv,
                     AttributedRevenue = attributedRevenue,
                     AttributedOrders = attributedOrders,

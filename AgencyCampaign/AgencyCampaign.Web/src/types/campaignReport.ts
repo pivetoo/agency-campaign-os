@@ -6,7 +6,7 @@ export interface CampaignReportTotals {
   totalViews: number
   totalEngagement: number
   avgEngagementRate?: number
-  investment: number
+  investment?: number
   cpm?: number
   costPerEngagement?: number
   emv?: number
