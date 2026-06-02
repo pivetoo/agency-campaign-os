@@ -10,6 +10,8 @@ namespace AgencyCampaign.Domain.Entities
 
         public string Token { get; private set; } = string.Empty;
 
+        public DateTimeOffset? ExpiresAt { get; private set; }
+
         public DateTimeOffset? RevokedAt { get; private set; }
 
         public long? CreatedByUserId { get; private set; }
@@ -24,7 +26,7 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public CampaignReportLink(long campaignId, string token, long? createdByUserId, string? createdByUserName)
+        public CampaignReportLink(long campaignId, string token, long? createdByUserId, string? createdByUserName, DateTimeOffset? expiresAt = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignId);
             ArgumentException.ThrowIfNullOrWhiteSpace(token);
@@ -33,13 +35,19 @@ namespace AgencyCampaign.Domain.Entities
             Token = token.Trim();
             CreatedByUserId = createdByUserId;
             CreatedByUserName = string.IsNullOrWhiteSpace(createdByUserName) ? null : createdByUserName.Trim();
+            ExpiresAt = expiresAt?.ToUniversalTime();
             CreatedAt = DateTimeOffset.UtcNow;
             UpdatedAt = CreatedAt;
         }
 
+        public bool IsExpired()
+        {
+            return ExpiresAt.HasValue && ExpiresAt.Value <= DateTimeOffset.UtcNow;
+        }
+
         public bool IsActive()
         {
-            return !RevokedAt.HasValue;
+            return !RevokedAt.HasValue && !IsExpired();
         }
 
         public void Revoke()

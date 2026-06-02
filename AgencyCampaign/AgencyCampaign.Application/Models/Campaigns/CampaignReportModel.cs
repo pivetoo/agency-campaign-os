@@ -92,6 +92,8 @@ namespace AgencyCampaign.Application.Models.Campaigns
 
         public bool IsActive { get; init; }
 
+        public DateTimeOffset? ExpiresAt { get; init; }
+
         public DateTimeOffset? RevokedAt { get; init; }
 
         public DateTimeOffset? LastViewedAt { get; init; }

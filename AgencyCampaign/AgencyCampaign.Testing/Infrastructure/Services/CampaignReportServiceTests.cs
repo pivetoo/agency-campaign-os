@@ -193,5 +193,71 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             report.Should().BeNull();
         }
+
+        [Test]
+        public async Task GetReportByToken_should_return_null_when_link_expired()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "Camp", 10000m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new CampaignReportLink(10, "tokexp", null, null, DateTimeOffset.UtcNow.AddDays(-1)).WithId(40));
+            await db.SaveChangesAsync();
+
+            CampaignReportModel? report = await service.GetReportByToken("tokexp");
+
+            report.Should().BeNull();
+        }
+
+        [Test]
+        public async Task CreateOrGetLink_should_stamp_expiry()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "Camp", 10000m, DateTimeOffset.UtcNow).WithId(10));
+            await db.SaveChangesAsync();
+
+            CampaignReportLinkModel link = await service.CreateOrGetLink(10);
+
+            link.ExpiresAt.Should().NotBeNull();
+            link.ExpiresAt!.Value.Should().BeAfter(DateTimeOffset.UtcNow);
+            link.ExpiresAt!.Value.Should().BeBefore(DateTimeOffset.UtcNow.AddDays(91));
+        }
+
+        [Test]
+        public async Task CreateOrGetLink_should_not_reuse_an_expired_link()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "Camp", 10000m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new CampaignReportLink(10, "tokexp", null, null, DateTimeOffset.UtcNow.AddDays(-1)).WithId(40));
+            await db.SaveChangesAsync();
+
+            CampaignReportLinkModel link = await service.CreateOrGetLink(10);
+
+            link.Token.Should().NotBe("tokexp");
+            link.IsActive.Should().BeTrue();
+            PublicLinkToken.ExtractTenantId(link.Token).Should().Be("tenant-1");
+        }
+
+        [Test]
+        public async Task RevokeLink_should_revoke_the_active_link()
+        {
+            await SeedCampaignWithMetricsAsync();
+
+            bool revoked = await service.RevokeLink(10);
+
+            revoked.Should().BeTrue();
+            db.Set<CampaignReportLink>().Single().RevokedAt.Should().NotBeNull();
+            (await service.GetReportByToken("tok123")).Should().BeNull();
+        }
+
+        [Test]
+        public async Task RevokeLink_should_return_false_when_no_active_link()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "Camp", 10000m, DateTimeOffset.UtcNow).WithId(10));
+            await db.SaveChangesAsync();
+
+            bool revoked = await service.RevokeLink(10);
+
+            revoked.Should().BeFalse();
+        }
     }
 }

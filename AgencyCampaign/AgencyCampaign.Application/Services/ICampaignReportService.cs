@@ -6,6 +6,8 @@ namespace AgencyCampaign.Application.Services
     {
         Task<CampaignReportLinkModel> CreateOrGetLink(long campaignId, CancellationToken cancellationToken = default);
 
+        Task<bool> RevokeLink(long campaignId, CancellationToken cancellationToken = default);
+
         Task<CampaignReportModel?> GetReportByToken(string token, CancellationToken cancellationToken = default);
     }
 }

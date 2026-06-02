@@ -21,5 +21,12 @@ namespace AgencyCampaign.Api.Controllers
         {
             return Http200(await service.CreateOrGetLink(campaignId, cancellationToken));
         }
+
+        [RequireAccess("campaigns.update.description")]
+        [PostEndpoint("campaign/{campaignId:long}/revoke")]
+        public async Task<IActionResult> RevokeLink(long campaignId, CancellationToken cancellationToken)
+        {
+            return Http200(await service.RevokeLink(campaignId, cancellationToken));
+        }
     }
 }

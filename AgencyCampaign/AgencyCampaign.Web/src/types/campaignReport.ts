@@ -50,6 +50,7 @@ export interface CampaignReport {
 export interface CampaignReportLink {
   token: string
   isActive: boolean
+  expiresAt?: string
   revokedAt?: string
   lastViewedAt?: string
   viewCount: number

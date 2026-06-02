@@ -11,6 +11,8 @@ namespace AgencyCampaign.Infrastructure.Services
 {
     public sealed class CampaignReportService : ICampaignReportService
     {
+        private static readonly TimeSpan ReportLinkLifetime = TimeSpan.FromDays(90);
+
         private readonly DbContext dbContext;
         private readonly ICurrentUser currentUser;
         private readonly ITenantContext tenantContext;
@@ -33,6 +35,26 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
+            CampaignReportLink? link = await dbContext.Set<CampaignReportLink>()
+                .Where(item => item.CampaignId == campaignId && item.RevokedAt == null && (item.ExpiresAt == null || item.ExpiresAt > now))
+                .OrderByDescending(item => item.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (link is null)
+            {
+                string token = PublicLinkToken.Compose(tenantContext.TenantId, GenerateToken());
+                link = new CampaignReportLink(campaignId, token, currentUser.UserId, currentUser.UserName, now.Add(ReportLinkLifetime));
+                dbContext.Set<CampaignReportLink>().Add(link);
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return ToModel(link);
+        }
+
+        public async Task<bool> RevokeLink(long campaignId, CancellationToken cancellationToken = default)
+        {
             CampaignReportLink? link = await dbContext.Set<CampaignReportLink>()
                 .Where(item => item.CampaignId == campaignId && item.RevokedAt == null)
                 .OrderByDescending(item => item.Id)
@@ -40,13 +62,12 @@ namespace AgencyCampaign.Infrastructure.Services
 
             if (link is null)
             {
-                string token = PublicLinkToken.Compose(tenantContext.TenantId, GenerateToken());
-                link = new CampaignReportLink(campaignId, token, currentUser.UserId, currentUser.UserName);
-                dbContext.Set<CampaignReportLink>().Add(link);
-                await dbContext.SaveChangesAsync(cancellationToken);
+                return false;
             }
 
-            return ToModel(link);
+            link.Revoke();
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return true;
         }
 
         public async Task<CampaignReportModel?> GetReportByToken(string token, CancellationToken cancellationToken = default)
@@ -204,6 +225,7 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 Token = link.Token,
                 IsActive = link.IsActive(),
+                ExpiresAt = link.ExpiresAt,
                 RevokedAt = link.RevokedAt,
                 LastViewedAt = link.LastViewedAt,
                 ViewCount = link.ViewCount,

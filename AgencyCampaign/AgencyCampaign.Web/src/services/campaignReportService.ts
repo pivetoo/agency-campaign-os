@@ -9,6 +9,10 @@ export const campaignReportService = {
     return httpClient.post<CampaignReportLink>(`${BASE}/campaign/${campaignId}`, {})
   },
 
+  revokeLink(campaignId: number) {
+    return httpClient.post<boolean>(`${BASE}/campaign/${campaignId}/revoke`, {})
+  },
+
   async getByToken(token: string): Promise<CampaignReport | null> {
     try {
       const response = await httpClient.get<CampaignReport>(`${PUBLIC_BASE}/${encodeURIComponent(token)}`)
