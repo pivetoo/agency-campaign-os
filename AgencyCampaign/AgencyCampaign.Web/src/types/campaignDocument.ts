@@ -87,6 +87,7 @@ export interface CampaignDocumentSignature {
   signerEmail: string
   signerDocumentNumber?: string
   providerSignerId?: string
+  signingUrl?: string
   signedAt?: string
   ipAddress?: string
   isSigned: boolean

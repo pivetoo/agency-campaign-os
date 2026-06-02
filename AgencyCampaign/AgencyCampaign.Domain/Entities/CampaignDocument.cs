@@ -188,6 +188,27 @@ namespace AgencyCampaign.Domain.Entities
             return signature;
         }
 
+        // Capturada do callback do provedor (evento "sent"/"signer.created"): a URL onde ESTE
+        // signatario assina. Casa por e-mail e, em fallback, pelo id do signatario no provedor.
+        public CampaignDocumentSignature? AssignSignerSigningUrl(string? signerEmail, string? providerSignerId, string signingUrl)
+        {
+            CampaignDocumentSignature? signature = null;
+
+            if (!string.IsNullOrWhiteSpace(signerEmail))
+            {
+                signature = signatures.FirstOrDefault(item =>
+                    string.Equals(item.SignerEmail, signerEmail.Trim(), StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (signature is null && !string.IsNullOrWhiteSpace(providerSignerId))
+            {
+                signature = signatures.FirstOrDefault(item => item.ProviderSignerId == providerSignerId);
+            }
+
+            signature?.AssignSigningUrl(signingUrl);
+            return signature;
+        }
+
         public void MarkViewed(DateTimeOffset viewedAt)
         {
             if (Status == CampaignDocumentStatus.Sent)

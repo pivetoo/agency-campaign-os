@@ -11,6 +11,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignDocuments
         public string SignerEmail { get; init; } = string.Empty;
         public string? SignerDocumentNumber { get; init; }
         public string? ProviderSignerId { get; init; }
+        public string? SigningUrl { get; init; }
         public DateTimeOffset? SignedAt { get; init; }
         public string? IpAddress { get; init; }
         public bool IsSigned { get; init; }
@@ -23,6 +24,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignDocuments
             SignerEmail = signature.SignerEmail,
             SignerDocumentNumber = signature.SignerDocumentNumber,
             ProviderSignerId = signature.ProviderSignerId,
+            SigningUrl = signature.SigningUrl,
             SignedAt = signature.SignedAt,
             IpAddress = signature.IpAddress,
             IsSigned = signature.IsSigned,

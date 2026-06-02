@@ -61,6 +61,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignDocuments
                 SignerEmail = s.SignerEmail,
                 SignerDocumentNumber = s.SignerDocumentNumber,
                 ProviderSignerId = s.ProviderSignerId,
+                SigningUrl = s.SigningUrl,
                 SignedAt = s.SignedAt,
                 IpAddress = s.IpAddress,
                 IsSigned = s.SignedAt != null,

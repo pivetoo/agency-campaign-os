@@ -80,9 +80,26 @@ namespace AgencyCampaign.Infrastructure.Services
                 .OrderByDescending(item => item.Id)
                 .ToListAsync(cancellationToken);
 
+            string? creatorEmail = await dbContext.Set<Creator>()
+                .AsNoTracking()
+                .Where(item => item.Id == creatorId)
+                .Select(item => item.Email)
+                .FirstOrDefaultAsync(cancellationToken);
+
             foreach (CampaignDocument document in documents)
             {
                 document.CampaignCreator?.RedactAgencyFee();
+
+                // Seguranca: o creator so pode ver a URL de assinatura DELE - apagar a dos demais
+                // signatarios (ex. a marca) para nao permitir assinar no lugar de outro.
+                foreach (CampaignDocumentSignature signature in document.Signatures)
+                {
+                    if (string.IsNullOrWhiteSpace(creatorEmail)
+                        || !string.Equals(signature.SignerEmail, creatorEmail, StringComparison.OrdinalIgnoreCase))
+                    {
+                        signature.AssignSigningUrl(null);
+                    }
+                }
             }
 
             return documents;

@@ -24,6 +24,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.ProviderSignerId)
                 .HasMaxLength(150);
 
+            builder.Property(entity => entity.SigningUrl)
+                .HasMaxLength(1000);
+
             builder.Property(entity => entity.IpAddress)
                 .HasMaxLength(50);
 

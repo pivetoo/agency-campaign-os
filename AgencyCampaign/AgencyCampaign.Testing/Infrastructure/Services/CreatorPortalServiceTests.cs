@@ -195,6 +195,27 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetDocuments_should_hide_other_signers_signing_url()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "C", 0m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new AgencyCampaign.Domain.Entities.CampaignCreatorStatus("S", 1, "#fff").WithId(50));
+            db.Add(new Creator("Foo", null, "creator@x").WithId(7));
+            db.Add(new CampaignCreator(10, 7, 50, 100m, 10m).WithId(100));
+            CampaignDocument doc = new CampaignDocument(10, CampaignDocumentType.CreatorAgreement, "Doc", campaignCreatorId: 100).WithId(200);
+            doc.AddSignature(CampaignDocumentSignerRole.Creator, "Foo", "creator@x").AssignSigningUrl("https://prov/sign/creator");
+            doc.AddSignature(CampaignDocumentSignerRole.Brand, "Bar", "brand@x").AssignSigningUrl("https://prov/sign/brand");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            List<CampaignDocument> documents = await service.GetDocuments(7);
+
+            documents.Should().HaveCount(1);
+            documents[0].Signatures.Single(item => item.SignerEmail == "creator@x").SigningUrl.Should().Be("https://prov/sign/creator");
+            documents[0].Signatures.Single(item => item.SignerEmail == "brand@x").SigningUrl.Should().BeNull();
+        }
+
+        [Test]
         public async Task GetDocuments_should_return_creator_documents_only()
         {
             db.Add(new Brand("Acme").WithId(1));

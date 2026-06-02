@@ -237,6 +237,20 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void AssignSignerSigningUrl_should_set_url_on_matching_signer_only()
+        {
+            CampaignDocument subject = BuildDefault();
+            subject.AddSignature(CampaignDocumentSignerRole.Creator, "Foo", "foo@x");
+            subject.AddSignature(CampaignDocumentSignerRole.Brand, "Bar", "bar@x");
+
+            CampaignDocumentSignature? matched = subject.AssignSignerSigningUrl("FOO@X", null, "https://prov/sign/foo");
+
+            matched.Should().NotBeNull();
+            matched!.SigningUrl.Should().Be("https://prov/sign/foo");
+            subject.Signatures.Single(item => item.SignerEmail == "bar@x").SigningUrl.Should().BeNull();
+        }
+
+        [Test]
         public void VerifyContentIntegrity_should_detect_tampering_after_seal()
         {
             CampaignDocument subject = BuildWithBody("Conteudo original");

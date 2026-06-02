@@ -358,6 +358,28 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task HandleProviderCallback_should_capture_signer_signing_url()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new CampaignDocument(campaign.Id, CampaignDocumentType.CreatorAgreement, "Doc").WithId(40);
+            doc.AttachToProvider("provider-x", "doc-sign-1");
+            doc.AddSignature(CampaignDocumentSignerRole.Creator, "Foo", "foo@x");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            CampaignDocument result = await service.HandleProviderCallback(new CampaignDocumentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderDocumentId = "doc-sign-1",
+                EventType = "sent",
+                SignerEmail = "foo@x",
+                SigningUrl = "https://prov/sign/foo",
+            });
+
+            result.Signatures.First().SigningUrl.Should().Be("https://prov/sign/foo");
+        }
+
+        [Test]
         public async Task HandleProviderCallback_should_register_viewed_event()
         {
             Campaign campaign = await SeedCampaignAsync();

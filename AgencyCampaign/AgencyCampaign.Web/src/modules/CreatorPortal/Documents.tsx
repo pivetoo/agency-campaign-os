@@ -75,11 +75,23 @@ export default function CreatorPortalDocuments() {
             <div className="mt-2 space-y-1 border-t pt-2 text-xs">
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Signatários</p>
               {d.signatures.map((s) => (
-                <div key={s.id} className="flex items-center justify-between">
+                <div key={s.id} className="flex items-center justify-between gap-2">
                   <span>{s.signerName}</span>
-                  <span className={s.isSigned ? 'text-emerald-600' : 'text-muted-foreground'}>
-                    {s.isSigned ? 'Assinou' : 'Aguardando'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {!s.isSigned && s.signingUrl && (
+                      <a
+                        href={s.signingUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground hover:opacity-90"
+                      >
+                        Assinar
+                      </a>
+                    )}
+                    <span className={s.isSigned ? 'text-emerald-600' : 'text-muted-foreground'}>
+                      {s.isSigned ? 'Assinou' : 'Aguardando'}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

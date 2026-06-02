@@ -368,6 +368,14 @@ namespace AgencyCampaign.Infrastructure.Services
             DateTimeOffset occurredAt = request.OccurredAt ?? DateTimeOffset.UtcNow;
             string normalizedEvent = request.EventType.Trim().ToLowerInvariant();
 
+            // Captura a URL de assinatura do signatario em qualquer evento que a carregue (tipicamente
+            // "sent"/"signer.created"): habilita o botao "Assinar" no portal do creator (C2).
+            if (!string.IsNullOrWhiteSpace(request.SigningUrl)
+                && (!string.IsNullOrWhiteSpace(request.SignerEmail) || !string.IsNullOrWhiteSpace(request.ProviderSignerId)))
+            {
+                document.AssignSignerSigningUrl(request.SignerEmail, request.ProviderSignerId, request.SigningUrl!);
+            }
+
             switch (normalizedEvent)
             {
                 case "created":

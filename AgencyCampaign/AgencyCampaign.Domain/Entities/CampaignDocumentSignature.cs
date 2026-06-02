@@ -19,6 +19,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? ProviderSignerId { get; private set; }
 
+        // URL de assinatura do provedor para ESTE signatario (capturada do callback). Permite o
+        // creator assinar a partir do portal em vez de depender so do e-mail do provedor.
+        public string? SigningUrl { get; private set; }
+
         public DateTimeOffset? SignedAt { get; private set; }
 
         public string? IpAddress { get; private set; }
@@ -47,6 +51,11 @@ namespace AgencyCampaign.Domain.Entities
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(providerSignerId);
             ProviderSignerId = providerSignerId.Trim();
+        }
+
+        public void AssignSigningUrl(string? signingUrl)
+        {
+            SigningUrl = Normalize(signingUrl);
         }
 
         public void MarkSigned(DateTimeOffset signedAt, string? ipAddress = null, string? userAgent = null)

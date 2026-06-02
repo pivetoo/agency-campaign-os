@@ -33,6 +33,9 @@ namespace AgencyCampaign.Application.Requests.CampaignDocuments
         [StringLength(1000)]
         public string? SignedDocumentUrl { get; set; }
 
+        [StringLength(1000)]
+        public string? SigningUrl { get; set; }
+
         public string? Metadata { get; set; }
     }
 }
