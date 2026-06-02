@@ -192,6 +192,62 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GenerateFromTemplate_should_reject_unknown_template_variables()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocumentTemplate template = new("Contrato", CampaignDocumentType.CreatorAgreement, "Ola {{creatorNam}}, campanha {{campaignName}}.");
+            db.Add(template);
+            await db.SaveChangesAsync();
+
+            Func<Task> act = () => service.GenerateFromTemplate(new GenerateCampaignDocumentFromTemplateRequest
+            {
+                CampaignId = campaign.Id,
+                TemplateId = template.Id,
+                Title = "Doc"
+            });
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*creatorNam*");
+        }
+
+        [Test]
+        public async Task GenerateFromTemplate_should_render_known_variables()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocumentTemplate template = new("Contrato", CampaignDocumentType.CreatorAgreement, "Campanha {{campaignName}} em {{today}}.");
+            db.Add(template);
+            await db.SaveChangesAsync();
+
+            CampaignDocument document = await service.GenerateFromTemplate(new GenerateCampaignDocumentFromTemplateRequest
+            {
+                CampaignId = campaign.Id,
+                TemplateId = template.Id,
+                Title = "Doc"
+            });
+
+            document.Body.Should().Contain("Campanha C em");
+            document.Body.Should().NotContain("{{");
+        }
+
+        [Test]
+        public async Task GenerateFromTemplate_should_accept_variables_supplied_via_overrides()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocumentTemplate template = new("Contrato", CampaignDocumentType.CreatorAgreement, "Clausula: {{customClause}}.");
+            db.Add(template);
+            await db.SaveChangesAsync();
+
+            CampaignDocument document = await service.GenerateFromTemplate(new GenerateCampaignDocumentFromTemplateRequest
+            {
+                CampaignId = campaign.Id,
+                TemplateId = template.Id,
+                Title = "Doc",
+                Overrides = new Dictionary<string, string> { ["customClause"] = "Exclusividade de 30 dias" }
+            });
+
+            document.Body.Should().Contain("Exclusividade de 30 dias");
+        }
+
+        [Test]
         public async Task UpdateDocument_should_persist_changes()
         {
             Campaign campaign = await SeedCampaignAsync();

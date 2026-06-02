@@ -93,6 +93,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             Dictionary<string, object?> values = await BuildTemplateVariables(request.CampaignId, request.CampaignCreatorId, request.Overrides, cancellationToken);
+            EnsureNoUnknownVariables(template.Body, values);
             string body = Render(template.Body, values);
 
             CampaignDocument document = new(
@@ -543,6 +544,20 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return values;
+        }
+
+        private static void EnsureNoUnknownVariables(string template, IReadOnlyDictionary<string, object?> values)
+        {
+            List<string> unknown = PlaceholderRegex.Matches(template)
+                .Select(match => match.Groups[1].Value)
+                .Where(name => !values.ContainsKey(name))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (unknown.Count > 0)
+            {
+                throw new InvalidOperationException($"campaignDocument.template.unknownVariables: {string.Join(", ", unknown)}");
+            }
         }
 
         private static string Render(string template, IReadOnlyDictionary<string, object?> values)
