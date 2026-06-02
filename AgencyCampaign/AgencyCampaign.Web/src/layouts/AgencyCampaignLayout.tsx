@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
@@ -303,6 +303,10 @@ export default function AgencyCampaignLayout() {
         onAvatarUpload={profileApiService.uploadAvatar}
         onAvatarRemove={profileApiService.removeAvatar}
         onUpdateProfile={profileApiService.updateProfile}
+        menuExtraItems={[
+          { key: 'suporte', label: 'Suporte', icon: <LifeBuoy className="h-4 w-4" />, onClick: () => {} },
+          { key: 'central-ajuda', label: 'Central de Ajuda', icon: <HelpCircle className="h-4 w-4" />, onClick: () => {} },
+        ]}
         onLogout={handleLogout}
         navMode="module-rail"
         moduleNav={moduleNav}
