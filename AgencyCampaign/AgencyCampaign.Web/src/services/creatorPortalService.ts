@@ -88,6 +88,14 @@ export const creatorPortalService = {
   uploadInvoice(token: string, payload: UploadInvoicePayload) {
     return httpClient.post<CreatorPayment>(`${BASE}/${token}/invoice`, payload)
   },
+  uploadInvoiceFile(token: string, creatorPaymentId: number, file: File, invoiceNumber?: string, issuedAt?: string) {
+    const form = new FormData()
+    form.append('creatorPaymentId', String(creatorPaymentId))
+    if (invoiceNumber) form.append('invoiceNumber', invoiceNumber)
+    if (issuedAt) form.append('issuedAt', issuedAt)
+    form.append('file', file)
+    return httpClient.post<CreatorPayment>(`${BASE}/${token}/invoice/upload`, form)
+  },
   async getDeliverables(token: string): Promise<CampaignDeliverable[]> {
     const response = await httpClient.get<CampaignDeliverable[]>(`${BASE}/${token}/deliverables`)
     return response.data ?? []

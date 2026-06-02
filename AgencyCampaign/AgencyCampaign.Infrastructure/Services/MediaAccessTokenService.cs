@@ -33,6 +33,30 @@ namespace AgencyCampaign.Infrastructure.Services
             return $"/api/media?t={token}";
         }
 
+        public string ResolveDisplayUrl(string? storedValue)
+        {
+            if (string.IsNullOrWhiteSpace(storedValue))
+            {
+                return string.Empty;
+            }
+
+            // URL externa (http) ou legada/publica (/uploads/...): devolve como esta.
+            if (storedValue.StartsWith("/", StringComparison.Ordinal) || storedValue.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                return storedValue;
+            }
+
+            try
+            {
+                return BuildSignedUrl(storedValue);
+            }
+            catch (InvalidOperationException)
+            {
+                // Segredo de midia ausente (config): nao derruba a leitura; a midia so nao exibe.
+                return storedValue;
+            }
+        }
+
         public bool TryReadStorageKey(string token, out string storageKey)
         {
             storageKey = string.Empty;

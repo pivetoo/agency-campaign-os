@@ -10,5 +10,9 @@ namespace AgencyCampaign.Application.Services
 
         // Valida o token e devolve a chave de armazenamento; false se invalido/expirado/adulterado.
         bool TryReadStorageKey(string token, out string storageKey);
+
+        // Resolve um valor armazenado para exibicao: chave privada -> URL assinada; URL externa
+        // (http) ou legada (/uploads/...) -> devolve como esta; vazio -> vazio. Nunca lanca.
+        string ResolveDisplayUrl(string? storedValue);
     }
 }

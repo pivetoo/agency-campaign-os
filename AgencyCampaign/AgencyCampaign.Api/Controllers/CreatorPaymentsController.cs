@@ -19,14 +19,22 @@ namespace AgencyCampaign.Api.Controllers
     {
         private readonly ICreatorPaymentService creatorPaymentService;
         private readonly WebhookOptions webhookOptions;
+        private readonly IMediaAccessTokenService mediaTokens;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
-        private static readonly Func<CreatorPayment, CreatorPaymentContract> MapPayment = CreatorPaymentContract.Projection.Compile();
+        private static readonly Func<CreatorPayment, CreatorPaymentContract> MapPaymentRaw = CreatorPaymentContract.Projection.Compile();
 
-        public CreatorPaymentsController(ICreatorPaymentService creatorPaymentService, IOptions<WebhookOptions> webhookOptions, IStringLocalizer<AgencyCampaignResource> localizer)
+        public CreatorPaymentsController(ICreatorPaymentService creatorPaymentService, IOptions<WebhookOptions> webhookOptions, IMediaAccessTokenService mediaTokens, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.creatorPaymentService = creatorPaymentService;
             this.webhookOptions = webhookOptions.Value;
+            this.mediaTokens = mediaTokens;
             Localizer = localizer;
+        }
+
+        // Assina a NF (InvoiceUrl) para exibicao quando ela e uma chave de armazenamento privada.
+        private CreatorPaymentContract MapPayment(CreatorPayment payment)
+        {
+            return MapPaymentRaw(payment) with { InvoiceUrl = mediaTokens.ResolveDisplayUrl(payment.InvoiceUrl) };
         }
 
         [RequireAccess("creatorPayments.get.description")]

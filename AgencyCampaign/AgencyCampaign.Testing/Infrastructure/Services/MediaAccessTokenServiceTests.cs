@@ -74,5 +74,36 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             act.Should().Throw<InvalidOperationException>();
         }
+
+        [Test]
+        public void ResolveDisplayUrl_should_sign_a_storage_key()
+        {
+            MediaAccessTokenService service = Build();
+
+            string resolved = service.ResolveDisplayUrl("content/tenant-1/5/nf.pdf");
+
+            resolved.Should().StartWith("/api/media?t=");
+            service.TryReadStorageKey(ExtractToken(resolved), out string key).Should().BeTrue();
+            key.Should().Be("content/tenant-1/5/nf.pdf");
+        }
+
+        [Test]
+        public void ResolveDisplayUrl_should_pass_through_external_and_legacy_urls()
+        {
+            MediaAccessTokenService service = Build();
+
+            service.ResolveDisplayUrl("https://nf.example/123.pdf").Should().Be("https://nf.example/123.pdf");
+            service.ResolveDisplayUrl("/uploads/content/old.png").Should().Be("/uploads/content/old.png");
+            service.ResolveDisplayUrl("").Should().BeEmpty();
+            service.ResolveDisplayUrl(null).Should().BeEmpty();
+        }
+
+        [Test]
+        public void ResolveDisplayUrl_should_not_throw_without_secret()
+        {
+            MediaAccessTokenService service = Build(secret: "");
+
+            service.ResolveDisplayUrl("content/tenant-1/5/nf.pdf").Should().Be("content/tenant-1/5/nf.pdf");
+        }
     }
 }

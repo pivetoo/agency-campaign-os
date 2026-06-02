@@ -24,7 +24,7 @@ namespace AgencyCampaign.Api.Controllers
         private readonly IMediaAccessTokenService mediaTokens;
         private new IStringLocalizer<AgencyCampaignResource> Localizer { get; }
         private static readonly Func<CampaignDocument, CampaignDocumentContract> MapDocument = CampaignDocumentContract.Projection.Compile();
-        private static readonly Func<CreatorPayment, CreatorPaymentContract> MapPayment = CreatorPaymentContract.Projection.Compile();
+        private static readonly Func<CreatorPayment, CreatorPaymentContract> MapPaymentRaw = CreatorPaymentContract.Projection.Compile();
         private static readonly Func<CampaignDeliverable, CampaignDeliverableContract> MapDeliverable = CampaignDeliverableContract.Projection.Compile();
 
         public CreatorPortalController(ICreatorPortalService portalService, IContentFileStorage fileStorage, IMediaAccessTokenService mediaTokens, IStringLocalizer<AgencyCampaignResource> localizer)
@@ -33,6 +33,12 @@ namespace AgencyCampaign.Api.Controllers
             this.fileStorage = fileStorage;
             this.mediaTokens = mediaTokens;
             Localizer = localizer;
+        }
+
+        // Assina a NF (InvoiceUrl) para exibicao quando ela e uma chave de armazenamento privada.
+        private CreatorPaymentContract MapPayment(CreatorPayment payment)
+        {
+            return MapPaymentRaw(payment) with { InvoiceUrl = mediaTokens.ResolveDisplayUrl(payment.InvoiceUrl) };
         }
 
         [HttpGet("{token}/me")]
@@ -217,6 +223,35 @@ namespace AgencyCampaign.Api.Controllers
                 {
                     return validationResult;
                 }
+
+                CreatorPayment payment = await portalService.UploadInvoice(ctx.Creator.Id, request, cancellationToken);
+                return Http200(MapPayment(payment), Localizer["record.updated"]);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Http401(Localizer[ex.Message]);
+            }
+        }
+
+        [HttpPost("{token}/invoice/upload")]
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(MaxUploadBytes)]
+        public async Task<IActionResult> UploadInvoiceFile(string token, [FromForm] long creatorPaymentId, [FromForm] string? invoiceNumber, [FromForm] DateTimeOffset? issuedAt, [FromForm] IFormFile file, CancellationToken cancellationToken)
+        {
+            try
+            {
+                CreatorPortalContext ctx = await portalService.ResolveContext(token, cancellationToken);
+
+                await using Stream stream = file.OpenReadStream();
+                ContentFileResult stored = await fileStorage.SaveAsync(creatorPaymentId, stream, file.FileName, file.ContentType, cancellationToken);
+
+                UploadInvoiceRequest request = new()
+                {
+                    CreatorPaymentId = creatorPaymentId,
+                    InvoiceNumber = invoiceNumber,
+                    InvoiceUrl = stored.StorageKey,
+                    IssuedAt = issuedAt,
+                };
 
                 CreatorPayment payment = await portalService.UploadInvoice(ctx.Creator.Id, request, cancellationToken);
                 return Http200(MapPayment(payment), Localizer["record.updated"]);

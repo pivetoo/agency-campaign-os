@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Receipt, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Receipt, Upload, X } from 'lucide-react'
 import { Button, Input, useApi, useI18n } from 'archon-ui'
+import { resolveUploadUrl } from '../../lib/uploadUrl'
 import { creatorPortalService } from '../../services/creatorPortalService'
 import { paymentMethodLabels, paymentStatusLabels, type CreatorPayment, type PaymentStatusValue } from '../../types/creatorPayment'
 import { usePortalContext } from './hooks'
@@ -22,6 +23,7 @@ export default function CreatorPortalPayments() {
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [invoiceUrl, setInvoiceUrl] = useState('')
   const [issuedAt, setIssuedAt] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { execute, loading: saving } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
@@ -59,6 +61,23 @@ export default function CreatorPortalPayments() {
         invoiceUrl: invoiceUrl.trim(),
         issuedAt: issuedAt ? new Date(issuedAt).toISOString() : undefined,
       }),
+    )
+    if (result !== null) {
+      cancelEdit()
+      void load()
+    }
+  }
+
+  const submitFile = async (file: File) => {
+    if (!editingId) return
+    const result = await execute(() =>
+      creatorPortalService.uploadInvoiceFile(
+        token,
+        editingId,
+        file,
+        invoiceNumber.trim() || undefined,
+        issuedAt ? new Date(issuedAt).toISOString() : undefined,
+      ),
     )
     if (result !== null) {
       cancelEdit()
@@ -110,7 +129,7 @@ export default function CreatorPortalPayments() {
                     NF anexada{p.invoiceNumber ? ` #${p.invoiceNumber}` : ''}
                   </span>
                   <a
-                    href={p.invoiceUrl}
+                    href={resolveUploadUrl(p.invoiceUrl)}
                     target="_blank"
                     rel="noreferrer"
                     className="ml-2 text-primary hover:underline"
@@ -124,13 +143,29 @@ export default function CreatorPortalPayments() {
                     <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder={t('creatorPortal.payments.field.nfNumber')} />
                     <Input type="date" value={issuedAt} onChange={(e) => setIssuedAt(e.target.value)} />
                   </div>
-                  <Input data-testid="portal-upload-nf-input" value={invoiceUrl} onChange={(e) => setInvoiceUrl(e.target.value)} placeholder={t('creatorPortal.payments.field.nfUrl')} />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="application/pdf,image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) void submitFile(file)
+                      e.target.value = ''
+                    }}
+                  />
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => void submit()} disabled={saving || !invoiceUrl.trim()}>
-                      {saving ? 'Salvando...' : 'Anexar'}
+                    <Button size="sm" onClick={() => fileInputRef.current?.click()} disabled={saving}>
+                      <Upload size={14} className="mr-1" /> {saving ? 'Enviando...' : 'Enviar arquivo'}
                     </Button>
                     <Button size="sm" variant="outline" onClick={cancelEdit}>
                       <X size={14} />
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input data-testid="portal-upload-nf-input" value={invoiceUrl} onChange={(e) => setInvoiceUrl(e.target.value)} placeholder={t('creatorPortal.payments.field.nfUrl')} />
+                    <Button size="sm" variant="outline" onClick={() => void submit()} disabled={saving || !invoiceUrl.trim()}>
+                      Anexar URL
                     </Button>
                   </div>
                 </div>

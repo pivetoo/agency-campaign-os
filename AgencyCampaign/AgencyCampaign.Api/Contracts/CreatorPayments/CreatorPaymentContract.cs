@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace AgencyCampaign.Api.Contracts.CreatorPayments
 {
-    public sealed class CreatorPaymentContract
+    public sealed record CreatorPaymentContract
     {
         public long Id { get; init; }
         public long CampaignCreatorId { get; init; }
