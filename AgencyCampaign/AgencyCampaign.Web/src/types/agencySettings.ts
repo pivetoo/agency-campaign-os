@@ -11,4 +11,5 @@ export interface AgencySettings {
   defaultEmailConnectorId?: number | null
   proposalHtmlTemplate?: string | null
   emvCpmRate?: number | null
+  creatorPaymentApprovalThreshold?: number | null
 }

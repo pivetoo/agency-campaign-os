@@ -1266,6 +1266,10 @@
   <data name="financial.entries.status.overdue" xml:space="preserve"><value>Vencido</value></data>
   <data name="financial.entries.status.cancelled" xml:space="preserve"><value>Cancelado</value></data>
   <data name="financial.creatorPayments.confirm.cancel" xml:space="preserve"><value>Cancelar o pagamento de "{0}"?</value></data>
+  <data name="financial.creatorPayments.action.approve" xml:space="preserve"><value>Aprovar</value></data>
+  <data name="financial.creatorPayments.confirm.approve" xml:space="preserve"><value>Aprovar o repasse de "{0}"? Você ficará registrado como aprovador e deve ser diferente de quem registrou.</value></data>
+  <data name="financial.creatorPayments.field.approval" xml:space="preserve"><value>Aprovação</value></data>
+  <data name="financial.creatorPayments.badge.approved" xml:space="preserve"><value>Aprovado</value></data>
   <data name="financial.creatorPayments.empty" xml:space="preserve"><value>Nenhum pagamento neste filtro</value></data>
   <data name="financial.creatorPayments.field.netAmount" xml:space="preserve"><value>Líquido</value></data>
   <data name="financial.creatorPayments.field.method" xml:space="preserve"><value>Método</value></data>
@@ -2381,6 +2385,10 @@
   <data name="configuration.agency.reportSection" xml:space="preserve"><value>Relatório de campanha</value></data>
   <data name="configuration.agency.emvRate" xml:space="preserve"><value>Taxa de EMV (R$ por mil impressões)</value></data>
   <data name="configuration.agency.emvRateHint" xml:space="preserve"><value>Usada para calcular o EMV no relatório da campanha. Deixe em branco para não exibir.</value></data>
+  <data name="configuration.agency.paymentSection" xml:space="preserve"><value>Pagamentos a creators</value></data>
+  <data name="configuration.agency.approvalThreshold" xml:space="preserve"><value>Teto de aprovação do repasse (R$)</value></data>
+  <data name="configuration.agency.approvalThresholdPlaceholder" xml:space="preserve"><value>Sem teto</value></data>
+  <data name="configuration.agency.approvalThresholdHint" xml:space="preserve"><value>Repasses com valor líquido acima deste teto exigem aprovação de um segundo usuário antes do agendamento. Deixe em branco para não exigir aprovação.</value></data>
   <data name="campaignCreatorSales.title" xml:space="preserve"><value>Vendas atribuídas</value></data>
   <data name="campaignCreatorSales.open" xml:space="preserve"><value>Vendas atribuídas</value></data>
   <data name="campaignCreatorSales.hint" xml:space="preserve"><value>Cupom/UTM do creator e os números de venda atribuídos (entrada manual).</value></data>

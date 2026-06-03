@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Badge, Button, ConfirmModal, DataTable, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { Ban, Eye, Pencil, Plus, Receipt, Send, Signature } from 'lucide-react'
+import { Ban, Eye, Pencil, Plus, Receipt, Send, ShieldCheck, Signature } from 'lucide-react'
 import { campaignService } from '../../../services/campaignService'
 import { creatorPaymentService } from '../../../services/creatorPaymentService'
 import type { Campaign } from '../../../types/campaign'
@@ -37,10 +37,12 @@ export default function CreatorPaymentsPage() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [detailsPaymentId, setDetailsPaymentId] = useState<number | null>(null)
   const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false)
+  const [isConfirmApproveOpen, setIsConfirmApproveOpen] = useState(false)
 
   const { execute: fetchPayments, loading } = useApi<CreatorPayment[]>({ showErrorMessage: true })
   const { execute: fetchCampaigns } = useApi<Campaign[]>({ showErrorMessage: true })
   const { execute: runCancel, loading: cancelling } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: runApprove, loading: approving } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
     void loadCampaigns()
@@ -76,6 +78,15 @@ export default function CreatorPaymentsPage() {
     const result = await runCancel(() => creatorPaymentService.cancel(selected[0].id))
     if (result !== null) {
       setIsConfirmCancelOpen(false)
+      void loadPayments()
+    }
+  }
+
+  const handleApprove = async () => {
+    if (selected.length !== 1) return
+    const result = await runApprove(() => creatorPaymentService.approve(selected[0].id))
+    if (result !== null) {
+      setIsConfirmApproveOpen(false)
       void loadPayments()
     }
   }
@@ -139,6 +150,19 @@ export default function CreatorPaymentsPage() {
       ),
     },
     {
+      key: 'isApproved',
+      title: t('financial.creatorPayments.field.approval'),
+      dataIndex: 'isApproved',
+      width: 100,
+      hiddenBelow: 'lg',
+      render: (value: boolean) =>
+        value ? (
+          <Badge variant="success">{t('financial.creatorPayments.badge.approved')}</Badge>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        ),
+    },
+    {
       key: 'invoiceNumber',
       title: t('financial.creatorPayments.field.invoiceNumber'),
       dataIndex: 'invoiceNumber',
@@ -188,6 +212,7 @@ export default function CreatorPaymentsPage() {
 
   const selectedPayment = selected.length === 1 ? selected[0] : null
   const canSchedule = selected.length > 0 && selected.every((p) => p.status === PaymentStatus.Pending || p.status === PaymentStatus.Failed)
+  const canApprove = !!selectedPayment && !selectedPayment.isApproved && (selectedPayment.status === PaymentStatus.Pending || selectedPayment.status === PaymentStatus.Failed)
 
   return (
     <>
@@ -233,6 +258,9 @@ export default function CreatorPaymentsPage() {
             </Button>
             <Button size="sm" variant="outline" onClick={() => setIsMarkPaidOpen(true)} disabled={!selectedPayment}>
               <Signature size={14} className="mr-1" /> {t('financial.creatorPayments.action.markPaid')}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setIsConfirmApproveOpen(true)} disabled={!canApprove || approving}>
+              <ShieldCheck size={14} className="mr-1" /> {t('financial.creatorPayments.action.approve')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setIsConfirmCancelOpen(true)} disabled={!selectedPayment || cancelling}>
               <Ban size={14} className="mr-1" /> {t('common.action.cancel')}
@@ -326,6 +354,15 @@ export default function CreatorPaymentsPage() {
         variant="warning"
         onConfirm={() => void handleCancel()}
         loading={cancelling}
+      />
+
+      <ConfirmModal
+        open={isConfirmApproveOpen}
+        onOpenChange={setIsConfirmApproveOpen}
+        description={t('financial.creatorPayments.confirm.approve').replace('{0}', selectedPayment?.creatorName ?? '')}
+        variant="info"
+        onConfirm={() => void handleApprove()}
+        loading={approving}
       />
     </>
   )

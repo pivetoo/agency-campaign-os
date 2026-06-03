@@ -115,6 +115,8 @@ export interface CreatorPayment {
   paidAt?: string
   failedAt?: string
   failureReason?: string
+  isApproved: boolean
+  approvedAt?: string
   createdAt: string
   updatedAt?: string
   events: CreatorPaymentEvent[]

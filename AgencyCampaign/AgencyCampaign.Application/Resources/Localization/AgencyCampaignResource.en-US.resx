@@ -1261,6 +1261,10 @@
   <data name="financial.entries.status.overdue" xml:space="preserve"><value>Overdue</value></data>
   <data name="financial.entries.status.cancelled" xml:space="preserve"><value>Cancelled</value></data>
   <data name="financial.creatorPayments.confirm.cancel" xml:space="preserve"><value>Cancel payment for "{0}"?</value></data>
+  <data name="financial.creatorPayments.action.approve" xml:space="preserve"><value>Approve</value></data>
+  <data name="financial.creatorPayments.confirm.approve" xml:space="preserve"><value>Approve the payout for "{0}"? You will be recorded as the approver and must differ from whoever created it.</value></data>
+  <data name="financial.creatorPayments.field.approval" xml:space="preserve"><value>Approval</value></data>
+  <data name="financial.creatorPayments.badge.approved" xml:space="preserve"><value>Approved</value></data>
   <data name="financial.creatorPayments.empty" xml:space="preserve"><value>No payments for this filter</value></data>
   <data name="financial.creatorPayments.field.netAmount" xml:space="preserve"><value>Net amount</value></data>
   <data name="financial.creatorPayments.field.method" xml:space="preserve"><value>Method</value></data>
@@ -2381,6 +2385,10 @@
   <data name="configuration.agency.reportSection" xml:space="preserve"><value>Campaign report</value></data>
   <data name="configuration.agency.emvRate" xml:space="preserve"><value>EMV rate (per 1,000 impressions)</value></data>
   <data name="configuration.agency.emvRateHint" xml:space="preserve"><value>Used to calculate EMV in the campaign report. Leave blank to hide it.</value></data>
+  <data name="configuration.agency.paymentSection" xml:space="preserve"><value>Creator payments</value></data>
+  <data name="configuration.agency.approvalThreshold" xml:space="preserve"><value>Payout approval threshold (BRL)</value></data>
+  <data name="configuration.agency.approvalThresholdPlaceholder" xml:space="preserve"><value>No threshold</value></data>
+  <data name="configuration.agency.approvalThresholdHint" xml:space="preserve"><value>Payouts with a net amount above this threshold require a second user's approval before scheduling. Leave blank to skip approval.</value></data>
   <data name="campaignCreatorSales.title" xml:space="preserve"><value>Attributed sales</value></data>
   <data name="campaignCreatorSales.open" xml:space="preserve"><value>Attributed sales</value></data>
   <data name="campaignCreatorSales.hint" xml:space="preserve"><value>Creator coupon/UTM and the attributed sales figures (manual entry).</value></data>

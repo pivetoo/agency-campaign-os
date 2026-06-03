@@ -77,6 +77,10 @@ export const creatorPaymentService = {
     return httpClient.post<CreatorPayment>(`${BASE_URL}/${id}/cancel`, {})
   },
 
+  approve(id: number) {
+    return httpClient.post<CreatorPayment>(`${BASE_URL}/${id}/approve`, {})
+  },
+
   scheduleBatch(data: SchedulePaymentBatchRequest) {
     return httpClient.post<CreatorPayment[]>(`${BASE_URL}/ScheduleBatch`, data)
   },

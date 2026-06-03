@@ -33,6 +33,8 @@ namespace AgencyCampaign.Api.Contracts.CreatorPayments
         public DateTimeOffset? PaidAt { get; init; }
         public DateTimeOffset? FailedAt { get; init; }
         public string? FailureReason { get; init; }
+        public bool IsApproved { get; init; }
+        public DateTimeOffset? ApprovedAt { get; init; }
         public DateTimeOffset CreatedAt { get; init; }
         public DateTimeOffset? UpdatedAt { get; init; }
         public IReadOnlyCollection<CreatorPaymentEventContract> Events { get; init; } = [];
@@ -66,6 +68,8 @@ namespace AgencyCampaign.Api.Contracts.CreatorPayments
             PaidAt = item.PaidAt,
             FailedAt = item.FailedAt,
             FailureReason = item.FailureReason,
+            IsApproved = item.IsApproved,
+            ApprovedAt = item.ApprovedAt,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt,
             Events = item.Events.Select(e => new CreatorPaymentEventContract

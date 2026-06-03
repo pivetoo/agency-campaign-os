@@ -17,6 +17,7 @@ export interface UpdateAgencySettingsRequest {
   primaryColor?: string | null
   defaultEmailConnectorId?: number | null
   emvCpmRate?: number | null
+  creatorPaymentApprovalThreshold?: number | null
 }
 
 export const agencySettingsService = {

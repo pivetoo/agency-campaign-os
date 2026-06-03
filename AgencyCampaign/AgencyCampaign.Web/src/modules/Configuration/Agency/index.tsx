@@ -19,6 +19,7 @@ export default function AgencyConfiguration() {
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [emvCpmRate, setEmvCpmRate] = useState('')
+  const [approvalThreshold, setApprovalThreshold] = useState('')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [logoError, setLogoError] = useState<string | null>(null)
@@ -40,6 +41,7 @@ export default function AgencyConfiguration() {
       setPhone(result.phone ?? '')
       setAddress(result.address ?? '')
       setEmvCpmRate(result.emvCpmRate != null ? String(result.emvCpmRate) : '')
+      setApprovalThreshold(result.creatorPaymentApprovalThreshold != null ? String(result.creatorPaymentApprovalThreshold) : '')
     }
   }
 
@@ -97,6 +99,7 @@ export default function AgencyConfiguration() {
         address: address.trim() || null,
         defaultEmailConnectorId: settings?.defaultEmailConnectorId ?? null,
         emvCpmRate: emvCpmRate.trim() === '' ? null : Number(emvCpmRate),
+        creatorPaymentApprovalThreshold: approvalThreshold.trim() === '' ? null : Number(approvalThreshold),
       }),
     )
     if (result !== null) void load()
@@ -211,6 +214,19 @@ export default function AgencyConfiguration() {
                 <label className="text-sm font-medium">{t('configuration.agency.emvRate')}</label>
                 <Input type="number" step="0.01" min={0} value={emvCpmRate} onChange={(e) => setEmvCpmRate(e.target.value)} />
                 <p className="text-xs text-muted-foreground">{t('configuration.agency.emvRateHint')}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-5 pb-5 space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t('configuration.agency.paymentSection')}</h3>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('configuration.agency.approvalThreshold')}</label>
+                <Input type="number" step="0.01" min={0} value={approvalThreshold} onChange={(e) => setApprovalThreshold(e.target.value)} placeholder={t('configuration.agency.approvalThresholdPlaceholder')} />
+                <p className="text-xs text-muted-foreground">{t('configuration.agency.approvalThresholdHint')}</p>
               </div>
             </div>
           </CardContent>
