@@ -19,6 +19,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.Discounts)
                 .HasColumnType("decimal(18,2)");
 
+            builder.Property(entity => entity.TaxWithheld)
+                .HasColumnType("decimal(18,2)");
+
             builder.Property(entity => entity.NetAmount)
                 .HasColumnType("decimal(18,2)");
 

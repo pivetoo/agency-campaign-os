@@ -17,6 +17,22 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void Constructor_should_subtract_tax_withheld_from_net()
+        {
+            CreatorPayment subject = new(1, 2, grossAmount: 1000m, discounts: 100m, method: PaymentMethod.Pix, taxWithheld: 150m);
+
+            subject.TaxWithheld.Should().Be(150m);
+            subject.NetAmount.Should().Be(750m);
+        }
+
+        [Test]
+        public void Constructor_should_reject_discounts_plus_tax_greater_than_gross()
+        {
+            Action act = () => _ = new CreatorPayment(1, 2, grossAmount: 100m, discounts: 60m, method: PaymentMethod.Pix, taxWithheld: 60m);
+            act.Should().Throw<ArgumentException>();
+        }
+
+        [Test]
         public void Constructor_should_reject_discounts_greater_than_gross()
         {
             Action act = () => _ = new CreatorPayment(1, 2, grossAmount: 100m, discounts: 200m, method: PaymentMethod.Pix);

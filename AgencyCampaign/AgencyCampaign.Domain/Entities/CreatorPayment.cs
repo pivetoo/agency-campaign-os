@@ -23,6 +23,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public decimal Discounts { get; private set; }
 
+        // Imposto retido na fonte ao pagar o creator (IRRF/INSS/ISS conforme regime). Por ora informado
+        // pelo operador (calculo automatico = fase 2); entra no liquido e no relatorio de retencoes.
+        public decimal TaxWithheld { get; private set; }
+
         public decimal NetAmount { get; private set; }
 
         public string? Description { get; private set; }
@@ -63,16 +67,17 @@ namespace AgencyCampaign.Domain.Entities
         {
         }
 
-        public CreatorPayment(long campaignCreatorId, long creatorId, decimal grossAmount, decimal discounts, PaymentMethod method, string? description = null, long? campaignDocumentId = null)
+        public CreatorPayment(long campaignCreatorId, long creatorId, decimal grossAmount, decimal discounts, PaymentMethod method, string? description = null, long? campaignDocumentId = null, decimal taxWithheld = 0)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(campaignCreatorId);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(creatorId);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(grossAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(discounts);
+            ArgumentOutOfRangeException.ThrowIfNegative(taxWithheld);
 
-            if (discounts > grossAmount)
+            if (discounts + taxWithheld > grossAmount)
             {
-                throw new ArgumentException("Discounts cannot exceed gross amount.", nameof(discounts));
+                throw new ArgumentException("Discounts and tax withheld cannot exceed gross amount.", nameof(discounts));
             }
 
             CampaignCreatorId = campaignCreatorId;
@@ -80,26 +85,29 @@ namespace AgencyCampaign.Domain.Entities
             CampaignDocumentId = campaignDocumentId;
             GrossAmount = grossAmount;
             Discounts = discounts;
-            NetAmount = grossAmount - discounts;
+            TaxWithheld = taxWithheld;
+            NetAmount = grossAmount - discounts - taxWithheld;
             Method = method;
             Description = Normalize(description);
         }
 
-        public void Update(decimal grossAmount, decimal discounts, PaymentMethod method, string? description)
+        public void Update(decimal grossAmount, decimal discounts, PaymentMethod method, string? description, decimal taxWithheld = 0)
         {
             EnsureMutable();
 
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(grossAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(discounts);
+            ArgumentOutOfRangeException.ThrowIfNegative(taxWithheld);
 
-            if (discounts > grossAmount)
+            if (discounts + taxWithheld > grossAmount)
             {
-                throw new ArgumentException("Discounts cannot exceed gross amount.", nameof(discounts));
+                throw new ArgumentException("Discounts and tax withheld cannot exceed gross amount.", nameof(discounts));
             }
 
             GrossAmount = grossAmount;
             Discounts = discounts;
-            NetAmount = grossAmount - discounts;
+            TaxWithheld = taxWithheld;
+            NetAmount = grossAmount - discounts - taxWithheld;
             Method = method;
             Description = Normalize(description);
         }

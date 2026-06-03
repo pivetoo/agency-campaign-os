@@ -17,6 +17,7 @@ namespace AgencyCampaign.Api.Contracts.CreatorPayments
         public long? CampaignDocumentId { get; init; }
         public decimal GrossAmount { get; init; }
         public decimal Discounts { get; init; }
+        public decimal TaxWithheld { get; init; }
         public decimal NetAmount { get; init; }
         public string? Description { get; init; }
         public PaymentMethod Method { get; init; }
@@ -49,6 +50,7 @@ namespace AgencyCampaign.Api.Contracts.CreatorPayments
             CampaignDocumentId = item.CampaignDocumentId,
             GrossAmount = item.GrossAmount,
             Discounts = item.Discounts,
+            TaxWithheld = item.TaxWithheld,
             NetAmount = item.NetAmount,
             Description = item.Description,
             Method = item.Method,

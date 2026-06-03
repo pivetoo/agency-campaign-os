@@ -71,7 +71,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Discounts,
                 request.Method,
                 request.Description,
-                request.CampaignDocumentId);
+                request.CampaignDocumentId,
+                request.TaxWithheld);
 
             if (!string.IsNullOrWhiteSpace(campaignCreator.Creator.PixKey) && campaignCreator.Creator.PixKeyType.HasValue)
             {
@@ -123,7 +124,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            payment.Update(request.GrossAmount, request.Discounts, request.Method, request.Description);
+            payment.Update(request.GrossAmount, request.Discounts, request.Method, request.Description, request.TaxWithheld);
             payment.RegisterEvent(CreatorPaymentEventType.Updated);
 
             CreatorPayment? result = await Update(payment, cancellationToken);

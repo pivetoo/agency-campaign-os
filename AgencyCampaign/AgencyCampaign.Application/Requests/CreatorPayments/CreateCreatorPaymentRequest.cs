@@ -18,6 +18,9 @@ namespace AgencyCampaign.Application.Requests.CreatorPayments
         [Range(0, double.MaxValue)]
         public decimal Discounts { get; set; }
 
+        [Range(0, double.MaxValue)]
+        public decimal TaxWithheld { get; set; }
+
         [Required]
         public PaymentMethod Method { get; set; } = PaymentMethod.Pix;
 
