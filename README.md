@@ -8,7 +8,7 @@ A plataforma é organizada em três módulos de negócio:
 - **Produção** — execução das campanhas com creators: entregáveis, aprovações de conteúdo e documentos.
 - **Financeiro** — contas, lançamentos, conciliação bancária e pagamentos a creators.
 
-> Documentação por módulo em evolução. Esta versão documenta o **Módulo Comercial** em detalhe; **Produção** e **Financeiro** estão com a estrutura preparada e serão detalhados na sequência.
+> Documentação por módulo em evolução. Esta versão documenta os **Módulos Comercial e de Produção** em detalhe; o **Financeiro** está com a estrutura preparada e será detalhado na sequência.
 
 ## Sumário
 
@@ -28,6 +28,16 @@ A plataforma é organizada em três módulos de negócio:
   - [Telas e rotas](#telas-e-rotas)
   - [Principais endpoints](#principais-endpoints)
 - [Módulo de Produção](#módulo-de-produção)
+  - [Visão geral](#visão-geral-da-produção)
+  - [Campanhas e creators na campanha](#campanhas-e-creators-na-campanha)
+  - [Entregáveis e métricas](#entregáveis-e-métricas)
+  - [Aprovação de entregáveis e revisão de conteúdo](#aprovação-de-entregáveis-e-revisão-de-conteúdo)
+  - [Documentos e assinaturas](#documentos-e-assinaturas)
+  - [Mídia privada](#mídia-privada)
+  - [Portal do creator (acesso por token)](#portal-do-creator-acesso-por-token)
+  - [Rotinas automáticas da produção](#rotinas-automáticas-da-produção)
+  - [Telas e rotas](#telas-e-rotas-1)
+  - [Principais endpoints](#principais-endpoints-1)
 - [Módulo Financeiro](#módulo-financeiro)
 
 ---
@@ -229,18 +239,78 @@ Todos protegidos por `[RequireAccess]`, exceto os públicos de proposta (`[Allow
 
 ## Módulo de Produção
 
-> A documentar. Cobre a execução das campanhas com creators (entregáveis, aprovações de conteúdo, documentos e assinaturas, portal do creator).
+### Visão geral da produção
 
-Estrutura prevista para esta seção:
+O módulo executa a campanha fechada: a partir da proposta convertida (que já semeia os creators), gerencia a alocação e o cachê dos creators, os entregáveis (prazos, métricas, gate de aprovação, máquina de estados), a revisão de conteúdo (rodadas e comentários, agência e marca), os contratos com assinatura digital (provedor via IntegrationPlatform, com lastro próprio de não-adulteração), o portal do creator e o relatório público para a marca. O custo do creator concilia com o módulo Financeiro (repasses por creator).
 
-- Visão geral do módulo
-- Campanhas e creators na campanha
-- Entregáveis e métricas
-- Aprovações de entregáveis e links de compartilhamento
-- Documentos e assinaturas
-- Portal do creator (acesso por token)
-- Telas e rotas
-- Principais endpoints
+Há três superfícies externas, sem login e por token (o token carrega o prefixo do tenant, resolvendo o banco correto em multi-tenant): o **portal do creator** (`/portal/:token`), a **aprovação do entregável pela marca** (`/d/:token`) e o **relatório da campanha para a marca** (`/r/:token`).
+
+### Campanhas e creators na campanha
+
+- **Campanha**: marca, nome, orçamento, período, objetivo, briefing estruturado (`CampaignBriefing` — mensagem-chave, pode/não-pode, hashtags, menções, links de referência; o antigo campo de briefing livre foi deprecado e consolidado no estruturado) e o flag por campanha `RequiresDeliverableApproval` (default ligado) que controla o gate de publicação. Nasce da conversão de uma proposta ganha (que semeia um `CampaignCreator` por creator dos itens) ou de cadastro manual.
+- **Creator na campanha** (`CampaignCreator`): liga creator e campanha com o cachê (`AgreedAmount`), o percentual de fee da agência (corrigível após a criação — recalcula o valor do fee), o status (configurável via `CampaignCreatorStatus`, por flags semânticas — inicial/confirmado/cancelado, não por nome) com histórico, e a atribuição de vendas (cupom, URL de rastreio, pedidos e receita atribuídos). Mudanças para confirmado/cancelado geram notificação.
+
+### Entregáveis e métricas
+
+- **Entregável** (`CampaignDeliverable`): título, tipo (`DeliverableKind`), plataforma, prazo, valores financeiros (bruto/creator/fee, com a soma validada) e status. **Máquina de estados**: os estados ativos (Pendente → Em revisão → Aprovado) transitam livremente entre si e para Publicado (sujeito ao gate de aprovação) ou Cancelado; **Publicado não volta para um estado ativo** (lastro/repasse podem já ter ocorrido) e **Cancelado é terminal**. SLA (atrasado / a vencer) e um job automático de lembrete de prazo.
+- **Métricas**: alcance, impressões, views, curtidas, comentários, compartilhamentos, salvamentos e taxa de engajamento, com a **origem rotulada** (manual vs insights do creator vs nenhuma). A edição faz merge campo a campo (editar uma métrica não zera as demais). Alcance/impressões vêm dos insights do creator (enviados pelo portal); a coleta social centralizada (Apify, bancada pela Mainstay) é planejada e não passa pelo IntegrationPlatform.
+
+### Aprovação de entregáveis e revisão de conteúdo
+
+- **Aprovação da marca**: o link de compartilhamento do entregável (`/d/:token`) permite à marca aprovar, reprovar, pedir alterações e comentar sem login; a autoria vem do próprio link (anti-forja). O **gate de publicação** (configurável por campanha) exige uma aprovação da marca antes de publicar/pagar.
+- **Revisão de conteúdo**: rodadas versionadas (`DeliverableContentVersion`) com comentários internos/compartilhados; a agência pode **aprovar internamente** (sem enviar para a marca) para satisfazer o gate em conteúdo simples. Os assets (imagem, PDF, vídeo) são privados e servidos por URL assinada. A caixa de aprovações pendentes (`/operacao/aprovacoes`) lista o que aguarda decisão.
+- **Licença de conteúdo** (`ContentLicense`): direitos/prazo de uso por entregável, com job de expiração.
+
+### Documentos e assinaturas
+
+- **Documento** (`CampaignDocument`): gerado a partir de templates (substituição de variáveis validada — placeholders desconhecidos são rejeitados, sem campos em branco silenciosos) ou anexado. Enviado para assinatura pelo conector configurado no IntegrationPlatform (categoria de assinatura digital). Ciclo: Rascunho → Pronto para envio → Enviado → Visualizado → Assinado (ou Rejeitado/Cancelado), guiado pelo callback do provedor (eventos created/sent/viewed/signer.signed/completed/cancelled).
+- **Lastro próprio de não-adulteração**: no envio, o corpo é selado com um hash SHA-256 imutável (registrado num evento append-only `ContentSealed` com timestamp do servidor); `VerifyContentIntegrity` detecta adulteração posterior (NotSealed/Intact/Tampered). A URL de assinatura por signatário (quando o provedor a devolve) é capturada para o creator assinar pelo portal; o IP do signatário é guardado como evidência.
+
+### Mídia privada
+
+Mídia sensível (NF, peças de revisão, vídeo) **não** é servida como arquivo estático público. É gravada num diretório privado (fora do `wwwroot`) e servida apenas por um endpoint autorizado (`/api/media`) através de **URLs assinadas (HMAC) de curta duração** com o token na query — exibe em `<img>`/vídeo/PDF sem header de autenticação. A chave de armazenamento embute o tenant e o backend só assina chaves que o solicitante tem direito de ver. Logos/avatares públicos continuam no armazenamento de imagem separado.
+
+### Portal do creator (acesso por token)
+
+- **Acesso**: token por creator (CSPRNG, com prefixo de tenant, expiração obrigatória — default 30 dias, teto 90 — revogável e à prova de IDOR). As páginas públicas usam um cliente HTTP dedicado que **não** redireciona para o login da agência no 401; um link expirado/inválido mostra a tela própria de "link inválido".
+- **Superfícies**: o creator vê suas campanhas (o fee da agência fica oculto — só o cachê), o briefing estruturado, contratos (com botão "Assinar" quando há URL de assinatura do provedor), entregáveis (enviar insights/métricas, versões de conteúdo, upload de mídia incl. vídeo), pagamentos (upload do arquivo da NF) e dados bancários (Pix). Uma faixa avisa quando o link de acesso está perto de expirar. Layout responsivo (o público é majoritariamente mobile).
+
+### Rotinas automáticas da produção
+
+- Lembrete de prazo de entregável (por tenant, deduplicado, reposto quando o prazo é remarcado), expiração de licença de conteúdo e sync social (quando configurado). Notificações best-effort usam log estruturado (sem engolir falha em silêncio). O conceito de **Automações** (gatilhos → pipelines do IntegrationPlatform) liga eventos de negócio às integrações.
+
+### Telas e rotas
+
+A UI rotula este módulo como **Produção**; parte das rotas mantém, no código, o prefixo legado `operacao/`.
+
+| Rota | Tela | Função |
+|------|------|--------|
+| `/campanhas` | `Campaigns.tsx` | Lista de campanhas |
+| `/campanhas/:id` | `CampaignDetail.tsx` | Detalhe com abas (creators, entregáveis, documentos, briefing, conteúdo, relatório) |
+| `/operacao/aprovacoes` | `Approvals.tsx` | Caixa de aprovações de entregáveis pendentes |
+| `/operacao/calendario` | `Calendar.tsx` | Calendário de entregas |
+| `/creators`, `/creators/:id` | `Creators.tsx` / `CreatorDetail.tsx` | Creators (rate card, redes sociais, audiência) |
+| `/marcas` | `Brands.tsx` | Marcas e contatos |
+| `/portal/:token` | `CreatorPortal/Layout.tsx` | Portal público do creator (abas: início, campanhas, resultados, contratos, pagamentos, conteúdo, perfil) |
+| `/d/:token` | `Public/Deliverable.tsx` | Aprovação pública do entregável pela marca (sem login) |
+| `/r/:token` | `Public/CampaignReport.tsx` | Relatório público da campanha para a marca (sem login) |
+
+Configuração relacionada: `/configuracao/status-creators`, `/configuracao/tipos-entrega`, `/configuracao/plataformas` (redes sociais) e `/configuracao/modelos-contrato`.
+
+### Principais endpoints
+
+Todos protegidos por `[RequireAccess]`, exceto os públicos por token (`[AllowAnonymous]`, com o tenant resolvido pelo prefixo do token). Rotas relativas à API do AgencyCampaign.
+
+- **Campanhas** (`/campaigns`): listar, detalhe, criar/atualizar/excluir; `/campaignBriefing` para o briefing estruturado.
+- **Creators na campanha** (`/campaignCreators`): listar por campanha, detalhe, criar/atualizar (cachê e fee), `SetSalesAttribution`, histórico de status; `/campaignCreatorStatuses` para o catálogo de status.
+- **Entregáveis** (`/campaignDeliverables`): listar por campanha, criar/atualizar, mudar status/publicar (com o gate), registrar métricas; `/deliverableMetrics` e `/deliverableKinds` (tipos).
+- **Aprovação da marca** (`/deliverableShareLinks`): criar/listar/revogar link; `/deliverablePendingApprovals/pending`; público em `/deliverable-public/{token}` (consultar, `approve`, `reject`, `request-changes`, `comment`).
+- **Revisão de conteúdo** (`/contentReview`): obter por entregável, `upload` de asset, adicionar versão, `request-changes`, `send-to-brand`, `agency-approve`, comentar; `/contentLicense` para licenças.
+- **Documentos** (`/campaignDocuments`): listar por campanha, detalhe, criar, `GenerateFromTemplate`, `SendForSignature`, `SendEmail`, `SendWhatsapp`, `MarkSigned`, `verify-integrity/{id}`, `ProviderCallback` (anônimo); `/campaignDocumentTemplates` para os modelos.
+- **Relatório** (`/campaignReports/campaign/{id}`): criar/obter link e `revoke`; público em `/campaign-report-public/{token}` (oculta custo/margem, mostra performance/EMV/ROI).
+- **Portal do creator** (`/creatorPortal/{token}/...`, anônimo): `me`, `campaigns`, `documents`, `deliverables`, `payments`, `bank-info`, `invoice` e `invoice/upload`, `deliverables/{id}/review|version|comment|upload|insights`; `/creatorAccessTokens` (agência) emite e revoga tokens (`creator/{creatorId}/{id}/revoke`).
+- **Mídia privada** (`/api/media?t=`, anônimo por assinatura): serve o arquivo privado validando o token HMAC e a expiração.
+- **Creators e marcas** (`/creators`, `/creatorAudience`, `/creatorSocialHandles`, `/rateCardItems`, `/brands`, `/brandContact`): cadastro e dados de apoio.
 
 ---
 
