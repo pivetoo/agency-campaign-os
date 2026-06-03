@@ -11,5 +11,7 @@ namespace AgencyCampaign.Application.Services
         Task<TaxWithholdingReportModel> GetTaxWithholdingReport(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
 
         Task<CampaignProfitabilityReportModel> GetCampaignProfitability(CancellationToken cancellationToken = default);
+
+        Task<AccrualResultModel> GetAccrualResult(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
     }
 }

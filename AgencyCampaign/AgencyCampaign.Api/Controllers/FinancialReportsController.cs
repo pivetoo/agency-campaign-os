@@ -48,5 +48,13 @@ namespace AgencyCampaign.Api.Controllers
             var result = await service.GetCampaignProfitability(cancellationToken);
             return Http200(result);
         }
+
+        [RequireAccess("financialReports.getAccrualResult.description")]
+        [GetEndpoint("accrual-result")]
+        public async Task<IActionResult> GetAccrualResult([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            var result = await service.GetAccrualResult(from, to, cancellationToken);
+            return Http200(result);
+        }
     }
 }

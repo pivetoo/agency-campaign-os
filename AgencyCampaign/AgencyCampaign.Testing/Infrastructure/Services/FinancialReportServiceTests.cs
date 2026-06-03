@@ -150,5 +150,21 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             line.Margin.Should().Be(700m);
             line.MarginPercent.Should().Be(70m);
         }
+
+        [Test]
+        public async Task GetAccrualResult_should_recognize_by_occurred_date()
+        {
+            DateTimeOffset baseDate = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero);
+            db.Add(new FinancialEntry(1, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "receita", 1000m, baseDate.AddDays(60), baseDate));
+            db.Add(new FinancialEntry(1, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout, "despesa", 400m, baseDate.AddDays(60), baseDate));
+            db.Add(new FinancialEntry(1, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "fora do periodo", 999m, baseDate, baseDate.AddMonths(2)));
+            await db.SaveChangesAsync();
+
+            AccrualResultModel result = await service.GetAccrualResult(baseDate.AddDays(-1), baseDate.AddDays(1));
+
+            result.Revenue.Should().Be(1000m);
+            result.Expense.Should().Be(400m);
+            result.Result.Should().Be(600m);
+        }
     }
 }

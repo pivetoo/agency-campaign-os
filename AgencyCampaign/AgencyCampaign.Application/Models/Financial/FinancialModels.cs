@@ -155,4 +155,15 @@ namespace AgencyCampaign.Application.Models.Financial
         public decimal TotalOtherCost { get; set; }
         public decimal TotalMargin { get; set; }
     }
+
+    // Resultado por COMPETENCIA: reconhece receita/despesa pela data do fato (OccurredAt), independente
+    // do pagamento - separado do fluxo de caixa (regime de caixa), por DP5.
+    public sealed class AccrualResultModel
+    {
+        public DateTimeOffset From { get; set; }
+        public DateTimeOffset To { get; set; }
+        public decimal Revenue { get; set; }
+        public decimal Expense { get; set; }
+        public decimal Result { get; set; }
+    }
 }

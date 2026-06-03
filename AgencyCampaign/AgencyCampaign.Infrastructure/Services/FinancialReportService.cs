@@ -199,6 +199,33 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
+        // Resultado por competencia: receita/despesa reconhecidas pela data do fato (OccurredAt) no periodo,
+        // independente do status de pagamento - a visao de competencia separada do fluxo de caixa (DP5).
+        public async Task<AccrualResultModel> GetAccrualResult(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset normalizedFrom = from.ToUniversalTime();
+            DateTimeOffset normalizedTo = to.ToUniversalTime();
+
+            List<FinancialEntry> entries = await dbContext.Set<FinancialEntry>()
+                .AsNoTracking()
+                .Where(item => item.Status != FinancialEntryStatus.Cancelled
+                    && item.OccurredAt >= normalizedFrom
+                    && item.OccurredAt <= normalizedTo)
+                .ToListAsync(cancellationToken);
+
+            decimal revenue = entries.Where(item => item.Type == FinancialEntryType.Receivable).Sum(item => item.Amount);
+            decimal expense = entries.Where(item => item.Type == FinancialEntryType.Payable).Sum(item => item.Amount);
+
+            return new AccrualResultModel
+            {
+                From = normalizedFrom,
+                To = normalizedTo,
+                Revenue = revenue,
+                Expense = expense,
+                Result = revenue - expense
+            };
+        }
+
         private static DateTimeOffset BucketDate(DateTimeOffset value, CashFlowGranularity granularity)
         {
             DateTimeOffset utc = value.ToUniversalTime();
