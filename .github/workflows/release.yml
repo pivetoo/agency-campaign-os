@@ -1,0 +1,106 @@
+name: Release Kanvas
+
+# Release deliberado (nao automatico). Voce dispara em Actions > Release > Run workflow
+# e escolhe o tipo de incremento. O workflow:
+#  1. calcula a proxima versao a partir da ultima tag vX.Y.Z;
+#  2. re-taga as imagens JA buildadas desse commit (:<sha>) como :vX.Y.Z, sem rebuild
+#     (o artefato do release e byte-identico ao que esta em producao);
+#  3. cria a tag + GitHub Release com notas automaticas (changelog desde a tag anterior).
+# Nao dispara deploy (o deploy roda em push na branch main; tag nao e branch).
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Tipo de incremento (semver)"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: minor
+
+concurrency:
+  group: agency-campaign-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_OWNER: pivetoo
+  API_IMAGE: agency-campaign-api
+  WEB_IMAGE: agency-campaign-web
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (historico completo + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calcular proxima versao
+        id: ver
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          set -euo pipefail
+          latest="$(git tag -l 'v*' --sort=-v:refname | head -n1)"
+          if [ -z "$latest" ]; then base="0.0.0"; else base="${latest#v}"; fi
+          IFS=. read -r MA MI PA <<< "$base"
+          case "$BUMP" in
+            major) MA=$((MA + 1)); MI=0; PA=0 ;;
+            minor) MI=$((MI + 1)); PA=0 ;;
+            patch) PA=$((PA + 1)) ;;
+          esac
+          VERSION="${MA}.${MI}.${PA}"
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Release v${VERSION}"
+            echo "- commit: \`${GITHUB_SHA}\`"
+            echo "- versao anterior: ${latest:-nenhuma}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Conferir que as imagens deste commit existem
+        run: |
+          set -euo pipefail
+          for img in "${{ env.API_IMAGE }}" "${{ env.WEB_IMAGE }}"; do
+            ref="${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${img}:${GITHUB_SHA}"
+            if ! docker buildx imagetools inspect "$ref" >/dev/null 2>&1; then
+              echo "::error::Imagem ${ref} nao existe. Espere o deploy (build) desse commit terminar antes de criar o release."
+              exit 1
+            fi
+          done
+
+      - name: Taguear as imagens com a versao
+        run: |
+          set -euo pipefail
+          for img in "${{ env.API_IMAGE }}" "${{ env.WEB_IMAGE }}"; do
+            base="${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${img}"
+            docker buildx imagetools create -t "${base}:${{ steps.ver.outputs.tag }}" "${base}:${GITHUB_SHA}"
+          done
+
+      - name: Criar tag + GitHub Release (notas automaticas)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create "${{ steps.ver.outputs.tag }}" \
+            --target "${GITHUB_SHA}" \
+            --title "${{ steps.ver.outputs.tag }}" \
+            --generate-notes
