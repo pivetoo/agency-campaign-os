@@ -326,6 +326,30 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetSummary_should_compute_overdue_by_due_date_without_writing()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry overdue = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "vencido", 100m, DateTimeOffset.UtcNow.AddDays(-5), DateTimeOffset.UtcNow);
+            FinancialEntry upcoming = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "a vencer", 50m, DateTimeOffset.UtcNow.AddDays(5), DateTimeOffset.UtcNow);
+            FinancialEntry paid = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "pago", 200m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            paid.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+            db.AddRange(overdue, upcoming, paid);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            FinancialSummaryModel summary = await service.GetSummary(FinancialEntryType.Receivable);
+
+            summary.TotalOverdue.Should().Be(100m);
+            summary.OverdueCount.Should().Be(1);
+            summary.TotalPending.Should().Be(50m);
+            summary.PendingCount.Should().Be(1);
+            summary.TotalSettledThisMonth.Should().Be(200m);
+
+            FinancialEntry reloaded = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == overdue.Id);
+            reloaded.Status.Should().Be(FinancialEntryStatus.Pending);
+        }
+
+        [Test]
         public async Task ReverseEntry_should_create_contra_entry_and_mark_original_reversed()
         {
             FinancialAccount account = await SeedAccountAsync();

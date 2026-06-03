@@ -354,8 +354,6 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<FinancialSummaryModel> GetSummary(FinancialEntryType type, CancellationToken cancellationToken = default)
         {
-            await RecalculateOverdueAsync(cancellationToken);
-
             DateTimeOffset now = DateTimeOffset.UtcNow;
             DateTimeOffset firstDayOfMonth = new(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
             DateTimeOffset next7Days = now.AddDays(7);
@@ -365,15 +363,23 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Where(item => item.Type == type)
                 .ToListAsync(cancellationToken);
 
+            // Vencido calculado por data (DueAt < now) sobre os lancamentos ABERTOS (Pendente|Vencido), sem
+            // depender do status persistido e sem ESCREVER durante o GET (D6): o resumo fica exato mesmo que o
+            // recalculo de vencidos ainda nao tenha rodado. A lista (GetEntries) segue mantendo o status
+            // persistido para os filtros e automacoes que leem o status.
+            List<FinancialEntry> open = entries
+                .Where(item => item.Status == FinancialEntryStatus.Pending || item.Status == FinancialEntryStatus.Overdue)
+                .ToList();
+
             return new FinancialSummaryModel
             {
                 Type = type,
-                TotalPending = entries.Where(item => item.Status == FinancialEntryStatus.Pending).Sum(item => item.Amount),
+                TotalPending = open.Where(item => item.DueAt >= now).Sum(item => item.Amount),
                 TotalSettledThisMonth = entries.Where(item => item.Status == FinancialEntryStatus.Paid && item.PaidAt.HasValue && item.PaidAt.Value >= firstDayOfMonth).Sum(item => item.Amount),
-                TotalOverdue = entries.Where(item => item.Status == FinancialEntryStatus.Overdue).Sum(item => item.Amount),
-                TotalDueNext7Days = entries.Where(item => item.Status == FinancialEntryStatus.Pending && item.DueAt >= now && item.DueAt <= next7Days).Sum(item => item.Amount),
-                PendingCount = entries.Count(item => item.Status == FinancialEntryStatus.Pending),
-                OverdueCount = entries.Count(item => item.Status == FinancialEntryStatus.Overdue)
+                TotalOverdue = open.Where(item => item.DueAt < now).Sum(item => item.Amount),
+                TotalDueNext7Days = open.Where(item => item.DueAt >= now && item.DueAt <= next7Days).Sum(item => item.Amount),
+                PendingCount = open.Count(item => item.DueAt >= now),
+                OverdueCount = open.Count(item => item.DueAt < now)
             };
         }
 
