@@ -45,16 +45,37 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
-        public void ChangeStatus_should_set_paid_at_only_when_status_is_paid()
+        public void ChangeStatus_should_set_paid_at_when_status_is_paid()
         {
             FinancialEntry subject = BuildDefault();
             DateTimeOffset paidAt = DateTimeOffset.UtcNow.AddDays(-1);
 
             subject.ChangeStatus(FinancialEntryStatus.Paid, paidAt);
-            subject.PaidAt.Should().Be(paidAt);
 
-            subject.ChangeStatus(FinancialEntryStatus.Pending, DateTimeOffset.UtcNow);
-            subject.PaidAt.Should().BeNull();
+            subject.PaidAt.Should().Be(paidAt);
+        }
+
+        [Test]
+        public void ChangeStatus_should_throw_when_reverting_a_paid_entry()
+        {
+            FinancialEntry subject = BuildDefault();
+            subject.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow.AddDays(-1));
+
+            Action act = () => subject.ChangeStatus(FinancialEntryStatus.Pending, DateTimeOffset.UtcNow);
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void Update_should_throw_when_entry_is_paid()
+        {
+            FinancialEntry subject = BuildDefault();
+            subject.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow.AddDays(-1));
+
+            Action act = () => subject.Update(1, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable,
+                "alterado", 999m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null, null, null, null, null, null);
+
+            act.Should().Throw<InvalidOperationException>();
         }
 
         [Test]

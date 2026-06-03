@@ -82,6 +82,28 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void MarkPaid_should_throw_when_payment_is_cancelled()
+        {
+            CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);
+            subject.Cancel();
+
+            Action act = () => subject.MarkPaid(DateTimeOffset.UtcNow);
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void MarkFailed_should_throw_when_payment_is_paid()
+        {
+            CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);
+            subject.MarkPaid(DateTimeOffset.UtcNow);
+
+            Action act = () => subject.MarkFailed("late failure");
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
         public void Cancel_should_set_status_and_reason()
         {
             CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);

@@ -94,6 +94,11 @@ namespace AgencyCampaign.Domain.Entities
 
         public void Update(long accountId, FinancialEntryType type, FinancialEntryCategory category, string description, decimal amount, DateTimeOffset dueAt, DateTimeOffset occurredAt, string? paymentMethod, string? referenceCode, string? counterpartyName, string? notes, long? campaignId, long? campaignDeliverableId)
         {
+            if (Status == FinancialEntryStatus.Paid)
+            {
+                throw new InvalidOperationException("financialEntry.alreadyPaid");
+            }
+
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(accountId);
             ArgumentException.ThrowIfNullOrWhiteSpace(description);
             ArgumentOutOfRangeException.ThrowIfNegative(amount);
@@ -115,6 +120,11 @@ namespace AgencyCampaign.Domain.Entities
 
         public void ChangeStatus(FinancialEntryStatus status, DateTimeOffset? paidAt = null)
         {
+            if (Status == FinancialEntryStatus.Paid && status != FinancialEntryStatus.Paid)
+            {
+                throw new InvalidOperationException("financialEntry.alreadyPaid");
+            }
+
             Status = status;
             PaidAt = status == FinancialEntryStatus.Paid ? paidAt?.ToUniversalTime() : null;
         }

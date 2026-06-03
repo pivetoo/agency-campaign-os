@@ -190,6 +190,9 @@
   <data name="campaignDeliverable.amountsExceedGross" xml:space="preserve"><value>El monto del creator más la comisión de la agencia no puede superar el monto bruto de la entrega.</value></data>
   <data name="creatorPayment.alreadyFinalized" xml:space="preserve"><value>El pago ya fue finalizado y no puede modificarse.</value></data>
   <data name="creatorPayment.cannotCancelPaid" xml:space="preserve"><value>No es posible cancelar un pago ya marcado como Pagado.</value></data>
+  <data name="creatorPayment.cannotPayCancelled" xml:space="preserve"><value>No es posible marcar como pagado un pago cancelado.</value></data>
+  <data name="creatorPayment.cannotFailFinalized" xml:space="preserve"><value>No es posible marcar como fallido un pago ya finalizado.</value></data>
+  <data name="financialEntry.alreadyPaid" xml:space="preserve"><value>El registro financiero ya fue pagado y no puede modificarse.</value></data>
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>La propuesta debe estar Enviada para ser marcada como Vista.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>La propuesta debe estar Enviada o Vista para ser Aprobada.</value></data>
   <data name="proposal.send.approvalRequired" xml:space="preserve"><value>Esta propuesta excede la política comercial y requiere aprobación interna antes de poder enviarse o aprobarse. Use "Solicitar aprobación".</value></data>

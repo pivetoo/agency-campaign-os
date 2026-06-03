@@ -133,6 +133,11 @@ namespace AgencyCampaign.Domain.Entities
 
         public void MarkPaid(DateTimeOffset paidAt)
         {
+            if (Status == PaymentStatus.Cancelled)
+            {
+                throw new InvalidOperationException("creatorPayment.cannotPayCancelled");
+            }
+
             PaidAt = paidAt.ToUniversalTime();
             Status = PaymentStatus.Paid;
             FailureReason = null;
@@ -141,6 +146,11 @@ namespace AgencyCampaign.Domain.Entities
 
         public void MarkFailed(string? reason, DateTimeOffset? failedAt = null)
         {
+            if (Status == PaymentStatus.Paid || Status == PaymentStatus.Cancelled)
+            {
+                throw new InvalidOperationException("creatorPayment.cannotFailFinalized");
+            }
+
             FailureReason = Normalize(reason);
             FailedAt = (failedAt ?? DateTimeOffset.UtcNow).ToUniversalTime();
             Status = PaymentStatus.Failed;

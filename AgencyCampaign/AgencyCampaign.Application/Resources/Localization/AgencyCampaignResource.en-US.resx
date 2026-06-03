@@ -190,6 +190,9 @@
   <data name="campaignDeliverable.amountsExceedGross" xml:space="preserve"><value>Creator amount plus agency fee cannot exceed the deliverable gross amount.</value></data>
   <data name="creatorPayment.alreadyFinalized" xml:space="preserve"><value>The payment is already finalized and cannot be modified.</value></data>
   <data name="creatorPayment.cannotCancelPaid" xml:space="preserve"><value>Cannot cancel a payment already marked as Paid.</value></data>
+  <data name="creatorPayment.cannotPayCancelled" xml:space="preserve"><value>A cancelled payment cannot be marked as paid.</value></data>
+  <data name="creatorPayment.cannotFailFinalized" xml:space="preserve"><value>A finalized payment cannot be marked as failed.</value></data>
+  <data name="financialEntry.alreadyPaid" xml:space="preserve"><value>The financial entry has already been paid and cannot be changed.</value></data>
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>The proposal must be Sent to be marked as Viewed.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>The proposal must be Sent or Viewed to be Approved.</value></data>
   <data name="proposal.send.approvalRequired" xml:space="preserve"><value>This proposal exceeds the commercial policy and requires internal approval before it can be sent or approved. Use "Request approval".</value></data>
