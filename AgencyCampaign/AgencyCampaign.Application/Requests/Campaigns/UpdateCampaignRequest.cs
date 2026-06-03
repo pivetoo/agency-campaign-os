@@ -44,5 +44,7 @@ namespace AgencyCampaign.Application.Requests.Campaigns
         public bool IsActive { get; set; } = true;
 
         public bool RequiresDeliverableApproval { get; set; } = true;
+
+        public bool PayoutRequiresContentApproval { get; set; }
     }
 }

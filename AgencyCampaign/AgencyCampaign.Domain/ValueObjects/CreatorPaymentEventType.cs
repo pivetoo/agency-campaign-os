@@ -14,6 +14,7 @@ namespace AgencyCampaign.Domain.ValueObjects
         PlannedPayoutSettled = 10,
         InvoiceMissing = 11,
         Approved = 12,
-        ApprovalRequired = 13
+        ApprovalRequired = 13,
+        ContentApprovalRequired = 14
     }
 }

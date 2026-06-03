@@ -34,6 +34,8 @@ namespace AgencyCampaign.Api.Contracts.Campaigns
 
         public bool RequiresDeliverableApproval { get; init; }
 
+        public bool PayoutRequiresContentApproval { get; init; }
+
         public BrandReferenceContract? Brand { get; init; }
 
         public DateTimeOffset CreatedAt { get; init; }
@@ -56,6 +58,7 @@ namespace AgencyCampaign.Api.Contracts.Campaigns
             Notes = item.Notes,
             IsActive = item.IsActive,
             RequiresDeliverableApproval = item.RequiresDeliverableApproval,
+            PayoutRequiresContentApproval = item.PayoutRequiresContentApproval,
             Brand = item.Brand == null
                 ? null
                 : new BrandReferenceContract

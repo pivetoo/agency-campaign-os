@@ -2489,5 +2489,6 @@
   <data name="public.proposal.estimate" xml:space="preserve"><value>estimativa</value></data>
   <data name="modal.deliverable.amountsExceedGross" xml:space="preserve"><value>Repasse + fee nao pode exceder o valor bruto</value></data>
   <data name="modal.campaign.field.requiresDeliverableApproval" xml:space="preserve"><value>Exigir aprovacao da marca para publicar entregaveis</value></data>
+  <data name="modal.campaign.field.payoutRequiresContentApproval" xml:space="preserve"><value>Só liberar o repasse ao creator apos o conteudo aprovado (pay-when-paid)</value></data>
   <data name="contentReview.action.agencyApprove" xml:space="preserve"><value>Aprovar internamente</value></data>
 </root>

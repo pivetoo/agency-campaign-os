@@ -803,6 +803,85 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Scheduled);
         }
 
+        private async Task<DomainEntities.CampaignCreator> SeedGatedCampaignCreatorAsync(bool withDeliverable, bool deliverableApproved)
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            Creator creator = new("Foo", pixKey: "foo@x", pixKeyType: PixKeyType.Email);
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            Campaign campaign = new(brand.Id, "C", 0m, DateTimeOffset.UtcNow);
+            campaign.SetPayoutRequiresContentApproval(true);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+
+            DomainEntities.CampaignCreator cc = new(campaign.Id, creator.Id, 1, 100m, 10m);
+            db.Add(cc);
+            await db.SaveChangesAsync();
+
+            if (withDeliverable)
+            {
+                CampaignDeliverable deliverable = new(campaign.Id, cc.Id, "Post", 1, 1, DateTimeOffset.UtcNow, 100m, 80m, 20m);
+                db.Add(deliverable);
+                await db.SaveChangesAsync();
+
+                if (deliverableApproved)
+                {
+                    DeliverableApproval approval = new(deliverable.Id, DeliverableApprovalType.Brand, "Reviewer");
+                    approval.Approve();
+                    db.Add(approval);
+                    await db.SaveChangesAsync();
+                }
+            }
+
+            db.ChangeTracker.Clear();
+            return cc;
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_block_when_content_not_approved()
+        {
+            DomainEntities.CampaignCreator cc = await SeedGatedCampaignCreatorAsync(withDeliverable: true, deliverableApproved: false);
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            SchedulePaymentBatchRequest request = new() { CreatorPaymentIds = new List<long> { payment.Id }, ScheduledFor = DateTimeOffset.UtcNow, ConnectorId = 1, PipelineId = 99 };
+            List<CreatorPayment> result = await service.SchedulePaymentBatch(request);
+
+            result.Should().BeEmpty();
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
+            refreshed.Status.Should().Be(PaymentStatus.Pending);
+            refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.ContentApprovalRequired);
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_not_block_when_content_approved()
+        {
+            DomainEntities.CampaignCreator cc = await SeedGatedCampaignCreatorAsync(withDeliverable: true, deliverableApproved: true);
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            SchedulePaymentBatchRequest request = new() { CreatorPaymentIds = new List<long> { payment.Id }, ScheduledFor = DateTimeOffset.UtcNow, ConnectorId = 1, PipelineId = 99 };
+            await service.SchedulePaymentBatch(request);
+
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
+            refreshed.Events.Should().NotContain(item => item.EventType == CreatorPaymentEventType.ContentApprovalRequired);
+            refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Scheduled);
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_not_block_when_gate_on_but_no_deliverables()
+        {
+            DomainEntities.CampaignCreator cc = await SeedGatedCampaignCreatorAsync(withDeliverable: false, deliverableApproved: false);
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            SchedulePaymentBatchRequest request = new() { CreatorPaymentIds = new List<long> { payment.Id }, ScheduledFor = DateTimeOffset.UtcNow, ConnectorId = 1, PipelineId = 99 };
+            await service.SchedulePaymentBatch(request);
+
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
+            refreshed.Events.Should().NotContain(item => item.EventType == CreatorPaymentEventType.ContentApprovalRequired);
+            refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Scheduled);
+        }
+
         [Test]
         public async Task SchedulePaymentBatch_should_warn_when_pj_creator_has_no_invoice()
         {

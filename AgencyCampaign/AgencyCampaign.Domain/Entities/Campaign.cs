@@ -38,6 +38,11 @@ namespace AgencyCampaign.Domain.Entities
         // pode desligar o gate por campanha (ex.: conteudo simples que nao precisa de aprovacao).
         public bool RequiresDeliverableApproval { get; private set; } = true;
 
+        // Pay-when-paid (E2/DP7): gate OPT-IN (default false) que so libera o repasse ao creator apos TODOS
+        // os entregaveis daquele creator na campanha estarem aprovados. Sem entregaveis = libera. Independente
+        // do RequiresDeliverableApproval (que controla a PUBLICACAO).
+        public bool PayoutRequiresContentApproval { get; private set; }
+
         public long? OpportunityId { get; private set; }
 
         public long? SourceProposalId { get; private set; }
@@ -91,6 +96,11 @@ namespace AgencyCampaign.Domain.Entities
         public void SetRequiresDeliverableApproval(bool value)
         {
             RequiresDeliverableApproval = value;
+        }
+
+        public void SetPayoutRequiresContentApproval(bool value)
+        {
+            PayoutRequiresContentApproval = value;
         }
 
         public void ChangeStatus(CampaignStatus status)

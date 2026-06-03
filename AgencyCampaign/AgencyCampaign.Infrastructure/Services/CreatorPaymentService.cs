@@ -277,6 +277,33 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Select(item => item.CreatorPaymentApprovalThreshold)
                 .FirstOrDefaultAsync(cancellationToken);
 
+            // Pay-when-paid (E2): para campanhas com o gate ligado, so agenda quando TODOS os entregaveis do
+            // creator naquela campanha estiverem aprovados. Sem entregaveis = libera. Pre-carregado (evita N+1).
+            List<long> campaignCreatorIds = payments.Select(item => item.CampaignCreatorId).Distinct().ToList();
+
+            Dictionary<long, long> campaignByCampaignCreator = await DbContext.Set<CampaignCreator>()
+                .AsNoTracking()
+                .Where(item => campaignCreatorIds.Contains(item.Id))
+                .ToDictionaryAsync(item => item.Id, item => item.CampaignId, cancellationToken);
+
+            HashSet<long> gatedCampaigns = (await DbContext.Set<Campaign>()
+                .AsNoTracking()
+                .Where(item => item.PayoutRequiresContentApproval)
+                .Select(item => item.Id)
+                .ToListAsync(cancellationToken)).ToHashSet();
+
+            var deliverableApprovals = await DbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .Where(item => campaignCreatorIds.Contains(item.CampaignCreatorId))
+                .Select(item => new
+                {
+                    item.CampaignCreatorId,
+                    Approved = item.Approvals.Any(approval => (approval.ApprovalType == DeliverableApprovalType.Brand || approval.ApprovalType == DeliverableApprovalType.Internal) && approval.Status == DeliverableApprovalStatus.Approved)
+                })
+                .ToListAsync(cancellationToken);
+
+            ILookup<long, bool> approvalsByCampaignCreator = deliverableApprovals.ToLookup(item => item.CampaignCreatorId, item => item.Approved);
+
             List<CreatorPayment> processed = [];
 
             foreach (CreatorPayment payment in payments)
@@ -284,6 +311,17 @@ namespace AgencyCampaign.Infrastructure.Services
                 if (payment.Status != PaymentStatus.Pending && payment.Status != PaymentStatus.Failed)
                 {
                     continue;
+                }
+
+                if (campaignByCampaignCreator.TryGetValue(payment.CampaignCreatorId, out long campaignId) && gatedCampaigns.Contains(campaignId))
+                {
+                    List<bool> deliverableStates = approvalsByCampaignCreator[payment.CampaignCreatorId].ToList();
+                    bool contentBlocked = deliverableStates.Count > 0 && deliverableStates.Any(approved => !approved);
+                    if (contentBlocked)
+                    {
+                        payment.RegisterEvent(CreatorPaymentEventType.ContentApprovalRequired, "Conteudo do entregavel ainda nao aprovado - repasse bloqueado ate a aprovacao (pay-when-paid).");
+                        continue;
+                    }
                 }
 
                 if (approvalThreshold.HasValue && payment.NetAmount > approvalThreshold.Value && !payment.IsApproved)

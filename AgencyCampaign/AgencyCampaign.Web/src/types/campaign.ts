@@ -27,6 +27,7 @@ export interface Campaign {
   notes?: string
   isActive: boolean
   requiresDeliverableApproval: boolean
+  payoutRequiresContentApproval?: boolean
   brand?: {
     id: number
     name: string

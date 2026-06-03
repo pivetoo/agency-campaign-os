@@ -2489,5 +2489,6 @@
   <data name="public.proposal.estimate" xml:space="preserve"><value>estimate</value></data>
   <data name="modal.deliverable.amountsExceedGross" xml:space="preserve"><value>Creator payout + fee cannot exceed the gross amount</value></data>
   <data name="modal.campaign.field.requiresDeliverableApproval" xml:space="preserve"><value>Require brand approval to publish deliverables</value></data>
+  <data name="modal.campaign.field.payoutRequiresContentApproval" xml:space="preserve"><value>Only release the creator payout after the content is approved (pay-when-paid)</value></data>
   <data name="contentReview.action.agencyApprove" xml:space="preserve"><value>Approve internally</value></data>
 </root>

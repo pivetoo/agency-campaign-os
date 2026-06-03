@@ -17,6 +17,7 @@ export interface CreateCampaignRequest {
   notes?: string
   status: number
   requiresDeliverableApproval: boolean
+  payoutRequiresContentApproval?: boolean
 }
 
 export interface UpdateCampaignRequest extends CreateCampaignRequest {

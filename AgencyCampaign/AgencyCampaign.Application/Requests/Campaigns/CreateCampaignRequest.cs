@@ -39,5 +39,7 @@ namespace AgencyCampaign.Application.Requests.Campaigns
         public CampaignStatus Status { get; set; } = CampaignStatus.Draft;
 
         public bool RequiresDeliverableApproval { get; set; } = true;
+
+        public bool PayoutRequiresContentApproval { get; set; }
     }
 }

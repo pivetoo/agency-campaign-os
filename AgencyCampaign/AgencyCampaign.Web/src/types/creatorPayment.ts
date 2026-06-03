@@ -59,6 +59,7 @@ export const CreatorPaymentEventType = {
   InvoiceMissing: 11,
   Approved: 12,
   ApprovalRequired: 13,
+  ContentApprovalRequired: 14,
 } as const
 export type CreatorPaymentEventTypeValue =
   (typeof CreatorPaymentEventType)[keyof typeof CreatorPaymentEventType]
@@ -77,6 +78,7 @@ export const creatorPaymentEventTypeLabels: Record<CreatorPaymentEventTypeValue,
   11: 'NF ausente',
   12: 'Aprovado',
   13: 'Aprovação necessária',
+  14: 'Aprovação de conteúdo pendente',
 }
 
 export interface CreatorPaymentEvent {

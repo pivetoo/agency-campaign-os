@@ -69,6 +69,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             campaign.ChangeStatus(request.Status);
             campaign.SetRequiresDeliverableApproval(request.RequiresDeliverableApproval);
+            campaign.SetPayoutRequiresContentApproval(request.PayoutRequiresContentApproval);
 
             bool success = await Insert(cancellationToken, campaign);
             if (!success)
@@ -117,6 +118,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Notes,
                 request.IsActive);
             campaign.SetRequiresDeliverableApproval(request.RequiresDeliverableApproval);
+            campaign.SetPayoutRequiresContentApproval(request.PayoutRequiresContentApproval);
 
             Campaign? result = await Update(campaign, cancellationToken);
             if (result is null)

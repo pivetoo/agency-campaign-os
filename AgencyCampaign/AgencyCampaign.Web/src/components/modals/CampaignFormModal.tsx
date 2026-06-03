@@ -25,6 +25,7 @@ const initialFormData: CreateCampaignRequest = {
   notes: '',
   status: 1,
   requiresDeliverableApproval: true,
+  payoutRequiresContentApproval: false,
 }
 
 export default function CampaignFormModal({ open, onOpenChange, campaign, onSuccess }: CampaignFormModalProps) {
@@ -65,6 +66,7 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
         notes: campaign.notes || '',
         status: campaign.status,
         requiresDeliverableApproval: campaign.requiresDeliverableApproval,
+        payoutRequiresContentApproval: campaign.payoutRequiresContentApproval ?? false,
       })
       setIsActive(campaign.isActive)
       return
@@ -204,6 +206,10 @@ export default function CampaignFormModal({ open, onOpenChange, campaign, onSucc
               <div className="flex items-center gap-2">
                 <Checkbox checked={formData.requiresDeliverableApproval} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, requiresDeliverableApproval: !!checked }))} />
                 <span className="text-sm">{t('modal.campaign.field.requiresDeliverableApproval')}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox checked={formData.payoutRequiresContentApproval} onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, payoutRequiresContentApproval: !!checked }))} />
+                <span className="text-sm">{t('modal.campaign.field.payoutRequiresContentApproval')}</span>
               </div>
             </div>
 
