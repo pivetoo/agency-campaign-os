@@ -125,37 +125,18 @@ jobs:
         with:
           path: system/agency-campaign-os
 
-      - name: Copy deploy assets to VPS
+      # Deploy via webhook HTTPS (porta 443) em vez de SSH de entrada: a borda de rede da
+      # Hostinger dropa intermitentemente os IPs dos runners do GitHub no SSH, mas o trafego
+      # web passa normal. O receiver no VPS (127.0.0.1:9876, publicado pelo nginx em
+      # /deploy-hook) autentica por token, grava o compose enviado e roda pull + up -d.
+      - name: Trigger deploy via webhook
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 3
-          max_attempts: 4
-          retry_wait_seconds: 20
+          timeout_minutes: 16
+          max_attempts: 3
+          retry_wait_seconds: 30
           command: |
-            echo "${{ secrets.VPS_SSH_KEY }}" > /tmp/vps_key
-            chmod 600 /tmp/vps_key
-            ssh -i /tmp/vps_key -p ${{ secrets.VPS_PORT }} \
-              -o StrictHostKeyChecking=no -o ConnectTimeout=60 \
-              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'mkdir -p /var/www/kanvas/config'
-            scp -i /tmp/vps_key -P ${{ secrets.VPS_PORT }} \
-              -o StrictHostKeyChecking=no -o ConnectTimeout=60 \
-              system/agency-campaign-os/deploy/docker-compose.prod.yml \
-              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/kanvas/docker-compose.prod.yml
-
-      - name: Deploy on VPS
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          timeout: 120s
-          command_timeout: 10m
-          script: |
-            set -e
-            mkdir -p /var/www/kanvas/config
-            cd /var/www/kanvas
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            docker image prune -f
+            curl -fsS --max-time 900 -X POST \
+              -H "X-Deploy-Token: ${{ secrets.DEPLOY_HOOK_TOKEN }}" \
+              --data-binary @system/agency-campaign-os/deploy/docker-compose.prod.yml \
+              https://kanvas.mainstay.com.br/deploy-hook
