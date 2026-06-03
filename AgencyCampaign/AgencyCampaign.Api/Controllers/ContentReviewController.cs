@@ -66,7 +66,7 @@ namespace AgencyCampaign.Api.Controllers
         [PostEndpoint("version/{versionId:long}/agency-approve")]
         public async Task<IActionResult> AgencyApprove(long versionId, CancellationToken cancellationToken)
         {
-            return Http200(await service.AgencyApprove(versionId, cancellationToken));
+            return Http200(await service.AgencyApprove(versionId, CurrentUserName ?? "Agencia", cancellationToken));
         }
 
         [RequireAccess("campaigns.update.description")]

@@ -66,10 +66,29 @@ namespace AgencyCampaign.Infrastructure.Services
             return await BuildModel(version.CampaignDeliverableId, includeInternal: true, cancellationToken);
         }
 
-        public async Task<ContentReviewModel> AgencyApprove(long versionId, CancellationToken cancellationToken = default)
+        public async Task<ContentReviewModel> AgencyApprove(long versionId, string approvedBy, CancellationToken cancellationToken = default)
         {
             DeliverableContentVersion version = await LoadVersion(versionId, cancellationToken);
             version.ApproveInternally();
+
+            // Modelo unico de aprovacao (D8i): a aprovacao interna da agencia registra um
+            // DeliverableApproval Interno Aprovado - o mesmo modelo que o gate de publicacao consulta.
+            DeliverableApproval? approval = await dbContext.Set<DeliverableApproval>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.CampaignDeliverableId == version.CampaignDeliverableId && item.ApprovalType == DeliverableApprovalType.Internal, cancellationToken);
+
+            if (approval is null)
+            {
+                approval = new DeliverableApproval(version.CampaignDeliverableId, DeliverableApprovalType.Internal, approvedBy);
+                dbContext.Set<DeliverableApproval>().Add(approval);
+            }
+            else
+            {
+                approval.UpdateReviewer(approvedBy);
+            }
+
+            approval.Approve();
+
             await dbContext.SaveChangesAsync(cancellationToken);
             return await BuildModel(version.CampaignDeliverableId, includeInternal: true, cancellationToken);
         }

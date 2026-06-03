@@ -304,8 +304,10 @@ namespace AgencyCampaign.Infrastructure.Services
             deliverable.UpdateEvidence(evidenceUrl);
         }
 
-        // Gate de aprovacao para publicar: exige um DeliverableApproval Brand Approved, A NAO SER que a
-        // campanha tenha o gate desligado (RequiresDeliverableApproval = false). Default obrigatorio.
+        // Gate de aprovacao para publicar: exige um DeliverableApproval Aprovado - da MARCA (link
+        // publico) OU INTERNO (aprovacao da agencia, C8) -, A NAO SER que a campanha tenha o gate
+        // desligado (RequiresDeliverableApproval = false). Default obrigatorio. Modelo unico: o gate
+        // e a aprovacao interna falam o mesmo DeliverableApproval (D8i).
         private async Task EnsureBrandApprovalAllowedAsync(CampaignDeliverable deliverable, CancellationToken cancellationToken)
         {
             bool requiresApproval = await DbContext.Set<Campaign>()
@@ -319,11 +321,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 return;
             }
 
-            bool hasBrandApproval = deliverable.Approvals.Any(item =>
-                item.ApprovalType == DeliverableApprovalType.Brand &&
+            bool hasApproval = deliverable.Approvals.Any(item =>
+                (item.ApprovalType == DeliverableApprovalType.Brand || item.ApprovalType == DeliverableApprovalType.Internal) &&
                 item.Status == DeliverableApprovalStatus.Approved);
 
-            if (!hasBrandApproval)
+            if (!hasApproval)
             {
                 throw new InvalidOperationException("deliverable.publish.brandApprovalRequired");
             }

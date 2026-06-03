@@ -72,9 +72,23 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             ContentReviewModel v1 = await service.AddVersion(deliverableId, ReviewParticipant.Agency, "Maria", BuildVersionRequest(), CancellationToken.None);
             long versionId = v1.Versions[0].Id;
 
-            ContentReviewModel result = await service.AgencyApprove(versionId, CancellationToken.None);
+            ContentReviewModel result = await service.AgencyApprove(versionId, "Maria", CancellationToken.None);
 
             result.Versions[0].Status.Should().Be(ContentVersionStatus.Approved);
+        }
+
+        [Test]
+        public async Task AgencyApprove_should_record_an_internal_deliverable_approval_for_the_gate()
+        {
+            long deliverableId = await SeedDeliverableAsync();
+            ContentReviewModel v1 = await service.AddVersion(deliverableId, ReviewParticipant.Agency, "Maria", BuildVersionRequest(), CancellationToken.None);
+
+            await service.AgencyApprove(v1.Versions[0].Id, "Maria", CancellationToken.None);
+
+            DeliverableApproval approval = db.Set<DeliverableApproval>()
+                .Single(item => item.CampaignDeliverableId == deliverableId && item.ApprovalType == DeliverableApprovalType.Internal);
+            approval.Status.Should().Be(DeliverableApprovalStatus.Approved);
+            approval.ReviewerName.Should().Be("Maria");
         }
 
         [Test]

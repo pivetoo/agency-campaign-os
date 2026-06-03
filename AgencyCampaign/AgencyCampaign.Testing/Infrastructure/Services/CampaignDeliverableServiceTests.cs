@@ -222,6 +222,39 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task Publish_should_be_allowed_by_an_internal_agency_approval()
+        {
+            await SeedReferencesAsync();
+            CampaignDeliverable deliverable = new(10, 20, "x", 1, 1, DateTimeOffset.UtcNow.AddDays(5), 1000m, 800m, 100m);
+            db.Add(deliverable);
+            await db.SaveChangesAsync();
+
+            DeliverableApproval internalApproval = new(deliverable.Id, DeliverableApprovalType.Internal, "Agencia");
+            internalApproval.Approve();
+            db.Add(internalApproval);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCampaignDeliverableRequest request = new()
+            {
+                Id = deliverable.Id,
+                Title = "x",
+                DeliverableKindId = 1,
+                PlatformId = 1,
+                DueAt = DateTimeOffset.UtcNow.AddDays(5),
+                GrossAmount = 1000m,
+                CreatorAmount = 800m,
+                AgencyFeeAmount = 100m,
+                Status = DeliverableStatus.Published,
+                PublishedUrl = "https://x"
+            };
+
+            CampaignDeliverable result = await service.UpdateDeliverable(deliverable.Id, request);
+
+            result.Status.Should().Be(DeliverableStatus.Published);
+        }
+
+        [Test]
         public async Task UpdateDeliverable_should_throw_when_id_mismatch()
         {
             UpdateCampaignDeliverableRequest request = new() { Id = 5, Title = "x", DeliverableKindId = 1, PlatformId = 1, DueAt = DateTimeOffset.UtcNow };
