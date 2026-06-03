@@ -1,5 +1,7 @@
+using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using Archon.Application.Services;
 using AgencyCampaign.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,11 +12,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly DbContext dbContext;
         private readonly ILogger<FinancialAutoGenerationService>? logger;
+        private readonly INotificationService? notificationService;
 
-        public FinancialAutoGenerationService(DbContext dbContext, ILogger<FinancialAutoGenerationService>? logger = null)
+        public FinancialAutoGenerationService(DbContext dbContext, ILogger<FinancialAutoGenerationService>? logger = null, INotificationService? notificationService = null)
         {
             this.dbContext = dbContext;
             this.logger = logger;
+            this.notificationService = notificationService;
         }
 
         public async Task GenerateForConvertedProposal(Proposal proposal, long campaignId, CancellationToken cancellationToken = default)
@@ -34,6 +38,7 @@ namespace AgencyCampaign.Infrastructure.Services
             if (!accountId.HasValue)
             {
                 logger?.LogWarning("No active financial account configured; skipping receivable for proposal {ProposalId}.", proposal.Id);
+                await NotifyAccountMissingAsync(proposal, cancellationToken);
                 return;
             }
 
@@ -126,9 +131,27 @@ namespace AgencyCampaign.Infrastructure.Services
             return await dbContext.Set<FinancialAccount>()
                 .AsNoTracking()
                 .Where(item => item.IsActive)
-                .OrderBy(item => item.Id)
+                .OrderByDescending(item => item.IsDefault)
+                .ThenBy(item => item.Id)
                 .Select(item => (long?)item.Id)
                 .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        private async Task NotifyAccountMissingAsync(Proposal proposal, CancellationToken cancellationToken)
+        {
+            if (notificationService is null)
+            {
+                return;
+            }
+
+            try
+            {
+                await notificationService.Create(KanvasNotifications.ConversionFinancialAccountMissing(proposal), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                logger?.LogError(exception, "Failed to notify missing financial account for proposal {ProposalId}.", proposal.Id);
+            }
         }
 
         private async Task<string> ResolveBrandNameAsync(long campaignId, CancellationToken cancellationToken)

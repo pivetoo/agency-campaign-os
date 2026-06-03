@@ -23,6 +23,9 @@ namespace AgencyCampaign.Domain.Entities
 
         public bool IsActive { get; private set; } = true;
 
+        // Conta padrao da agencia: a auto-geracao (recebivel da marca, repasse) usa esta conta.
+        public bool IsDefault { get; private set; }
+
         public long? IntegrationConnectorId { get; private set; }
 
         public decimal? LastSyncedBalance { get; private set; }
@@ -68,6 +71,11 @@ namespace AgencyCampaign.Domain.Entities
             Agency = Normalize(agency);
             Number = Normalize(number);
             IsActive = isActive;
+        }
+
+        public void SetAsDefault(bool isDefault)
+        {
+            IsDefault = isDefault;
         }
 
         public void AttachConnector(long connectorId)

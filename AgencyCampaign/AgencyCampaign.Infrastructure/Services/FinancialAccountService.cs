@@ -84,6 +84,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     CurrentBalance = account.InitialBalance + received - paid,
                     Color = account.Color,
                     IsActive = account.IsActive,
+                IsDefault = account.IsDefault,
                     HasEntries = accountIdsWithEntries.Contains(account.Id),
                     BankId = account.BankId,
                     BankCompe = bank?.Compe,
@@ -178,6 +179,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 CurrentBalance = account.InitialBalance + received - paid,
                 Color = account.Color,
                 IsActive = account.IsActive,
+                IsDefault = account.IsDefault,
                 HasEntries = hasEntries,
                 BankId = account.BankId,
                 BankCompe = bank?.Compe,
@@ -231,6 +233,37 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             account.Update(request.Name, request.Type, request.InitialBalance, request.Color, request.BankId, request.Bank, request.Agency, request.Number, request.IsActive);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException("record.notFound");
+        }
+
+        public async Task<FinancialAccountModel> SetAsDefault(long id, CancellationToken cancellationToken = default)
+        {
+            FinancialAccount? account = await dbContext.Set<FinancialAccount>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (account is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            if (!account.IsActive)
+            {
+                throw new InvalidOperationException("financialAccount.cannotDefaultInactive");
+            }
+
+            List<FinancialAccount> currentDefaults = await dbContext.Set<FinancialAccount>()
+                .AsTracking()
+                .Where(item => item.IsDefault && item.Id != id)
+                .ToListAsync(cancellationToken);
+
+            foreach (FinancialAccount other in currentDefaults)
+            {
+                other.SetAsDefault(false);
+            }
+
+            account.SetAsDefault(true);
             await dbContext.SaveChangesAsync(cancellationToken);
             return await GetById(account.Id, cancellationToken) ?? throw new InvalidOperationException("record.notFound");
         }

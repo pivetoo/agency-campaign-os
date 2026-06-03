@@ -1519,6 +1519,8 @@
   <data name="financialAccounts.getSummary.description" xml:space="preserve"><value>Permite consultar o resumo agregado das contas financeiras.</value></data>
   <data name="financialAccounts.sync.description" xml:space="preserve"><value>Permite disparar uma sincronização manual da conta financeira.</value></data>
   <data name="financialAccounts.update.description" xml:space="preserve"><value>Permite atualizar uma conta financeira.</value></data>
+  <data name="financialAccounts.setDefault.description" xml:space="preserve"><value>Permite definir a conta financeira padrão.</value></data>
+  <data name="financialAccount.cannotDefaultInactive" xml:space="preserve"><value>Não é possível definir uma conta inativa como padrão.</value></data>
   <data name="financialEntries.area" xml:space="preserve"><value>Financial entries</value></data>
   <data name="financialEntries.create.description" xml:space="preserve"><value>Permite cadastrar um lançamento financeiro.</value></data>
   <data name="financialEntries.createInstallments.description" xml:space="preserve"><value>Permite gerar uma série de parcelas a partir de um lançamento financeiro.</value></data>

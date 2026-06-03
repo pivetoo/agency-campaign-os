@@ -84,6 +84,20 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
+        public static CreateNotificationRequest ConversionFinancialAccountMissing(Proposal proposal)
+        {
+            return new CreateNotificationRequest
+            {
+                UserId = proposal.InternalOwnerId,
+                Type = NotificationType.Warning,
+                Title = "Conversão sem conta financeira",
+                Message = $"A proposta \"{proposal.Name}\" foi convertida, mas nenhuma conta financeira ativa está configurada. O recebível e os repasses não foram gerados; configure uma conta padrão.",
+                Source = "financial",
+                ReferenceEntityName = nameof(Proposal),
+                ReferenceEntityId = proposal.Id.ToString()
+            };
+        }
+
         public static CreateNotificationRequest OpportunityApprovalRequested(OpportunityApprovalRequest request, long? opportunityId, string opportunityName, long? approverUserId = null)
         {
             return new CreateNotificationRequest

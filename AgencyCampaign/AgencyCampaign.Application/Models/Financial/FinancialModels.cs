@@ -14,6 +14,7 @@ namespace AgencyCampaign.Application.Models.Financial
         public decimal CurrentBalance { get; set; }
         public string Color { get; set; } = "#6366f1";
         public bool IsActive { get; set; }
+        public bool IsDefault { get; set; }
         public bool HasEntries { get; set; }
         public long? BankId { get; set; }
         public string? BankCompe { get; set; }

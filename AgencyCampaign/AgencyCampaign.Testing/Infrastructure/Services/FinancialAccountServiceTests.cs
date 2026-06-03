@@ -29,6 +29,21 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void TearDown() => db.Dispose();
 
         [Test]
+        public async Task SetAsDefault_should_clear_other_defaults()
+        {
+            FinancialAccountModel a = await service.Create(new CreateFinancialAccountRequest { Name = "A", Type = FinancialAccountType.Bank, InitialBalance = 0m, Color = "#fff" });
+            FinancialAccountModel b = await service.Create(new CreateFinancialAccountRequest { Name = "B", Type = FinancialAccountType.Bank, InitialBalance = 0m, Color = "#fff" });
+
+            await service.SetAsDefault(a.Id);
+            await service.SetAsDefault(b.Id);
+
+            FinancialAccount refreshedA = await db.Set<FinancialAccount>().AsNoTracking().FirstAsync(item => item.Id == a.Id);
+            FinancialAccount refreshedB = await db.Set<FinancialAccount>().AsNoTracking().FirstAsync(item => item.Id == b.Id);
+            refreshedA.IsDefault.Should().BeFalse();
+            refreshedB.IsDefault.Should().BeTrue();
+        }
+
+        [Test]
         public async Task Create_should_persist_account()
         {
             CreateFinancialAccountRequest request = new()

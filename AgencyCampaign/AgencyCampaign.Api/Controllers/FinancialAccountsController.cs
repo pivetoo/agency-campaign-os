@@ -71,6 +71,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result, Localizer["record.updated"]);
         }
 
+        [RequireAccess("financialAccounts.setDefault.description")]
+        [PutEndpoint("{id:long}/set-default")]
+        public async Task<IActionResult> SetDefault(long id, CancellationToken cancellationToken)
+        {
+            var result = await service.SetAsDefault(id, cancellationToken);
+            return Http200(result, Localizer["record.updated"]);
+        }
+
         [RequireAccess("financialAccounts.delete.description")]
         [DeleteEndpoint("{id:long}")]
         public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)

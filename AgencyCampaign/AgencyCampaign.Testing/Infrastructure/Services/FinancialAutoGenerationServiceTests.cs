@@ -2,7 +2,10 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
+using Archon.Application.Services;
+using Archon.Core.Notifications;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
 {
@@ -144,6 +147,39 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             Func<Task> act = () => service.GenerateForConvertedProposal(null!, 1);
             await act.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Test]
+        public async Task GenerateForConvertedProposal_should_prefer_the_default_account()
+        {
+            FinancialAccount first = NewAccount("Primeira");
+            FinancialAccount preferred = NewAccount("Padrao");
+            preferred.SetAsDefault(true);
+            db.Add(first);
+            db.Add(preferred);
+            await db.SaveChangesAsync();
+
+            Proposal proposal = new Proposal(1, "P", 1).WithId(40);
+            proposal.UpdateTotalValue(500m);
+
+            await service.GenerateForConvertedProposal(proposal, campaignId: 1);
+
+            FinancialEntry entry = await db.Set<FinancialEntry>().AsNoTracking().SingleAsync();
+            entry.AccountId.Should().Be(preferred.Id);
+        }
+
+        [Test]
+        public async Task GenerateForConvertedProposal_should_notify_when_no_active_account()
+        {
+            Mock<INotificationService> notifications = new();
+            FinancialAutoGenerationService notifyingService = new(db, null, notifications.Object);
+
+            Proposal proposal = new Proposal(1, "Sem conta", 1).WithId(41);
+            proposal.UpdateTotalValue(500m);
+
+            await notifyingService.GenerateForConvertedProposal(proposal, campaignId: 1);
+
+            notifications.Verify(item => item.Create(It.IsAny<CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
