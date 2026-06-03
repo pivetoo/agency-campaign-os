@@ -56,5 +56,14 @@ namespace AgencyCampaign.Api.Controllers
             var result = await service.GetAccrualResult(from, to, cancellationToken);
             return Http200(result);
         }
+
+        [RequireAccess("financialReports.getCashFlowProjection.description")]
+        [GetEndpoint("cashflow-projection")]
+        public async Task<IActionResult> GetCashFlowProjection([FromQuery] int weeks, CancellationToken cancellationToken)
+        {
+            int horizon = weeks <= 0 ? 12 : weeks;
+            var result = await service.GetCashFlowProjection(horizon, cancellationToken);
+            return Http200(result);
+        }
     }
 }

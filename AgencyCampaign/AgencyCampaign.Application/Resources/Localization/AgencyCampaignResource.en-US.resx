@@ -1539,6 +1539,7 @@
   <data name="financialReports.getCampaignProfitability.description" xml:space="preserve"><value>Permite consultar o relatório de rentabilidade por campanha.</value></data>
   <data name="financialReports.getAccrualResult.description" xml:space="preserve"><value>Permite consultar o resultado por competência.</value></data>
   <data name="financialReports.getCashFlow.description" xml:space="preserve"><value>Permite consultar o fluxo de caixa por período e granularidade.</value></data>
+  <data name="financialReports.getCashFlowProjection.description" xml:space="preserve"><value>Permite consultar a projeção de fluxo de caixa por vencimento.</value></data>
   <data name="financialSubcategories.area" xml:space="preserve"><value>Financial subcategories</value></data>
   <data name="financialSubcategories.create.description" xml:space="preserve"><value>Permite cadastrar uma subcategoria financeira.</value></data>
   <data name="financialSubcategories.delete.description" xml:space="preserve"><value>Permite excluir uma subcategoria financeira.</value></data>
