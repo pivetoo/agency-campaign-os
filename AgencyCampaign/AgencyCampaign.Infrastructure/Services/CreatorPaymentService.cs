@@ -4,6 +4,7 @@ using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Clients;
+using Archon.Application.MultiTenancy;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -16,10 +17,12 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class CreatorPaymentService : CrudService<CreatorPayment>, ICreatorPaymentService
     {
         private readonly IntegrationPlatformClient integrationPlatformClient;
+        private readonly ITenantContext? tenantContext;
 
-        public CreatorPaymentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient) : base(dbContext)
+        public CreatorPaymentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, ITenantContext? tenantContext = null) : base(dbContext)
         {
             this.integrationPlatformClient = integrationPlatformClient;
+            this.tenantContext = tenantContext;
         }
 
         public async Task<PagedResult<CreatorPayment>> GetPayments(PagedRequest request, CancellationToken cancellationToken = default)
@@ -261,6 +264,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 {
                     creatorPaymentId = payment.Id,
                     idempotencyKey = payment.IdempotencyKey,
+                    // Token tenant-scoped para o pipeline ECOAR na URL do callback (/api/creatorpayments/provider-callback/{callbackToken}),
+                    // permitindo ao Kanvas resolver o tenant correto no multi-tenant. Fallback = segredo global (transicao).
+                    callbackToken = PublicLinkToken.Compose(tenantContext?.TenantId, payment.IdempotencyKey ?? string.Empty),
                     grossAmount = payment.GrossAmount,
                     discounts = payment.Discounts,
                     netAmount = payment.NetAmount,
