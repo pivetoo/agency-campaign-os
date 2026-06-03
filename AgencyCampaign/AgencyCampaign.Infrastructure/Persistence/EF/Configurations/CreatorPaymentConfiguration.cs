@@ -31,6 +31,12 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
             builder.Property(entity => entity.ProviderTransactionId)
                 .HasMaxLength(150);
 
+            builder.Property(entity => entity.EndToEndId)
+                .HasMaxLength(140);
+
+            builder.Property(entity => entity.IdempotencyKey)
+                .HasMaxLength(64);
+
             builder.Property(entity => entity.PixKey)
                 .HasMaxLength(150);
 

@@ -16,6 +16,9 @@ namespace AgencyCampaign.Application.Requests.CreatorPayments
         [StringLength(50)]
         public string EventType { get; set; } = string.Empty;
 
+        [StringLength(140)]
+        public string? EndToEndId { get; set; }
+
         public DateTimeOffset? OccurredAt { get; set; }
 
         [StringLength(1000)]

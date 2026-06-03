@@ -35,6 +35,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? ProviderTransactionId { get; private set; }
 
+        public string? EndToEndId { get; private set; }
+
+        public string? IdempotencyKey { get; private set; }
+
         public string? PixKey { get; private set; }
 
         public PixKeyType? PixKeyType { get; private set; }
@@ -121,6 +125,21 @@ namespace AgencyCampaign.Domain.Entities
 
             Provider = provider.Trim();
             ProviderTransactionId = providerTransactionId.Trim();
+        }
+
+        // EndToEndId (e2eId) do Pix: identificador imutavel atribuido pelo Banco Central, usado para
+        // conciliar o repasse contra o extrato e comprovar o pagamento ao creator.
+        public void AttachEndToEndId(string endToEndId)
+        {
+            EndToEndId = Normalize(endToEndId);
+        }
+
+        // Chave de idempotencia do payout: gerada no agendamento e enviada ao IntegrationPlatform para
+        // que um retry de rede/reprocessamento nao dispare o Pix duas vezes.
+        public void AssignIdempotencyKey(string idempotencyKey)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
+            IdempotencyKey = idempotencyKey.Trim();
         }
 
         public void Schedule(DateTimeOffset scheduledFor)

@@ -246,11 +246,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
 
                 payment.Schedule(scheduledFor);
+                payment.AssignIdempotencyKey(Guid.NewGuid().ToString("N"));
                 payment.RegisterEvent(CreatorPaymentEventType.Scheduled, $"Agendado para {scheduledFor:yyyy-MM-dd HH:mm}.");
 
                 string payload = JsonSerializer.Serialize(new
                 {
                     creatorPaymentId = payment.Id,
+                    idempotencyKey = payment.IdempotencyKey,
                     grossAmount = payment.GrossAmount,
                     discounts = payment.Discounts,
                     netAmount = payment.NetAmount,
@@ -303,6 +305,24 @@ namespace AgencyCampaign.Infrastructure.Services
 
             DateTimeOffset occurredAt = request.OccurredAt ?? DateTimeOffset.UtcNow;
             string normalizedEvent = request.EventType.Trim().ToLowerInvariant();
+
+            if (!string.IsNullOrWhiteSpace(request.EndToEndId))
+            {
+                payment.AttachEndToEndId(request.EndToEndId);
+            }
+
+            // Idempotencia: o provedor reentrega o mesmo evento (entrega at-least-once). Se o pagamento ja
+            // esta no estado final correspondente, nao re-dispara transicao/evento/baixa - so persiste o e2eId.
+            bool alreadyHandled =
+                ((normalizedEvent is "paid" or "completed" or "transfer.completed") && payment.Status == PaymentStatus.Paid) ||
+                ((normalizedEvent is "failed" or "transfer.failed") && payment.Status == PaymentStatus.Failed) ||
+                ((normalizedEvent is "cancelled" or "transfer.cancelled") && payment.Status == PaymentStatus.Cancelled);
+
+            if (alreadyHandled)
+            {
+                CreatorPayment? unchanged = await Update(payment, cancellationToken);
+                return await GetPaymentById((unchanged ?? payment).Id, cancellationToken) ?? payment;
+            }
 
             switch (normalizedEvent)
             {

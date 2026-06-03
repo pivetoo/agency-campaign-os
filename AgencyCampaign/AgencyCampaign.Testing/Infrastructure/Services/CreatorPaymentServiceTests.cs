@@ -572,5 +572,62 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             payment.CampaignDocumentId.Should().Be(doc.Id);
         }
+
+        [Test]
+        public async Task HandleProviderCallback_should_be_idempotent_on_repeated_paid()
+        {
+            CreatorPayment payment = await SeedExistingPaymentAsync();
+            CreatorPayment tracked = await db.Set<CreatorPayment>().AsTracking().FirstAsync(item => item.Id == payment.Id);
+            tracked.AttachToProvider("provider-x", "tx-idem");
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            CreatorPaymentProviderCallbackRequest callback = new() { Provider = "provider-x", ProviderTransactionId = "tx-idem", EventType = "paid" };
+            await service.HandleProviderCallback(callback);
+            CreatorPayment result = await service.HandleProviderCallback(callback);
+
+            result.Status.Should().Be(PaymentStatus.Paid);
+            result.Events.Count(item => item.EventType == CreatorPaymentEventType.Paid).Should().Be(1);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_persist_end_to_end_id()
+        {
+            CreatorPayment payment = await SeedExistingPaymentAsync();
+            CreatorPayment tracked = await db.Set<CreatorPayment>().AsTracking().FirstAsync(item => item.Id == payment.Id);
+            tracked.AttachToProvider("provider-x", "tx-e2e");
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            CreatorPayment result = await service.HandleProviderCallback(new CreatorPaymentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderTransactionId = "tx-e2e",
+                EventType = "paid",
+                EndToEndId = "E2E-ABC-123"
+            });
+
+            result.EndToEndId.Should().Be("E2E-ABC-123");
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_assign_idempotency_key_before_enqueue()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            SchedulePaymentBatchRequest request = new()
+            {
+                CreatorPaymentIds = new List<long> { payment.Id },
+                ScheduledFor = DateTimeOffset.UtcNow,
+                ConnectorId = 1,
+                PipelineId = 99
+            };
+
+            await service.SchedulePaymentBatch(request);
+
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().FirstAsync(item => item.Id == payment.Id);
+            refreshed.IdempotencyKey.Should().NotBeNullOrEmpty();
+        }
     }
 }
