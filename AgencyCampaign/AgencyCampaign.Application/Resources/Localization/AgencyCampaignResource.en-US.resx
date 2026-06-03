@@ -276,6 +276,7 @@
   <data name="nav.item.cashFlow" xml:space="preserve"><value>Cash flow</value></data>
   <data name="nav.item.aging" xml:space="preserve"><value>Aging</value></data>
   <data name="nav.item.financialPeriods" xml:space="preserve"><value>Periods</value></data>
+  <data name="nav.item.reconciliation" xml:space="preserve"><value>Reconciliation</value></data>
   <data name="nav.item.agency" xml:space="preserve"><value>Agency</value></data>
   <data name="nav.item.agencyData" xml:space="preserve"><value>Agency data</value></data>
   <data name="nav.item.integrations" xml:space="preserve"><value>Integrations</value></data>
@@ -835,6 +836,30 @@
   <data name="financial.periods.empty" xml:space="preserve"><value>No periods</value></data>
   <data name="financial.periods.confirm.close" xml:space="preserve"><value>Close this month? Entries dated within it will be blocked from creation/edit/settlement (reversal stays allowed, as it books in the open month).</value></data>
   <data name="financial.periods.confirm.reopen" xml:space="preserve"><value>Reopen this month? It will accept entries and changes dated within it again.</value></data>
+  <data name="financial.reconciliation.title" xml:space="preserve"><value>Bank reconciliation</value></data>
+  <data name="financial.reconciliation.subtitle" xml:space="preserve"><value>Import the statement and match each transaction to its entry</value></data>
+  <data name="financial.reconciliation.empty" xml:space="preserve"><value>No transactions</value></data>
+  <data name="financial.reconciliation.field.account" xml:space="preserve"><value>Account</value></data>
+  <data name="financial.reconciliation.field.date" xml:space="preserve"><value>Date</value></data>
+  <data name="financial.reconciliation.field.description" xml:space="preserve"><value>Description</value></data>
+  <data name="financial.reconciliation.field.direction" xml:space="preserve"><value>Type</value></data>
+  <data name="financial.reconciliation.badge.matched" xml:space="preserve"><value>Matched</value></data>
+  <data name="financial.reconciliation.badge.pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="financial.reconciliation.action.match" xml:space="preserve"><value>Match</value></data>
+  <data name="financial.reconciliation.action.unmatch" xml:space="preserve"><value>Unmatch</value></data>
+  <data name="financial.reconciliation.action.import" xml:space="preserve"><value>Import statement</value></data>
+  <data name="financial.reconciliation.stat.total" xml:space="preserve"><value>Transactions</value></data>
+  <data name="financial.reconciliation.stat.matched" xml:space="preserve"><value>Matched</value></data>
+  <data name="financial.reconciliation.stat.pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="financial.reconciliation.confirm.unmatch" xml:space="preserve"><value>Undo the reconciliation of this transaction? The entry becomes open again.</value></data>
+  <data name="financial.reconciliation.match.title" xml:space="preserve"><value>Match transaction</value></data>
+  <data name="financial.reconciliation.match.entry" xml:space="preserve"><value>Matching entry</value></data>
+  <data name="financial.reconciliation.match.entryPlaceholder" xml:space="preserve"><value>Select an entry</value></data>
+  <data name="financial.reconciliation.match.noEntry" xml:space="preserve"><value>No open entry with this amount in this account.</value></data>
+  <data name="financial.reconciliation.match.confirm" xml:space="preserve"><value>Match</value></data>
+  <data name="financial.reconciliation.import.title" xml:space="preserve"><value>Import statement</value></data>
+  <data name="financial.reconciliation.import.hint" xml:space="preserve"><value>Paste one line per transaction in the format: date;description;amount;C or D (C=inflow, D=outflow).</value></data>
+  <data name="financial.reconciliation.import.confirm" xml:space="preserve"><value>Import</value></data>
   <data name="financial.aging.totalReceivable" xml:space="preserve"><value>Total pending receivable</value></data>
   <data name="financial.aging.totalPayable" xml:space="preserve"><value>Total pending payable</value></data>
   <data name="financial.cashFlow.title" xml:space="preserve"><value>Cash flow</value></data>

@@ -37,6 +37,7 @@ import CreatorPayments from '../modules/Main/Financial/CreatorPayments'
 import FinancialCashFlow from '../modules/Main/Financial/CashFlow'
 import FinancialAging from '../modules/Main/Financial/Aging'
 import FinancialPeriods from '../modules/Main/Financial/FinancialPeriods'
+import Reconciliation from '../modules/Main/Financial/Reconciliation'
 import Platforms from '../modules/Configuration/Platforms'
 import CommercialPipelineStages from '../modules/Configuration/CommercialPipelineStages'
 import CampaignCreatorStatuses from '../modules/Configuration/CampaignCreatorStatuses'
@@ -127,6 +128,7 @@ function AppRoutes() {
           <Route path="financeiro/fluxo-caixa" element={<FinancialCashFlow />} />
           <Route path="financeiro/aging" element={<FinancialAging />} />
           <Route path="financeiro/periodos" element={<FinancialPeriods />} />
+          <Route path="financeiro/conciliacao" element={<Reconciliation />} />
           <Route path="configuracao/plataformas" element={<Platforms />} />
           <Route path="configuracao/pipeline-comercial" element={<CommercialPipelineStages />} />
           <Route path="configuracao/status-creators" element={<CampaignCreatorStatuses />} />

@@ -128,6 +128,7 @@ export default function AgencyCampaignLayout() {
       { key: 'financeiro-fluxo-caixa', label: t('nav.item.cashFlow'), path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} />, requires: ['financialReports.getCashFlow'] },
       { key: 'financeiro-aging', label: t('nav.item.aging'), path: '/financeiro/aging', icon: <Hourglass size={20} />, requires: ['financialReports.getAging'] },
       { key: 'financeiro-periodos', label: t('nav.item.financialPeriods'), path: '/financeiro/periodos', icon: <CalendarDays size={20} />, requires: ['financialPeriods.get'] },
+      { key: 'financeiro-conciliacao', label: t('nav.item.reconciliation'), path: '/financeiro/conciliacao', icon: <Landmark size={20} />, requires: ['bankTransactions.getByAccount'] },
     ] },
   ]
 

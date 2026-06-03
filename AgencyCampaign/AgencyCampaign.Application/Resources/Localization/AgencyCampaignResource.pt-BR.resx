@@ -276,6 +276,7 @@
   <data name="nav.item.cashFlow" xml:space="preserve"><value>Fluxo de caixa</value></data>
   <data name="nav.item.aging" xml:space="preserve"><value>Aging</value></data>
   <data name="nav.item.financialPeriods" xml:space="preserve"><value>Períodos</value></data>
+  <data name="nav.item.reconciliation" xml:space="preserve"><value>Conciliação</value></data>
   <data name="nav.item.agency" xml:space="preserve"><value>Agência</value></data>
   <data name="nav.item.agencyData" xml:space="preserve"><value>Dados da agência</value></data>
   <data name="nav.item.integrations" xml:space="preserve"><value>Integrações</value></data>
@@ -840,6 +841,30 @@
   <data name="financial.periods.empty" xml:space="preserve"><value>Nenhum período</value></data>
   <data name="financial.periods.confirm.close" xml:space="preserve"><value>Fechar este mês? Lançamentos com data dentro dele ficarão bloqueados para criação/edição/baixa (o estorno continua permitido, pois lança no mês aberto).</value></data>
   <data name="financial.periods.confirm.reopen" xml:space="preserve"><value>Reabrir este mês? Voltará a aceitar lançamentos e alterações com data dentro dele.</value></data>
+  <data name="financial.reconciliation.title" xml:space="preserve"><value>Conciliação bancária</value></data>
+  <data name="financial.reconciliation.subtitle" xml:space="preserve"><value>Importe o extrato e case cada transação com o lançamento correspondente</value></data>
+  <data name="financial.reconciliation.empty" xml:space="preserve"><value>Nenhuma transação</value></data>
+  <data name="financial.reconciliation.field.account" xml:space="preserve"><value>Conta</value></data>
+  <data name="financial.reconciliation.field.date" xml:space="preserve"><value>Data</value></data>
+  <data name="financial.reconciliation.field.description" xml:space="preserve"><value>Descrição</value></data>
+  <data name="financial.reconciliation.field.direction" xml:space="preserve"><value>Tipo</value></data>
+  <data name="financial.reconciliation.badge.matched" xml:space="preserve"><value>Conciliado</value></data>
+  <data name="financial.reconciliation.badge.pending" xml:space="preserve"><value>Pendente</value></data>
+  <data name="financial.reconciliation.action.match" xml:space="preserve"><value>Casar</value></data>
+  <data name="financial.reconciliation.action.unmatch" xml:space="preserve"><value>Desfazer</value></data>
+  <data name="financial.reconciliation.action.import" xml:space="preserve"><value>Importar extrato</value></data>
+  <data name="financial.reconciliation.stat.total" xml:space="preserve"><value>Transações</value></data>
+  <data name="financial.reconciliation.stat.matched" xml:space="preserve"><value>Conciliadas</value></data>
+  <data name="financial.reconciliation.stat.pending" xml:space="preserve"><value>Pendentes</value></data>
+  <data name="financial.reconciliation.confirm.unmatch" xml:space="preserve"><value>Desfazer a conciliação desta transação? O lançamento volta a ficar em aberto.</value></data>
+  <data name="financial.reconciliation.match.title" xml:space="preserve"><value>Casar transação</value></data>
+  <data name="financial.reconciliation.match.entry" xml:space="preserve"><value>Lançamento correspondente</value></data>
+  <data name="financial.reconciliation.match.entryPlaceholder" xml:space="preserve"><value>Selecione um lançamento</value></data>
+  <data name="financial.reconciliation.match.noEntry" xml:space="preserve"><value>Nenhum lançamento aberto com este valor nesta conta.</value></data>
+  <data name="financial.reconciliation.match.confirm" xml:space="preserve"><value>Casar</value></data>
+  <data name="financial.reconciliation.import.title" xml:space="preserve"><value>Importar extrato</value></data>
+  <data name="financial.reconciliation.import.hint" xml:space="preserve"><value>Cole uma linha por transação no formato: data;descrição;valor;C ou D (C=entrada, D=saída).</value></data>
+  <data name="financial.reconciliation.import.confirm" xml:space="preserve"><value>Importar</value></data>
   <data name="financial.aging.totalReceivable" xml:space="preserve"><value>Total a receber pendente</value></data>
   <data name="financial.aging.totalPayable" xml:space="preserve"><value>Total a pagar pendente</value></data>
   <data name="financial.cashFlow.title" xml:space="preserve"><value>Fluxo de caixa</value></data>
