@@ -226,6 +226,34 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task MarkPaid_should_not_oversettle_planned_payouts_beyond_paid_amount()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#fff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            FinancialEntry earlier = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout,
+                "Repasse previsto 1", 60m, DateTimeOffset.UtcNow.AddDays(5), DateTimeOffset.UtcNow, campaignId: cc.CampaignId);
+            earlier.LinkToCreator(cc.CreatorId);
+            FinancialEntry later = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout,
+                "Repasse previsto 2", 60m, DateTimeOffset.UtcNow.AddDays(10), DateTimeOffset.UtcNow, campaignId: cc.CampaignId);
+            later.LinkToCreator(cc.CreatorId);
+            db.AddRange(earlier, later);
+            await db.SaveChangesAsync();
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 60m, Method = PaymentMethod.Pix });
+            await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            db.ChangeTracker.Clear();
+            FinancialEntry settledEarlier = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == earlier.Id);
+            FinancialEntry untouchedLater = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == later.Id);
+
+            settledEarlier.Status.Should().Be(FinancialEntryStatus.Paid);
+            untouchedLater.Status.Should().Be(FinancialEntryStatus.Pending);
+        }
+
+        [Test]
         public async Task Cancel_should_set_status_and_register_event()
         {
             CreatorPayment payment = await SeedExistingPaymentAsync();

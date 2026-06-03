@@ -453,15 +453,38 @@ namespace AgencyCampaign.Infrastructure.Services
                 return;
             }
 
-            foreach (FinancialEntry entry in planned)
+            // Vinculo 1:1 (D4): baixa os repasses previstos por ordem de vencimento, sem ultrapassar o valor
+            // efetivamente pago. Evita quitar mais previsto do que o pagamento cobre; a sobra fica em aberto.
+            List<FinancialEntry> ordered = planned.OrderBy(item => item.DueAt).ToList();
+            decimal remaining = payment.NetAmount;
+            List<FinancialEntry> settled = [];
+
+            foreach (FinancialEntry entry in ordered)
             {
+                if (entry.Amount > remaining)
+                {
+                    continue;
+                }
+
                 entry.ChangeStatus(FinancialEntryStatus.Paid, paidAt);
+                remaining -= entry.Amount;
+                settled.Add(entry);
             }
 
             decimal plannedTotal = planned.Sum(item => item.Amount);
-            string description = plannedTotal == payment.NetAmount
-                ? $"Baixa automatica de {planned.Count} repasse(s) previsto(s) (R$ {plannedTotal:0.00})."
-                : $"Baixa automatica de {planned.Count} repasse(s) previsto(s) (R$ {plannedTotal:0.00}); valor pago R$ {payment.NetAmount:0.00} diverge do previsto.";
+
+            if (settled.Count == 0)
+            {
+                payment.RegisterEvent(CreatorPaymentEventType.PlannedPayoutSettled,
+                    $"Pagamento de R$ {payment.NetAmount:0.00} diverge do previsto: nenhum repasse previsto coube no valor pago (menor previsto e maior que o pago); nada baixado.");
+                return;
+            }
+
+            decimal settledTotal = settled.Sum(item => item.Amount);
+            bool fullyReconciled = settledTotal == payment.NetAmount && settled.Count == planned.Count;
+            string description = fullyReconciled
+                ? $"Baixa automatica de {settled.Count} repasse(s) previsto(s) (R$ {settledTotal:0.00})."
+                : $"Baixa automatica de {settled.Count} de {planned.Count} repasse(s) previsto(s) (R$ {settledTotal:0.00}); valor pago R$ {payment.NetAmount:0.00} diverge do previsto total R$ {plannedTotal:0.00}.";
 
             payment.RegisterEvent(CreatorPaymentEventType.PlannedPayoutSettled, description);
         }
