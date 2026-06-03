@@ -10,6 +10,7 @@ import type { FinancialAccount } from '../../types/financialAccount'
 import type { FinancialSubcategory } from '../../types/financialSubcategory'
 import type { Campaign } from '../../types/campaign'
 import type { CampaignDeliverable } from '../../types/campaignDeliverable'
+import { formatCurrency } from '../../lib/format'
 
 interface FinancialEntryFormModalProps {
   open: boolean
@@ -226,7 +227,7 @@ export default function FinancialEntryFormModal({
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.amountBrl')}</label>
-              <Input type="number" step="0.01" value={formData.amount === 0 ? '' : formData.amount} onChange={(e) => setFormData((prev) => ({ ...prev, amount: e.target.value === '' ? 0 : Number(e.target.value) }))} required />
+              <Input type="number" step="0.01" min="0" value={formData.amount === 0 ? '' : formData.amount} onChange={(e) => setFormData((prev) => ({ ...prev, amount: e.target.value === '' ? 0 : Math.max(0, Number(e.target.value)) }))} required />
             </div>
 
             <div className="space-y-2">
@@ -352,7 +353,7 @@ export default function FinancialEntryFormModal({
                       />
                     </div>
                     <p className="text-xs text-muted-foreground self-end">
-                      Cada parcela = {(formData.amount / installmentTotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} · 1 ao mês
+                      Cada parcela = {formatCurrency(formData.amount / installmentTotal)} · 1 ao mês
                     </p>
                   </div>
                 )}

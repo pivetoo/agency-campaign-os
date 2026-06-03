@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
+import { Button, ConfirmModal, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import type { CreatorPayment } from '../../types/creatorPayment'
 import { IntegrationCategoryIdentifier, type Connector, type IntegrationCategory, type IntegrationPlatformIntegration, type Pipeline } from '../../types/integrationPlatform'
+import { formatCurrency } from '../../lib/format'
 
 interface Props {
   open: boolean
@@ -25,6 +26,7 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
   const [pipelines, setPipelines] = useState<Pipeline[]>([])
   const [pipelineId, setPipelineId] = useState<number | undefined>()
   const [scheduledFor, setScheduledFor] = useState('')
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   const { execute: loadCategories, loading: catLoading } = useApi<IntegrationCategory[]>({ showErrorMessage: true })
   const { execute: loadIntegrations, loading: intLoading } = useApi<IntegrationPlatformIntegration[]>({ showErrorMessage: true })
@@ -92,8 +94,13 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
 
   const isValid = !!connectorId && !!pipelineId && payments.length > 0
 
-  const submit = async (event: React.FormEvent) => {
+  const submit = (event: React.FormEvent) => {
     event.preventDefault()
+    if (!isValid) return
+    setConfirmOpen(true)
+  }
+
+  const confirmAndSend = async () => {
     if (!connectorId || !pipelineId) return
     const result = await send(() =>
       creatorPaymentService.scheduleBatch({
@@ -103,10 +110,14 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
         scheduledFor: scheduledFor ? new Date(scheduledFor).toISOString() : undefined,
       }),
     )
-    if (result !== null) onSuccess()
+    if (result !== null) {
+      setConfirmOpen(false)
+      onSuccess()
+    }
   }
 
   return (
+    <>
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '760px', width: '95vw' }}>
         <ModalHeader>
@@ -120,11 +131,11 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Total bruto</p>
-              <p className="font-semibold">R$ {totals.gross.toFixed(2)}</p>
+              <p className="font-semibold">{formatCurrency(totals.gross)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Total líquido</p>
-              <p className="font-semibold">R$ {totals.net.toFixed(2)}</p>
+              <p className="font-semibold">{formatCurrency(totals.net)}</p>
             </div>
             {totals.missingPix > 0 && (
               <div className="col-span-3 rounded bg-destructive/10 p-2 text-xs text-destructive">
@@ -193,5 +204,15 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
         </form>
       </ModalContent>
     </Modal>
+
+    <ConfirmModal
+      open={confirmOpen}
+      onOpenChange={setConfirmOpen}
+      description={`Você está prestes a enviar ${payments.length} pagamento(s) (líquido ${formatCurrency(totals.net)}) para processamento real via integração. Esta ação movimenta dinheiro de verdade.`}
+      variant="warning"
+      onConfirm={() => void confirmAndSend()}
+      loading={sending}
+    />
+    </>
   )
 }

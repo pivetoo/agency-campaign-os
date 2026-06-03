@@ -3,6 +3,7 @@ import { Badge, Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitl
 import { ExternalLink } from 'lucide-react'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
 import { creatorPaymentEventTypeLabels, paymentMethodLabels, paymentStatusLabels, pixKeyTypeLabels, type CreatorPayment, type PaymentStatusValue } from '../../types/creatorPayment'
+import { maskSensitive } from '../../lib/format'
 
 interface Props {
   open: boolean
@@ -96,7 +97,7 @@ export default function CreatorPaymentDetailsModal({ open, onOpenChange, payment
               </TabsList>
 
               <TabsContent value="info" className="mt-0 grid grid-cols-1 gap-3 md:grid-cols-2">
-                <Field label="Chave PIX (snapshot)" value={payment.pixKey ?? payment.creatorPixKey ?? '—'} />
+                <Field label="Chave PIX (snapshot)" value={maskSensitive(payment.pixKey ?? payment.creatorPixKey)} />
                 <Field
                   label="Tipo PIX"
                   value={

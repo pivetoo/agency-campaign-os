@@ -51,3 +51,10 @@ export function isoToDateInput(value?: string | null): string {
   if (!value) return ''
   return value.split('T')[0] ?? ''
 }
+
+export function maskSensitive(value?: string | null, visible = 4): string {
+  if (!value) return '—'
+  const trimmed = value.trim()
+  if (trimmed.length <= visible) return '•'.repeat(Math.max(trimmed.length, 1))
+  return `${'•'.repeat(Math.min(8, trimmed.length - visible))}${trimmed.slice(-visible)}`
+}

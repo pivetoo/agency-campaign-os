@@ -5,6 +5,7 @@ import { Ban, Eye, Pencil, Plus, Receipt, Send, Signature } from 'lucide-react'
 import { campaignService } from '../../../services/campaignService'
 import { creatorPaymentService } from '../../../services/creatorPaymentService'
 import type { Campaign } from '../../../types/campaign'
+import { formatCurrency } from '../../../lib/format'
 import { PaymentStatus, paymentMethodLabels, paymentStatusLabels, type CreatorPayment, type PaymentStatusValue } from '../../../types/creatorPayment'
 import CreatorPaymentFormModal from '../../../components/modals/CreatorPaymentFormModal'
 import CreatorPaymentInvoiceModal from '../../../components/modals/CreatorPaymentInvoiceModal'
@@ -117,7 +118,7 @@ export default function CreatorPaymentsPage() {
       title: t('financial.creatorPayments.field.netAmount'),
       dataIndex: 'netAmount',
       width: 120,
-      render: (value: number) => `R$ ${value.toFixed(2)}`,
+      render: (value: number) => formatCurrency(value),
     },
     {
       key: 'method',
@@ -247,11 +248,11 @@ export default function CreatorPaymentsPage() {
 
         <div className="mt-3 grid grid-cols-2 gap-2 text-sm md:grid-cols-4">
           <Stat label={t('financial.creatorPayments.stat.payments')} value={payments.length.toString()} />
-          <Stat label={t('financial.creatorPayments.stat.grossTotal')} value={`R$ ${totals.all.gross.toFixed(2)}`} />
-          <Stat label={t('financial.creatorPayments.stat.netTotal')} value={`R$ ${totals.all.net.toFixed(2)}`} />
+          <Stat label={t('financial.creatorPayments.stat.grossTotal')} value={formatCurrency(totals.all.gross)} />
+          <Stat label={t('financial.creatorPayments.stat.netTotal')} value={formatCurrency(totals.all.net)} />
           <Stat
             label={t('financial.creatorPayments.stat.selected')}
-            value={selected.length === 0 ? '—' : `${selected.length} · R$ ${totals.sel.net.toFixed(2)}`}
+            value={selected.length === 0 ? '—' : `${selected.length} · ${formatCurrency(totals.sel.net)}`}
           />
         </div>
 
