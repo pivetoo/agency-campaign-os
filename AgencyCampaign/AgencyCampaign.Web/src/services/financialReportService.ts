@@ -38,6 +38,21 @@ export interface AgingReport {
   buckets: AgingBucket[]
 }
 
+export interface CashFlowProjectionWeek {
+  weekStart: string
+  inflow: number
+  outflow: number
+  net: number
+  projectedBalance: number
+}
+
+export interface CashFlowProjection {
+  generatedAt: string
+  openingBalance: number
+  weeks: number
+  series: CashFlowProjectionWeek[]
+}
+
 const BASE_URL = '/FinancialReports'
 
 export const financialReportService = {
@@ -49,6 +64,11 @@ export const financialReportService = {
 
   async getAging(): Promise<AgingReport | null> {
     const response = await httpClient.get<AgingReport>(`${BASE_URL}/aging`)
+    return response.data ?? null
+  },
+
+  async getCashFlowProjection(weeks = 12): Promise<CashFlowProjection | null> {
+    const response = await httpClient.get<CashFlowProjection>(`${BASE_URL}/cashflow-projection?weeks=${weeks}`)
     return response.data ?? null
   },
 }
