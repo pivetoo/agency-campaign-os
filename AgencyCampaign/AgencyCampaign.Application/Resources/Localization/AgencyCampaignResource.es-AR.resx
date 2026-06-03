@@ -192,6 +192,9 @@
   <data name="creatorPayment.cannotCancelPaid" xml:space="preserve"><value>No es posible cancelar un pago ya marcado como Pagado.</value></data>
   <data name="creatorPayment.cannotPayCancelled" xml:space="preserve"><value>No es posible marcar como pagado un pago cancelado.</value></data>
   <data name="creatorPayment.cannotFailFinalized" xml:space="preserve"><value>No es posible marcar como fallido un pago ya finalizado.</value></data>
+  <data name="creatorPayment.alreadyApproved" xml:space="preserve"><value>El pago ya fue aprobado.</value></data>
+  <data name="creatorPayment.approverMustDiffer" xml:space="preserve"><value>El aprobador debe ser distinto del usuario que registró el pago.</value></data>
+  <data name="creatorPayment.approverUnknown" xml:space="preserve"><value>No se pudo identificar al usuario aprobador.</value></data>
   <data name="financialEntry.alreadyPaid" xml:space="preserve"><value>El registro financiero ya fue pagado y no puede modificarse.</value></data>
   <data name="financialEntry.notOpenForReconciliation" xml:space="preserve"><value>Solo los registros financieros pendientes o vencidos pueden conciliarse.</value></data>
   <data name="bankTransaction.amountMismatch" xml:space="preserve"><value>El importe de la transacción bancaria no coincide con el del registro financiero.</value></data>
@@ -1467,6 +1470,7 @@
   <data name="creatorPayments.area" xml:space="preserve"><value>Creator payments</value></data>
   <data name="creatorPayments.attachInvoice.description" xml:space="preserve"><value>Permite anexar nota fiscal a um pagamento.</value></data>
   <data name="creatorPayments.cancel.description" xml:space="preserve"><value>Permite cancelar um pagamento.</value></data>
+  <data name="creatorPayments.approve.description" xml:space="preserve"><value>Permite aprovar um pagamento a creator (maker-checker).</value></data>
   <data name="creatorPayments.create.description" xml:space="preserve"><value>Permite registrar um pagamento a creator.</value></data>
   <data name="creatorPayments.get.description" xml:space="preserve"><value>Permite listar os pagamentos de creators.</value></data>
   <data name="creatorPayments.getByCampaign.description" xml:space="preserve"><value>Permite listar pagamentos por campanha.</value></data>

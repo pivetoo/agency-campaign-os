@@ -137,6 +137,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapPayment(payment), Localizer["record.updated"]);
         }
 
+        [RequireAccess("creatorPayments.approve.description")]
+        [PostEndpoint("{id:long}/approve")]
+        public async Task<IActionResult> Approve(long id, CancellationToken cancellationToken)
+        {
+            CreatorPayment payment = await creatorPaymentService.ApprovePayment(id, cancellationToken);
+            return Http200(MapPayment(payment), Localizer["record.updated"]);
+        }
+
         [RequireAccess("creatorPayments.scheduleBatch.description")]
         [PostEndpoint]
         public async Task<IActionResult> ScheduleBatch([FromBody] SchedulePaymentBatchRequest request, CancellationToken cancellationToken)

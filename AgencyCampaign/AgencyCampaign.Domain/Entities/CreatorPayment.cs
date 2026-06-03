@@ -61,6 +61,16 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? FailureReason { get; private set; }
 
+        // Maker-checker: quem criou e quem aprovou o pagamento. O aprovador precisa ser diferente do criador
+        // (segregacao de funcoes); acima do teto da agencia, o repasse so e agendado apos a aprovacao.
+        public long? CreatedByUserId { get; private set; }
+
+        public DateTimeOffset? ApprovedAt { get; private set; }
+
+        public long? ApprovedByUserId { get; private set; }
+
+        public bool IsApproved => ApprovedAt.HasValue;
+
         public IReadOnlyCollection<CreatorPaymentEvent> Events => events.AsReadOnly();
 
         private CreatorPayment()
@@ -156,6 +166,36 @@ namespace AgencyCampaign.Domain.Entities
 
             ScheduledFor = scheduledFor.ToUniversalTime();
             Status = PaymentStatus.Scheduled;
+        }
+
+        public void SetCreatedBy(long? userId)
+        {
+            CreatedByUserId = userId;
+        }
+
+        // Aprovacao (maker-checker): o aprovador deve ser diferente de quem criou; nao reaprova nem aprova
+        // pagamento ja finalizado.
+        public void Approve(long approverUserId)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(approverUserId);
+
+            if (Status == PaymentStatus.Paid || Status == PaymentStatus.Cancelled)
+            {
+                throw new InvalidOperationException("creatorPayment.alreadyFinalized");
+            }
+
+            if (ApprovedAt.HasValue)
+            {
+                throw new InvalidOperationException("creatorPayment.alreadyApproved");
+            }
+
+            if (CreatedByUserId.HasValue && CreatedByUserId.Value == approverUserId)
+            {
+                throw new InvalidOperationException("creatorPayment.approverMustDiffer");
+            }
+
+            ApprovedAt = DateTimeOffset.UtcNow;
+            ApprovedByUserId = approverUserId;
         }
 
         public void MarkPaid(DateTimeOffset paidAt)

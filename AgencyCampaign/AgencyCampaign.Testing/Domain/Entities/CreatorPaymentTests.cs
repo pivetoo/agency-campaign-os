@@ -151,5 +151,62 @@ namespace AgencyCampaign.Testing.Domain.Entities
 
             subject.Events.Should().HaveCount(2);
         }
+
+        [Test]
+        public void Approve_should_set_approval_metadata()
+        {
+            CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);
+            subject.SetCreatedBy(10);
+
+            subject.Approve(approverUserId: 20);
+
+            subject.IsApproved.Should().BeTrue();
+            subject.ApprovedByUserId.Should().Be(20);
+            subject.ApprovedAt.Should().NotBeNull();
+        }
+
+        [Test]
+        public void Approve_should_throw_when_approver_equals_creator()
+        {
+            CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);
+            subject.SetCreatedBy(7);
+
+            Action act = () => subject.Approve(approverUserId: 7);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("creatorPayment.approverMustDiffer");
+        }
+
+        [Test]
+        public void Approve_should_throw_when_already_approved()
+        {
+            CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);
+            subject.SetCreatedBy(10);
+            subject.Approve(approverUserId: 20);
+
+            Action act = () => subject.Approve(approverUserId: 30);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("creatorPayment.alreadyApproved");
+        }
+
+        [Test]
+        public void Approve_should_throw_when_payment_already_finalized()
+        {
+            CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);
+            subject.MarkPaid(DateTimeOffset.UtcNow);
+
+            Action act = () => subject.Approve(approverUserId: 20);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("creatorPayment.alreadyFinalized");
+        }
+
+        [Test]
+        public void Approve_should_allow_when_creator_is_unknown()
+        {
+            CreatorPayment subject = new(1, 2, 1000m, 0m, PaymentMethod.Pix);
+
+            subject.Approve(approverUserId: 20);
+
+            subject.IsApproved.Should().BeTrue();
+        }
     }
 }

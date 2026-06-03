@@ -673,6 +673,51 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task ApprovePayment_should_throw_when_no_current_user()
+        {
+            CreatorPayment payment = await SeedExistingPaymentAsync();
+
+            Func<Task> act = () => service.ApprovePayment(payment.Id);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("creatorPayment.approverUnknown");
+        }
+
+        [Test]
+        public async Task ApprovePayment_should_throw_when_payment_not_found()
+        {
+            CreatorPaymentService approver = new(db, IntegrationPlatformClientFactory.CreateInert(), null, CurrentUserMock.Create(userId: 2));
+
+            Func<Task> act = () => approver.ApprovePayment(99);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("record.notFound");
+        }
+
+        [Test]
+        public async Task ApprovePayment_should_set_approval_and_register_event()
+        {
+            CreatorPaymentService approver = new(db, IntegrationPlatformClientFactory.CreateInert(), null, CurrentUserMock.Create(userId: 2));
+            CreatorPayment payment = await SeedExistingPaymentAsync();
+
+            CreatorPayment result = await approver.ApprovePayment(payment.Id);
+
+            result.IsApproved.Should().BeTrue();
+            result.ApprovedByUserId.Should().Be(2);
+            result.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Approved);
+        }
+
+        [Test]
+        public async Task ApprovePayment_should_throw_when_approver_is_the_creator()
+        {
+            CreatorPaymentService maker = new(db, IntegrationPlatformClientFactory.CreateInert(), null, CurrentUserMock.Create(userId: 5));
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await maker.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            Func<Task> act = () => maker.ApprovePayment(payment.Id);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("creatorPayment.approverMustDiffer");
+        }
+
+        [Test]
         public async Task SchedulePaymentBatch_should_warn_when_pj_creator_has_no_invoice()
         {
             Brand brand = new("Acme");

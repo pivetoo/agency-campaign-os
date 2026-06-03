@@ -4,6 +4,7 @@ using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Clients;
+using Archon.Application.Abstractions;
 using Archon.Application.MultiTenancy;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
@@ -18,11 +19,13 @@ namespace AgencyCampaign.Infrastructure.Services
     {
         private readonly IntegrationPlatformClient integrationPlatformClient;
         private readonly ITenantContext? tenantContext;
+        private readonly ICurrentUser? currentUser;
 
-        public CreatorPaymentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, ITenantContext? tenantContext = null) : base(dbContext)
+        public CreatorPaymentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, ITenantContext? tenantContext = null, ICurrentUser? currentUser = null) : base(dbContext)
         {
             this.integrationPlatformClient = integrationPlatformClient;
             this.tenantContext = tenantContext;
+            this.currentUser = currentUser;
         }
 
         public async Task<PagedResult<CreatorPayment>> GetPayments(PagedRequest request, CancellationToken cancellationToken = default)
@@ -81,6 +84,8 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 payment.SnapshotPixDestination(campaignCreator.Creator.PixKey, campaignCreator.Creator.PixKeyType.Value);
             }
+
+            payment.SetCreatedBy(currentUser?.UserId);
 
             bool success = await Insert(cancellationToken, payment);
             if (!success)
@@ -207,6 +212,36 @@ namespace AgencyCampaign.Infrastructure.Services
 
             payment.Cancel();
             payment.RegisterEvent(CreatorPaymentEventType.Cancelled);
+
+            CreatorPayment? result = await Update(payment, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return await GetPaymentById(result.Id, cancellationToken) ?? result;
+        }
+
+        public async Task<CreatorPayment> ApprovePayment(long id, CancellationToken cancellationToken = default)
+        {
+            long? approverId = currentUser?.UserId;
+            if (!approverId.HasValue)
+            {
+                throw new InvalidOperationException("creatorPayment.approverUnknown");
+            }
+
+            CreatorPayment? payment = await DbContext.Set<CreatorPayment>()
+                .AsTracking()
+                .Include(item => item.Events)
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (payment is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            payment.Approve(approverId.Value);
+            payment.RegisterEvent(CreatorPaymentEventType.Approved, $"Aprovado pelo usuario #{approverId.Value}.");
 
             CreatorPayment? result = await Update(payment, cancellationToken);
             if (result is null)

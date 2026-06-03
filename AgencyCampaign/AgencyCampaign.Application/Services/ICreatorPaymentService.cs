@@ -16,6 +16,7 @@ namespace AgencyCampaign.Application.Services
         Task<CreatorPayment> AttachInvoice(long id, AttachInvoiceRequest request, CancellationToken cancellationToken = default);
         Task<CreatorPayment> MarkPaid(long id, MarkCreatorPaymentPaidRequest request, CancellationToken cancellationToken = default);
         Task<CreatorPayment> Cancel(long id, CancellationToken cancellationToken = default);
+        Task<CreatorPayment> ApprovePayment(long id, CancellationToken cancellationToken = default);
         Task<List<CreatorPayment>> SchedulePaymentBatch(SchedulePaymentBatchRequest request, CancellationToken cancellationToken = default);
         Task<CreatorPayment> HandleProviderCallback(CreatorPaymentProviderCallbackRequest request, CancellationToken cancellationToken = default);
     }
