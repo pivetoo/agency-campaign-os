@@ -177,6 +177,48 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task MarkPaid_should_not_settle_planned_payouts_twice()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#fff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            FinancialEntry planned = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout,
+                "Repasse previsto", 100m, DateTimeOffset.UtcNow.AddDays(10), DateTimeOffset.UtcNow, campaignId: cc.CampaignId);
+            planned.LinkToCreator(cc.CreatorId);
+            db.Add(planned);
+            await db.SaveChangesAsync();
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+            await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+            CreatorPayment result = await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            result.Events.Count(item => item.EventType == CreatorPaymentEventType.PlannedPayoutSettled).Should().Be(1);
+        }
+
+        [Test]
+        public async Task MarkPaid_should_signal_divergence_when_planned_total_differs_from_paid()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#fff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            FinancialEntry planned = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout,
+                "Repasse previsto", 100m, DateTimeOffset.UtcNow.AddDays(10), DateTimeOffset.UtcNow, campaignId: cc.CampaignId);
+            planned.LinkToCreator(cc.CreatorId);
+            db.Add(planned);
+            await db.SaveChangesAsync();
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 80m, Method = PaymentMethod.Pix });
+            CreatorPayment result = await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            result.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.PlannedPayoutSettled
+                && item.Description != null && item.Description.Contains("diverge"));
+        }
+
+        [Test]
         public async Task MarkPaid_should_throw_when_not_found()
         {
             Func<Task> act = () => service.MarkPaid(99, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
