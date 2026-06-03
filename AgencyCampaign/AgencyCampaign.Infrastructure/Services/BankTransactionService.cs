@@ -97,6 +97,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 {
                     FinancialEntry single = matches[0];
                     bankTransaction.AttachToEntry(single.Id, BankTransactionMatchKind.Auto);
+                    single.SettleFromReconciliation(item.OccurredAt);
                     usedEntryIds.Add(single.Id);
                     autoMatched++;
                 }
@@ -152,7 +153,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             FinancialEntry? entry = await dbContext.Set<FinancialEntry>()
-                .AsNoTracking()
+                .AsTracking()
                 .FirstOrDefaultAsync(item => item.Id == financialEntryId && item.AccountId == bankTransaction.AccountId, cancellationToken);
 
             if (entry is null)
@@ -160,6 +161,12 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("financialEntry.notFoundForAccount");
             }
 
+            if (entry.Amount != bankTransaction.Amount)
+            {
+                throw new InvalidOperationException("bankTransaction.amountMismatch");
+            }
+
+            entry.SettleFromReconciliation(bankTransaction.OccurredAt);
             bankTransaction.AttachToEntry(financialEntryId, BankTransactionMatchKind.Manual);
             await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -175,6 +182,18 @@ namespace AgencyCampaign.Infrastructure.Services
             if (bankTransaction is null)
             {
                 throw new InvalidOperationException("bankTransaction.notFound");
+            }
+
+            if (bankTransaction.FinancialEntryId.HasValue)
+            {
+                FinancialEntry? entry = await dbContext.Set<FinancialEntry>()
+                    .AsTracking()
+                    .FirstOrDefaultAsync(item => item.Id == bankTransaction.FinancialEntryId.Value, cancellationToken);
+
+                if (entry is not null && entry.Status == FinancialEntryStatus.Paid)
+                {
+                    entry.ReopenFromReconciliation();
+                }
             }
 
             bankTransaction.DetachFromEntry();

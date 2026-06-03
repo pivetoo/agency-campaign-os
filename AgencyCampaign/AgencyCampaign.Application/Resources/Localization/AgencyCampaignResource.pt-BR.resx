@@ -193,6 +193,8 @@
   <data name="creatorPayment.cannotPayCancelled" xml:space="preserve"><value>Não é possível marcar como pago um pagamento cancelado.</value></data>
   <data name="creatorPayment.cannotFailFinalized" xml:space="preserve"><value>Não é possível marcar como falho um pagamento já finalizado.</value></data>
   <data name="financialEntry.alreadyPaid" xml:space="preserve"><value>O lançamento já foi pago e não pode ser alterado.</value></data>
+  <data name="financialEntry.notOpenForReconciliation" xml:space="preserve"><value>Só lançamentos pendentes ou vencidos podem ser conciliados.</value></data>
+  <data name="bankTransaction.amountMismatch" xml:space="preserve"><value>O valor da transação bancária não confere com o valor do lançamento.</value></data>
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>A proposta precisa ter sido enviada para ser marcada como visualizada.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>A proposta precisa estar enviada ou visualizada para ser aprovada.</value></data>
   <data name="proposal.send.approvalRequired" xml:space="preserve"><value>Esta proposta excede a política comercial e precisa de aprovação interna antes de ser enviada ou aprovada. Use "Solicitar aprovação".</value></data>

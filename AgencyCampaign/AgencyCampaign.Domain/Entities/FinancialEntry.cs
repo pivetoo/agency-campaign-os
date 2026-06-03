@@ -129,6 +129,27 @@ namespace AgencyCampaign.Domain.Entities
             PaidAt = status == FinancialEntryStatus.Paid ? paidAt?.ToUniversalTime() : null;
         }
 
+        // Conciliacao bancaria: baixa o lancamento ao casar com uma transacao do extrato. So lancamentos
+        // abertos (Pendente/Vencido) podem ser conciliados; um ja pago nao e candidato.
+        public void SettleFromReconciliation(DateTimeOffset paidAt)
+        {
+            if (Status != FinancialEntryStatus.Pending && Status != FinancialEntryStatus.Overdue)
+            {
+                throw new InvalidOperationException("financialEntry.notOpenForReconciliation");
+            }
+
+            Status = FinancialEntryStatus.Paid;
+            PaidAt = paidAt.ToUniversalTime();
+        }
+
+        // Reverte a baixa feita pela conciliacao quando o vinculo com a transacao e desfeito. E o unico
+        // caminho permitido de Pago -> Pendente; o "despago" manual segue bloqueado em ChangeStatus.
+        public void ReopenFromReconciliation()
+        {
+            Status = FinancialEntryStatus.Pending;
+            PaidAt = null;
+        }
+
         public void LinkToProposal(long proposalId)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(proposalId);
