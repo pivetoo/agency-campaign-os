@@ -111,4 +111,27 @@ namespace AgencyCampaign.Application.Models.Financial
         public DateTimeOffset GeneratedAt { get; set; }
         public IReadOnlyCollection<AgingBucketModel> Buckets { get; set; } = [];
     }
+
+    public sealed class TaxWithholdingLineModel
+    {
+        public long CreatorId { get; set; }
+        public string? CreatorName { get; set; }
+        public string? Document { get; set; }
+        public TaxRegime? TaxRegime { get; set; }
+        public decimal GrossAmount { get; set; }
+        public decimal TaxWithheld { get; set; }
+        public decimal NetAmount { get; set; }
+        public int PaymentCount { get; set; }
+    }
+
+    public sealed class TaxWithholdingReportModel
+    {
+        public DateTimeOffset GeneratedAt { get; set; }
+        public DateTimeOffset From { get; set; }
+        public DateTimeOffset To { get; set; }
+        public IReadOnlyCollection<TaxWithholdingLineModel> Lines { get; set; } = [];
+        public decimal TotalGross { get; set; }
+        public decimal TotalWithheld { get; set; }
+        public decimal TotalNet { get; set; }
+    }
 }

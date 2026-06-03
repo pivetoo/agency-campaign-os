@@ -111,6 +111,51 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
+        // Relatorio de retencoes por competencia (PaidAt) para o contador: agrupa por creator os
+        // pagamentos pagos com imposto retido, com bruto/retido/liquido, documento e regime tributario.
+        public async Task<TaxWithholdingReportModel> GetTaxWithholdingReport(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset normalizedFrom = from.ToUniversalTime();
+            DateTimeOffset normalizedTo = to.ToUniversalTime();
+
+            List<CreatorPayment> payments = await dbContext.Set<CreatorPayment>()
+                .AsNoTracking()
+                .Include(item => item.Creator)
+                .Where(item => item.Status == PaymentStatus.Paid
+                    && item.PaidAt.HasValue
+                    && item.PaidAt.Value >= normalizedFrom
+                    && item.PaidAt.Value <= normalizedTo
+                    && item.TaxWithheld > 0)
+                .ToListAsync(cancellationToken);
+
+            TaxWithholdingLineModel[] lines = payments
+                .GroupBy(item => item.CreatorId)
+                .Select(group => new TaxWithholdingLineModel
+                {
+                    CreatorId = group.Key,
+                    CreatorName = group.First().Creator != null ? group.First().Creator!.Name : null,
+                    Document = group.First().Creator != null ? group.First().Creator!.Document : null,
+                    TaxRegime = group.First().Creator != null ? group.First().Creator!.TaxRegime : null,
+                    GrossAmount = group.Sum(item => item.GrossAmount),
+                    TaxWithheld = group.Sum(item => item.TaxWithheld),
+                    NetAmount = group.Sum(item => item.NetAmount),
+                    PaymentCount = group.Count()
+                })
+                .OrderByDescending(item => item.TaxWithheld)
+                .ToArray();
+
+            return new TaxWithholdingReportModel
+            {
+                GeneratedAt = DateTimeOffset.UtcNow,
+                From = normalizedFrom,
+                To = normalizedTo,
+                Lines = lines,
+                TotalGross = lines.Sum(item => item.GrossAmount),
+                TotalWithheld = lines.Sum(item => item.TaxWithheld),
+                TotalNet = lines.Sum(item => item.NetAmount)
+            };
+        }
+
         private static DateTimeOffset BucketDate(DateTimeOffset value, CashFlowGranularity granularity)
         {
             DateTimeOffset utc = value.ToUniversalTime();

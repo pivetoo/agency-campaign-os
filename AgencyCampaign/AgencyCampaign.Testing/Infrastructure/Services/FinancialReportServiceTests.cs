@@ -99,5 +99,32 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Buckets.Sum(item => item.ReceivableCount).Should().Be(1);
             result.Buckets.Sum(item => item.TotalReceivable).Should().Be(100m);
         }
+
+        [Test]
+        public async Task GetTaxWithholdingReport_should_sum_withholding_by_creator()
+        {
+            DateTimeOffset baseDate = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero);
+            Creator creator = new("Joana", document: "12345678000199", taxRegime: TaxRegime.SimplesNacional);
+            db.Add(creator);
+            await db.SaveChangesAsync();
+
+            CreatorPayment p1 = new(1, creator.Id, 1000m, 0m, PaymentMethod.Pix, taxWithheld: 150m);
+            p1.MarkPaid(baseDate);
+            CreatorPayment p2 = new(1, creator.Id, 500m, 0m, PaymentMethod.Pix, taxWithheld: 50m);
+            p2.MarkPaid(baseDate);
+            CreatorPayment noWithholding = new(1, creator.Id, 200m, 0m, PaymentMethod.Pix);
+            noWithholding.MarkPaid(baseDate);
+            db.Add(p1);
+            db.Add(p2);
+            db.Add(noWithholding);
+            await db.SaveChangesAsync();
+
+            TaxWithholdingReportModel report = await service.GetTaxWithholdingReport(baseDate.AddDays(-1), baseDate.AddDays(1));
+
+            report.Lines.Should().HaveCount(1);
+            report.TotalWithheld.Should().Be(200m);
+            report.Lines.First().TaxRegime.Should().Be(TaxRegime.SimplesNacional);
+            report.Lines.First().TaxWithheld.Should().Be(200m);
+        }
     }
 }

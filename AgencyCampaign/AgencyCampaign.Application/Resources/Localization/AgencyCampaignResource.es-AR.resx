@@ -1532,6 +1532,7 @@
   <data name="financialEntries.update.description" xml:space="preserve"><value>Permite atualizar um lançamento financeiro.</value></data>
   <data name="financialReports.area" xml:space="preserve"><value>Financial reports</value></data>
   <data name="financialReports.getAging.description" xml:space="preserve"><value>Permite consultar o relatório de aging financeiro.</value></data>
+  <data name="financialReports.getTaxWithholding.description" xml:space="preserve"><value>Permite consultar o relatório de retenções de impostos.</value></data>
   <data name="financialReports.getCashFlow.description" xml:space="preserve"><value>Permite consultar o fluxo de caixa por período e granularidade.</value></data>
   <data name="financialSubcategories.area" xml:space="preserve"><value>Financial subcategories</value></data>
   <data name="financialSubcategories.create.description" xml:space="preserve"><value>Permite cadastrar uma subcategoria financeira.</value></data>

@@ -32,5 +32,13 @@ namespace AgencyCampaign.Api.Controllers
             var result = await service.GetAgingReport(cancellationToken);
             return Http200(result);
         }
+
+        [RequireAccess("financialReports.getTaxWithholding.description")]
+        [GetEndpoint("tax-withholding")]
+        public async Task<IActionResult> GetTaxWithholding([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            var result = await service.GetTaxWithholdingReport(from, to, cancellationToken);
+            return Http200(result);
+        }
     }
 }
