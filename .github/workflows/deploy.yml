@@ -126,15 +126,21 @@ jobs:
           path: system/agency-campaign-os
 
       - name: Copy deploy assets to VPS
-        uses: appleboy/scp-action@v0.1.7
+        uses: nick-fields/retry@v3
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          source: "system/agency-campaign-os/deploy/docker-compose.prod.yml"
-          target: "/var/www/kanvas"
-          strip_components: 3
+          timeout_minutes: 3
+          max_attempts: 4
+          retry_wait_seconds: 20
+          command: |
+            echo "${{ secrets.VPS_SSH_KEY }}" > /tmp/vps_key
+            chmod 600 /tmp/vps_key
+            ssh -i /tmp/vps_key -p ${{ secrets.VPS_PORT }} \
+              -o StrictHostKeyChecking=no -o ConnectTimeout=60 \
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'mkdir -p /var/www/kanvas/config'
+            scp -i /tmp/vps_key -P ${{ secrets.VPS_PORT }} \
+              -o StrictHostKeyChecking=no -o ConnectTimeout=60 \
+              system/agency-campaign-os/deploy/docker-compose.prod.yml \
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/kanvas/docker-compose.prod.yml
 
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v0.1.10
@@ -143,6 +149,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
+          timeout: 120s
+          command_timeout: 10m
           script: |
             set -e
             mkdir -p /var/www/kanvas/config
