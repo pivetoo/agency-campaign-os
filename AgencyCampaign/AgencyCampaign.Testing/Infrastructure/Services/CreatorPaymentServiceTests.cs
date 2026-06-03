@@ -671,5 +671,29 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().FirstAsync(item => item.Id == payment.Id);
             refreshed.IdempotencyKey.Should().NotBeNullOrEmpty();
         }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_warn_when_pj_creator_has_no_invoice()
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            Creator creator = new("Joana", pixKey: "joana@x", pixKeyType: PixKeyType.Email, taxRegime: TaxRegime.SimplesNacional);
+            db.Add(creator);
+            await db.SaveChangesAsync();
+            Campaign campaign = new(brand.Id, "C", 0m, DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+            DomainEntities.CampaignCreator cc = new(campaign.Id, creator.Id, 1, 100m, 10m);
+            db.Add(cc);
+            await db.SaveChangesAsync();
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            SchedulePaymentBatchRequest request = new() { CreatorPaymentIds = new List<long> { payment.Id }, ScheduledFor = DateTimeOffset.UtcNow, ConnectorId = 1, PipelineId = 99 };
+            await service.SchedulePaymentBatch(request);
+
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
+            refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.InvoiceMissing);
+        }
     }
 }

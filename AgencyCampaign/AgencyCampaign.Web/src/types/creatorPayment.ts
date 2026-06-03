@@ -55,6 +55,8 @@ export const CreatorPaymentEventType = {
   Cancelled: 7,
   InvoiceAttached: 8,
   ProviderSyncError: 9,
+  PlannedPayoutSettled: 10,
+  InvoiceMissing: 11,
 } as const
 export type CreatorPaymentEventTypeValue =
   (typeof CreatorPaymentEventType)[keyof typeof CreatorPaymentEventType]
@@ -69,6 +71,8 @@ export const creatorPaymentEventTypeLabels: Record<CreatorPaymentEventTypeValue,
   7: 'Cancelado',
   8: 'NF anexada',
   9: 'Erro de sincronização',
+  10: 'Repasse previsto baixado',
+  11: 'NF ausente',
 }
 
 export interface CreatorPaymentEvent {

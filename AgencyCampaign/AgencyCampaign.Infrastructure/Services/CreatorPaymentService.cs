@@ -250,6 +250,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 payment.AssignIdempotencyKey(Guid.NewGuid().ToString("N"));
                 payment.RegisterEvent(CreatorPaymentEventType.Scheduled, $"Agendado para {scheduledFor:yyyy-MM-dd HH:mm}.");
 
+                bool requiresInvoice = payment.Creator?.TaxRegime is TaxRegime regime && regime != TaxRegime.IndividualPF;
+                bool hasInvoice = !string.IsNullOrWhiteSpace(payment.InvoiceNumber) || !string.IsNullOrWhiteSpace(payment.InvoiceUrl);
+                if (requiresInvoice && !hasInvoice)
+                {
+                    payment.RegisterEvent(CreatorPaymentEventType.InvoiceMissing, "Creator PJ sem nota fiscal anexada - emitir/anexar a NFS-e para regularizar o repasse.");
+                }
+
                 string payload = JsonSerializer.Serialize(new
                 {
                     creatorPaymentId = payment.Id,

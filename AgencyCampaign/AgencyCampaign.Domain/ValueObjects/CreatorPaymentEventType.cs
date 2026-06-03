@@ -11,6 +11,7 @@ namespace AgencyCampaign.Domain.ValueObjects
         Cancelled = 7,
         InvoiceAttached = 8,
         ProviderSyncError = 9,
-        PlannedPayoutSettled = 10
+        PlannedPayoutSettled = 10,
+        InvoiceMissing = 11
     }
 }
