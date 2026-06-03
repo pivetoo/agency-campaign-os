@@ -112,6 +112,15 @@ namespace AgencyCampaign.Application.Models.Financial
         public IReadOnlyCollection<CashFlowProjectionWeekModel> Series { get; set; } = [];
     }
 
+    public sealed class FinancialPeriodModel
+    {
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public bool IsClosed { get; set; }
+        public DateTimeOffset? ClosedAt { get; set; }
+        public long? ClosedByUserId { get; set; }
+    }
+
     public sealed class AgingBucketModel
     {
         public string Label { get; set; } = string.Empty;

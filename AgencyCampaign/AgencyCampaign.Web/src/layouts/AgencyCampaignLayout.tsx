@@ -127,6 +127,7 @@ export default function AgencyCampaignLayout() {
       { key: 'financeiro-repasses-creators', label: t('nav.item.creatorPayments'), path: '/financeiro/repasses-creators', icon: <HandCoins size={20} />, requires: ['creatorPayments.get'] },
       { key: 'financeiro-fluxo-caixa', label: t('nav.item.cashFlow'), path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} />, requires: ['financialReports.getCashFlow'] },
       { key: 'financeiro-aging', label: t('nav.item.aging'), path: '/financeiro/aging', icon: <Hourglass size={20} />, requires: ['financialReports.getAging'] },
+      { key: 'financeiro-periodos', label: t('nav.item.financialPeriods'), path: '/financeiro/periodos', icon: <CalendarDays size={20} />, requires: ['financialPeriods.get'] },
     ] },
   ]
 

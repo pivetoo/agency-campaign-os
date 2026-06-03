@@ -59,6 +59,7 @@ namespace AgencyCampaign.Infrastructure.Services
         {
             await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
             await EnsureSubcategoryExists(request.SubcategoryId, cancellationToken);
+            await EnsurePeriodOpenAsync(request.OccurredAt, cancellationToken);
 
             FinancialEntry entry = BuildEntry(request);
 
@@ -96,6 +97,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
             await EnsureSubcategoryExists(request.SubcategoryId, cancellationToken);
+            await EnsurePeriodOpenAsync(request.OccurredAt, cancellationToken);
 
             decimal baseAmount = Math.Round(request.Amount / request.InstallmentTotal, 2, MidpointRounding.AwayFromZero);
             decimal lastAmount = request.Amount - (baseAmount * (request.InstallmentTotal - 1));
@@ -217,6 +219,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
             await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
             await EnsureSubcategoryExists(request.SubcategoryId, cancellationToken);
+            await EnsurePeriodOpenAsync(entry.OccurredAt, cancellationToken);
+            await EnsurePeriodOpenAsync(request.OccurredAt, cancellationToken);
 
             entry.Update(
                 request.AccountId,
@@ -267,6 +271,8 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 throw new InvalidOperationException("record.notFound");
             }
+
+            await EnsurePeriodOpenAsync(request.PaidAt ?? DateTimeOffset.UtcNow, cancellationToken);
 
             entry.Update(
                 request.AccountId,
@@ -438,6 +444,21 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return query;
+        }
+
+        // Fechamento de periodo (D3c): bloqueia escrita de dinheiro datada num mes ja fechado (back-dating).
+        // O estorno NAO passa por aqui - ele lanca a contrapartida no mes aberto corrente (correcao contabil).
+        private async Task EnsurePeriodOpenAsync(DateTimeOffset date, CancellationToken cancellationToken)
+        {
+            DateTimeOffset utc = date.ToUniversalTime();
+            bool closed = await DbContext.Set<FinancialPeriod>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Year == utc.Year && item.Month == utc.Month && item.IsClosed, cancellationToken);
+
+            if (closed)
+            {
+                throw new InvalidOperationException("financialPeriod.closed");
+            }
         }
 
         private async Task EnsureReferencesExist(long accountId, long? campaignId, long? campaignDeliverableId, CancellationToken cancellationToken)

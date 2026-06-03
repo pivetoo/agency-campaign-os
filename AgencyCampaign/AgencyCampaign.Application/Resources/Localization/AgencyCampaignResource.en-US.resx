@@ -201,6 +201,10 @@
   <data name="financialEntry.alreadyReversed" xml:space="preserve"><value>This entry has already been reversed.</value></data>
   <data name="financialEntry.cannotReverseReversal" xml:space="preserve"><value>A reversal entry cannot be reversed.</value></data>
   <data name="financialEntry.reversedButCreatorPaymentPaid" xml:space="preserve"><value>Entry reversed. Warning: there is already a creator payout paid via PIX for this creator/campaign - the accounting reversal does not undo the actual payment.</value></data>
+  <data name="financialPeriod.closed" xml:space="preserve"><value>The financial period is closed. Reopen the month to record or change values on that date.</value></data>
+  <data name="financialPeriod.alreadyClosed" xml:space="preserve"><value>This period is already closed.</value></data>
+  <data name="financialPeriod.notClosed" xml:space="preserve"><value>This period is not closed.</value></data>
+  <data name="financialPeriod.userUnknown" xml:space="preserve"><value>Could not identify the user closing or reopening the period.</value></data>
   <data name="bankTransaction.amountMismatch" xml:space="preserve"><value>The bank transaction amount does not match the financial entry amount.</value></data>
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>The proposal must be Sent to be marked as Viewed.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>The proposal must be Sent or Viewed to be Approved.</value></data>
@@ -271,6 +275,7 @@
   <data name="nav.item.creatorPayments" xml:space="preserve"><value>Creator payments</value></data>
   <data name="nav.item.cashFlow" xml:space="preserve"><value>Cash flow</value></data>
   <data name="nav.item.aging" xml:space="preserve"><value>Aging</value></data>
+  <data name="nav.item.financialPeriods" xml:space="preserve"><value>Periods</value></data>
   <data name="nav.item.agency" xml:space="preserve"><value>Agency</value></data>
   <data name="nav.item.agencyData" xml:space="preserve"><value>Agency data</value></data>
   <data name="nav.item.integrations" xml:space="preserve"><value>Integrations</value></data>
@@ -821,6 +826,15 @@
   <data name="financial.kpi.projectedBalance" xml:space="preserve"><value>Projected balance</value></data>
   <data name="financial.aging.title" xml:space="preserve"><value>Financial aging</value></data>
   <data name="financial.aging.subtitle" xml:space="preserve"><value>Distribution of pending entries by overdue range</value></data>
+  <data name="financial.periods.title" xml:space="preserve"><value>Financial periods</value></data>
+  <data name="financial.periods.subtitle" xml:space="preserve"><value>Close a month to lock back-dated entries; reopen if you need to correct</value></data>
+  <data name="financial.periods.badge.closed" xml:space="preserve"><value>Closed</value></data>
+  <data name="financial.periods.badge.open" xml:space="preserve"><value>Open</value></data>
+  <data name="financial.periods.action.close" xml:space="preserve"><value>Close</value></data>
+  <data name="financial.periods.action.reopen" xml:space="preserve"><value>Reopen</value></data>
+  <data name="financial.periods.empty" xml:space="preserve"><value>No periods</value></data>
+  <data name="financial.periods.confirm.close" xml:space="preserve"><value>Close this month? Entries dated within it will be blocked from creation/edit/settlement (reversal stays allowed, as it books in the open month).</value></data>
+  <data name="financial.periods.confirm.reopen" xml:space="preserve"><value>Reopen this month? It will accept entries and changes dated within it again.</value></data>
   <data name="financial.aging.totalReceivable" xml:space="preserve"><value>Total pending receivable</value></data>
   <data name="financial.aging.totalPayable" xml:space="preserve"><value>Total pending payable</value></data>
   <data name="financial.cashFlow.title" xml:space="preserve"><value>Cash flow</value></data>
@@ -1542,6 +1556,10 @@
   <data name="financialEntries.reverse.description" xml:space="preserve"><value>Permite estornar um lançamento financeiro pago (contrapartida).</value></data>
   <data name="financialEntries.update.description" xml:space="preserve"><value>Permite atualizar um lançamento financeiro.</value></data>
   <data name="financialReports.area" xml:space="preserve"><value>Financial reports</value></data>
+  <data name="financialPeriods.area" xml:space="preserve"><value>Financial periods</value></data>
+  <data name="financialPeriods.get.description" xml:space="preserve"><value>Permite consultar os períodos financeiros e seu status de fechamento.</value></data>
+  <data name="financialPeriods.close.description" xml:space="preserve"><value>Permite fechar um período financeiro (trava lançamentos do mês).</value></data>
+  <data name="financialPeriods.reopen.description" xml:space="preserve"><value>Permite reabrir um período financeiro fechado.</value></data>
   <data name="financialReports.getAging.description" xml:space="preserve"><value>Permite consultar o relatório de aging financeiro.</value></data>
   <data name="financialReports.getTaxWithholding.description" xml:space="preserve"><value>Permite consultar o relatório de retenções de impostos.</value></data>
   <data name="financialReports.getCampaignProfitability.description" xml:space="preserve"><value>Permite consultar o relatório de rentabilidade por campanha.</value></data>

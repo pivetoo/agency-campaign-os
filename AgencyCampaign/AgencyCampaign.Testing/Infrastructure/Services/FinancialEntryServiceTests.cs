@@ -405,5 +405,54 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             result.CreatorPaymentAlreadyPaid.Should().BeTrue();
         }
+
+        private async Task SeedClosedPeriodAsync(int year, int month)
+        {
+            FinancialPeriod period = new(year, month);
+            period.Close(1);
+            db.Add(period);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+        }
+
+        [Test]
+        public async Task CreateEntry_should_throw_when_period_is_closed()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            await SeedClosedPeriodAsync(now.Year, now.Month);
+
+            Func<Task> act = () => service.CreateEntry(BuildCreateRequest(account.Id));
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("financialPeriod.closed");
+        }
+
+        [Test]
+        public async Task MarkAsPaid_should_throw_when_paid_period_is_closed()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry entry = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "x", 100m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            db.Add(entry);
+            await db.SaveChangesAsync();
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            await SeedClosedPeriodAsync(now.Year, now.Month);
+
+            Func<Task> act = () => service.MarkAsPaid(entry.Id, new MarkAsPaidRequest { AccountId = account.Id, PaidAt = DateTimeOffset.UtcNow });
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("financialPeriod.closed");
+        }
+
+        [Test]
+        public async Task ReverseEntry_should_be_allowed_even_with_a_closed_period()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry original = await SeedPaidEntryAsync(account);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            await SeedClosedPeriodAsync(now.Year, now.Month);
+
+            ReverseEntryResult result = await service.ReverseEntry(original.Id, new ReverseFinancialEntryRequest());
+
+            result.Reversal.Should().NotBeNull();
+        }
     }
 }
