@@ -4,6 +4,7 @@ import { creatorPaymentService, type CreateCreatorPaymentRequest, type UpdateCre
 import { campaignCreatorService } from '../../services/campaignCreatorService'
 import { PaymentMethod, paymentMethodLabels, type CreatorPayment, type PaymentMethodValue } from '../../types/creatorPayment'
 import type { CampaignCreator } from '../../types/campaignCreator'
+import { formatCurrency } from '../../lib/format'
 
 interface Props {
   open: boolean
@@ -17,6 +18,7 @@ const initial: CreateCreatorPaymentRequest = {
   campaignCreatorId: 0,
   grossAmount: 0,
   discounts: 0,
+  taxWithheld: 0,
   method: PaymentMethod.Pix,
   description: '',
 }
@@ -43,6 +45,7 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
         campaignDocumentId: payment.campaignDocumentId,
         grossAmount: payment.grossAmount,
         discounts: payment.discounts,
+        taxWithheld: payment.taxWithheld,
         method: payment.method,
         description: payment.description ?? '',
       })
@@ -69,12 +72,13 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
     [campaignCreators],
   )
 
-  const netAmount = (formData.grossAmount || 0) - (formData.discounts || 0)
+  const netAmount = (formData.grossAmount || 0) - (formData.discounts || 0) - (formData.taxWithheld || 0)
   const isValid =
     (isEditing || formData.campaignCreatorId > 0) &&
     formData.grossAmount > 0 &&
-    formData.discounts >= 0 &&
-    formData.discounts <= formData.grossAmount
+    (formData.discounts ?? 0) >= 0 &&
+    (formData.taxWithheld ?? 0) >= 0 &&
+    (formData.discounts ?? 0) + (formData.taxWithheld ?? 0) <= formData.grossAmount
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -86,6 +90,7 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
           id: payment.id,
           grossAmount: formData.grossAmount,
           discounts: formData.discounts ?? 0,
+          taxWithheld: formData.taxWithheld ?? 0,
           method: formData.method,
           description: formData.description?.trim() || undefined,
         }
@@ -96,6 +101,7 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
         campaignDocumentId: formData.campaignDocumentId,
         grossAmount: formData.grossAmount,
         discounts: formData.discounts ?? 0,
+        taxWithheld: formData.taxWithheld ?? 0,
         method: formData.method,
         description: formData.description?.trim() || undefined,
       })
@@ -146,9 +152,19 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
               />
             </div>
             <div className="space-y-2">
+              <label className="text-sm font-medium">Imposto retido (R$)</label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.taxWithheld ?? 0}
+                onChange={(e) => setFormData((p) => ({ ...p, taxWithheld: Number(e.target.value) }))}
+              />
+            </div>
+            <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.creatorPayment.field.netAmount')}</label>
               <div className="rounded-md border bg-primary/5 px-3 py-2 text-sm font-semibold">
-                R$ {netAmount.toFixed(2)}
+                {formatCurrency(netAmount)}
               </div>
             </div>
             <div className="space-y-2">

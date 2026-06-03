@@ -1,6 +1,6 @@
 import { httpClient, buildPaginationQuery } from 'archon-ui'
 import type { ApiResponse } from 'archon-ui'
-import type { Creator } from '../types/creator'
+import type { Creator, TaxRegimeValue } from '../types/creator'
 import type { PixKeyTypeValue } from '../types/creatorPayment'
 import type { CreatorCampaignEntry, CreatorSummary } from '../types/creatorSocialHandle'
 import { resolveUploadUrl } from '../lib/uploadUrl'
@@ -17,6 +17,7 @@ export interface CreateCreatorRequest {
   document?: string
   pixKey?: string
   pixKeyType?: PixKeyTypeValue
+  taxRegime?: TaxRegimeValue
   primaryNiche?: string
   city?: string
   state?: string

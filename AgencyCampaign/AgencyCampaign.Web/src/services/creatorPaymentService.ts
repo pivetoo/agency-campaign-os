@@ -8,6 +8,7 @@ export interface CreateCreatorPaymentRequest {
   campaignDocumentId?: number
   grossAmount: number
   discounts?: number
+  taxWithheld?: number
   method: PaymentMethodValue
   description?: string
 }
@@ -16,6 +17,7 @@ export interface UpdateCreatorPaymentRequest {
   id: number
   grossAmount: number
   discounts?: number
+  taxWithheld?: number
   method: PaymentMethodValue
   description?: string
 }

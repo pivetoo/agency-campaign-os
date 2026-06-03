@@ -4,6 +4,7 @@ import { ImagePlus, Trash2 } from 'lucide-react'
 import { creatorService, resolveCreatorPhotoUrl, type CreateCreatorRequest, type UpdateCreatorRequest } from '../../services/creatorService'
 import type { Creator } from '../../types/creator'
 import { PixKeyType, pixKeyTypeLabels, type PixKeyTypeValue } from '../../types/creatorPayment'
+import { TaxRegime, taxRegimeLabels, type TaxRegimeValue } from '../../types/creator'
 import { cleanFormPayload } from '../../lib/cleanFormPayload'
 
 interface CreatorFormModalProps {
@@ -21,6 +22,7 @@ const initialFormData: CreateCreatorRequest = {
   document: '',
   pixKey: '',
   pixKeyType: undefined,
+  taxRegime: undefined,
   primaryNiche: '',
   city: '',
   state: '',
@@ -42,6 +44,13 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
       label: pixKeyTypeLabels[value as PixKeyTypeValue],
     })),
   ]
+  const taxRegimeOptions = [
+    { value: '', label: t('modal.creator.field.notInformed') },
+    ...Object.values(TaxRegime).map((value) => ({
+      value: String(value),
+      label: taxRegimeLabels[value as TaxRegimeValue],
+    })),
+  ]
   const [isActive, setIsActive] = useState(true)
   const [pendingPhoto, setPendingPhoto] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
@@ -60,6 +69,7 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
         document: creator.document || '',
         pixKey: creator.pixKey || '',
         pixKeyType: creator.pixKeyType,
+        taxRegime: creator.taxRegime,
         primaryNiche: creator.primaryNiche || '',
         city: creator.city || '',
         state: creator.state || '',
@@ -223,6 +233,16 @@ export default function CreatorFormModal({ open, onOpenChange, creator, onSucces
                   value={formData.pixKeyType ? String(formData.pixKeyType) : ''}
                   onValueChange={(value) => setFormData((prev) => ({ ...prev, pixKeyType: value ? (Number(value) as PixKeyTypeValue) : undefined }))}
                   options={pixKeyTypeOptions}
+                  placeholder={t('modal.creator.field.notInformed')}
+                  searchPlaceholder={t('common.placeholder.search')}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Regime tributário</label>
+                <SearchableSelect
+                  value={formData.taxRegime ? String(formData.taxRegime) : ''}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, taxRegime: value ? (Number(value) as TaxRegimeValue) : undefined }))}
+                  options={taxRegimeOptions}
                   placeholder={t('modal.creator.field.notInformed')}
                   searchPlaceholder={t('common.placeholder.search')}
                 />

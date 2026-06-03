@@ -91,6 +91,7 @@ export interface CreatorPayment {
   campaignDocumentId?: number
   grossAmount: number
   discounts: number
+  taxWithheld: number
   netAmount: number
   description?: string
   method: PaymentMethodValue
