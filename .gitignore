@@ -384,3 +384,5 @@ FodyWeavers.xsd
 
 # Claude Code - arquivo transitorio de intencao de commit (nunca versionar)
 **/.claude-commit-intent
+# JetBrains IDE
+**/.idea/
