@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2 } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 
 export default function AgencyCampaignLayout() {
@@ -171,6 +171,10 @@ export default function AgencyCampaignLayout() {
     { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
   ])
 
+  const relatoriosRoutes = toNavRoutes([
+    { key: 'relatorios', label: 'Relatórios', path: '/relatorios', icon: <FileBarChart2 size={20} /> },
+  ])
+
   const controleAcessoRoutes = isRoot
     ? toNavRoutes([{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <User size={20} /> }])
     : []
@@ -179,6 +183,7 @@ export default function AgencyCampaignLayout() {
     ...(configSubGroups.length > 0 ? [{ key: 'configuracao', label: t('nav.module.configuration'), icon: <Settings size={20} />, group: 'sys' as const, subGroups: configSubGroups }] : []),
     ...(controleAcessoRoutes.length > 0 ? [{ key: 'controle-acesso', label: t('nav.item.users'), icon: <User size={20} />, group: 'sys' as const, routes: controleAcessoRoutes }] : []),
     ...(integracoesRoutes.length > 0 ? [{ key: 'integracoes', label: t('nav.item.integrations'), icon: <Plug size={20} />, group: 'sys' as const, routes: integracoesRoutes }] : []),
+    ...(relatoriosRoutes.length > 0 ? [{ key: 'relatorios', label: 'Relatórios', icon: <FileBarChart2 size={20} />, group: 'sys' as const, routes: relatoriosRoutes }] : []),
   ]
 
   const moduleNav: ModuleNavConfig = [...opModules, ...sysModules]
@@ -216,6 +221,7 @@ export default function AgencyCampaignLayout() {
       '/configuracao/status-creators': t('nav.item.creatorStatus'),
       '/configuracao/tipos-entrega': t('nav.item.deliverableKinds'),
       '/configuracao/integracoes': t('nav.item.integrations'),
+      '/relatorios': 'Relatórios',
       '/configuracao/itens-proposta': t('nav.item.proposalTemplates'),
       '/configuracao/layouts-proposta': 'Layouts da proposta',
       '/configuracao/origens-oportunidade': t('nav.item.opportunitySources'),

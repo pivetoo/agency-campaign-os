@@ -612,12 +612,13 @@ namespace AgencyCampaign.Infrastructure.Services
         }
 
         // Geracao financeira da conversao: roda DENTRO da transacao da conversao.
-        // Nao engole excecao - se falhar, a conversao inteira (campanha + creators + financeiro)
-        // e revertida e o erro propaga, em vez de deixar a venda meio-convertida sem recebivel/repasse.
+        // Nao engole excecao - se falhar, a conversao inteira (campanha + creators + recebivel)
+        // e revertida e o erro propaga, em vez de deixar a venda meio-convertida sem recebivel.
+        // O custo do creator NAO nasce aqui: o repasse e gerado so na publicacao da entrega
+        // (GenerateForPublishedDeliverable, com o CreatorAmount real), por decisao de produto.
         private async Task GenerateConversionFinancialsAsync(Proposal proposal, long campaignId, CancellationToken cancellationToken)
         {
             await financialAutoGeneration.GenerateForConvertedProposal(proposal, campaignId, cancellationToken);
-            await financialAutoGeneration.GenerateCreatorPayoutsForConvertedProposal(proposal, campaignId, cancellationToken);
         }
 
         // Efeitos best-effort pos-commit (automacao + notificacao): nao revertem a conversao se falharem.

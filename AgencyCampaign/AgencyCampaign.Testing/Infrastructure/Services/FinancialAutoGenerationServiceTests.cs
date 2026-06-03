@@ -31,26 +31,6 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task GenerateCreatorPayoutsForConvertedProposal_should_stamp_creator_id_on_payout()
-        {
-            db.Add(NewAccount());
-            Creator creator = new("Foo");
-            db.Add(creator);
-            await db.SaveChangesAsync();
-
-            Proposal proposal = new Proposal(1, "P", 1).WithId(30);
-            db.Add(proposal);
-            db.Add(new ProposalItem(proposal.Id, "Post", 1, 500m, creatorId: creator.Id));
-            await db.SaveChangesAsync();
-
-            await service.GenerateCreatorPayoutsForConvertedProposal(proposal, campaignId: 1);
-
-            FinancialEntry entry = await db.Set<FinancialEntry>().AsNoTracking()
-                .SingleAsync(item => item.Category == FinancialEntryCategory.CreatorPayout);
-            entry.CreatorId.Should().Be(creator.Id);
-        }
-
-        [Test]
         public async Task GenerateForConvertedProposal_should_be_no_op_when_entry_already_exists()
         {
             FinancialAccount account = NewAccount();
@@ -202,39 +182,6 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task GenerateForPublishedDeliverable_should_generate_when_only_another_creator_has_planned_payout()
-        {
-            db.Add(NewAccount("Conta"));
-            Creator creatorA = new("A");
-            Creator creatorB = new("B");
-            db.Add(creatorA);
-            db.Add(creatorB);
-            await db.SaveChangesAsync();
-
-            FinancialAccount account = await db.Set<FinancialAccount>().AsNoTracking().FirstAsync();
-            CampaignCreator ccB = new(campaignId: 1, creatorId: creatorB.Id, campaignCreatorStatusId: 1, agreedAmount: 800m, agencyFeePercent: 10m);
-            db.Add(ccB);
-
-            FinancialEntry plannedA = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout,
-                "Previsto A", 500m, DateTimeOffset.UtcNow.AddDays(10), DateTimeOffset.UtcNow, campaignId: 1);
-            plannedA.LinkToProposalItem(99, 1);
-            plannedA.LinkToCreator(creatorA.Id);
-            db.Add(plannedA);
-            await db.SaveChangesAsync();
-
-            CampaignDeliverable deliverableB = new CampaignDeliverable(
-                campaignId: 1, campaignCreatorId: ccB.Id, title: "Story B", deliverableKindId: 1, platformId: 1,
-                dueAt: DateTimeOffset.UtcNow, grossAmount: 1000m, creatorAmount: 800m, agencyFeeAmount: 100m).WithId(7);
-            deliverableB.Publish("https://x", null, DateTimeOffset.UtcNow);
-
-            await service.GenerateForPublishedDeliverable(deliverableB);
-
-            bool hasPayoutForB = await db.Set<FinancialEntry>().AsNoTracking()
-                .AnyAsync(item => item.CreatorId == creatorB.Id && item.Category == FinancialEntryCategory.CreatorPayout);
-            hasPayoutForB.Should().BeTrue();
-        }
-
-        [Test]
         public async Task GenerateForPublishedDeliverable_should_create_payable_with_creator_stage_name()
         {
             FinancialAccount account = NewAccount("Conta");
@@ -273,71 +220,22 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task GenerateCreatorPayouts_should_create_planned_payable_per_item_with_creator()
+        public async Task GenerateForPublishedDeliverable_should_generate_even_when_creator_already_has_a_campaign_payout()
         {
-            FinancialAccount account = NewAccount();
-            db.Add(account);
-
-            Creator creator = new("Joana Real", stageName: "Joana");
-            db.Add(creator);
-            await db.SaveChangesAsync();
-
-            Proposal proposal = new Proposal(opportunityId: 1, name: "Deal", internalOwnerId: 1).WithId(30);
-            db.Add(new ProposalItem(proposal.Id, "Reels", 2, 1500m, creatorId: creator.Id));
-            db.Add(new ProposalItem(proposal.Id, "Custo interno", 1, 500m));
-            await db.SaveChangesAsync();
-
-            await service.GenerateCreatorPayoutsForConvertedProposal(proposal, campaignId: 7);
-
-            List<FinancialEntry> payouts = await db.Set<FinancialEntry>()
-                .Where(item => item.Category == FinancialEntryCategory.CreatorPayout)
-                .ToListAsync();
-
-            payouts.Should().HaveCount(1);
-            payouts[0].Type.Should().Be(FinancialEntryType.Payable);
-            payouts[0].Amount.Should().Be(3000m);
-            payouts[0].CampaignId.Should().Be(7);
-            payouts[0].CounterpartyName.Should().Be("Joana");
-            payouts[0].SourceProposalItemId.Should().NotBeNull();
-        }
-
-        [Test]
-        public async Task GenerateCreatorPayouts_should_be_idempotent()
-        {
-            FinancialAccount account = NewAccount();
-            db.Add(account);
-            Creator creator = new("Pedro Real", stageName: "Pedro");
-            db.Add(creator);
-            await db.SaveChangesAsync();
-
-            Proposal proposal = new Proposal(1, "Deal", 1).WithId(31);
-            db.Add(new ProposalItem(proposal.Id, "Story", 1, 800m, creatorId: creator.Id));
-            await db.SaveChangesAsync();
-
-            await service.GenerateCreatorPayoutsForConvertedProposal(proposal, campaignId: 1);
-            db.ChangeTracker.Clear();
-            await service.GenerateCreatorPayoutsForConvertedProposal(proposal, campaignId: 1);
-
-            int count = await db.Set<FinancialEntry>().CountAsync(item => item.Category == FinancialEntryCategory.CreatorPayout);
-            count.Should().Be(1);
-        }
-
-        [Test]
-        public async Task GenerateForPublishedDeliverable_should_be_suppressed_when_planned_payout_exists()
-        {
-            FinancialAccount account = NewAccount();
-            db.Add(account);
+            db.Add(NewAccount("Conta"));
             Creator creator = new("Ana Real", stageName: "Ana");
             db.Add(creator);
             await db.SaveChangesAsync();
 
-            Proposal proposal = new Proposal(1, "Deal", 1).WithId(32);
-            db.Add(new ProposalItem(proposal.Id, "Reels", 1, 1000m, creatorId: creator.Id));
-            await db.SaveChangesAsync();
-            await service.GenerateCreatorPayoutsForConvertedProposal(proposal, campaignId: 9);
-
-            CampaignCreator campaignCreator = new(campaignId: 9, creatorId: creator.Id, campaignCreatorStatusId: 1, agreedAmount: 1000m, agencyFeePercent: 10m);
+            FinancialAccount account = await db.Set<FinancialAccount>().AsNoTracking().FirstAsync();
+            CampaignCreator campaignCreator = new(campaignId: 9, creatorId: creator.Id, campaignCreatorStatusId: 1, agreedAmount: 800m, agencyFeePercent: 10m);
             db.Add(campaignCreator);
+
+            FinancialEntry existingForCreator = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout,
+                "Outro repasse", 500m, DateTimeOffset.UtcNow.AddDays(10), DateTimeOffset.UtcNow, campaignId: 9);
+            existingForCreator.LinkToProposalItem(99, 1);
+            existingForCreator.LinkToCreator(creator.Id);
+            db.Add(existingForCreator);
             await db.SaveChangesAsync();
 
             CampaignDeliverable deliverable = new CampaignDeliverable(
@@ -348,7 +246,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await service.GenerateForPublishedDeliverable(deliverable);
 
             int byDeliverable = await db.Set<FinancialEntry>().CountAsync(item => item.CampaignDeliverableId == deliverable.Id);
-            byDeliverable.Should().Be(0);
+            byDeliverable.Should().Be(1);
         }
     }
 }

@@ -52,6 +52,7 @@ import FinancialSubcategories from '../modules/Configuration/FinancialSubcategor
 import AgencyConfiguration from '../modules/Configuration/Agency'
 import ProposalLayouts from '../modules/Configuration/ProposalLayouts'
 import ProposalLayoutEditor from '../modules/Configuration/ProposalLayout'
+import Reports from '../modules/Reports'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -144,6 +145,7 @@ function AppRoutes() {
           <Route path="configuracao" element={<AgencyConfiguration />} />
           <Route path="configuracao/layouts-proposta" element={<ProposalLayouts />} />
           <Route path="configuracao/layouts-proposta/:id" element={<ProposalLayoutEditor />} />
+          <Route path="relatorios" element={<Reports />} />
           <Route path="usuarios" element={<UsersManagementPage />} />
         </Route>
 
