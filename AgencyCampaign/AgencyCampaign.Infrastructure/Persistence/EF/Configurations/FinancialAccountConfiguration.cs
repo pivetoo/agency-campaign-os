@@ -11,6 +11,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
         {
             builder.ToTable("financialaccount");
 
+            // Concorrencia otimista (D5i): protege writes monetarios/de revisao concorrentes.
+            builder.UseXminConcurrencyToken();
+
             builder.Property(entity => entity.Name).IsRequired().HasMaxLength(120);
             builder.Property(entity => entity.BankId);
             builder.Property(entity => entity.Bank).HasMaxLength(120);

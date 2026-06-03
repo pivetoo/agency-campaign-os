@@ -10,6 +10,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
         {
             builder.ToTable("proposal");
 
+            // Concorrencia otimista (D5i): evita que duas conversoes concorrentes criem duas campanhas.
+            builder.UseXminConcurrencyToken();
+
             builder.Property(entity => entity.Name)
                 .IsRequired()
                 .HasMaxLength(150);

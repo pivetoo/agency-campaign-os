@@ -10,6 +10,9 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
         {
             builder.ToTable("creatorpayment");
 
+            // Concorrencia otimista (D5i): protege writes monetarios/de revisao concorrentes.
+            builder.UseXminConcurrencyToken();
+
             builder.Property(entity => entity.GrossAmount)
                 .HasColumnType("decimal(18,2)");
 
