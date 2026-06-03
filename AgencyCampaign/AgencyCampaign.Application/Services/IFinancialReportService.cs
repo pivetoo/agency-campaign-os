@@ -9,5 +9,7 @@ namespace AgencyCampaign.Application.Services
         Task<AgingReportModel> GetAgingReport(CancellationToken cancellationToken = default);
 
         Task<TaxWithholdingReportModel> GetTaxWithholdingReport(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+
+        Task<CampaignProfitabilityReportModel> GetCampaignProfitability(CancellationToken cancellationToken = default);
     }
 }

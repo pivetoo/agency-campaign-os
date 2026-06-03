@@ -126,5 +126,29 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             report.Lines.First().TaxRegime.Should().Be(TaxRegime.SimplesNacional);
             report.Lines.First().TaxWithheld.Should().Be(200m);
         }
+
+        [Test]
+        public async Task GetCampaignProfitability_should_cross_revenue_and_creator_cost()
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            await db.SaveChangesAsync();
+            Campaign campaign = new(brand.Id, "Camp", 0m, DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+
+            db.Add(new FinancialEntry(1, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "receita", 1000m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, campaignId: campaign.Id));
+            db.Add(new FinancialEntry(1, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout, "repasse", 300m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, campaignId: campaign.Id));
+            await db.SaveChangesAsync();
+
+            CampaignProfitabilityReportModel report = await service.GetCampaignProfitability();
+
+            report.Lines.Should().HaveCount(1);
+            CampaignProfitabilityLineModel line = report.Lines.First();
+            line.Revenue.Should().Be(1000m);
+            line.CreatorCost.Should().Be(300m);
+            line.Margin.Should().Be(700m);
+            line.MarginPercent.Should().Be(70m);
+        }
     }
 }

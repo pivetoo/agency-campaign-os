@@ -40,5 +40,13 @@ namespace AgencyCampaign.Api.Controllers
             var result = await service.GetTaxWithholdingReport(from, to, cancellationToken);
             return Http200(result);
         }
+
+        [RequireAccess("financialReports.getCampaignProfitability.description")]
+        [GetEndpoint("campaign-profitability")]
+        public async Task<IActionResult> GetCampaignProfitability(CancellationToken cancellationToken)
+        {
+            var result = await service.GetCampaignProfitability(cancellationToken);
+            return Http200(result);
+        }
     }
 }

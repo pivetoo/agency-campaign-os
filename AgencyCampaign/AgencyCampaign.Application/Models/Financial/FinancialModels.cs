@@ -134,4 +134,25 @@ namespace AgencyCampaign.Application.Models.Financial
         public decimal TotalWithheld { get; set; }
         public decimal TotalNet { get; set; }
     }
+
+    public sealed class CampaignProfitabilityLineModel
+    {
+        public long CampaignId { get; set; }
+        public string? CampaignName { get; set; }
+        public decimal Revenue { get; set; }
+        public decimal CreatorCost { get; set; }
+        public decimal OtherCost { get; set; }
+        public decimal Margin { get; set; }
+        public decimal MarginPercent { get; set; }
+    }
+
+    public sealed class CampaignProfitabilityReportModel
+    {
+        public DateTimeOffset GeneratedAt { get; set; }
+        public IReadOnlyCollection<CampaignProfitabilityLineModel> Lines { get; set; } = [];
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalCreatorCost { get; set; }
+        public decimal TotalOtherCost { get; set; }
+        public decimal TotalMargin { get; set; }
+    }
 }

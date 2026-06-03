@@ -156,6 +156,49 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
+        // Rentabilidade por campanha: cruza receita (recebiveis) x custo (repasses de creator + demais
+        // pagaveis) por CampaignId, fechando o ciclo Comercial x Producao x Financeiro. Ignora cancelados.
+        public async Task<CampaignProfitabilityReportModel> GetCampaignProfitability(CancellationToken cancellationToken = default)
+        {
+            List<FinancialEntry> entries = await dbContext.Set<FinancialEntry>()
+                .AsNoTracking()
+                .Include(item => item.Campaign)
+                .Where(item => item.CampaignId != null && item.Status != FinancialEntryStatus.Cancelled)
+                .ToListAsync(cancellationToken);
+
+            CampaignProfitabilityLineModel[] lines = entries
+                .GroupBy(item => item.CampaignId!.Value)
+                .Select(group =>
+                {
+                    decimal revenue = group.Where(item => item.Type == FinancialEntryType.Receivable).Sum(item => item.Amount);
+                    decimal payable = group.Where(item => item.Type == FinancialEntryType.Payable).Sum(item => item.Amount);
+                    decimal creatorCost = group.Where(item => item.Category == FinancialEntryCategory.CreatorPayout).Sum(item => item.Amount);
+                    decimal margin = revenue - payable;
+                    return new CampaignProfitabilityLineModel
+                    {
+                        CampaignId = group.Key,
+                        CampaignName = group.First().Campaign != null ? group.First().Campaign!.Name : null,
+                        Revenue = revenue,
+                        CreatorCost = creatorCost,
+                        OtherCost = payable - creatorCost,
+                        Margin = margin,
+                        MarginPercent = revenue > 0 ? Math.Round(margin / revenue * 100m, 2, MidpointRounding.AwayFromZero) : 0m
+                    };
+                })
+                .OrderByDescending(item => item.Margin)
+                .ToArray();
+
+            return new CampaignProfitabilityReportModel
+            {
+                GeneratedAt = DateTimeOffset.UtcNow,
+                Lines = lines,
+                TotalRevenue = lines.Sum(item => item.Revenue),
+                TotalCreatorCost = lines.Sum(item => item.CreatorCost),
+                TotalOtherCost = lines.Sum(item => item.OtherCost),
+                TotalMargin = lines.Sum(item => item.Margin)
+            };
+        }
+
         private static DateTimeOffset BucketDate(DateTimeOffset value, CashFlowGranularity granularity)
         {
             DateTimeOffset utc = value.ToUniversalTime();
