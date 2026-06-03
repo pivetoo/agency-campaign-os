@@ -86,5 +86,18 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Buckets.Should().HaveCount(5);
             result.Buckets.Sum(item => item.TotalReceivable).Should().Be(300m);
         }
+
+        [Test]
+        public async Task GetAgingReport_should_not_double_count_entry_due_today()
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            db.Add(new FinancialEntry(1, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "due-today", 100m, now.AddHours(-1), now));
+            await db.SaveChangesAsync();
+
+            AgingReportModel result = await service.GetAgingReport();
+
+            result.Buckets.Sum(item => item.ReceivableCount).Should().Be(1);
+            result.Buckets.Sum(item => item.TotalReceivable).Should().Be(100m);
+        }
     }
 }

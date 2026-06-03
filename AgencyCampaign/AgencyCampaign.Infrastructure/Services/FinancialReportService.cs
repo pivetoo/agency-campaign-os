@@ -72,7 +72,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
             (string label, int min, int? max)[] ranges =
             [
-                ("A vencer", -int.MaxValue, 0),
+                ("A vencer", -int.MaxValue, -1),
                 ("0-30 dias", 0, 30),
                 ("31-60 dias", 31, 60),
                 ("61-90 dias", 61, 90),
