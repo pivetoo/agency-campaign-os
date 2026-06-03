@@ -36,6 +36,9 @@ namespace AgencyCampaign.Domain.Entities
 
         public string? SignedDocumentUrl { get; private set; }
 
+        // Chave da NOSSA copia privada do PDF assinado (lastro/durabilidade, D1i), alem da URL do provedor.
+        public string? SignedDocumentStorageKey { get; private set; }
+
         public string? ContentHash { get; private set; }
 
         public CampaignDocumentStatus Status { get; private set; } = CampaignDocumentStatus.Draft;
@@ -226,6 +229,13 @@ namespace AgencyCampaign.Domain.Entities
             {
                 SignedDocumentUrl = signedDocumentUrl.Trim();
             }
+        }
+
+        // Registra a chave da nossa copia privada do PDF assinado (lastro/durabilidade, D1i).
+        public void AttachSignedDocumentCopy(string storageKey)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);
+            SignedDocumentStorageKey = storageKey.Trim();
         }
 
         public void MarkRejected(string? notes = null)

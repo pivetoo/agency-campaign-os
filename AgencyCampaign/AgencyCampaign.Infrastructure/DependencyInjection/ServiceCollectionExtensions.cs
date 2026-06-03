@@ -32,6 +32,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddArchonRestApi();
             services.AddScoped<IntegrationPlatformClient>();
             services.AddHttpClient<IApifySocialMetricsClient, ApifySocialMetricsClient>();
+            services.AddHttpClient<ISignedDocumentDownloader, SignedDocumentDownloader>();
             services.AddSingleton<TenantJobRunner>();
             services.AddScoped<IAutomationDispatcher, AutomationDispatcher>();
             services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();

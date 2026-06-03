@@ -10,6 +10,7 @@ using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -22,11 +23,17 @@ namespace AgencyCampaign.Infrastructure.Services
 
         private readonly IntegrationPlatformClient integrationPlatformClient;
         private readonly IIntegrationCapabilityService integrationCapabilityService;
+        private readonly ISignedDocumentDownloader signedDocumentDownloader;
+        private readonly IContentFileStorage fileStorage;
+        private readonly ILogger<CampaignDocumentService>? logger;
 
-        public CampaignDocumentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService) : base(dbContext)
+        public CampaignDocumentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, ISignedDocumentDownloader signedDocumentDownloader, IContentFileStorage fileStorage, ILogger<CampaignDocumentService>? logger = null) : base(dbContext)
         {
             this.integrationPlatformClient = integrationPlatformClient;
             this.integrationCapabilityService = integrationCapabilityService;
+            this.signedDocumentDownloader = signedDocumentDownloader;
+            this.fileStorage = fileStorage;
+            this.logger = logger;
         }
 
         public async Task<PagedResult<CampaignDocument>> GetDocuments(PagedRequest request, CancellationToken cancellationToken = default)
@@ -443,6 +450,8 @@ namespace AgencyCampaign.Infrastructure.Services
                     break;
             }
 
+            await TryStoreSignedCopyAsync(document, cancellationToken);
+
             CampaignDocument? result = await Update(document, cancellationToken);
             if (result is null)
             {
@@ -450,6 +459,36 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return await GetDocumentById(result.Id, cancellationToken) ?? result;
+        }
+
+        // Lastro/durabilidade (D1i): assim que o documento esta assinado e ha URL do provedor, baixa
+        // (best-effort) o PDF e guarda nossa copia privada. Falha aqui nunca quebra o callback de
+        // assinatura - a assinatura ja ocorreu e a URL do provedor continua valida; a copia e secundaria.
+        private async Task TryStoreSignedCopyAsync(CampaignDocument document, CancellationToken cancellationToken)
+        {
+            if (document.Status != CampaignDocumentStatus.Signed
+                || string.IsNullOrWhiteSpace(document.SignedDocumentUrl)
+                || !string.IsNullOrWhiteSpace(document.SignedDocumentStorageKey))
+            {
+                return;
+            }
+
+            try
+            {
+                byte[]? bytes = await signedDocumentDownloader.DownloadAsync(document.SignedDocumentUrl!, cancellationToken);
+                if (bytes is null || bytes.Length == 0)
+                {
+                    return;
+                }
+
+                await using MemoryStream stream = new(bytes);
+                ContentFileResult stored = await fileStorage.SaveAsync(document.Id, stream, $"{document.Title}-assinado.pdf", "application/pdf", cancellationToken);
+                document.AttachSignedDocumentCopy(stored.StorageKey);
+            }
+            catch (Exception exception)
+            {
+                logger?.LogWarning(exception, "Failed to store private copy of signed document {DocumentId}.", document.Id);
+            }
         }
 
         public async Task<CampaignDocument> MarkAsSigned(long id, MarkCampaignDocumentSignedRequest request, CancellationToken cancellationToken = default)

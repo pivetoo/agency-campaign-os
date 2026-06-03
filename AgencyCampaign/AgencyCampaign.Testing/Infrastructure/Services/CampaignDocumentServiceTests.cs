@@ -1,5 +1,6 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CampaignDocuments;
+using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Options;
@@ -17,12 +18,16 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     {
         private TestDbContext db = null!;
         private CampaignDocumentService service = null!;
+        private Mock<ISignedDocumentDownloader> downloaderMock = null!;
+        private Mock<IContentFileStorage> fileStorageMock = null!;
 
         [SetUp]
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new CampaignDocumentService(db, IntegrationPlatformClientFactory.CreateInert(), new IntegrationCapabilityService(db));
+            downloaderMock = new Mock<ISignedDocumentDownloader>();
+            fileStorageMock = new Mock<IContentFileStorage>();
+            service = new CampaignDocumentService(db, IntegrationPlatformClientFactory.CreateInert(), new IntegrationCapabilityService(db), downloaderMock.Object, fileStorageMock.Object);
         }
 
         [TearDown]
@@ -416,6 +421,61 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             });
 
             result.Status.Should().Be(CampaignDocumentStatus.Signed);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_store_private_copy_of_signed_document()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Contrato");
+            doc.AttachToProvider("provider-x", "doc-signed");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            byte[] pdf = [1, 2, 3, 4];
+            downloaderMock
+                .Setup(item => item.DownloadAsync("https://provider.example/signed.pdf", It.IsAny<CancellationToken>()))
+                .ReturnsAsync(pdf);
+            fileStorageMock
+                .Setup(item => item.SaveAsync(doc.Id, It.IsAny<Stream>(), It.IsAny<string>(), "application/pdf", It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ContentFileResult("content/tenant-1/10/signed.pdf", "Contrato-assinado.pdf", "application/pdf"));
+
+            CampaignDocument result = await service.HandleProviderCallback(new CampaignDocumentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderDocumentId = "doc-signed",
+                EventType = "completed",
+                SignedDocumentUrl = "https://provider.example/signed.pdf"
+            });
+
+            result.SignedDocumentStorageKey.Should().Be("content/tenant-1/10/signed.pdf");
+            fileStorageMock.Verify(item => item.SaveAsync(doc.Id, It.IsAny<Stream>(), It.IsAny<string>(), "application/pdf", It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task HandleProviderCallback_should_not_break_when_signed_copy_download_fails()
+        {
+            Campaign campaign = await SeedCampaignAsync();
+            CampaignDocument doc = new(campaign.Id, CampaignDocumentType.CreatorAgreement, "Contrato");
+            doc.AttachToProvider("provider-x", "doc-fail");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            downloaderMock
+                .Setup(item => item.DownloadAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((byte[]?)null);
+
+            CampaignDocument result = await service.HandleProviderCallback(new CampaignDocumentProviderCallbackRequest
+            {
+                Provider = "provider-x",
+                ProviderDocumentId = "doc-fail",
+                EventType = "completed",
+                SignedDocumentUrl = "https://provider.example/signed.pdf"
+            });
+
+            result.Status.Should().Be(CampaignDocumentStatus.Signed);
+            result.SignedDocumentStorageKey.Should().BeNull();
+            fileStorageMock.Verify(item => item.SaveAsync(It.IsAny<long>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Test]
