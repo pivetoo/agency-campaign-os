@@ -13,5 +13,6 @@ namespace AgencyCampaign.Application.Models
         public string? PrimaryColor { get; set; }
         public string? ProposalHtmlTemplate { get; set; }
         public decimal? EmvCpmRate { get; set; }
+        public decimal? CreatorPaymentApprovalThreshold { get; set; }
     }
 }

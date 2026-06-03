@@ -25,13 +25,33 @@ namespace AgencyCampaign.Testing.Domain.Entities
         {
             AgencySettings subject = new("Old");
 
-            subject.Update("New", " trade ", " doc ", " a@x ", " 999 ", " addr ", " logo ", " #fff ", null);
+            subject.Update("New", " trade ", " doc ", " a@x ", " 999 ", " addr ", " logo ", " #fff ", null, null);
 
             subject.AgencyName.Should().Be("New");
             subject.TradeName.Should().Be("trade");
             subject.PrimaryEmail.Should().Be("a@x");
             subject.LogoUrl.Should().Be("logo");
             subject.PrimaryColor.Should().Be("#fff");
+        }
+
+        [Test]
+        public void Update_should_persist_creator_payment_approval_threshold()
+        {
+            AgencySettings subject = new("Old");
+
+            subject.Update("New", null, null, null, null, null, null, null, null, 5000m);
+
+            subject.CreatorPaymentApprovalThreshold.Should().Be(5000m);
+        }
+
+        [Test]
+        public void Update_should_reject_negative_approval_threshold()
+        {
+            AgencySettings subject = new("Old");
+
+            Action act = () => subject.Update("New", null, null, null, null, null, null, null, null, -1m);
+
+            act.Should().Throw<ArgumentOutOfRangeException>();
         }
     }
 

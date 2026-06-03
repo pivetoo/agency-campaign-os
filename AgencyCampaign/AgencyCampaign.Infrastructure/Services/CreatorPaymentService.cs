@@ -269,12 +269,26 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            // Teto de alcada (maker-checker): acima deste valor liquido, o repasse so e agendado apos aprovacao
+            // por usuario diferente de quem registrou. Nulo = sem teto. Lido uma vez por lote.
+            decimal? approvalThreshold = await DbContext.Set<AgencySettings>()
+                .AsNoTracking()
+                .OrderBy(item => item.Id)
+                .Select(item => item.CreatorPaymentApprovalThreshold)
+                .FirstOrDefaultAsync(cancellationToken);
+
             List<CreatorPayment> processed = [];
 
             foreach (CreatorPayment payment in payments)
             {
                 if (payment.Status != PaymentStatus.Pending && payment.Status != PaymentStatus.Failed)
                 {
+                    continue;
+                }
+
+                if (approvalThreshold.HasValue && payment.NetAmount > approvalThreshold.Value && !payment.IsApproved)
+                {
+                    payment.RegisterEvent(CreatorPaymentEventType.ApprovalRequired, $"Repasse liquido de R$ {payment.NetAmount:0.00} acima do teto de R$ {approvalThreshold.Value:0.00} - requer aprovacao antes do agendamento.");
                     continue;
                 }
 

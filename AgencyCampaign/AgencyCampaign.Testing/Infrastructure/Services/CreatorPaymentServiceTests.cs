@@ -717,6 +717,64 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("creatorPayment.approverMustDiffer");
         }
 
+        private async Task SeedApprovalThresholdAsync(decimal threshold)
+        {
+            AgencySettings settings = new("Ag");
+            settings.Update("Ag", null, null, null, null, null, null, null, null, threshold);
+            db.Add(settings);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_skip_payment_over_threshold_when_not_approved()
+        {
+            await SeedApprovalThresholdAsync(50m);
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            SchedulePaymentBatchRequest request = new() { CreatorPaymentIds = new List<long> { payment.Id }, ScheduledFor = DateTimeOffset.UtcNow, ConnectorId = 1, PipelineId = 99 };
+            List<CreatorPayment> result = await service.SchedulePaymentBatch(request);
+
+            result.Should().BeEmpty();
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
+            refreshed.Status.Should().Be(PaymentStatus.Pending);
+            refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.ApprovalRequired);
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_schedule_payment_under_threshold()
+        {
+            await SeedApprovalThresholdAsync(200m);
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            SchedulePaymentBatchRequest request = new() { CreatorPaymentIds = new List<long> { payment.Id }, ScheduledFor = DateTimeOffset.UtcNow, ConnectorId = 1, PipelineId = 99 };
+            await service.SchedulePaymentBatch(request);
+
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
+            refreshed.Events.Should().NotContain(item => item.EventType == CreatorPaymentEventType.ApprovalRequired);
+            refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Scheduled);
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_should_schedule_over_threshold_payment_once_approved()
+        {
+            await SeedApprovalThresholdAsync(50m);
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            CreatorPaymentService approver = new(db, IntegrationPlatformClientFactory.CreateInert(), null, CurrentUserMock.Create(userId: 2));
+            await approver.ApprovePayment(payment.Id);
+
+            SchedulePaymentBatchRequest request = new() { CreatorPaymentIds = new List<long> { payment.Id }, ScheduledFor = DateTimeOffset.UtcNow, ConnectorId = 1, PipelineId = 99 };
+            await service.SchedulePaymentBatch(request);
+
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
+            refreshed.Events.Should().NotContain(item => item.EventType == CreatorPaymentEventType.ApprovalRequired);
+            refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.Scheduled);
+        }
+
         [Test]
         public async Task SchedulePaymentBatch_should_warn_when_pj_creator_has_no_invoice()
         {

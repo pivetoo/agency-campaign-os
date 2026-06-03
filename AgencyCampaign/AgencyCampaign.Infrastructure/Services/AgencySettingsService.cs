@@ -36,7 +36,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 request.Address,
                 request.LogoUrl,
                 request.PrimaryColor,
-                request.EmvCpmRate);
+                request.EmvCpmRate,
+                request.CreatorPaymentApprovalThreshold);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return Map(settings);
@@ -231,7 +232,8 @@ namespace AgencyCampaign.Infrastructure.Services
             LogoUrl = settings.LogoUrl,
             PrimaryColor = settings.PrimaryColor,
             ProposalHtmlTemplate = settings.ProposalHtmlTemplate,
-            EmvCpmRate = settings.EmvCpmRate
+            EmvCpmRate = settings.EmvCpmRate,
+            CreatorPaymentApprovalThreshold = settings.CreatorPaymentApprovalThreshold
         };
     }
 }

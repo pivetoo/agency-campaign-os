@@ -24,6 +24,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public decimal? EmvCpmRate { get; private set; }
 
+        // Teto de alcada do repasse ao creator (maker-checker). Acima deste valor liquido, o pagamento so e
+        // agendado apos aprovacao por um usuario diferente de quem registrou. Nulo = sem teto (paga sem aprovacao).
+        public decimal? CreatorPaymentApprovalThreshold { get; private set; }
+
         private AgencySettings()
         {
         }
@@ -34,13 +38,18 @@ namespace AgencyCampaign.Domain.Entities
             AgencyName = agencyName.Trim();
         }
 
-        public void Update(string agencyName, string? tradeName, string? document, string? primaryEmail, string? phone, string? address, string? logoUrl, string? primaryColor, decimal? emvCpmRate)
+        public void Update(string agencyName, string? tradeName, string? document, string? primaryEmail, string? phone, string? address, string? logoUrl, string? primaryColor, decimal? emvCpmRate, decimal? creatorPaymentApprovalThreshold)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(agencyName);
 
             if (emvCpmRate.HasValue && emvCpmRate.Value < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(emvCpmRate));
+            }
+
+            if (creatorPaymentApprovalThreshold.HasValue && creatorPaymentApprovalThreshold.Value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(creatorPaymentApprovalThreshold));
             }
 
             AgencyName = agencyName.Trim();
@@ -52,6 +61,7 @@ namespace AgencyCampaign.Domain.Entities
             LogoUrl = Normalize(logoUrl);
             PrimaryColor = Normalize(primaryColor);
             EmvCpmRate = emvCpmRate;
+            CreatorPaymentApprovalThreshold = creatorPaymentApprovalThreshold;
         }
 
         public void SetLogo(string? logoUrl)

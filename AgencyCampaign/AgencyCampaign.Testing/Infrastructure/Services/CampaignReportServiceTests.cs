@@ -96,7 +96,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             await SeedCampaignWithMetricsAsync();
             AgencySettings settings = new("Acme");
-            settings.Update("Acme", null, null, null, null, null, null, null, 30m);
+            settings.Update("Acme", null, null, null, null, null, null, null, 30m, null);
             db.Add(settings.WithId(1));
             await db.SaveChangesAsync();
 
@@ -132,7 +132,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(deliverable.WithId(30));
 
             AgencySettings settings = new("Acme");
-            settings.Update("Acme", null, null, null, null, null, null, null, 50m);
+            settings.Update("Acme", null, null, null, null, null, null, null, 50m, null);
             db.Add(settings.WithId(1));
             db.Add(new CampaignReportLink(10, "tok123", null, null).WithId(40));
             await db.SaveChangesAsync();

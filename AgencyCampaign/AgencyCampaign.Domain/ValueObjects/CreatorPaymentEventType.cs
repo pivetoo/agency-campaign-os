@@ -13,6 +13,7 @@ namespace AgencyCampaign.Domain.ValueObjects
         ProviderSyncError = 9,
         PlannedPayoutSettled = 10,
         InvoiceMissing = 11,
-        Approved = 12
+        Approved = 12,
+        ApprovalRequired = 13
     }
 }

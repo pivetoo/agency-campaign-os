@@ -63,6 +63,30 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task Update_should_persist_creator_payment_approval_threshold()
+        {
+            AgencySettingsModel result = await service.Update(new UpdateAgencySettingsRequest
+            {
+                AgencyName = "Acme Agency",
+                CreatorPaymentApprovalThreshold = 5000m
+            });
+
+            result.CreatorPaymentApprovalThreshold.Should().Be(5000m);
+        }
+
+        [Test]
+        public async Task Update_should_reject_negative_approval_threshold()
+        {
+            Func<Task> act = () => service.Update(new UpdateAgencySettingsRequest
+            {
+                AgencyName = "Acme Agency",
+                CreatorPaymentApprovalThreshold = -1m
+            });
+
+            await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
+        }
+
+        [Test]
         public async Task SetLogo_should_persist_url()
         {
             AgencySettingsModel result = await service.SetLogo("/uploads/agency/logo.png");

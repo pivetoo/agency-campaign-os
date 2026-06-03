@@ -19,7 +19,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             string? primaryColor = "#123456")
         {
             AgencySettings agency = new(name);
-            agency.Update(name, tradeName, document, primaryEmail, phone, address, logoUrl, primaryColor, null);
+            agency.Update(name, tradeName, document, primaryEmail, phone, address, logoUrl, primaryColor, null, null);
             return agency;
         }
 
