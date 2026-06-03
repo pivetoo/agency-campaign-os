@@ -16,6 +16,7 @@ export interface UpdateCampaignCreatorRequest {
   id: number
   campaignCreatorStatusId: number
   agreedAmount: number
+  agencyFeePercent: number
   notes?: string
 }
 

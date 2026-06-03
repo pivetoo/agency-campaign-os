@@ -96,7 +96,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
-            campaignCreator.Update(request.AgreedAmount, request.Notes);
+            campaignCreator.Update(request.AgreedAmount, request.AgencyFeePercent, request.Notes);
 
             long previousStatusId = campaignCreator.CampaignCreatorStatusId;
             bool statusChanged = previousStatusId != request.CampaignCreatorStatusId;

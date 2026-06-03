@@ -100,6 +100,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
         ? campaignCreatorService.update(campaignCreator.id, {
             id: campaignCreator.id,
             agreedAmount: payload.agreedAmount,
+            agencyFeePercent: payload.agencyFeePercent,
             notes: payload.notes,
             campaignCreatorStatusId: payload.campaignCreatorStatusId,
           } satisfies UpdateCampaignCreatorRequest)
@@ -167,7 +168,7 @@ export default function CampaignCreatorFormModal({ open, onOpenChange, campaignI
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.campaignCreator.field.agencyFeePercent')}</label>
-              <Input type="number" value={formData.agencyFeePercent} disabled />
+              <Input type="number" min={0} max={100} step={0.01} value={formData.agencyFeePercent} onChange={(e) => setFormData((prev) => ({ ...prev, agencyFeePercent: Number(e.target.value) }))} />
             </div>
 
             <div className="space-y-2">

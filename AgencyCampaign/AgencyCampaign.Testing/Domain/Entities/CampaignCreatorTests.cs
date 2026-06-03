@@ -27,15 +27,28 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
-        public void Update_should_recalculate_fee_with_existing_percent()
+        public void Update_should_recalculate_fee_with_kept_percent()
         {
             CampaignCreator subject = new(1, 2, 3, agreedAmount: 100m, agencyFeePercent: 10m);
 
-            subject.Update(agreedAmount: 500m, notes: "  ok  ");
+            subject.Update(agreedAmount: 500m, agencyFeePercent: 10m, notes: "  ok  ");
 
             subject.AgreedAmount.Should().Be(500m);
+            subject.AgencyFeePercent.Should().Be(10m);
             subject.AgencyFeeAmount.Should().Be(50m);
             subject.Notes.Should().Be("ok");
+        }
+
+        [Test]
+        public void Update_should_allow_correcting_the_agency_fee_percent()
+        {
+            CampaignCreator subject = new(1, 2, 3, agreedAmount: 1000m, agencyFeePercent: 10m);
+            subject.AgencyFeeAmount.Should().Be(100m);
+
+            subject.Update(agreedAmount: 1000m, agencyFeePercent: 15m, notes: null);
+
+            subject.AgencyFeePercent.Should().Be(15m);
+            subject.AgencyFeeAmount.Should().Be(150m);
         }
 
         [Test]

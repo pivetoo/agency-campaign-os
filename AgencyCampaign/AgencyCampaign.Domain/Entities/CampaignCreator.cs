@@ -61,12 +61,14 @@ namespace AgencyCampaign.Domain.Entities
             Notes = Normalize(notes);
         }
 
-        public void Update(decimal agreedAmount, string? notes)
+        public void Update(decimal agreedAmount, decimal agencyFeePercent, string? notes)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(agreedAmount);
+            ArgumentOutOfRangeException.ThrowIfNegative(agencyFeePercent);
 
             AgreedAmount = agreedAmount;
-            AgencyFeeAmount = CalculateAgencyFeeAmount(agreedAmount, AgencyFeePercent);
+            AgencyFeePercent = agencyFeePercent;
+            AgencyFeeAmount = CalculateAgencyFeeAmount(agreedAmount, agencyFeePercent);
             Notes = Normalize(notes);
         }
 
