@@ -125,18 +125,19 @@ jobs:
         with:
           path: system/agency-campaign-os
 
-      # Deploy via webhook HTTPS (porta 443) em vez de SSH de entrada: a borda de rede da
-      # Hostinger dropa intermitentemente os IPs dos runners do GitHub no SSH, mas o trafego
-      # web passa normal. O receiver no VPS (127.0.0.1:9876, publicado pelo nginx em
-      # /deploy-hook) autentica por token, grava o compose enviado e roda pull + up -d.
-      - name: Trigger deploy via webhook
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 16
-          max_attempts: 3
-          retry_wait_seconds: 30
-          command: |
-            curl -fsS --max-time 900 -X POST \
+      # A borda de rede da Hostinger dropa intermitentemente os IPs dos runners do GitHub
+      # em QUALQUER porta (22 e 443). Por isso o deploy NAO depende de conexao de entrada:
+      # o VPS puxa as imagens sozinho via timer de poll (kanvas-deploy-poll.timer, a cada 30s).
+      # Este passo so AVISA o webhook para deploy instantaneo quando o IP nao esta bloqueado;
+      # e best-effort e nunca falha o run (o poll garante o deploy em ate ~30s de qualquer forma).
+      - name: Notify VPS to deploy (best-effort; VPS also polls every 30s)
+        continue-on-error: true
+        run: |
+          if curl -fsS --connect-timeout 15 --max-time 180 -X POST \
               -H "X-Deploy-Token: ${{ secrets.DEPLOY_HOOK_TOKEN }}" \
               --data-binary @system/agency-campaign-os/deploy/docker-compose.prod.yml \
-              https://kanvas.mainstay.com.br/deploy-hook
+              https://kanvas.mainstay.com.br/deploy-hook; then
+            echo "Deploy acionado via webhook (instantaneo)."
+          else
+            echo "Webhook inacessivel (IP do runner bloqueado na borda). O poll do VPS aplica em ate ~30s."
+          fi
