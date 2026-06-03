@@ -197,6 +197,10 @@
   <data name="creatorPayment.approverUnknown" xml:space="preserve"><value>Could not identify the approving user.</value></data>
   <data name="financialEntry.alreadyPaid" xml:space="preserve"><value>The financial entry has already been paid and cannot be changed.</value></data>
   <data name="financialEntry.notOpenForReconciliation" xml:space="preserve"><value>Only pending or overdue financial entries can be reconciled.</value></data>
+  <data name="financialEntry.onlyPaidCanBeReversed" xml:space="preserve"><value>Only paid financial entries can be reversed.</value></data>
+  <data name="financialEntry.alreadyReversed" xml:space="preserve"><value>This entry has already been reversed.</value></data>
+  <data name="financialEntry.cannotReverseReversal" xml:space="preserve"><value>A reversal entry cannot be reversed.</value></data>
+  <data name="financialEntry.reversedButCreatorPaymentPaid" xml:space="preserve"><value>Entry reversed. Warning: there is already a creator payout paid via PIX for this creator/campaign - the accounting reversal does not undo the actual payment.</value></data>
   <data name="bankTransaction.amountMismatch" xml:space="preserve"><value>The bank transaction amount does not match the financial entry amount.</value></data>
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>The proposal must be Sent to be marked as Viewed.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>The proposal must be Sent or Viewed to be Approved.</value></data>
@@ -1249,6 +1253,9 @@
   <data name="financial.entries.emptyPayable" xml:space="preserve"><value>No payable entries in the period.</value></data>
   <data name="financial.entries.field.counterparty" xml:space="preserve"><value>Counterparty</value></data>
   <data name="financial.entries.field.dueDate" xml:space="preserve"><value>Due date</value></data>
+  <data name="financial.entries.action.reverse" xml:space="preserve"><value>Reverse</value></data>
+  <data name="financial.entries.confirm.reverse" xml:space="preserve"><value>Reverse this paid entry? A linked contra entry will be created; the original entry is neither edited nor deleted.</value></data>
+  <data name="financial.entries.badge.reversed" xml:space="preserve"><value>Reversed</value></data>
   <data name="financial.entries.action.new" xml:space="preserve"><value>New entry</value></data>
   <data name="financial.entries.kpi.settledReceivable" xml:space="preserve"><value>Received this month</value></data>
   <data name="financial.entries.kpi.settledPayable" xml:space="preserve"><value>Paid this month</value></data>
@@ -1532,6 +1539,7 @@
   <data name="financialEntries.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um lançamento financeiro.</value></data>
   <data name="financialEntries.getSummary.description" xml:space="preserve"><value>Permite consultar o resumo financeiro por tipo (a receber/a pagar).</value></data>
   <data name="financialEntries.markAsPaid.description" xml:space="preserve"><value>Permite marcar um lançamento financeiro como pago/recebido.</value></data>
+  <data name="financialEntries.reverse.description" xml:space="preserve"><value>Permite estornar um lançamento financeiro pago (contrapartida).</value></data>
   <data name="financialEntries.update.description" xml:space="preserve"><value>Permite atualizar um lançamento financeiro.</value></data>
   <data name="financialReports.area" xml:space="preserve"><value>Financial reports</value></data>
   <data name="financialReports.getAging.description" xml:space="preserve"><value>Permite consultar o relatório de aging financeiro.</value></data>

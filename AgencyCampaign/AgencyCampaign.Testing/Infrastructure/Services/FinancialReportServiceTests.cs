@@ -143,6 +143,26 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetAccrualResult_should_exclude_reversed_pair()
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            FinancialEntry original = new(1, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "rec", 1000m, now, now);
+            original.ChangeStatus(FinancialEntryStatus.Paid, now);
+            db.Add(original);
+            await db.SaveChangesAsync();
+
+            original.MarkAsReversed(now);
+            FinancialEntry contra = original.BuildReversalEntry(now, "estorno");
+            db.Add(contra);
+            await db.SaveChangesAsync();
+
+            AccrualResultModel result = await service.GetAccrualResult(now.AddDays(-1), now.AddDays(1));
+
+            result.Revenue.Should().Be(0m);
+            result.Expense.Should().Be(0m);
+        }
+
+        [Test]
         public async Task GetCashFlow_should_bucket_by_month_when_requested()
         {
             DateTimeOffset baseDate = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero);

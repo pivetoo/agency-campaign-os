@@ -197,6 +197,10 @@
   <data name="creatorPayment.approverUnknown" xml:space="preserve"><value>No se pudo identificar al usuario aprobador.</value></data>
   <data name="financialEntry.alreadyPaid" xml:space="preserve"><value>El registro financiero ya fue pagado y no puede modificarse.</value></data>
   <data name="financialEntry.notOpenForReconciliation" xml:space="preserve"><value>Solo los registros financieros pendientes o vencidos pueden conciliarse.</value></data>
+  <data name="financialEntry.onlyPaidCanBeReversed" xml:space="preserve"><value>Solo los registros pagados pueden estornarse.</value></data>
+  <data name="financialEntry.alreadyReversed" xml:space="preserve"><value>Este registro ya fue estornado.</value></data>
+  <data name="financialEntry.cannotReverseReversal" xml:space="preserve"><value>No es posible estornar un registro de estorno.</value></data>
+  <data name="financialEntry.reversedButCreatorPaymentPaid" xml:space="preserve"><value>Registro estornado. Atención: ya existe un pago al creator vía PIX para este creator/campaña - el estorno contable no deshace el pago real.</value></data>
   <data name="bankTransaction.amountMismatch" xml:space="preserve"><value>El importe de la transacción bancaria no coincide con el del registro financiero.</value></data>
   <data name="proposal.markAsViewed.notSent" xml:space="preserve"><value>La propuesta debe estar Enviada para ser marcada como Vista.</value></data>
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>La propuesta debe estar Enviada o Vista para ser Aprobada.</value></data>
@@ -1254,6 +1258,9 @@
   <data name="financial.entries.emptyPayable" xml:space="preserve"><value>No hay cuentas por pagar en el período.</value></data>
   <data name="financial.entries.field.counterparty" xml:space="preserve"><value>Contraparte</value></data>
   <data name="financial.entries.field.dueDate" xml:space="preserve"><value>Vencimiento</value></data>
+  <data name="financial.entries.action.reverse" xml:space="preserve"><value>Estornar</value></data>
+  <data name="financial.entries.confirm.reverse" xml:space="preserve"><value>¿Estornar este registro pagado? Se creará una contrapartida vinculada; el registro original no se edita ni se elimina.</value></data>
+  <data name="financial.entries.badge.reversed" xml:space="preserve"><value>Estornado</value></data>
   <data name="financial.entries.action.new" xml:space="preserve"><value>Nuevo movimiento</value></data>
   <data name="financial.entries.kpi.settledReceivable" xml:space="preserve"><value>Recibido en el mes</value></data>
   <data name="financial.entries.kpi.settledPayable" xml:space="preserve"><value>Pagado en el mes</value></data>
@@ -1537,6 +1544,7 @@
   <data name="financialEntries.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um lançamento financeiro.</value></data>
   <data name="financialEntries.getSummary.description" xml:space="preserve"><value>Permite consultar o resumo financeiro por tipo (a receber/a pagar).</value></data>
   <data name="financialEntries.markAsPaid.description" xml:space="preserve"><value>Permite marcar um lançamento financeiro como pago/recebido.</value></data>
+  <data name="financialEntries.reverse.description" xml:space="preserve"><value>Permite estornar um lançamento financeiro pago (contrapartida).</value></data>
   <data name="financialEntries.update.description" xml:space="preserve"><value>Permite atualizar um lançamento financeiro.</value></data>
   <data name="financialReports.area" xml:space="preserve"><value>Financial reports</value></data>
   <data name="financialReports.getAging.description" xml:space="preserve"><value>Permite consultar o relatório de aging financeiro.</value></data>

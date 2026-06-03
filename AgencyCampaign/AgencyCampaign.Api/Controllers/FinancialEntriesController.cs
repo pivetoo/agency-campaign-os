@@ -100,6 +100,23 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapEntry(entry), Localizer["record.updated"]);
         }
 
+        [RequireAccess("financialEntries.reverse.description")]
+        [PostEndpoint("reverse/{id:long}")]
+        public async Task<IActionResult> Reverse(long id, [FromBody] ReverseFinancialEntryRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            ReverseEntryResult result = await financialEntryService.ReverseEntry(id, request, cancellationToken);
+            string message = result.CreatorPaymentAlreadyPaid
+                ? Localizer["financialEntry.reversedButCreatorPaymentPaid"]
+                : Localizer["record.created"];
+            return Http200(MapEntry(result.Reversal), message);
+        }
+
         [RequireAccess("financialEntries.getSummary.description")]
         [GetEndpoint("summary/{type:int}")]
         public async Task<IActionResult> GetSummary(int type, CancellationToken cancellationToken)

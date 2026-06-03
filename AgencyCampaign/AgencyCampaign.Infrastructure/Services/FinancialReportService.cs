@@ -163,7 +163,8 @@ namespace AgencyCampaign.Infrastructure.Services
             List<FinancialEntry> entries = await dbContext.Set<FinancialEntry>()
                 .AsNoTracking()
                 .Include(item => item.Campaign)
-                .Where(item => item.CampaignId != null && item.Status != FinancialEntryStatus.Cancelled)
+                .Where(item => item.CampaignId != null && item.Status != FinancialEntryStatus.Cancelled
+                    && !item.IsReversed && item.ReversalOfEntryId == null)
                 .ToListAsync(cancellationToken);
 
             CampaignProfitabilityLineModel[] lines = entries
@@ -209,6 +210,7 @@ namespace AgencyCampaign.Infrastructure.Services
             List<FinancialEntry> entries = await dbContext.Set<FinancialEntry>()
                 .AsNoTracking()
                 .Where(item => item.Status != FinancialEntryStatus.Cancelled
+                    && !item.IsReversed && item.ReversalOfEntryId == null
                     && item.OccurredAt >= normalizedFrom
                     && item.OccurredAt <= normalizedTo)
                 .ToListAsync(cancellationToken);

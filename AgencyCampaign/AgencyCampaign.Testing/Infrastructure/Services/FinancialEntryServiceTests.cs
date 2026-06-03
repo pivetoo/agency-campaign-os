@@ -311,5 +311,75 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Amount.Should().Be(250m);
         }
 
+        private async Task<FinancialEntry> SeedPaidEntryAsync(FinancialAccount account, FinancialEntryType type = FinancialEntryType.Receivable, FinancialEntryCategory category = FinancialEntryCategory.BrandReceivable, decimal amount = 500m, long? campaignId = null, long? creatorId = null)
+        {
+            FinancialEntry entry = new(account.Id, type, category, "lancamento", amount, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, campaignId: campaignId);
+            if (creatorId.HasValue)
+            {
+                entry.LinkToCreator(creatorId.Value);
+            }
+            entry.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+            db.Add(entry);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+            return entry;
+        }
+
+        [Test]
+        public async Task ReverseEntry_should_create_contra_entry_and_mark_original_reversed()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry original = await SeedPaidEntryAsync(account);
+
+            ReverseEntryResult result = await service.ReverseEntry(original.Id, new ReverseFinancialEntryRequest { Reason = "erro de digitacao" });
+
+            result.Reversal.Type.Should().Be(FinancialEntryType.Payable);
+            result.Reversal.Amount.Should().Be(500m);
+            result.Reversal.ReversalOfEntryId.Should().Be(original.Id);
+            result.CreatorPaymentAlreadyPaid.Should().BeFalse();
+
+            FinancialEntry reloaded = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == original.Id);
+            reloaded.IsReversed.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task ReverseEntry_should_throw_when_entry_not_paid()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry pending = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "x", 100m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            db.Add(pending);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.ReverseEntry(pending.Id, new ReverseFinancialEntryRequest());
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("financialEntry.onlyPaidCanBeReversed");
+        }
+
+        [Test]
+        public async Task ReverseEntry_should_flag_when_creator_payment_already_paid()
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            Creator creator = new("Foo", pixKey: "foo@x", pixKeyType: PixKeyType.Email);
+            db.Add(creator);
+            await db.SaveChangesAsync();
+            Campaign campaign = new(brand.Id, "C", 0m, DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+            CampaignCreator cc = new(campaign.Id, creator.Id, 1, 100m, 10m);
+            db.Add(cc);
+            await db.SaveChangesAsync();
+            CreatorPayment payment = new(cc.Id, creator.Id, 100m, 0m, PaymentMethod.Pix);
+            payment.MarkPaid(DateTimeOffset.UtcNow);
+            db.Add(payment);
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry payout = await SeedPaidEntryAsync(account, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout, 100m, campaign.Id, creator.Id);
+            await db.SaveChangesAsync();
+
+            ReverseEntryResult result = await service.ReverseEntry(payout.Id, new ReverseFinancialEntryRequest());
+
+            result.CreatorPaymentAlreadyPaid.Should().BeTrue();
+        }
     }
 }

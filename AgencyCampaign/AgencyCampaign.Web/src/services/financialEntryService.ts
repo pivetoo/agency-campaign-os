@@ -86,6 +86,10 @@ export const financialEntryService = {
     return httpClient.post<FinancialEntry>(`${BASE_URL}/markaspaid/${id}`, data)
   },
 
+  reverse(id: number, reason?: string) {
+    return httpClient.post<FinancialEntry>(`${BASE_URL}/reverse/${id}`, { reason })
+  },
+
   createInstallments(data: CreateInstallmentSeriesRequest) {
     return httpClient.post<FinancialEntry[]>(`${BASE_URL}/CreateInstallments`, data)
   },

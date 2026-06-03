@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, Card, CardContent, DataTable, useApi, Badge, Input, FilterPanel, TableToolbar, useI18n } from 'archon-ui'
+import { PageLayout, Card, CardContent, ConfirmModal, DataTable, useApi, Badge, Input, FilterPanel, TableToolbar, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { CheckCircle2, Pencil } from 'lucide-react'
+import { CheckCircle2, Pencil, Undo2 } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../../services/financialEntryService'
 import { financialAccountService } from '../../../services/financialAccountService'
 import { FinancialEntryStatus, financialEntryCategoryLabels, financialEntryReceivableStatusLabels, financialEntryStatusLabels, type FinancialEntry, type FinancialSummary } from '../../../types/financialEntry'
@@ -29,8 +29,21 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   const [selected, setSelected] = useState<FinancialEntry | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isMarkPaidOpen, setIsMarkPaidOpen] = useState(false)
+  const [isReverseOpen, setIsReverseOpen] = useState(false)
   const { execute: fetchEntries, loading, pagination } = useApi<FinancialEntry[]>({ showErrorMessage: true })
   const { execute: fetchSummary } = useApi<FinancialSummary | null>({ showErrorMessage: true })
+  const { execute: runReverse, loading: reversing } = useApi<FinancialEntry>({ showSuccessMessage: true, showErrorMessage: true })
+
+  const handleReverse = async () => {
+    if (!selected) return
+    const result = await runReverse(() => financialEntryService.reverse(selected.id))
+    if (result !== null) {
+      setIsReverseOpen(false)
+      setSelected(null)
+      void loadEntries()
+      void loadSummary()
+    }
+  }
 
   const loadEntries = async () => {
     const result = await fetchEntries(() => financialEntryService.getAll({ ...filters, type, page, pageSize }))
@@ -169,6 +182,19 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
               {t('common.action.confirm')}
             </button>
           )}
+          {record.isReversed && (
+            <Badge variant="outline">{t('financial.entries.badge.reversed')}</Badge>
+          )}
+          {record.status === FinancialEntryStatus.Paid && !record.isReversed && !record.reversalOfEntryId && (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-amber-700 hover:bg-amber-50"
+              onClick={(event) => { event.stopPropagation(); setSelected(record); setIsReverseOpen(true) }}
+            >
+              <Undo2 size={12} />
+              {t('financial.entries.action.reverse')}
+            </button>
+          )}
           <button
             type="button"
             className="p-1 text-muted-foreground hover:text-foreground"
@@ -273,6 +299,15 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
           void loadEntries()
           void loadSummary()
         }}
+      />
+
+      <ConfirmModal
+        open={isReverseOpen}
+        onOpenChange={setIsReverseOpen}
+        description={t('financial.entries.confirm.reverse')}
+        variant="warning"
+        onConfirm={() => void handleReverse()}
+        loading={reversing}
       />
     </>
   )

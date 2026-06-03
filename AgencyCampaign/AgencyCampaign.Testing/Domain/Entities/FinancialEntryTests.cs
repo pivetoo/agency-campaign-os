@@ -140,5 +140,66 @@ namespace AgencyCampaign.Testing.Domain.Entities
             Action act = () => subject.LinkToProposal(0);
             act.Should().Throw<ArgumentOutOfRangeException>();
         }
+
+        [Test]
+        public void MarkAsReversed_should_throw_when_not_paid()
+        {
+            FinancialEntry subject = BuildDefault();
+
+            Action act = () => subject.MarkAsReversed(DateTimeOffset.UtcNow);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("financialEntry.onlyPaidCanBeReversed");
+        }
+
+        [Test]
+        public void MarkAsReversed_should_throw_when_already_reversed()
+        {
+            FinancialEntry subject = BuildDefault();
+            subject.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+            subject.MarkAsReversed(DateTimeOffset.UtcNow);
+
+            Action act = () => subject.MarkAsReversed(DateTimeOffset.UtcNow);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("financialEntry.alreadyReversed");
+        }
+
+        [Test]
+        public void MarkAsReversed_should_set_flag_and_date()
+        {
+            FinancialEntry subject = BuildDefault();
+            subject.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+
+            subject.MarkAsReversed(DateTimeOffset.UtcNow);
+
+            subject.IsReversed.Should().BeTrue();
+            subject.ReversedAt.Should().NotBeNull();
+        }
+
+        [Test]
+        public void BuildReversalEntry_should_create_opposite_paid_contra_entry()
+        {
+            FinancialEntry subject = BuildDefault();
+            subject.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+
+            FinancialEntry reversal = subject.BuildReversalEntry(DateTimeOffset.UtcNow, "estorno");
+
+            reversal.Type.Should().Be(FinancialEntryType.Payable);
+            reversal.Amount.Should().Be(subject.Amount);
+            reversal.Status.Should().Be(FinancialEntryStatus.Paid);
+            reversal.PaidAt.Should().NotBeNull();
+            reversal.ReversalOfEntryId.Should().Be(subject.Id);
+        }
+
+        [Test]
+        public void BuildReversalEntry_result_cannot_be_reversed_again()
+        {
+            FinancialEntry subject = BuildDefault();
+            subject.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+            FinancialEntry reversal = subject.BuildReversalEntry(DateTimeOffset.UtcNow, "estorno");
+
+            Action act = () => reversal.MarkAsReversed(DateTimeOffset.UtcNow);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("financialEntry.cannotReverseReversal");
+        }
     }
 }

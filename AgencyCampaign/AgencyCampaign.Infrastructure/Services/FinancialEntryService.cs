@@ -308,6 +308,50 @@ namespace AgencyCampaign.Infrastructure.Services
             return await GetEntryById(result.Id, cancellationToken) ?? result;
         }
 
+        // Estorno (D3b): cria a contrapartida do lancamento pago numa unica transacao (marca o original
+        // estornado + insere a contrapartida ja paga). Quando o estornado e um repasse (CreatorPayout) e ja
+        // existe um CreatorPayment PAGO via PIX para o mesmo creator/campanha, sinaliza - o estorno contabil
+        // NAO desfaz o pagamento real ao creator.
+        public async Task<ReverseEntryResult> ReverseEntry(long id, ReverseFinancialEntryRequest request, CancellationToken cancellationToken = default)
+        {
+            FinancialEntry? original = await DbContext.Set<FinancialEntry>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (original is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            DateTimeOffset reversedAt = DateTimeOffset.UtcNow;
+            string reason = string.IsNullOrWhiteSpace(request.Reason) ? string.Empty : $": {request.Reason.Trim()}";
+            string description = $"Estorno do lancamento #{original.Id}{reason}";
+
+            original.MarkAsReversed(reversedAt);
+            FinancialEntry reversal = original.BuildReversalEntry(reversedAt, description);
+
+            bool creatorPaymentAlreadyPaid = false;
+            if (original.Category == FinancialEntryCategory.CreatorPayout && original.CampaignId.HasValue && original.CreatorId.HasValue)
+            {
+                creatorPaymentAlreadyPaid = await DbContext.Set<CreatorPayment>()
+                    .AsNoTracking()
+                    .AnyAsync(item => item.CreatorId == original.CreatorId
+                        && item.Status == PaymentStatus.Paid
+                        && item.CampaignCreator!.CampaignId == original.CampaignId, cancellationToken);
+
+                if (creatorPaymentAlreadyPaid)
+                {
+                    reversal.AppendNote("ATENCAO: ja existe repasse pago via PIX para este creator/campanha; o estorno contabil nao desfaz o pagamento real.");
+                }
+            }
+
+            DbContext.Set<FinancialEntry>().Add(reversal);
+            await DbContext.SaveChangesAsync(cancellationToken);
+
+            FinancialEntry persisted = await GetEntryById(reversal.Id, cancellationToken) ?? reversal;
+            return new ReverseEntryResult(persisted, creatorPaymentAlreadyPaid);
+        }
+
         public async Task<FinancialSummaryModel> GetSummary(FinancialEntryType type, CancellationToken cancellationToken = default)
         {
             await RecalculateOverdueAsync(cancellationToken);

@@ -18,8 +18,12 @@ namespace AgencyCampaign.Application.Services
         public string? Search { get; set; }
     }
 
+    public sealed record ReverseEntryResult(FinancialEntry Reversal, bool CreatorPaymentAlreadyPaid);
+
     public interface IFinancialEntryService : ICrudService<FinancialEntry>
     {
+        Task<ReverseEntryResult> ReverseEntry(long id, ReverseFinancialEntryRequest request, CancellationToken cancellationToken = default);
+
         Task<PagedResult<FinancialEntry>> GetEntries(PagedRequest request, FinancialEntryFilters filters, CancellationToken cancellationToken = default);
 
         Task<FinancialEntry?> GetEntryById(long id, CancellationToken cancellationToken = default);

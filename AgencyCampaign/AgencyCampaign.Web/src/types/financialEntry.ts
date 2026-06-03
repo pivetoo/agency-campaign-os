@@ -68,6 +68,8 @@ export interface FinancialEntry {
   invoiceNumber?: string | null
   invoiceUrl?: string | null
   invoiceIssuedAt?: string | null
+  isReversed?: boolean
+  reversalOfEntryId?: number | null
   createdAt: string
   updatedAt?: string
 }
