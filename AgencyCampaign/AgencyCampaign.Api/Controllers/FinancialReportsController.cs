@@ -10,10 +10,12 @@ namespace AgencyCampaign.Api.Controllers
     public sealed class FinancialReportsController : ApiControllerBase
     {
         private readonly IFinancialReportService service;
+        private readonly IFinancialReportExportService exportService;
 
-        public FinancialReportsController(IFinancialReportService service)
+        public FinancialReportsController(IFinancialReportService service, IFinancialReportExportService exportService)
         {
             this.service = service;
+            this.exportService = exportService;
         }
 
         [RequireAccess("financialReports.getCashFlow.description")]
@@ -64,6 +66,46 @@ namespace AgencyCampaign.Api.Controllers
             int horizon = weeks <= 0 ? 12 : weeks;
             var result = await service.GetCashFlowProjection(horizon, cancellationToken);
             return Http200(result);
+        }
+
+        [RequireAccess("financialReports.getCashFlow.description")]
+        [GetEndpoint("cashflow/export")]
+        public async Task<IActionResult> ExportCashFlow([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, [FromQuery] int granularity, CancellationToken cancellationToken)
+        {
+            byte[] csv = await exportService.ExportCashFlow(from, to, (CashFlowGranularity)granularity, cancellationToken);
+            return SendCsv(csv, "fluxo-de-caixa.csv");
+        }
+
+        [RequireAccess("financialReports.getAging.description")]
+        [GetEndpoint("aging/export")]
+        public async Task<IActionResult> ExportAging(CancellationToken cancellationToken)
+        {
+            byte[] csv = await exportService.ExportAging(cancellationToken);
+            return SendCsv(csv, "aging.csv");
+        }
+
+        [RequireAccess("financialReports.getTaxWithholding.description")]
+        [GetEndpoint("tax-withholding/export")]
+        public async Task<IActionResult> ExportTaxWithholding([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] csv = await exportService.ExportTaxWithholding(from, to, cancellationToken);
+            return SendCsv(csv, "retencoes.csv");
+        }
+
+        [RequireAccess("financialReports.getCampaignProfitability.description")]
+        [GetEndpoint("campaign-profitability/export")]
+        public async Task<IActionResult> ExportCampaignProfitability(CancellationToken cancellationToken)
+        {
+            byte[] csv = await exportService.ExportCampaignProfitability(cancellationToken);
+            return SendCsv(csv, "rentabilidade-campanhas.csv");
+        }
+
+        [RequireAccess("financialReports.getAccrualResult.description")]
+        [GetEndpoint("accrual-result/export")]
+        public async Task<IActionResult> ExportAccrualResult([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] csv = await exportService.ExportAccrualResult(from, to, cancellationToken);
+            return SendCsv(csv, "resultado-competencia.csv");
         }
     }
 }
