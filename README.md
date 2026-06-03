@@ -8,7 +8,7 @@ A plataforma é organizada em três módulos de negócio:
 - **Produção** — execução das campanhas com creators: entregáveis, aprovações de conteúdo e documentos.
 - **Financeiro** — contas, lançamentos, conciliação bancária e pagamentos a creators.
 
-> Documentação por módulo em evolução. Esta versão documenta os **Módulos Comercial e de Produção** em detalhe; o **Financeiro** está com a estrutura preparada e será detalhado na sequência.
+> Documentação por módulo em evolução. Esta versão documenta os **Módulos Comercial, de Produção e Financeiro** em detalhe.
 
 ## Sumário
 
@@ -40,6 +40,20 @@ A plataforma é organizada em três módulos de negócio:
   - [Telas e rotas](#telas-e-rotas-1)
   - [Principais endpoints](#principais-endpoints-1)
 - [Módulo Financeiro](#módulo-financeiro)
+  - [Visão geral](#visão-geral-do-financeiro)
+  - [Contas financeiras e integração bancária](#contas-financeiras-e-integração-bancária)
+  - [Lançamentos: tipos, categorias e estados](#lançamentos-tipos-categorias-e-estados)
+  - [Imutabilidade e estorno](#imutabilidade-e-estorno)
+  - [Geração automática a partir de comercial e produção](#geração-automática-a-partir-de-comercial-e-produção)
+  - [Conciliação bancária](#conciliação-bancária)
+  - [Pagamentos a creators](#pagamentos-a-creators)
+  - [Camada fiscal do repasse](#camada-fiscal-do-repasse)
+  - [Governança do pagamento (maker-checker e pay-when-paid)](#governança-do-pagamento-maker-checker-e-pay-when-paid)
+  - [Fechamento de período](#fechamento-de-período)
+  - [Relatórios financeiros](#relatórios-financeiros)
+  - [Configurações do financeiro](#configurações-do-financeiro)
+  - [Telas e rotas](#telas-e-rotas-2)
+  - [Principais endpoints](#principais-endpoints-2)
 
 ---
 
@@ -402,15 +416,145 @@ Todos protegidos por `[RequireAccess]`, exceto os públicos por token (`[AllowAn
 
 ## Módulo Financeiro
 
-> A documentar. Cobre o controle financeiro: contas, lançamentos, categorias, conciliação bancária e pagamentos a creators.
+### Visão geral do financeiro
 
-Estrutura prevista para esta seção:
+Cobre o caixa da agência de ponta a ponta: contas financeiras (com integração bancária via IntegrationPlatform), lançamentos a pagar e a receber gerados automaticamente a partir do comercial e da produção, conciliação do extrato bancário, pagamentos a creators (Pix via IntegrationPlatform, com camada fiscal e governança de "quatro olhos"), relatórios para o operador e o contador, e fechamento de período.
 
-- Visão geral do módulo
-- Contas financeiras e integração bancária (via IntegrationPlatform)
-- Lançamentos, categorias e subcategorias
-- Conciliação de transações bancárias
-- Pagamentos a creators
-- Relatórios financeiros
-- Telas e rotas
-- Principais endpoints
+O modelo é de **caixa simples com imutabilidade** (single-entry, sem partida dobrada): cada movimento é um `FinancialEntry` (a receber ou a pagar) e o pagamento ao creator tem uma trilha própria de execução (`CreatorPayment`). O que protege os livros não é a contabilidade de dupla entrada, e sim quatro garantias: **lançamento pago é imutável**, **correção só por estorno** (contrapartida vinculada), **mês fechado bloqueia back-dating** e **idempotência** na geração automática e no disparo do Pix. O dinheiro usa precisão `decimal`/`NUMERIC(18,2)` e datas `TIMESTAMPTZ`; toda mutação é auditada pelo Archon (autor, tenant e diff).
+
+A costura com os outros módulos é explícita: a conversão da proposta (Comercial) **gera o recebível da marca**, a publicação do entregável (Produção) **gera o repasse do creator**, e marcar o repasse como pago **dá baixa nos previstos** correspondentes.
+
+### Contas financeiras e integração bancária
+
+**Conta (`FinancialAccount`)**
+
+- Nome, banco (catálogo `Bank` com Compe/logo), agência, número, saldo inicial, cor e ativa/inativa.
+- **Conta padrão** (`IsDefault`, exclusiva): a geração automática de lançamentos usa a conta padrão ativa; defini-la limpa a marcação das demais.
+- **Saldo derivado**: saldo atual = saldo inicial + recebidos − pagos (lançamentos `Pago`), calculado só sobre **contas ativas**. O painel de contas exibe esse saldo e o total Kanvas consolidado.
+- **Integração bancária**: a conta pode ter um **conector** do IntegrationPlatform (`IntegrationConnectorId`) para sincronizar; guarda o último saldo sincronizado (`LastSyncedBalance`/`LastSyncedAt`) e um status de sync (`FinancialAccountSyncStatus`: não configurado, ok, pendente, erro). Hoje o "Sincronizar" atualiza o saldo da conta; a importação do extrato em si entra pela conciliação (abaixo).
+
+### Lançamentos: tipos, categorias e estados
+
+**Lançamento (`FinancialEntry`)** é a unidade do caixa: conta, valor, vencimento (`DueAt`), **data de competência** (`OccurredAt`), descrição, contraparte, método e código de referência. Pode estar ligado a campanha, creator, proposta de origem (`SourceProposalId`) e entregável (`CampaignDeliverableId`). Suporta **parcelamento** (séries de N parcelas com ajuste de centavos na última) e subcategorias.
+
+**Tipo (`FinancialEntryType`)**: `Receivable` (a receber) ou `Payable` (a pagar).
+
+**Categoria (`FinancialEntryCategory`)**: `BrandReceivable` (recebível da marca), `CreatorPayout` (repasse de creator), `AgencyFee` (fee da agência), `OperationalCost` (custo operacional), `Bonus`, `Adjustment` (ajuste), `Refund` (reembolso), `Tax` (imposto). Subcategorias livres (`FinancialSubcategory`) refinam o lançamento.
+
+**Estados (`FinancialEntryStatus`)**
+
+```
+Pendente ⇄ Vencido ──→ Pago
+   │          │
+   └──────────┴────────→ Cancelado
+```
+
+- `Vencido` é **derivado da data** (`DueAt < hoje`) sobre lançamentos abertos. O **resumo financeiro calcula o vencido por data sem escrever durante a leitura** (não depende de um recálculo persistido).
+- `Pago` é **terminal e imutável** (ver abaixo). O único caminho de volta de `Pago` para `Pendente` é **desfazer uma conciliação bancária** (não há "despago" manual).
+- `Cancelado` é terminal.
+
+### Imutabilidade e estorno
+
+- **Lançamento pago é imutável**: editar ou mudar o status de um lançamento `Pago` é bloqueado no domínio. Isso vale também para os lançamentos auto-gerados, marcados com `IsAutoGenerated` para o operador não apagá-los por engano.
+- **Correção por estorno**: em vez de editar/excluir um lançamento pago, cria-se uma **contrapartida** (`FinancialEntry` de tipo oposto, já paga na data do estorno, vinculada ao original por `ReversalOfEntryId`); o original fica marcado `IsReversed`. O par estornado **sai dos relatórios de competência e de rentabilidade** (não some do fluxo de caixa, pois o movimento de volta é real). Quando o estornado é um repasse e **já existe um Pix pago** para aquele creator/campanha, o sistema **alerta**: o estorno contábil não desfaz o pagamento real.
+
+### Geração automática a partir de comercial e produção
+
+A automação fecha o ciclo dos três módulos, sempre na **conta padrão** e de forma **idempotente**:
+
+- **Conversão da proposta (Comercial)** gera o **recebível da marca** (`BrandReceivable`) pelo **total líquido** da proposta (`NetTotalValue`), vencendo na validade da proposta (ou +30 dias).
+- **Publicação do entregável (Produção)** gera o **repasse do creator** (`CreatorPayout`) pelo **valor do creator** (`CreatorAmount`) do entregável, vencendo alguns dias depois da publicação.
+- **Sem conta ativa**, a geração **não falha em silêncio**: o operador é notificado (`KanvasNotifications`) em vez de o lançamento ser pulado só com log.
+- **Idempotência**: além da trava em memória (não regenera se já existe), há **índices únicos parciais no banco** (um recebível por proposta; um repasse por entregável), com a migração abortando se houver duplicata em vez de apagar dado; uma corrida vira no-op.
+
+### Conciliação bancária
+
+A conciliação casa o **extrato** (`BankTransaction`) com os lançamentos:
+
+- **Importação do extrato**: por lote (`Import`), com `externalId` por transação que **deduplica** reimportações na mesma conta. A importação roda um **match automático exato 1:1** (mesmo valor, mesma direção, dentro de uma janela de 2 dias) que já **dá baixa** no lançamento casado.
+- **Casar manualmente** (`match`): vincula uma transação a um lançamento **aberto** da conta com **valor exato** (mismatch é rejeitado) e dá baixa nele (`Pago`).
+- **Desfazer** (`unmatch`): desvincula e **reabre** o lançamento (`Pago → Pendente`) — o único caminho permitido de despago, que convive com a imutabilidade.
+- A tela (`/financeiro/conciliacao`) mostra o extrato por conta, o status conciliado/pendente de cada transação e os contadores; a importação manual aceita um CSV colado (data;descrição;valor;C/D).
+
+### Pagamentos a creators
+
+O **repasse executado** (`CreatorPayment`) é a trilha separada do pagamento real ao creator — distinta do lançamento contábil (`CreatorPayout`), que ela concilia.
+
+**Conteúdo e ciclo de vida (`PaymentStatus`)**
+
+```
+Pendente → Agendado → Pago
+   │           │
+   └───────────┴──→ Falhou / Cancelado
+```
+
+- Valor bruto, descontos, **imposto retido** e líquido; método (`Pix`/`Ted`/`Manual`); destino Pix (snapshot da chave/tipo do creator); NF anexada; e um **histórico de eventos** (criado, agendado, aceito pelo provedor, pago, falhou, NF ausente, aprovado, etc.).
+- **Agendar em lote** enfileira a ordem no IntegrationPlatform (pipeline/conector de pagamento), gerando uma **chave de idempotência** por payout (para um retry de rede não pagar duas vezes) e persistindo o **EndToEndId** (e2eId do Pix) quando o callback retorna.
+- O **callback do provedor** (`provider-callback`) confirma o pagamento de forma **idempotente** (reentrega do mesmo evento não re-dispara baixa) e é **multi-tenant**: o agendamento embute um token de tenant que a rota tokenizada resolve, com o segredo global como fallback de transição.
+- **Marcar como pago** (manual ou via callback) **dá baixa nos repasses previstos** (`CreatorPayout` pendentes do mesmo campanha+creator), respeitando o valor pago (não quita mais previsto do que o pagamento cobre) e sinalizando divergência por evento.
+
+### Camada fiscal do repasse
+
+Escopo de MVP: **registrar agora, calcular depois** (DP1).
+
+- O creator guarda o **regime tributário** (`TaxRegime`: PF, MEI, Simples, Lucro Presumido/Real).
+- O pagamento registra **bruto × retido × líquido** (o imposto retido entra no líquido).
+- Ao agendar o repasse de um creator **PJ** (regime ≠ PF) **sem NF anexada**, registra-se um evento `InvoiceMissing` — sinal não-bloqueante para o operador/contador regularizar.
+- O **relatório de retenções por competência** agrupa por creator os pagamentos pagos com imposto retido (bruto/retido/líquido, documento e regime) para o contador. (Cálculo automático de IRRF/INSS/ISS, RPA e validação estruturada da NFS-e ficam para a fase 2.)
+
+### Governança do pagamento (maker-checker e pay-when-paid)
+
+- **Maker-checker / alçada**: o pagamento guarda quem criou e quem aprovou; o **aprovador precisa ser diferente** de quem registrou (segregação de funções). Acima de um **teto configurável por agência** (`CreatorPaymentApprovalThreshold`), o agendamento é **bloqueado até a aprovação** (evento `ApprovalRequired`); abaixo do teto, paga sem aprovação.
+- **Pay-when-paid**: gate **opt-in por campanha** (`PayoutRequiresContentApproval`, default desligado) que só libera o agendamento do repasse quando **todos os entregáveis do creator naquela campanha estão aprovados** (mesma aprovação de marca/interna do gate de publicação da Produção); campanha sem entregáveis libera. Bloqueado, registra `ContentApprovalRequired`.
+
+### Fechamento de período
+
+- O fechamento mensal (`FinancialPeriod`) é uma **trava contábil**: ao fechar um mês, **bloqueia criar/editar/marcar-pago** lançamentos datados nele (back-dating), registrando quem fechou/reabriu.
+- O **estorno continua liberado** mesmo com o mês fechado, porque lança a contrapartida no **mês aberto corrente** — a forma contábil correta de corrigir um período fechado, sem reescrevê-lo.
+- A tela (`/financeiro/periodos`) lista os meses recentes com o status e permite fechar/reabrir.
+
+### Relatórios financeiros
+
+Todos com agregação no servidor e exportação em **CSV** (UTF-8 com BOM e decimal pt-BR, para abrir no Excel; reusam a mesma agregação da tela, sem divergir):
+
+- **Fluxo de caixa** (`cashflow`): previsto × realizado por dia/semana/mês.
+- **Projeção de caixa** (`cashflow-projection`): forward-looking, semana a semana, ancorada no saldo derivado das contas ativas, com os vencimentos futuros não pagos (vencidos dobrados na semana corrente).
+- **Aging** (`aging`): contas a pagar/receber em aberto por faixa de atraso.
+- **Retenções** (`tax-withholding`): base fiscal por competência (acima).
+- **Rentabilidade por campanha** (`campaign-profitability`): receita × custo de creator × demais custos × margem, fechando o ciclo Comercial × Produção × Financeiro.
+- **Resultado por competência** (`accrual-result`): receita/despesa reconhecidas pela data do fato (`OccurredAt`), separado do caixa, com o par estornado excluído.
+
+### Configurações do financeiro
+
+- **Conta padrão**: marcada na tela de contas; alimenta a geração automática.
+- **Teto de aprovação do repasse** (`CreatorPaymentApprovalThreshold`) e **regime tributário** do creator: definem a governança e a camada fiscal.
+- **Gate pay-when-paid** por campanha (no cadastro da campanha).
+- **Catálogo de bancos** (`Bank`) e **subcategorias** financeiras.
+
+### Telas e rotas
+
+| Rota | Tela | Função |
+|------|------|--------|
+| `/financeiro/contas` | `FinancialAccounts` | Contas, saldo, conta padrão e conector bancário |
+| `/financeiro/receber` | `Receivables.tsx` | Contas a receber |
+| `/financeiro/pagar` | `Payables.tsx` | Contas a pagar |
+| `/financeiro/repasses-creators` | `CreatorPayments.tsx` | Pagamentos a creators (agendar, aprovar, marcar pago, NF) |
+| `/financeiro/fluxo-caixa` | `CashFlow.tsx` | Fluxo de caixa previsto × realizado |
+| `/financeiro/aging` | `Aging.tsx` | Aging de pagar/receber |
+| `/financeiro/conciliacao` | `Reconciliation.tsx` | Conciliação do extrato com os lançamentos |
+| `/financeiro/periodos` | `FinancialPeriods.tsx` | Fechamento/reabertura de período mensal |
+
+Principais modais: lançamento (e parcelamento), marcar como pago, estornar lançamento, pagamento ao creator, anexar NF, agendar lote de repasses, casar transação e importar extrato.
+
+### Principais endpoints
+
+Todos protegidos por `[RequireAccess]`, exceto o callback do provedor de pagamento (`[AllowAnonymous]`, com o tenant resolvido pelo token na URL). Rotas relativas à API do AgencyCampaign.
+
+- **Contas** (`/financialAccounts`): listar, `GetSummary`, detalhe, criar/atualizar/excluir; `set-default`, `attach-connector`, `detach-connector`, `sync`.
+- **Lançamentos** (`/financialEntries`): listar (com filtros), detalhe, por campanha; criar, atualizar, `markaspaid/{id}`, **`reverse/{id}`** (estorno), `summary/{type}`, parcelamento (`CreateInstallments`). Não há "despago" manual.
+- **Subcategorias** (`/financialSubcategories`): catálogo de subcategorias.
+- **Pagamentos a creators** (`/creatorPayments`): listar, detalhe, por campanha/status; criar, atualizar, anexar NF, `mark-paid`, `cancel`, **`{id}/approve`** (maker-checker), `ScheduleBatch`; `provider-callback` e `provider-callback/{callbackToken}` (anônimos).
+- **Transações bancárias** (`/bankTransactions`): `Import`, `GetByAccount`, `{id}/match`, `{id}/unmatch`.
+- **Períodos** (`/financialPeriods`): listar meses recentes, `close`, `reopen`.
+- **Relatórios** (`/financialReports`): `cashflow`, `cashflow-projection`, `aging`, `tax-withholding`, `campaign-profitability`, `accrual-result`, cada um com a variante `.../export` (CSV).
+- **Bancos** (`/banks`): catálogo de instituições (Compe, logo).
