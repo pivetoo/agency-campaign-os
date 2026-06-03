@@ -226,6 +226,92 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
+        // Projecao de caixa forward-looking (E4): saldo derivado das contas ATIVAS (mesma formula do painel
+        // de Contas - InitialBalance + Recebido - Pago) como abertura, e os vencimentos futuros nao pagos
+        // (Pending/Overdue) agregados por semana. Vencidos (DueAt no passado) sao dobrados na semana corrente
+        // para nao sumirem da visao forward-looking. Read-only, ancorado no Kanvas (ignora saldo do banco).
+        public async Task<CashFlowProjectionModel> GetCashFlowProjection(int weeks, CancellationToken cancellationToken = default)
+        {
+            int horizonWeeks = Math.Clamp(weeks, 1, 52);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset currentWeekStart = StartOfWeek(now);
+            DateTimeOffset horizonEnd = currentWeekStart.AddDays(horizonWeeks * 7);
+
+            List<long> activeAccountIds = await dbContext.Set<FinancialAccount>()
+                .AsNoTracking()
+                .Where(item => item.IsActive)
+                .Select(item => item.Id)
+                .ToListAsync(cancellationToken);
+
+            decimal initialBalanceTotal = await dbContext.Set<FinancialAccount>()
+                .AsNoTracking()
+                .Where(item => item.IsActive)
+                .SumAsync(item => item.InitialBalance, cancellationToken);
+
+            List<FinancialEntry> paid = await dbContext.Set<FinancialEntry>()
+                .AsNoTracking()
+                .Where(item => activeAccountIds.Contains(item.AccountId) && item.Status == FinancialEntryStatus.Paid)
+                .ToListAsync(cancellationToken);
+
+            decimal receivedPaid = paid.Where(item => item.Type == FinancialEntryType.Receivable).Sum(item => item.Amount);
+            decimal payablePaid = paid.Where(item => item.Type == FinancialEntryType.Payable).Sum(item => item.Amount);
+            decimal openingBalance = initialBalanceTotal + receivedPaid - payablePaid;
+
+            List<FinancialEntry> upcoming = await dbContext.Set<FinancialEntry>()
+                .AsNoTracking()
+                .Where(item => activeAccountIds.Contains(item.AccountId)
+                    && (item.Status == FinancialEntryStatus.Pending || item.Status == FinancialEntryStatus.Overdue)
+                    && item.DueAt < horizonEnd)
+                .ToListAsync(cancellationToken);
+
+            Dictionary<DateTimeOffset, decimal> inflowByWeek = new();
+            Dictionary<DateTimeOffset, decimal> outflowByWeek = new();
+
+            foreach (FinancialEntry entry in upcoming)
+            {
+                DateTimeOffset entryWeek = StartOfWeek(entry.DueAt);
+                DateTimeOffset bucket = entryWeek < currentWeekStart ? currentWeekStart : entryWeek;
+
+                if (entry.Type == FinancialEntryType.Receivable)
+                {
+                    inflowByWeek.TryGetValue(bucket, out decimal inflow);
+                    inflowByWeek[bucket] = inflow + entry.Amount;
+                }
+                else
+                {
+                    outflowByWeek.TryGetValue(bucket, out decimal outflow);
+                    outflowByWeek[bucket] = outflow + entry.Amount;
+                }
+            }
+
+            List<CashFlowProjectionWeekModel> series = [];
+            decimal running = openingBalance;
+
+            for (int index = 0; index < horizonWeeks; index++)
+            {
+                DateTimeOffset weekStart = currentWeekStart.AddDays(index * 7);
+                inflowByWeek.TryGetValue(weekStart, out decimal inflow);
+                outflowByWeek.TryGetValue(weekStart, out decimal outflow);
+                running += inflow - outflow;
+
+                series.Add(new CashFlowProjectionWeekModel
+                {
+                    WeekStart = weekStart,
+                    Inflow = inflow,
+                    Outflow = outflow,
+                    ProjectedBalance = running
+                });
+            }
+
+            return new CashFlowProjectionModel
+            {
+                GeneratedAt = now,
+                OpeningBalance = openingBalance,
+                Weeks = horizonWeeks,
+                Series = series
+            };
+        }
+
         private static DateTimeOffset BucketDate(DateTimeOffset value, CashFlowGranularity granularity)
         {
             DateTimeOffset utc = value.ToUniversalTime();

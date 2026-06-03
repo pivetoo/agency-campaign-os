@@ -95,6 +95,23 @@ namespace AgencyCampaign.Application.Models.Financial
         public IReadOnlyCollection<CashFlowPointModel> Settled { get; set; } = [];
     }
 
+    public sealed class CashFlowProjectionWeekModel
+    {
+        public DateTimeOffset WeekStart { get; set; }
+        public decimal Inflow { get; set; }
+        public decimal Outflow { get; set; }
+        public decimal Net => Inflow - Outflow;
+        public decimal ProjectedBalance { get; set; }
+    }
+
+    public sealed class CashFlowProjectionModel
+    {
+        public DateTimeOffset GeneratedAt { get; set; }
+        public decimal OpeningBalance { get; set; }
+        public int Weeks { get; set; }
+        public IReadOnlyCollection<CashFlowProjectionWeekModel> Series { get; set; } = [];
+    }
+
     public sealed class AgingBucketModel
     {
         public string Label { get; set; } = string.Empty;

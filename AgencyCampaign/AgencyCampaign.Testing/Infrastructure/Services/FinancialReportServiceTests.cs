@@ -53,6 +53,95 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.Settled.Single().Inflow.Should().Be(1000m);
         }
 
+        private async Task<FinancialAccount> SeedAccountAsync(decimal initialBalance, bool isActive = true)
+        {
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, initialBalance, "#fff");
+            if (!isActive)
+            {
+                account.Update("Conta", FinancialAccountType.Bank, initialBalance, "#fff", null, null, null, null, isActive: false);
+            }
+            db.Add(account);
+            await db.SaveChangesAsync();
+            return account;
+        }
+
+        [Test]
+        public async Task GetCashFlowProjection_opening_balance_should_match_active_account_derived_balance()
+        {
+            FinancialAccount active = await SeedAccountAsync(1000m);
+            FinancialAccount inactive = await SeedAccountAsync(9999m, isActive: false);
+
+            FinancialEntry paidReceivable = new(active.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "in", 500m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            paidReceivable.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+            FinancialEntry paidPayable = new(active.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout, "out", 200m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            paidPayable.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+            FinancialEntry paidOnInactive = new(inactive.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "ghost", 7777m, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            paidOnInactive.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+            db.AddRange(paidReceivable, paidPayable, paidOnInactive);
+            await db.SaveChangesAsync();
+
+            CashFlowProjectionModel result = await service.GetCashFlowProjection(12);
+
+            result.OpeningBalance.Should().Be(1300m);
+        }
+
+        [Test]
+        public async Task GetCashFlowProjection_should_fold_overdue_into_current_week()
+        {
+            FinancialAccount account = await SeedAccountAsync(0m);
+            FinancialEntry overdue = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "atrasado", 300m, DateTimeOffset.UtcNow.AddDays(-10), DateTimeOffset.UtcNow.AddDays(-10));
+            db.Add(overdue);
+            await db.SaveChangesAsync();
+
+            CashFlowProjectionModel result = await service.GetCashFlowProjection(12);
+
+            result.Series.First().Inflow.Should().Be(300m);
+            result.Series.First().ProjectedBalance.Should().Be(300m);
+        }
+
+        [Test]
+        public async Task GetCashFlowProjection_should_emit_all_weeks_and_carry_balance()
+        {
+            FinancialAccount account = await SeedAccountAsync(0m);
+            FinancialEntry payable = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout, "saida", 100m, DateTimeOffset.UtcNow.AddDays(14), DateTimeOffset.UtcNow);
+            db.Add(payable);
+            await db.SaveChangesAsync();
+
+            CashFlowProjectionModel result = await service.GetCashFlowProjection(6);
+
+            result.Series.Should().HaveCount(6);
+            result.Series.Sum(item => item.Outflow).Should().Be(100m);
+            result.Series.Last().ProjectedBalance.Should().Be(-100m);
+        }
+
+        [Test]
+        public async Task GetCashFlowProjection_should_exclude_paid_and_cancelled_from_projection()
+        {
+            FinancialAccount account = await SeedAccountAsync(0m);
+            FinancialEntry paid = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "pago", 500m, DateTimeOffset.UtcNow.AddDays(7), DateTimeOffset.UtcNow);
+            paid.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+            FinancialEntry cancelled = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "cancelado", 800m, DateTimeOffset.UtcNow.AddDays(7), DateTimeOffset.UtcNow);
+            cancelled.ChangeStatus(FinancialEntryStatus.Cancelled);
+            db.AddRange(paid, cancelled);
+            await db.SaveChangesAsync();
+
+            CashFlowProjectionModel result = await service.GetCashFlowProjection(6);
+
+            result.Series.Sum(item => item.Inflow).Should().Be(0m);
+        }
+
+        [Test]
+        public async Task GetCashFlowProjection_should_clamp_weeks_between_1_and_52()
+        {
+            await SeedAccountAsync(0m);
+
+            CashFlowProjectionModel low = await service.GetCashFlowProjection(0);
+            CashFlowProjectionModel high = await service.GetCashFlowProjection(100);
+
+            low.Series.Should().HaveCount(1);
+            high.Series.Should().HaveCount(52);
+        }
+
         [Test]
         public async Task GetCashFlow_should_bucket_by_month_when_requested()
         {

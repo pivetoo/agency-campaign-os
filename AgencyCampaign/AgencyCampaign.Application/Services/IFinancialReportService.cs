@@ -13,5 +13,7 @@ namespace AgencyCampaign.Application.Services
         Task<CampaignProfitabilityReportModel> GetCampaignProfitability(CancellationToken cancellationToken = default);
 
         Task<AccrualResultModel> GetAccrualResult(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+
+        Task<CashFlowProjectionModel> GetCashFlowProjection(int weeks, CancellationToken cancellationToken = default);
     }
 }
