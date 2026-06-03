@@ -30,6 +30,8 @@ namespace AgencyCampaign.Application.Requests.Creators
 
         public PixKeyType? PixKeyType { get; set; }
 
+        public TaxRegime? TaxRegime { get; set; }
+
         [StringLength(120)]
         public string? PrimaryNiche { get; set; }
 

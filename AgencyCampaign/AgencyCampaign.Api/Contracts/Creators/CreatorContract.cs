@@ -22,6 +22,8 @@ namespace AgencyCampaign.Api.Contracts.Creators
 
         public PixKeyType? PixKeyType { get; init; }
 
+        public TaxRegime? TaxRegime { get; init; }
+
         public string? PrimaryNiche { get; init; }
 
         public string? City { get; init; }
@@ -50,6 +52,7 @@ namespace AgencyCampaign.Api.Contracts.Creators
             Document = item.Document,
             PixKey = item.PixKey,
             PixKeyType = item.PixKeyType,
+            TaxRegime = item.TaxRegime,
             PrimaryNiche = item.PrimaryNiche,
             City = item.City,
             State = item.State,

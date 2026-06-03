@@ -43,6 +43,16 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task CreateCreator_should_persist_tax_regime()
+        {
+            CreateCreatorRequest request = new() { Name = "Joana", TaxRegime = TaxRegime.SimplesNacional };
+
+            Creator creator = await service.CreateCreator(request);
+
+            creator.TaxRegime.Should().Be(TaxRegime.SimplesNacional);
+        }
+
+        [Test]
         public async Task UpdateCreator_should_throw_when_id_mismatch()
         {
             UpdateCreatorRequest request = new() { Id = 5, Name = "x" };
