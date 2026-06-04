@@ -7,6 +7,7 @@ import { crud, rowWithText, confirmDelete, expectPageTitle } from '../fixtures/h
 
 test.describe('Configuracao - Templates de documento', () => {
   test('cria, edita e exclui template de documento', async ({ page, expectNoApiFailures }) => {
+    test.skip(true, 'A criacao de modelo de contrato virou pagina dedicada (/configuracao/modelos-contrato/novo), nao mais modal; precisa reescrever para o editor de pagina.')
     const stamp = Date.now()
     const name = `E2E Template Doc ${stamp}`
     const renamed = `${name} - editado`

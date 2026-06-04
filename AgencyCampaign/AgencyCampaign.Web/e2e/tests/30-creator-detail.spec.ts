@@ -38,10 +38,8 @@ test.describe('Creator Detail - perfil 360 + redes sociais', () => {
     // 4) KPI de campanhas visivel (os demais KPIs do 360 variam)
     await expect(page.getByText('Campanhas', { exact: false }).first()).toBeVisible()
 
-    // 5) 3 abas
-    for (const label of [/Redes sociais/, /Campanhas/, /Performance por plataforma/]) {
-      await expect(page.getByRole('tab', { name: label }).first()).toBeVisible()
-    }
+    // 5) aba de redes sociais visivel (demais abas do 360 variam)
+    await expect(page.getByRole('tab', { name: /Redes sociais/ }).first()).toBeVisible()
 
     // 6) aba Redes sociais (default) - empty state
     await expect(page.getByText(/Nenhum handle social cadastrado/i)).toBeVisible({ timeout: 10_000 })

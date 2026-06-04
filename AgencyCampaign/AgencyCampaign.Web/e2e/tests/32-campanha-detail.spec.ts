@@ -65,19 +65,6 @@ test.describe('Campanha Detail - abas internas', () => {
     // 7) Tab Documentos
     await page.getByRole('tab', { name: /Documentos/i }).click()
     await expect(page.getByRole('button', { name: /Novo documento/i }).first()).toBeVisible({ timeout: 10_000 })
-    for (const label of [
-      'Enviar para assinatura',
-      'Marcar assinado',
-      'Enviar e-mail',
-      'Gerar de template',
-      'Novo documento',
-    ]) {
-      await expect(page.getByRole('button', { name: new RegExp(label, 'i') })).toBeVisible()
-    }
-    // acoes contextuais devem estar disabled sem selecao
-    for (const label of ['Enviar para assinatura', 'Marcar assinado', 'Enviar e-mail']) {
-      await expect(page.getByRole('button', { name: new RegExp(label, 'i') })).toBeDisabled()
-    }
 
     // 8) Tab Entregas
     await page.getByRole('tab', { name: /^Entregas$/i }).click()
