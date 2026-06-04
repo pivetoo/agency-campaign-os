@@ -34,7 +34,7 @@ test.describe('Deliverable publico - aprovacao pela marca', () => {
 
     const row = rowWithText(page, campaignName).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
-    const openBtn = row.locator('button').filter({ hasNotText: /.+/ }).first()
+    const openBtn = row.getByRole('button', { name: /Detalhes/i }).first()
     await openBtn.click()
     await page.waitForURL(/\/campanhas\/\d+/, { timeout: 10_000 })
 

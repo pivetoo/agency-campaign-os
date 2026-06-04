@@ -34,8 +34,8 @@ test.describe('Campanha - fluxo operacional (caminho critico)', () => {
 
     const row = rowWithText(page, campaignName).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
-    // botao de "abrir detalhe" (ExternalLink icon — primeiro button na coluna actions)
-    const openBtn = row.locator('button').filter({ hasNotText: /.+/ }).first()
+    // botao "Detalhes" (DetailsButton) navega para o detalhe da campanha
+    const openBtn = row.getByRole('button', { name: /Detalhes/i }).first()
     await openBtn.click()
     await page.waitForURL(/\/campanhas\/\d+/, { timeout: 10_000 })
 
