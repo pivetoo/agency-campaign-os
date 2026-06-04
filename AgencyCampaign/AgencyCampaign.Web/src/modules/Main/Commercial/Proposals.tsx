@@ -374,7 +374,7 @@ function ProposalsToolbar({ selected, actionLoading, t, onEdit, onSend, onMarkVi
         </DropdownContent>
       </Dropdown>
 
-      <Button size="sm" variant="secondary" onClick={onNew} className="gap-2 rounded-lg px-3.5">
+      <Button data-testid="crud-add-button" size="sm" variant="secondary" onClick={onNew} className="gap-2 rounded-lg px-3.5">
         <Plus className="h-4 w-4" /> {t('proposals.action.new')}
       </Button>
     </div>
