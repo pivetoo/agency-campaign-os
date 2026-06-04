@@ -19,11 +19,13 @@ export async function expectPageTitle(page: Page, matcher: string | RegExp, time
   }
 }
 
+// PageLayout renderiza as acoes em duas barras (desktop e mobile responsivo),
+// ambas com o mesmo data-testid; filtra pela visivel para evitar strict mode.
 export const crud = {
-  add: (page: Page) => page.getByTestId('crud-add-button'),
-  edit: (page: Page) => page.getByTestId('crud-edit-button'),
-  delete: (page: Page) => page.getByTestId('crud-delete-button'),
-  view: (page: Page) => page.getByTestId('crud-view-button'),
+  add: (page: Page) => page.locator('[data-testid="crud-add-button"]:visible').first(),
+  edit: (page: Page) => page.locator('[data-testid="crud-edit-button"]:visible').first(),
+  delete: (page: Page) => page.locator('[data-testid="crud-delete-button"]:visible').first(),
+  view: (page: Page) => page.locator('[data-testid="crud-view-button"]:visible').first(),
 }
 
 export const dialog = {
