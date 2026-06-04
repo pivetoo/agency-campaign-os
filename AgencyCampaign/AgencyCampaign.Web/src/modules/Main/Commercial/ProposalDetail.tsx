@@ -196,7 +196,7 @@ export default function CommercialProposalDetail() {
       // so cria o link quando a proposta ja pode te-lo (enviada/visualizada);
       // em Rascunho o backend rejeita (400 "Envie a proposta antes...") - o link
       // publico e garantido no proprio envio.
-      if (!active && status !== ProposalStatus.Draft) {
+      if (!active && proposal != null && proposal.status !== ProposalStatus.Draft) {
         const created = await proposalService.createShareLink(proposalId, {})
         active = created?.data ?? undefined
       }
