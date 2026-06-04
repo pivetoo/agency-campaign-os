@@ -1,4 +1,6 @@
 using AgencyCampaign.Infrastructure.DependencyInjection;
+using Archon.Application.Abstractions;
+using Archon.Infrastructure.IdentityManagement;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
@@ -53,6 +55,12 @@ namespace AgencyCampaign.IntegrationTests
             services.AddLocalization();
             // Roda as migrations contra o container e registra persistencia + servicos reais.
             services.AddAgencyCampaignInfrastructure(configuration);
+
+            // Identidade: no app real vem do AddArchonApi/AddArchonIdentityManagement. ICurrentUser e
+            // usado para auditoria/historico (ex.: CampaignService); IdentityUsersClient e dependencia de
+            // varios servicos e fica inerte sem integracao de identidade semeada no banco de teste.
+            services.AddScoped<ICurrentUser, TestCurrentUser>();
+            services.AddScoped<IdentityUsersClient>();
 
             Services = services.BuildServiceProvider();
         }
