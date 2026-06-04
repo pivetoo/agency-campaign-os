@@ -50,14 +50,14 @@ export const financialAccountService = {
   },
 
   attachConnector(id: number, connectorId: number) {
-    return httpClient.put<FinancialAccount>(`${BASE_URL}/${id}/attach-connector`, { connectorId })
+    return httpClient.put<FinancialAccount>(`${BASE_URL}/attach-connector/${id}`, { connectorId })
   },
 
   detachConnector(id: number) {
-    return httpClient.put<FinancialAccount>(`${BASE_URL}/${id}/detach-connector`, {})
+    return httpClient.put<FinancialAccount>(`${BASE_URL}/detach-connector/${id}`, {})
   },
 
   sync(id: number) {
-    return httpClient.post<{ executionId: number }>(`${BASE_URL}/${id}/sync`, {})
+    return httpClient.post<{ executionId: number }>(`${BASE_URL}/sync/${id}`, {})
   },
 }

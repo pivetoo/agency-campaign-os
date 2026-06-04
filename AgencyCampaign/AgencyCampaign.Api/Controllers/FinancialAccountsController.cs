@@ -72,7 +72,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("financialAccounts.setDefault.description")]
-        [PutEndpoint("{id:long}/set-default")]
+        [PutEndpoint("set-default/{id:long}")]
         public async Task<IActionResult> SetDefault(long id, CancellationToken cancellationToken)
         {
             var result = await service.SetAsDefault(id, cancellationToken);
@@ -88,7 +88,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("financialAccounts.attachConnector.description")]
-        [PutEndpoint("{id:long}/attach-connector")]
+        [PutEndpoint("attach-connector/{id:long}")]
         public async Task<IActionResult> AttachConnector(long id, [FromBody] AttachConnectorRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -102,7 +102,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("financialAccounts.detachConnector.description")]
-        [PutEndpoint("{id:long}/detach-connector")]
+        [PutEndpoint("detach-connector/{id:long}")]
         public async Task<IActionResult> DetachConnector(long id, CancellationToken cancellationToken)
         {
             var result = await service.DetachConnector(id, cancellationToken);
@@ -110,7 +110,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("financialAccounts.sync.description")]
-        [PostEndpoint("{id:long}/sync")]
+        [PostEndpoint("sync/{id:long}")]
         public async Task<IActionResult> Sync(long id, CancellationToken cancellationToken)
         {
             long executionId = await service.TriggerSync(id, cancellationToken);
