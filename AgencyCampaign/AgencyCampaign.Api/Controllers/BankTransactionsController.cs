@@ -43,7 +43,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("bankTransactions.match.description")]
-        [PostEndpoint("{id:long}/match")]
+        [PostEndpoint("match/{id:long}")]
         public async Task<IActionResult> Match(long id, [FromBody] MatchBankTransactionRequest request, CancellationToken cancellationToken)
         {
             IActionResult? validationResult = ValidateBody(request);
@@ -57,7 +57,7 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("bankTransactions.unmatch.description")]
-        [PostEndpoint("{id:long}/unmatch")]
+        [PostEndpoint("unmatch/{id:long}")]
         public async Task<IActionResult> Unmatch(long id, CancellationToken cancellationToken)
         {
             var result = await service.UnmatchFromEntry(id, cancellationToken);

@@ -32,11 +32,11 @@ export const bankTransactionService = {
   },
 
   match(id: number, financialEntryId: number) {
-    return httpClient.post<BankTransaction>(`${BASE_URL}/${id}/match`, { financialEntryId })
+    return httpClient.post<BankTransaction>(`${BASE_URL}/match/${id}`, { financialEntryId })
   },
 
   unmatch(id: number) {
-    return httpClient.post<BankTransaction>(`${BASE_URL}/${id}/unmatch`, {})
+    return httpClient.post<BankTransaction>(`${BASE_URL}/unmatch/${id}`, {})
   },
 
   import(data: ImportBankTransactionsRequest) {
