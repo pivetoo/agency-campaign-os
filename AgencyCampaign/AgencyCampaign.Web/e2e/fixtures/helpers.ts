@@ -66,13 +66,20 @@ export async function sendProposalViaModal(page: Page) {
   await page.getByRole('button', { name: /^Enviar$/i }).first().click()
   const sendModal = page.getByRole('dialog').filter({ hasText: /Enviar proposta/i })
   await expect(sendModal).toBeVisible({ timeout: 10_000 })
-  const markSent = sendModal.getByRole('button', { name: /Marcar como enviada/i })
-  if (await markSent.count()) {
-    await markSent.first().click()
-  } else {
-    const email = sendModal.locator('input[type="email"]').first()
-    if (await email.count()) await email.fill('e2e.qa@example.com')
+  // o modal checa o conector de envio (estado de loading); espera estabilizar
+  // entre o formulario de e-mail (conector ativo) e o aviso "Marcar como enviada"
+  const email = sendModal.locator('input[type="email"]').first()
+  const markSent = sendModal.getByRole('button', { name: /Marcar como enviada/i }).first()
+  await Promise.race([
+    email.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {}),
+    markSent.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {}),
+  ])
+  await page.waitForTimeout(400)
+  if (await email.isVisible().catch(() => false)) {
+    await email.fill('e2e.qa@example.com')
     await sendModal.getByRole('button', { name: /Enviar email|Enviar por WhatsApp/i }).first().click()
+  } else {
+    await markSent.click()
   }
   await expect(sendModal).toBeHidden({ timeout: 15_000 })
 }

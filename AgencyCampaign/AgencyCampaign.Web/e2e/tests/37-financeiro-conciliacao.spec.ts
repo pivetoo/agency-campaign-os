@@ -12,7 +12,7 @@ test.describe('Financeiro - conciliacao bancaria', () => {
   test('importa extrato, concilia o recebivel e desfaz', async ({ page, expectNoApiFailures }) => {
     const stamp = Date.now()
     const desc = `E2E Concil ${stamp}`
-    const amount = 7000 + (stamp % 2000)
+    const amount = 90000 + (stamp % 9000)
     const today = new Date().toISOString().slice(0, 10)
 
     // 1) conta auto-selecionada na conciliacao
