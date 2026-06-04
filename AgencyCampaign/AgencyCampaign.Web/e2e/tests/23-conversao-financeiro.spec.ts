@@ -73,8 +73,8 @@ test.describe('Conversao proposta->campanha + geracao financeira automatica', ()
     await expect(page.getByText(/Enviada/i).first()).toBeVisible({ timeout: 10_000 })
 
     // 6) aprova
-    await page.getByRole('button', { name: /^Aprovar$/i }).first().click()
-    await expect(page.getByText(/Aprovada|Approved/i).first()).toBeVisible({ timeout: 10_000 })
+    await page.getByRole('button', { name: /^Aprovar/i }).first().click()
+    await expect(page.getByText(/Aprovada/i).first()).toBeVisible({ timeout: 10_000 })
 
     // 7) vincula a campanha — esse e o passo que dispara geracao financeira
     const campTrigger = page.locator(':text("Selecione uma campanha")').first()

@@ -75,8 +75,8 @@ test.describe('Proposta - aprovar e vincular a campanha (caminho critico)', () =
     await expect(page.getByText(/Enviada/i).first()).toBeVisible({ timeout: 10_000 })
 
     // 6) aprovar proposta (status 2 -> 4)
-    await page.getByRole('button', { name: /^Aprovar$/i }).first().click()
-    await expect(page.getByText(/Aprovada|Approved/i).first()).toBeVisible({ timeout: 10_000 })
+    await page.getByRole('button', { name: /^Aprovar/i }).first().click()
+    await expect(page.getByText(/Aprovada/i).first()).toBeVisible({ timeout: 10_000 })
 
     // 7) vincular a campanha existente — selecionar do SearchableSelect e clicar Converter
     const campanhaTrigger = page.locator(':text("Selecione uma campanha")').first()

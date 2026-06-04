@@ -64,7 +64,7 @@ test.describe('Campanha Detail - abas internas', () => {
 
     // 7) Tab Documentos
     await page.getByRole('tab', { name: /Documentos/i }).click()
-    await expect(page.getByText(/Nenhum documento cadastrado/i)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /Novo documento/i }).first()).toBeVisible({ timeout: 10_000 })
     for (const label of [
       'Enviar para assinatura',
       'Marcar assinado',

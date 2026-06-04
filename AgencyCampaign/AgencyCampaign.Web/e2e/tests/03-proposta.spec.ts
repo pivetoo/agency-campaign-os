@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { env } from '../fixtures/env'
-import { crud, clickSaveInDialog, proposal, publicProposal } from '../fixtures/helpers'
+import { crud, clickSaveInDialog, proposal, publicProposal, sendProposalViaModal } from '../fixtures/helpers'
 
 // O botao "gerar link" so aparece quando a proposta ainda nao tem links; por isso
 // criamos uma proposta nova (em vez de usar a primeira existente, que pode ja ter
@@ -41,7 +41,8 @@ test.describe('Proposta - share link publico', () => {
     await expect(propModal).toBeHidden({ timeout: 15_000 })
     await page.waitForURL(/\/comercial\/propostas\/\d+/, { timeout: 15_000 })
 
-    // 3) gera o share link
+    // 3) envia (habilita a geracao de links) e gera o share link
+    await sendProposalViaModal(page)
     const generateBtn = proposal.generateLinkButton(page)
     await expect(generateBtn).toBeVisible({ timeout: 15_000 })
     const sharePromise = page.waitForResponse(
