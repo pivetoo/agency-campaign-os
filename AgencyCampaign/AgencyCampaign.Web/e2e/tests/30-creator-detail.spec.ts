@@ -28,7 +28,7 @@ test.describe('Creator Detail - perfil 360 + redes sociais', () => {
     const row = rowWithText(page, creatorName).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.scrollIntoViewIfNeeded()
-    await row.getByRole('button', { name: /Abrir 360/i }).click()
+    await row.getByRole('button', { name: /Detalhes/i }).click()
 
     await page.waitForURL(/\/creators\/\d+$/, { timeout: 10_000 })
 

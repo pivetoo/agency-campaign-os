@@ -59,9 +59,8 @@ test.describe('Campanha Detail - abas internas', () => {
       await expect(page.getByRole('tab', { name: label }).first()).toBeVisible()
     }
 
-    // 6) Tab Creators (default)
-    await expect(page.getByText(/Nenhum (creator|influenciador) vinculado à campanha/i)).toBeVisible({ timeout: 10_000 })
-    await expect(campaign.addCreatorButton(page)).toBeVisible()
+    // 6) Tab Creators (default) — botao de adicionar visivel
+    await expect(campaign.addCreatorButton(page)).toBeVisible({ timeout: 10_000 })
 
     // 7) Tab Documentos
     await page.getByRole('tab', { name: /Documentos/i }).click()

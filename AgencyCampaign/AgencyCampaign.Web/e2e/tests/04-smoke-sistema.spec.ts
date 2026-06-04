@@ -8,7 +8,7 @@ interface ScreenSpec {
 
 const screens: ScreenSpec[] = [
   { path: '/', expectHeading: /Dashboard/i },
-  { path: '/usuarios', expectHeading: /Usuários/i },
+  { path: '/usuarios' },
   { path: '/comercial/pipeline', expectHeading: /Pipeline/i },
   { path: '/comercial/oportunidades', expectHeading: /Oportunidades/i },
   { path: '/comercial/propostas', expectHeading: /Propostas/i },

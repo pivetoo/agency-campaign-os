@@ -11,7 +11,7 @@ test.describe('Configuracao - Templates de documento', () => {
     const name = `E2E Template Doc ${stamp}`
     const renamed = `${name} - editado`
 
-    await page.goto('/configuracao/templates-documento')
+    await page.goto('/configuracao/modelos-contrato')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
 
     // 1) header
