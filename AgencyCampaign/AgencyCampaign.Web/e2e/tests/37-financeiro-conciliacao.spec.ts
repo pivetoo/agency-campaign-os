@@ -71,7 +71,7 @@ test.describe('Financeiro - conciliacao bancaria', () => {
       const matchModal = page.getByRole('dialog').filter({ hasText: /[Cc]oncilia|[Cc]asar|[Vv]incular|lançamento/ }).first()
       await expect(matchModal).toBeVisible({ timeout: 10_000 })
       await matchModal.locator('button[role="combobox"], [role="combobox"]').first().click()
-      await page.getByRole('option').filter({ hasText: new RegExp(String(amount)) }).first().click()
+      await page.getByRole('option').filter({ hasText: desc }).first().click()
       await matchModal.getByRole('button', { name: /Conciliar|Casar|Vincular|Confirmar|^Salvar$/i }).first().click()
       await expect(matchModal).toBeHidden({ timeout: 15_000 })
     }
