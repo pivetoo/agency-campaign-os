@@ -1,5 +1,5 @@
 export const env = {
-  baseURL: process.env.E2E_BASE_URL ?? 'https://kanvas.mainstay.com.br',
+  baseURL: process.env.E2E_BASE_URL ?? 'https://agencias.mainstay.com.br',
   user: process.env.E2E_USER ?? '',
   password: process.env.E2E_PASSWORD ?? '',
 }

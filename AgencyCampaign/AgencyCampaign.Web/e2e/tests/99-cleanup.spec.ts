@@ -40,7 +40,7 @@ test.describe('Cleanup E2E artifacts (opt-in)', () => {
 
     const ctx = page.request
     const headers = { Authorization: `Bearer ${token}` }
-    const root = baseURL ?? 'https://kanvas.mainstay.com.br'
+    const root = baseURL ?? 'https://agencias.mainstay.com.br'
     const results: CleanupResult[] = []
 
     const extractItems = (body: unknown): unknown[] => {

@@ -34,7 +34,7 @@ setup('autenticar via OIDC e salvar storageState', async ({ page }) => {
   await submitButton.click()
 
   try {
-    await page.waitForURL(/kanvas\.mainstay\.com\.br/, { timeout: 30_000 })
+    await page.waitForURL(/agencias\.mainstay\.com\.br/, { timeout: 30_000 })
   } catch {
     // se nao redirecionou, provavelmente o IdM mostrou um erro no proprio form
     if (page.url().includes('auth.mainstay.com.br')) {

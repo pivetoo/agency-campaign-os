@@ -40,7 +40,7 @@ npm run test:e2e:report
 
 ## Ambiente alvo
 
-Por padrao roda contra `https://kanvas.mainstay.com.br`. Para apontar para outro ambiente, mude `E2E_BASE_URL` no `.env`.
+Por padrao roda contra `https://agencias.mainstay.com.br`. Para apontar para outro ambiente, mude `E2E_BASE_URL` no `.env`.
 
 ## Quando algo falhar
 

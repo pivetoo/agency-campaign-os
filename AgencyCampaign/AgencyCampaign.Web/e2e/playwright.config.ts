@@ -7,7 +7,7 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 
 dotenv.config({ path: path.join(here, '.env') })
 
-const baseURL = process.env.E2E_BASE_URL ?? 'https://kanvas.mainstay.com.br'
+const baseURL = process.env.E2E_BASE_URL ?? 'https://agencias.mainstay.com.br'
 const storageStatePath = path.join(here, '.auth', 'user.json')
 
 export default defineConfig({
