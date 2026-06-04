@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/test'
-import { crud, clickSaveInDialog } from '../fixtures/helpers'
+import { crud, clickSaveInDialog, sendProposalViaModal } from '../fixtures/helpers'
 
 // Fluxo completo de receita: oportunidade -> proposta com items -> envia -> aprova -> converte em campanha -> verifica financeiro auto-gerado
 
@@ -68,9 +68,9 @@ test.describe('Conversao proposta->campanha + geracao financeira automatica', ()
     await itemModal.getByRole('button', { name: /Salvar item|^Salvar$/i }).first().click()
     await expect(itemModal).toBeHidden({ timeout: 15_000 })
 
-    // 5) envia
-    await page.getByRole('button', { name: /^Enviar$/i }).first().click()
-    await expect(page.getByText(/Enviada|Sent/i).first()).toBeVisible({ timeout: 10_000 })
+    // 5) envia (pelo modal de envio)
+    await sendProposalViaModal(page)
+    await expect(page.getByText(/Enviada/i).first()).toBeVisible({ timeout: 10_000 })
 
     // 6) aprova
     await page.getByRole('button', { name: /^Aprovar$/i }).first().click()

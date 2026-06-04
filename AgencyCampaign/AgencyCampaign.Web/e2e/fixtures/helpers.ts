@@ -57,6 +57,26 @@ export async function clickSaveInDialog(dialogLocator: Locator) {
   await candidates.first().click()
 }
 
+/**
+ * Envia a proposta pelo modal "Enviar proposta" (ProposalSendModal). Cobre os
+ * dois caminhos: conector de envio configurado (preenche destinatario e envia)
+ * ou nao configurado (botao "Marcar como enviada"). Deixa a proposta como Enviada.
+ */
+export async function sendProposalViaModal(page: Page) {
+  await page.getByRole('button', { name: /^Enviar$/i }).first().click()
+  const sendModal = page.getByRole('dialog').filter({ hasText: /Enviar proposta/i })
+  await expect(sendModal).toBeVisible({ timeout: 10_000 })
+  const markSent = sendModal.getByRole('button', { name: /Marcar como enviada/i })
+  if (await markSent.count()) {
+    await markSent.first().click()
+  } else {
+    const email = sendModal.locator('input[type="email"]').first()
+    if (await email.count()) await email.fill('e2e.qa@example.com')
+    await sendModal.getByRole('button', { name: /Enviar email|Enviar por WhatsApp/i }).first().click()
+  }
+  await expect(sendModal).toBeHidden({ timeout: 15_000 })
+}
+
 export const dashboardKpi = {
   campanhasAtivas: (page: Page) => page.getByTestId('dashboard-kpi-campanhas-ativas'),
   marcas: (page: Page) => page.getByTestId('dashboard-kpi-marcas'),

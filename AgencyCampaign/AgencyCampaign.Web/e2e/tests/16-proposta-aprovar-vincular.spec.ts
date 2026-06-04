@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/test'
-import { crud, clickSaveInDialog } from '../fixtures/helpers'
+import { crud, clickSaveInDialog, sendProposalViaModal } from '../fixtures/helpers'
 
 // Fluxo: oportunidade -> proposta -> item -> enviar -> aprovar -> vincular a campanha existente
 
@@ -70,9 +70,9 @@ test.describe('Proposta - aprovar e vincular a campanha (caminho critico)', () =
     await itemModal.getByRole('button', { name: /Salvar item|^Salvar$/i }).first().click()
     await expect(itemModal).toBeHidden({ timeout: 15_000 })
 
-    // 5) enviar proposta (status 1 -> 2)
-    await page.getByRole('button', { name: /^Enviar$/i }).first().click()
-    await expect(page.getByText(/Enviada|Sent/i).first()).toBeVisible({ timeout: 10_000 })
+    // 5) enviar proposta (pelo modal de envio; status 1 -> 2)
+    await sendProposalViaModal(page)
+    await expect(page.getByText(/Enviada/i).first()).toBeVisible({ timeout: 10_000 })
 
     // 6) aprovar proposta (status 2 -> 4)
     await page.getByRole('button', { name: /^Aprovar$/i }).first().click()
