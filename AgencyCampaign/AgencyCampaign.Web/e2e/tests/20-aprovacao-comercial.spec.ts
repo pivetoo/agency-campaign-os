@@ -22,6 +22,7 @@ test.describe('Comercial - aprovacao ancorada na proposta (fluxo atual)', () => 
     // 1) oportunidade com responsavel (necessario para criar proposta)
     await page.goto('/comercial/oportunidades')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+    await expect(page.getByTestId('page-title').first()).toContainText(/Oportunidades/i, { timeout: 20_000 })
     await crud.add(page).click()
     const oppModal = page.getByRole('dialog').filter({ hasText: /Nova oportunidade/i })
     await expect(oppModal).toBeVisible({ timeout: 10_000 })

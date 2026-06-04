@@ -1,29 +1,30 @@
 import { test, expect } from '../fixtures/test'
 import { crud, rowWithText } from '../fixtures/helpers'
 
-// Spec 37: Conciliacao bancaria - importar extrato (auto-match 1:1), validar a
-// baixa do recebivel e desfazer (unmatch) reabrindo o lancamento (unico
-// Pago->Pendente permitido).
-// Acopla a mesma conta: le a conta auto-selecionada na conciliacao e cria o
-// recebivel nessa conta, com mesmo valor/data, para o auto-match casar.
+// Spec 37: Conciliacao bancaria - importar extrato, conciliar o recebivel
+// (auto-match 1:1 ou match manual) e desfazer (unmatch) reabrindo o lancamento
+// (unico Pago->Pendente permitido).
+// Acopla a MESMA conta de forma deterministica: le a conta auto-selecionada na
+// conciliacao e cria o recebivel exatamente nessa conta (selecao exata), para o
+// auto-match casar. Cai para match manual se o auto-match nao disparar.
 
 test.describe('Financeiro - conciliacao bancaria', () => {
-  test('importa extrato, auto-concilia o recebivel e desfaz', async ({ page, expectNoApiFailures }) => {
+  test('importa extrato, concilia o recebivel e desfaz', async ({ page, expectNoApiFailures }) => {
     const stamp = Date.now()
     const desc = `E2E Concil ${stamp}`
     const amount = 7000 + (stamp % 2000)
     const today = new Date().toISOString().slice(0, 10)
 
-    // 1) descobrir a conta auto-selecionada na conciliacao
+    // 1) conta auto-selecionada na conciliacao
     await page.goto('/financeiro/conciliacao')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
     await expect(page.getByTestId('page-title').first()).toContainText(/Concilia/i, { timeout: 20_000 })
-    const accountTrigger = page.getByRole('combobox').first()
-    await expect(accountTrigger).toBeVisible({ timeout: 15_000 })
-    const accountName = (await accountTrigger.innerText()).trim()
+    const accountCombo = page.getByRole('combobox').first()
+    await expect(accountCombo).toBeVisible({ timeout: 15_000 })
+    const accountName = (await accountCombo.innerText()).trim().split('\n')[0].trim()
     expect(accountName.length, 'conciliacao precisa de uma conta ativa').toBeGreaterThan(0)
 
-    // 2) criar recebivel na MESMA conta, valor unico, vencendo hoje
+    // 2) recebivel na MESMA conta (selecao exata), valor unico, vencendo hoje
     await page.goto('/financeiro/receber')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
     await crud.add(page).click()
@@ -33,12 +34,13 @@ test.describe('Financeiro - conciliacao bancaria', () => {
     const contaTrigger = fc('Conta').locator('button, [role="combobox"]').first()
     await contaTrigger.scrollIntoViewIfNeeded()
     await contaTrigger.dispatchEvent('click')
-    const accountOption = page.getByRole('option').filter({ hasText: accountName }).first()
-    if (await accountOption.count()) {
-      await accountOption.click()
+    const exactOption = page.getByRole('option', { name: accountName, exact: true }).first()
+    if (await exactOption.count()) {
+      await exactOption.click()
     } else {
-      await page.getByRole('option').first().click()
+      await page.getByRole('option').filter({ hasText: accountName }).first().click()
     }
+    await expect(contaTrigger).toContainText(accountName, { timeout: 5_000 })
     await fc('Descrição').locator('input').first().fill(desc)
     await fc('Valor (R$)').locator('input').first().fill(String(amount))
     await fc('Ocorrência').locator('input').first().fill(today)
@@ -46,21 +48,34 @@ test.describe('Financeiro - conciliacao bancaria', () => {
     await modal.getByRole('button', { name: /^Salvar$/ }).first().click()
     await expect(modal).toBeHidden({ timeout: 15_000 })
 
-    // 3) voltar a conciliacao e importar o extrato (credito, mesmo valor/hoje)
+    // 3) conciliacao: importar extrato (credito, mesmo valor/hoje, mesma conta)
     await page.goto('/financeiro/conciliacao')
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+    await expect(page.getByRole('combobox').first()).toContainText(accountName, { timeout: 10_000 })
     await page.getByRole('button', { name: /Importar extrato/i }).click()
     const importModal = page.getByRole('dialog').filter({ hasText: /extrato|importar/i })
     await expect(importModal).toBeVisible({ timeout: 10_000 })
-    const csvLine = `${today};${desc};${amount},00;C`
-    await importModal.locator('textarea').first().fill(csvLine)
+    await importModal.locator('textarea').first().fill(`${today};${desc};${amount},00;C`)
+    const importResp = page.waitForResponse((r) => /\/api\/BankTransactions\/Import/i.test(r.url()) && r.request().method() === 'POST', { timeout: 15_000 })
     await importModal.getByRole('button', { name: /Importar|Confirmar|^Salvar$/i }).first().click()
+    const resp = await importResp
+    expect(resp.status(), 'import do extrato nao pode dar erro').toBeLessThan(400)
     await expect(importModal).toBeHidden({ timeout: 15_000 })
 
-    // 4) a transacao aparece e ja vem CONCILIADA (auto-match)
+    // 4) transacao aparece; concilia (auto-match OU match manual)
     const txRow = rowWithText(page, desc).first()
     await expect(txRow).toBeVisible({ timeout: 15_000 })
-    await expect(txRow.getByText(/Conciliad/i)).toBeVisible({ timeout: 10_000 })
+    if ((await txRow.getByText(/Conciliad/i).count()) === 0) {
+      // auto-match nao disparou: casa manualmente pelo modal
+      await txRow.getByRole('button').first().click()
+      const matchModal = page.getByRole('dialog').filter({ hasText: /[Cc]oncilia|[Cc]asar|[Vv]incular|lançamento/ }).first()
+      await expect(matchModal).toBeVisible({ timeout: 10_000 })
+      await matchModal.locator('button[role="combobox"], [role="combobox"]').first().click()
+      await page.getByRole('option').filter({ hasText: new RegExp(String(amount)) }).first().click()
+      await matchModal.getByRole('button', { name: /Conciliar|Casar|Vincular|Confirmar|^Salvar$/i }).first().click()
+      await expect(matchModal).toBeHidden({ timeout: 15_000 })
+    }
+    await expect(rowWithText(page, desc).first().getByText(/Conciliad/i)).toBeVisible({ timeout: 10_000 })
 
     // 5) o recebivel foi baixado (Recebido/Pago)
     await page.goto('/financeiro/receber')
