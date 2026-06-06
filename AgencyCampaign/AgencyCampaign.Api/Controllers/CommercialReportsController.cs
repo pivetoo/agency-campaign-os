@@ -48,5 +48,53 @@ namespace AgencyCampaign.Api.Controllers
             byte[] csv = await exportService.ExportBrandRanking(from, to, cancellationToken);
             return SendCsv(csv, "ranking-marcas.csv");
         }
+
+        [RequireAccess("commercialReports.getFunil.description")]
+        [GetEndpoint("funil/pdf")]
+        public async Task<IActionResult> ExportFunilPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] bytes = await exportService.ExportFunilPdf(from, to, cancellationToken);
+            return File(bytes, "application/pdf", "funil-conversao.pdf");
+        }
+
+        [RequireAccess("commercialReports.getGanhosPerdas.description")]
+        [GetEndpoint("ganhos-perdas/pdf")]
+        public async Task<IActionResult> ExportGanhosPerdasPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] bytes = await exportService.ExportGanhosPerdasPdf(from, to, cancellationToken);
+            return File(bytes, "application/pdf", "ganhos-perdas.pdf");
+        }
+
+        [RequireAccess("commercialReports.getForecast.description")]
+        [GetEndpoint("forecast/pdf")]
+        public async Task<IActionResult> ExportForecastPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] bytes = await exportService.ExportForecastPdf(from, to, cancellationToken);
+            return File(bytes, "application/pdf", "forecast.pdf");
+        }
+
+        [RequireAccess("commercialReports.getMetas.description")]
+        [GetEndpoint("metas/pdf")]
+        public async Task<IActionResult> ExportMetasPdf([FromQuery] DateTimeOffset referenceDate, CancellationToken cancellationToken)
+        {
+            byte[] bytes = await exportService.ExportMetasPdf(referenceDate, cancellationToken);
+            return File(bytes, "application/pdf", "metas-realizado.pdf");
+        }
+
+        [RequireAccess("commercialReports.getProposalsFunnel.description")]
+        [GetEndpoint("proposals-funnel/pdf")]
+        public async Task<IActionResult> ExportProposalsFunnelPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] bytes = await exportService.ExportProposalsFunnelPdf(from, to, cancellationToken);
+            return File(bytes, "application/pdf", "propostas-funil.pdf");
+        }
+
+        [RequireAccess("commercialReports.getBrandRanking.description")]
+        [GetEndpoint("brand-ranking/pdf")]
+        public async Task<IActionResult> ExportBrandRankingPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] bytes = await exportService.ExportBrandRankingPdf(from, to, cancellationToken);
+            return File(bytes, "application/pdf", "ranking-marcas.pdf");
+        }
     }
 }
