@@ -181,14 +181,17 @@ export default function AgencyCampaignLayout() {
     ? toNavRoutes([{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <User size={20} /> }])
     : []
 
+  const relatoriosModule = relatoriosRoutes.length > 0
+    ? [{ key: 'relatorios', label: 'Relatórios', icon: <FileBarChart2 size={20} />, group: 'op' as const, routes: relatoriosRoutes }]
+    : []
+
   const sysModules = [
-    ...(relatoriosRoutes.length > 0 ? [{ key: 'relatorios', label: 'Relatórios', icon: <FileBarChart2 size={20} />, group: 'sys' as const, routes: relatoriosRoutes }] : []),
     ...(configSubGroups.length > 0 ? [{ key: 'configuracao', label: t('nav.module.configuration'), icon: <Settings size={20} />, group: 'sys' as const, subGroups: configSubGroups }] : []),
     ...(integracoesRoutes.length > 0 ? [{ key: 'integracoes', label: t('nav.item.integrations'), icon: <Plug size={20} />, group: 'sys' as const, routes: integracoesRoutes }] : []),
     ...(controleAcessoRoutes.length > 0 ? [{ key: 'controle-acesso', label: t('nav.item.users'), icon: <User size={20} />, group: 'sys' as const, routes: controleAcessoRoutes }] : []),
   ]
 
-  const moduleNav: ModuleNavConfig = [...opModules, ...sysModules]
+  const moduleNav: ModuleNavConfig = [...opModules, ...relatoriosModule, ...sysModules]
 
   const isInConfiguration = location.pathname.startsWith('/configuracao')
   const homePathByModule = isInConfiguration ? '/configuracao' : '/'
