@@ -25,14 +25,16 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IIntegrationCapabilityService integrationCapabilityService;
         private readonly ISignedDocumentDownloader signedDocumentDownloader;
         private readonly IContentFileStorage fileStorage;
+        private readonly IPlanGate planGate;
         private readonly ILogger<CampaignDocumentService>? logger;
 
-        public CampaignDocumentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, ISignedDocumentDownloader signedDocumentDownloader, IContentFileStorage fileStorage, ILogger<CampaignDocumentService>? logger = null) : base(dbContext)
+        public CampaignDocumentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, ISignedDocumentDownloader signedDocumentDownloader, IContentFileStorage fileStorage, IPlanGate planGate, ILogger<CampaignDocumentService>? logger = null) : base(dbContext)
         {
             this.integrationPlatformClient = integrationPlatformClient;
             this.integrationCapabilityService = integrationCapabilityService;
             this.signedDocumentDownloader = signedDocumentDownloader;
             this.fileStorage = fileStorage;
+            this.planGate = planGate;
             this.logger = logger;
         }
 
@@ -275,6 +277,8 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<CampaignDocument> SendForSignature(long id, SendCampaignDocumentForSignatureRequest request, CancellationToken cancellationToken = default)
         {
+            await planGate.RequireFeatureAsync(PlanFeature.DigitalSignature, cancellationToken);
+
             CampaignDocument? document = await DbContext.Set<CampaignDocument>()
                 .AsTracking()
                 .Include(item => item.Signatures)

@@ -2534,4 +2534,10 @@
   <data name="modal.campaign.field.requiresDeliverableApproval" xml:space="preserve"><value>Exigir aprovacao da marca para publicar entregaveis</value></data>
   <data name="modal.campaign.field.payoutRequiresContentApproval" xml:space="preserve"><value>Só liberar o repasse ao creator apos o conteudo aprovado (pay-when-paid)</value></data>
   <data name="contentReview.action.agencyApprove" xml:space="preserve"><value>Aprovar internamente</value></data>
+  <data name="plan.feature.unavailable" xml:space="preserve">
+    <value>Esta funcionalidade não está disponível no seu plano atual. Faça upgrade para liberar.</value>
+  </data>
+  <data name="plan.limit.reached" xml:space="preserve">
+    <value>Você atingiu o limite do seu plano ({0}). Faça upgrade para aumentar.</value>
+  </data>
 </root>

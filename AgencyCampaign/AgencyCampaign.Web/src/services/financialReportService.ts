@@ -1,5 +1,5 @@
 import { httpClient } from 'archon-ui'
-import { downloadCsvReport } from '../lib/downloadReport'
+import { downloadCsvReport, downloadPdfReport } from '../lib/downloadReport'
 
 export const CashFlowGranularity = {
   Day: 0,

@@ -19,3 +19,21 @@ export async function downloadCsvReport(url: string, fileName: string): Promise<
   link.remove()
   window.URL.revokeObjectURL(objectUrl)
 }
+
+export async function downloadPdfReport(url: string, fileName: string): Promise<void> {
+  const response = await httpClient.get<Blob>(url, { responseType: 'blob' })
+  const blob = response.data as Blob | undefined
+  if (!blob) return
+  if (!blob.type || !blob.type.includes('pdf')) {
+    const text = await blob.text().catch(() => '')
+    throw new Error(text || 'Falha ao exportar o PDF.')
+  }
+  const objectUrl = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = objectUrl
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(objectUrl)
+}

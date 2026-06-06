@@ -1,5 +1,6 @@
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,16 +13,20 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly DbContext dbContext;
         private readonly IApifySocialMetricsClient client;
         private readonly ILogger<CreatorAudienceSyncService> logger;
+        private readonly IPlanGate planGate;
 
-        public CreatorAudienceSyncService(DbContext dbContext, IApifySocialMetricsClient client, ILogger<CreatorAudienceSyncService> logger)
+        public CreatorAudienceSyncService(DbContext dbContext, IApifySocialMetricsClient client, ILogger<CreatorAudienceSyncService> logger, IPlanGate planGate)
         {
             this.dbContext = dbContext;
             this.client = client;
             this.logger = logger;
+            this.planGate = planGate;
         }
 
         public async Task<int> SyncCreator(long creatorId, TimeSpan cooldown, CancellationToken cancellationToken = default)
         {
+            await planGate.RequireFeatureAsync(PlanFeature.ApifySync, cancellationToken);
+
             if (!client.IsConfigured)
             {
                 return 0;
@@ -37,6 +42,12 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<int> SyncAll(TimeSpan cooldown, CancellationToken cancellationToken = default)
         {
             if (!client.IsConfigured)
+            {
+                return 0;
+            }
+
+            // Job de fundo: se o plano nao tem coleta automatica, PULA (nao lanca, senao derruba o tick dos demais tenants).
+            if (!await planGate.HasFeatureAsync(PlanFeature.ApifySync, cancellationToken))
             {
                 return 0;
             }

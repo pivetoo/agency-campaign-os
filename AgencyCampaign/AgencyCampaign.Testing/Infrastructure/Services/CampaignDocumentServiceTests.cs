@@ -27,7 +27,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db = TestDbContext.CreateInMemory();
             downloaderMock = new Mock<ISignedDocumentDownloader>();
             fileStorageMock = new Mock<IContentFileStorage>();
-            service = new CampaignDocumentService(db, IntegrationPlatformClientFactory.CreateInert(), new IntegrationCapabilityService(db), downloaderMock.Object, fileStorageMock.Object);
+            service = new CampaignDocumentService(db, IntegrationPlatformClientFactory.CreateInert(), new IntegrationCapabilityService(db), downloaderMock.Object, fileStorageMock.Object, PlanGateFactory.Create());
         }
 
         [TearDown]

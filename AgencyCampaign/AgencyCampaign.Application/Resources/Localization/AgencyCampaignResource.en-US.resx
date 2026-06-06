@@ -2534,4 +2534,10 @@
   <data name="modal.campaign.field.requiresDeliverableApproval" xml:space="preserve"><value>Require brand approval to publish deliverables</value></data>
   <data name="modal.campaign.field.payoutRequiresContentApproval" xml:space="preserve"><value>Only release the creator payout after the content is approved (pay-when-paid)</value></data>
   <data name="contentReview.action.agencyApprove" xml:space="preserve"><value>Approve internally</value></data>
+  <data name="plan.feature.unavailable" xml:space="preserve">
+    <value>This feature is not available on your current plan. Upgrade to unlock it.</value>
+  </data>
+  <data name="plan.limit.reached" xml:space="preserve">
+    <value>You reached your plan limit ({0}). Upgrade to increase it.</value>
+  </data>
 </root>
