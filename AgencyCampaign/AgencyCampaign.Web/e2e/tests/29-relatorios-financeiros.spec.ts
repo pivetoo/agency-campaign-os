@@ -247,3 +247,75 @@ test.describe('Relatorios - export CSV comercial', () => {
     expectNoApiFailures()
   })
 })
+
+// ---------------------------------------------------------------------------
+// Bloco Producao
+// ---------------------------------------------------------------------------
+
+const PRODUCTION_ROUTES = [
+  { path: '/relatorios/producao/campanhas', heading: /Performance de Campanhas/i },
+  { path: '/relatorios/producao/creators', heading: /Desempenho por Creator/i },
+  { path: '/relatorios/producao/plataforma', heading: /Produção por Plataforma/i },
+  { path: '/relatorios/producao/sla', heading: /Entregáveis|Prazo|Atraso/i },
+  { path: '/relatorios/producao/aprovacoes', heading: /Aprovação e Rodadas/i },
+  { path: '/relatorios/producao/licencas', heading: /Licenças de Conteúdo/i },
+]
+
+test.describe('Relatorios - landing secao Producao', () => {
+  test('landing /relatorios exibe secao Producao com cards', async ({ page, expectNoApiFailures }) => {
+    await page.goto('/relatorios')
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+
+    await expectPageTitle(page, /Relatórios|Relatorios/i, 15_000)
+
+    // secao "Producao" deve aparecer como heading de grupo
+    await expect(page.getByText(/^Produção$/i).first()).toBeVisible({ timeout: 10_000 })
+
+    // ao menos 2 cards do bloco de producao devem estar presentes
+    for (const title of ['Performance de Campanhas', 'Licenças de Conteúdo']) {
+      await expect(page.getByText(title, { exact: false }).first()).toBeVisible({ timeout: 10_000 })
+    }
+
+    expectNoApiFailures()
+  })
+})
+
+test.describe('Relatorios - rotas de producao', () => {
+  for (const { path, heading } of PRODUCTION_ROUTES) {
+    test(`${path} renderiza pagina`, async ({ page, expectNoApiFailures }) => {
+      await page.goto(path)
+      await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+
+      await expectPageTitle(page, heading, 15_000)
+
+      expectNoApiFailures()
+    })
+  }
+})
+
+test.describe('Relatorios - export CSV producao', () => {
+  test('botao CSV em Performance de Campanhas dispara download', async ({ page, expectNoApiFailures }) => {
+    await page.goto('/relatorios/producao/campanhas')
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+
+    await expectPageTitle(page, /Performance de Campanhas/i, 15_000)
+
+    const csvButton = page.getByRole('button', { name: /CSV/i }).first()
+    await expect(csvButton).toBeVisible({ timeout: 10_000 })
+
+    const downloadOrResponse = Promise.race([
+      page.waitForEvent('download', { timeout: 15_000 }).then(() => 'download'),
+      page.waitForResponse(
+        (resp) => /\/ProductionReports\/campaign-performance\/export/i.test(resp.url()) && resp.status() < 400,
+        { timeout: 15_000 },
+      ).then(() => 'response'),
+    ])
+
+    await csvButton.click()
+
+    const result = await downloadOrResponse
+    expect(['download', 'response']).toContain(result)
+
+    expectNoApiFailures()
+  })
+})

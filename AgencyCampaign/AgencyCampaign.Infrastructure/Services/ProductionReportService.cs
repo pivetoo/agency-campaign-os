@@ -310,6 +310,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 ? Math.Round((decimal)brandApprovals.Average(a => (a.ApprovedAt!.Value - a.CreatedAt).TotalDays), 2)
                 : null;
 
+            // Janela ancorada em CreatedAt da versao: DeliverableContentVersion nao tem ApprovedAt; a versao
+            // aprovada (RoundNumber) e a fonte de "rodadas ate aprovar".
             List<DeliverableContentVersion> versions = await dbContext.Set<DeliverableContentVersion>()
                 .AsNoTracking()
                 .Where(v => v.Status == ContentVersionStatus.Approved
