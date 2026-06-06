@@ -28,7 +28,7 @@ export default function CampaignProfitability() {
   ]
 
   return (
-    <ReportLayout title="Rentabilidade por Campanha" subtitle="Receita, custos e margem por campanha" onRefresh={() => void load()} onExportCsv={() => financialReportService.exportCampaignProfitability()}>
+    <ReportLayout title="Rentabilidade por Campanha" subtitle="Receita, custos e margem por campanha" onRefresh={() => void load()} onExportCsv={() => financialReportService.exportCampaignProfitability()} onExportPdf={() => financialReportService.exportCampaignProfitabilityPdf()}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-md border p-3">
           <p className="text-xs text-muted-foreground">Receita total</p>

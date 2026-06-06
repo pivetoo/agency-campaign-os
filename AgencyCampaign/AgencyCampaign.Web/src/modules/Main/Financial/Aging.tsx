@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PageLayout, Card, CardContent, useApi, Badge, useI18n, Button } from 'archon-ui'
-import { Download } from 'lucide-react'
+import { Download, FileText } from 'lucide-react'
 import { financialReportService, type AgingReport } from '../../../services/financialReportService'
 import { formatCurrency } from '../../../lib/format'
 
@@ -34,9 +34,12 @@ export default function Aging() {
       onRefresh={() => void load()}
       showDefaultActions={false}
     >
-      <div className="mb-3 flex justify-end">
+      <div className="mb-3 flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={() => void financialReportService.exportAging()}>
           <Download className="mr-1.5 h-4 w-4" />Exportar CSV
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => void financialReportService.exportAgingPdf()}>
+          <FileText className="mr-1.5 h-4 w-4" />PDF
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 mb-4">

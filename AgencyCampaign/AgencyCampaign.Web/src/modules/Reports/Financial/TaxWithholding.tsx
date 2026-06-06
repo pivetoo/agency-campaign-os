@@ -42,7 +42,7 @@ export default function TaxWithholding() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Retenções Fiscais" subtitle="Imposto retido na fonte por creator" filters={filters} onRefresh={() => void load()} onExportCsv={() => financialReportService.exportTaxWithholding(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Retenções Fiscais" subtitle="Imposto retido na fonte por creator" filters={filters} onRefresh={() => void load()} onExportCsv={() => financialReportService.exportTaxWithholding(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => financialReportService.exportTaxWithholdingPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <div className="rounded-md border p-3">
           <p className="text-xs text-muted-foreground">Bruto total</p>

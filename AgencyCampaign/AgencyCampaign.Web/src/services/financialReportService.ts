@@ -164,4 +164,31 @@ export const financialReportService = {
     const params = new URLSearchParams({ from, to })
     return downloadCsvReport(`${BASE_URL}/accrual-result/export?${params.toString()}`, 'resultado-competencia.csv')
   },
+
+  exportCashFlowPdf(from: string, to: string, granularity: CashFlowGranularityValue): Promise<void> {
+    const params = new URLSearchParams({ from, to, granularity: String(granularity) })
+    return downloadPdfReport(`${BASE_URL}/cashflow/pdf?${params.toString()}`, 'fluxo-de-caixa.pdf')
+  },
+
+  exportAgingPdf(): Promise<void> {
+    return downloadPdfReport(`${BASE_URL}/aging/pdf`, 'aging.pdf')
+  },
+
+  exportCashFlowProjectionPdf(weeks = 12): Promise<void> {
+    return downloadPdfReport(`${BASE_URL}/cashflow-projection/pdf?weeks=${weeks}`, 'projecao-fluxo-caixa.pdf')
+  },
+
+  exportAccrualResultPdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/accrual-result/pdf?${params.toString()}`, 'resultado-competencia.pdf')
+  },
+
+  exportCampaignProfitabilityPdf(): Promise<void> {
+    return downloadPdfReport(`${BASE_URL}/campaign-profitability/pdf`, 'rentabilidade-campanhas.pdf')
+  },
+
+  exportTaxWithholdingPdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/tax-withholding/pdf?${params.toString()}`, 'retencoes.pdf')
+  },
 }

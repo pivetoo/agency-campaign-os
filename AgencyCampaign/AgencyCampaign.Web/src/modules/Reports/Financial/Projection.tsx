@@ -49,7 +49,7 @@ export default function Projection() {
   )
 
   return (
-    <ReportLayout title="Projeção de Fluxo" subtitle="Saldo projetado semana a semana" filters={filters} onRefresh={() => void load()} onExportCsv={() => financialReportService.exportCashFlowProjection(weeks)}>
+    <ReportLayout title="Projeção de Fluxo" subtitle="Saldo projetado semana a semana" filters={filters} onRefresh={() => void load()} onExportCsv={() => financialReportService.exportCashFlowProjection(weeks)} onExportPdf={() => financialReportService.exportCashFlowProjectionPdf(weeks)}>
       <div className="rounded-md border p-3">
         <p className="text-xs text-muted-foreground">Saldo de abertura</p>
         <p className="text-lg font-semibold text-primary">{formatCurrency(data?.openingBalance ?? 0)}</p>
