@@ -49,7 +49,11 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task ExportCashFlowProjection_should_emit_header_and_week_rows()
         {
-            FinancialEntry receivable = new(1, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable,
+            FinancialAccount account = new("Conta principal", FinancialAccountType.Bank, 0m);
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            FinancialEntry receivable = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable,
                 "entrada futura", 2000m, DateTimeOffset.UtcNow.AddDays(7), DateTimeOffset.UtcNow);
             db.Add(receivable);
             await db.SaveChangesAsync();
@@ -57,9 +61,10 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             byte[] bytes = await service.ExportCashFlowProjection(4);
             string csv = Encoding.UTF8.GetString(bytes);
 
-            bytes.Length.Should().BeGreaterThan(3);
+            bytes.Take(3).Should().Equal(0xEF, 0xBB, 0xBF);
             csv.Should().Contain("Semana");
             csv.Should().Contain("Saldo projetado");
+            csv.Should().Contain("2000,00");
         }
     }
 }
