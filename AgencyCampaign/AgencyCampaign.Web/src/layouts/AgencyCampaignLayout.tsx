@@ -223,8 +223,6 @@ export default function AgencyCampaignLayout() {
       '/financeiro/receber': t('nav.item.accountsReceivable'),
       '/financeiro/pagar': t('nav.item.accountsPayable'),
       '/financeiro/repasses-creators': t('nav.item.creatorPayments'),
-      '/financeiro/fluxo-caixa': t('nav.item.cashFlow'),
-      '/financeiro/aging': t('nav.item.aging'),
       '/configuracao/plataformas': t('nav.item.socialNetworks'),
       '/configuracao/pipeline-comercial': t('nav.item.commercialFunnel'),
       '/configuracao/status-creators': t('nav.item.creatorStatus'),

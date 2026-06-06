@@ -20,8 +20,8 @@ const screens: ScreenSpec[] = [
   { path: '/operacao/aprovacoes', expectHeading: /Aprovações|Aprovacoes/i },
   { path: '/financeiro/receber', expectHeading: /receber|recebimento/i },
   { path: '/financeiro/pagar', expectHeading: /pagar|pagamento/i },
-  { path: '/financeiro/fluxo-caixa', expectHeading: /fluxo|caixa/i },
-  { path: '/financeiro/aging', expectHeading: /aging|inadim|atraso/i },
+  { path: '/relatorios/financeiro/fluxo-caixa', expectHeading: /fluxo|caixa/i },
+  { path: '/relatorios/financeiro/aging', expectHeading: /aging|inadim|atraso/i },
 ]
 
 test.describe('Smoke - modulo Sistema', () => {
