@@ -33,7 +33,7 @@ export default function Aprovacoes() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Aprovação e Rodadas" subtitle="Tempo de aprovação e rodadas de revisão no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportApprovalCycle(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Aprovação e Rodadas" subtitle="Tempo de aprovação e rodadas de revisão no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportApprovalCycle(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => productionReportService.exportApprovalCyclePdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-md border p-3">
           <p className="text-xs text-muted-foreground">Aprov. interna (médio)</p>

@@ -38,7 +38,7 @@ export default function SlaEntregaveis() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Entregáveis: Prazo × Atraso" subtitle="SLA dos entregáveis por vencimento no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportDeliverableSla(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Entregáveis: Prazo × Atraso" subtitle="SLA dos entregáveis por vencimento no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportDeliverableSla(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => productionReportService.exportDeliverableSlaPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <div className="rounded-md border p-3">
           <p className="text-xs text-muted-foreground">No prazo</p>

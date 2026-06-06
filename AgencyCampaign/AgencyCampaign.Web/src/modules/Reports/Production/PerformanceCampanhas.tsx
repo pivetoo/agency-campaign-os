@@ -49,7 +49,7 @@ export default function PerformanceCampanhas() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Performance de Campanhas" subtitle="Alcance, engajamento e EMV por campanha (entregas publicadas no período)" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportCampaignPerformance(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Performance de Campanhas" subtitle="Alcance, engajamento e EMV por campanha (entregas publicadas no período)" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportCampaignPerformance(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => productionReportService.exportCampaignPerformancePdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-md border p-3">
           <p className="text-xs text-muted-foreground">Campanhas</p>

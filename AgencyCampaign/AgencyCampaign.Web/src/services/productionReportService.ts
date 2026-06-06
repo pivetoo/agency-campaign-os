@@ -1,5 +1,5 @@
 import { httpClient } from 'archon-ui'
-import { downloadCsvReport } from '../lib/downloadReport'
+import { downloadCsvReport, downloadPdfReport } from '../lib/downloadReport'
 
 export interface CampaignPerformanceLine { campaignId: number; campaignName: string; brandName?: string | null; deliverables: number; totalReach: number; totalImpressions: number; totalEngagement: number; avgEngagementRate?: number | null; emv?: number | null }
 export interface CampaignPerformance { generatedAt: string; from: string; to: string; lines: CampaignPerformanceLine[] }
@@ -85,5 +85,34 @@ export const productionReportService = {
   exportContentLicenses(expiringSoonDays = 30): Promise<void> {
     const params = new URLSearchParams({ expiringSoonDays: String(expiringSoonDays) })
     return downloadCsvReport(`${BASE_URL}/content-licenses/export?${params.toString()}`, 'licencas-conteudo.csv')
+  },
+
+  exportCampaignPerformancePdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/campaign-performance/pdf?${params.toString()}`, 'performance-campanhas.pdf')
+  },
+
+  exportCreatorPerformancePdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/creator-performance/pdf?${params.toString()}`, 'performance-creators.pdf')
+  },
+
+  exportPlatformProductionPdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/platform-production/pdf?${params.toString()}`, 'producao-plataforma.pdf')
+  },
+
+  exportDeliverableSlaPdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/deliverable-sla/pdf?${params.toString()}`, 'sla-entregaveis.pdf')
+  },
+
+  exportApprovalCyclePdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/approval-cycle/pdf?${params.toString()}`, 'ciclo-aprovacao.pdf')
+  },
+
+  exportContentLicensesPdf(expiringSoonDays = 30): Promise<void> {
+    return downloadPdfReport(`${BASE_URL}/content-licenses/pdf?expiringSoonDays=${expiringSoonDays}`, 'licencas-conteudo.pdf')
   },
 }

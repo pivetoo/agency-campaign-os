@@ -42,7 +42,7 @@ export default function Licencas() {
   )
 
   return (
-    <ReportLayout title="Licenças de Conteúdo" subtitle="Status de expiração das licenças" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportContentLicenses(expiringSoonDays)}>
+    <ReportLayout title="Licenças de Conteúdo" subtitle="Status de expiração das licenças" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportContentLicenses(expiringSoonDays)} onExportPdf={() => productionReportService.exportContentLicensesPdf(expiringSoonDays)}>
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-md border p-3">
           <p className="text-xs text-muted-foreground">Ativas</p>

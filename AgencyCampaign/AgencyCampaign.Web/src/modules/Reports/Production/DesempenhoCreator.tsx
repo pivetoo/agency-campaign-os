@@ -45,7 +45,7 @@ export default function DesempenhoCreator() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Desempenho por Creator" subtitle="Alcance e engajamento por creator (entregas publicadas no período)" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportCreatorPerformance(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Desempenho por Creator" subtitle="Alcance e engajamento por creator (entregas publicadas no período)" filters={filters} onRefresh={() => void load()} onExportCsv={() => productionReportService.exportCreatorPerformance(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => productionReportService.exportCreatorPerformancePdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-md border p-3">
           <p className="text-xs text-muted-foreground">Creators</p>
