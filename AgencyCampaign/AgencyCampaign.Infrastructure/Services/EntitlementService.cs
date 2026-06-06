@@ -4,8 +4,8 @@ using AgencyCampaign.Domain.ValueObjects;
 namespace AgencyCampaign.Infrastructure.Services
 {
     // Matriz plano -> features/limites: fonte unica de verdade da secao 4.2 do plano de produto.
-    // Limites usam os valores do documento (Essencial 25/3/5, Pro 100/10/30, Scale 400/30/ilimitado).
-    // A Revisao 4 recomenda avaliar Essencial -> 15 creators e 8-10 campanhas; basta ajustar aqui.
+    // Limites generosos por decisao do fundador (Rev. 5): creators 50/200/600, seats 10/30/ilimitado,
+    // campanhas 15/60/ilimitado. Seats e campanhas nao tem custo marginal; creators e o driver de cobranca.
     public sealed class EntitlementService : IEntitlementService
     {
         private const int Unlimited = IEntitlementService.Unlimited;
@@ -46,20 +46,20 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 [PlanTier.Essencial] = new Dictionary<PlanLimit, int>
                 {
-                    [PlanLimit.ActiveManagedCreators] = 25,
-                    [PlanLimit.Seats] = 3,
-                    [PlanLimit.ActiveCampaigns] = 5
+                    [PlanLimit.ActiveManagedCreators] = 50,
+                    [PlanLimit.Seats] = 10,
+                    [PlanLimit.ActiveCampaigns] = 15
                 },
                 [PlanTier.Pro] = new Dictionary<PlanLimit, int>
                 {
-                    [PlanLimit.ActiveManagedCreators] = 100,
-                    [PlanLimit.Seats] = 10,
-                    [PlanLimit.ActiveCampaigns] = 30
+                    [PlanLimit.ActiveManagedCreators] = 200,
+                    [PlanLimit.Seats] = 30,
+                    [PlanLimit.ActiveCampaigns] = 60
                 },
                 [PlanTier.Scale] = new Dictionary<PlanLimit, int>
                 {
-                    [PlanLimit.ActiveManagedCreators] = 400,
-                    [PlanLimit.Seats] = 30,
+                    [PlanLimit.ActiveManagedCreators] = 600,
+                    [PlanLimit.Seats] = Unlimited,
                     [PlanLimit.ActiveCampaigns] = Unlimited
                 }
             };

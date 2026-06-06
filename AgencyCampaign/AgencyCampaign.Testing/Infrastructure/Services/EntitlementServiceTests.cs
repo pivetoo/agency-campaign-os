@@ -62,21 +62,24 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             EntitlementService subject = CreateSubject();
 
-            subject.CheckLimit(PlanTier.Essencial, PlanLimit.ActiveManagedCreators, 24).Allowed.Should().BeTrue();
-            subject.CheckLimit(PlanTier.Essencial, PlanLimit.ActiveManagedCreators, 25).Allowed.Should().BeFalse();
-            subject.CheckLimit(PlanTier.Pro, PlanLimit.ActiveManagedCreators, 99).Allowed.Should().BeTrue();
-            subject.CheckLimit(PlanTier.Pro, PlanLimit.ActiveManagedCreators, 100).Allowed.Should().BeFalse();
+            subject.CheckLimit(PlanTier.Essencial, PlanLimit.ActiveManagedCreators, 49).Allowed.Should().BeTrue();
+            subject.CheckLimit(PlanTier.Essencial, PlanLimit.ActiveManagedCreators, 50).Allowed.Should().BeFalse();
+            subject.CheckLimit(PlanTier.Pro, PlanLimit.ActiveManagedCreators, 199).Allowed.Should().BeTrue();
+            subject.CheckLimit(PlanTier.Pro, PlanLimit.ActiveManagedCreators, 200).Allowed.Should().BeFalse();
         }
 
         [Test]
-        public void Scale_active_campaigns_should_be_unlimited()
+        public void Scale_should_have_unlimited_seats_and_campaigns()
         {
             EntitlementService subject = CreateSubject();
 
-            EntitlementCheck check = subject.CheckLimit(PlanTier.Scale, PlanLimit.ActiveCampaigns, 5_000);
+            EntitlementCheck seats = subject.CheckLimit(PlanTier.Scale, PlanLimit.Seats, 5_000);
+            EntitlementCheck campaigns = subject.CheckLimit(PlanTier.Scale, PlanLimit.ActiveCampaigns, 5_000);
 
-            check.Allowed.Should().BeTrue();
-            check.IsUnlimited.Should().BeTrue();
+            seats.IsUnlimited.Should().BeTrue();
+            seats.Allowed.Should().BeTrue();
+            campaigns.IsUnlimited.Should().BeTrue();
+            campaigns.Allowed.Should().BeTrue();
         }
     }
 }
