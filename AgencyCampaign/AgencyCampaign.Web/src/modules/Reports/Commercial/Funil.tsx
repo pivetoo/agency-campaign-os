@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useApi, DataTable, type DataTableColumn } from 'archon-ui'
 import { opportunityService } from '../../../services/opportunityService'
+import { commercialReportService } from '../../../services/commercialReportService'
 import type { CommercialAnalytics, StageConversion, Performer, StageTime } from '../../../types/commercialAnalytics'
 import { formatCurrency } from '../../../lib/format'
 import ReportLayout from '../_shared/ReportLayout'
@@ -54,7 +55,7 @@ export default function Funil() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Funil de Conversão" subtitle="Conversão por estágio do pipeline" filters={filters} onRefresh={() => void load()}>
+    <ReportLayout title="Funil de Conversão" subtitle="Conversão por estágio do pipeline" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportFunilPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-md border p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Negócios fechados</p>

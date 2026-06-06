@@ -38,7 +38,7 @@ export default function Ranking() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Ranking por Marca" subtitle="Marcas por valor ganho no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => commercialReportService.exportBrandRanking(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Ranking por Marca" subtitle="Marcas por valor ganho no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => commercialReportService.exportBrandRanking(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => commercialReportService.exportBrandRankingPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <DataTable columns={columns} data={data?.lines ?? []} rowKey="brandId" emptyText="Nenhuma marca com negócios fechados no período." />
     </ReportLayout>
   )

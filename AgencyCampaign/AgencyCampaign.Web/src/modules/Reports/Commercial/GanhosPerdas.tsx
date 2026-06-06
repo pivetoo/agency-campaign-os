@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useApi } from 'archon-ui'
 import { ResponsivePie } from '@nivo/pie'
 import { opportunityService } from '../../../services/opportunityService'
+import { commercialReportService } from '../../../services/commercialReportService'
 import type { CommercialAnalytics, ReasonAggregate } from '../../../types/commercialAnalytics'
 import { formatCurrency } from '../../../lib/format'
 import ReportLayout from '../_shared/ReportLayout'
@@ -79,7 +80,7 @@ export default function GanhosPerdas() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Ganhos × Perdas" subtitle="Motivos de ganho e de perda" filters={filters} onRefresh={() => void load()}>
+    <ReportLayout title="Ganhos × Perdas" subtitle="Motivos de ganho e de perda" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportGanhosPerdasPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid gap-5 md:grid-cols-2">
         <div className="rounded-lg border border-border bg-card p-4">
           <h3 className="mb-3 text-sm font-semibold text-foreground">Motivos de Ganho</h3>

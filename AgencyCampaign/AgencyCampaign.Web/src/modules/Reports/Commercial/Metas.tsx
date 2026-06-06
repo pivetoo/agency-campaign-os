@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useApi, DataTable, Badge, Input, type DataTableColumn } from 'archon-ui'
 import { commercialGoalService } from '../../../services/commercialGoalService'
+import { commercialReportService } from '../../../services/commercialReportService'
 import type { CommercialGoalProgress } from '../../../types/commercialGoal'
 import { commercialGoalPeriodTypeLabels } from '../../../types/commercialGoal'
 import { formatCurrency, todayDateInput } from '../../../lib/format'
@@ -42,7 +43,7 @@ export default function Metas() {
   )
 
   return (
-    <ReportLayout title="Metas × Realizado" subtitle="Meta vs realizado por período" filters={filters} onRefresh={() => void load()}>
+    <ReportLayout title="Metas × Realizado" subtitle="Meta vs realizado por período" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportMetasPdf(new Date(referenceDate).toISOString())}>
       <DataTable columns={columns} data={data} rowKey="id" emptyText="Nenhuma meta ativa na data." />
     </ReportLayout>
   )

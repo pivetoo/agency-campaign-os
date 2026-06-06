@@ -41,7 +41,7 @@ export default function Propostas() {
   ]
 
   return (
-    <ReportLayout title="Propostas: Emitidas × Aceitas" subtitle="Volume, valor e taxa de aceite no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => commercialReportService.exportProposalsFunnel(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Propostas: Emitidas × Aceitas" subtitle="Volume, valor e taxa de aceite no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => commercialReportService.exportProposalsFunnel(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => commercialReportService.exportProposalsFunnelPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <div className="rounded-md border p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Emitidas</p>

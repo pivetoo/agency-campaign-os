@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useApi, DataTable, type DataTableColumn } from 'archon-ui'
 import { opportunityService } from '../../../services/opportunityService'
+import { commercialReportService } from '../../../services/commercialReportService'
 import type { CommercialForecast, CommercialForecastStageBreakdown } from '../../../types/commercialForecast'
 import { formatCurrency } from '../../../lib/format'
 import ReportLayout from '../_shared/ReportLayout'
@@ -39,7 +40,7 @@ export default function Forecast() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Previsão (Forecast)" subtitle="Pipeline ponderado por probabilidade" filters={filters} onRefresh={() => void load()}>
+    <ReportLayout title="Previsão (Forecast)" subtitle="Pipeline ponderado por probabilidade" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportForecastPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-md border p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Ponderado</p>

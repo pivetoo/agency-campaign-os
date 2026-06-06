@@ -1,5 +1,5 @@
 import { httpClient } from 'archon-ui'
-import { downloadCsvReport } from '../lib/downloadReport'
+import { downloadCsvReport, downloadPdfReport } from '../lib/downloadReport'
 
 export interface ProposalsFunnel {
   from: string
@@ -51,5 +51,35 @@ export const commercialReportService = {
   exportBrandRanking(from: string, to: string): Promise<void> {
     const params = new URLSearchParams({ from, to })
     return downloadCsvReport(`${BASE_URL}/brand-ranking/export?${params.toString()}`, 'ranking-marcas.csv')
+  },
+
+  exportFunilPdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/funil/pdf?${params.toString()}`, 'funil-conversao.pdf')
+  },
+
+  exportGanhosPerdasPdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/ganhos-perdas/pdf?${params.toString()}`, 'ganhos-perdas.pdf')
+  },
+
+  exportForecastPdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/forecast/pdf?${params.toString()}`, 'forecast.pdf')
+  },
+
+  exportMetasPdf(referenceDate: string): Promise<void> {
+    const params = new URLSearchParams({ referenceDate })
+    return downloadPdfReport(`${BASE_URL}/metas/pdf?${params.toString()}`, 'metas-realizado.pdf')
+  },
+
+  exportProposalsFunnelPdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/proposals-funnel/pdf?${params.toString()}`, 'propostas-funil.pdf')
+  },
+
+  exportBrandRankingPdf(from: string, to: string): Promise<void> {
+    const params = new URLSearchParams({ from, to })
+    return downloadPdfReport(`${BASE_URL}/brand-ranking/pdf?${params.toString()}`, 'ranking-marcas.pdf')
   },
 }
