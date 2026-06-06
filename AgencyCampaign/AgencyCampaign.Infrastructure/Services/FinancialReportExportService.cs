@@ -118,6 +118,25 @@ namespace AgencyCampaign.Infrastructure.Services
             return Bytes(csv);
         }
 
+        public async Task<byte[]> ExportCashFlowProjection(int weeks, CancellationToken cancellationToken = default)
+        {
+            CashFlowProjectionModel projection = await reportService.GetCashFlowProjection(weeks, cancellationToken);
+
+            List<IReadOnlyList<string>> rows = projection.Series
+                .Select(week => (IReadOnlyList<string>)
+                [
+                    Date(week.WeekStart),
+                    Money(week.Inflow),
+                    Money(week.Outflow),
+                    Money(week.Net),
+                    Money(week.ProjectedBalance)
+                ])
+                .ToList();
+
+            string csv = CsvWriter.Build(["Semana", "Entrada", "Saida", "Liquido", "Saldo projetado"], rows);
+            return Bytes(csv);
+        }
+
         private static string Money(decimal value)
         {
             return value.ToString("0.00", PtBr);

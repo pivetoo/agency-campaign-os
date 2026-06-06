@@ -45,5 +45,21 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             csv.Should().Contain("1500,50");
         }
+
+        [Test]
+        public async Task ExportCashFlowProjection_should_emit_header_and_week_rows()
+        {
+            FinancialEntry receivable = new(1, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable,
+                "entrada futura", 2000m, DateTimeOffset.UtcNow.AddDays(7), DateTimeOffset.UtcNow);
+            db.Add(receivable);
+            await db.SaveChangesAsync();
+
+            byte[] bytes = await service.ExportCashFlowProjection(4);
+            string csv = Encoding.UTF8.GetString(bytes);
+
+            bytes.Length.Should().BeGreaterThan(3);
+            csv.Should().Contain("Semana");
+            csv.Should().Contain("Saldo projetado");
+        }
     }
 }

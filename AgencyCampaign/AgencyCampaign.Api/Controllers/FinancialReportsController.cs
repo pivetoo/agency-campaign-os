@@ -107,5 +107,14 @@ namespace AgencyCampaign.Api.Controllers
             byte[] csv = await exportService.ExportAccrualResult(from, to, cancellationToken);
             return SendCsv(csv, "resultado-competencia.csv");
         }
+
+        [RequireAccess("financialReports.getCashFlowProjection.description")]
+        [GetEndpoint("cashflow-projection/export")]
+        public async Task<IActionResult> ExportCashFlowProjection([FromQuery] int weeks, CancellationToken cancellationToken)
+        {
+            int horizon = weeks <= 0 ? 12 : weeks;
+            byte[] csv = await exportService.ExportCashFlowProjection(horizon, cancellationToken);
+            return SendCsv(csv, "projecao-fluxo-caixa.csv");
+        }
     }
 }

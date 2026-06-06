@@ -13,5 +13,7 @@ namespace AgencyCampaign.Application.Services
         Task<byte[]> ExportCampaignProfitability(CancellationToken cancellationToken = default);
 
         Task<byte[]> ExportAccrualResult(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+
+        Task<byte[]> ExportCashFlowProjection(int weeks, CancellationToken cancellationToken = default);
     }
 }
