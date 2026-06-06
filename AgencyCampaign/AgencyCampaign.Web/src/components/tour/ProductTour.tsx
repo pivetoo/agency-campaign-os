@@ -234,7 +234,7 @@ const steps: KanvasStep[] = [
     title: 'Financeiro · Fluxo de caixa',
     content:
       'Entradas e saídas (pendentes e realizadas) por dia, semana ou mês. Use para planejar caixa e ver tendências.',
-    route: '/financeiro/fluxo-caixa',
+    route: '/relatorios/financeiro/fluxo-caixa',
   },
   {
     target: '[data-tour="aging-buckets"]',
@@ -242,7 +242,7 @@ const steps: KanvasStep[] = [
     title: 'Financeiro · Aging',
     content:
       'Distribuição de pendências por faixa de atraso (a vencer, 0-30, 31-60, 61-90, 90+). Quanto mais à direita, mais inadimplência.',
-    route: '/financeiro/aging',
+    route: '/relatorios/financeiro/aging',
   },
 
   // ─── Módulo Configuração ───
