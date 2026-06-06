@@ -449,7 +449,7 @@ export default function CommercialPipeline() {
           {hasAnyPermission(['opportunities.analytics', 'opportunities.analyticsOwn']) && (
             <button
               type="button"
-              onClick={() => navigate('/comercial/analytics')}
+              onClick={() => navigate('/relatorios/comercial/funil')}
               className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-1.5 text-[13px] font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
             >
               <BarChart3 className="h-3.5 w-3.5" /> Analytics

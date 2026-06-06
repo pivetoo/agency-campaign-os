@@ -27,7 +27,6 @@ import CommercialProposals from '../modules/Main/Commercial/Proposals'
 import CommercialProposalDetail from '../modules/Main/Commercial/ProposalDetail'
 import CommercialFollowUps from '../modules/Main/Commercial/FollowUps'
 import CommercialApprovals from '../modules/Main/Commercial/Approvals'
-import CommercialAnalytics from '../modules/Main/Commercial/Analytics'
 import CommercialGoals from '../modules/Main/Commercial/Goals'
 import OpportunityOutcomeReasons from '../modules/Configuration/OpportunityOutcomeReasons'
 import CommercialPolicyAdmin from '../modules/Configuration/CommercialPolicy'
@@ -59,6 +58,12 @@ import ReportProjection from '../modules/Reports/Financial/Projection'
 import ReportAccrualResult from '../modules/Reports/Financial/AccrualResult'
 import ReportCampaignProfitability from '../modules/Reports/Financial/CampaignProfitability'
 import ReportTaxWithholding from '../modules/Reports/Financial/TaxWithholding'
+import ReportFunil from '../modules/Reports/Commercial/Funil'
+import ReportGanhosPerdas from '../modules/Reports/Commercial/GanhosPerdas'
+import ReportForecast from '../modules/Reports/Commercial/Forecast'
+import ReportMetas from '../modules/Reports/Commercial/Metas'
+import ReportPropostas from '../modules/Reports/Commercial/Propostas'
+import ReportRanking from '../modules/Reports/Commercial/Ranking'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -123,7 +128,7 @@ function AppRoutes() {
           <Route path="comercial/propostas/:id" element={<CommercialProposalDetail />} />
           <Route path="comercial/negociacoes" element={<Navigate to="/comercial/oportunidades" replace />} />
           <Route path="comercial/aprovacoes" element={<CommercialApprovals />} />
-          <Route path="comercial/analytics" element={<CommercialAnalytics />} />
+          <Route path="comercial/analytics" element={<Navigate to="/relatorios/comercial/funil" replace />} />
           <Route path="comercial/metas" element={<CommercialGoals />} />
           <Route path="comercial/followups" element={<CommercialFollowUps />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
@@ -154,6 +159,12 @@ function AppRoutes() {
           <Route path="configuracao/layouts-proposta" element={<ProposalLayouts />} />
           <Route path="configuracao/layouts-proposta/:id" element={<ProposalLayoutEditor />} />
           <Route path="relatorios" element={<Reports />} />
+          <Route path="relatorios/comercial/funil" element={<ReportFunil />} />
+          <Route path="relatorios/comercial/ganhos-perdas" element={<ReportGanhosPerdas />} />
+          <Route path="relatorios/comercial/forecast" element={<ReportForecast />} />
+          <Route path="relatorios/comercial/metas" element={<ReportMetas />} />
+          <Route path="relatorios/comercial/propostas" element={<ReportPropostas />} />
+          <Route path="relatorios/comercial/ranking" element={<ReportRanking />} />
           <Route path="relatorios/financeiro/fluxo-caixa" element={<FinancialCashFlow />} />
           <Route path="relatorios/financeiro/aging" element={<FinancialAging />} />
           <Route path="relatorios/financeiro/projecao" element={<ReportProjection />} />
