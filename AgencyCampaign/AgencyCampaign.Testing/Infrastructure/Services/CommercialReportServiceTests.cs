@@ -28,9 +28,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GetProposalsFunnel_should_count_emitted_distinct_proposals_in_window()
         {
-            DateTimeOffset baseDate = new DateTimeOffset(2026, 5, 1, 0, 0, 0, TimeSpan.Zero);
-            DateTimeOffset from = baseDate;
-            DateTimeOffset to = baseDate.AddMonths(1);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset from = now.AddDays(-1);
+            DateTimeOffset to = now.AddDays(1);
 
             Brand brand = new("Acme");
             db.Add(brand);
@@ -113,9 +113,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GetProposalsFunnel_should_count_accepted_and_compute_acceptance_rate()
         {
-            DateTimeOffset baseDate = new DateTimeOffset(2026, 5, 1, 0, 0, 0, TimeSpan.Zero);
-            DateTimeOffset from = baseDate;
-            DateTimeOffset to = baseDate.AddMonths(1);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset from = now.AddDays(-1);
+            DateTimeOffset to = now.AddDays(1);
 
             Brand brand = new("Acme");
             db.Add(brand);
@@ -151,9 +151,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public async Task GetProposalsFunnel_should_count_rejected_proposals()
         {
-            DateTimeOffset baseDate = new DateTimeOffset(2026, 5, 1, 0, 0, 0, TimeSpan.Zero);
-            DateTimeOffset from = baseDate;
-            DateTimeOffset to = baseDate.AddMonths(1);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset from = now.AddDays(-1);
+            DateTimeOffset to = now.AddDays(1);
 
             Brand brand = new("Acme");
             db.Add(brand);
