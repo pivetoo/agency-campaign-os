@@ -12,7 +12,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public static string Build(ReportTable table, AgencySettings agency)
         {
-            string primary = string.IsNullOrWhiteSpace(agency.PrimaryColor) ? "#6366f1" : agency.PrimaryColor;
+            string primary = SanitizeColor(agency.PrimaryColor);
             string display = agency.TradeName ?? agency.AgencyName;
 
             string[] contactParts = new[] { agency.PrimaryEmail, agency.Phone }
@@ -126,6 +126,17 @@ namespace AgencyCampaign.Infrastructure.Services
         }
 
         private static string Encode(string value) => WebUtility.HtmlEncode(value);
+
+        private static string SanitizeColor(string? color)
+        {
+            const string fallback = "#6366f1";
+            if (string.IsNullOrWhiteSpace(color))
+            {
+                return fallback;
+            }
+            string trimmed = color.Trim();
+            return System.Text.RegularExpressions.Regex.IsMatch(trimmed, "^#[0-9a-fA-F]{3,8}$") ? trimmed : fallback;
+        }
 
         private const string Template = """
             <!DOCTYPE html>

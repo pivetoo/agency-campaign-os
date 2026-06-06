@@ -105,5 +105,32 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             html.Should().Contain("Alpha");
             html.Should().Contain("R$ 60");
         }
+
+        [Test]
+        public void Build_should_reject_malicious_primary_color_and_use_fallback()
+        {
+            AgencySettings agency = new("Acme");
+            agency.Update("Acme", null, null, null, null, null, null, "red}</style><script>x</script>", null, null);
+            ReportTable table = BuildTable();
+
+            string html = ReportHtmlBuilder.Build(table, agency);
+
+            html.Should().NotContain("</script>");
+            html.Should().NotContain("</style><script");
+            html.Should().Contain("#6366f1");
+        }
+
+        [Test]
+        public void Build_should_pass_through_valid_hex_color()
+        {
+            AgencySettings agency = new("Acme");
+            agency.Update("Acme", null, null, null, null, null, null, "#1F3B61", null, null);
+            ReportTable table = BuildTable();
+
+            string html = ReportHtmlBuilder.Build(table, agency);
+
+            html.Should().Contain("#1F3B61");
+            html.Should().NotContain("#6366f1");
+        }
     }
 }
