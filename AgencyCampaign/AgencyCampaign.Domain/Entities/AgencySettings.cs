@@ -1,3 +1,4 @@
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Entities;
 
 namespace AgencyCampaign.Domain.Entities
@@ -27,6 +28,10 @@ namespace AgencyCampaign.Domain.Entities
         // Teto de alcada do repasse ao creator (maker-checker). Acima deste valor liquido, o pagamento so e
         // agendado apos aprovacao por um usuario diferente de quem registrou. Nulo = sem teto (paga sem aprovacao).
         public decimal? CreatorPaymentApprovalThreshold { get; private set; }
+
+        // Tier de assinatura (cache local por tenant). Default Internal = acesso total, ate a sincronizacao
+        // com a assinatura do IdentityManagement atribuir o tier real. Mantem Mainstay/tenants existentes liberados.
+        public PlanTier PlanTier { get; private set; } = PlanTier.Internal;
 
         private AgencySettings()
         {
@@ -72,6 +77,12 @@ namespace AgencyCampaign.Domain.Entities
         public void SetProposalHtmlTemplate(string? template)
         {
             ProposalHtmlTemplate = string.IsNullOrWhiteSpace(template) ? null : template.Trim();
+        }
+
+        // Atribui o tier do plano. Chamado pela sincronizacao com a assinatura do IdentityManagement.
+        public void SetPlanTier(PlanTier tier)
+        {
+            PlanTier = tier;
         }
 
         private static string? Normalize(string? value)

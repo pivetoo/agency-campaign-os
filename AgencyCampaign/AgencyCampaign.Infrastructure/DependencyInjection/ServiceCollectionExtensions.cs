@@ -35,6 +35,7 @@ namespace AgencyCampaign.Infrastructure.DependencyInjection
             services.AddHttpClient<ISignedDocumentDownloader, SignedDocumentDownloader>();
             services.AddSingleton<TenantJobRunner>();
             services.AddScoped<IAutomationDispatcher, AutomationDispatcher>();
+            services.AddScoped<IPlanTierResolver, PlanTierResolver>();
             services.AddScoped<IFinancialAutoGeneration, FinancialAutoGenerationService>();
             services.AddScoped<IImageUploadStorage, ImageUploadStorage>();
             services.AddScoped<IContentFileStorage, ContentFileStorage>();

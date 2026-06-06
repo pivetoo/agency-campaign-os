@@ -53,6 +53,24 @@ namespace AgencyCampaign.Testing.Domain.Entities
 
             act.Should().Throw<ArgumentOutOfRangeException>();
         }
+
+        [Test]
+        public void New_settings_should_default_to_internal_tier()
+        {
+            AgencySettings subject = new("Acme");
+
+            subject.PlanTier.Should().Be(PlanTier.Internal);
+        }
+
+        [Test]
+        public void SetPlanTier_should_update_the_tier()
+        {
+            AgencySettings subject = new("Acme");
+
+            subject.SetPlanTier(PlanTier.Pro);
+
+            subject.PlanTier.Should().Be(PlanTier.Pro);
+        }
     }
 
     [TestFixture]
