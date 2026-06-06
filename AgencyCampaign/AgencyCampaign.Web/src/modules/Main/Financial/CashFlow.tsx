@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, Card, CardContent, useApi, SearchableSelect, Input, useI18n } from 'archon-ui'
+import { PageLayout, Card, CardContent, useApi, SearchableSelect, Input, useI18n, Button } from 'archon-ui'
 import { ResponsiveLine } from '@nivo/line'
+import { Download } from 'lucide-react'
 import { CashFlowGranularity, financialReportService, type CashFlowGranularityValue, type CashFlowSeries } from '../../../services/financialReportService'
 import { formatCurrency } from '../../../lib/format'
 
@@ -133,6 +134,11 @@ export default function CashFlow() {
                   { value: '2', label: 'Mensal' },
                 ]}
               />
+            </div>
+            <div className="flex items-end">
+              <Button variant="outline" size="sm" onClick={() => void financialReportService.exportCashFlow(new Date(range.from).toISOString(), new Date(range.to).toISOString(), granularity)}>
+                <Download className="mr-1.5 h-4 w-4" />Exportar CSV
+              </Button>
             </div>
           </div>
 

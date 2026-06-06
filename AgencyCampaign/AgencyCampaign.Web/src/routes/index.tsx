@@ -55,6 +55,10 @@ import AgencyConfiguration from '../modules/Configuration/Agency'
 import ProposalLayouts from '../modules/Configuration/ProposalLayouts'
 import ProposalLayoutEditor from '../modules/Configuration/ProposalLayout'
 import Reports from '../modules/Reports'
+import ReportProjection from '../modules/Reports/Financial/Projection'
+import ReportAccrualResult from '../modules/Reports/Financial/AccrualResult'
+import ReportCampaignProfitability from '../modules/Reports/Financial/CampaignProfitability'
+import ReportTaxWithholding from '../modules/Reports/Financial/TaxWithholding'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -125,8 +129,8 @@ function AppRoutes() {
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
           <Route path="financeiro/repasses-creators" element={<CreatorPayments />} />
-          <Route path="financeiro/fluxo-caixa" element={<FinancialCashFlow />} />
-          <Route path="financeiro/aging" element={<FinancialAging />} />
+          <Route path="financeiro/fluxo-caixa" element={<Navigate to="/relatorios/financeiro/fluxo-caixa" replace />} />
+          <Route path="financeiro/aging" element={<Navigate to="/relatorios/financeiro/aging" replace />} />
           <Route path="financeiro/periodos" element={<FinancialPeriods />} />
           <Route path="financeiro/conciliacao" element={<Reconciliation />} />
           <Route path="configuracao/plataformas" element={<Platforms />} />
@@ -150,6 +154,12 @@ function AppRoutes() {
           <Route path="configuracao/layouts-proposta" element={<ProposalLayouts />} />
           <Route path="configuracao/layouts-proposta/:id" element={<ProposalLayoutEditor />} />
           <Route path="relatorios" element={<Reports />} />
+          <Route path="relatorios/financeiro/fluxo-caixa" element={<FinancialCashFlow />} />
+          <Route path="relatorios/financeiro/aging" element={<FinancialAging />} />
+          <Route path="relatorios/financeiro/projecao" element={<ReportProjection />} />
+          <Route path="relatorios/financeiro/resultado" element={<ReportAccrualResult />} />
+          <Route path="relatorios/financeiro/rentabilidade" element={<ReportCampaignProfitability />} />
+          <Route path="relatorios/financeiro/retencoes" element={<ReportTaxWithholding />} />
           <Route path="usuarios" element={<UsersManagementPage />} />
         </Route>
 

@@ -12,8 +12,9 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, TrendingUp, Hourglass, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2 } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2 } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
+import { reportCatalog, reportAreaOrder, reportAreaLabels, type ReportArea } from '../modules/Reports/catalog'
 
 export default function AgencyCampaignLayout() {
   const { user: authUser, contract, logout } = useAuth()
@@ -125,8 +126,6 @@ export default function AgencyCampaignLayout() {
       { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} />, requires: ['financialEntries.get'] },
       { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} />, requires: ['financialEntries.get'] },
       { key: 'financeiro-repasses-creators', label: t('nav.item.creatorPayments'), path: '/financeiro/repasses-creators', icon: <HandCoins size={20} />, requires: ['creatorPayments.get'] },
-      { key: 'financeiro-fluxo-caixa', label: t('nav.item.cashFlow'), path: '/financeiro/fluxo-caixa', icon: <TrendingUp size={20} />, requires: ['financialReports.getCashFlow'] },
-      { key: 'financeiro-aging', label: t('nav.item.aging'), path: '/financeiro/aging', icon: <Hourglass size={20} />, requires: ['financialReports.getAging'] },
       { key: 'financeiro-periodos', label: t('nav.item.financialPeriods'), path: '/financeiro/periodos', icon: <CalendarDays size={20} />, requires: ['financialPeriods.get'] },
       { key: 'financeiro-conciliacao', label: t('nav.item.reconciliation'), path: '/financeiro/conciliacao', icon: <Landmark size={20} />, requires: ['bankTransactions.getByAccount'] },
     ] },
@@ -173,16 +172,21 @@ export default function AgencyCampaignLayout() {
     { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
   ])
 
-  const relatoriosRoutes = toNavRoutes([
-    { key: 'relatorios', label: 'Relatórios', path: '/relatorios', icon: <FileBarChart2 size={20} /> },
-  ])
+  const reportNavItems = (area: ReportArea): NavItem[] =>
+    reportCatalog
+      .filter((entry) => entry.area === area)
+      .map((entry) => ({ key: entry.id, label: entry.title, path: entry.path, icon: entry.icon, requires: entry.requires }))
+
+  const relatoriosSubGroups = reportAreaOrder
+    .map((area) => ({ label: reportAreaLabels[area], routes: toNavRoutes(reportNavItems(area)) }))
+    .filter((group) => group.routes.length > 0)
 
   const controleAcessoRoutes = isRoot
     ? toNavRoutes([{ key: 'usuarios', label: t('nav.item.users'), path: '/usuarios', icon: <User size={20} /> }])
     : []
 
-  const relatoriosModule = relatoriosRoutes.length > 0
-    ? [{ key: 'relatorios', label: 'Relatórios', icon: <FileBarChart2 size={20} />, group: 'op' as const, routes: relatoriosRoutes }]
+  const relatoriosModule = relatoriosSubGroups.length > 0
+    ? [{ key: 'relatorios', label: 'Relatórios', icon: <FileBarChart2 size={20} />, group: 'op' as const, subGroups: relatoriosSubGroups }]
     : []
 
   const sysModules = [
@@ -227,6 +231,12 @@ export default function AgencyCampaignLayout() {
       '/configuracao/tipos-entrega': t('nav.item.deliverableKinds'),
       '/configuracao/integracoes': t('nav.item.integrations'),
       '/relatorios': 'Relatórios',
+      '/relatorios/financeiro/fluxo-caixa': 'Fluxo de Caixa',
+      '/relatorios/financeiro/aging': 'Aging',
+      '/relatorios/financeiro/projecao': 'Projeção de Fluxo',
+      '/relatorios/financeiro/resultado': 'Resultado (Competência)',
+      '/relatorios/financeiro/rentabilidade': 'Rentabilidade por Campanha',
+      '/relatorios/financeiro/retencoes': 'Retenções Fiscais',
       '/configuracao/itens-proposta': t('nav.item.proposalTemplates'),
       '/configuracao/layouts-proposta': 'Layouts da proposta',
       '/configuracao/origens-oportunidade': t('nav.item.opportunitySources'),
