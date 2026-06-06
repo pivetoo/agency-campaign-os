@@ -1,6 +1,7 @@
 using AgencyCampaign.Application.Models.Production;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgencyCampaign.Infrastructure.Services
@@ -163,6 +164,256 @@ namespace AgencyCampaign.Infrastructure.Services
                 From = normalizedFrom,
                 To = normalizedTo,
                 Lines = lines
+            };
+        }
+
+        public async Task<DeliverableSlaModel> GetDeliverableSla(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset normalizedFrom = from.ToUniversalTime();
+            DateTimeOffset normalizedTo = to.ToUniversalTime();
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
+            List<CampaignDeliverable> deliverables = await dbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .Include(d => d.Campaign)
+                .Where(d => d.DueAt >= normalizedFrom && d.DueAt < normalizedTo && d.Status != DeliverableStatus.Cancelled)
+                .ToListAsync(cancellationToken);
+
+            int publishedOnTime = 0;
+            int publishedLate = 0;
+            int overdue = 0;
+            int upcoming = 0;
+
+            foreach (CampaignDeliverable d in deliverables)
+            {
+                if (d.Status == DeliverableStatus.Published)
+                {
+                    DateTimeOffset publishedAt = d.PublishedAt ?? d.DueAt.AddDays(1);
+                    if (publishedAt <= d.DueAt)
+                    {
+                        publishedOnTime++;
+                    }
+                    else
+                    {
+                        publishedLate++;
+                    }
+                }
+                else
+                {
+                    if (d.DueAt < now)
+                    {
+                        overdue++;
+                    }
+                    else
+                    {
+                        upcoming++;
+                    }
+                }
+            }
+
+            int publishedTotal = publishedOnTime + publishedLate;
+            decimal onTimeRate = publishedTotal > 0
+                ? Math.Round((decimal)publishedOnTime / publishedTotal * 100, 2)
+                : 0;
+
+            DeliverableSlaCampaignLineModel[] byCampaign = deliverables
+                .GroupBy(d => d.CampaignId)
+                .Select(group =>
+                {
+                    int grpOnTime = 0;
+                    int grpLate = 0;
+                    int grpOverdue = 0;
+                    int grpUpcoming = 0;
+
+                    foreach (CampaignDeliverable d in group)
+                    {
+                        if (d.Status == DeliverableStatus.Published)
+                        {
+                            DateTimeOffset publishedAt = d.PublishedAt ?? d.DueAt.AddDays(1);
+                            if (publishedAt <= d.DueAt)
+                            {
+                                grpOnTime++;
+                            }
+                            else
+                            {
+                                grpLate++;
+                            }
+                        }
+                        else
+                        {
+                            if (d.DueAt < now)
+                            {
+                                grpOverdue++;
+                            }
+                            else
+                            {
+                                grpUpcoming++;
+                            }
+                        }
+                    }
+
+                    CampaignDeliverable first = group.First();
+                    return new DeliverableSlaCampaignLineModel
+                    {
+                        CampaignId = group.Key,
+                        CampaignName = first.Campaign?.Name ?? string.Empty,
+                        Total = group.Count(),
+                        PublishedOnTime = grpOnTime,
+                        PublishedLate = grpLate,
+                        Overdue = grpOverdue,
+                        Upcoming = grpUpcoming
+                    };
+                })
+                .OrderByDescending(line => line.Total)
+                .ToArray();
+
+            return new DeliverableSlaModel
+            {
+                GeneratedAt = DateTimeOffset.UtcNow,
+                From = normalizedFrom,
+                To = normalizedTo,
+                PublishedOnTime = publishedOnTime,
+                PublishedLate = publishedLate,
+                Overdue = overdue,
+                Upcoming = upcoming,
+                OnTimeRate = onTimeRate,
+                ByCampaign = byCampaign
+            };
+        }
+
+        public async Task<ApprovalCycleModel> GetApprovalCycle(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset normalizedFrom = from.ToUniversalTime();
+            DateTimeOffset normalizedTo = to.ToUniversalTime();
+
+            List<DeliverableApproval> approvals = await dbContext.Set<DeliverableApproval>()
+                .AsNoTracking()
+                .Where(a => a.Status == DeliverableApprovalStatus.Approved
+                    && a.ApprovedAt != null
+                    && a.ApprovedAt >= normalizedFrom
+                    && a.ApprovedAt < normalizedTo)
+                .ToListAsync(cancellationToken);
+
+            List<DeliverableApproval> internalApprovals = approvals
+                .Where(a => a.ApprovalType == DeliverableApprovalType.Internal)
+                .ToList();
+
+            List<DeliverableApproval> brandApprovals = approvals
+                .Where(a => a.ApprovalType == DeliverableApprovalType.Brand)
+                .ToList();
+
+            decimal? avgInternalDays = internalApprovals.Count > 0
+                ? Math.Round((decimal)internalApprovals.Average(a => (a.ApprovedAt!.Value - a.CreatedAt).TotalDays), 2)
+                : null;
+
+            decimal? avgBrandDays = brandApprovals.Count > 0
+                ? Math.Round((decimal)brandApprovals.Average(a => (a.ApprovedAt!.Value - a.CreatedAt).TotalDays), 2)
+                : null;
+
+            List<DeliverableContentVersion> versions = await dbContext.Set<DeliverableContentVersion>()
+                .AsNoTracking()
+                .Where(v => v.Status == ContentVersionStatus.Approved
+                    && v.CreatedAt >= normalizedFrom
+                    && v.CreatedAt < normalizedTo)
+                .ToListAsync(cancellationToken);
+
+            int contentApprovedCount = versions.Count;
+            decimal? avgRounds = contentApprovedCount > 0
+                ? Math.Round((decimal)versions.Average(v => v.RoundNumber), 2)
+                : null;
+
+            decimal? firstRoundApprovalRate = contentApprovedCount > 0
+                ? Math.Round((decimal)versions.Count(v => v.RoundNumber == 1) / contentApprovedCount * 100, 2)
+                : null;
+
+            return new ApprovalCycleModel
+            {
+                GeneratedAt = DateTimeOffset.UtcNow,
+                From = normalizedFrom,
+                To = normalizedTo,
+                InternalApprovedCount = internalApprovals.Count,
+                BrandApprovedCount = brandApprovals.Count,
+                AvgInternalApprovalDays = avgInternalDays,
+                AvgBrandApprovalDays = avgBrandDays,
+                ContentApprovedCount = contentApprovedCount,
+                AvgRounds = avgRounds,
+                FirstRoundApprovalRate = firstRoundApprovalRate
+            };
+        }
+
+        public async Task<ContentLicenseReportModel> GetContentLicenses(int expiringSoonDays, CancellationToken cancellationToken = default)
+        {
+            int threshold = expiringSoonDays <= 0 ? 30 : expiringSoonDays;
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
+            List<DeliverableContentLicense> licenses = await dbContext.Set<DeliverableContentLicense>()
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            List<long> deliverableIds = licenses.Select(l => l.CampaignDeliverableId).Distinct().ToList();
+
+            List<CampaignDeliverable> deliverables = await dbContext.Set<CampaignDeliverable>()
+                .AsNoTracking()
+                .Include(d => d.Campaign)
+                .Where(d => deliverableIds.Contains(d.Id))
+                .ToListAsync(cancellationToken);
+
+            Dictionary<long, CampaignDeliverable> deliverableMap = deliverables.ToDictionary(d => d.Id);
+
+            int activeCount = 0;
+            int expiringSoonCount = 0;
+            int expiredCount = 0;
+
+            List<ContentLicenseReportLineModel> lines = new();
+
+            foreach (DeliverableContentLicense license in licenses)
+            {
+                ContentLicenseStatus status = license.ComputeStatus(now, threshold);
+                int? days = license.DaysUntilExpiry(now);
+
+                deliverableMap.TryGetValue(license.CampaignDeliverableId, out CampaignDeliverable? deliverable);
+
+                if (status == ContentLicenseStatus.Active)
+                {
+                    activeCount++;
+                }
+                else if (status == ContentLicenseStatus.ExpiringSoon)
+                {
+                    expiringSoonCount++;
+                }
+                else
+                {
+                    expiredCount++;
+                }
+
+                lines.Add(new ContentLicenseReportLineModel
+                {
+                    LicenseId = license.Id,
+                    CampaignDeliverableId = license.CampaignDeliverableId,
+                    DeliverableTitle = deliverable?.Title ?? string.Empty,
+                    CampaignName = deliverable?.Campaign?.Name,
+                    Type = (int)license.Type,
+                    Channels = license.Channels,
+                    StartsAt = license.StartsAt,
+                    ExpiresAt = license.ExpiresAt,
+                    DaysUntilExpiry = days,
+                    Status = (int)status
+                });
+            }
+
+            ContentLicenseReportLineModel[] orderedLines = lines
+                .OrderBy(l => l.ExpiresAt == null)
+                .ThenBy(l => l.ExpiresAt)
+                .ToArray();
+
+            return new ContentLicenseReportModel
+            {
+                GeneratedAt = DateTimeOffset.UtcNow,
+                ExpiringSoonDays = threshold,
+                ActiveCount = activeCount,
+                ExpiringSoonCount = expiringSoonCount,
+                ExpiredCount = expiredCount,
+                Lines = orderedLines
             };
         }
 
