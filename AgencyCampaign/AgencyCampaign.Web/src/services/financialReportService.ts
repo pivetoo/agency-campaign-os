@@ -53,6 +53,54 @@ export interface CashFlowProjection {
   series: CashFlowProjectionWeek[]
 }
 
+export interface AccrualResult {
+  from: string
+  to: string
+  revenue: number
+  expense: number
+  result: number
+}
+
+export interface CampaignProfitabilityLine {
+  campaignId: number
+  campaignName?: string | null
+  revenue: number
+  creatorCost: number
+  otherCost: number
+  margin: number
+  marginPercent: number
+}
+
+export interface CampaignProfitabilityReport {
+  generatedAt: string
+  lines: CampaignProfitabilityLine[]
+  totalRevenue: number
+  totalCreatorCost: number
+  totalOtherCost: number
+  totalMargin: number
+}
+
+export interface TaxWithholdingLine {
+  creatorId: number
+  creatorName?: string | null
+  document?: string | null
+  taxRegime?: number | null
+  grossAmount: number
+  taxWithheld: number
+  netAmount: number
+  paymentCount: number
+}
+
+export interface TaxWithholdingReport {
+  generatedAt: string
+  from: string
+  to: string
+  lines: TaxWithholdingLine[]
+  totalGross: number
+  totalWithheld: number
+  totalNet: number
+}
+
 const BASE_URL = '/FinancialReports'
 
 // Baixa um CSV de relatorio com guarda contra erro-como-blob: um 403/500 com responseType blob vem como
@@ -90,6 +138,27 @@ export const financialReportService = {
   async getCashFlowProjection(weeks = 12): Promise<CashFlowProjection | null> {
     const response = await httpClient.get<CashFlowProjection>(`${BASE_URL}/cashflow-projection?weeks=${weeks}`)
     return response.data ?? null
+  },
+
+  async getAccrualResult(from: string, to: string): Promise<AccrualResult | null> {
+    const params = new URLSearchParams({ from, to })
+    const response = await httpClient.get<AccrualResult>(`${BASE_URL}/accrual-result?${params.toString()}`)
+    return response.data ?? null
+  },
+
+  async getCampaignProfitability(): Promise<CampaignProfitabilityReport | null> {
+    const response = await httpClient.get<CampaignProfitabilityReport>(`${BASE_URL}/campaign-profitability`)
+    return response.data ?? null
+  },
+
+  async getTaxWithholding(from: string, to: string): Promise<TaxWithholdingReport | null> {
+    const params = new URLSearchParams({ from, to })
+    const response = await httpClient.get<TaxWithholdingReport>(`${BASE_URL}/tax-withholding?${params.toString()}`)
+    return response.data ?? null
+  },
+
+  exportCashFlowProjection(weeks = 12): Promise<void> {
+    return downloadCsvReport(`${BASE_URL}/cashflow-projection/export?weeks=${weeks}`, 'projecao-fluxo-caixa.csv')
   },
 
   exportCashFlow(from: string, to: string, granularity: CashFlowGranularityValue): Promise<void> {
