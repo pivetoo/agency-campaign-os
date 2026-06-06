@@ -116,5 +116,54 @@ namespace AgencyCampaign.Api.Controllers
             byte[] csv = await exportService.ExportCashFlowProjection(horizon, cancellationToken);
             return SendCsv(csv, "projecao-fluxo-caixa.csv");
         }
+
+        [RequireAccess("financialReports.getCashFlow.description")]
+        [GetEndpoint("cashflow/pdf")]
+        public async Task<IActionResult> ExportCashFlowPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, [FromQuery] int granularity, CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportCashFlowPdf(from, to, (CashFlowGranularity)granularity, cancellationToken);
+            return File(pdf, "application/pdf", "fluxo-de-caixa.pdf");
+        }
+
+        [RequireAccess("financialReports.getAging.description")]
+        [GetEndpoint("aging/pdf")]
+        public async Task<IActionResult> ExportAgingPdf(CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportAgingPdf(cancellationToken);
+            return File(pdf, "application/pdf", "aging.pdf");
+        }
+
+        [RequireAccess("financialReports.getTaxWithholding.description")]
+        [GetEndpoint("tax-withholding/pdf")]
+        public async Task<IActionResult> ExportTaxWithholdingPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportTaxWithholdingPdf(from, to, cancellationToken);
+            return File(pdf, "application/pdf", "retencoes.pdf");
+        }
+
+        [RequireAccess("financialReports.getCampaignProfitability.description")]
+        [GetEndpoint("campaign-profitability/pdf")]
+        public async Task<IActionResult> ExportCampaignProfitabilityPdf(CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportCampaignProfitabilityPdf(cancellationToken);
+            return File(pdf, "application/pdf", "rentabilidade-campanhas.pdf");
+        }
+
+        [RequireAccess("financialReports.getAccrualResult.description")]
+        [GetEndpoint("accrual-result/pdf")]
+        public async Task<IActionResult> ExportAccrualResultPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportAccrualResultPdf(from, to, cancellationToken);
+            return File(pdf, "application/pdf", "resultado-competencia.pdf");
+        }
+
+        [RequireAccess("financialReports.getCashFlowProjection.description")]
+        [GetEndpoint("cashflow-projection/pdf")]
+        public async Task<IActionResult> ExportCashFlowProjectionPdf([FromQuery] int weeks, CancellationToken cancellationToken)
+        {
+            int horizon = weeks <= 0 ? 12 : weeks;
+            byte[] pdf = await exportService.ExportCashFlowProjectionPdf(horizon, cancellationToken);
+            return File(pdf, "application/pdf", "projecao-fluxo-caixa.pdf");
+        }
     }
 }
