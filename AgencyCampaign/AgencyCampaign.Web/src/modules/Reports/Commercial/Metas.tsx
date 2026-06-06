@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useApi, DataTable, Badge, type DataTableColumn } from 'archon-ui'
+import { useApi, DataTable, Badge, Input, type DataTableColumn } from 'archon-ui'
 import { commercialGoalService } from '../../../services/commercialGoalService'
 import type { CommercialGoalProgress } from '../../../types/commercialGoal'
 import { commercialGoalPeriodTypeLabels } from '../../../types/commercialGoal'
 import { formatCurrency, todayDateInput } from '../../../lib/format'
 import ReportLayout from '../_shared/ReportLayout'
-import { Input } from 'archon-ui'
 
 function defaultReferenceDate(): string {
   return todayDateInput()

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useApi, DataTable, type DataTableColumn } from 'archon-ui'
 import { opportunityService } from '../../../services/opportunityService'
-import type { CommercialAnalytics, StageConversion, Performer } from '../../../types/commercialAnalytics'
+import type { CommercialAnalytics, StageConversion, Performer, StageTime } from '../../../types/commercialAnalytics'
 import { formatCurrency } from '../../../lib/format'
 import ReportLayout from '../_shared/ReportLayout'
 import { ReportPeriodFilter } from '../_shared/ReportFilters'
@@ -43,6 +43,12 @@ export default function Funil() {
     { key: 'wonTotal', title: 'Valor', dataIndex: 'wonTotal', render: (value: number) => formatCurrency(value) },
   ]
 
+  const stageTimeColumns: DataTableColumn<StageTime>[] = [
+    { key: 'stageName', title: 'Estágio', dataIndex: 'stageName', primary: true },
+    { key: 'averageDays', title: 'Dias médios', dataIndex: 'averageDays', render: (v: number) => v.toFixed(1) },
+    { key: 'samples', title: 'Amostras', dataIndex: 'samples' },
+  ]
+
   const inProgress = data?.conversionByStage.reduce((acc, s) => acc + s.stuck, 0) ?? 0
 
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
@@ -69,6 +75,8 @@ export default function Funil() {
       </div>
       <DataTable columns={stageColumns} data={data?.conversionByStage ?? []} rowKey="stageId" emptyText="Nenhum dado no período." />
       <DataTable columns={performerColumns} data={data?.topPerformers ?? []} rowKey={(r) => String(r.userId ?? r.userName)} emptyText="Nenhum desempenho registrado." />
+      <p className="text-sm font-semibold">Tempo médio por estágio</p>
+      <DataTable columns={stageTimeColumns} data={data?.averageTimeInStage ?? []} rowKey="stageId" emptyText="Sem dados de tempo por estágio." />
     </ReportLayout>
   )
 }

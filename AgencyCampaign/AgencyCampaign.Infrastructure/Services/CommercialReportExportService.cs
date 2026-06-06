@@ -61,11 +61,6 @@ namespace AgencyCampaign.Infrastructure.Services
             return value.ToString("0.00", PtBr);
         }
 
-        private static string Date(DateTimeOffset value)
-        {
-            return value.ToUniversalTime().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-        }
-
         private static byte[] Bytes(string csv)
         {
             return Utf8WithBom.GetPreamble().Concat(Utf8WithBom.GetBytes(csv)).ToArray();

@@ -163,3 +163,87 @@ test.describe('Relatorios - export CSV', () => {
     expectNoApiFailures()
   })
 })
+
+// ---------------------------------------------------------------------------
+// Bloco Comercial
+// ---------------------------------------------------------------------------
+
+const COMMERCIAL_ROUTES = [
+  { path: '/relatorios/comercial/funil', heading: /Funil de Conversão/i },
+  { path: '/relatorios/comercial/ganhos-perdas', heading: /Ganhos|Perdas/i },
+  { path: '/relatorios/comercial/forecast', heading: /Forecast|Previsão/i },
+  { path: '/relatorios/comercial/metas', heading: /Metas/i },
+  { path: '/relatorios/comercial/propostas', heading: /Propostas/i },
+  { path: '/relatorios/comercial/ranking', heading: /Ranking/i },
+]
+
+test.describe('Relatorios - landing secao Comercial', () => {
+  test('landing /relatorios exibe secao Comercial com cards', async ({ page, expectNoApiFailures }) => {
+    await page.goto('/relatorios')
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+
+    await expectPageTitle(page, /Relatórios|Relatorios/i, 15_000)
+
+    // secao "Comercial" deve aparecer como heading de grupo
+    await expect(page.getByText(/^Comercial$/i).first()).toBeVisible({ timeout: 10_000 })
+
+    // ao menos 2 cards do bloco comercial devem estar presentes
+    for (const title of ['Funil de Conversão', 'Ranking por Marca']) {
+      await expect(page.getByText(title, { exact: false }).first()).toBeVisible({ timeout: 10_000 })
+    }
+
+    expectNoApiFailures()
+  })
+})
+
+test.describe('Relatorios - rotas comerciais', () => {
+  for (const { path, heading } of COMMERCIAL_ROUTES) {
+    test(`${path} renderiza pagina`, async ({ page, expectNoApiFailures }) => {
+      await page.goto(path)
+      await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+
+      await expectPageTitle(page, heading, 15_000)
+
+      expectNoApiFailures()
+    })
+  }
+})
+
+test.describe('Relatorios - redirect de rota legada comercial', () => {
+  test('/comercial/analytics redireciona para /relatorios/comercial/funil', async ({ page, expectNoApiFailures }) => {
+    await page.goto('/comercial/analytics')
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+
+    await expect(page).toHaveURL(/relatorios\/comercial\/funil/, { timeout: 15_000 })
+    await expectPageTitle(page, /Funil de Conversão/i, 15_000)
+
+    expectNoApiFailures()
+  })
+})
+
+test.describe('Relatorios - export CSV comercial', () => {
+  test('botao CSV no ranking por marca dispara download', async ({ page, expectNoApiFailures }) => {
+    await page.goto('/relatorios/comercial/ranking')
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+
+    await expectPageTitle(page, /Ranking/i, 15_000)
+
+    const csvButton = page.getByRole('button', { name: /CSV/i }).first()
+    await expect(csvButton).toBeVisible({ timeout: 10_000 })
+
+    const downloadOrResponse = Promise.race([
+      page.waitForEvent('download', { timeout: 15_000 }).then(() => 'download'),
+      page.waitForResponse(
+        (resp) => /\/CommercialReports\/brand-ranking\/export/i.test(resp.url()) && resp.status() < 400,
+        { timeout: 15_000 },
+      ).then(() => 'response'),
+    ])
+
+    await csvButton.click()
+
+    const result = await downloadOrResponse
+    expect(['download', 'response']).toContain(result)
+
+    expectNoApiFailures()
+  })
+})
