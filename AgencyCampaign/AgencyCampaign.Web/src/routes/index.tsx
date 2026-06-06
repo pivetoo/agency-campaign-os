@@ -64,6 +64,12 @@ import ReportForecast from '../modules/Reports/Commercial/Forecast'
 import ReportMetas from '../modules/Reports/Commercial/Metas'
 import ReportPropostas from '../modules/Reports/Commercial/Propostas'
 import ReportRanking from '../modules/Reports/Commercial/Ranking'
+import ReportPerformanceCampanhas from '../modules/Reports/Production/PerformanceCampanhas'
+import ReportDesempenhoCreator from '../modules/Reports/Production/DesempenhoCreator'
+import ReportProducaoPlataforma from '../modules/Reports/Production/ProducaoPlataforma'
+import ReportSlaEntregaveis from '../modules/Reports/Production/SlaEntregaveis'
+import ReportAprovacoes from '../modules/Reports/Production/Aprovacoes'
+import ReportLicencas from '../modules/Reports/Production/Licencas'
 
 const identityManagementUrl = import.meta.env.VITE_IDENTITY_MANAGEMENT_URL;
 const oidcClientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -165,6 +171,12 @@ function AppRoutes() {
           <Route path="relatorios/comercial/metas" element={<ReportMetas />} />
           <Route path="relatorios/comercial/propostas" element={<ReportPropostas />} />
           <Route path="relatorios/comercial/ranking" element={<ReportRanking />} />
+          <Route path="relatorios/producao/campanhas" element={<ReportPerformanceCampanhas />} />
+          <Route path="relatorios/producao/creators" element={<ReportDesempenhoCreator />} />
+          <Route path="relatorios/producao/plataforma" element={<ReportProducaoPlataforma />} />
+          <Route path="relatorios/producao/sla" element={<ReportSlaEntregaveis />} />
+          <Route path="relatorios/producao/aprovacoes" element={<ReportAprovacoes />} />
+          <Route path="relatorios/producao/licencas" element={<ReportLicencas />} />
           <Route path="relatorios/financeiro/fluxo-caixa" element={<FinancialCashFlow />} />
           <Route path="relatorios/financeiro/aging" element={<FinancialAging />} />
           <Route path="relatorios/financeiro/projecao" element={<ReportProjection />} />

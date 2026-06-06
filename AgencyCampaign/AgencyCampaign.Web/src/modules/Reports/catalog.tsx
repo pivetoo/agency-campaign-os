@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { TrendingUp, Hourglass, LineChart, Scale, PiggyBank, Receipt, Filter, Trophy, Target, FileText, Award } from 'lucide-react'
+import { TrendingUp, Hourglass, LineChart, Scale, PiggyBank, Receipt, Filter, Trophy, Target, FileText, Award, Megaphone, Users, Share2, Clock, CheckCircle2, ScrollText } from 'lucide-react'
 
 export type ReportArea = 'comercial' | 'producao' | 'financeiro'
 
@@ -20,6 +20,12 @@ export const reportCatalog: ReportCatalogEntry[] = [
   { id: 'comercial-metas', area: 'comercial', title: 'Metas × Realizado', description: 'Meta versus realizado por período e responsável.', icon: <Target size={20} />, path: '/relatorios/comercial/metas', requires: ['commercialGoals.progress'] },
   { id: 'comercial-propostas', area: 'comercial', title: 'Propostas: Emitidas × Aceitas', description: 'Volume, valor e taxa de aceite de propostas.', icon: <FileText size={20} />, path: '/relatorios/comercial/propostas', requires: ['commercialReports.getProposalsFunnel'] },
   { id: 'comercial-ranking', area: 'comercial', title: 'Ranking por Marca', description: 'Marcas por valor ganho no período.', icon: <Award size={20} />, path: '/relatorios/comercial/ranking', requires: ['commercialReports.getBrandRanking'] },
+  { id: 'producao-campanhas', area: 'producao', title: 'Performance de Campanhas', description: 'Alcance, engajamento e EMV por campanha.', icon: <Megaphone size={20} />, path: '/relatorios/producao/campanhas', requires: ['productionReports.getCampaignPerformance'] },
+  { id: 'producao-creators', area: 'producao', title: 'Desempenho por Creator', description: 'Alcance e engajamento por creator.', icon: <Users size={20} />, path: '/relatorios/producao/creators', requires: ['productionReports.getCreatorPerformance'] },
+  { id: 'producao-plataforma', area: 'producao', title: 'Produção por Plataforma', description: 'Entregas e métricas por plataforma.', icon: <Share2 size={20} />, path: '/relatorios/producao/plataforma', requires: ['productionReports.getPlatformProduction'] },
+  { id: 'producao-sla', area: 'producao', title: 'Entregáveis: Prazo × Atraso', description: 'SLA dos entregáveis por vencimento.', icon: <Clock size={20} />, path: '/relatorios/producao/sla', requires: ['productionReports.getDeliverableSla'] },
+  { id: 'producao-aprovacoes', area: 'producao', title: 'Aprovação e Rodadas', description: 'Tempo de aprovação e rodadas de revisão.', icon: <CheckCircle2 size={20} />, path: '/relatorios/producao/aprovacoes', requires: ['productionReports.getApprovalCycle'] },
+  { id: 'producao-licencas', area: 'producao', title: 'Licenças de Conteúdo', description: 'Status de expiração das licenças.', icon: <ScrollText size={20} />, path: '/relatorios/producao/licencas', requires: ['productionReports.getContentLicenses'] },
   { id: 'financeiro-fluxo-caixa', area: 'financeiro', title: 'Fluxo de Caixa', description: 'Entradas e saídas previstas e realizadas por período.', icon: <TrendingUp size={20} />, path: '/relatorios/financeiro/fluxo-caixa', requires: ['financialReports.getCashFlow'] },
   { id: 'financeiro-aging', area: 'financeiro', title: 'Aging', description: 'Títulos a vencer e vencidos por faixa de atraso.', icon: <Hourglass size={20} />, path: '/relatorios/financeiro/aging', requires: ['financialReports.getAging'] },
   { id: 'financeiro-projecao', area: 'financeiro', title: 'Projeção de Fluxo', description: 'Saldo projetado semana a semana (horizonte de 12 semanas).', icon: <LineChart size={20} />, path: '/relatorios/financeiro/projecao', requires: ['financialReports.getCashFlowProjection'] },
