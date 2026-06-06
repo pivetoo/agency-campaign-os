@@ -2,23 +2,27 @@ using System.Globalization;
 using System.Text;
 using AgencyCampaign.Application.Export;
 using AgencyCampaign.Application.Models.Production;
+using AgencyCampaign.Application.Models.Reports;
 using AgencyCampaign.Application.Services;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
-    // Exportacao CSV dos relatorios de producao. Reaproveita IProductionReportService (mesma agregacao
-    // da tela, nunca diverge por construcao). Saida UTF-8 COM BOM e decimal/virgula pt-BR para abrir
-    // direto no Excel pt-BR. Sempre emite ao menos o cabecalho (bytes nunca vazios).
+    // Exportacao CSV e PDF dos relatorios de producao. Reaproveita IProductionReportService (mesma
+    // agregacao da tela, nunca diverge por construcao). CSV: UTF-8 COM BOM e decimal/virgula pt-BR
+    // para abrir direto no Excel pt-BR. Sempre emite ao menos o cabecalho (bytes nunca vazios).
+    // PDF: delega a IReportPdfService apos montar um ReportTable via BuildXxxTable (puro, testavel sem Chrome).
     public sealed class ProductionReportExportService : IProductionReportExportService
     {
         private static readonly CultureInfo PtBr = CultureInfo.GetCultureInfo("pt-BR");
         private static readonly UTF8Encoding Utf8WithBom = new(encoderShouldEmitUTF8Identifier: true);
 
         private readonly IProductionReportService reportService;
+        private readonly IReportPdfService pdfService;
 
-        public ProductionReportExportService(IProductionReportService reportService)
+        public ProductionReportExportService(IProductionReportService reportService, IReportPdfService pdfService)
         {
             this.reportService = reportService;
+            this.pdfService = pdfService;
         }
 
         public async Task<byte[]> ExportCampaignPerformance(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
@@ -206,6 +210,261 @@ namespace AgencyCampaign.Infrastructure.Services
         private static byte[] Bytes(string csv)
         {
             return Utf8WithBom.GetPreamble().Concat(Utf8WithBom.GetBytes(csv)).ToArray();
+        }
+
+        // Formatos display-friendly para PDF (diferente do CSV que usa separador decimal pt-BR sem simbolo)
+        private static string Brl(decimal v) => v.ToString("C", PtBr);
+
+        private static string Pct(decimal v) => v.ToString("0.00", PtBr) + "%";
+
+        private static string Days(decimal? v) => v.HasValue ? v.Value.ToString("0.0", PtBr) + " dias" : "-";
+
+        private static string NumOrDash(decimal? v) => v.HasValue ? v.Value.ToString("0.00", PtBr) : "-";
+
+        private static string RateOrDash(decimal? v) => v.HasValue ? Pct(v.Value) : "-";
+
+        // PDF exports — chamam reportService, montam ReportTable via BuildXxxTable (puro) e delegam ao pdfService.
+
+        public async Task<byte[]> ExportCampaignPerformancePdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            CampaignPerformanceModel report = await reportService.GetCampaignPerformance(from, to, cancellationToken);
+            ReportTable table = BuildCampaignPerformanceTable(report, from, to);
+            return await pdfService.GenerateAsync(table, cancellationToken);
+        }
+
+        public async Task<byte[]> ExportCreatorPerformancePdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            CreatorPerformanceModel report = await reportService.GetCreatorPerformance(from, to, cancellationToken);
+            ReportTable table = BuildCreatorPerformanceTable(report, from, to);
+            return await pdfService.GenerateAsync(table, cancellationToken);
+        }
+
+        public async Task<byte[]> ExportPlatformProductionPdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            PlatformProductionModel report = await reportService.GetPlatformProduction(from, to, cancellationToken);
+            ReportTable table = BuildPlatformProductionTable(report, from, to);
+            return await pdfService.GenerateAsync(table, cancellationToken);
+        }
+
+        public async Task<byte[]> ExportDeliverableSlaPdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            DeliverableSlaModel report = await reportService.GetDeliverableSla(from, to, cancellationToken);
+            ReportTable table = BuildDeliverableSlaTable(report, from, to);
+            return await pdfService.GenerateAsync(table, cancellationToken);
+        }
+
+        public async Task<byte[]> ExportApprovalCyclePdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            ApprovalCycleModel report = await reportService.GetApprovalCycle(from, to, cancellationToken);
+            ReportTable table = BuildApprovalCycleTable(report, from, to);
+            return await pdfService.GenerateAsync(table, cancellationToken);
+        }
+
+        public async Task<byte[]> ExportContentLicensesPdf(int expiringSoonDays, CancellationToken cancellationToken = default)
+        {
+            ContentLicenseReportModel report = await reportService.GetContentLicenses(expiringSoonDays, cancellationToken);
+            ReportTable table = BuildContentLicensesTable(report);
+            return await pdfService.GenerateAsync(table, cancellationToken);
+        }
+
+        // Builders puros (sem I/O) — testáveis sem Chrome
+
+        public static ReportTable BuildCampaignPerformanceTable(CampaignPerformanceModel model, DateTimeOffset from, DateTimeOffset to)
+        {
+            List<ReportKpi> kpis =
+            [
+                new ReportKpi { Label = "Campanhas", Value = Num(model.Lines.Count) },
+                new ReportKpi { Label = "Alcance total", Value = Num(model.Lines.Sum(l => l.TotalReach)) },
+                new ReportKpi { Label = "Engajamento total", Value = Num(model.Lines.Sum(l => l.TotalEngagement)) },
+                new ReportKpi { Label = "EMV total", Value = Brl(model.Lines.Sum(l => l.Emv ?? 0m)) }
+            ];
+
+            List<IReadOnlyList<string>> rows = model.Lines
+                .Select(line => (IReadOnlyList<string>)
+                [
+                    line.CampaignName,
+                    line.BrandName ?? "-",
+                    Num(line.Deliverables),
+                    Num(line.TotalReach),
+                    Num(line.TotalImpressions),
+                    Num(line.TotalEngagement),
+                    RateOrDash(line.AvgEngagementRate),
+                    line.Emv.HasValue ? Brl(line.Emv.Value) : "-"
+                ])
+                .ToList();
+
+            return new ReportTable
+            {
+                Title = "Performance de Campanhas",
+                Subtitle = $"Período {Date(from)} a {Date(to)}",
+                GeneratedAt = DateTimeOffset.UtcNow,
+                Kpis = kpis,
+                Columns = ["Campanha", "Marca", "Entregas", "Alcance", "Impressões", "Engajamento", "Taxa eng.", "EMV"],
+                Rows = rows
+            };
+        }
+
+        public static ReportTable BuildCreatorPerformanceTable(CreatorPerformanceModel model, DateTimeOffset from, DateTimeOffset to)
+        {
+            List<ReportKpi> kpis =
+            [
+                new ReportKpi { Label = "Creators", Value = Num(model.Lines.Count) },
+                new ReportKpi { Label = "Alcance total", Value = Num(model.Lines.Sum(l => l.TotalReach)) },
+                new ReportKpi { Label = "Engajamento total", Value = Num(model.Lines.Sum(l => l.TotalEngagement)) }
+            ];
+
+            List<IReadOnlyList<string>> rows = model.Lines
+                .Select(line => (IReadOnlyList<string>)
+                [
+                    line.CreatorName,
+                    Num(line.Campaigns),
+                    Num(line.Deliverables),
+                    Num(line.TotalReach),
+                    Num(line.TotalEngagement),
+                    RateOrDash(line.AvgEngagementRate)
+                ])
+                .ToList();
+
+            return new ReportTable
+            {
+                Title = "Desempenho por Creator",
+                Subtitle = $"Período {Date(from)} a {Date(to)}",
+                GeneratedAt = DateTimeOffset.UtcNow,
+                Kpis = kpis,
+                Columns = ["Creator", "Campanhas", "Entregas", "Alcance", "Engajamento", "Taxa eng."],
+                Rows = rows
+            };
+        }
+
+        public static ReportTable BuildPlatformProductionTable(PlatformProductionModel model, DateTimeOffset from, DateTimeOffset to)
+        {
+            List<ReportKpi> kpis =
+            [
+                new ReportKpi { Label = "Plataformas", Value = Num(model.Lines.Count) },
+                new ReportKpi { Label = "Alcance total", Value = Num(model.Lines.Sum(l => l.TotalReach)) },
+                new ReportKpi { Label = "Engajamento total", Value = Num(model.Lines.Sum(l => l.TotalEngagement)) }
+            ];
+
+            List<IReadOnlyList<string>> rows = model.Lines
+                .Select(line => (IReadOnlyList<string>)
+                [
+                    line.PlatformName,
+                    Num(line.Deliverables),
+                    Num(line.TotalReach),
+                    Num(line.TotalImpressions),
+                    Num(line.TotalEngagement),
+                    RateOrDash(line.AvgEngagementRate)
+                ])
+                .ToList();
+
+            return new ReportTable
+            {
+                Title = "Produção por Plataforma",
+                Subtitle = $"Período {Date(from)} a {Date(to)}",
+                GeneratedAt = DateTimeOffset.UtcNow,
+                Kpis = kpis,
+                Columns = ["Plataforma", "Entregas", "Alcance", "Impressões", "Engajamento", "Taxa eng."],
+                Rows = rows
+            };
+        }
+
+        public static ReportTable BuildDeliverableSlaTable(DeliverableSlaModel model, DateTimeOffset from, DateTimeOffset to)
+        {
+            List<ReportKpi> kpis =
+            [
+                new ReportKpi { Label = "No prazo", Value = Num(model.PublishedOnTime) },
+                new ReportKpi { Label = "Atrasados", Value = Num(model.PublishedLate) },
+                new ReportKpi { Label = "Vencidos", Value = Num(model.Overdue) },
+                new ReportKpi { Label = "A vencer", Value = Num(model.Upcoming) },
+                new ReportKpi { Label = "Taxa no prazo", Value = Pct(model.OnTimeRate) }
+            ];
+
+            List<IReadOnlyList<string>> rows = model.ByCampaign
+                .Select(line => (IReadOnlyList<string>)
+                [
+                    line.CampaignName,
+                    Num(line.Total),
+                    Num(line.PublishedOnTime),
+                    Num(line.PublishedLate),
+                    Num(line.Overdue),
+                    Num(line.Upcoming)
+                ])
+                .ToList();
+
+            return new ReportTable
+            {
+                Title = "Entregáveis: Prazo × Atraso",
+                Subtitle = $"Período {Date(from)} a {Date(to)}",
+                GeneratedAt = DateTimeOffset.UtcNow,
+                Kpis = kpis,
+                Columns = ["Campanha", "Total", "No prazo", "Atrasados", "Vencidos", "A vencer"],
+                Rows = rows
+            };
+        }
+
+        public static ReportTable BuildApprovalCycleTable(ApprovalCycleModel model, DateTimeOffset from, DateTimeOffset to)
+        {
+            List<ReportKpi> kpis =
+            [
+                new ReportKpi { Label = "Aprov. interna", Value = Days(model.AvgInternalApprovalDays) },
+                new ReportKpi { Label = "Aprov. marca", Value = Days(model.AvgBrandApprovalDays) },
+                new ReportKpi { Label = "Rodadas médias", Value = NumOrDash(model.AvgRounds) },
+                new ReportKpi { Label = "Aprovado 1ª rodada", Value = RateOrDash(model.FirstRoundApprovalRate) }
+            ];
+
+            List<IReadOnlyList<string>> rows =
+            [
+                ["Aprovações internas", Num(model.InternalApprovedCount)],
+                ["Tempo médio interna", Days(model.AvgInternalApprovalDays)],
+                ["Aprovações da marca", Num(model.BrandApprovedCount)],
+                ["Tempo médio marca", Days(model.AvgBrandApprovalDays)],
+                ["Conteúdos aprovados", Num(model.ContentApprovedCount)],
+                ["Rodadas médias", NumOrDash(model.AvgRounds)],
+                ["Aprovado na 1ª rodada", RateOrDash(model.FirstRoundApprovalRate)]
+            ];
+
+            return new ReportTable
+            {
+                Title = "Aprovação e Rodadas",
+                Subtitle = $"Período {Date(from)} a {Date(to)}",
+                GeneratedAt = DateTimeOffset.UtcNow,
+                Kpis = kpis,
+                Columns = ["Métrica", "Valor"],
+                Rows = rows
+            };
+        }
+
+        public static ReportTable BuildContentLicensesTable(ContentLicenseReportModel model)
+        {
+            List<ReportKpi> kpis =
+            [
+                new ReportKpi { Label = "Ativas", Value = Num(model.ActiveCount) },
+                new ReportKpi { Label = "Expirando", Value = Num(model.ExpiringSoonCount) },
+                new ReportKpi { Label = "Expiradas", Value = Num(model.ExpiredCount) }
+            ];
+
+            List<IReadOnlyList<string>> rows = model.Lines
+                .Select(line => (IReadOnlyList<string>)
+                [
+                    line.DeliverableTitle,
+                    line.CampaignName ?? "-",
+                    LicenseTypeLabel(line.Type),
+                    line.Channels ?? "-",
+                    line.ExpiresAt.HasValue ? Date(line.ExpiresAt) : "-",
+                    line.DaysUntilExpiry?.ToString() ?? "-",
+                    LicenseStatusLabel(line.Status)
+                ])
+                .ToList();
+
+            return new ReportTable
+            {
+                Title = "Licenças de Conteúdo",
+                Subtitle = $"Vencendo em até {model.ExpiringSoonDays} dias",
+                GeneratedAt = DateTimeOffset.UtcNow,
+                Kpis = kpis,
+                Columns = ["Entregável", "Campanha", "Tipo", "Canais", "Expira", "Dias", "Status"],
+                Rows = rows
+            };
         }
     }
 }

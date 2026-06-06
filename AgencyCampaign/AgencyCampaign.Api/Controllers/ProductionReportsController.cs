@@ -112,5 +112,53 @@ namespace AgencyCampaign.Api.Controllers
             byte[] csv = await exportService.ExportContentLicenses(expiringSoonDays, cancellationToken);
             return SendCsv(csv, "licencas-conteudo.csv");
         }
+
+        [RequireAccess("productionReports.getCampaignPerformance.description")]
+        [GetEndpoint("campaign-performance/pdf")]
+        public async Task<IActionResult> ExportCampaignPerformancePdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportCampaignPerformancePdf(from, to, cancellationToken);
+            return File(pdf, "application/pdf", "performance-campanhas.pdf");
+        }
+
+        [RequireAccess("productionReports.getCreatorPerformance.description")]
+        [GetEndpoint("creator-performance/pdf")]
+        public async Task<IActionResult> ExportCreatorPerformancePdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportCreatorPerformancePdf(from, to, cancellationToken);
+            return File(pdf, "application/pdf", "performance-creators.pdf");
+        }
+
+        [RequireAccess("productionReports.getPlatformProduction.description")]
+        [GetEndpoint("platform-production/pdf")]
+        public async Task<IActionResult> ExportPlatformProductionPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportPlatformProductionPdf(from, to, cancellationToken);
+            return File(pdf, "application/pdf", "producao-plataforma.pdf");
+        }
+
+        [RequireAccess("productionReports.getDeliverableSla.description")]
+        [GetEndpoint("deliverable-sla/pdf")]
+        public async Task<IActionResult> ExportDeliverableSlaPdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportDeliverableSlaPdf(from, to, cancellationToken);
+            return File(pdf, "application/pdf", "sla-entregaveis.pdf");
+        }
+
+        [RequireAccess("productionReports.getApprovalCycle.description")]
+        [GetEndpoint("approval-cycle/pdf")]
+        public async Task<IActionResult> ExportApprovalCyclePdf([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportApprovalCyclePdf(from, to, cancellationToken);
+            return File(pdf, "application/pdf", "ciclo-aprovacao.pdf");
+        }
+
+        [RequireAccess("productionReports.getContentLicenses.description")]
+        [GetEndpoint("content-licenses/pdf")]
+        public async Task<IActionResult> ExportContentLicensesPdf([FromQuery] int expiringSoonDays, CancellationToken cancellationToken)
+        {
+            byte[] pdf = await exportService.ExportContentLicensesPdf(expiringSoonDays, cancellationToken);
+            return File(pdf, "application/pdf", "licencas-conteudo.pdf");
+        }
     }
 }

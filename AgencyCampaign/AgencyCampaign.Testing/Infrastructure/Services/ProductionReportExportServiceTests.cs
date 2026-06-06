@@ -1,9 +1,12 @@
 using System.Text;
+using AgencyCampaign.Application.Models.Reports;
+using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.Builders;
 using AgencyCampaign.Testing.TestSupport;
+using Moq;
 using DomainEntities = AgencyCampaign.Domain.Entities;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
@@ -22,7 +25,10 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public void SetUp()
         {
             db = TestDbContext.CreateInMemory();
-            service = new ProductionReportExportService(new ProductionReportService(db));
+            Mock<IReportPdfService> pdfMock = new();
+            pdfMock.Setup(s => s.GenerateAsync(It.IsAny<ReportTable>(), It.IsAny<CancellationToken>()))
+                   .ReturnsAsync([]);
+            service = new ProductionReportExportService(new ProductionReportService(db), pdfMock.Object);
         }
 
         [TearDown]

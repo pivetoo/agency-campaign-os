@@ -13,5 +13,17 @@ namespace AgencyCampaign.Application.Services
         Task<byte[]> ExportApprovalCycle(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
 
         Task<byte[]> ExportContentLicenses(int expiringSoonDays, CancellationToken cancellationToken = default);
+
+        Task<byte[]> ExportCampaignPerformancePdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+
+        Task<byte[]> ExportCreatorPerformancePdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+
+        Task<byte[]> ExportPlatformProductionPdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+
+        Task<byte[]> ExportDeliverableSlaPdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+
+        Task<byte[]> ExportApprovalCyclePdf(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+
+        Task<byte[]> ExportContentLicensesPdf(int expiringSoonDays, CancellationToken cancellationToken = default);
     }
 }
