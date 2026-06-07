@@ -31,7 +31,7 @@ function getTestFields(categoryName: string | undefined): TestField[] {
   if (name.includes('receber') || name.includes('cobr')) {
     return [
       { key: 'amount', label: 'Valor R$', placeholder: '1.00', defaultValue: '1.00' },
-      { key: 'description', label: 'Descrição', placeholder: 'Cobrança de teste', defaultValue: 'Cobrança de teste Kanvas' },
+      { key: 'description', label: 'Descrição', placeholder: 'Cobrança de teste', defaultValue: 'Cobrança de teste Mainstay' },
     ]
   }
   if (name.includes('pagar') || name.includes('repasse')) {
