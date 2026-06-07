@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, ConfirmModal, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions, useToast } from 'archon-ui'
-import { AlertTriangle, ArrowRight, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, Rows3, Search, Target, UserRound, X } from 'lucide-react'
+import { Button, ConfirmModal, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchBar, SearchableSelect, Sheet, SheetContent, SheetTrigger, useApi, useI18n, usePermissions, useToast } from 'archon-ui'
+import { AlertTriangle, ArrowRight, BarChart3, CalendarClock, DollarSign, Filter, LayoutGrid, Plus, Rows3, Target, UserRound, X } from 'lucide-react'
 import { opportunityService, type OpportunityBoardItem, type OpportunityBoardStage } from '../../../services/opportunityService'
 import { opportunityWinReasonService, opportunityLossReasonService } from '../../../services/opportunityOutcomeReasonService'
 import type { OpportunityWinReason, OpportunityLossReason } from '../../../types/opportunityOutcomeReason'
@@ -527,25 +527,12 @@ export default function CommercialPipeline() {
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="relative w-80">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder={t('pipeline.filter.searchPlaceholder')}
-                className="h-8 pl-8 pr-8"
-              />
-              {searchText && (
-                <button
-                  type="button"
-                  title={t('pipeline.filter.clear')}
-                  onClick={() => setSearchText('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
+            <SearchBar
+              value={searchText}
+              onChange={setSearchText}
+              placeholder={t('pipeline.filter.searchPlaceholder')}
+              className="w-80"
+            />
             <button
               type="button"
               title={t('pipeline.toolbar.filters')}

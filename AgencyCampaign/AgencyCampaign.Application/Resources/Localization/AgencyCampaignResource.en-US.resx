@@ -70,13 +70,13 @@
     <value>Deliverable can only be published after brand approval.</value>
   </data>
   <data name="commercialPipelineStage.initial.duplicate" xml:space="preserve">
-    <value>An initial stage is already configured for the commercial pipeline.</value>
+    <value>An initial stage is already configured for the commercial funnel.</value>
   </data>
   <data name="commercialPipelineStage.initial.missing" xml:space="preserve">
-    <value>No active stage configured for the commercial pipeline.</value>
+    <value>No active stage configured for the commercial funnel.</value>
   </data>
   <data name="commercialPipelineStage.final.missing" xml:space="preserve">
-    <value>No final stage configured for the commercial pipeline.</value>
+    <value>No final stage configured for the commercial funnel.</value>
   </data>
   <data name="imageUpload.fileType.unsupported" xml:space="preserve">
     <value>Unsupported file type. Use PNG, JPG or WEBP.</value>
@@ -179,7 +179,7 @@
   <data name="financialEntry.notFoundForAccount" xml:space="preserve">
     <value>Entry not found for this account.</value>
   </data>
-  <data name="opportunity.stage.inactive" xml:space="preserve"><value>Inactive pipeline stages cannot be used.</value></data>
+  <data name="opportunity.stage.inactive" xml:space="preserve"><value>Inactive funnel stages cannot be used.</value></data>
   <data name="opportunity.alreadyClosed" xml:space="preserve"><value>This opportunity is already closed. Reopen it before changing state again.</value></data>
   <data name="opportunityNegotiation.approved.cannotReturnToPending" xml:space="preserve"><value>Approved negotiations cannot return to pending approval.</value></data>
   <data name="opportunityNegotiation.sendToClient.notApproved" xml:space="preserve"><value>Only approved negotiations can be sent to the client.</value></data>
@@ -262,7 +262,7 @@
   <data name="nav.group.finance" xml:space="preserve"><value>Finance</value></data>
   <data name="nav.item.dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="nav.item.users" xml:space="preserve"><value>Access Control</value></data>
-  <data name="nav.item.pipeline" xml:space="preserve"><value>Pipeline</value></data>
+  <data name="nav.item.pipeline" xml:space="preserve"><value>Funnel</value></data>
   <data name="nav.item.opportunities" xml:space="preserve"><value>Opportunities</value></data>
   <data name="nav.item.proposals" xml:space="preserve"><value>Proposals</value></data>
   <data name="nav.item.approvals" xml:space="preserve"><value>Approvals</value></data>
@@ -310,9 +310,9 @@
   <data name="dashboard.commercialActivity.series.created" xml:space="preserve"><value>Created</value></data>
   <data name="dashboard.commercialActivity.series.won" xml:space="preserve"><value>Won</value></data>
   <data name="dashboard.commercialActivity.series.lost" xml:space="preserve"><value>Lost</value></data>
-  <data name="dashboard.pipeline.title" xml:space="preserve"><value>Commercial pipeline</value></data>
+  <data name="dashboard.pipeline.title" xml:space="preserve"><value>Commercial funnel</value></data>
   <data name="dashboard.pipeline.chartTitle" xml:space="preserve"><value>Opportunities by stage</value></data>
-  <data name="dashboard.pipeline.empty" xml:space="preserve"><value>No opportunities in the pipeline.</value></data>
+  <data name="dashboard.pipeline.empty" xml:space="preserve"><value>No opportunities in the funnel.</value></data>
   <data name="dashboard.platforms.title" xml:space="preserve"><value>Top delivery platforms</value></data>
   <data name="dashboard.platforms.empty" xml:space="preserve"><value>No deliveries registered.</value></data>
   <data name="dashboard.creatorGrowth.title" xml:space="preserve"><value>Creator growth</value></data>
@@ -375,7 +375,7 @@
   <data name="approvals.kpi.pending" xml:space="preserve"><value>Pending</value></data>
   <data name="approvals.kpi.approved" xml:space="preserve"><value>Approved</value></data>
   <data name="approvals.kpi.rejected" xml:space="preserve"><value>Rejected</value></data>
-  <data name="approvals.action.goToPipeline" xml:space="preserve"><value>Go to pipeline</value></data>
+  <data name="approvals.action.goToPipeline" xml:space="preserve"><value>Go to funnel</value></data>
   <data name="approvals.action.approveSelected" xml:space="preserve"><value>Approve selected</value></data>
   <data name="approvals.action.rejectSelected" xml:space="preserve"><value>Reject selected</value></data>
   <data name="approvals.type.discount" xml:space="preserve"><value>Discount</value></data>
@@ -393,7 +393,7 @@
   <data name="approvals.decision.approved" xml:space="preserve"><value>Approval made by the Approvals Center.</value></data>
   <data name="approvals.decision.rejected" xml:space="preserve"><value>Rejection made by the Approvals Center.</value></data>
   <data name="approvals.user.fallback" xml:space="preserve"><value>Commercial manager</value></data>
-  <data name="pipeline.title" xml:space="preserve"><value>Commercial Pipeline</value></data>
+  <data name="pipeline.title" xml:space="preserve"><value>Commercial Funnel</value></data>
   <data name="pipeline.subtitle" xml:space="preserve"><value>Track leads and opportunities by stage, value in the funnel and critical follow-ups</value></data>
   <data name="pipeline.action.viewList" xml:space="preserve"><value>View list</value></data>
   <data name="pipeline.action.newLead" xml:space="preserve"><value>New Lead</value></data>
@@ -420,7 +420,7 @@
   <data name="pipeline.stage.empty" xml:space="preserve"><value>No opportunities in this stage.</value></data>
   <data name="pipeline.loading" xml:space="preserve"><value>Loading commercial pipeline...</value></data>
   <data name="pipeline.mobile.moveTo" xml:space="preserve"><value>Move to...</value></data>
-  <data name="pipeline.empty.title" xml:space="preserve"><value>No opportunities in the pipeline</value></data>
+  <data name="pipeline.empty.title" xml:space="preserve"><value>No opportunities in the funnel</value></data>
   <data name="pipeline.empty.description" xml:space="preserve"><value>Register leads to see the commercial funnel by stage, estimated value and follow-ups.</value></data>
   <data name="pipeline.card.noForecast" xml:space="preserve"><value>No forecast</value></data>
   <data name="pipeline.card.noOwner" xml:space="preserve"><value>No owner</value></data>

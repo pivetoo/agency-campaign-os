@@ -10,7 +10,7 @@ test.describe('Pipeline comercial - criar oportunidade e arrastar entre estagios
     const opportunityName = `E2E QA Lead ${Date.now()}`
 
     await page.goto('/comercial/pipeline')
-    await expectPageTitle(page, /Pipeline Comercial/i)
+    await expectPageTitle(page, /Funil Comercial/i)
 
     // garantir que o board carregou (pelo menos 2 estagios para testar drag)
     const stageColumns = opportunity.stageColumn(page)
@@ -107,7 +107,7 @@ test.describe('Pipeline comercial - criar oportunidade e arrastar entre estagios
 
     // recarregar e validar persistencia
     await page.reload()
-    await expectPageTitle(page, /Pipeline Comercial/i)
+    await expectPageTitle(page, /Funil Comercial/i)
     // Pos-reload indexamos pela posicao da coluna, pois o data-stage pode
     // ter sido normalizado/renomeado entre testes (residuo de E2Es anteriores).
     const reloadedTargetColumn = opportunity.stageColumn(page).nth(targetIndexFinal)
