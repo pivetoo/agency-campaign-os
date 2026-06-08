@@ -14,8 +14,6 @@ namespace AgencyCampaign.Application.Catalogs
 
         public const string CreatorPaymentSchedulePix = "creator-payment.schedule-pix";
 
-        public const string NotificationSendTransactional = "notification.send-transactional";
-
         public const string ReceivableIssueInvoice = "receivable.issue-invoice";
 
         public const string PayableTransfer = "payable.transfer";
@@ -30,7 +28,6 @@ namespace AgencyCampaign.Application.Catalogs
             new(CampaignDocumentSendEmail, "Enviar documento por email", "email", "email.send"),
             new(CampaignDocumentSendWhatsapp, "Enviar documento por WhatsApp", "whatsapp", "whatsapp.send"),
             new(CreatorPaymentSchedulePix, "Agendar pagamento PIX para creator", "contas-a-pagar", "payment.transfer.create"),
-            new(NotificationSendTransactional, "Notificação transacional da plataforma", "email", "email.send"),
             new(ReceivableIssueInvoice, "Emitir cobrança para cliente", "contas-a-receber", "payment.charge.create"),
             new(PayableTransfer, "Pagar fornecedor", "contas-a-pagar", "payment.transfer.create"),
             new(CreatorPortalNotifyWhatsapp, "Notificar creator por WhatsApp", "whatsapp", "whatsapp.send"),

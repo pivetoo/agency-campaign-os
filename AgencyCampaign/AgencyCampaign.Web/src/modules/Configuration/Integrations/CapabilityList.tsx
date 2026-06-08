@@ -25,7 +25,7 @@ const ACTION_MODULES: ActionModule[] = [
     label: 'Email',
     description: 'Envio de propostas, documentos e notificações por email.',
     icon: Mail,
-    intentKeys: ['proposal.send-email', 'campaign-document.send-email', 'notification.send-transactional'],
+    intentKeys: ['proposal.send-email', 'campaign-document.send-email'],
   },
   {
     id: 'whatsapp',
