@@ -42,8 +42,13 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             MediaAccessTokenService service = Build();
             string token = ExtractToken(service.BuildSignedUrl("content/tenant-1/10/abc.png"));
-            char last = token[^1];
-            string tampered = token[..^1] + (last == 'A' ? 'B' : 'A');
+
+            // O ultimo char base64 do HMAC-SHA256 (32 bytes = 43 chars) codifica apenas 4 bits
+            // significativos; trocar so os 2 bits de padding nao altera os bytes decodificados.
+            // Usamos o primeiro char da parte de assinatura, que sempre codifica 6 bits completos.
+            int dot = token.LastIndexOf('.');
+            char first = token[dot + 1];
+            string tampered = token[..(dot + 1)] + (first == 'A' ? 'B' : 'A') + token[(dot + 2)..];
 
             service.TryReadStorageKey(tampered, out _).Should().BeFalse();
         }
