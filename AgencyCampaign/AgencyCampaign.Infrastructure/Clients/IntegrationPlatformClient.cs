@@ -233,6 +233,34 @@ namespace AgencyCampaign.Infrastructure.Clients
                 : throw new InvalidOperationException("integrationPlatform.connectorAttribute.updateFailed");
         }
 
+        public async Task<PagedResultDto<ExecutionListDto>> GetExecutionsAsync(int page, int pageSize, CancellationToken ct = default)
+        {
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                return new PagedResultDto<ExecutionListDto>();
+            }
+
+            RestResponse<ApiResponse<PagedResultDto<ExecutionListDto>>> response = await restApi.Fetch<ApiResponse<PagedResultDto<ExecutionListDto>>>(
+                RestRequest.Get($"{baseUrl}/api/executions?page={page}&pageSize={pageSize}").WithTenantApiKey(tenantId, secret!), ct);
+
+            return response.Ok ? response.Data?.Data ?? new PagedResultDto<ExecutionListDto>() : new PagedResultDto<ExecutionListDto>();
+        }
+
+        public async Task<List<ExecutionLogDto>> GetExecutionLogsAsync(long executionId, CancellationToken ct = default)
+        {
+            (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
+            if (baseUrl is null)
+            {
+                return [];
+            }
+
+            RestResponse<ApiResponse<List<ExecutionLogDto>>> response = await restApi.Fetch<ApiResponse<List<ExecutionLogDto>>>(
+                RestRequest.Get($"{baseUrl}/api/executionlogs/execution/{executionId}").WithTenantApiKey(tenantId, secret!), ct);
+
+            return response.Ok ? response.Data?.Data ?? [] : [];
+        }
+
         public async Task<ExecutionDto> ExecutePipelineAsync(ExecutePipelineRequest request, CancellationToken ct = default)
         {
             (string? baseUrl, string? tenantId, string? secret) = await ResolveIntegrationAsync(ct);
@@ -445,6 +473,79 @@ namespace AgencyCampaign.Infrastructure.Clients
         public int Status { get; set; }
         public string? Errors { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
+    }
+
+    public sealed class ExecutionListDto
+    {
+        public long Id { get; set; }
+        public int Type { get; set; }
+        public long ConnectorId { get; set; }
+        public long? PipelineId { get; set; }
+        public int Status { get; set; }
+        public string? Errors { get; set; }
+        public long? Duration { get; set; }
+        public DateTimeOffset StartedAt { get; set; }
+        public DateTimeOffset? FinishedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public ExecutionConnectorDto? Connector { get; set; }
+        public ExecutionPipelineDto? Pipeline { get; set; }
+    }
+
+    public sealed class ExecutionConnectorDto
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public long IntegrationId { get; set; }
+        public ExecutionIntegrationDto? Integration { get; set; }
+    }
+
+    public sealed class ExecutionIntegrationDto
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public sealed class ExecutionPipelineDto
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public sealed class ExecutionLogDto
+    {
+        public long Id { get; set; }
+        public long ExecutionId { get; set; }
+        public int Level { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public string? Context { get; set; }
+        public string? Request { get; set; }
+        public string? Response { get; set; }
+        public int? HttpStatusCode { get; set; }
+        public long? Duration { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public ExecutionLogStepDto? PipelineStep { get; set; }
+    }
+
+    public sealed class ExecutionLogStepDto
+    {
+        public long Id { get; set; }
+        public int Order { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int Type { get; set; }
+    }
+
+    public sealed class PagedResultDto<T>
+    {
+        public List<T> Items { get; set; } = [];
+        public PaginationDto Pagination { get; set; } = new();
+    }
+
+    public sealed class PaginationDto
+    {
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+        public int Total { get; set; }
+        public int TotalPages { get; set; }
     }
 
     public sealed class ProcessingQueueDto

@@ -1618,6 +1618,8 @@
   <data name="integrationPlatformProxy.setConnectorActive.description" xml:space="preserve"><value>Permite ativar ou desativar um conector sem reenviar todas as configuracoes.</value></data>
   <data name="integrationPlatformProxy.testConnector.description" xml:space="preserve"><value>Permite testar um conector executando o pipeline de teste correspondente.</value></data>
   <data name="integrationPlatformProxy.updateConnector.description" xml:space="preserve"><value>Permite atualizar um conector no IntegrationPlatform.</value></data>
+  <data name="integrationPlatformProxy.getExecutions.description" xml:space="preserve"><value>Permite listar o historico de execucoes de integracao do tenant.</value></data>
+  <data name="integrationPlatformProxy.getExecutionLogs.description" xml:space="preserve"><value>Permite consultar os logs detalhados de uma execucao de integracao.</value></data>
   <data name="opportunities.alerts.description" xml:space="preserve"><value>Permite consultar os alertas comerciais.</value></data>
   <data name="opportunities.area" xml:space="preserve"><value>Opportunities</value></data>
   <data name="opportunities.board.description" xml:space="preserve"><value>Permite consultar o board comercial por estágio.</value></data>

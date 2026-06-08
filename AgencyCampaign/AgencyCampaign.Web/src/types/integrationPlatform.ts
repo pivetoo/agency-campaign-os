@@ -134,3 +134,52 @@ export interface EnqueuePipelinePayload {
   payload?: string
   priority: number
 }
+
+export interface ExecutionListItem {
+  id: number
+  type: number
+  connectorId: number
+  pipelineId?: number
+  status: number
+  errors?: string
+  duration?: number
+  startedAt: string
+  finishedAt?: string
+  createdAt: string
+  connector?: {
+    id: number
+    name: string
+    integrationId: number
+    integration?: { id: number; name: string }
+  }
+  pipeline?: { id: number; name: string }
+}
+
+export interface ExecutionLogItem {
+  id: number
+  executionId: number
+  level: number
+  message: string
+  context?: string
+  request?: string
+  response?: string
+  httpStatusCode?: number
+  duration?: number
+  createdAt: string
+  pipelineStep?: {
+    id: number
+    order: number
+    name: string
+    type: number
+  }
+}
+
+export interface PagedResult<T> {
+  items: T[]
+  pagination: {
+    page: number
+    pageSize: number
+    total: number
+    totalPages: number
+  }
+}

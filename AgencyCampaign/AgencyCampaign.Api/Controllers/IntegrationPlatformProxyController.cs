@@ -259,6 +259,22 @@ namespace AgencyCampaign.Api.Controllers
             }
         }
 
+        [RequireAccess("integrationPlatformProxy.getExecutions.description")]
+        [GetEndpoint("executions/history")]
+        public async Task<IActionResult> GetExecutions([FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
+        {
+            PagedResultDto<ExecutionListDto> result = await integrationPlatformClient.GetExecutionsAsync(page, pageSize, cancellationToken);
+            return Http200(result);
+        }
+
+        [RequireAccess("integrationPlatformProxy.getExecutionLogs.description")]
+        [GetEndpoint("executions/{executionId:long}/logs")]
+        public async Task<IActionResult> GetExecutionLogs(long executionId, CancellationToken cancellationToken)
+        {
+            List<ExecutionLogDto> logs = await integrationPlatformClient.GetExecutionLogsAsync(executionId, cancellationToken);
+            return Http200(logs);
+        }
+
         [RequireAccess("integrationPlatformProxy.enqueuePipeline.description")]
         [PostEndpoint("processingqueues/enqueue")]
         public async Task<IActionResult> EnqueuePipeline([FromBody] EnqueuePipelinePayload payload, CancellationToken cancellationToken)

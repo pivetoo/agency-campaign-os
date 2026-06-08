@@ -1,5 +1,5 @@
 import { httpClient } from 'archon-ui'
-import type { IntegrationCategory, IntegrationPlatformIntegration, IntegrationAttribute, Connector, ConnectorDetail, Pipeline, Execution, ProcessingQueue, CreateConnectorPayload, UpdateConnectorPayload, ExecutePipelinePayload, EnqueuePipelinePayload } from '../types/integrationPlatform'
+import type { IntegrationCategory, IntegrationPlatformIntegration, IntegrationAttribute, Connector, ConnectorDetail, Pipeline, Execution, ProcessingQueue, CreateConnectorPayload, UpdateConnectorPayload, ExecutePipelinePayload, EnqueuePipelinePayload, ExecutionListItem, ExecutionLogItem, PagedResult } from '../types/integrationPlatform'
 
 export const integrationPlatformService = {
   async getActiveIntegrationCategories(): Promise<IntegrationCategory[]> {
@@ -80,6 +80,16 @@ export const integrationPlatformService = {
 
   async deleteConnector(connectorId: number): Promise<void> {
     await httpClient.delete(`/IntegrationPlatformProxy/connectors/${connectorId}`)
+  },
+
+  async getExecutions(page = 1, pageSize = 20): Promise<PagedResult<ExecutionListItem>> {
+    const response = await httpClient.get<PagedResult<ExecutionListItem>>(`/IntegrationPlatformProxy/executions/history?page=${page}&pageSize=${pageSize}`)
+    return response.data ?? { items: [], pagination: { page: 1, pageSize, total: 0, totalPages: 0 } }
+  },
+
+  async getExecutionLogs(executionId: number): Promise<ExecutionLogItem[]> {
+    const response = await httpClient.get<ExecutionLogItem[]>(`/IntegrationPlatformProxy/executions/${executionId}/logs`)
+    return response.data ?? []
   },
 }
 
