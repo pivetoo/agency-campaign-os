@@ -153,12 +153,14 @@ export default function CapabilityList() {
       return
     }
 
-    updateRow(intentKey, { selectedConnectorId: connectorId, saving: true })
+    const wasConfigured = !!rowState[intentKey]?.selectedConnectorId
+    const isActive = wasConfigured ? (rowState[intentKey]?.isActive ?? true) : true
+    updateRow(intentKey, { selectedConnectorId: connectorId, isActive, saving: true })
     try {
       await integrationCapabilityService.setCapability({
         intentKey,
         connectorId,
-        isActive: rowState[intentKey]?.isActive ?? true,
+        isActive,
       })
     } catch {
       // erro ja exibido pelo httpClient
