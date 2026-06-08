@@ -29,7 +29,7 @@ const ACTION_MODULES: ActionModule[] = [
   },
   {
     id: 'whatsapp',
-    label: 'Disparo de mensagens por WhatsApp',
+    label: 'WhatsApp',
     description: 'Envio de mensagens para clientes e creators via WhatsApp.',
     icon: MessageCircle,
     intentKeys: ['proposal.send-whatsapp', 'creator-portal.notify-whatsapp'],
