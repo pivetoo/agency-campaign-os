@@ -58,7 +58,7 @@ function ExecutionLogRow({ log }: { log: ExecutionLogItem }) {
           <span className="w-3.5 flex-shrink-0" />
         )}
         <div className="flex flex-1 flex-wrap items-start gap-x-3 gap-y-1 min-w-0">
-          <Badge variant={level.variant} size="sm">{level.label}</Badge>
+          <Badge variant={level.variant}>{level.label}</Badge>
           {log.pipelineStep && (
             <span className="text-xs text-muted-foreground font-medium">
               {log.pipelineStep.order}. {log.pipelineStep.name}
@@ -127,7 +127,7 @@ function ExecutionRow({ execution }: { execution: ExecutionListItem }) {
           )}
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
-          <Badge variant={status.variant} size="sm">
+          <Badge variant={status.variant}>
             <span className="flex items-center gap-1">{status.icon}{status.label}</span>
           </Badge>
           {execution.duration && <span className="text-xs text-muted-foreground">{execution.duration}ms</span>}
@@ -222,8 +222,8 @@ export default function IntegrationLogs() {
             {pagination.total} execuções · página {pagination.page} de {pagination.totalPages}
           </p>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => load(page - 1)}>Anterior</Button>
-            <Button variant="outline" size="sm" disabled={page >= pagination.totalPages} onClick={() => load(page + 1)}>Próxima</Button>
+            <Button variant="outline" disabled={page <= 1} onClick={() => load(page - 1)}>Anterior</Button>
+            <Button variant="outline" disabled={page >= pagination.totalPages} onClick={() => load(page + 1)}>Próxima</Button>
           </div>
         </div>
       )}
