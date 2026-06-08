@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, ConfirmModal, PageLayout, SearchableSelect, useApi, useI18n } from 'archon-ui'
-import { CheckCircle2, CircleDashed, ExternalLink, Megaphone, Pause, Pencil, Play, Plug, Plus, Settings2, Sparkles, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
+import { CheckCircle2, CircleDashed, ExternalLink, FlaskConical, Megaphone, Pause, Pencil, Play, Plug, Plus, Settings2, Trash2, TriangleAlert, Workflow, Zap } from 'lucide-react'
 import ConnectorConfigModal from '../../../components/modals/ConnectorConfigModal'
 import ConnectorTestModal from '../../../components/modals/ConnectorTestModal'
 import AutomationFormModal from '../../../components/modals/AutomationFormModal'
@@ -366,7 +366,7 @@ export default function IntegrationAccounts() {
                               <div className="flex items-center gap-1">
                                 {connector.isActive && (
                                   <Button size="sm" variant="ghost" title={t('configuration.integrations.action.test')} onClick={() => openTestConnector(connector)}>
-                                    <Sparkles size={14} className="mr-1" /> Testar
+                                    <FlaskConical size={14} className="mr-1" /> Testar
                                   </Button>
                                 )}
                                 {connector.isActive && (
