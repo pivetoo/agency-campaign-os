@@ -242,7 +242,7 @@ namespace AgencyCampaign.Infrastructure.Clients
             }
 
             RestResponse<ApiResponse<PagedResultDto<ExecutionListDto>>> response = await restApi.Fetch<ApiResponse<PagedResultDto<ExecutionListDto>>>(
-                RestRequest.Get($"{baseUrl}/api/executions?page={page}&pageSize={pageSize}").WithTenantApiKey(tenantId, secret!), ct);
+                RestRequest.Get($"{baseUrl}/api/executions/Get?page={page}&pageSize={pageSize}").WithTenantApiKey(tenantId, secret!), ct);
 
             return response.Ok ? response.Data?.Data ?? new PagedResultDto<ExecutionListDto>() : new PagedResultDto<ExecutionListDto>();
         }
