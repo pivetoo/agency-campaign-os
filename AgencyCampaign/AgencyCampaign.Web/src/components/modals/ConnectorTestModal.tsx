@@ -129,26 +129,33 @@ export default function ConnectorTestModal({ open, onOpenChange, connector, inte
           )}
 
           {result && (
-            <div
-              className={[
-                'flex items-start gap-2 rounded-lg border p-3 text-sm',
-                result.success
-                  ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300'
-                  : 'border-destructive/30 bg-destructive/5 text-destructive',
-              ].join(' ')}
-            >
-              {result.success ? (
-                <CheckCircle2 size={18} className="mt-0.5 flex-shrink-0" />
-              ) : (
-                <XCircle size={18} className="mt-0.5 flex-shrink-0" />
-              )}
-              <div className="space-y-0.5">
-                <p className="font-medium">{result.success ? 'Funcionou!' : 'Falhou.'}</p>
-                <p className="text-xs">{result.message}</p>
-                {result.latencyMs > 0 && (
-                  <p className="text-[10px] opacity-70">Tempo: {result.latencyMs}ms</p>
+            <div className="space-y-2">
+              <div
+                className={[
+                  'flex items-start gap-2 rounded-lg border p-3 text-sm',
+                  result.success
+                    ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300'
+                    : 'border-destructive/30 bg-destructive/5 text-destructive',
+                ].join(' ')}
+              >
+                {result.success ? (
+                  <CheckCircle2 size={18} className="mt-0.5 flex-shrink-0" />
+                ) : (
+                  <XCircle size={18} className="mt-0.5 flex-shrink-0" />
                 )}
+                <div className="space-y-0.5">
+                  <p className="font-medium">{result.success ? 'Funcionou!' : 'Falhou.'}</p>
+                  <p className="text-xs">{result.message}</p>
+                  {result.latencyMs > 0 && (
+                    <p className="text-[10px] opacity-70">Tempo: {result.latencyMs}ms</p>
+                  )}
+                </div>
               </div>
+              {!result.success && (
+                <p className="text-xs text-muted-foreground px-1">
+                  Este erro é retornado diretamente pela integração. Verifique as credenciais e configurações da conta cadastrada. Se o problema persistir, entre em contato com o suporte.
+                </p>
+              )}
             </div>
           )}
         </div>
