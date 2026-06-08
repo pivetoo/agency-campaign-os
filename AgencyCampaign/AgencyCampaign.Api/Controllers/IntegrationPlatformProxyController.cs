@@ -245,8 +245,10 @@ namespace AgencyCampaign.Api.Controllers
 
                 bool success = execution.Status == 1 || execution.Status == 2;
                 string message = success
-                    ? $"Pipeline de teste executado em {stopwatch.ElapsedMilliseconds}ms."
-                    : $"Pipeline de teste retornou status {execution.Status}.";
+                    ? "Integração verificada e funcionando corretamente."
+                    : !string.IsNullOrWhiteSpace(execution.Errors)
+                        ? execution.Errors
+                        : "A integração falhou sem retornar detalhes do erro.";
 
                 return Http200(new TestConnectorResult(success, message, stopwatch.ElapsedMilliseconds));
             }

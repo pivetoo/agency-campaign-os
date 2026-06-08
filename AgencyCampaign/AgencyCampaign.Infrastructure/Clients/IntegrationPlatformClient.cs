@@ -443,6 +443,7 @@ namespace AgencyCampaign.Infrastructure.Clients
         public long? ConnectorId { get; set; }
         public long? PipelineId { get; set; }
         public int Status { get; set; }
+        public string? Errors { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
 
