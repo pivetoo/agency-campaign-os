@@ -179,7 +179,7 @@ export interface PagedResult<T> {
   pagination: {
     page: number
     pageSize: number
-    total: number
+    totalCount: number
     totalPages: number
   }
 }

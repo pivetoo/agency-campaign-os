@@ -166,7 +166,7 @@ export default function IntegrationLogs() {
   const [page, setPage] = useState(1)
   const pageSize = 20
 
-  const { data, loading, execute: fetchExecutions } = useApi<{ items: ExecutionListItem[]; pagination: { page: number; pageSize: number; total: number; totalPages: number } }>()
+  const { data, loading, execute: fetchExecutions } = useApi<{ items: ExecutionListItem[]; pagination: { page: number; pageSize: number; totalCount: number; totalPages: number } }>()
 
   const load = (p: number) => {
     setPage(p)
@@ -216,15 +216,17 @@ export default function IntegrationLogs() {
         </div>
       )}
 
-      {pagination && pagination.totalPages > 1 && (
+      {pagination && (
         <div className="flex items-center justify-between pt-4">
           <p className="text-xs text-muted-foreground">
-            {pagination.total} execuções · página {pagination.page} de {pagination.totalPages}
+            {pagination.totalCount} execuções · página {pagination.page} de {pagination.totalPages}
           </p>
-          <div className="flex gap-2">
-            <Button variant="outline" disabled={page <= 1} onClick={() => load(page - 1)}>Anterior</Button>
-            <Button variant="outline" disabled={page >= pagination.totalPages} onClick={() => load(page + 1)}>Próxima</Button>
-          </div>
+          {pagination.totalPages > 1 && (
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => load(page - 1)}>Anterior</Button>
+              <Button variant="outline" size="sm" disabled={page >= pagination.totalPages} onClick={() => load(page + 1)}>Próxima</Button>
+            </div>
+          )}
         </div>
       )}
     </PageLayout>
