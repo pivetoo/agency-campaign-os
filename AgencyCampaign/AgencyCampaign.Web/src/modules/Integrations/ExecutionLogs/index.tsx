@@ -7,13 +7,13 @@ import { formatDateTime } from '../../../lib/format'
 
 function statusLabel(status: number) {
   if (status === 2) return { label: 'Sucesso', variant: 'success' as const, icon: <CheckCircle2 size={12} /> }
-  if (status === 3) return { label: 'Erro', variant: 'danger' as const, icon: <XCircle size={12} /> }
+  if (status === 3) return { label: 'Erro', variant: 'error' as const, icon: <XCircle size={12} /> }
   if (status === 4) return { label: 'Parcial', variant: 'warning' as const, icon: <AlertTriangle size={12} /> }
   return { label: 'Rodando', variant: 'info' as const, icon: <Clock size={12} /> }
 }
 
 function logLevelLabel(level: number) {
-  if (level === 3) return { label: 'Erro', variant: 'danger' as const }
+  if (level === 3) return { label: 'Erro', variant: 'error' as const }
   if (level === 2) return { label: 'Aviso', variant: 'warning' as const }
   return { label: 'Info', variant: 'info' as const }
 }
