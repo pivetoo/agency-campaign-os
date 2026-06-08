@@ -241,10 +241,21 @@ namespace AgencyCampaign.Infrastructure.Clients
                 return new PagedResultDto<ExecutionListDto>();
             }
 
-            RestResponse<ApiResponse<PagedResultDto<ExecutionListDto>>> response = await restApi.Fetch<ApiResponse<PagedResultDto<ExecutionListDto>>>(
+            // Http200(PagedResult<T>) do Archon serializa items em $.data e paginacao em $.pagination (raiz),
+            // nao dentro de $.data. Usamos um DTO proprio que casa com esse envelope.
+            RestResponse<ArchonPagedEnvelope<ExecutionListDto>> response = await restApi.Fetch<ArchonPagedEnvelope<ExecutionListDto>>(
                 RestRequest.Get($"{baseUrl}/api/executions/Get?page={page}&pageSize={pageSize}").WithTenantApiKey(tenantId, secret!), ct);
 
-            return response.Ok ? response.Data?.Data ?? new PagedResultDto<ExecutionListDto>() : new PagedResultDto<ExecutionListDto>();
+            if (!response.Ok || response.Data is null)
+            {
+                return new PagedResultDto<ExecutionListDto>();
+            }
+
+            return new PagedResultDto<ExecutionListDto>
+            {
+                Items = response.Data.Data ?? [],
+                Pagination = response.Data.Pagination ?? new PaginationDto()
+            };
         }
 
         public async Task<List<ExecutionLogDto>> GetExecutionLogsAsync(long executionId, CancellationToken ct = default)
@@ -546,6 +557,14 @@ namespace AgencyCampaign.Infrastructure.Clients
         public int PageSize { get; set; }
         public int Total { get; set; }
         public int TotalPages { get; set; }
+    }
+
+    // Envelope real do Archon para PagedResult: $.data = items[], $.pagination = metadata na raiz.
+    public sealed class ArchonPagedEnvelope<T>
+    {
+        public List<T>? Data { get; set; }
+        public PaginationDto? Pagination { get; set; }
+        public string Message { get; set; } = string.Empty;
     }
 
     public sealed class ProcessingQueueDto
