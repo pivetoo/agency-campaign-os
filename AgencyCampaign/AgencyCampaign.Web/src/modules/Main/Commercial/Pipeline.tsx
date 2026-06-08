@@ -531,7 +531,7 @@ export default function CommercialPipeline() {
               value={searchText}
               onChange={setSearchText}
               placeholder={t('pipeline.filter.searchPlaceholder')}
-              className="w-80"
+              className="w-96"
             />
             <button
               type="button"

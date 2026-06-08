@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button, Modal, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
 import { financialAccountService } from '../../services/financialAccountService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
-import { IntegrationCategoryIdentifier, type Connector } from '../../types/integrationPlatform'
+import type { Connector } from '../../types/integrationPlatform'
 import type { FinancialAccount } from '../../types/financialAccount'
 
 interface Props {
@@ -29,7 +29,7 @@ export default function FinancialAccountConnectorBindingModal({ open, onOpenChan
     if (!open) return
     let cancelled = false
     setLoadingConnectors(true)
-    integrationPlatformService.getConnectorsByCategoryIdentifier(IntegrationCategoryIdentifier.Banking)
+    integrationPlatformService.getConnectorsByCategoryIdentifier('banking')
       .then((list) => { if (!cancelled) setConnectors(list) })
       .catch(() => { if (!cancelled) setConnectors([]) })
       .finally(() => { if (!cancelled) setLoadingConnectors(false) })
