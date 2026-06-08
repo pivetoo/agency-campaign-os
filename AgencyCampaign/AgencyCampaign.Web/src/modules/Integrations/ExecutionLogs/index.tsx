@@ -1,234 +1,299 @@
 import { useEffect, useState } from 'react'
-import { Badge, Button, PageLayout, useApi } from 'archon-ui'
-import { ChevronDown, ChevronRight, CheckCircle2, XCircle, AlertTriangle, Clock, RefreshCw } from 'lucide-react'
+import { Badge, DataTable, PageLayout, Modal, ModalContent, ModalHeader, ModalTitle, useApi } from 'archon-ui'
+import type { DataTableColumn } from 'archon-ui'
+import { AlertCircle, Check, CheckCircle2, Clock, Copy, Info } from 'lucide-react'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import type { ExecutionListItem, ExecutionLogItem } from '../../../types/integrationPlatform'
 import { formatDateTime } from '../../../lib/format'
 
-function statusLabel(status: number) {
-  if (status === 2) return { label: 'Sucesso', variant: 'success' as const, icon: <CheckCircle2 size={12} /> }
-  if (status === 3) return { label: 'Erro', variant: 'error' as const, icon: <XCircle size={12} /> }
-  if (status === 4) return { label: 'Parcial', variant: 'warning' as const, icon: <AlertTriangle size={12} /> }
-  return { label: 'Rodando', variant: 'info' as const, icon: <Clock size={12} /> }
+const STATUS_VARIANT: Record<number, 'warning' | 'success' | 'destructive' | 'secondary'> = {
+  1: 'warning',
+  2: 'success',
+  3: 'destructive',
+  4: 'secondary',
 }
 
-function logLevelLabel(level: number) {
-  if (level === 3) return { label: 'Erro', variant: 'error' as const }
-  if (level === 2) return { label: 'Aviso', variant: 'warning' as const }
-  return { label: 'Info', variant: 'info' as const }
+const STATUS_LABEL: Record<number, string> = {
+  1: 'Rodando',
+  2: 'Sucesso',
+  3: 'Erro',
+  4: 'Parcial',
 }
 
-function stepTypeLabel(type: number) {
-  if (type === 1) return 'HTTP'
-  if (type === 2) return 'JavaScript'
-  if (type === 4) return 'Email'
-  if (type === 5) return 'SQL'
-  return `Tipo ${type}`
+const TYPE_LABEL: Record<number, string> = {
+  1: 'Manual',
+  2: 'Webhook',
+  3: 'Agendado',
+  4: 'Serviço',
 }
 
-function JsonBlock({ raw }: { raw: string }) {
-  let formatted = raw
-  try {
-    formatted = JSON.stringify(JSON.parse(raw), null, 2)
-  } catch {
-    // não é JSON — exibe como texto
+function formatDuration(ms?: number | null): string {
+  if (ms == null) return '-'
+  if (ms < 1000) return `${ms}ms`
+  const s = Math.floor(ms / 1000)
+  if (s < 60) return `${s}s`
+  return `${Math.floor(s / 60)}m ${s % 60}s`
+}
+
+function tryPrettyJson(text: string): string {
+  try { return JSON.stringify(JSON.parse(text), null, 2) } catch { return text }
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  const handle = async () => {
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
   return (
-    <pre className="overflow-x-auto rounded bg-muted/60 p-3 text-[11px] leading-relaxed text-foreground/80 whitespace-pre-wrap break-all max-h-48">
-      {formatted}
-    </pre>
+    <button type="button" onClick={handle} className="flex items-center gap-1 px-2 py-1 text-xs rounded hover:bg-accent transition-colors">
+      {copied ? <><Check size={13} className="text-emerald-600" /><span>Copiado</span></> : <><Copy size={13} /><span>Copiar</span></>}
+    </button>
   )
 }
 
-function ExecutionLogRow({ log }: { log: ExecutionLogItem }) {
-  const [open, setOpen] = useState(false)
-  const hasDetail = !!(log.request || log.response)
-  const level = logLevelLabel(log.level)
+function getLogBadge(log: ExecutionLogItem) {
+  if (log.level >= 3) return { variant: 'destructive' as const, icon: <AlertCircle size={13} />, label: 'Erro' }
+  if (log.level === 2) return { variant: 'warning' as const, icon: <AlertCircle size={13} />, label: 'Aviso' }
+  if (log.pipelineStep && log.duration != null) return { variant: 'success' as const, icon: <CheckCircle2 size={13} />, label: 'OK' }
+  return { variant: 'secondary' as const, icon: <Info size={13} />, label: 'Info' }
+}
+
+function ExecutionDetailModal({ open, onOpenChange, execution }: { open: boolean; onOpenChange: (v: boolean) => void; execution: ExecutionListItem | null }) {
+  const [logs, setLogs] = useState<ExecutionLogItem[]>([])
+  const [selected, setSelected] = useState<ExecutionLogItem | null>(null)
+  const { execute: fetchLogs, loading } = useApi<ExecutionLogItem[]>()
+
+  useEffect(() => {
+    if (!open || !execution) { setLogs([]); setSelected(null); return }
+    fetchLogs(() => integrationPlatformService.getExecutionLogs(execution.id)).then((result) => {
+      if (!result) return
+      const sorted = [...result].sort((a, b) => a.id - b.id).filter((l) => !l.pipelineStep || l.duration != null)
+      setLogs(sorted)
+      const firstError = sorted.find((l) => l.level >= 3)
+      const firstWithData = sorted.find((l) => l.request || l.response)
+      setSelected(firstError ?? firstWithData ?? sorted[0] ?? null)
+    })
+  }, [open, execution?.id])
+
+  if (!execution) return null
 
   return (
-    <div className="border-b last:border-0">
-      <button
-        type="button"
-        onClick={() => hasDetail && setOpen((v) => !v)}
-        className={['flex w-full items-start gap-3 px-4 py-2.5 text-left text-sm transition-colors', hasDetail ? 'hover:bg-muted/40 cursor-pointer' : 'cursor-default'].join(' ')}
-      >
-        {hasDetail ? (
-          open ? <ChevronDown size={14} className="mt-0.5 flex-shrink-0 text-muted-foreground" /> : <ChevronRight size={14} className="mt-0.5 flex-shrink-0 text-muted-foreground" />
-        ) : (
-          <span className="w-3.5 flex-shrink-0" />
-        )}
-        <div className="flex flex-1 flex-wrap items-start gap-x-3 gap-y-1 min-w-0">
-          <Badge variant={level.variant}>{level.label}</Badge>
-          {log.pipelineStep && (
-            <span className="text-xs text-muted-foreground font-medium">
-              {log.pipelineStep.order}. {log.pipelineStep.name}
-              <span className="ml-1 opacity-60">({stepTypeLabel(log.pipelineStep.type)})</span>
-            </span>
-          )}
-          {log.httpStatusCode && (
-            <span className={['text-xs font-mono font-medium', log.httpStatusCode >= 400 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'].join(' ')}>
-              HTTP {log.httpStatusCode}
-            </span>
-          )}
-          {log.duration && <span className="text-xs text-muted-foreground">{log.duration}ms</span>}
-          <span className="flex-1 min-w-0 text-xs text-foreground/80 break-words">{log.message}</span>
-        </div>
-      </button>
+    <Modal open={open} onOpenChange={onOpenChange}>
+      <ModalContent size="5xl" className="max-h-[90vh] flex flex-col">
+        <ModalHeader>
+          <ModalTitle>Execução #{execution.id}</ModalTitle>
+        </ModalHeader>
 
-      {open && hasDetail && (
-        <div className="px-10 pb-3 space-y-2">
-          {log.request && (
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Requisição</p>
-              <JsonBlock raw={log.request} />
-            </div>
-          )}
-          {log.response && (
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Resposta</p>
-              <JsonBlock raw={log.response} />
-            </div>
-          )}
+        <div className="grid grid-cols-2 gap-4 text-sm mt-2 pb-3 border-b">
+          <div><span className="font-medium">Conector:</span> {execution.connector?.name ?? '-'}</div>
+          <div><span className="font-medium">Pipeline:</span> {execution.pipeline?.name ?? '-'}</div>
+          <div>
+            <span className="font-medium">Status:</span>{' '}
+            <Badge variant={STATUS_VARIANT[execution.status] ?? 'secondary'}>{STATUS_LABEL[execution.status] ?? '-'}</Badge>
+          </div>
+          <div><span className="font-medium">Duração:</span> {formatDuration(execution.duration)}</div>
         </div>
-      )}
-    </div>
+
+        <div className="flex gap-4 flex-1 min-h-0 overflow-hidden mt-3">
+          <div className="w-72 border rounded-lg overflow-y-auto flex-shrink-0">
+            <div className="sticky top-0 bg-background border-b px-3 py-2 text-sm font-semibold">
+              Steps ({logs.length})
+            </div>
+            {loading && <p className="p-4 text-sm text-muted-foreground text-center">Carregando...</p>}
+            {!loading && logs.length === 0 && <p className="p-4 text-sm text-muted-foreground text-center">Nenhum log registrado.</p>}
+            {!loading && logs.map((log) => {
+              const badge = getLogBadge(log)
+              return (
+                <button
+                  key={log.id}
+                  type="button"
+                  onClick={() => setSelected(log)}
+                  className={['w-full text-left px-3 py-2.5 border-b last:border-0 hover:bg-accent transition-colors', selected?.id === log.id ? 'bg-accent' : ''].join(' ')}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <span className="text-sm font-medium truncate">
+                      {log.pipelineStep ? `${log.pipelineStep.order}. ${log.pipelineStep.name}` : 'Geral'}
+                    </span>
+                    <Badge variant={badge.variant} className="flex items-center gap-1 shrink-0 text-[10px]">
+                      {badge.icon}{badge.label}
+                    </Badge>
+                  </div>
+                  {log.duration != null && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock size={11} />{formatDuration(log.duration)}
+                    </div>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="flex-1 border rounded-lg overflow-y-auto">
+            {!selected && (
+              <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                Selecione um step para ver os detalhes
+              </div>
+            )}
+            {selected && (
+              <div className="p-4 space-y-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Mensagem</p>
+                  <p className="text-sm whitespace-pre-wrap bg-muted p-3 rounded">{selected.message}</p>
+                </div>
+
+                {selected.context && (
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Contexto</p>
+                    <pre className="text-xs bg-muted p-3 rounded overflow-x-auto">{selected.context}</pre>
+                  </div>
+                )}
+
+                {selected.request && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Requisição</p>
+                      <CopyButton text={selected.request} />
+                    </div>
+                    <pre className="text-xs bg-muted p-3 rounded overflow-x-auto max-h-64 whitespace-pre-wrap break-all">{tryPrettyJson(selected.request)}</pre>
+                  </div>
+                )}
+
+                {selected.response && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Resposta</p>
+                        {selected.httpStatusCode && (
+                          <Badge variant={selected.httpStatusCode < 400 ? 'success' : 'destructive'} className="text-[10px]">
+                            HTTP {selected.httpStatusCode}
+                          </Badge>
+                        )}
+                      </div>
+                      <CopyButton text={selected.response} />
+                    </div>
+                    <pre className="text-xs bg-muted p-3 rounded overflow-x-auto max-h-64 whitespace-pre-wrap break-all">{tryPrettyJson(selected.response)}</pre>
+                  </div>
+                )}
+
+                {selected.duration != null && !selected.request && !selected.response && (
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Duração</p>
+                    <p className="text-sm">{formatDuration(selected.duration)}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </ModalContent>
+    </Modal>
   )
 }
 
-function ExecutionRow({ execution }: { execution: ExecutionListItem }) {
-  const [open, setOpen] = useState(false)
-  const { data: logs, loading: loadingLogs, execute: fetchLogs } = useApi<ExecutionLogItem[]>()
-  const status = statusLabel(execution.status)
-
-  const toggle = async () => {
-    if (!open && !logs) {
-      await fetchLogs(() => integrationPlatformService.getExecutionLogs(execution.id))
-    }
-    setOpen((v) => !v)
-  }
-
-  return (
-    <div className="border rounded-lg overflow-hidden">
-      <button
-        type="button"
-        onClick={toggle}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm hover:bg-muted/30 transition-colors"
-      >
-        {open ? <ChevronDown size={15} className="flex-shrink-0 text-muted-foreground" /> : <ChevronRight size={15} className="flex-shrink-0 text-muted-foreground" />}
-        <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 min-w-0">
-          <span className="font-medium text-sm min-w-0 truncate">
-            {execution.connector?.name ?? `Conector #${execution.connectorId}`}
-          </span>
-          {execution.connector?.integration?.name && (
-            <span className="text-xs text-muted-foreground">{execution.connector.integration.name}</span>
-          )}
-          {execution.pipeline?.name && (
-            <span className="text-xs text-muted-foreground italic">{execution.pipeline.name}</span>
-          )}
-        </div>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <Badge variant={status.variant}>
-            <span className="flex items-center gap-1">{status.icon}{status.label}</span>
-          </Badge>
-          {execution.duration && <span className="text-xs text-muted-foreground">{execution.duration}ms</span>}
-          <span className="text-xs text-muted-foreground hidden sm:block">{formatDateTime(execution.startedAt)}</span>
-        </div>
-      </button>
-
-      {open && (
-        <div className="border-t bg-muted/10">
-          {loadingLogs && (
-            <p className="px-4 py-3 text-sm text-muted-foreground">Carregando logs...</p>
-          )}
-          {!loadingLogs && logs && logs.length === 0 && (
-            <p className="px-4 py-3 text-sm text-muted-foreground">Nenhum log registrado para esta execução.</p>
-          )}
-          {!loadingLogs && logs && logs.length > 0 && (
-            <div>
-              {logs.map((log) => (
-                <ExecutionLogRow key={log.id} log={log} />
-              ))}
-            </div>
-          )}
-          {execution.errors && (
-            <div className="px-4 pb-3 pt-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Erro final</p>
-              <p className="text-xs text-destructive font-mono break-all">{execution.errors}</p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
+const columns: DataTableColumn<ExecutionListItem>[] = [
+  {
+    key: 'type',
+    title: 'Tipo',
+    dataIndex: 'type',
+    width: 110,
+    render: (v: number) => TYPE_LABEL[v] ?? '-',
+  },
+  {
+    key: 'connector',
+    title: 'Conector',
+    dataIndex: 'connector',
+    render: (v: ExecutionListItem['connector']) => v?.name ?? '-',
+  },
+  {
+    key: 'integration',
+    title: 'Integração',
+    dataIndex: 'connector',
+    hiddenBelow: 'md',
+    render: (v: ExecutionListItem['connector']) => v?.integration?.name ?? '-',
+  },
+  {
+    key: 'pipeline',
+    title: 'Pipeline',
+    dataIndex: 'pipeline',
+    hiddenBelow: 'lg',
+    render: (v: ExecutionListItem['pipeline']) => v?.name ?? '-',
+  },
+  {
+    key: 'status',
+    title: 'Status',
+    dataIndex: 'status',
+    width: 110,
+    render: (v: number) => <Badge variant={STATUS_VARIANT[v] ?? 'secondary'}>{STATUS_LABEL[v] ?? '-'}</Badge>,
+  },
+  {
+    key: 'startedAt',
+    title: 'Início',
+    dataIndex: 'startedAt',
+    hiddenBelow: 'lg',
+    render: (v: string) => formatDateTime(v),
+  },
+  {
+    key: 'duration',
+    title: 'Duração',
+    dataIndex: 'duration',
+    width: 100,
+    render: (v: number) => formatDuration(v),
+  },
+]
 
 export default function IntegrationLogs() {
   const [page, setPage] = useState(1)
-  const pageSize = 20
+  const [pageSize, setPageSize] = useState(20)
+  const [totalCount, setTotalCount] = useState(0)
+  const [executions, setExecutions] = useState<ExecutionListItem[]>([])
+  const [selected, setSelected] = useState<ExecutionListItem | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
-  const { data, loading, execute: fetchExecutions } = useApi<{ items: ExecutionListItem[]; pagination: { page: number; pageSize: number; totalCount: number; totalPages: number } }>()
+  const { execute: fetchExecutions, loading } = useApi<{ items: ExecutionListItem[]; pagination: { page: number; pageSize: number; totalCount: number; totalPages: number } }>()
 
-  const load = (p: number) => {
-    setPage(p)
-    fetchExecutions(() => integrationPlatformService.getExecutions(p, pageSize))
+  const load = async (p: number, ps: number) => {
+    const result = await fetchExecutions(() => integrationPlatformService.getExecutions(p, ps))
+    if (result) {
+      setExecutions(result.items)
+      setTotalCount(Number(result.pagination?.totalCount ?? 0))
+    }
   }
 
-  useEffect(() => { load(1) }, [])
+  useEffect(() => { void load(page, pageSize) }, [page, pageSize])
 
-  const executions = data?.items ?? []
-  const pagination = data?.pagination
+  const handleRowClick = (row: ExecutionListItem) => {
+    setSelected(row)
+    setModalOpen(true)
+  }
 
   return (
     <PageLayout
       title="Logs de integração"
-      subtitle="Histórico de execuções e detalhes de cada passo realizado."
-      actions={[
-        {
-          key: 'refresh',
-          label: 'Atualizar',
-          icon: <RefreshCw size={16} />,
-          onClick: () => load(page),
-          variant: 'outline',
-        },
-      ]}
+      subtitle="Histórico de execuções das integrações configuradas."
+      onRefresh={() => void load(page, pageSize)}
     >
-      {loading && (
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-12 rounded-lg bg-muted/40 animate-pulse" />
-          ))}
-        </div>
-      )}
+      <DataTable
+        columns={columns}
+        data={executions}
+        rowKey="id"
+        loading={loading}
+        emptyText="Nenhuma execução registrada."
+        onRowClick={handleRowClick}
+        page={page}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 20, 50]}
+        totalCount={totalCount}
+        onPageChange={(p) => setPage(p)}
+        onPageSizeChange={(ps) => { setPageSize(ps); setPage(1) }}
+      />
 
-      {!loading && executions.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Clock size={36} className="text-muted-foreground/40 mb-3" />
-          <p className="text-sm font-medium text-muted-foreground">Nenhuma execução registrada</p>
-          <p className="text-xs text-muted-foreground/70 mt-1">As execuções aparecerão aqui conforme as integrações forem utilizadas.</p>
-        </div>
-      )}
-
-      {!loading && executions.length > 0 && (
-        <div className="space-y-2">
-          {executions.map((execution) => (
-            <ExecutionRow key={execution.id} execution={execution} />
-          ))}
-        </div>
-      )}
-
-      {pagination && (
-        <div className="flex items-center justify-between pt-4">
-          <p className="text-xs text-muted-foreground">
-            {pagination.totalCount} execuções · página {pagination.page} de {pagination.totalPages}
-          </p>
-          {pagination.totalPages > 1 && (
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => load(page - 1)}>Anterior</Button>
-              <Button variant="outline" size="sm" disabled={page >= pagination.totalPages} onClick={() => load(page + 1)}>Próxima</Button>
-            </div>
-          )}
-        </div>
-      )}
+      <ExecutionDetailModal
+        open={modalOpen}
+        onOpenChange={(v) => { setModalOpen(v); if (!v) setSelected(null) }}
+        execution={selected}
+      />
     </PageLayout>
   )
 }

@@ -84,7 +84,7 @@ export const integrationPlatformService = {
 
   async getExecutions(page = 1, pageSize = 20): Promise<PagedResult<ExecutionListItem>> {
     const response = await httpClient.get<PagedResult<ExecutionListItem>>(`/IntegrationPlatformProxy/executions/history?page=${page}&pageSize=${pageSize}`)
-    return response.data ?? { items: [], pagination: { page: 1, pageSize, total: 0, totalPages: 0 } }
+    return response.data ?? { items: [], pagination: { page: 1, pageSize, totalCount: 0, totalPages: 0 } }
   },
 
   async getExecutionLogs(executionId: number): Promise<ExecutionLogItem[]> {
