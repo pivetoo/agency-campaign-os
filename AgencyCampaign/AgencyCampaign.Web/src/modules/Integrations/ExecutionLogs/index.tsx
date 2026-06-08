@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Badge, DataTable, PageLayout, Modal, ModalContent, ModalHeader, ModalTitle, useApi } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { AlertCircle, Check, CheckCircle2, Clock, Copy, Info } from 'lucide-react'
+import DetailsButton from '../../../components/DetailsButton'
 import { integrationPlatformService } from '../../../services/integrationPlatformService'
 import type { ExecutionListItem, ExecutionLogItem } from '../../../types/integrationPlatform'
 import { formatDateTime } from '../../../lib/format'
@@ -192,57 +193,6 @@ function ExecutionDetailModal({ open, onOpenChange, execution }: { open: boolean
   )
 }
 
-const columns: DataTableColumn<ExecutionListItem>[] = [
-  {
-    key: 'type',
-    title: 'Tipo',
-    dataIndex: 'type',
-    width: 110,
-    render: (v: number) => TYPE_LABEL[v] ?? '-',
-  },
-  {
-    key: 'connector',
-    title: 'Conector',
-    dataIndex: 'connector',
-    render: (v: ExecutionListItem['connector']) => v?.name ?? '-',
-  },
-  {
-    key: 'integration',
-    title: 'Integração',
-    dataIndex: 'connector',
-    hiddenBelow: 'md',
-    render: (v: ExecutionListItem['connector']) => v?.integration?.name ?? '-',
-  },
-  {
-    key: 'pipeline',
-    title: 'Pipeline',
-    dataIndex: 'pipeline',
-    hiddenBelow: 'lg',
-    render: (v: ExecutionListItem['pipeline']) => v?.name ?? '-',
-  },
-  {
-    key: 'status',
-    title: 'Status',
-    dataIndex: 'status',
-    width: 110,
-    render: (v: number) => <Badge variant={STATUS_VARIANT[v] ?? 'secondary'}>{STATUS_LABEL[v] ?? '-'}</Badge>,
-  },
-  {
-    key: 'startedAt',
-    title: 'Início',
-    dataIndex: 'startedAt',
-    hiddenBelow: 'lg',
-    render: (v: string) => formatDateTime(v),
-  },
-  {
-    key: 'duration',
-    title: 'Duração',
-    dataIndex: 'duration',
-    width: 100,
-    render: (v: number) => formatDuration(v),
-  },
-]
-
 export default function IntegrationLogs() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
@@ -268,9 +218,69 @@ export default function IntegrationLogs() {
     setModalOpen(true)
   }
 
+  const columns: DataTableColumn<ExecutionListItem>[] = [
+    {
+      key: 'type',
+      title: 'Tipo',
+      dataIndex: 'type',
+      width: 110,
+      render: (v: number) => TYPE_LABEL[v] ?? '-',
+    },
+    {
+      key: 'connector',
+      title: 'Conector',
+      dataIndex: 'connector',
+      render: (v: ExecutionListItem['connector']) => v?.name ?? '-',
+    },
+    {
+      key: 'integration',
+      title: 'Integração',
+      dataIndex: 'connector',
+      hiddenBelow: 'md',
+      render: (v: ExecutionListItem['connector']) => v?.integration?.name ?? '-',
+    },
+    {
+      key: 'pipeline',
+      title: 'Pipeline',
+      dataIndex: 'pipeline',
+      hiddenBelow: 'lg',
+      render: (v: ExecutionListItem['pipeline']) => v?.name ?? '-',
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      dataIndex: 'status',
+      width: 110,
+      render: (v: number) => <Badge variant={STATUS_VARIANT[v] ?? 'secondary'}>{STATUS_LABEL[v] ?? '-'}</Badge>,
+    },
+    {
+      key: 'startedAt',
+      title: 'Início',
+      dataIndex: 'startedAt',
+      hiddenBelow: 'lg',
+      render: (v: string) => formatDateTime(v),
+    },
+    {
+      key: 'duration',
+      title: 'Duração',
+      dataIndex: 'duration',
+      width: 100,
+      render: (v: number) => formatDuration(v),
+    },
+    {
+      key: 'actions',
+      title: '',
+      dataIndex: undefined,
+      width: 110,
+      render: (_: unknown, record: ExecutionListItem) => (
+        <DetailsButton onClick={(e) => { e.stopPropagation(); handleRowClick(record) }} />
+      ),
+    },
+  ]
+
   return (
     <PageLayout
-      title="Logs de integração"
+      title="Logs de Integração"
       subtitle="Histórico de execuções das integrações configuradas."
       onRefresh={() => void load(page, pageSize)}
     >
