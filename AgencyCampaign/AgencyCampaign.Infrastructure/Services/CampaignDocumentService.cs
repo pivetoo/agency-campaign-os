@@ -308,12 +308,32 @@ namespace AgencyCampaign.Infrastructure.Services
 
             ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(Application.Catalogs.IntegrationIntents.CampaignDocumentSendSignature, cancellationToken);
 
+            // O provedor de assinatura precisa dos bytes do documento (PDF). Usa o arquivo enviado
+            // (DocumentUrl) quando disponivel; senao renderiza o corpo HTML para PDF.
+            byte[]? documentBytes = null;
+            if (!string.IsNullOrWhiteSpace(document.DocumentUrl))
+            {
+                documentBytes = await signedDocumentDownloader.DownloadAsync(document.DocumentUrl!, cancellationToken);
+            }
+
+            if ((documentBytes is null || documentBytes.Length == 0) && !string.IsNullOrWhiteSpace(document.Body))
+            {
+                documentBytes = await PuppeteerPdfRenderer.RenderToPdfAsync(document.Body!);
+            }
+
+            if (documentBytes is null || documentBytes.Length == 0)
+            {
+                throw new InvalidOperationException("campaignDocument.content.required");
+            }
+
             string payload = JsonSerializer.Serialize(new
             {
                 campaignDocumentId = document.Id,
                 title = document.Title,
-                body = document.Body,
-                documentUrl = document.DocumentUrl,
+                documentBase64 = Convert.ToBase64String(documentBytes),
+                documentName = $"{document.Title}.pdf",
+                mimeType = "application/pdf",
+                message = document.EmailBody,
                 signers = request.Signers.Select(item => new
                 {
                     role = item.Role.ToString(),
@@ -367,12 +387,27 @@ namespace AgencyCampaign.Infrastructure.Services
                     .Include(item => item.Signatures)
                     .Include(item => item.Events)
                     .FirstOrDefaultAsync(item => item.ProviderDocumentId == request.ProviderDocumentId && item.Provider == null, cancellationToken);
+            }
 
-                if (document is null)
-                {
-                    throw new InvalidOperationException("record.notFound");
-                }
+            // Correlacao inicial: o primeiro callback do envio carrega o nosso campaignDocumentId junto do
+            // providerDocumentId (uuid do envelope). Permite vincular o documento ao provedor mesmo antes de
+            // ter o ProviderDocumentId gravado; os callbacks seguintes ja localizam por Provider + ProviderDocumentId.
+            if (document is null && request.CampaignDocumentId.HasValue)
+            {
+                document = await DbContext.Set<CampaignDocument>()
+                    .AsTracking()
+                    .Include(item => item.Signatures)
+                    .Include(item => item.Events)
+                    .FirstOrDefaultAsync(item => item.Id == request.CampaignDocumentId.Value, cancellationToken);
+            }
 
+            if (document is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            if (string.IsNullOrWhiteSpace(document.ProviderDocumentId) && !string.IsNullOrWhiteSpace(request.ProviderDocumentId))
+            {
                 document.AttachToProvider(request.Provider, request.ProviderDocumentId);
             }
 

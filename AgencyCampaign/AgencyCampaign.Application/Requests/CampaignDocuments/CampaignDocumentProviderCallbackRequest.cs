@@ -16,6 +16,10 @@ namespace AgencyCampaign.Application.Requests.CampaignDocuments
         [StringLength(50)]
         public string EventType { get; set; } = string.Empty;
 
+        // Enviado no primeiro callback do envio para correlacionar o documento ao envelope do provedor,
+        // antes de o ProviderDocumentId estar gravado. Opcional nos callbacks subsequentes.
+        public long? CampaignDocumentId { get; set; }
+
         public DateTimeOffset? OccurredAt { get; set; }
 
         [StringLength(150)]
