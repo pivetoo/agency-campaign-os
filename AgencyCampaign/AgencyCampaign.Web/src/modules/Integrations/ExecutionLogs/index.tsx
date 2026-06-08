@@ -22,10 +22,9 @@ const STATUS_LABEL: Record<number, string> = {
 }
 
 const TYPE_LABEL: Record<number, string> = {
-  1: 'Manual',
-  2: 'Webhook',
-  3: 'Agendado',
-  4: 'Serviço',
+  1: 'Pipeline',
+  2: 'Manual',
+  3: 'Webhook',
 }
 
 function formatDuration(ms?: number | null): string {
