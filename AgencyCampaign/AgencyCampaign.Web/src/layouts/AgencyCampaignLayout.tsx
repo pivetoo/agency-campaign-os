@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap, KeyRound } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 import { reportCatalog, reportAreaOrder, reportAreaLabels, type ReportArea } from '../modules/Reports/catalog'
 
@@ -169,7 +169,7 @@ export default function AgencyCampaignLayout() {
     .filter((g) => g.routes.length > 0)
 
   const integracoesRoutes = toNavRoutes([
-    { key: 'integracoes-contas', label: 'Contas', path: '/integracoes/contas', icon: <Plug size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
+    { key: 'integracoes-contas', label: 'Contas', path: '/integracoes/contas', icon: <KeyRound size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
     { key: 'integracoes-acoes', label: 'Ações', path: '/integracoes/acoes', icon: <Zap size={20} />, requires: ['integrations.get'] },
     { key: 'integracoes-automacoes', label: 'Automações', path: '/integracoes/automacoes', icon: <GitBranch size={20} />, requires: ['automations.get'] },
     { key: 'integracoes-logs', label: 'Logs', path: '/integracoes/logs', icon: <ScrollText size={20} />, requires: ['integrations.get'] },
