@@ -545,7 +545,7 @@
   <data name="common.action.save" xml:space="preserve"><value>Salvar</value></data>
   <data name="common.action.cancel" xml:space="preserve"><value>Cancelar</value></data>
   <data name="configuration.integrations.tab.actions" xml:space="preserve"><value>Ações</value></data>
-  <data name="configuration.integrations.actions.title" xml:space="preserve"><value>Configure quem entrega cada ação do Kanvas</value></data>
+  <data name="configuration.integrations.actions.title" xml:space="preserve"><value>Configure quem entrega cada ação do Mainstay</value></data>
   <data name="configuration.integrations.actions.description" xml:space="preserve"><value>Escolha o conector e o pipeline padrão de cada ação. Depois disso, os modais abrem direto prontos para enviar — você ainda pode trocar pontualmente.</value></data>
   <data name="configuration.integrations.actions.configured" xml:space="preserve"><value>Configurado</value></data>
   <data name="configuration.integrations.actions.notConfigured" xml:space="preserve"><value>Não configurado</value></data>
@@ -571,7 +571,7 @@
   <data name="modal.automation.triggerType.event.description" xml:space="preserve"><value>Reage a eventos do sistema (ex: proposta aprovada).</value></data>
   <data name="modal.automation.triggerType.userAction.title" xml:space="preserve"><value>Quando o usuário fizer</value></data>
   <data name="modal.automation.triggerType.userAction.description" xml:space="preserve"><value>Padrão dos botões manuais (ex: clicar Enviar proposta).</value></data>
-  <data name="modal.automation.placeholder.userAction" xml:space="preserve"><value>Selecione a ação do Kanvas</value></data>
+  <data name="modal.automation.placeholder.userAction" xml:space="preserve"><value>Selecione a ação do Mainstay</value></data>
   <data name="common.byUser" xml:space="preserve"><value>por {0}</value></data>
   <data name="common.relative.now" xml:space="preserve"><value>agora</value></data>
   <data name="common.relative.minutesAgo" xml:space="preserve"><value>há {0}min</value></data>
@@ -748,7 +748,7 @@
   <data name="configuration.financialSubcategories.title" xml:space="preserve"><value>Subcategorias financeiras</value></data>
   <data name="configuration.financialSubcategories.subtitle" xml:space="preserve"><value>Subcategorias customizadas para detalhar lançamentos financeiros.</value></data>
   <data name="configuration.integrations.title" xml:space="preserve"><value>Integrações</value></data>
-  <data name="configuration.integrations.subtitle" xml:space="preserve"><value>Conecte contas externas e configure ações automáticas para os eventos do Kanvas.</value></data>
+  <data name="configuration.integrations.subtitle" xml:space="preserve"><value>Conecte contas externas e configure ações automáticas para os eventos do Mainstay.</value></data>
   <data name="configuration.integrations.field.category" xml:space="preserve"><value>Categoria</value></data>
   <data name="configuration.integrations.field.connectedAccounts" xml:space="preserve"><value>Contas configuradas</value></data>
   <data name="configuration.integrations.field.active" xml:space="preserve"><value>Ativas</value></data>
@@ -1077,7 +1077,7 @@
 {0}</value></data>
   <data name="campaignReport.notFound" xml:space="preserve"><value>Relatório não encontrado ou link expirado.</value></data>
   <data name="campaignReport.empty" xml:space="preserve"><value>Nenhuma entrega medida ainda.</value></data>
-  <data name="campaignReport.footer" xml:space="preserve"><value>Relatório gerado pelo Kanvas</value></data>
+  <data name="campaignReport.footer" xml:space="preserve"><value>Relatório gerado pelo Mainstay</value></data>
   <data name="campaignReport.section.byPlatform" xml:space="preserve"><value>Alcance por plataforma</value></data>
   <data name="campaignReport.section.deliverables" xml:space="preserve"><value>Entregas da campanha</value></data>
   <data name="campaignReport.kpi.reach" xml:space="preserve"><value>Alcance</value></data>
@@ -1330,7 +1330,7 @@
   <data name="configuration.bankAccounts.empty" xml:space="preserve"><value>Nenhuma conta cadastrada</value></data>
   <data name="configuration.bankAccounts.confirm.delete" xml:space="preserve"><value>Excluir a conta "{0}"? Se houver lançamentos, prefira inativar.</value></data>
   <data name="configuration.bankAccounts.field.bank" xml:space="preserve"><value>Banco</value></data>
-  <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Saldo Kanvas</value></data>
+  <data name="configuration.bankAccounts.field.currentBalance" xml:space="preserve"><value>Saldo Mainstay</value></data>
   <data name="configuration.bankAccounts.field.sync" xml:space="preserve"><value>Sincronização</value></data>
   <data name="configuration.bankAccounts.field.lastSyncedBalance" xml:space="preserve"><value>Saldo bancário</value></data>
   <data name="configuration.bankAccounts.field.lastSyncedAt" xml:space="preserve"><value>Última sincronização</value></data>
@@ -1339,7 +1339,7 @@
   <data name="configuration.bankAccounts.syncStatus.synced" xml:space="preserve"><value>Sincronizado</value></data>
   <data name="configuration.bankAccounts.syncStatus.error" xml:space="preserve"><value>Erro</value></data>
   <data name="configuration.bankAccounts.kpi.activeAccounts" xml:space="preserve"><value>Contas ativas</value></data>
-  <data name="configuration.bankAccounts.kpi.totalKanvasBalance" xml:space="preserve"><value>Saldo Kanvas total</value></data>
+  <data name="configuration.bankAccounts.kpi.totalKanvasBalance" xml:space="preserve"><value>Saldo Mainstay total</value></data>
   <data name="configuration.bankAccounts.kpi.syncedAccounts" xml:space="preserve"><value>Sincronizadas</value></data>
   <data name="configuration.bankAccounts.kpi.totalAccountsSuffix" xml:space="preserve"><value>de {0} total</value></data>
   <data name="configuration.bankAccounts.addLabel" xml:space="preserve"><value>Nova conta</value></data>
@@ -1398,7 +1398,7 @@
   <data name="automations.action.createFirst" xml:space="preserve"><value>Criar primeira automação</value></data>
   <data name="automations.empty" xml:space="preserve"><value>Nenhuma automação cadastrada</value></data>
   <data name="automations.empty.title" xml:space="preserve"><value>Nenhuma automação configurada</value></data>
-  <data name="automations.empty.description" xml:space="preserve"><value>Crie automações para executar pipelines quando eventos acontecerem no Kanvas.</value></data>
+  <data name="automations.empty.description" xml:space="preserve"><value>Crie automações para executar pipelines quando eventos acontecerem no Mainstay.</value></data>
   <data name="automations.logs.title" xml:space="preserve"><value>Logs de execução</value></data>
   <data name="automations.logs.empty" xml:space="preserve"><value>Nenhum log de execução encontrado</value></data>
   <data name="automations.logs.status.success" xml:space="preserve"><value>Sucesso</value></data>
@@ -1746,7 +1746,7 @@
   <data name="integrationCapabilities.area" xml:space="preserve"><value>IntegrationCapabilities</value></data>
   <data name="integrationCapabilities.get.description" xml:space="preserve"><value>Permite listar os vínculos ativos entre ações de negócio e conectores configurados.</value></data>
   <data name="integrationCapabilities.getByIntent.description" xml:space="preserve"><value>Permite consultar o vínculo de um intent específico com o conector configurado.</value></data>
-  <data name="integrationCapabilities.getCatalog.description" xml:space="preserve"><value>Permite consultar o catálogo de ações de negócio integráveis do Kanvas.</value></data>
+  <data name="integrationCapabilities.getCatalog.description" xml:space="preserve"><value>Permite consultar o catálogo de ações de negócio integráveis do Mainstay.</value></data>
   <data name="integrationCapabilities.getSummary.description" xml:space="preserve"><value>Permite consultar o catálogo de ações enriquecido com vínculos e contas disponíveis.</value></data>
   <data name="integrationCapabilities.set.description" xml:space="preserve"><value>Permite definir o conector ativo para uma ação de negócio.</value></data>
   <data name="integrationCapabilities.remove.description" xml:space="preserve"><value>Permite remover o vínculo entre uma ação de negócio e um conector.</value></data>
@@ -2241,7 +2241,7 @@
   <data name="configuration.opportunityOutcomeReasons.confirm.delete" xml:space="preserve"><value>Excluir o motivo "{0}"?</value></data>
   <data name="configuration.commercialPolicy.title" xml:space="preserve"><value>Política comercial</value></data>
   <data name="configuration.commercialPolicy.subtitle" xml:space="preserve"><value>Limites usados para detectar quando uma proposta requer aprovação.</value></data>
-  <data name="configuration.commercialPolicy.intro" xml:space="preserve"><value>Quando uma proposta for criada ou editada com valores **fora destes limites**, o Kanvas avisa o operador e pré-popula a aprovação com o diff e o impacto financeiro estimado.</value></data>
+  <data name="configuration.commercialPolicy.intro" xml:space="preserve"><value>Quando uma proposta for criada ou editada com valores **fora destes limites**, o Mainstay avisa o operador e pré-popula a aprovação com o diff e o impacto financeiro estimado.</value></data>
   <data name="configuration.commercialPolicy.action.save" xml:space="preserve"><value>Salvar política</value></data>
   <data name="configuration.commercialPolicy.field.maxDiscount.label" xml:space="preserve"><value>Desconto máximo permitido (%)</value></data>
   <data name="configuration.commercialPolicy.field.maxDiscount.hint" xml:space="preserve"><value>Desconto acima disso exige aprovação.</value></data>

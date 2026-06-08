@@ -31,7 +31,7 @@ const steps: KanvasStep[] = [
   {
     target: 'body',
     placement: 'center',
-    title: 'Bem-vindo ao Kanvas',
+    title: 'Bem-vindo ao Mainstay',
     content:
       'Vamos passear pelas principais áreas do sistema em alguns minutos. Você pode pular a qualquer momento.',
     route: '/',

@@ -326,7 +326,7 @@ export default function AgencyCampaignLayout() {
   return (
     <TourProvider>
       <AppLayout
-        title={contract?.systemApplicationName ?? 'Kanvas'}
+        title={contract?.systemApplicationName ?? 'Mainstay'}
         logo={sidebarLogo}
         subtitle="by Mainstay"
         navbarCompanyName={contract?.companyName}

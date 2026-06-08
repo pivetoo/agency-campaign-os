@@ -191,7 +191,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 {{kpisHtml}}
                 {{tableHtml}}
               </div>
-              <div class="footer"><span>{{agencyName}}</span><span>Kanvas &middot; by Mainstay</span></div>
+              <div class="footer"><span>{{agencyName}}</span><span>Mainstay</span></div>
             </div>
             </body>
             </html>

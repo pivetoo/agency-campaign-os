@@ -217,7 +217,7 @@ export default function CapabilityList() {
         <div className="space-y-1 hidden md:block">
           <span className="text-xs text-muted-foreground">Como funciona</span>
           <p className="text-xs text-muted-foreground">
-            Escolha uma área à esquerda e defina qual conta o Kanvas deve usar para cada ação.
+            Escolha uma área à esquerda e defina qual conta o Mainstay deve usar para cada ação.
           </p>
         </div>
       </div>
@@ -329,7 +329,7 @@ export default function CapabilityList() {
                               )}
                             </div>
                             {!configured && (
-                              <p className="mt-1 text-xs text-muted-foreground">Selecione a conta que o Kanvas deve usar para esta ação.</p>
+                              <p className="mt-1 text-xs text-muted-foreground">Selecione a conta que o Mainstay deve usar para esta ação.</p>
                             )}
                           </div>
                           <div className="w-full md:w-72">

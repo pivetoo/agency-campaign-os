@@ -9,7 +9,7 @@ export default function Reports() {
   const canSee = (entry: ReportCatalogEntry) => isRoot || !entry.requires || hasAnyPermission(entry.requires)
 
   return (
-    <PageLayout title="Relatórios" subtitle="Central de relatórios do Kanvas" showDefaultActions={false}>
+    <PageLayout title="Relatórios" subtitle="Central de relatórios do Mainstay" showDefaultActions={false}>
       <div className="space-y-8">
         {reportAreaOrder.map((area) => {
           const entries = reportCatalog.filter((entry) => entry.area === area && canSee(entry))
