@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2 } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 import { reportCatalog, reportAreaOrder, reportAreaLabels, type ReportArea } from '../modules/Reports/catalog'
 
@@ -169,7 +169,10 @@ export default function AgencyCampaignLayout() {
     .filter((g) => g.routes.length > 0)
 
   const integracoesRoutes = toNavRoutes([
-    { key: 'configuracao-integracoes', label: t('nav.item.integrations'), path: '/configuracao/integracoes', icon: <Plug size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
+    { key: 'integracoes-contas', label: 'Contas', path: '/integracoes/contas', icon: <Plug size={20} />, requires: ['integrations.get', 'integrations.getActive'] },
+    { key: 'integracoes-acoes', label: 'Ações', path: '/integracoes/acoes', icon: <Zap size={20} />, requires: ['integrations.get'] },
+    { key: 'integracoes-automacoes', label: 'Automações', path: '/integracoes/automacoes', icon: <GitBranch size={20} />, requires: ['automations.get'] },
+    { key: 'integracoes-logs', label: 'Logs', path: '/integracoes/logs', icon: <ScrollText size={20} />, requires: ['integrations.get'] },
   ])
 
   const reportNavItems = (area: ReportArea): NavItem[] =>
@@ -227,6 +230,10 @@ export default function AgencyCampaignLayout() {
       '/configuracao/status-creators': t('nav.item.creatorStatus'),
       '/configuracao/tipos-entrega': t('nav.item.deliverableKinds'),
       '/configuracao/integracoes': t('nav.item.integrations'),
+      '/integracoes/contas': 'Contas conectadas',
+      '/integracoes/acoes': 'Ações disponíveis',
+      '/integracoes/automacoes': 'Automações',
+      '/integracoes/logs': 'Logs de integração',
       '/relatorios': 'Relatórios',
       '/relatorios/comercial/funil': 'Funil de Conversão',
       '/relatorios/comercial/ganhos-perdas': 'Ganhos × Perdas',

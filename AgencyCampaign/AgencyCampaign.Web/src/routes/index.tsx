@@ -42,6 +42,10 @@ import CommercialPipelineStages from '../modules/Configuration/CommercialPipelin
 import CampaignCreatorStatuses from '../modules/Configuration/CampaignCreatorStatuses'
 import DeliverableKinds from '../modules/Configuration/DeliverableKinds'
 import Integrations from '../modules/Configuration/Integrations'
+import IntegrationAccounts from '../modules/Integrations/Accounts'
+import IntegrationActions from '../modules/Integrations/Actions'
+import IntegrationAutomations from '../modules/Integrations/Automations'
+import IntegrationLogs from '../modules/Integrations/ExecutionLogs'
 import ProposalTemplates from '../modules/Configuration/ProposalTemplates'
 import OpportunitySources from '../modules/Configuration/OpportunitySources'
 import OpportunityTags from '../modules/Configuration/OpportunityTags'
@@ -149,6 +153,11 @@ function AppRoutes() {
           <Route path="configuracao/status-creators" element={<CampaignCreatorStatuses />} />
           <Route path="configuracao/tipos-entrega" element={<DeliverableKinds />} />
           <Route path="configuracao/integracoes" element={<Integrations />} />
+          <Route path="integracoes" element={<Navigate to="/integracoes/contas" replace />} />
+          <Route path="integracoes/contas" element={<IntegrationAccounts />} />
+          <Route path="integracoes/acoes" element={<IntegrationActions />} />
+          <Route path="integracoes/automacoes" element={<IntegrationAutomations />} />
+          <Route path="integracoes/logs" element={<IntegrationLogs />} />
           <Route path="configuracao/itens-proposta" element={<ProposalTemplates />} />
           <Route path="configuracao/origens-oportunidade" element={<OpportunitySources />} />
           <Route path="configuracao/tags-oportunidade" element={<OpportunityTags />} />
