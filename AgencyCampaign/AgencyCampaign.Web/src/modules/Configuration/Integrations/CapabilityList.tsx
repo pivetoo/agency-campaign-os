@@ -132,10 +132,8 @@ export default function CapabilityList() {
 
   useEffect(() => {
     if (selectedModuleId) return
-    if (orderedModules.length > 0) {
-      setSelectedModuleId(orderedModules[0].id)
-    }
-  }, [orderedModules, selectedModuleId])
+    setSelectedModuleId(ACTION_MODULES[0].id)
+  }, [selectedModuleId])
 
   const updateRow = (intentKey: string, patch: Partial<RowState>) => {
     setRowState((prev) => ({ ...prev, [intentKey]: { ...prev[intentKey], ...patch } }))
