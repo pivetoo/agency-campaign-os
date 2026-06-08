@@ -73,6 +73,8 @@ namespace AgencyCampaign.Infrastructure.Services
                             Id = connector.Id,
                             Name = connector.Name,
                             IsActive = connector.IsActive,
+                            IntegrationName = connector.Integration?.Name,
+                            IntegrationIconUrl = connector.Integration?.IconUrl,
                         })
                         .ToList();
                 }

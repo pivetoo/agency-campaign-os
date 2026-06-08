@@ -336,7 +336,10 @@ export default function CapabilityList() {
                             <SearchableSelect
                               options={connectors.map((connector) => ({
                                 value: String(connector.id),
-                                label: `${connector.name}${connector.isActive ? '' : ' (inativa)'}`,
+                                label: connector.integrationName
+                                  ? `${connector.integrationName} — ${connector.name}${connector.isActive ? '' : ' (inativa)'}`
+                                  : `${connector.name}${connector.isActive ? '' : ' (inativa)'}`,
+                                iconUrl: connector.integrationIconUrl,
                               }))}
                               value={state.selectedConnectorId ? String(state.selectedConnectorId) : undefined}
                               onValueChange={(value) => handleConnectorChange(intentKey, value ? Number(value) : null)}

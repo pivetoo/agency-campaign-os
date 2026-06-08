@@ -466,6 +466,7 @@ namespace AgencyCampaign.Infrastructure.Clients
         public bool IsActive { get; set; }
         public string? WebhookToken { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
+        public IntegrationDto? Integration { get; set; }
     }
 
     public sealed class ConnectorAttributeValueDto

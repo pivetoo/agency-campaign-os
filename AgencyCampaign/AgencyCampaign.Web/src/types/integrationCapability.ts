@@ -24,6 +24,8 @@ export interface CapabilityConnectorOption {
   id: number
   name: string
   isActive: boolean
+  integrationName?: string
+  integrationIconUrl?: string
 }
 
 export interface IntegrationCapabilitySummary {
