@@ -73,9 +73,9 @@ export default function CommercialPolicyAdmin() {
         </div>
 
         {isEmptyPolicy && (
-          <div className="flex items-start gap-3 rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-            <div>{t('configuration.commercialPolicy.warning.emptyPolicy')}</div>
+          <div className="flex items-start gap-3 rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm dark:border-amber-500/30 dark:bg-amber-500/10">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+            <div className="text-foreground">{t('configuration.commercialPolicy.warning.emptyPolicy')}</div>
           </div>
         )}
 
