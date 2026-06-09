@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, ConfirmModal, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, PageLayout, SearchableSelect, Sheet, SheetContent, SheetHeader, SheetTitle, UsersManagementService, useApi, useAuth, useI18n } from 'archon-ui'
-import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, FileText, MessageSquare, Plus, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
+import { ArrowUpRight, CheckCircle2, ChevronRight, Clock, ExternalLink, Eye, FileText, MessageSquare, Plus, RotateCw, Search, ShieldCheck, ThumbsDown, ThumbsUp, Users, XCircle, Zap } from 'lucide-react'
 import { opportunityService, OpportunityApprovalStatus, type OpportunityApprovalRequest } from '../../../services/opportunityService'
 import type { OpportunityApprovalComment } from '../../../types/opportunityApprovalComment'
 import { OpportunityApprovalReviewerStatus, type OpportunityApprovalReviewer } from '../../../types/opportunityApprovalReviewer'
@@ -220,12 +220,7 @@ export default function CommercialApprovals() {
   }
 
   return (
-    <PageLayout
-      title={t('approvals.title')}
-      subtitle={t('approvals.subtitle')}
-      onRefresh={() => void loadData()}
-      showDefaultActions={false}
-    >
+    <PageLayout showDefaultActions={false}>
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         {capReached && (
           <div className="border-b border-amber-300/60 bg-amber-50/70 px-4 py-2 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
@@ -243,6 +238,7 @@ export default function CommercialApprovals() {
             selectedId={selectedId}
             onSelect={(id) => { setSelectedId(id); setMobileDetailOpen(true) }}
             loading={loading}
+            onRefresh={() => void loadData()}
             t={t}
           />
 
@@ -337,16 +333,25 @@ interface InboxColumnProps {
   selectedId: number | null
   onSelect: (id: number) => void
   loading: boolean
+  onRefresh: () => void
   t: (key: string) => string
 }
 
-function InboxColumn({ counts, filter, onFilterChange, search, onSearchChange, items, selectedId, onSelect, loading, t }: InboxColumnProps) {
+function InboxColumn({ counts, filter, onFilterChange, search, onSearchChange, items, selectedId, onSelect, loading, onRefresh, t }: InboxColumnProps) {
   return (
     <aside className="flex min-h-0 flex-col border-r border-border bg-card">
       <div className="space-y-3 border-b border-border/60 p-4">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-base font-semibold text-foreground">{t('commercialApprovals.inbox.title')}</h2>
-          <span className="text-xs text-muted-foreground">{t('commercialApprovals.inbox.total').replace('{0}', String(counts.all))}</span>
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-foreground">{t('approvals.title')}</h2>
+            <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{t('approvals.subtitle')}</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 pt-0.5">
+            <span className="text-xs text-muted-foreground">{t('commercialApprovals.inbox.total').replace('{0}', String(counts.all))}</span>
+            <button type="button" onClick={onRefresh} disabled={loading} className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40">
+              <RotateCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
         </div>
         <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 [scrollbar-width:thin]">
           <InboxTab label={t('commercialApprovals.filter.pending')} count={counts.pending} active={filter === 'pending'} tone="amber" onClick={() => onFilterChange('pending')} />
