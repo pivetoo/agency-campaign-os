@@ -130,11 +130,11 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
-        public static CreateNotificationRequest FollowUpDue(OpportunityFollowUp followUp, Opportunity opportunity)
+        public static CreateNotificationRequest FollowUpDue(OpportunityFollowUp followUp, Opportunity opportunity, long? recipientUserId)
         {
             return new CreateNotificationRequest
             {
-                UserId = opportunity.ResponsibleUserId,
+                UserId = recipientUserId,
                 Type = NotificationType.Warning,
                 Title = "Follow-up pendente",
                 Message = $"O follow-up \"{followUp.Subject}\" da oportunidade \"{opportunity.Name}\" está vencido.",
@@ -145,11 +145,11 @@ namespace AgencyCampaign.Application.Notifications
             };
         }
 
-        public static CreateNotificationRequest OpportunityStalled(Opportunity opportunity, int daysInStage, int slaInDays, string stageName)
+        public static CreateNotificationRequest OpportunityStalled(Opportunity opportunity, int daysInStage, int slaInDays, string stageName, long? recipientUserId)
         {
             return new CreateNotificationRequest
             {
-                UserId = opportunity.ResponsibleUserId,
+                UserId = recipientUserId,
                 Type = NotificationType.Warning,
                 Title = "Oportunidade parada",
                 Message = $"A oportunidade \"{opportunity.Name}\" está há {daysInStage} dias em \"{stageName}\" (SLA do estágio: {slaInDays} dias).",

@@ -60,6 +60,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Select(group => new { OpportunityId = group.Key, LastChangedAt = group.Max(history => history.ChangedAt) })
                 .ToDictionaryAsync(item => item.OpportunityId, item => item.LastChangedAt, cancellationToken);
 
+            IReadOnlyCollection<long> adminUserIds = await ResolveAdminUserIds(cancellationToken);
+
             int alerted = 0;
             foreach (Opportunity opportunity in candidates)
             {
@@ -74,9 +76,28 @@ namespace AgencyCampaign.Infrastructure.Services
 
                 try
                 {
-                    await notificationService.Create(
-                        KanvasNotifications.OpportunityStalled(opportunity, daysInStage, slaInDays, opportunity.CommercialPipelineStage.Name),
-                        cancellationToken);
+                    HashSet<long> recipients = [.. adminUserIds];
+                    if (opportunity.ResponsibleUserId.HasValue)
+                    {
+                        recipients.Add(opportunity.ResponsibleUserId.Value);
+                    }
+
+                    if (recipients.Count == 0)
+                    {
+                        await notificationService.Create(
+                            KanvasNotifications.OpportunityStalled(opportunity, daysInStage, slaInDays, opportunity.CommercialPipelineStage.Name, null),
+                            cancellationToken);
+                    }
+                    else
+                    {
+                        foreach (long recipient in recipients)
+                        {
+                            await notificationService.Create(
+                                KanvasNotifications.OpportunityStalled(opportunity, daysInStage, slaInDays, opportunity.CommercialPipelineStage.Name, recipient),
+                                cancellationToken);
+                        }
+                    }
+
                     opportunity.MarkStaleAlerted();
                     alerted++;
                 }
@@ -92,6 +113,20 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return alerted;
+        }
+
+        private async Task<IReadOnlyCollection<long>> ResolveAdminUserIds(CancellationToken cancellationToken)
+        {
+            try
+            {
+                List<ContractUserDto> admins = await identityUsersClient.GetAdminUsersAsync(cancellationToken);
+                return admins.Select(item => item.UserId).ToList();
+            }
+            catch (Exception exception)
+            {
+                logger?.LogWarning(exception, "Failed to resolve admin users for stalled alerts; falling back to responsible-only/broadcast.");
+                return [];
+            }
         }
 
         private async Task<string?> ResolveResponsibleUserName(long? userId, CancellationToken cancellationToken)

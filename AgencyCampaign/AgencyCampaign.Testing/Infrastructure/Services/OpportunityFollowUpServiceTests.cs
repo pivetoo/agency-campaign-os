@@ -23,7 +23,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             notifications = new();
-            service = new OpportunityFollowUpService(db, notifications.Object);
+            service = new OpportunityFollowUpService(db, notifications.Object, IdentityClientFactory.CreateInert());
         }
 
         [TearDown]

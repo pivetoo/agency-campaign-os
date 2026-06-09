@@ -5,6 +5,7 @@ using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using Archon.Application.Services;
+using Archon.Infrastructure.IdentityManagement;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +17,13 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class OpportunityFollowUpService : CrudService<OpportunityFollowUp>, IOpportunityFollowUpService
     {
         private readonly INotificationService notificationService;
+        private readonly IdentityUsersClient identityUsersClient;
         private readonly ILogger<OpportunityFollowUpService>? logger;
 
-        public OpportunityFollowUpService(DbContext dbContext, INotificationService notificationService, ILogger<OpportunityFollowUpService>? logger = null) : base(dbContext)
+        public OpportunityFollowUpService(DbContext dbContext, INotificationService notificationService, IdentityUsersClient identityUsersClient, ILogger<OpportunityFollowUpService>? logger = null) : base(dbContext)
         {
             this.notificationService = notificationService;
+            this.identityUsersClient = identityUsersClient;
             this.logger = logger;
         }
 
@@ -38,12 +41,36 @@ namespace AgencyCampaign.Infrastructure.Services
                     && item.Opportunity.ClosedAt == null)
                 .ToListAsync(cancellationToken);
 
+            if (due.Count == 0)
+            {
+                return 0;
+            }
+
+            IReadOnlyCollection<long> adminUserIds = await ResolveAdminUserIds(cancellationToken);
+
             int reminded = 0;
             foreach (OpportunityFollowUp followUp in due)
             {
                 try
                 {
-                    await notificationService.Create(KanvasNotifications.FollowUpDue(followUp, followUp.Opportunity!), cancellationToken);
+                    HashSet<long> recipients = [.. adminUserIds];
+                    if (followUp.Opportunity!.ResponsibleUserId.HasValue)
+                    {
+                        recipients.Add(followUp.Opportunity.ResponsibleUserId.Value);
+                    }
+
+                    if (recipients.Count == 0)
+                    {
+                        await notificationService.Create(KanvasNotifications.FollowUpDue(followUp, followUp.Opportunity, null), cancellationToken);
+                    }
+                    else
+                    {
+                        foreach (long recipient in recipients)
+                        {
+                            await notificationService.Create(KanvasNotifications.FollowUpDue(followUp, followUp.Opportunity, recipient), cancellationToken);
+                        }
+                    }
+
                     followUp.MarkReminderSent();
                     reminded++;
                 }
@@ -59,6 +86,20 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return reminded;
+        }
+
+        private async Task<IReadOnlyCollection<long>> ResolveAdminUserIds(CancellationToken cancellationToken)
+        {
+            try
+            {
+                List<ContractUserDto> admins = await identityUsersClient.GetAdminUsersAsync(cancellationToken);
+                return admins.Select(item => item.UserId).ToList();
+            }
+            catch (Exception exception)
+            {
+                logger?.LogWarning(exception, "Failed to resolve admin users for follow-up reminders; falling back to responsible-only/broadcast.");
+                return [];
+            }
         }
 
         public async Task<OpportunityFollowUp?> GetOpportunityFollowUpById(long id, CancellationToken cancellationToken = default)
