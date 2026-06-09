@@ -36,56 +36,85 @@ namespace AgencyCampaign.Infrastructure.Services
                 .OrderByDescending(item => item.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (policy is null)
-            {
-                return new PolicyEvaluationModel { HasDeviations = false, PolicyMissing = true };
-            }
-
             // Sempre emite as linhas de comparacao (dentro = Kind 1; violacao = Kind 2),
             // para o aprovador ver todos os termos da proposta, nao so os que estouram a politica.
             List<PolicyDeviationModel> comparisons = [];
             List<PolicyImpactModel> impacts = [];
 
-            if (policy.MaxDiscountPercent.HasValue && proposal.DiscountAmount.HasValue)
+            bool policyMissing = policy is null;
+
+            if (proposal.DiscountAmount.HasValue)
             {
                 decimal requested = proposal.DiscountPercent;
-                decimal max = policy.MaxDiscountPercent.Value;
-                bool violates = requested > max;
-                comparisons.Add(new PolicyDeviationModel
-                {
-                    Field = "Desconto",
-                    PolicyValue = $"máx {FormatPercent(max)}",
-                    RequestedValue = FormatPercent(requested),
-                    Delta = violates ? $"+{FormatPercentPoints(requested - max)}" : "dentro",
-                    Kind = violates ? 2 : 1,
-                    IsViolation = violates,
-                });
 
-                if (violates)
+                if (policy?.MaxDiscountPercent.HasValue == true)
                 {
-                    decimal lostRevenue = proposal.TotalValue * ((requested - max) / 100m);
-                    impacts.Add(new PolicyImpactModel { Label = "Receita", Value = $"-{FormatBrl(lostRevenue)}", IsGood = false });
+                    decimal max = policy.MaxDiscountPercent.Value;
+                    bool violates = requested > max;
+                    comparisons.Add(new PolicyDeviationModel
+                    {
+                        Field = "Desconto",
+                        PolicyValue = $"máx {FormatPercent(max)}",
+                        RequestedValue = FormatPercent(requested),
+                        Delta = violates ? $"+{FormatPercentPoints(requested - max)}" : "dentro",
+                        Kind = violates ? 2 : 1,
+                        IsViolation = violates,
+                    });
+
+                    if (violates)
+                    {
+                        decimal lostRevenue = proposal.TotalValue * ((requested - max) / 100m);
+                        impacts.Add(new PolicyImpactModel { Label = "Receita", Value = $"-{FormatBrl(lostRevenue)}", IsGood = false });
+                    }
+                }
+                else
+                {
+                    comparisons.Add(new PolicyDeviationModel
+                    {
+                        Field = "Desconto",
+                        PolicyValue = null,
+                        RequestedValue = FormatPercent(requested),
+                        Delta = null,
+                        Kind = 1,
+                        IsViolation = false,
+                    });
                 }
             }
 
-            if (policy.MaxPaymentTermDays.HasValue && proposal.PaymentTermDays.HasValue)
+            if (proposal.PaymentTermDays.HasValue)
             {
                 int requested = proposal.PaymentTermDays.Value;
-                int max = policy.MaxPaymentTermDays.Value;
-                bool violates = requested > max;
-                comparisons.Add(new PolicyDeviationModel
-                {
-                    Field = "Prazo de pagamento",
-                    PolicyValue = $"máx {max} dias",
-                    RequestedValue = $"{requested} dias",
-                    Delta = violates ? $"+{requested - max}d" : "dentro",
-                    Kind = violates ? 2 : 1,
-                    IsViolation = violates,
-                });
 
-                if (violates)
+                if (policy?.MaxPaymentTermDays.HasValue == true)
                 {
-                    impacts.Add(new PolicyImpactModel { Label = "Cashflow", Value = $"-{requested - max} dias", IsGood = false });
+                    int max = policy.MaxPaymentTermDays.Value;
+                    bool violates = requested > max;
+                    comparisons.Add(new PolicyDeviationModel
+                    {
+                        Field = "Prazo de pagamento",
+                        PolicyValue = $"máx {max} dias",
+                        RequestedValue = $"{requested} dias",
+                        Delta = violates ? $"+{requested - max}d" : "dentro",
+                        Kind = violates ? 2 : 1,
+                        IsViolation = violates,
+                    });
+
+                    if (violates)
+                    {
+                        impacts.Add(new PolicyImpactModel { Label = "Cashflow", Value = $"-{requested - max} dias", IsGood = false });
+                    }
+                }
+                else
+                {
+                    comparisons.Add(new PolicyDeviationModel
+                    {
+                        Field = "Prazo de pagamento",
+                        PolicyValue = null,
+                        RequestedValue = $"{requested} dias",
+                        Delta = null,
+                        Kind = 1,
+                        IsViolation = false,
+                    });
                 }
             }
 
@@ -102,7 +131,7 @@ namespace AgencyCampaign.Infrastructure.Services
             return new PolicyEvaluationModel
             {
                 HasDeviations = comparisons.Any(d => d.IsViolation),
-                PolicyMissing = false,
+                PolicyMissing = policyMissing,
                 SuggestedApprovalType = suggestedType,
                 Deviations = comparisons,
                 Impacts = impacts,
