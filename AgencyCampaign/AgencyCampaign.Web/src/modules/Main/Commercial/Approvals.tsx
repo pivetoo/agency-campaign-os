@@ -224,7 +224,7 @@ export default function CommercialApprovals() {
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="min-w-0">
-            <h2 className="text-base font-semibold text-foreground">{t('approvals.title')}</h2>
+            <h2 className="text-base font-semibold text-primary">{t('approvals.title')}</h2>
             <p className="mt-0.5 max-w-xl text-xs leading-snug text-muted-foreground">{t('approvals.subtitle')}</p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -239,7 +239,7 @@ export default function CommercialApprovals() {
             {t('commercialApprovals.capReached').replace('{0}', String(APPROVALS_PAGE_SIZE))}
           </div>
         )}
-        <div className="grid h-[calc(100vh-260px)] min-h-[540px] grid-cols-1 md:grid-cols-[360px_1fr]">
+        <div className="grid h-[calc(100vh-160px)] min-h-[540px] grid-cols-1 md:grid-cols-[360px_1fr]">
           <InboxColumn
             counts={counts}
             filter={filter}
