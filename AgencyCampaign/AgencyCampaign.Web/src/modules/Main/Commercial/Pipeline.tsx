@@ -84,22 +84,20 @@ function OpportunityCard({ item, isDragging, density = 'comfortable', onDragStar
             <div className={`truncate text-xs text-muted-foreground ${compact ? '' : 'mt-1'}`}>{item.brandName}</div>
           </div>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          {item.overdueFollowUpsCount > 0 && (
-            <span className="rounded-full bg-destructive px-2 py-0.5 text-[11px] font-semibold text-destructive-foreground">{t('pipeline.card.overdueBadge')}</span>
-          )}
-          {item.slaStatus === 'breached' && item.daysInStage != null && item.stageSlaInDays != null && (
-            <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[11px] font-semibold text-destructive">
-              {item.daysInStage}d / SLA {item.stageSlaInDays}d
-            </span>
-          )}
-          {item.slaStatus === 'warning' && item.daysInStage != null && item.stageSlaInDays != null && (
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
-              {item.daysInStage}d / SLA {item.stageSlaInDays}d
-            </span>
-          )}
-        </div>
+        {item.overdueFollowUpsCount > 0 && (
+          <span className="shrink-0 rounded-full bg-destructive px-2 py-0.5 text-[11px] font-semibold text-destructive-foreground">{t('pipeline.card.overdueBadge')}</span>
+        )}
       </div>
+      {item.slaStatus === 'breached' && item.daysInStage != null && item.stageSlaInDays != null && (
+        <span className={`mt-1.5 inline-flex rounded-full bg-destructive/15 px-2 py-0.5 text-[11px] font-semibold text-destructive`}>
+          {item.daysInStage}d / SLA {item.stageSlaInDays}d
+        </span>
+      )}
+      {item.slaStatus === 'warning' && item.daysInStage != null && item.stageSlaInDays != null && (
+        <span className="mt-1.5 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+          {item.daysInStage}d / SLA {item.stageSlaInDays}d
+        </span>
+      )}
 
       <div className={`flex items-center gap-2 font-semibold text-foreground ${compact ? 'mt-2 text-[13px]' : 'mt-4 text-sm'}`}>
         <DollarSign className={compact ? 'h-3.5 w-3.5 text-emerald-500' : 'h-4 w-4 text-emerald-500'} />
