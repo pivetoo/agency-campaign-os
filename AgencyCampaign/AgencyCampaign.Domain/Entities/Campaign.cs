@@ -28,6 +28,10 @@ namespace AgencyCampaign.Domain.Entities
 
         public CampaignStatus Status { get; private set; } = CampaignStatus.Draft;
 
+        // Id do responsavel persistido junto ao nome desnormalizado; sem ele a API nao consegue
+        // devolver o vinculo e o editar-salvar do frontend apaga o responsavel silenciosamente
+        public long? ResponsibleUserId { get; private set; }
+
         public string? InternalOwnerName { get; private set; }
 
         public string? Notes { get; private set; }
@@ -91,6 +95,11 @@ namespace AgencyCampaign.Domain.Entities
             InternalOwnerName = Normalize(internalOwnerName);
             Notes = Normalize(notes);
             IsActive = isActive;
+        }
+
+        public void SetResponsibleUserId(long? responsibleUserId)
+        {
+            ResponsibleUserId = responsibleUserId;
         }
 
         public void SetRequiresDeliverableApproval(bool value)

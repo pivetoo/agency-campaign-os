@@ -258,14 +258,14 @@ function SegmentedControl({ channel, emailBinding, whatsappBinding, onSelect }: 
         active={channel === 'email'}
         onClick={() => onSelect('email')}
         icon={<Mail size={16} />}
-        label={t('email')}
+        label={t('proposalSend.channel.email')}
         binding={emailBinding}
       />
       <SegmentedButton
         active={channel === 'whatsapp'}
         onClick={() => onSelect('whatsapp')}
         icon={<MessageCircle size={16} />}
-        label={t('whatsapp')}
+        label={t('proposalSend.channel.whatsapp')}
         binding={whatsappBinding}
       />
     </div>
@@ -339,7 +339,7 @@ function CaptionStatus({ binding, channel }: { binding: ChannelBindingState; cha
     return (
       <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
         <AlertTriangle size={13} />
-        {t('proposalSend.status.noAccount').replace('{0}', channel === 'email' ? t('email') : t('whatsapp'))}
+        {t('proposalSend.status.noAccount').replace('{0}', channel === 'email' ? t('proposalSend.channel.email') : t('proposalSend.channel.whatsapp'))}
       </p>
     )
   }

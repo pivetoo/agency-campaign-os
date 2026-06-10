@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useApi, DataTable, Badge, type DataTableColumn } from 'archon-ui'
 import { commercialReportService, type BrandRanking, type BrandRankingLine } from '../../../services/commercialReportService'
 import { formatCurrency } from '../../../lib/format'
+import { periodStartIso, periodEndExclusiveIso } from '../../../lib/reportPeriod'
 import ReportLayout from '../_shared/ReportLayout'
 import { ReportPeriodFilter } from '../_shared/ReportFilters'
 
@@ -18,7 +19,7 @@ export default function Ranking() {
   const { execute } = useApi<BrandRanking | null>({ showErrorMessage: true })
 
   const load = async () => {
-    const result = await execute(() => commercialReportService.getBrandRanking(new Date(range.from).toISOString(), new Date(range.to).toISOString()))
+    const result = await execute(() => commercialReportService.getBrandRanking(periodStartIso(range.from), periodEndExclusiveIso(range.to)))
     setData(result ?? null)
   }
 
@@ -38,7 +39,7 @@ export default function Ranking() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Ranking por Marca" subtitle="Marcas por valor ganho no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => commercialReportService.exportBrandRanking(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => commercialReportService.exportBrandRankingPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Ranking por Marca" subtitle="Marcas por valor ganho no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => commercialReportService.exportBrandRanking(periodStartIso(range.from), periodEndExclusiveIso(range.to))} onExportPdf={() => commercialReportService.exportBrandRankingPdf(periodStartIso(range.from), periodEndExclusiveIso(range.to))}>
       <DataTable columns={columns} data={data?.lines ?? []} rowKey="brandId" emptyText="Nenhuma marca com negócios fechados no período." />
     </ReportLayout>
   )

@@ -8,6 +8,7 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Clients;
 using Archon.Application.Abstractions;
+using Archon.Application.MultiTenancy;
 using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
@@ -21,6 +22,7 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class ProposalService : CrudService<Proposal>, IProposalService
     {
         private readonly ICurrentUser currentUser;
+        private readonly ITenantContext tenantContext;
         private readonly IFinancialAutoGeneration financialAutoGeneration;
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
@@ -30,9 +32,10 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IOpportunityApprovalRequestService approvalRequestService;
         private readonly ILogger<ProposalService>? logger;
 
-        public ProposalService(DbContext dbContext, ICurrentUser currentUser, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, IPolicyEvaluator policyEvaluator, IOpportunityApprovalRequestService approvalRequestService, ILogger<ProposalService>? logger = null) : base(dbContext)
+        public ProposalService(DbContext dbContext, ICurrentUser currentUser, ITenantContext tenantContext, IFinancialAutoGeneration financialAutoGeneration, IAutomationDispatcher automationDispatcher, INotificationService notificationService, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, IPolicyEvaluator policyEvaluator, IOpportunityApprovalRequestService approvalRequestService, ILogger<ProposalService>? logger = null) : base(dbContext)
         {
             this.currentUser = currentUser;
+            this.tenantContext = tenantContext;
             this.financialAutoGeneration = financialAutoGeneration;
             this.automationDispatcher = automationDispatcher;
             this.notificationService = notificationService;
@@ -306,12 +309,15 @@ namespace AgencyCampaign.Infrastructure.Services
                 return active;
             }
 
-            string token = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24))
+            string random = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24))
                 .Replace("+", "-")
                 .Replace("/", "_")
                 .Replace("=", string.Empty);
 
-            ProposalShareLink created = new(proposalId, token, null, currentUser.UserId, currentUser.UserName);
+            // Mesma composicao do fluxo manual (ProposalShareLinkService): prefixo de tenant para o
+            // endpoint publico resolver o banco e expiracao default de 30 dias
+            string token = PublicLinkToken.Compose(tenantContext.TenantId, random);
+            ProposalShareLink created = new(proposalId, token, DateTimeOffset.UtcNow.AddDays(30), currentUser.UserId, currentUser.UserName);
             DbContext.Set<ProposalShareLink>().Add(created);
             return created;
         }
@@ -461,6 +467,7 @@ namespace AgencyCampaign.Infrastructure.Services
                         campaignStart,
                         description: proposal.Description,
                         internalOwnerName: proposal.InternalOwnerName);
+                    campaign.SetResponsibleUserId(proposal.InternalOwnerId);
                     campaign.AttachOrigin(proposal.OpportunityId, proposal.Id);
 
                     DbContext.Set<Campaign>().Add(campaign);

@@ -444,7 +444,7 @@ export default function CommercialPipeline() {
       actionsSlot={(
         <div className="flex flex-wrap items-center gap-2">
           <CommercialViewToggle active="kanban" />
-          {hasAnyPermission(['opportunities.analytics', 'opportunities.analyticsOwn']) && (
+          {hasAnyPermission(['opportunities.analytics', 'opportunities.analyticsMine']) && (
             <button
               type="button"
               onClick={() => navigate('/relatorios/comercial/funil')}

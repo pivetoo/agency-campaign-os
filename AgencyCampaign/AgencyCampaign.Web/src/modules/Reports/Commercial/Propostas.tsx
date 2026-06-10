@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useApi } from 'archon-ui'
 import { commercialReportService, type ProposalsFunnel } from '../../../services/commercialReportService'
 import { formatCurrency } from '../../../lib/format'
+import { periodStartIso, periodEndExclusiveIso } from '../../../lib/reportPeriod'
 import ReportLayout from '../_shared/ReportLayout'
 import { ReportPeriodFilter } from '../_shared/ReportFilters'
 
@@ -18,7 +19,7 @@ export default function Propostas() {
   const { execute } = useApi<ProposalsFunnel | null>({ showErrorMessage: true })
 
   const load = async () => {
-    const result = await execute(() => commercialReportService.getProposalsFunnel(new Date(range.from).toISOString(), new Date(range.to).toISOString()))
+    const result = await execute(() => commercialReportService.getProposalsFunnel(periodStartIso(range.from), periodEndExclusiveIso(range.to)))
     setData(result ?? null)
   }
 
@@ -41,7 +42,7 @@ export default function Propostas() {
   ]
 
   return (
-    <ReportLayout title="Propostas: Emitidas × Aceitas" subtitle="Volume, valor e taxa de aceite no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => commercialReportService.exportProposalsFunnel(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => commercialReportService.exportProposalsFunnelPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Propostas: Emitidas × Aceitas" subtitle="Volume, valor e taxa de aceite no período" filters={filters} onRefresh={() => void load()} onExportCsv={() => commercialReportService.exportProposalsFunnel(periodStartIso(range.from), periodEndExclusiveIso(range.to))} onExportPdf={() => commercialReportService.exportProposalsFunnelPdf(periodStartIso(range.from), periodEndExclusiveIso(range.to))}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <div className="rounded-md border p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Emitidas</p>

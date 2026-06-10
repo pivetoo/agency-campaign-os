@@ -26,6 +26,8 @@ namespace AgencyCampaign.Api.Contracts.Campaigns
 
         public CampaignStatus Status { get; init; }
 
+        public long? ResponsibleUserId { get; init; }
+
         public string? InternalOwnerName { get; init; }
 
         public string? Notes { get; init; }
@@ -54,6 +56,7 @@ namespace AgencyCampaign.Api.Contracts.Campaigns
             StartsAt = item.StartsAt,
             EndsAt = item.EndsAt,
             Status = item.Status,
+            ResponsibleUserId = item.ResponsibleUserId,
             InternalOwnerName = item.InternalOwnerName,
             Notes = item.Notes,
             IsActive = item.IsActive,

@@ -110,6 +110,33 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task UpdateCampaign_should_persist_responsible_user_id()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            Campaign campaign = new(1, "Camp", 0m, DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCampaignRequest request = new()
+            {
+                Id = campaign.Id,
+                BrandId = 1,
+                Name = "Camp",
+                StartsAt = DateTimeOffset.UtcNow,
+                Status = CampaignStatus.Draft,
+                IsActive = true,
+                ResponsibleUserId = 7
+            };
+
+            await service.UpdateCampaign(campaign.Id, request);
+
+            db.ChangeTracker.Clear();
+            Campaign saved = await db.Set<Campaign>().AsNoTracking().SingleAsync(item => item.Id == campaign.Id);
+            saved.ResponsibleUserId.Should().Be(7);
+        }
+
+        [Test]
         public async Task UpdateCampaign_to_same_status_should_not_add_history()
         {
             db.Add(new Brand("Acme").WithId(1));

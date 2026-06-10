@@ -530,7 +530,6 @@
   <data name="proposalShare.empty" xml:space="preserve"><value>Aún no hay enlaces generados.</value></data>
   <data name="proposalShare.draft.title" xml:space="preserve"><value>Envia la propuesta antes de compartir</value></data>
   <data name="proposalShare.draft.description" xml:space="preserve"><value>El enlace público muestra la versión enviada al cliente. Hacé clic en Enviar en la parte superior de la propuesta para crear la primera versión y habilitar la generación de enlaces.</value></data>
-  <data name="proposal.share.draftNotAllowed" xml:space="preserve"><value>Envia la propuesta antes de generar un enlace público.</value></data>
   <data name="proposalShare.field.created" xml:space="preserve"><value>Creado</value></data>
   <data name="proposalShare.field.expires" xml:space="preserve"><value>Expira</value></data>
   <data name="proposalShare.field.lastView" xml:space="preserve"><value>Última visita</value></data>
@@ -962,6 +961,8 @@
   <data name="proposalSend.badge.notConfigured" xml:space="preserve"><value>Sin configurar</value></data>
   <data name="proposalSend.badge.paused" xml:space="preserve"><value>Pausado</value></data>
   <data name="proposalSend.badge.ready" xml:space="preserve"><value>Listo</value></data>
+  <data name="proposalSend.channel.email" xml:space="preserve"><value>Correo</value></data>
+  <data name="proposalSend.channel.whatsapp" xml:space="preserve"><value>WhatsApp</value></data>
   <data name="proposalSend.channelUnavailable" xml:space="preserve"><value>Canal no disponible — hacé clic para ver cómo configurar</value></data>
   <data name="proposalSend.status.checking" xml:space="preserve"><value>Verificando configuración…</value></data>
   <data name="proposalSend.status.noAccount" xml:space="preserve"><value>{0} sin cuenta configurada</value></data>

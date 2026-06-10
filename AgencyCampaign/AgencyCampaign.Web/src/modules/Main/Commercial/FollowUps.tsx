@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Badge, Button, PageLayout, useI18n } from 'archon-ui'
+import { Badge, Button, PageLayout, useApi, useI18n } from 'archon-ui'
 import { ArrowRight, Building2, Check, CheckCircle2, ClipboardCheck, Clock, ExternalLink, Loader2, Sparkles } from 'lucide-react'
 import { opportunityService, type OpportunityFollowUp, type FollowUpSummary } from '../../../services/opportunityService'
 import { formatDate } from '../../../lib/format'
@@ -55,20 +55,18 @@ export default function CommercialFollowUps() {
   const [followUps, setFollowUps] = useState<OpportunityFollowUp[]>([])
   const [summary, setSummary] = useState<FollowUpSummary | null>(null)
   const [selectedStatus, setSelectedStatus] = useState<StatusKey>('overdue')
-  const [loading, setLoading] = useState(false)
   const [completingId, setCompletingId] = useState<number | null>(null)
+  const { execute: fetchData, loading } = useApi<[OpportunityFollowUp[], FollowUpSummary]>({ showErrorMessage: true })
+  const { execute: runToggle } = useApi({ showErrorMessage: true })
 
   const loadData = async (status: StatusKey) => {
-    setLoading(true)
-    try {
-      const [items, s] = await Promise.all([
-        opportunityService.getAllFollowUps(status),
-        opportunityService.getFollowUpsSummary(),
-      ])
-      setFollowUps(items)
-      setSummary(s)
-    } finally {
-      setLoading(false)
+    const result = await fetchData(() => Promise.all([
+      opportunityService.getAllFollowUps(status),
+      opportunityService.getFollowUpsSummary(),
+    ]))
+    if (result) {
+      setFollowUps(result[0])
+      setSummary(result[1])
     }
   }
 
@@ -80,9 +78,9 @@ export default function CommercialFollowUps() {
   const completeActivity = async (activity: OpportunityFollowUp) => {
     setCompletingId(activity.id)
     try {
-      const result = activity.isCompleted
-        ? await opportunityService.reopenFollowUp(activity.id)
-        : await opportunityService.completeFollowUp(activity.id)
+      const result = await runToggle(() => (activity.isCompleted
+        ? opportunityService.reopenFollowUp(activity.id)
+        : opportunityService.completeFollowUp(activity.id)))
       if (result !== null) await loadData(selectedStatus)
     } finally {
       setCompletingId(null)

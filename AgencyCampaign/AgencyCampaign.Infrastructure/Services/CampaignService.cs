@@ -67,6 +67,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 internalOwnerName,
                 request.Notes);
 
+            campaign.SetResponsibleUserId(request.ResponsibleUserId);
             campaign.ChangeStatus(request.Status);
             campaign.SetRequiresDeliverableApproval(request.RequiresDeliverableApproval);
             campaign.SetPayoutRequiresContentApproval(request.PayoutRequiresContentApproval);
@@ -117,6 +118,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 internalOwnerName,
                 request.Notes,
                 request.IsActive);
+            campaign.SetResponsibleUserId(request.ResponsibleUserId);
             campaign.SetRequiresDeliverableApproval(request.RequiresDeliverableApproval);
             campaign.SetPayoutRequiresContentApproval(request.PayoutRequiresContentApproval);
 

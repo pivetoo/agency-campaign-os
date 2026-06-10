@@ -193,10 +193,9 @@ export default function CommercialProposalDetail() {
     try {
       const links = await proposalService.getShareLinks(proposalId)
       let active = links.find((link) => link.isActive)
-      // so cria o link quando a proposta ja pode te-lo (enviada/visualizada);
-      // em Rascunho o backend rejeita (400 "Envie a proposta antes...") - o link
-      // publico e garantido no proprio envio.
-      if (!active && proposal != null && proposal.status !== ProposalStatus.Draft) {
+      // garante o link antes de montar o corpo: o envio reusa o mesmo link ativo,
+      // entao o primeiro e-mail/WhatsApp ja sai com o link publico no texto
+      if (!active) {
         const created = await proposalService.createShareLink(proposalId, {})
         active = created?.data ?? undefined
       }

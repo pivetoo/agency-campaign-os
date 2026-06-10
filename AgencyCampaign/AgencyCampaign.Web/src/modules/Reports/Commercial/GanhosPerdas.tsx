@@ -5,6 +5,7 @@ import { opportunityService } from '../../../services/opportunityService'
 import { commercialReportService } from '../../../services/commercialReportService'
 import type { CommercialAnalytics, ReasonAggregate } from '../../../types/commercialAnalytics'
 import { formatCurrency } from '../../../lib/format'
+import { periodStartIso, periodEndExclusiveIso } from '../../../lib/reportPeriod'
 import ReportLayout from '../_shared/ReportLayout'
 import { ReportPeriodFilter } from '../_shared/ReportFilters'
 
@@ -68,7 +69,7 @@ export default function GanhosPerdas() {
   const { execute } = useApi<CommercialAnalytics | null>({ showErrorMessage: true })
 
   const load = async () => {
-    const result = await execute(() => opportunityService.getAnalytics({ periodStart: new Date(range.from).toISOString(), periodEnd: new Date(range.to).toISOString() }))
+    const result = await execute(() => opportunityService.getAnalytics({ periodStart: periodStartIso(range.from), periodEnd: periodEndExclusiveIso(range.to) }))
     setData(result ?? null)
   }
 
@@ -80,7 +81,7 @@ export default function GanhosPerdas() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Ganhos × Perdas" subtitle="Motivos de ganho e de perda" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportGanhosPerdasPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Ganhos × Perdas" subtitle="Motivos de ganho e de perda" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportGanhosPerdasPdf(periodStartIso(range.from), periodEndExclusiveIso(range.to))}>
       <div className="grid gap-5 md:grid-cols-2">
         <div className="rounded-lg border border-border bg-card p-4">
           <h3 className="mb-3 text-sm font-semibold text-foreground">Motivos de Ganho</h3>

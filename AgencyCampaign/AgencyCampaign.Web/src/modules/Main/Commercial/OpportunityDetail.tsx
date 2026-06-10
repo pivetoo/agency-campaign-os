@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Button, Card, CardContent, CardHeader, CardTitle, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n, useToast } from 'archon-ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, ConfirmModal, DataTable, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useAuth, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n, useToast } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { Activity, ArrowRight, Building2, Calendar, CheckCircle, CircleDollarSign, Clock, Compass, FileText, History, MoreHorizontal, Pencil, Plus, Tag, Tags, ThumbsDown, ThumbsUp, Trash2, TrendingUp, User, UserCheck, XCircle } from 'lucide-react'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
@@ -50,6 +50,7 @@ export default function OpportunityDetail() {
   const [selectedFollowUp, setSelectedFollowUp] = useState<OpportunityFollowUp | null>(null)
   const [isOpportunityFormOpen, setIsOpportunityFormOpen] = useState(false)
   const [isFollowUpFormOpen, setIsFollowUpFormOpen] = useState(false)
+  const [confirmDeleteFollowUpOpen, setConfirmDeleteFollowUpOpen] = useState(false)
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
   const [, setSelectedStage] = useState<string>('1')
   const [pendingFinalStage, setPendingFinalStage] = useState<{ id: number; name: string; kind: 'won' | 'lost' } | null>(null)
@@ -182,6 +183,7 @@ export default function OpportunityDetail() {
   const handleDeleteFollowUp = async () => {
     if (!selectedFollowUp) return
     const result = await executeAction(() => opportunityService.deleteFollowUp(selectedFollowUp.id))
+    setConfirmDeleteFollowUpOpen(false)
     if (result !== null) {
       setSelectedFollowUp(null)
       await loadOpportunity()
@@ -628,7 +630,7 @@ export default function OpportunityDetail() {
                   <Button size="sm" variant="outline-success" onClick={() => void handleCompleteFollowUp()} disabled={!selectedFollowUp || selectedFollowUp?.isCompleted || actionLoading}>
                     <CheckCircle className="mr-2 h-4 w-4" /> {t('opportunityDetail.followups.complete')}
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => void handleDeleteFollowUp()} disabled={!selectedFollowUp || actionLoading}>
+                  <Button size="sm" variant="ghost" onClick={() => setConfirmDeleteFollowUpOpen(true)} disabled={!selectedFollowUp || actionLoading}>
                     <Trash2 className="mr-2 h-4 w-4" /> {t('common.action.delete')}
                   </Button>
                 </div>
@@ -672,6 +674,15 @@ export default function OpportunityDetail() {
           setSelectedFollowUp(null)
           void loadOpportunity()
         }}
+      />
+
+      <ConfirmModal
+        open={confirmDeleteFollowUpOpen}
+        onOpenChange={setConfirmDeleteFollowUpOpen}
+        description={t('common.confirm.deleteItem').replace('{0}', selectedFollowUp?.subject ?? '')}
+        variant="danger"
+        onConfirm={() => void handleDeleteFollowUp()}
+        loading={actionLoading}
       />
 
       <ProposalFormModal

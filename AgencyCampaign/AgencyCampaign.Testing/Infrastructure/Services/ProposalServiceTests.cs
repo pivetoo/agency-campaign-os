@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.Opportunities;
 using AgencyCampaign.Application.Requests.Proposals;
@@ -35,7 +36,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             notifications = new Mock<INotificationService>();
             policyEvaluator = new PolicyEvaluatorService(db);
             approvalRequestService = new OpportunityApprovalRequestService(db, notifications.Object, policyEvaluator, CurrentUserMock.Create());
-            service = new ProposalService(db, CurrentUserMock.Create(), financial.Object, automation.Object, notifications.Object, IntegrationPlatformClientFactory.CreateInert(), new IntegrationCapabilityService(db), policyEvaluator, approvalRequestService);
+            service = new ProposalService(db, CurrentUserMock.Create(), TenantContextMock.Create(), financial.Object, automation.Object, notifications.Object, IntegrationPlatformClientFactory.CreateInert(), new IntegrationCapabilityService(db), policyEvaluator, approvalRequestService);
         }
 
         [TearDown]
@@ -197,6 +198,21 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             campaign.OpportunityId.Should().Be(opportunity.Id);
             campaign.SourceProposalId.Should().Be(proposal.Id);
             financial.Verify(item => item.GenerateForConvertedProposal(It.IsAny<Proposal>(), campaign.Id, It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ConvertToNewCampaign_should_carry_responsible_user_id_from_proposal()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(proposal.Id);
+            await service.ApproveProposal(proposal.Id);
+
+            await service.ConvertToNewCampaign(proposal.Id);
+
+            db.ChangeTracker.Clear();
+            Campaign campaign = await db.Set<Campaign>().AsNoTracking().SingleAsync();
+            campaign.ResponsibleUserId.Should().Be(proposal.InternalOwnerId);
         }
 
         [Test]
@@ -621,6 +637,25 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.ChangeTracker.Clear();
             (await db.Set<ProposalVersion>().CountAsync(item => item.ProposalId == proposal.Id)).Should().Be(1);
             (await db.Set<Proposal>().AsNoTracking().SingleAsync(item => item.Id == proposal.Id)).Status.Should().Be(ProposalStatus.Approved);
+        }
+
+        [Test]
+        public async Task SendByEmail_should_create_share_link_with_tenant_prefix_and_default_expiration()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            db.Add(new IntegrationCapability(IntegrationIntents.ProposalSendEmail, connectorId: 1));
+            await db.SaveChangesAsync();
+
+            // O cliente inerte lanca no enqueue, mas versao/link/status ja sao persistidos antes (comportamento real do envio)
+            SendProposalEmailRequest request = new() { RecipientEmail = "cli@x.com", Subject = "Proposta", Body = "Segue proposta" };
+            await service.Invoking(s => s.SendByEmail(proposal.Id, request))
+                .Should().ThrowAsync<InvalidOperationException>().WithMessage("integrationPlatform.notConfigured");
+
+            db.ChangeTracker.Clear();
+            ProposalShareLink link = await db.Set<ProposalShareLink>().AsNoTracking().SingleAsync(item => item.ProposalId == proposal.Id);
+            PublicLinkToken.ExtractTenantId(link.Token).Should().Be("tenant-1");
+            link.ExpiresAt.Should().NotBeNull();
         }
     }
 }

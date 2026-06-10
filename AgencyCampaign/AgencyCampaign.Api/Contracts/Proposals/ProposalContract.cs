@@ -38,6 +38,8 @@ namespace AgencyCampaign.Api.Contracts.Proposals
 
         public string? Notes { get; init; }
 
+        public long? ProposalLayoutId { get; init; }
+
         public long? CampaignId { get; init; }
 
         public BrandReferenceContract? Brand { get; init; }
@@ -76,6 +78,7 @@ namespace AgencyCampaign.Api.Contracts.Proposals
             InternalOwnerId = item.InternalOwnerId,
             InternalOwnerName = item.InternalOwnerName,
             Notes = item.Notes,
+            ProposalLayoutId = item.ProposalLayoutId,
             CampaignId = item.CampaignId,
             Brand = item.Opportunity == null || item.Opportunity.Brand == null
                 ? null

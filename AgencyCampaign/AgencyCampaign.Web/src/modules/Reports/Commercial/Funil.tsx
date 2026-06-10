@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useApi, DataTable, type DataTableColumn } from 'archon-ui'
+import { useApi, usePermissions, DataTable, type DataTableColumn } from 'archon-ui'
 import { opportunityService } from '../../../services/opportunityService'
 import { commercialReportService } from '../../../services/commercialReportService'
 import type { CommercialAnalytics, StageConversion, Performer, StageTime } from '../../../types/commercialAnalytics'
 import { formatCurrency } from '../../../lib/format'
+import { periodStartIso, periodEndExclusiveIso } from '../../../lib/reportPeriod'
 import ReportLayout from '../_shared/ReportLayout'
 import { ReportPeriodFilter } from '../_shared/ReportFilters'
 
@@ -18,9 +19,13 @@ export default function Funil() {
   const [range, setRange] = useState(defaultRange())
   const [data, setData] = useState<CommercialAnalytics | null>(null)
   const { execute } = useApi<CommercialAnalytics | null>({ showErrorMessage: true })
+  const { hasAnyPermission } = usePermissions()
+  // sem permissao de analytics geral, cai para o escopo "meus" (mesmo padrao do Pipeline)
+  const canSeeAll = hasAnyPermission(['opportunities.analytics'])
 
   const load = async () => {
-    const result = await execute(() => opportunityService.getAnalytics({ periodStart: new Date(range.from).toISOString(), periodEnd: new Date(range.to).toISOString() }))
+    const params = { periodStart: periodStartIso(range.from), periodEnd: periodEndExclusiveIso(range.to) }
+    const result = await execute(() => (canSeeAll ? opportunityService.getAnalytics(params) : opportunityService.getAnalyticsMine(params)))
     setData(result ?? null)
   }
 
@@ -55,7 +60,7 @@ export default function Funil() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Funil de Conversão" subtitle="Conversão por estágio do pipeline" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportFunilPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Funil de Conversão" subtitle="Conversão por estágio do pipeline" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportFunilPdf(periodStartIso(range.from), periodEndExclusiveIso(range.to))}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-md border p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Negócios fechados</p>

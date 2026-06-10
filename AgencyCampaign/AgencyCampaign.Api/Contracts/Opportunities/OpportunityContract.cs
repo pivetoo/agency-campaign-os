@@ -35,6 +35,8 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
 
         public string? ContactEmail { get; init; }
 
+        public string? ContactPhone { get; init; }
+
         public string? Notes { get; init; }
 
         public DateTimeOffset? ClosedAt { get; init; }
@@ -79,6 +81,7 @@ namespace AgencyCampaign.Api.Contracts.Opportunities
             ResponsibleUserId = item.ResponsibleUserId,
             ContactName = item.ContactName,
             ContactEmail = item.ContactEmail,
+            ContactPhone = item.ContactPhone,
             Notes = item.Notes,
             ClosedAt = item.ClosedAt,
             LossReason = item.LossReason,

@@ -47,13 +47,16 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task CreateShareLink_should_throw_when_proposal_is_in_draft()
+        public async Task CreateShareLink_should_allow_proposal_in_draft()
         {
+            // O corpo do primeiro envio precisa conter o link publico, entao o link pode nascer
+            // em rascunho; a pagina publica ja devolve "link invalido" enquanto nao houver versao enviada
             Proposal proposal = await SeedProposalAsync(sent: false);
 
-            Func<Task> act = () => service.CreateShareLink(proposal.Id, new CreateProposalShareLinkRequest());
+            ProposalShareLinkModel link = await service.CreateShareLink(proposal.Id, new CreateProposalShareLinkRequest());
 
-            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("proposal.share.draftNotAllowed");
+            link.IsActive.Should().BeTrue();
+            link.Token.Should().NotBeNullOrWhiteSpace();
         }
 
         [Test]

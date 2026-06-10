@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
+import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n, usePermissions } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
 import { opportunityService, type Opportunity, type OpportunityListFilters } from '../../../services/opportunityService'
 import { commercialPipelineStageService } from '../../../services/commercialPipelineStageService'
@@ -33,6 +33,9 @@ export default function CommercialOpportunities() {
   const [statusFilter, setStatusFilter] = useState<string>(STATUS_ALL)
 
   const { execute: fetchOpportunities, loading, pagination } = useApi<Opportunity[]>({ showErrorMessage: true })
+  const { hasAnyPermission } = usePermissions()
+  // mesmo fallback de escopo do Pipeline: sem permissao de ver tudo, usa o endpoint "meus"
+  const canSeeAll = hasAnyPermission(['opportunities.get'])
 
   useEffect(() => {
     void commercialPipelineStageService.getAll({ pageSize: 200 }).then((r) => setStages(r.data ?? []))
@@ -55,7 +58,7 @@ export default function CommercialOpportunities() {
     if (responsibleFilter) filters.responsibleUserId = Number(responsibleFilter)
     if (statusFilter !== STATUS_ALL) filters.status = statusFilter as OpportunityListFilters['status']
 
-    void fetchOpportunities(() => opportunityService.getAll({ page, pageSize, ...filters })).then((result) => {
+    void fetchOpportunities(() => (canSeeAll ? opportunityService.getAll({ page, pageSize, ...filters }) : opportunityService.getAllMine({ page, pageSize, ...filters }))).then((result) => {
       if (result) setOpportunities(result)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,7 +119,7 @@ export default function CommercialOpportunities() {
     if (responsibleFilter) filters.responsibleUserId = Number(responsibleFilter)
     if (statusFilter !== STATUS_ALL) filters.status = statusFilter as OpportunityListFilters['status']
 
-    void fetchOpportunities(() => opportunityService.getAll({ page, pageSize, ...filters })).then((result) => {
+    void fetchOpportunities(() => (canSeeAll ? opportunityService.getAll({ page, pageSize, ...filters }) : opportunityService.getAllMine({ page, pageSize, ...filters }))).then((result) => {
       if (result) setOpportunities(result)
     })
   }

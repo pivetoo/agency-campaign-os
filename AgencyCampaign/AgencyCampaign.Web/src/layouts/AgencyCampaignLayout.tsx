@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap, KeyRound } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, CalendarClock, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap, KeyRound } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 import { reportCatalog, reportAreaOrder, reportAreaLabels, type ReportArea } from '../modules/Reports/catalog'
 
@@ -100,17 +100,14 @@ export default function AgencyCampaignLayout() {
     }
   }, [])
 
-  const handleViewAllNotifications = useCallback(() => {
-    navigate('/notificacoes')
-  }, [navigate])
-
   const opModuleDefs: { key: string; label: string; icon: React.ReactNode; items: NavItem[] }[] = [
     { key: 'geral', label: t('nav.group.general'), icon: <LayoutDashboard size={20} />, items: [
       { key: 'dashboard', label: t('nav.item.dashboard'), path: '/', icon: <LayoutDashboard size={20} />, requires: ['dashboard.overview', 'dashboard.charts'] },
     ] },
     { key: 'comercial', label: t('nav.group.commercial'), icon: <Handshake size={20} />, items: [
       { key: 'marcas', label: t('nav.item.brands'), path: '/marcas', icon: <Building2 size={20} />, requires: ['brands.get'] },
-      { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} />, requires: ['opportunities.board', 'opportunities.get'] },
+      { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} />, requires: ['opportunities.board', 'opportunities.boardMine', 'opportunities.get', 'opportunities.getMine'] },
+      { key: 'comercial-followups', label: t('followups.title'), path: '/comercial/followups', icon: <CalendarClock size={20} />, requires: ['opportunities.getAllFollowUps'] },
       { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },
       { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} />, requires: ['opportunityApprovals.get'] },
       { key: 'comercial-metas', label: 'Metas', path: '/comercial/metas', icon: <Target size={20} />, requires: ['commercialGoals.get'] },
@@ -352,7 +349,6 @@ export default function AgencyCampaignLayout() {
         onNotificationRead={handleNotificationRead}
         onMarkAllAsRead={handleMarkAllRead}
         onClearAllNotifications={handleClearAll}
-        onViewAllNotifications={handleViewAllNotifications}
       >
         <Outlet />
       </AppLayout>

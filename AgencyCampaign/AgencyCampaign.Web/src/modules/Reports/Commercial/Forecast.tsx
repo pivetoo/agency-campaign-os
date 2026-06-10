@@ -4,6 +4,7 @@ import { opportunityService } from '../../../services/opportunityService'
 import { commercialReportService } from '../../../services/commercialReportService'
 import type { CommercialForecast, CommercialForecastStageBreakdown } from '../../../types/commercialForecast'
 import { formatCurrency } from '../../../lib/format'
+import { periodStartIso, periodEndExclusiveIso } from '../../../lib/reportPeriod'
 import ReportLayout from '../_shared/ReportLayout'
 import { ReportPeriodFilter } from '../_shared/ReportFilters'
 
@@ -20,7 +21,7 @@ export default function Forecast() {
   const { execute } = useApi<CommercialForecast | null>({ showErrorMessage: true })
 
   const load = async () => {
-    const result = await execute(() => opportunityService.getForecast({ periodStart: new Date(range.from).toISOString(), periodEnd: new Date(range.to).toISOString() }))
+    const result = await execute(() => opportunityService.getForecast({ periodStart: periodStartIso(range.from), periodEnd: periodEndExclusiveIso(range.to) }))
     setData(result ?? null)
   }
 
@@ -40,7 +41,7 @@ export default function Forecast() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Previsão (Forecast)" subtitle="Pipeline ponderado por probabilidade" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportForecastPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Previsão (Forecast)" subtitle="Pipeline ponderado por probabilidade" filters={filters} onRefresh={() => void load()} onExportPdf={() => commercialReportService.exportForecastPdf(periodStartIso(range.from), periodEndExclusiveIso(range.to))}>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-md border p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Ponderado</p>

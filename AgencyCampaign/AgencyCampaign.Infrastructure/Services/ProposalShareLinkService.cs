@@ -53,7 +53,9 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<ProposalShareLinkModel> CreateShareLink(long proposalId, CreateProposalShareLinkRequest request, CancellationToken cancellationToken = default)
         {
-            await EnsureProposalCanBeShared(proposalId, cancellationToken);
+            // Link pode nascer em rascunho: a pagina publica devolve "link invalido" enquanto nao
+            // houver versao enviada, e o corpo do primeiro envio precisa conter o link
+            await EnsureProposalExists(proposalId, cancellationToken);
 
             string token = PublicLinkToken.Compose(tenantContext.TenantId, GenerateToken());
             DateTimeOffset? expiresAt = request.ExpiresAt ?? DateTimeOffset.UtcNow.AddDays(30);
@@ -157,25 +159,6 @@ namespace AgencyCampaign.Infrastructure.Services
             if (!exists)
             {
                 throw new InvalidOperationException("record.notFound");
-            }
-        }
-
-        private async Task EnsureProposalCanBeShared(long proposalId, CancellationToken cancellationToken)
-        {
-            ProposalStatus? status = await dbContext.Set<Proposal>()
-                .AsNoTracking()
-                .Where(item => item.Id == proposalId)
-                .Select(item => (ProposalStatus?)item.Status)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (status is null)
-            {
-                throw new InvalidOperationException("record.notFound");
-            }
-
-            if (status == ProposalStatus.Draft)
-            {
-                throw new InvalidOperationException("proposal.share.draftNotAllowed");
             }
         }
 
