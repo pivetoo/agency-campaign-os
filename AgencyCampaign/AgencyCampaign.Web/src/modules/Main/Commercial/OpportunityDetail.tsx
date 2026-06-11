@@ -279,6 +279,8 @@ export default function OpportunityDetail() {
                     </span>
                   ) : null}
                   <span
+                    data-testid="opportunity-current-stage"
+                    data-closed={opportunity?.closedAt ? 'true' : 'false'}
                     className="inline-flex items-center rounded px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white"
                     style={{ backgroundColor: opportunity?.commercialPipelineStage?.color || 'hsl(var(--primary))' }}
                   >
@@ -334,7 +336,7 @@ export default function OpportunityDetail() {
               <div className="flex flex-shrink-0 flex-wrap items-center gap-2">
                 <Dropdown>
                   <DropdownTrigger asChild>
-                    <Button size="sm" variant="outline" className="px-2.5">
+                    <Button size="sm" variant="outline" className="px-2.5" data-testid="opportunity-stage-menu">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownTrigger>
@@ -343,6 +345,9 @@ export default function OpportunityDetail() {
                     {sortedStages.map((stage) => (
                       <DropdownItem
                         key={stage.id}
+                        data-testid="opportunity-move-stage"
+                        data-stage-final={stage.finalBehavior ?? 0}
+                        data-stage-id={stage.id}
                         onSelect={() => void handleChangeStage(stage.id)}
                         disabled={stage.id === opportunity?.commercialPipelineStage?.id}
                       >
@@ -838,6 +843,7 @@ export default function OpportunityDetail() {
             <Button
               type="button"
               variant={pendingFinalStage?.kind === 'lost' ? 'danger' : 'primary'}
+              data-testid="opportunity-final-confirm"
               onClick={() => void confirmFinalChange()}
               disabled={actionLoading || (pendingFinalStage?.kind === 'lost' && finalNotes.trim().length === 0 && finalReasonId === null)}
             >

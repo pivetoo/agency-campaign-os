@@ -125,6 +125,122 @@ export const proposal = {
   shareLinkInput: (p: Page) => p.getByTestId('proposal-share-link-input'),
 }
 
+export const publicProposalDecision = {
+  nameInput: (p: Page) => p.getByTestId('public-proposal-name'),
+  acceptButton: (p: Page) => p.getByTestId('public-proposal-accept'),
+  rejectButton: (p: Page) => p.getByTestId('public-proposal-reject'),
+  accepted: (p: Page) => p.getByTestId('public-proposal-accepted'),
+}
+
+export const opportunityDetail = {
+  currentStage: (p: Page) => p.getByTestId('opportunity-current-stage'),
+  stageMenu: (p: Page) => p.getByTestId('opportunity-stage-menu'),
+  // primeiro item do menu com o comportamento final desejado (1=Ganha, 2=Perdida, 0=aberto)
+  moveStageByFinal: (p: Page, final: 0 | 1 | 2) =>
+    p.locator(`[data-testid="opportunity-move-stage"][data-stage-final="${final}"]`).first(),
+  finalConfirm: (p: Page) => p.getByTestId('opportunity-final-confirm'),
+}
+
+export const proposalDetail = {
+  itemsActions: (p: Page) => p.getByTestId('proposal-items-actions'),
+}
+
+/**
+ * Cria uma oportunidade pela lista (/comercial/oportunidades) com nome, marca e
+ * (opcional) responsavel, e abre o detalhe. Retorna a URL do detalhe.
+ * Segue o mesmo fluxo dos specs 03/19.
+ */
+export async function createOpportunityAndOpenDetail(
+  page: Page,
+  name: string,
+  options: { estimatedValue?: string; withResponsible?: boolean } = {},
+): Promise<void> {
+  await page.goto('/comercial/oportunidades')
+  await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+  await crud.add(page).click()
+  const oppModal = page.getByRole('dialog').filter({ hasText: /Nova oportunidade/i })
+  await expect(oppModal).toBeVisible({ timeout: 10_000 })
+  await oppModal.getByLabel(/Nome da oportunidade/i).fill(name)
+  await oppModal.locator(':text("Marca")').locator('..').locator('button, [role="combobox"]').first().click()
+  await page.locator('[role="option"]').first().click()
+  await oppModal.locator('#opportunity-estimated-value').fill(options.estimatedValue ?? '10000')
+  if (options.withResponsible) {
+    const respLabel = oppModal.locator('label', { hasText: /^Responsável comercial$/ }).first()
+    await expect(respLabel).toBeVisible({ timeout: 5_000 })
+    await respLabel.locator('xpath=following::*[self::button or @role="combobox"][1]').first().click()
+    await page.locator('[role="option"]').filter({ hasNotText: /^Nenhum$/i }).first().click()
+  }
+  await oppModal.getByRole('button', { name: /^Salvar$/i }).first().click()
+  await expect(oppModal).toBeHidden({ timeout: 15_000 })
+
+  const pageSizeSelect = page.locator('select').filter({ hasText: /5|10|20|50/ }).first()
+  if (await pageSizeSelect.count()) await pageSizeSelect.selectOption('50').catch(() => {})
+
+  const targetRow = rowWithText(page, name).first()
+  await expect(targetRow).toBeVisible({ timeout: 15_000 })
+  const openBtn = targetRow.locator('button').filter({ hasText: /Abrir/i }).first()
+  if (await openBtn.count()) {
+    await openBtn.click()
+  } else {
+    await targetRow.dblclick()
+  }
+  await page.waitForURL(/\/comercial\/oportunidades\/\d+/, { timeout: 15_000 })
+}
+
+/**
+ * Cria uma oportunidade com responsavel e uma proposta vinculada, terminando no
+ * detalhe da proposta (/comercial/propostas/:id). Segue o fluxo do spec 03.
+ */
+export async function createProposalForNewOpportunity(page: Page, oppName: string): Promise<void> {
+  await page.goto('/comercial/oportunidades')
+  await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+  await crud.add(page).click()
+  const oppModal = page.getByRole('dialog').filter({ hasText: /Nova oportunidade/i })
+  await expect(oppModal).toBeVisible({ timeout: 10_000 })
+  await oppModal.getByLabel(/Nome da oportunidade/i).fill(oppName)
+  await oppModal.locator(':text("Marca")').locator('..').locator('button, [role="combobox"]').first().click()
+  await page.locator('[role="option"]').first().click()
+  await oppModal.locator('#opportunity-estimated-value').fill('12000')
+  const respLabel = oppModal.locator('label', { hasText: /^Responsável comercial$/ }).first()
+  await expect(respLabel).toBeVisible({ timeout: 5_000 })
+  await respLabel.locator('xpath=following::*[self::button or @role="combobox"][1]').first().click()
+  await page.locator('[role="option"]').filter({ hasNotText: /^Nenhum$/i }).first().click()
+  await oppModal.getByRole('button', { name: /^Salvar$/i }).first().click()
+  await expect(oppModal).toBeHidden({ timeout: 15_000 })
+
+  await page.goto('/comercial/propostas')
+  await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {})
+  await crud.add(page).click()
+  const propModal = page.getByRole('dialog').filter({ hasText: /Criar proposta comercial/i })
+  await expect(propModal).toBeVisible({ timeout: 10_000 })
+  await propModal.locator(':text("Oportunidade")').locator('..').locator('button, [role="combobox"]').first().click()
+  const search = page.locator('input[placeholder*="Buscar oportunidade" i]').first()
+  if (await search.count()) await search.fill(oppName)
+  await page.locator('[role="option"]', { hasText: oppName }).first().click()
+  await clickSaveInDialog(propModal)
+  await expect(propModal).toBeHidden({ timeout: 15_000 })
+  await page.waitForURL(/\/comercial\/propostas\/\d+/, { timeout: 15_000 })
+}
+
+/**
+ * Gera o share link publico da proposta (ja enviada) e retorna o token.
+ */
+export async function generateShareLinkToken(page: Page): Promise<string> {
+  const generateBtn = proposal.generateLinkButton(page)
+  await expect(generateBtn).toBeVisible({ timeout: 15_000 })
+  const sharePromise = page.waitForResponse(
+    (response) => /\/share-links\/Create/i.test(response.url()) && response.request().method() === 'POST',
+    { timeout: 15_000 },
+  )
+  await generateBtn.click()
+  const shareResponse = await sharePromise
+  expect(shareResponse.ok(), `share-links/Create retornou ${shareResponse.status()}`).toBeTruthy()
+  const body = await shareResponse.json()
+  const token: string | undefined = body?.data?.token ?? body?.token
+  expect(token, 'esperava token na resposta de share-links/Create').toBeTruthy()
+  return token as string
+}
+
 export const campaign = {
   addCreatorButton: (p: Page) => p.getByTestId('campaign-add-creator-button'),
 }

@@ -265,7 +265,7 @@ export default function PublicProposal() {
         </Card>
 
         {(localDecision === 'accepted' || (!localDecision && view.decision === 'accepted')) ? (
-          <div className="mt-6 rounded-lg border border-emerald-300 bg-emerald-50 p-5 text-center">
+          <div data-testid="public-proposal-accepted" className="mt-6 rounded-lg border border-emerald-300 bg-emerald-50 p-5 text-center">
             <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-600" />
             <p className="mt-2 text-sm font-semibold text-emerald-800">{t('public.proposal.decision.acceptedTitle')}</p>
             <p className="text-xs text-emerald-700">{t('public.proposal.decision.acceptedHint')}</p>
@@ -279,16 +279,16 @@ export default function PublicProposal() {
           <div className="mt-6 rounded-lg border border-border bg-card p-5 shadow-sm">
             <p className="text-sm font-semibold text-foreground">{t('public.proposal.decision.prompt')}</p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <input className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder={t('public.proposal.decision.namePlaceholder')} value={decisionName} onChange={(e) => setDecisionName(e.target.value)} />
+              <input data-testid="public-proposal-name" className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder={t('public.proposal.decision.namePlaceholder')} value={decisionName} onChange={(e) => setDecisionName(e.target.value)} />
               <input className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder={t('public.proposal.decision.emailPlaceholder')} value={decisionEmail} onChange={(e) => setDecisionEmail(e.target.value)} />
             </div>
             <textarea className="mt-3 min-h-[70px] w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder={t('public.proposal.decision.notesPlaceholder')} value={decisionNotes} onChange={(e) => setDecisionNotes(e.target.value)} />
             {decisionError && <p className="mt-2 text-xs text-destructive">{decisionError}</p>}
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" disabled={submitting} onClick={() => void submitDecision(true)} className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60">
+              <button type="button" data-testid="public-proposal-accept" disabled={submitting} onClick={() => void submitDecision(true)} className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60">
                 <CheckCircle2 className="h-4 w-4" /> {t('public.proposal.decision.accept')}
               </button>
-              <button type="button" disabled={submitting} onClick={() => void submitDecision(false)} className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive disabled:opacity-60">
+              <button type="button" data-testid="public-proposal-reject" disabled={submitting} onClick={() => void submitDecision(false)} className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive disabled:opacity-60">
                 {t('public.proposal.decision.reject')}
               </button>
             </div>

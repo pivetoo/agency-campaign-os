@@ -432,7 +432,7 @@ export default function CommercialProposalDetail() {
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <CardTitle className="text-sm">{t('proposalDetail.items.title')}</CardTitle>
                     {isDraft ? (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2" data-testid="proposal-items-actions">
                       <Button
                         size="sm"
                         onClick={() => { setSelectedItem(null); setIsItemFormOpen(true) }}
