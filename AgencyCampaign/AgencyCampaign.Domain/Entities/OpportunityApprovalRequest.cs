@@ -59,6 +59,13 @@ namespace AgencyCampaign.Domain.Entities
             EnsurePendingForDirectDecision();
             EnsureNoRequiredReviewers();
 
+            // Maker-checker: o solicitante nao pode aprovar o proprio desvio (aprovacoes auto-criadas nascem
+            // sem revisores, entao sem este guard a aprovacao vira autosservico)
+            if (approvedByUserId.HasValue && RequestedByUserId.HasValue && approvedByUserId.Value == RequestedByUserId.Value)
+            {
+                throw new InvalidOperationException("opportunityApproval.selfApproval");
+            }
+
             Status = OpportunityApprovalStatus.Approved;
             ApprovedByUserId = approvedByUserId;
             ApprovedByUserName = approvedByUserName.Trim();

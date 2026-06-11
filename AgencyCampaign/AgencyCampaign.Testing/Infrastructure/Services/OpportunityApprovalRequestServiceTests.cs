@@ -91,7 +91,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             Proposal proposal = await SeedProposalAsync();
 
-            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Tester", 1);
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "10%", "Solicitante", 2);
             db.Add(approval);
             await db.SaveChangesAsync();
             db.ChangeTracker.Clear();

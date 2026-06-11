@@ -149,6 +149,47 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void ChangeStage_reopen_should_clear_closed_value_and_win_reason()
+        {
+            Opportunity subject = BuildDefault();
+            CommercialPipelineStage wonStage = new CommercialPipelineStageBuilder().WithId(20).AsFinal(CommercialPipelineStageFinalBehavior.Won).Build();
+            CommercialPipelineStage openStage = new CommercialPipelineStageBuilder().WithId(30).Build();
+            subject.CloseAsWon(wonStage, "ok", winReasonId: 5);
+            subject.SetClosedValue(50000m);
+
+            subject.ChangeStage(openStage, allowReopen: true);
+
+            subject.ClosedValue.Should().BeNull();
+            subject.WinReasonId.Should().BeNull();
+        }
+
+        [Test]
+        public void ChangeStage_to_won_should_clear_stale_loss_reason_id()
+        {
+            Opportunity subject = BuildDefault();
+            CommercialPipelineStage lostStage = new CommercialPipelineStageBuilder().WithId(21).AsFinal(CommercialPipelineStageFinalBehavior.Lost).Build();
+            CommercialPipelineStage wonStage = new CommercialPipelineStageBuilder().WithId(20).AsFinal(CommercialPipelineStageFinalBehavior.Won).Build();
+            subject.CloseAsLost(lostStage, "preço", lossReasonId: 7);
+
+            subject.ChangeStage(wonStage);
+
+            subject.LossReasonId.Should().BeNull();
+        }
+
+        [Test]
+        public void ChangeStage_to_lost_should_clear_stale_win_reason_id()
+        {
+            Opportunity subject = BuildDefault();
+            CommercialPipelineStage wonStage = new CommercialPipelineStageBuilder().WithId(20).AsFinal(CommercialPipelineStageFinalBehavior.Won).Build();
+            CommercialPipelineStage lostStage = new CommercialPipelineStageBuilder().WithId(21).AsFinal(CommercialPipelineStageFinalBehavior.Lost).Build();
+            subject.CloseAsWon(wonStage, "ok", winReasonId: 5);
+
+            subject.ChangeStage(lostStage);
+
+            subject.WinReasonId.Should().BeNull();
+        }
+
+        [Test]
         public void ChangeStage_should_apply_default_probability_when_not_manual()
         {
             Opportunity subject = BuildDefault();

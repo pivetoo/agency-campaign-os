@@ -91,6 +91,14 @@ namespace AgencyCampaign.Api.Controllers
         }
 
         [RequireAccess("opportunityApprovals.reject.description")]
+        [HttpPost("{id:long}/Cancel")]
+        public async Task<IActionResult> Cancel(long id, CancellationToken cancellationToken)
+        {
+            OpportunityApprovalRequest approval = await approvalRequestService.Cancel(id, cancellationToken);
+            return Http200(OpportunityContractExtensions.MapApprovalWithDetails(approval), Localizer["record.updated"]);
+        }
+
+        [RequireAccess("opportunityApprovals.reject.description")]
         [HttpPost("{id:long}/Reject")]
         public async Task<IActionResult> Reject(long id, [FromBody] DecideOpportunityApprovalRequest request, CancellationToken cancellationToken)
         {

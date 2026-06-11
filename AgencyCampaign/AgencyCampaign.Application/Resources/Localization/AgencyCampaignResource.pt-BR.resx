@@ -231,6 +231,9 @@
   <data name="opportunityApproval.notPending" xml:space="preserve">
     <value>Apenas solicitações de aprovação pendentes podem ser decididas.</value>
   </data>
+  <data name="opportunityApproval.selfApproval" xml:space="preserve">
+    <value>Você não pode aprovar a própria solicitação. Outra pessoa precisa decidir.</value>
+  </data>
   <data name="opportunityNegotiation.statusTransition.unsupported" xml:space="preserve">
     <value>Transição de status de negociação não suportada.</value>
   </data>
@@ -1797,6 +1800,8 @@
   <data name="commercialApprovals.action.markApplied" xml:space="preserve"><value>Marcar como aplicada</value></data>
   <data name="commercialApprovals.action.markAppliedHint" xml:space="preserve"><value>Use quando a exceção for refletida na proposta real.</value></data>
   <data name="commercialApprovals.action.reject" xml:space="preserve"><value>Rejeitar</value></data>
+  <data name="commercialApprovals.action.cancelRequest" xml:space="preserve"><value>Cancelar solicitação</value></data>
+  <data name="opportunityApproval.cancel.alreadyClosed" xml:space="preserve"><value>Esta solicitação já foi decidida ou cancelada.</value></data>
   <data name="commercialApprovals.action.remove" xml:space="preserve"><value>Remover</value></data>
   <data name="commercialApprovals.action.resubmit" xml:space="preserve"><value>Reenviar para aprovação</value></data>
   <data name="commercialApprovals.action.sending" xml:space="preserve"><value>Enviando…</value></data>
@@ -2084,6 +2089,8 @@
   <data name="opportunityDetail.close.lostReasonLabel" xml:space="preserve"><value>Motivo da perda</value></data>
   <data name="opportunityDetail.close.lostReasonEmpty" xml:space="preserve"><value>Nenhum motivo de perda cadastrado.</value></data>
   <data name="opportunityDetail.close.wonNotesLabel" xml:space="preserve"><value>Observação (opcional)</value></data>
+  <data name="opportunityDetail.close.closedValueLabel" xml:space="preserve"><value>Valor fechado (opcional)</value></data>
+  <data name="opportunityDetail.close.closedValuePlaceholder" xml:space="preserve"><value>Deixe vazio para usar o valor da proposta aceita</value></data>
   <data name="opportunityDetail.close.lostNotesLabel" xml:space="preserve"><value>Detalhes adicionais (opcional)</value></data>
   <data name="opportunityDetail.close.wonPlaceholder" xml:space="preserve"><value>Ex.: Cliente aprovou orçamento completo.</value></data>
   <data name="opportunityDetail.close.lostPlaceholder" xml:space="preserve"><value>Ex.: Cliente escolheu concorrente Acme.</value></data>

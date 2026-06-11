@@ -57,6 +57,7 @@ export default function OpportunityDetail() {
   const [pendingReopen, setPendingReopen] = useState<{ stageId: number; correction: { kind: 'won' | 'lost'; stageId: number; name: string } | null } | null>(null)
   const [finalNotes, setFinalNotes] = useState('')
   const [finalReasonId, setFinalReasonId] = useState<number | null>(null)
+  const [finalClosedValue, setFinalClosedValue] = useState('')
   const [winReasons, setWinReasons] = useState<OpportunityWinReason[]>([])
   const [lossReasons, setLossReasons] = useState<OpportunityLossReason[]>([])
 
@@ -197,15 +198,17 @@ export default function OpportunityDetail() {
     const trimmedNotes = finalNotes.trim()
     if (pendingFinalStage.kind === 'lost' && trimmedNotes.length === 0 && finalReasonId === null) return
 
+    const closedValue = finalClosedValue.trim() === '' ? undefined : Number(finalClosedValue)
     const result = await executeAction(() =>
       pendingFinalStage.kind === 'won'
-        ? opportunityService.closeAsWon(opportunity.id, { wonNotes: trimmedNotes || undefined, winReasonId: finalReasonId ?? undefined })
+        ? opportunityService.closeAsWon(opportunity.id, { wonNotes: trimmedNotes || undefined, winReasonId: finalReasonId ?? undefined, closedValue })
         : opportunityService.closeAsLost(opportunity.id, { lossReason: trimmedNotes || lossReasons.find((r) => r.id === finalReasonId)?.name || t('opportunityDetail.close.defaultLossReason'), lossReasonId: finalReasonId ?? undefined }),
     )
     if (result !== null) {
       setPendingFinalStage(null)
       setFinalNotes('')
       setFinalReasonId(null)
+      setFinalClosedValue('')
       await loadOpportunity()
     }
   }
@@ -214,6 +217,7 @@ export default function OpportunityDetail() {
     setPendingFinalStage(null)
     setFinalNotes('')
     setFinalReasonId(null)
+    setFinalClosedValue('')
     if (opportunity) setSelectedStage(String(opportunity.commercialPipelineStageId))
   }
 
@@ -824,6 +828,20 @@ export default function OpportunityDetail() {
                     })}
                   </div>
                 )}
+              </div>
+            )}
+            {pendingFinalStage?.kind === 'won' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('opportunityDetail.close.closedValueLabel')}</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  className="w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  value={finalClosedValue}
+                  onChange={(e) => setFinalClosedValue(e.target.value)}
+                  placeholder={t('opportunityDetail.close.closedValuePlaceholder')}
+                />
               </div>
             )}
             <div className="space-y-2">

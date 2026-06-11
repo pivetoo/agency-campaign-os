@@ -303,6 +303,7 @@ namespace AgencyCampaign.Domain.Entities
             {
                 WonNotes = Normalize(notes) ?? "Oportunidade marcada como ganha pelo pipeline comercial.";
                 LossReason = null;
+                LossReasonId = null;
                 ClosedAt = DateTimeOffset.UtcNow;
                 return;
             }
@@ -310,15 +311,18 @@ namespace AgencyCampaign.Domain.Entities
             if (stage.FinalBehavior == CommercialPipelineStageFinalBehavior.Lost)
             {
                 WonNotes = null;
+                WinReasonId = null;
                 LossReason = Normalize(notes) ?? "Oportunidade marcada como perdida pelo pipeline comercial.";
                 ClosedAt = DateTimeOffset.UtcNow;
                 return;
             }
 
+            // Reabertura: limpa todos os dados de fechamento, inclusive o valor fechado
             WonNotes = null;
             WinReasonId = null;
             LossReason = null;
             LossReasonId = null;
+            ClosedValue = null;
             ClosedAt = null;
         }
 

@@ -112,6 +112,19 @@ namespace AgencyCampaign.Infrastructure.Services
             return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
         }
 
+        public async Task<OpportunityApprovalRequest> Cancel(long id, CancellationToken cancellationToken = default)
+        {
+            OpportunityApprovalRequest approvalRequest = await GetTrackedApproval(id, cancellationToken);
+            if (!approvalRequest.Supersede())
+            {
+                throw new InvalidOperationException("opportunityApproval.cancel.alreadyClosed");
+            }
+
+            await DbContext.SaveChangesAsync(cancellationToken);
+
+            return await GetOpportunityApprovalRequestById(id, cancellationToken) ?? approvalRequest;
+        }
+
         public async Task<OpportunityApprovalRequest> RecordReviewerDecision(long id, OpportunityApprovalReviewerStatus decision, string? notes = null, CancellationToken cancellationToken = default)
         {
             if (currentUser.UserId is null)

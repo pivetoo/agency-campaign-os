@@ -266,6 +266,7 @@ export interface ChangeOpportunityStageRequest {
 
 export interface CloseOpportunityAsWonRequest {
   wonNotes?: string
+  closedValue?: number
   winReasonId?: number | null
 }
 
@@ -477,6 +478,10 @@ export const opportunityService = {
 
   rejectRequest(id: number, data: DecideOpportunityApprovalRequest) {
     return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/Reject`, data)
+  },
+
+  cancelRequest(id: number) {
+    return httpClient.post<OpportunityApprovalRequest>(`/OpportunityApprovals/${id}/Cancel`, {})
   },
 
   recordReviewerDecision(id: number, data: { approved: boolean; notes?: string }) {

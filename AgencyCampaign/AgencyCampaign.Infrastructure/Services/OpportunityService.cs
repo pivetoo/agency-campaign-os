@@ -427,7 +427,7 @@ namespace AgencyCampaign.Infrastructure.Services
             EnsureOwnership(opportunity, restrictToCurrentUser);
             CommercialPipelineStage wonStage = await ResolveFinalStage(CommercialPipelineStageFinalBehavior.Won, cancellationToken);
             opportunity.CloseAsWon(wonStage, request.WonNotes, request.WinReasonId, currentUser.UserId, currentUser.UserName);
-            opportunity.SetClosedValue(await ResolveAcceptedProposalValueAsync(opportunity.Id, cancellationToken));
+            opportunity.SetClosedValue(request.ClosedValue ?? await ResolveAcceptedProposalValueAsync(opportunity.Id, cancellationToken));
             opportunity.IncrementVersion();
 
             return await SaveAndReturn(opportunity, cancellationToken);

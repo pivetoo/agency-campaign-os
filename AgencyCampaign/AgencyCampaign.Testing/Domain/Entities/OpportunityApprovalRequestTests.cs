@@ -149,6 +149,16 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void Approve_should_block_requester_from_approving_own_request()
+        {
+            OpportunityApprovalRequest subject = BuildDefault();
+
+            Action act = () => subject.Approve("Tester", null, 7);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("opportunityApproval.selfApproval");
+        }
+
+        [Test]
         public void Resubmit_should_reset_reviewer_votes_so_old_approvals_do_not_carry_over()
         {
             OpportunityApprovalRequest subject = BuildDefault();

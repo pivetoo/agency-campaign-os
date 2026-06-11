@@ -213,6 +213,12 @@ export default function CommercialApprovals() {
     if (result !== null) await loadData()
   }
 
+  const cancelApproval = async () => {
+    if (!selected) return
+    const result = await executeAction(() => opportunityService.cancelRequest(selected.id))
+    if (result !== null) await loadData()
+  }
+
   const markMerged = async () => {
     if (!selected) return
     const result = await executeAction(() => opportunityService.markApprovalMerged(selected.id))
@@ -265,6 +271,7 @@ export default function CommercialApprovals() {
                 onReject={() => void decideApproval('reject')}
                 onRequestChanges={openRequestChanges}
                 onResubmit={() => void resubmitApproval()}
+                onCancel={() => void cancelApproval()}
                 onMarkMerged={() => void markMerged()}
                 onOpenOpportunity={() => selected.opportunityId && navigate(`/comercial/oportunidades/${selected.opportunityId}?tab=approvals`)}
                 t={t}
@@ -299,6 +306,7 @@ export default function CommercialApprovals() {
               onReject={() => void decideApproval('reject')}
               onRequestChanges={openRequestChanges}
               onResubmit={() => void resubmitApproval()}
+                onCancel={() => void cancelApproval()}
               onMarkMerged={() => void markMerged()}
               onOpenOpportunity={() => selected.opportunityId && navigate(`/comercial/oportunidades/${selected.opportunityId}?tab=approvals`)}
               t={t}
@@ -460,11 +468,12 @@ interface DetailProps {
   onRequestChanges: () => void
   onResubmit: () => void
   onMarkMerged: () => void
+  onCancel: () => void
   onOpenOpportunity: () => void
   t: (key: string) => string
 }
 
-function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserId, reviewerRefreshKey, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged, onOpenOpportunity, t }: DetailProps) {
+function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserId, reviewerRefreshKey, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged, onCancel, onOpenOpportunity, t }: DetailProps) {
   const [detailReviewers, setDetailReviewers] = useState<OpportunityApprovalReviewer[]>([])
 
   useEffect(() => {
@@ -566,6 +575,7 @@ function ApprovalDetail({ approval, actionLoading, currentUserName, currentUserI
             onRequestChanges={onRequestChanges}
             onResubmit={onResubmit}
             onMarkMerged={onMarkMerged}
+            onCancel={onCancel}
             canDecide={canDecide}
             isOpenPending={isOpenPending}
             pendingReviewerNames={pendingReviewerNames}
@@ -605,9 +615,10 @@ interface ActionPanelProps {
   onRequestChanges: () => void
   onResubmit: () => void
   onMarkMerged: () => void
+  onCancel: () => void
 }
 
-function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendingReviewerNames, isChangesRequested, isApproved, isRejected, isMerged, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged }: ActionPanelProps) {
+function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendingReviewerNames, isChangesRequested, isApproved, isRejected, isMerged, onApprove, onReject, onRequestChanges, onResubmit, onMarkMerged, onCancel }: ActionPanelProps) {
   const { t } = useI18n()
   if (canDecide) {
     return (
@@ -625,6 +636,9 @@ function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendin
           </Button>
           <Button size="sm" variant="outline-danger" fullWidth disabled={actionLoading} onClick={onReject} icon={<ThumbsDown />}>
             {t('commercialApprovals.action.reject')}
+          </Button>
+          <Button size="sm" variant="outline" fullWidth disabled={actionLoading} onClick={onCancel} icon={<XCircle />}>
+            {t('commercialApprovals.action.cancelRequest')}
           </Button>
         </div>
         <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
@@ -644,6 +658,9 @@ function ActionPanel({ approval, actionLoading, canDecide, isOpenPending, pendin
             ? <>{t('commercialApprovals.waiting.decisionFrom')} <strong className="text-foreground">{pendingReviewerNames.join(', ')}</strong>.</>
             : t('commercialApprovals.waiting.noRequiredReviewer')}
         </p>
+        <Button size="sm" variant="outline" fullWidth disabled={actionLoading} onClick={onCancel} icon={<XCircle />} className="mt-3">
+          {t('commercialApprovals.action.cancelRequest')}
+        </Button>
       </div>
     )
   }

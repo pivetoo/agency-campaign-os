@@ -17,6 +17,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<OpportunityApprovalRequest> Reject(long id, DecideOpportunityApprovalRequest request, CancellationToken cancellationToken = default);
 
+        Task<OpportunityApprovalRequest> Cancel(long id, CancellationToken cancellationToken = default);
+
         Task<OpportunityApprovalRequest> RecordReviewerDecision(long id, OpportunityApprovalReviewerStatus decision, string? notes = null, CancellationToken cancellationToken = default);
 
         Task<OpportunityApprovalRequest> MarkInReview(long id, CancellationToken cancellationToken = default);

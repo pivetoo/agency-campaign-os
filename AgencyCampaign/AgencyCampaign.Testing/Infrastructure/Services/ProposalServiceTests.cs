@@ -129,7 +129,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Opportunity opportunity = await SeedOpportunityAsync();
             Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
             OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "12%", "Boss", 9);
-            approval.Approve("Boss", null, 9);
+            approval.Approve("Chefe", null, 10);
             db.Add(approval);
             await db.SaveChangesAsync();
             db.ChangeTracker.Clear();
@@ -588,7 +588,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             OpportunityApprovalRequest approval = await db.Set<OpportunityApprovalRequest>()
                 .AsTracking()
                 .SingleAsync(item => item.ProposalId == proposal.Id);
-            await approvalRequestService.Approve(approval.Id, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Boss" });
+            await new OpportunityApprovalRequestService(db, notifications.Object, policyEvaluator, CurrentUserMock.Create(2, "Boss")).Approve(approval.Id, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Boss" });
             db.ChangeTracker.Clear();
 
             await service.MarkAsSent(proposal.Id);
@@ -617,7 +617,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             OpportunityApprovalRequest approval = await db.Set<OpportunityApprovalRequest>()
                 .AsTracking()
                 .SingleAsync(item => item.ProposalId == proposal.Id);
-            await approvalRequestService.Approve(approval.Id, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Boss" });
+            await new OpportunityApprovalRequestService(db, notifications.Object, policyEvaluator, CurrentUserMock.Create(2, "Boss")).Approve(approval.Id, new DecideOpportunityApprovalRequest { ApprovedByUserName = "Boss" });
             db.ChangeTracker.Clear();
             await approvalRequestService.MarkMerged(approval.Id);
             db.ChangeTracker.Clear();
