@@ -75,10 +75,12 @@ namespace AgencyCampaign.Infrastructure.Persistence.EF.Configurations
                 .HasForeignKey(entity => entity.OpportunityId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // opportunityid da proposta e NOT NULL: SetNull e impossivel. Exclusao com propostas e
+            // bloqueada no servico (opportunity.delete.hasProposals); aqui apenas refletimos Restrict.
             builder.HasMany(entity => entity.Proposals)
                 .WithOne(entity => entity.Opportunity)
                 .HasForeignKey(entity => entity.OpportunityId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(entity => entity.StageHistory)
                 .WithOne(entity => entity.Opportunity)

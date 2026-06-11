@@ -23,7 +23,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<ProposalItem> CreateProposalItem(CreateProposalItemRequest request, CancellationToken cancellationToken = default)
         {
-            await EnsureProposalExists(request.ProposalId, cancellationToken);
+            await EnsureProposalEditable(request.ProposalId, cancellationToken);
 
             if (request.CreatorId.HasValue)
             {
@@ -68,6 +68,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             long proposalId = item.ProposalId;
+            await EnsureProposalEditable(proposalId, cancellationToken);
 
             item.Update(
                 request.Description,
@@ -105,6 +106,7 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             long proposalId = item.ProposalId;
+            await EnsureProposalEditable(proposalId, cancellationToken);
 
             await Delete([item], cancellationToken);
 
@@ -130,6 +132,20 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 throw new InvalidOperationException("record.notFound");
             }
+        }
+
+        private async Task EnsureProposalEditable(long proposalId, CancellationToken cancellationToken)
+        {
+            Proposal? proposal = await DbContext.Set<Proposal>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.Id == proposalId, cancellationToken);
+
+            if (proposal is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            proposal.EnsureEditable();
         }
 
         private async Task EnsureCreatorExists(long creatorId, CancellationToken cancellationToken)

@@ -112,7 +112,9 @@ export default function CommercialProposalDetail() {
   const discountPercent = gross > 0 ? round2((discountValue / gross) * 100) : 0
   const netTotal = round2(gross - discountValue)
   const hasItems = gross > 0
-  const canEditDiscount = hasItems && proposal != null && proposal.status !== ProposalStatus.Converted && proposal.status !== ProposalStatus.Cancelled
+  // Termos so editaveis em rascunho: backend bloqueia (proposal.locked.notDraft) apos o envio
+  const isDraft = proposal?.status === ProposalStatus.Draft
+  const canEditDiscount = hasItems && isDraft
   const persistedDiscount = proposal?.discountAmount == null ? null : round2(Math.min(gross, Math.max(0, proposal.discountAmount)))
   const pendingDiscount = discountValueInput === '' ? null : round2(Math.min(gross, Math.max(0, Number(discountValueInput))))
   const discountDirty = canEditDiscount && pendingDiscount !== persistedDiscount
@@ -429,6 +431,7 @@ export default function CommercialProposalDetail() {
                 <CardHeader className="border-b bg-muted/20 py-3">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <CardTitle className="text-sm">{t('proposalDetail.items.title')}</CardTitle>
+                    {isDraft ? (
                     <div className="flex flex-wrap gap-2">
                       <Button
                         size="sm"
@@ -458,6 +461,7 @@ export default function CommercialProposalDetail() {
                         {t('common.action.delete')}
                       </Button>
                     </div>
+                    ) : null}
                   </div>
                 </CardHeader>
                 <CardContent className="p-4">

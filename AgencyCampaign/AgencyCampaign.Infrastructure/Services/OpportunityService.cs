@@ -463,6 +463,17 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
             }
 
+            // Proposta tem opportunityid NOT NULL (sem SetNull possivel): bloqueia com erro claro em vez
+            // de deixar o banco lancar violacao de FK opaca. Follow-ups/historico/comentarios/tags cascateiam.
+            bool hasProposals = await DbContext.Set<Proposal>()
+                .AsNoTracking()
+                .AnyAsync(item => item.OpportunityId == id, cancellationToken);
+
+            if (hasProposals)
+            {
+                throw new InvalidOperationException("opportunity.delete.hasProposals");
+            }
+
             return await Delete(id, cancellationToken);
         }
 

@@ -594,6 +594,35 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task Delete_should_block_with_clear_error_when_opportunity_has_proposals()
+        {
+            await SeedBaseAsync();
+            db.Add(new Opportunity(1, 1, "Com proposta", 500m).WithId(40));
+            db.Add(new Proposal(40, "P", 1));
+            await db.SaveChangesAsync();
+
+            Func<Task> act = () => service.Delete(40, restrictToCurrentUser: false);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("opportunity.delete.hasProposals");
+            (await db.Set<Opportunity>().FindAsync(40L)).Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task Delete_should_allow_when_opportunity_has_only_followups()
+        {
+            await SeedBaseAsync();
+            Opportunity opportunity = new(1, 1, "So follow-up", 500m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+            db.Add(new OpportunityFollowUp(opportunity.Id, "Ligar", DateTimeOffset.UtcNow.AddDays(1)));
+            await db.SaveChangesAsync();
+
+            Func<Task> act = () => service.Delete(opportunity.Id, restrictToCurrentUser: false);
+
+            await act.Should().NotThrowAsync();
+        }
+
+        [Test]
         public async Task GetForecast_should_count_open_opportunities_without_expected_date()
         {
             await SeedBaseAsync();

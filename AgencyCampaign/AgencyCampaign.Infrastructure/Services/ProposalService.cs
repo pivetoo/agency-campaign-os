@@ -156,7 +156,18 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            proposal.EnsureEditable();
+
             Opportunity opportunity = await GetOpportunity(request.OpportunityId, cancellationToken);
+
+            // Mudou desconto/prazo? Invalida aprovacoes concedidas ANTES de mutar a proposta (save proprio),
+            // para o gate de envio reavaliar a politica e nao deixar uma aprovacao velha liberar termos novos.
+            bool termsChanged = proposal.DiscountAmount != request.DiscountAmount
+                || proposal.PaymentTermDays != request.PaymentTermDays;
+            if (termsChanged)
+            {
+                await SupersedeActiveApprovalsAsync(proposal.Id, cancellationToken);
+            }
 
             proposal.Update(
                 opportunity.Name,
@@ -714,6 +725,27 @@ namespace AgencyCampaign.Infrastructure.Services
         // (seja por desvio de politica, seja solicitada manualmente). Sem aprovacao em aberto, se a proposta
         // estoura a politica de desconto/prazo, cria uma automaticamente com os diffs/impactos para decisao.
         // Uma aprovacao ja Approved libera o envio.
+        private async Task SupersedeActiveApprovalsAsync(long proposalId, CancellationToken cancellationToken)
+        {
+            List<OpportunityApprovalRequest> active = await DbContext.Set<OpportunityApprovalRequest>()
+                .AsTracking()
+                .Where(item => item.ProposalId == proposalId
+                    && item.Status != OpportunityApprovalStatus.Rejected
+                    && item.Status != OpportunityApprovalStatus.Cancelled)
+                .ToListAsync(cancellationToken);
+
+            bool any = false;
+            foreach (OpportunityApprovalRequest request in active)
+            {
+                any |= request.Supersede();
+            }
+
+            if (any)
+            {
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
+
         private async Task EnsureSendApprovedAsync(long proposalId, CancellationToken cancellationToken)
         {
             Proposal? proposal = await DbContext.Set<Proposal>()

@@ -129,6 +129,13 @@ namespace AgencyCampaign.Domain.Entities
             DecisionNotes = null;
             ApprovedByUserId = null;
             ApprovedByUserName = null;
+
+            // Reabre a votacao: votos da versao anterior nao podem completar o quorum da versao alterada
+            foreach (OpportunityApprovalReviewer reviewer in reviewers)
+            {
+                reviewer.ResetDecision();
+            }
+
             UpdatedAt = DateTimeOffset.UtcNow;
         }
 
@@ -141,6 +148,20 @@ namespace AgencyCampaign.Domain.Entities
 
             Status = OpportunityApprovalStatus.Merged;
             UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        // Invalida a aprovacao quando os termos da proposta mudam: a evidencia aprovada nao corresponde
+        // mais ao que sera enviado, entao o gate de envio precisa reavaliar a politica do zero.
+        public bool Supersede()
+        {
+            if (Status == OpportunityApprovalStatus.Rejected || Status == OpportunityApprovalStatus.Cancelled)
+            {
+                return false;
+            }
+
+            Status = OpportunityApprovalStatus.Cancelled;
+            UpdatedAt = DateTimeOffset.UtcNow;
+            return true;
         }
 
         public OpportunityApprovalReviewer AddReviewer(string userName, string? role, bool required, long? userId = null)

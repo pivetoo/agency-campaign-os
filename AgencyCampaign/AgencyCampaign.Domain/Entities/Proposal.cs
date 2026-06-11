@@ -108,10 +108,21 @@ namespace AgencyCampaign.Domain.Entities
             TotalValue = total;
         }
 
+        // Termos da proposta sao imutaveis fora do rascunho: depois de enviada/aceita, o que o cliente
+        // viu e aceitou (versao congelada) tem que ser o que vira campanha e financeiro. Revisar = nova proposta.
+        public void EnsureEditable()
+        {
+            if (Status != ProposalStatus.Draft)
+            {
+                throw new InvalidOperationException("proposal.locked.notDraft");
+            }
+        }
+
         public void Update(string name, DateTimeOffset? validityUntil, string? description, string? notes, long opportunityId, decimal? discountAmount = null, int? paymentTermDays = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(opportunityId);
+            EnsureEditable();
 
             Name = name.Trim();
             Description = Normalize(description);

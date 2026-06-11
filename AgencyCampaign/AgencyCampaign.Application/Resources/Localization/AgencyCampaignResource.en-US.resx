@@ -24,6 +24,9 @@
   <data name="record.notFound" xml:space="preserve">
     <value>Record not found.</value>
   </data>
+  <data name="opportunity.delete.hasProposals" xml:space="preserve">
+    <value>This opportunity has linked proposals and cannot be deleted. Cancel or handle the proposals first.</value>
+  </data>
   <data name="request.id.required" xml:space="preserve">
     <value>The identifier is required.</value>
   </data>
@@ -71,6 +74,12 @@
   </data>
   <data name="commercialPipelineStage.initial.duplicate" xml:space="preserve">
     <value>An initial stage is already configured for the commercial funnel.</value>
+  </data>
+  <data name="commercialPipelineStage.final.duplicate" xml:space="preserve">
+    <value>There is already an active stage with this outcome (Won or Lost). Keep only one of each.</value>
+  </data>
+  <data name="commercialPipelineStage.final.required" xml:space="preserve">
+    <value>The funnel needs at least one active Won and one active Lost stage. Create another before changing this one.</value>
   </data>
   <data name="commercialPipelineStage.initial.missing" xml:space="preserve">
     <value>No active stage configured for the commercial funnel.</value>
@@ -210,6 +219,7 @@
   <data name="proposal.approve.notSentOrViewed" xml:space="preserve"><value>The proposal must be Sent or Viewed to be Approved.</value></data>
   <data name="proposal.send.approvalRequired" xml:space="preserve"><value>This proposal exceeds the commercial policy and requires internal approval before it can be sent or approved. Use "Request approval".</value></data>
   <data name="proposal.send.approvalPending" xml:space="preserve"><value>There is an open approval for this proposal. Wait for the decision before sending or approving.</value></data>
+  <data name="proposal.locked.notDraft" xml:space="preserve"><value>This proposal has already been sent and can no longer be changed. Create a new proposal to revise the terms.</value></data>
   <data name="proposal.reject.notSentOrViewed" xml:space="preserve"><value>The proposal must be Sent or Viewed to be Rejected.</value></data>
   <data name="proposal.convert.notApproved" xml:space="preserve"><value>The proposal must be Approved to be Converted.</value></data>
   <data name="proposal.cancel.alreadyConverted" xml:space="preserve"><value>Cannot cancel a Converted proposal.</value></data>

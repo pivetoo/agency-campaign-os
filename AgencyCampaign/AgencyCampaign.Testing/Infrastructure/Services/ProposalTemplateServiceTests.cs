@@ -84,6 +84,24 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task ApplyToProposal_should_block_when_proposal_is_not_draft()
+        {
+            Proposal proposal = new(opportunityId: 1, name: "P", internalOwnerId: 1);
+            proposal.MarkAsSent();
+            db.Add(proposal);
+            ProposalTemplate template = new("Pacote", null, null, null);
+            db.Add(template);
+            await db.SaveChangesAsync();
+            db.Add(new ProposalTemplateItem(template.Id, "item 1", 2, 100m, defaultDeliveryDays: 5, observations: null, displayOrder: 1));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.ApplyToProposal(proposal.Id, template.Id);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("proposal.locked.notDraft");
+        }
+
+        [Test]
         public async Task ApplyToProposal_should_create_items_from_template()
         {
             Proposal proposal = new(opportunityId: 1, name: "P", internalOwnerId: 1);

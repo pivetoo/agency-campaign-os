@@ -132,6 +132,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            proposal.EnsureEditable();
+
             ProposalTemplate? template = await dbContext.Set<ProposalTemplate>()
                 .AsNoTracking()
                 .Include(item => item.Items)

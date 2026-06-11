@@ -63,6 +63,25 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task CreateProposalItem_should_block_when_proposal_is_not_draft()
+        {
+            Proposal proposal = await SeedProposalAsync();
+            proposal.MarkAsSent();
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.CreateProposalItem(new CreateProposalItemRequest
+            {
+                ProposalId = proposal.Id,
+                Description = "Item tardio",
+                Quantity = 1,
+                UnitPrice = 100m
+            });
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("proposal.locked.notDraft");
+        }
+
+        [Test]
         public async Task CreateProposalItem_should_persist_and_recalculate_total()
         {
             Proposal proposal = await SeedProposalAsync();

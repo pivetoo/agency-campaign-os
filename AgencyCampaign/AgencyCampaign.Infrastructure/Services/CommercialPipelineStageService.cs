@@ -2,6 +2,7 @@ using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.CommercialPipelineStages;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -57,6 +58,8 @@ namespace AgencyCampaign.Infrastructure.Services
         public async Task<CommercialPipelineStage> CreateStage(CreateCommercialPipelineStageRequest request, CancellationToken cancellationToken = default)
         {
             await EnsureInitialStageRules(request.IsInitial, null, cancellationToken);
+            // Novo estagio nasce ativo; barra um segundo Ganha/Perdida ativo (fechamento nao-deterministico)
+            await EnsureNoDuplicateActiveFinalStage(request.IsFinal, request.FinalBehavior, isActive: true, currentId: null, cancellationToken);
 
             CommercialPipelineStage stage = new(request.Name, request.DisplayOrder, request.Color, request.Description, request.IsInitial, request.IsFinal, request.FinalBehavior, request.DefaultProbability, request.SlaInDays);
             bool success = await Insert(cancellationToken, stage);
@@ -85,6 +88,8 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             await EnsureInitialStageRules(request.IsInitial, stage.Id, cancellationToken);
+            // Avalia o estado ATUAL do estagio (antes do Update) para nao remover o ultimo Ganha/Perdida ativo
+            await EnsureFinalStageRulesOnUpdate(stage, request, cancellationToken);
             stage.Update(request.Name, request.DisplayOrder, request.Color, request.Description, request.IsInitial, request.IsFinal, request.FinalBehavior, request.IsActive, request.DefaultProbability, request.SlaInDays);
 
             CommercialPipelineStage? result = await Update(stage, cancellationToken);
@@ -110,6 +115,49 @@ namespace AgencyCampaign.Infrastructure.Services
             if (anotherInitialExists)
             {
                 throw new InvalidOperationException("commercialPipelineStage.initial.duplicate");
+            }
+        }
+
+        private async Task EnsureNoDuplicateActiveFinalStage(bool isFinal, CommercialPipelineStageFinalBehavior finalBehavior, bool isActive, long? currentId, CancellationToken cancellationToken)
+        {
+            if (!isActive || !isFinal || finalBehavior == CommercialPipelineStageFinalBehavior.None)
+            {
+                return;
+            }
+
+            bool anotherActiveSameBehavior = await DbContext.Set<CommercialPipelineStage>()
+                .AsNoTracking()
+                .AnyAsync(item => item.IsActive && item.IsFinal && item.FinalBehavior == finalBehavior && item.Id != currentId, cancellationToken);
+
+            if (anotherActiveSameBehavior)
+            {
+                throw new InvalidOperationException("commercialPipelineStage.final.duplicate");
+            }
+        }
+
+        private async Task EnsureFinalStageRulesOnUpdate(CommercialPipelineStage current, UpdateCommercialPipelineStageRequest request, CancellationToken cancellationToken)
+        {
+            CommercialPipelineStageFinalBehavior resultingBehavior = request.IsFinal ? request.FinalBehavior : CommercialPipelineStageFinalBehavior.None;
+
+            await EnsureNoDuplicateActiveFinalStage(request.IsFinal, resultingBehavior, request.IsActive, current.Id, cancellationToken);
+
+            foreach (CommercialPipelineStageFinalBehavior behavior in new[] { CommercialPipelineStageFinalBehavior.Won, CommercialPipelineStageFinalBehavior.Lost })
+            {
+                bool wasThisBehavior = current.IsActive && current.IsFinal && current.FinalBehavior == behavior;
+                bool willBeThisBehavior = request.IsActive && resultingBehavior == behavior;
+                if (!wasThisBehavior || willBeThisBehavior)
+                {
+                    continue;
+                }
+
+                bool anotherActiveBehavior = await DbContext.Set<CommercialPipelineStage>()
+                    .AsNoTracking()
+                    .AnyAsync(item => item.IsActive && item.IsFinal && item.FinalBehavior == behavior && item.Id != current.Id, cancellationToken);
+
+                if (!anotherActiveBehavior)
+                {
+                    throw new InvalidOperationException("commercialPipelineStage.final.required");
+                }
             }
         }
     }

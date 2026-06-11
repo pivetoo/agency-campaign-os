@@ -147,5 +147,36 @@ namespace AgencyCampaign.Testing.Domain.Entities
 
             act.Should().Throw<InvalidOperationException>();
         }
+
+        [Test]
+        public void Resubmit_should_reset_reviewer_votes_so_old_approvals_do_not_carry_over()
+        {
+            OpportunityApprovalRequest subject = BuildDefault();
+            subject.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            subject.AddReviewer("Bruno", "CFO", required: true, userId: 20);
+            subject.RegisterReviewerDecision(10, OpportunityApprovalReviewerStatus.Approved);
+            subject.RequestChanges("Tester", "ajuste o desconto", 7);
+
+            subject.Resubmit("Tester", requestedByUserId: 7);
+
+            subject.Reviewers.Should().OnlyContain(reviewer => reviewer.Status == OpportunityApprovalReviewerStatus.Pending);
+            subject.Status.Should().Be(OpportunityApprovalStatus.Pending);
+        }
+
+        [Test]
+        public void Resubmit_then_single_new_vote_should_not_approve_with_stale_votes()
+        {
+            OpportunityApprovalRequest subject = BuildDefault();
+            subject.AddReviewer("Ana", "Diretora", required: true, userId: 10);
+            subject.AddReviewer("Bruno", "CFO", required: true, userId: 20);
+            subject.RegisterReviewerDecision(10, OpportunityApprovalReviewerStatus.Approved);
+            subject.RequestChanges("Tester", "ajuste", 7);
+            subject.Resubmit("Tester", requestedByUserId: 7);
+
+            // Apenas Bruno vota agora; o voto antigo da Ana nao pode completar o quorum
+            subject.RegisterReviewerDecision(20, OpportunityApprovalReviewerStatus.Approved);
+
+            subject.Status.Should().Be(OpportunityApprovalStatus.Pending);
+        }
     }
 }

@@ -85,6 +85,39 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task UpdateProposal_should_block_when_proposal_is_not_draft()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            await service.MarkAsSent(proposal.Id);
+            db.ChangeTracker.Clear();
+
+            UpdateProposalRequest request = new() { Id = proposal.Id, OpportunityId = opportunity.Id, DiscountAmount = 100m };
+            Func<Task> act = () => service.UpdateProposal(proposal.Id, request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("proposal.locked.notDraft");
+        }
+
+        [Test]
+        public async Task UpdateProposal_should_supersede_granted_approval_when_discount_changes()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            OpportunityApprovalRequest approval = new(proposal.Id, OpportunityApprovalType.DiscountApproval, "12%", "Boss", 9);
+            approval.Approve("Boss", null, 9);
+            db.Add(approval);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateProposalRequest request = new() { Id = proposal.Id, OpportunityId = opportunity.Id, DiscountAmount = 800m };
+            await service.UpdateProposal(proposal.Id, request);
+
+            db.ChangeTracker.Clear();
+            OpportunityApprovalRequest reloaded = await db.Set<OpportunityApprovalRequest>().AsNoTracking().SingleAsync(item => item.Id == approval.Id);
+            reloaded.Status.Should().Be(OpportunityApprovalStatus.Cancelled);
+        }
+
+        [Test]
         public async Task UpdateProposal_should_throw_when_id_mismatch()
         {
             UpdateProposalRequest request = new() { Id = 5, OpportunityId = 1 };

@@ -172,5 +172,93 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             Func<Task> act = () => service.UpdateStage(another.Id, request);
             await act.Should().ThrowAsync<InvalidOperationException>();
         }
+
+        [Test]
+        public async Task CreateStage_should_block_second_active_won_stage()
+        {
+            db.Add(new CommercialPipelineStageBuilder().WithId(1).WithName("Ganha").AsFinal(CommercialPipelineStageFinalBehavior.Won).Build());
+            await db.SaveChangesAsync();
+
+            CreateCommercialPipelineStageRequest request = new()
+            {
+                Name = "Ganha 2",
+                DisplayOrder = 2,
+                Color = "#fff",
+                IsFinal = true,
+                FinalBehavior = CommercialPipelineStageFinalBehavior.Won
+            };
+
+            Func<Task> act = () => service.CreateStage(request);
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task UpdateStage_should_block_deactivating_the_only_won_stage()
+        {
+            CommercialPipelineStage won = new CommercialPipelineStageBuilder().WithId(1).WithName("Ganha").AsFinal(CommercialPipelineStageFinalBehavior.Won).Build();
+            db.Add(won);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCommercialPipelineStageRequest request = new()
+            {
+                Id = won.Id,
+                Name = "Ganha",
+                DisplayOrder = 1,
+                Color = "#fff",
+                IsFinal = true,
+                FinalBehavior = CommercialPipelineStageFinalBehavior.Won,
+                IsActive = false
+            };
+
+            Func<Task> act = () => service.UpdateStage(won.Id, request);
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task UpdateStage_should_block_unfinalizing_the_only_lost_stage()
+        {
+            CommercialPipelineStage lost = new CommercialPipelineStageBuilder().WithId(1).WithName("Perdida").AsFinal(CommercialPipelineStageFinalBehavior.Lost).Build();
+            db.Add(lost);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCommercialPipelineStageRequest request = new()
+            {
+                Id = lost.Id,
+                Name = "Perdida",
+                DisplayOrder = 1,
+                Color = "#fff",
+                IsFinal = false,
+                IsActive = true
+            };
+
+            Func<Task> act = () => service.UpdateStage(lost.Id, request);
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task UpdateStage_should_allow_deactivating_won_when_another_active_won_exists()
+        {
+            db.Add(new CommercialPipelineStageBuilder().WithId(1).WithName("Ganha A").AsFinal(CommercialPipelineStageFinalBehavior.Won).Build());
+            CommercialPipelineStage wonB = new CommercialPipelineStageBuilder().WithId(2).WithName("Ganha B").AsFinal(CommercialPipelineStageFinalBehavior.Won).Build();
+            db.Add(wonB);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            UpdateCommercialPipelineStageRequest request = new()
+            {
+                Id = wonB.Id,
+                Name = "Ganha B",
+                DisplayOrder = 2,
+                Color = "#fff",
+                IsFinal = true,
+                FinalBehavior = CommercialPipelineStageFinalBehavior.Won,
+                IsActive = false
+            };
+
+            CommercialPipelineStage result = await service.UpdateStage(wonB.Id, request);
+            result.IsActive.Should().BeFalse();
+        }
     }
 }

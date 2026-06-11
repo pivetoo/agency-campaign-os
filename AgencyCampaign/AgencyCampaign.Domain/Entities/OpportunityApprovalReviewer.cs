@@ -67,5 +67,13 @@ namespace AgencyCampaign.Domain.Entities
             DecisionNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
             UpdatedAt = DateTimeOffset.UtcNow;
         }
+
+        public void ResetDecision()
+        {
+            Status = OpportunityApprovalReviewerStatus.Pending;
+            DecidedAt = null;
+            DecisionNotes = null;
+            UpdatedAt = DateTimeOffset.UtcNow;
+        }
     }
 }
