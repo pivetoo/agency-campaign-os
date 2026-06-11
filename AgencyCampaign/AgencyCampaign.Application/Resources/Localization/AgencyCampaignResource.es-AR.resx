@@ -1983,6 +1983,7 @@
   <data name="proposalDetail.convert.modalDescription" xml:space="preserve"><value>Revisá el nombre y la fecha de inicio de la campaña antes de crearla.</value></data>
   <data name="proposalDetail.convert.campaignName" xml:space="preserve"><value>Nombre de la campaña</value></data>
   <data name="proposalDetail.convert.startDate" xml:space="preserve"><value>Fecha de inicio</value></data>
+  <data name="proposalDetail.convert.endDate" xml:space="preserve"><value>Fecha de fin</value></data>
   <data name="proposalDetail.convert.orLinkExisting" xml:space="preserve"><value>o vincular a una existente</value></data>
   <data name="pipeline.insights.openAria" xml:space="preserve"><value>Abrir insights del pipeline</value></data>
   <data name="pipeline.insights.title" xml:space="preserve"><value>Insights del pipeline</value></data>
@@ -2260,6 +2261,7 @@
   <data name="configuration.commercialPolicy.warning.emptyPolicy" xml:space="preserve"><value>Política sin límites definidos. Mientras esté vacía, ninguna propuesta requiere aprobación por descuento o plazo (el control está desactivado).</value></data>
   <data name="configuration.commercialPolicy.validation.termOrder" xml:space="preserve"><value>El plazo predeterminado no puede ser mayor que el plazo máximo.</value></data>
   <data name="opportunity.reopen.confirmationRequired" xml:space="preserve"><value>Esta oportunidad está cerrada. Confirmá la reapertura antes de moverla a una etapa abierta (esto borra los datos de cierre).</value></data>
+  <data name="opportunityDetail.reopen.correctionConfirm" xml:space="preserve"><value>Para cambiar el resultado, la oportunidad se reabrirá y podrás registrar el nuevo cierre. ¿Continuar?</value></data>
   <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>El plazo de pago predeterminado no puede ser mayor que el plazo máximo.</value></data>
   <data name="opportunities.move.failed" xml:space="preserve"><value>No se pudo mover la oportunidad. Intentá de nuevo.</value></data>
   <data name="opportunities.move.conflict" xml:space="preserve"><value>La oportunidad fue modificada por otra persona. El tablero se actualizo; intenta mover de nuevo.</value></data>

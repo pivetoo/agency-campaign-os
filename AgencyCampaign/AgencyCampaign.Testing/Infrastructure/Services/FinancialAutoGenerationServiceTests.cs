@@ -72,7 +72,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
-        public async Task GenerateForConvertedProposal_should_create_receivable_with_brand_name_and_validity_due_date()
+        public async Task GenerateForConvertedProposal_should_create_receivable_with_brand_name_and_payment_term_due_date()
         {
             FinancialAccount account = NewAccount();
             db.Add(account);
@@ -85,8 +85,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             db.Add(campaign);
             await db.SaveChangesAsync();
 
-            DateTimeOffset validity = DateTimeOffset.UtcNow.AddDays(7);
-            Proposal proposal = new Proposal(opportunityId: 1, name: "Proposta X", internalOwnerId: 1, validityUntil: validity).WithId(10);
+            // Validade da OFERTA no passado nao deve definir o vencimento: o recebivel vence pelo prazo de pagamento
+            DateTimeOffset pastValidity = DateTimeOffset.UtcNow.AddDays(-2);
+            Proposal proposal = new Proposal(opportunityId: 1, name: "Proposta X", internalOwnerId: 1, validityUntil: pastValidity, paymentTermDays: 45).WithId(10);
             proposal.UpdateTotalValue(2500m);
 
             await service.GenerateForConvertedProposal(proposal, campaignId: campaign.Id);
@@ -99,7 +100,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             entry.CounterpartyName.Should().Be("Acme");
             entry.CampaignId.Should().Be(campaign.Id);
             entry.SourceProposalId.Should().Be(proposal.Id);
-            entry.DueAt.Should().BeCloseTo(validity, TimeSpan.FromSeconds(1));
+            entry.DueAt.Should().BeCloseTo(DateTimeOffset.UtcNow.AddDays(45), TimeSpan.FromMinutes(1));
         }
 
         [Test]

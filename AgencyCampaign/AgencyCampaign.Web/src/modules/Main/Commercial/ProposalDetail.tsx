@@ -59,6 +59,7 @@ export default function CommercialProposalDetail() {
   const [isConvertModalOpen, setIsConvertModalOpen] = useState(false)
   const [convertName, setConvertName] = useState('')
   const [convertStartDate, setConvertStartDate] = useState('')
+  const [convertEndDate, setConvertEndDate] = useState('')
   const [publicLinkUrl, setPublicLinkUrl] = useState<string | undefined>(undefined)
   const [campaignId, setCampaignId] = useState<string>('')
   const [policyEvaluation, setPolicyEvaluation] = useState<PolicyEvaluation | null>(null)
@@ -225,6 +226,7 @@ export default function CommercialProposalDetail() {
     const result = (await executeAction(() => proposalService.convertToNewCampaign(proposalId, {
       name: convertName.trim() || undefined,
       startDate: convertStartDate || undefined,
+      endDate: convertEndDate || undefined,
     }))) as { data?: Proposal } | null
     if (result === null) return
     const newCampaignId = result.data?.campaignId
@@ -670,6 +672,10 @@ export default function CommercialProposalDetail() {
             <div className="space-y-1.5">
               <label className="text-sm font-medium">{t('proposalDetail.convert.startDate')}</label>
               <Input type="date" value={convertStartDate} onChange={(e) => setConvertStartDate(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">{t('proposalDetail.convert.endDate')}</label>
+              <Input type="date" value={convertEndDate} onChange={(e) => setConvertEndDate(e.target.value)} min={convertStartDate || undefined} />
             </div>
           </div>
           <ModalFooter>

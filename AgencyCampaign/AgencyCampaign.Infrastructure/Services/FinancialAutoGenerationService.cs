@@ -43,7 +43,10 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             string brandName = await ResolveBrandNameAsync(campaignId, cancellationToken);
-            DateTimeOffset dueAt = proposal.ValidityUntil ?? DateTimeOffset.UtcNow.AddDays(30);
+            // Vencimento do recebivel pelo prazo de pagamento a partir da conversao (nao pela validade da
+            // OFERTA, que pode estar no passado e faria o recebivel nascer vencido). Sem prazo, 30 dias.
+            int paymentTermDays = proposal.PaymentTermDays ?? 30;
+            DateTimeOffset dueAt = DateTimeOffset.UtcNow.AddDays(paymentTermDays);
 
             FinancialEntry entry = new(
                 accountId.Value,

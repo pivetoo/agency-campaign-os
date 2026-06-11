@@ -1977,6 +1977,7 @@
   <data name="proposalDetail.convert.modalDescription" xml:space="preserve"><value>Review the campaign name and start date before creating it.</value></data>
   <data name="proposalDetail.convert.campaignName" xml:space="preserve"><value>Campaign name</value></data>
   <data name="proposalDetail.convert.startDate" xml:space="preserve"><value>Start date</value></data>
+  <data name="proposalDetail.convert.endDate" xml:space="preserve"><value>End date</value></data>
   <data name="proposalDetail.convert.orLinkExisting" xml:space="preserve"><value>or link to an existing one</value></data>
   <data name="pipeline.insights.openAria" xml:space="preserve"><value>Open pipeline insights</value></data>
   <data name="pipeline.insights.title" xml:space="preserve"><value>Pipeline insights</value></data>
@@ -2254,6 +2255,7 @@
   <data name="configuration.commercialPolicy.warning.emptyPolicy" xml:space="preserve"><value>No limits defined. While empty, no proposal requires discount or term approval (the gate is off).</value></data>
   <data name="configuration.commercialPolicy.validation.termOrder" xml:space="preserve"><value>The default term cannot be greater than the maximum term.</value></data>
   <data name="opportunity.reopen.confirmationRequired" xml:space="preserve"><value>This opportunity is closed. Confirm reopening before moving it to an open stage (this clears the closing data).</value></data>
+  <data name="opportunityDetail.reopen.correctionConfirm" xml:space="preserve"><value>To change the outcome, the opportunity will be reopened so you can record the new closing. Continue?</value></data>
   <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>The default payment term cannot be greater than the maximum term.</value></data>
   <data name="opportunities.move.failed" xml:space="preserve"><value>Could not move the opportunity. Please try again.</value></data>
   <data name="opportunities.move.conflict" xml:space="preserve"><value>The opportunity was changed by someone else. The board was refreshed; try moving again.</value></data>

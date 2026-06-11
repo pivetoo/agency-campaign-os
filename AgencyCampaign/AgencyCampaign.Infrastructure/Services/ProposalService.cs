@@ -427,7 +427,7 @@ namespace AgencyCampaign.Infrastructure.Services
             return saved;
         }
 
-        public async Task<Proposal> ConvertToNewCampaign(long id, string? name = null, DateTimeOffset? startDate = null, CancellationToken cancellationToken = default)
+        public async Task<Proposal> ConvertToNewCampaign(long id, string? name = null, DateTimeOffset? startDate = null, DateTimeOffset? endDate = null, CancellationToken cancellationToken = default)
         {
             Proposal? proposal = await DbContext.Set<Proposal>()
                 .AsTracking()
@@ -466,6 +466,7 @@ namespace AgencyCampaign.Infrastructure.Services
                         proposal.NetTotalValue,
                         campaignStart,
                         description: proposal.Description,
+                        endsAt: endDate,
                         internalOwnerName: proposal.InternalOwnerName);
                     campaign.SetResponsibleUserId(proposal.InternalOwnerId);
                     campaign.AttachOrigin(proposal.OpportunityId, proposal.Id);

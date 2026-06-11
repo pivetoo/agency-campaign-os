@@ -181,6 +181,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 if (accept)
                 {
                     proposal.AcceptByClient(clientName, clientEmail, version.VersionNumber, contentHash, notes);
+                    await TryCloseLinkedOpportunityAsWonAsync(proposal, clientName, cancellationToken);
                 }
                 else
                 {
@@ -206,6 +207,33 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return ProposalClientDecisionResult.Success;
+        }
+
+        // Ao aceitar a proposta, fecha a oportunidade vinculada como ganha (best-effort): remove a
+        // dupla acao manual e evita "proposta aceita com oportunidade ainda aberta". Nao bloqueia o
+        // aceite se nao houver estagio Ganha ou a oportunidade ja estiver fechada.
+        private async Task TryCloseLinkedOpportunityAsWonAsync(Proposal proposal, string clientName, CancellationToken cancellationToken)
+        {
+            Opportunity? opportunity = proposal.Opportunity;
+            if (opportunity is null || opportunity.ClosedAt.HasValue)
+            {
+                return;
+            }
+
+            CommercialPipelineStage? wonStage = await dbContext.Set<CommercialPipelineStage>()
+                .AsNoTracking()
+                .Where(item => item.IsActive && item.IsFinal && item.FinalBehavior == CommercialPipelineStageFinalBehavior.Won)
+                .OrderBy(item => item.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (wonStage is null)
+            {
+                return;
+            }
+
+            opportunity.CloseAsWon(wonStage, $"Proposta aceita pelo cliente ({clientName}).");
+            opportunity.SetClosedValue(proposal.NetTotalValue);
+            opportunity.IncrementVersion();
         }
 
         private static string ComputeContentHash(string? content)

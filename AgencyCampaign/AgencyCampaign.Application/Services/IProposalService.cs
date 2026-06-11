@@ -30,7 +30,7 @@ namespace AgencyCampaign.Application.Services
 
         Task<Proposal> ConvertToCampaign(long id, long campaignId, CancellationToken cancellationToken = default);
 
-        Task<Proposal> ConvertToNewCampaign(long id, string? name = null, DateTimeOffset? startDate = null, CancellationToken cancellationToken = default);
+        Task<Proposal> ConvertToNewCampaign(long id, string? name = null, DateTimeOffset? startDate = null, DateTimeOffset? endDate = null, CancellationToken cancellationToken = default);
 
         Task<Proposal> CancelProposal(long id, CancellationToken cancellationToken = default);
 

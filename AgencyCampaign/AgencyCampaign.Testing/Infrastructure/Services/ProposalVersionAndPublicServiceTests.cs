@@ -318,5 +318,65 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             second.Should().Be(ProposalClientDecisionResult.AlreadyDecided);
         }
+
+        private async Task<(Proposal proposal, long opportunityId, long openStageId, long wonStageId)> SeedSentProposalWithWonStageAsync(string token, decimal total)
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            await db.SaveChangesAsync();
+            CommercialPipelineStage open = new("Qualificacao", 1, "#fff", isInitial: true);
+            CommercialPipelineStage won = new("Ganha", 2, "#0f0", isFinal: true, finalBehavior: CommercialPipelineStageFinalBehavior.Won);
+            db.Add(open);
+            db.Add(won);
+            await db.SaveChangesAsync();
+            Opportunity opportunity = new(brand.Id, open.Id, "deal", 0m);
+            db.Add(opportunity);
+            await db.SaveChangesAsync();
+            Proposal proposal = new(opportunity.Id, "P", 1);
+            proposal.UpdateTotalValue(total);
+            proposal.MarkAsSent();
+            db.Add(proposal);
+            await db.SaveChangesAsync();
+            db.Add(new ProposalVersion(proposal.Id, 1, "v1", null, total, null, "{}", null, null));
+            db.Add(new ProposalShareLink(proposal.Id, token, null, null, null));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+            return (proposal, opportunity.Id, open.Id, won.Id);
+        }
+
+        [Test]
+        public async Task RegisterClientDecision_accept_should_close_linked_opportunity_as_won()
+        {
+            (Proposal proposal, long opportunityId, _, long wonStageId) = await SeedSentProposalWithWonStageAsync("tok", total: 500m);
+
+            ProposalClientDecisionResult result = await service.RegisterClientDecision("tok", accept: true, "Maria", null, null);
+
+            result.Should().Be(ProposalClientDecisionResult.Success);
+            db.ChangeTracker.Clear();
+            Opportunity opportunity = await db.Set<Opportunity>().AsNoTracking().SingleAsync(item => item.Id == opportunityId);
+            opportunity.ClosedAt.Should().NotBeNull();
+            opportunity.CommercialPipelineStageId.Should().Be(wonStageId);
+            opportunity.ClosedValue.Should().Be(proposal.NetTotalValue);
+        }
+
+        [Test]
+        public async Task RegisterClientDecision_accept_should_not_close_when_opportunity_already_closed()
+        {
+            (Proposal proposal, long opportunityId, _, _) = await SeedSentProposalWithWonStageAsync("tok", total: 500m);
+            Opportunity closed = await db.Set<Opportunity>().AsTracking().SingleAsync(item => item.Id == opportunityId);
+            CommercialPipelineStage lost = new("Perdida", 3, "#f00", isFinal: true, finalBehavior: CommercialPipelineStageFinalBehavior.Lost);
+            db.Add(lost);
+            await db.SaveChangesAsync();
+            closed.CloseAsLost(lost, "fora do escopo");
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            ProposalClientDecisionResult result = await service.RegisterClientDecision("tok", accept: true, "Maria", null, null);
+
+            result.Should().Be(ProposalClientDecisionResult.Success);
+            db.ChangeTracker.Clear();
+            Opportunity opportunity = await db.Set<Opportunity>().AsNoTracking().SingleAsync(item => item.Id == opportunityId);
+            opportunity.LossReason.Should().Be("fora do escopo");
+        }
     }
 }

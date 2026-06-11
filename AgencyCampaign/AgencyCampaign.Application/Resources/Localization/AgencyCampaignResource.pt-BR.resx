@@ -1984,6 +1984,7 @@
   <data name="proposalDetail.convert.modalDescription" xml:space="preserve"><value>Revise o nome e a data de inicio da campanha antes de criar.</value></data>
   <data name="proposalDetail.convert.campaignName" xml:space="preserve"><value>Nome da campanha</value></data>
   <data name="proposalDetail.convert.startDate" xml:space="preserve"><value>Data de inicio</value></data>
+  <data name="proposalDetail.convert.endDate" xml:space="preserve"><value>Data de fim</value></data>
   <data name="proposalDetail.convert.orLinkExisting" xml:space="preserve"><value>ou vincular a uma existente</value></data>
   <data name="pipeline.insights.openAria" xml:space="preserve"><value>Abrir insights do funil</value></data>
   <data name="pipeline.insights.title" xml:space="preserve"><value>Insights do funil</value></data>
@@ -2261,6 +2262,7 @@
   <data name="configuration.commercialPolicy.warning.emptyPolicy" xml:space="preserve"><value>Política sem limites definidos. Enquanto estiver vazia, nenhuma proposta exige aprovação por desconto ou prazo (o gate fica desligado).</value></data>
   <data name="configuration.commercialPolicy.validation.termOrder" xml:space="preserve"><value>O prazo padrão não pode ser maior que o prazo máximo.</value></data>
   <data name="opportunity.reopen.confirmationRequired" xml:space="preserve"><value>Esta oportunidade está fechada. Confirme a reabertura antes de movê-la para uma etapa aberta (isso apaga os dados de fechamento).</value></data>
+  <data name="opportunityDetail.reopen.correctionConfirm" xml:space="preserve"><value>Para alterar o resultado, a oportunidade será reaberta e você poderá registrar o novo fechamento. Continuar?</value></data>
   <data name="commercialPolicy.paymentTerm.defaultExceedsMax" xml:space="preserve"><value>O prazo padrão de pagamento não pode ser maior que o prazo máximo.</value></data>
   <data name="opportunities.move.failed" xml:space="preserve"><value>Não foi possível mover a oportunidade. Tente novamente.</value></data>
   <data name="opportunities.move.conflict" xml:space="preserve"><value>A oportunidade foi alterada por outra pessoa. O quadro foi atualizado; tente mover novamente.</value></data>

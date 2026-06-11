@@ -54,6 +54,7 @@ export default function OpportunityDetail() {
   const [isProposalFormOpen, setIsProposalFormOpen] = useState(false)
   const [, setSelectedStage] = useState<string>('1')
   const [pendingFinalStage, setPendingFinalStage] = useState<{ id: number; name: string; kind: 'won' | 'lost' } | null>(null)
+  const [pendingReopen, setPendingReopen] = useState<{ stageId: number; correction: { kind: 'won' | 'lost'; stageId: number; name: string } | null } | null>(null)
   const [finalNotes, setFinalNotes] = useState('')
   const [finalReasonId, setFinalReasonId] = useState<number | null>(null)
   const [winReasons, setWinReasons] = useState<OpportunityWinReason[]>([])
@@ -114,39 +115,81 @@ export default function OpportunityDetail() {
     { key: 'notes', title: t('common.field.notes'), dataIndex: 'notes', render: (value?: string) => value || '-' },
   ]
 
+  const openWonModal = async (target: { id: number; name: string }) => {
+    setPendingFinalStage({ id: target.id, name: target.name, kind: 'won' })
+    setFinalNotes('')
+    setFinalReasonId(null)
+    try {
+      const result = await opportunityWinReasonService.getAll({ pageSize: 200 })
+      setWinReasons(result.data ?? [])
+    } catch {
+      setWinReasons([])
+    }
+  }
+
+  const openLostModal = async (target: { id: number; name: string }) => {
+    setPendingFinalStage({ id: target.id, name: target.name, kind: 'lost' })
+    setFinalNotes('')
+    setFinalReasonId(null)
+    try {
+      const result = await opportunityLossReasonService.getAll({ pageSize: 200 })
+      setLossReasons(result.data ?? [])
+    } catch {
+      setLossReasons([])
+    }
+  }
+
   const handleChangeStage = async (stageId: number) => {
     if (!opportunity) return
     const targetStage = stages.find((stage) => stage.id === stageId)
+    if (!targetStage) return
 
-    if (targetStage && targetStage.finalBehavior === 1) {
-      setPendingFinalStage({ id: targetStage.id, name: targetStage.name, kind: 'won' })
-      setFinalNotes('')
-      setFinalReasonId(null)
-      try {
-        const result = await opportunityWinReasonService.getAll({ pageSize: 200 })
-        setWinReasons(result.data ?? [])
-      } catch {
-        setWinReasons([])
+    const isClosed = !!opportunity.closedAt
+
+    // Oportunidade fechada: mover para etapa aberta exige confirmar reabertura (allowReopen);
+    // mover para outra etapa final (corrigir ganho<->perda) reabre primeiro e depois fecha de novo
+    if (isClosed) {
+      if (targetStage.finalBehavior === 0) {
+        setPendingReopen({ stageId, correction: null })
+        return
       }
+      const kind = targetStage.finalBehavior === 1 ? 'won' : 'lost'
+      setPendingReopen({ stageId, correction: { kind, stageId, name: targetStage.name } })
       return
     }
 
-    if (targetStage && targetStage.finalBehavior === 2) {
-      setPendingFinalStage({ id: targetStage.id, name: targetStage.name, kind: 'lost' })
-      setFinalNotes('')
-      setFinalReasonId(null)
-      try {
-        const result = await opportunityLossReasonService.getAll({ pageSize: 200 })
-        setLossReasons(result.data ?? [])
-      } catch {
-        setLossReasons([])
-      }
+    if (targetStage.finalBehavior === 1) {
+      await openWonModal(targetStage)
+      return
+    }
+
+    if (targetStage.finalBehavior === 2) {
+      await openLostModal(targetStage)
       return
     }
 
     setSelectedStage(String(stageId))
-    const result = await executeAction(() => opportunityService.changeStage(opportunity.id, { commercialPipelineStageId: stageId }))
+    const result = await executeAction(() => opportunityService.changeStage(opportunity.id, { commercialPipelineStageId: stageId, expectedVersion: opportunity.version }))
     if (result !== null) await loadOpportunity()
+  }
+
+  const confirmReopen = async () => {
+    if (!opportunity || !pendingReopen) return
+    const { correction } = pendingReopen
+    // Correcao de resultado: reabre para a primeira etapa aberta e abre o modal de fechamento do alvo
+    const reopenStageId = correction
+      ? (sortedStages.find((stage) => (stage.finalBehavior ?? 0) === 0)?.id ?? pendingReopen.stageId)
+      : pendingReopen.stageId
+
+    const result = await executeAction(() => opportunityService.changeStage(opportunity.id, { commercialPipelineStageId: reopenStageId, allowReopen: true, expectedVersion: opportunity.version }))
+    setPendingReopen(null)
+    if (result === null) return
+    await loadOpportunity()
+
+    if (correction) {
+      const target = { id: correction.stageId, name: correction.name }
+      await (correction.kind === 'won' ? openWonModal(target) : openLostModal(target))
+    }
   }
 
   const confirmFinalChange = async () => {
@@ -701,6 +744,15 @@ export default function OpportunityDetail() {
             })
           }
         }}
+      />
+
+      <ConfirmModal
+        open={!!pendingReopen}
+        onOpenChange={(open) => { if (!open) setPendingReopen(null) }}
+        description={pendingReopen?.correction ? t('opportunityDetail.reopen.correctionConfirm') : t('opportunity.reopen.confirmationRequired')}
+        variant="warning"
+        onConfirm={() => void confirmReopen()}
+        loading={actionLoading}
       />
 
       <Modal open={!!pendingFinalStage} onOpenChange={(open) => { if (!open) cancelFinalChange() }}>
