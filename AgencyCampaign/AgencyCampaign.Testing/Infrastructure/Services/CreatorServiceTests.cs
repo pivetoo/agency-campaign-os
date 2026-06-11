@@ -290,7 +290,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             CampaignDeliverable onTime = new(10, 100, "1", 1, 1, DateTimeOffset.UtcNow.AddDays(1), 100m, 80m, 10m);
             onTime.Publish("https://x", null, publishedAt);
 
-            CampaignDeliverable overdue = new(11, 101, "2", 1, 1, DateTimeOffset.UtcNow.AddDays(-2), 100m, 80m, 10m);
+            // Entregavel ja vencido: o construtor recusa prazo no passado, entao forcamos o DueAt via reflexao.
+            CampaignDeliverable overdue = new(11, 101, "2", 1, 1, DateTimeOffset.UtcNow.AddDays(1), 100m, 80m, 10m);
+            typeof(CampaignDeliverable).GetProperty(nameof(CampaignDeliverable.DueAt))!.SetValue(overdue, DateTimeOffset.UtcNow.AddDays(-2));
 
             db.Add(onTime);
             db.Add(overdue);

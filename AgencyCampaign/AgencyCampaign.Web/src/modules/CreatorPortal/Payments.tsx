@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Receipt, Upload, X } from 'lucide-react'
 import { Button, Input, useApi, useI18n } from 'archon-ui'
 import { resolveUploadUrl } from '../../lib/uploadUrl'
+import { formatCurrency } from '../../lib/format'
 import { creatorPortalService } from '../../services/creatorPortalService'
 import { paymentMethodLabels, paymentStatusLabels, type CreatorPayment, type PaymentStatusValue } from '../../types/creatorPayment'
 import { usePortalContext } from './hooks'
@@ -97,7 +98,7 @@ export default function CreatorPortalPayments() {
           <div key={p.id} className="rounded-lg border bg-background p-3">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="font-medium">R$ {p.netAmount.toFixed(2)}</p>
+                <p className="font-medium">{formatCurrency(p.netAmount)}</p>
                 <p className="text-xs text-muted-foreground">
                   {p.campaignName ?? 'Sem campanha'} · {paymentMethodLabels[p.method]}
                 </p>

@@ -223,6 +223,18 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            // Aprovacao-fantasma (A5): a marca so pode decidir quando ha de fato uma rodada submetida a ela
+            // (versao em PendingBrandReview). Sem rodada enviada, nao registra DeliverableApproval - evitando
+            // que o gate de publicacao considere o entregavel aprovado pela marca sem nada ter sido enviado.
+            bool hasVersionForBrand = await dbContext.Set<DeliverableContentVersion>()
+                .AsNoTracking()
+                .AnyAsync(item => item.CampaignDeliverableId == shareLink.CampaignDeliverableId && item.Status == ContentVersionStatus.PendingBrandReview, cancellationToken);
+
+            if (!hasVersionForBrand)
+            {
+                throw new InvalidOperationException("deliverablePublic.noVersionSentToBrand");
+            }
+
             DeliverableApproval? approval = await dbContext.Set<DeliverableApproval>()
                 .AsTracking()
                 .FirstOrDefaultAsync(item => item.CampaignDeliverableId == shareLink.CampaignDeliverableId && item.ApprovalType == DeliverableApprovalType.Brand, cancellationToken);

@@ -115,6 +115,7 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentOutOfRangeException.ThrowIfNegative(creatorAmount);
             ArgumentOutOfRangeException.ThrowIfNegative(agencyFeeAmount);
             EnsureAmountsConsistent(grossAmount, creatorAmount, agencyFeeAmount);
+            EnsureDueAtNotInPast(dueAt);
 
             CampaignId = campaignId;
             CampaignCreatorId = campaignCreatorId;
@@ -139,15 +140,18 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentOutOfRangeException.ThrowIfNegative(agencyFeeAmount);
             EnsureAmountsConsistent(grossAmount, creatorAmount, agencyFeeAmount);
 
+            DateTimeOffset normalizedDueAt = dueAt.ToUniversalTime();
+            if (DueAt != normalizedDueAt)
+            {
+                EnsureDueAtNotInPast(dueAt);
+                DeadlineReminderSentAt = null;
+            }
+
             Title = title.Trim();
             Description = Normalize(description);
             DeliverableKindId = deliverableKindId;
             PlatformId = platformId;
-            if (DueAt != dueAt.ToUniversalTime())
-            {
-                DeadlineReminderSentAt = null;
-            }
-            DueAt = dueAt.ToUniversalTime();
+            DueAt = normalizedDueAt;
             GrossAmount = grossAmount;
             CreatorAmount = creatorAmount;
             AgencyFeeAmount = agencyFeeAmount;
@@ -312,6 +316,16 @@ namespace AgencyCampaign.Domain.Entities
             if (creatorAmount + agencyFeeAmount > grossAmount)
             {
                 throw new InvalidOperationException("campaignDeliverable.amountsExceedGross");
+            }
+        }
+
+        // Prazo de entrega nao pode nascer (ou ser movido) para um dia anterior a hoje, evitando que o
+        // SLA marque como "Atrasado" um entregavel recem-criado. Comparacao por dia (UTC), tolera hoje.
+        private static void EnsureDueAtNotInPast(DateTimeOffset dueAt)
+        {
+            if (dueAt.ToUniversalTime().Date < DateTimeOffset.UtcNow.Date)
+            {
+                throw new InvalidOperationException("campaignDeliverable.dueAtInPast");
             }
         }
     }

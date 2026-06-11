@@ -31,7 +31,12 @@ export default function OperationsApprovals() {
   }
   const navigate = useNavigate()
   const [items, setItems] = useState<PendingApproval[]>([])
-  const [reviewerName, setReviewerName] = useState('')
+  // Nome do revisor padrao persiste entre sessoes para o operador nao redigitar a cada acao.
+  const [reviewerName, setReviewerName] = useState(() => localStorage.getItem('approvals.defaultReviewer') ?? '')
+
+  useEffect(() => {
+    localStorage.setItem('approvals.defaultReviewer', reviewerName)
+  }, [reviewerName])
   const { execute: fetchItems, loading } = useApi<PendingApproval[]>({ showErrorMessage: true })
   const { execute: createShareLink, loading: creatingShareLink } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 

@@ -7,6 +7,7 @@ import type { CreatorPayment } from '../../types/creatorPayment'
 import { CampaignDocumentStatus } from '../../types/campaignDocument'
 import { PaymentStatus } from '../../types/creatorPayment'
 import { useI18n } from 'archon-ui'
+import { formatCurrency } from '../../lib/format'
 import { usePortalContext } from './hooks'
 
 export default function CreatorPortalDashboard() {
@@ -97,7 +98,7 @@ export default function CreatorPortalDashboard() {
               to={`/portal/${token}/pagamentos`}
               className="block rounded-md border bg-background p-3 text-sm hover:border-primary/40"
             >
-              <p className="font-medium">R$ {p.netAmount.toFixed(2)}</p>
+              <p className="font-medium">{formatCurrency(p.netAmount)}</p>
               <p className="text-xs text-muted-foreground">{p.campaignName ?? 'Sem campanha'} · sem NF</p>
             </Link>
           ))}

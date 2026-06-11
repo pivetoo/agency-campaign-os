@@ -39,6 +39,42 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void Constructor_should_reject_due_date_in_the_past()
+        {
+            Action act = () => BuildDefault(dueAt: DateTimeOffset.UtcNow.AddDays(-1));
+            act.Should().Throw<InvalidOperationException>().WithMessage("campaignDeliverable.dueAtInPast");
+        }
+
+        [Test]
+        public void Constructor_should_accept_due_date_today()
+        {
+            Action act = () => BuildDefault(dueAt: DateTimeOffset.UtcNow);
+            act.Should().NotThrow();
+        }
+
+        [Test]
+        public void Update_should_reject_moving_due_date_to_the_past()
+        {
+            CampaignDeliverable subject = BuildDefault(dueAt: DateTimeOffset.UtcNow.AddDays(5));
+
+            Action act = () => subject.Update("Story 1", 3, 4, DateTimeOffset.UtcNow.AddDays(-2), 1000m, 800m, 100m, null, null);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("campaignDeliverable.dueAtInPast");
+        }
+
+        [Test]
+        public void Update_should_allow_editing_when_due_date_is_unchanged_even_if_already_past()
+        {
+            // Entregavel ja atrasado: editar outros campos sem mexer no prazo deve ser permitido.
+            CampaignDeliverable subject = BuildDefault(dueAt: DateTimeOffset.UtcNow.AddHours(2));
+            DateTimeOffset originalDue = subject.DueAt;
+
+            Action act = () => subject.Update("Novo titulo", 3, 4, originalDue, 1000m, 800m, 100m, null, "nota");
+
+            act.Should().NotThrow();
+        }
+
+        [Test]
         public void Publish_should_set_status_and_url()
         {
             CampaignDeliverable subject = BuildDefault();
@@ -123,10 +159,20 @@ namespace AgencyCampaign.Testing.Domain.Entities
             act.Should().Throw<InvalidOperationException>();
         }
 
+        // Entregavel que nasceu com prazo valido e venceu com o tempo. O construtor (corretamente) recusa
+        // prazo no passado, entao forcamos o estado via reflexao para exercitar o getter de SLA.
+        private static CampaignDeliverable BuildOverdue(int daysPast = 2)
+        {
+            CampaignDeliverable subject = BuildDefault(dueAt: DateTimeOffset.UtcNow.AddDays(1));
+            typeof(CampaignDeliverable).GetProperty(nameof(CampaignDeliverable.DueAt))!
+                .SetValue(subject, DateTimeOffset.UtcNow.AddDays(-daysPast));
+            return subject;
+        }
+
         [Test]
         public void SlaStatus_should_be_overdue_when_past_due_and_not_published()
         {
-            CampaignDeliverable subject = BuildDefault(dueAt: DateTimeOffset.UtcNow.AddDays(-2));
+            CampaignDeliverable subject = BuildOverdue();
             subject.SlaStatus.Should().Be(DeliverableSlaStatus.Overdue);
         }
 
@@ -140,7 +186,7 @@ namespace AgencyCampaign.Testing.Domain.Entities
         [Test]
         public void SlaStatus_should_be_ok_when_published_even_if_past_due()
         {
-            CampaignDeliverable subject = BuildDefault(dueAt: DateTimeOffset.UtcNow.AddDays(-2));
+            CampaignDeliverable subject = BuildOverdue();
             subject.Publish("https://x", null, DateTimeOffset.UtcNow);
 
             subject.SlaStatus.Should().Be(DeliverableSlaStatus.Ok);

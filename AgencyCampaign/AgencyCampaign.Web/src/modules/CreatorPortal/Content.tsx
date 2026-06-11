@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, ExternalLink, ImagePlus } from 'lucide-react'
-import { useI18n } from 'archon-ui'
+import { useI18n, useToast } from 'archon-ui'
 import { creatorPortalService } from '../../services/creatorPortalService'
 import type { CampaignDeliverable } from '../../types/campaignDeliverable'
 import type { ContentReview, ContentAssetInput } from '../../types/contentReview'
@@ -141,6 +141,11 @@ function DeliverableCard({ token, deliverable, open, onToggle }: DeliverableCard
   )
 }
 
+function errorMessage(error: unknown): string {
+  const message = (error as { message?: string } | null)?.message
+  return message && message.trim() ? message : 'Não foi possível concluir. Tente novamente.'
+}
+
 function statusKey(status: number): string {
   if (status === 1) return 'pendingInternal'
   if (status === 2) return 'pendingBrand'
@@ -216,6 +221,7 @@ interface CommentSectionProps {
 
 function CommentSection({ token, deliverableId, review, onUpdate }: CommentSectionProps) {
   const { t } = useI18n()
+  const { toast } = useToast()
   const [body, setBody] = useState('')
   const [sending, setSending] = useState(false)
 
@@ -230,6 +236,8 @@ function CommentSection({ token, deliverableId, review, onUpdate }: CommentSecti
         onUpdate(updated)
         setBody('')
       }
+    } catch (error) {
+      toast({ title: errorMessage(error), variant: 'destructive' })
     } finally {
       setSending(false)
     }
@@ -287,6 +295,7 @@ interface SubmitVersionFormProps {
 
 function SubmitVersionForm({ token, deliverableId, onSubmitted }: SubmitVersionFormProps) {
   const { t } = useI18n()
+  const { toast } = useToast()
   const fileRef = useRef<HTMLInputElement>(null)
   const [externalUrl, setExternalUrl] = useState('')
   const [note, setNote] = useState('')
@@ -338,6 +347,9 @@ function SubmitVersionForm({ token, deliverableId, onSubmitted }: SubmitVersionF
     setSubmitting(true)
     try {
       await submit()
+    } catch (error) {
+      // Mantem o formulario preenchido para o creator reenviar sem redigitar/reanexar.
+      toast({ title: errorMessage(error), variant: 'destructive' })
     } finally {
       setSubmitting(false)
     }

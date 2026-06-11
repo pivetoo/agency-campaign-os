@@ -69,6 +69,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         public async Task MarkAsSigned_should_set_status_signed()
         {
             CampaignDocument doc = new(campaignId: 1, documentType: CampaignDocumentType.CreatorAgreement, title: "Doc");
+            doc.MarkReadyToSend();
             db.Add(doc);
             await db.SaveChangesAsync();
             db.ChangeTracker.Clear();
@@ -77,6 +78,22 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             result.Status.Should().Be(CampaignDocumentStatus.Signed);
             result.Events.Should().Contain(item => item.EventType == CampaignDocumentEventType.Signed);
+        }
+
+        [Test]
+        public async Task MarkAsSigned_should_throw_when_document_is_still_draft()
+        {
+            // Integridade contratual: nao deixar marcar como assinado um documento que nunca saiu para assinatura.
+            CampaignDocument doc = new(campaignId: 1, documentType: CampaignDocumentType.CreatorAgreement, title: "Doc");
+            db.Add(doc);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            Func<Task> act = () => service.MarkAsSigned(doc.Id, new MarkCampaignDocumentSignedRequest { SignedAt = DateTimeOffset.UtcNow });
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("campaignDocument.cannotSignFromCurrentStatus");
+            CampaignDocument refreshed = await db.Set<CampaignDocument>().AsNoTracking().FirstAsync(item => item.Id == doc.Id);
+            refreshed.Status.Should().Be(CampaignDocumentStatus.Draft);
         }
 
         [Test]

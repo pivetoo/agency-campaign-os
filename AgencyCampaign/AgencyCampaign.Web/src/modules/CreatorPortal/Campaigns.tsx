@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from 'archon-ui'
+import { formatCurrency, formatPercent } from '../../lib/format'
 import { creatorPortalService, type PortalCampaign } from '../../services/creatorPortalService'
 import type { CampaignBriefing } from '../../types/campaignBriefing'
 import { usePortalContext } from './hooks'
@@ -50,8 +51,8 @@ export default function CreatorPortalCampaigns() {
             )}
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-            <Field label={t('creatorPortal.campaigns.field.fee')} value={`R$ ${c.agreedAmount.toFixed(2)}`} />
-            <Field label={t('creatorPortal.campaigns.field.agencyFee')} value={`${c.agencyFeePercent.toFixed(2)}%`} />
+            <Field label={t('creatorPortal.campaigns.field.fee')} value={formatCurrency(c.agreedAmount)} />
+            <Field label={t('creatorPortal.campaigns.field.agencyFee')} value={formatPercent(c.agencyFeePercent)} />
             {c.startsAt && <Field label={t('common.field.startDate')} value={new Date(c.startsAt).toLocaleDateString('pt-BR')} />}
             {c.endsAt && <Field label={t('creatorPortal.campaigns.field.endDate')} value={new Date(c.endsAt).toLocaleDateString('pt-BR')} />}
           </div>

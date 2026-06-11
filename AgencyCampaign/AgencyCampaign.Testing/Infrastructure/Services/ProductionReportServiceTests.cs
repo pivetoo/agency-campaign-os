@@ -462,7 +462,17 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
         private CampaignDeliverable MakeDeliverableWithDueAt(long campaignId, long campaignCreatorId, long platformId, DateTimeOffset dueAt)
         {
-            return new CampaignDeliverable(campaignId, campaignCreatorId, $"Entrega {campaignId}/{dueAt.Day}", 1, platformId, dueAt, 1000m, 800m, 100m);
+            // O construtor (corretamente) recusa prazo no passado. Para cenarios de SLA com entregaveis ja
+            // vencidos, criamos com prazo valido e forcamos o DueAt via reflexao - simulando o estado real.
+            bool inPast = dueAt.ToUniversalTime().Date < DateTimeOffset.UtcNow.Date;
+            DateTimeOffset constructorDueAt = inPast ? DateTimeOffset.UtcNow.AddDays(1) : dueAt;
+            CampaignDeliverable deliverable = new(campaignId, campaignCreatorId, $"Entrega {campaignId}/{dueAt.Day}", 1, platformId, constructorDueAt, 1000m, 800m, 100m);
+            if (inPast)
+            {
+                typeof(CampaignDeliverable).GetProperty(nameof(CampaignDeliverable.DueAt))!.SetValue(deliverable, dueAt);
+            }
+
+            return deliverable;
         }
 
         [Test]

@@ -549,6 +549,16 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            // So permite marcar manualmente como assinado um documento que ja saiu para assinatura
+            // (pronto/enviado/visualizado). Bloqueia rascunho/assinado/recusado/cancelado - evita criar
+            // "contrato assinado" que nunca foi enviado (risco juridico).
+            if (document.Status != CampaignDocumentStatus.ReadyToSend
+                && document.Status != CampaignDocumentStatus.Sent
+                && document.Status != CampaignDocumentStatus.Viewed)
+            {
+                throw new InvalidOperationException("campaignDocument.cannotSignFromCurrentStatus");
+            }
+
             document.MarkSigned(request.SignedAt);
             document.RegisterEvent(CampaignDocumentEventType.Signed, "Marcado manualmente como assinado.", null, request.SignedAt);
 

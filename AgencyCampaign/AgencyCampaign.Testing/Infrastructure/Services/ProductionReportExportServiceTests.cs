@@ -66,6 +66,15 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await db.SaveChangesAsync();
         }
 
+        // Entregavel ja vencido para cenarios de SLA: o construtor recusa prazo no passado, entao criamos
+        // com prazo valido e forcamos o DueAt via reflexao.
+        private static CampaignDeliverable MakeDeliverableWithPastDue(long campaignId, long campaignCreatorId, long platformId, string title, DateTimeOffset due)
+        {
+            CampaignDeliverable deliverable = new(campaignId, campaignCreatorId, title, 1, platformId, DateTimeOffset.UtcNow.AddDays(1), 1000m, 800m, 100m);
+            typeof(CampaignDeliverable).GetProperty(nameof(CampaignDeliverable.DueAt))!.SetValue(deliverable, due);
+            return deliverable;
+        }
+
         private static CampaignDeliverable MakeDeliverable(long campaignId, long campaignCreatorId, long platformId, DateTimeOffset? publishedAt, int likes = 100, int comments = 20, long reach = 2000, long impressions = 3000, int saves = 10, int shares = 5)
         {
             CampaignDeliverable d = new(campaignId, campaignCreatorId, $"Post {campaignId}/{campaignCreatorId}/{platformId}", 1, platformId, DateTimeOffset.UtcNow.AddDays(30), 1000m, 800m, 100m);
@@ -200,7 +209,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await SeedBaseAsync();
 
             DateTimeOffset due = new DateTimeOffset(2026, 5, 20, 0, 0, 0, TimeSpan.Zero);
-            CampaignDeliverable onTime = new(10, 101, "Entrega SLA", 1, 1, due, 1000m, 800m, 100m);
+            CampaignDeliverable onTime = MakeDeliverableWithPastDue(10, 101, 1, "Entrega SLA", due);
             onTime.Publish("https://a.com", null, due.AddDays(-1));
             db.Add(onTime.WithId(4001));
             await db.SaveChangesAsync();
@@ -219,7 +228,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             await SeedBaseAsync();
 
             DateTimeOffset due = new DateTimeOffset(2026, 5, 20, 0, 0, 0, TimeSpan.Zero);
-            CampaignDeliverable onTime = new(10, 101, "Entrega SLA 2", 1, 1, due, 1000m, 800m, 100m);
+            CampaignDeliverable onTime = MakeDeliverableWithPastDue(10, 101, 1, "Entrega SLA 2", due);
             onTime.Publish("https://b.com", null, due.AddDays(-1));
             db.Add(onTime.WithId(4002));
             await db.SaveChangesAsync();

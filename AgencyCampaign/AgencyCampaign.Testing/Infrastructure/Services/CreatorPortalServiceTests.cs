@@ -155,6 +155,41 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task UploadInvoice_should_reject_arbitrary_internal_storage_key_from_client()
+        {
+            CreatorPayment payment = new CreatorPayment(1, 7, 100m, 0m, PaymentMethod.Pix).WithId(51);
+            db.Add(payment);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            // Vetor de IDOR: cliente injeta uma chave de armazenamento interna (nao http) que seria assinada na leitura.
+            Func<Task> act = () => service.UploadInvoice(creatorId: 7, new UploadInvoiceRequest
+            {
+                CreatorPaymentId = payment.Id,
+                InvoiceUrl = "content/outro-tenant/9/segredo.pdf"
+            });
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("creatorPayment.invoiceUrlInvalid");
+        }
+
+        [Test]
+        public async Task UploadInvoice_should_accept_server_generated_storage_key_when_trusted()
+        {
+            CreatorPayment payment = new CreatorPayment(1, 7, 100m, 0m, PaymentMethod.Pix).WithId(52);
+            db.Add(payment);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            CreatorPayment result = await service.UploadInvoice(creatorId: 7, new UploadInvoiceRequest
+            {
+                CreatorPaymentId = payment.Id,
+                InvoiceUrl = "content/tenant-1/52/nota.pdf"
+            }, trustStorageKey: true);
+
+            result.InvoiceUrl.Should().Be("content/tenant-1/52/nota.pdf");
+        }
+
+        [Test]
         public async Task GetCampaigns_should_return_empty_when_creator_has_none()
         {
             List<CampaignCreator> result = await service.GetCampaigns(99);

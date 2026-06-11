@@ -51,6 +51,7 @@
   <data name="campaignDocument.body.required" xml:space="preserve">
     <value>El documento necesita contenido (cuerpo generado o URL) antes de ser enviado para firma.</value>
   </data>
+  <data name="campaignDocument.cannotSignFromCurrentStatus" xml:space="preserve"><value>Solo se puede marcar como firmado un documento que ya fue enviado para firma (listo, enviado o visto).</value></data>
   <data name="webhook.secret.notConfigured" xml:space="preserve">
     <value>El endpoint de webhook no está configurado. Defina Webhooks:ProviderCallbackSecret en appsettings.</value>
   </data>
@@ -204,6 +205,11 @@
   <data name="creatorPayment.alreadyApproved" xml:space="preserve"><value>El pago ya fue aprobado.</value></data>
   <data name="creatorPayment.approverMustDiffer" xml:space="preserve"><value>El aprobador debe ser distinto del usuario que registró el pago.</value></data>
   <data name="creatorPayment.approverUnknown" xml:space="preserve"><value>No se pudo identificar al usuario aprobador.</value></data>
+  <data name="creatorPayment.contentNotApproved" xml:space="preserve"><value>El contenido del entregable aún no fue aprobado; el pago no puede realizarse antes de la aprobación (pay-when-paid).</value></data>
+  <data name="creatorPayment.approvalRequired" xml:space="preserve"><value>El pago por encima del límite de alcance requiere aprobación de otro usuario antes de pagarse.</value></data>
+  <data name="creatorPayment.invoiceUrlInvalid" xml:space="preserve"><value>La URL de la factura debe ser un enlace http(s) válido. Para adjuntar un archivo, usá la carga.</value></data>
+  <data name="deliverablePublic.noVersionSentToBrand" xml:space="preserve"><value>No se envió ninguna versión de contenido a la marca; no se puede registrar la decisión.</value></data>
+  <data name="campaignDeliverable.dueAtInPast" xml:space="preserve"><value>La fecha de entrega no puede estar en el pasado.</value></data>
   <data name="financialEntry.alreadyPaid" xml:space="preserve"><value>El registro financiero ya fue pagado y no puede modificarse.</value></data>
   <data name="financialEntry.notOpenForReconciliation" xml:space="preserve"><value>Solo los registros financieros pendientes o vencidos pueden conciliarse.</value></data>
   <data name="financialEntry.onlyPaidCanBeReversed" xml:space="preserve"><value>Solo los registros pagados pueden estornarse.</value></data>

@@ -17,7 +17,10 @@ namespace AgencyCampaign.Api.Controllers
     [Route("api/creatorportal")]
     public sealed class CreatorPortalController : ApiControllerBase
     {
-        private const long MaxUploadBytes = 10 * 1024 * 1024;
+        // Teto HTTP bruto (inclui overhead do multipart). Fica ACIMA do limite de negocio configurado em
+        // MediaStorageOptions.MaxUploadBytes (25 MB), que e quem rejeita com mensagem amigavel no storage.
+        // Antes estava em 10 MB e cortava video valido antes de chegar na validacao de tamanho real.
+        private const long MaxUploadBytes = 30 * 1024 * 1024;
 
         private readonly ICreatorPortalService portalService;
         private readonly IContentFileStorage fileStorage;
@@ -224,7 +227,7 @@ namespace AgencyCampaign.Api.Controllers
                     return validationResult;
                 }
 
-                CreatorPayment payment = await portalService.UploadInvoice(ctx.Creator.Id, request, cancellationToken);
+                CreatorPayment payment = await portalService.UploadInvoice(ctx.Creator.Id, request, cancellationToken: cancellationToken);
                 return Http200(MapPayment(payment), Localizer["record.updated"]);
             }
             catch (InvalidOperationException ex)
@@ -253,7 +256,7 @@ namespace AgencyCampaign.Api.Controllers
                     IssuedAt = issuedAt,
                 };
 
-                CreatorPayment payment = await portalService.UploadInvoice(ctx.Creator.Id, request, cancellationToken);
+                CreatorPayment payment = await portalService.UploadInvoice(ctx.Creator.Id, request, trustStorageKey: true, cancellationToken: cancellationToken);
                 return Http200(MapPayment(payment), Localizer["record.updated"]);
             }
             catch (InvalidOperationException ex)

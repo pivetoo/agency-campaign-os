@@ -1,5 +1,6 @@
 using AgencyCampaign.Infrastructure.Options;
 using AgencyCampaign.Infrastructure.Services;
+using AgencyCampaign.Testing.TestSupport;
 using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
@@ -7,9 +8,9 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     [TestFixture]
     public sealed class MediaAccessTokenServiceTests
     {
-        private static MediaAccessTokenService Build(string secret = "media-signing-secret-0123456789")
+        private static MediaAccessTokenService Build(string secret = "media-signing-secret-0123456789", string? tenantId = "tenant-1")
         {
-            return new MediaAccessTokenService(Options.Create(new MediaStorageOptions { SigningKey = secret, SignedUrlMinutes = 120 }));
+            return new MediaAccessTokenService(Options.Create(new MediaStorageOptions { SigningKey = secret, SignedUrlMinutes = 120 }), TenantContextMock.Create(tenantId));
         }
 
         private static string ExtractToken(string url)
@@ -56,9 +57,30 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [Test]
         public void TryReadStorageKey_should_reject_token_signed_with_other_secret()
         {
-            string token = ExtractToken(Build("secret-one-aaaaaaaaaaaaaaaaaa").BuildSignedUrl("content/x/1/a.png"));
+            string token = ExtractToken(Build("secret-one-aaaaaaaaaaaaaaaaaa").BuildSignedUrl("content/tenant-1/1/a.png"));
 
             Build("secret-two-bbbbbbbbbbbbbbbbbb").TryReadStorageKey(token, out _).Should().BeFalse();
+        }
+
+        [Test]
+        public void TryReadStorageKey_should_reject_storage_key_outside_token_tenant_scope()
+        {
+            // IDOR multi-tenant: um token cunhado no contexto de tenant-a nao pode liberar a leitura de
+            // midia de outro tenant, mesmo que a chave seja injetada na hora de assinar.
+            MediaAccessTokenService service = Build(tenantId: "tenant-a");
+            string token = ExtractToken(service.BuildSignedUrl("content/tenant-b/1/secret.png"));
+
+            service.TryReadStorageKey(token, out _).Should().BeFalse();
+        }
+
+        [Test]
+        public void TryReadStorageKey_should_roundtrip_within_same_tenant_scope()
+        {
+            MediaAccessTokenService service = Build(tenantId: "tenant-a");
+            string token = ExtractToken(service.BuildSignedUrl("content/tenant-a/1/x.png"));
+
+            service.TryReadStorageKey(token, out string key).Should().BeTrue();
+            key.Should().Be("content/tenant-a/1/x.png");
         }
 
         [Test]

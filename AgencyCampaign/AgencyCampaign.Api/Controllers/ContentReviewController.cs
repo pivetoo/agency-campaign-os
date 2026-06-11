@@ -10,7 +10,9 @@ namespace AgencyCampaign.Api.Controllers
     [AccessArea("campaigns.area")]
     public sealed class ContentReviewController : ApiControllerBase
     {
-        private const long MaxAssetBytes = 10 * 1024 * 1024;
+        // Teto HTTP bruto (inclui overhead do multipart), acima do limite de negocio (25 MB) validado no
+        // ContentFileStorage. Antes em 10 MB, rejeitava video valido antes da validacao de tamanho real.
+        private const long MaxAssetBytes = 30 * 1024 * 1024;
 
         private readonly IContentReviewService service;
         private readonly IContentFileStorage fileStorage;

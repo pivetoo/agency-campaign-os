@@ -180,6 +180,8 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("record.notFound");
             }
 
+            await EnsurePayoutGatesAsync(payment, cancellationToken);
+
             if (!string.IsNullOrWhiteSpace(request.Provider) && !string.IsNullOrWhiteSpace(request.ProviderTransactionId))
             {
                 payment.AttachToProvider(request.Provider, request.ProviderTransactionId);
@@ -459,6 +461,51 @@ namespace AgencyCampaign.Infrastructure.Services
             }
 
             return await GetPaymentById(result.Id, cancellationToken) ?? result;
+        }
+
+        // Gates do repasse aplicados ao pagamento manual (A1): marcar como pago NAO pode contornar as mesmas
+        // travas do agendamento em lote - pay-when-paid (conteudo aprovado) e teto de alcada (maker-checker).
+        // Diferente do lote (que pula e registra evento), aqui lancamos para o operador corrigir antes de pagar.
+        private async Task EnsurePayoutGatesAsync(CreatorPayment payment, CancellationToken cancellationToken)
+        {
+            long? campaignId = await DbContext.Set<CampaignCreator>()
+                .AsNoTracking()
+                .Where(item => item.Id == payment.CampaignCreatorId)
+                .Select(item => (long?)item.CampaignId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (campaignId.HasValue)
+            {
+                bool gated = await DbContext.Set<Campaign>()
+                    .AsNoTracking()
+                    .AnyAsync(item => item.Id == campaignId.Value && item.PayoutRequiresContentApproval, cancellationToken);
+
+                if (gated)
+                {
+                    List<bool> deliverableStates = await DbContext.Set<CampaignDeliverable>()
+                        .AsNoTracking()
+                        .Where(item => item.CampaignCreatorId == payment.CampaignCreatorId)
+                        .Select(item => item.Approvals.Any(approval => (approval.ApprovalType == DeliverableApprovalType.Brand || approval.ApprovalType == DeliverableApprovalType.Internal) && approval.Status == DeliverableApprovalStatus.Approved))
+                        .ToListAsync(cancellationToken);
+
+                    bool contentBlocked = deliverableStates.Count > 0 && deliverableStates.Any(approved => !approved);
+                    if (contentBlocked)
+                    {
+                        throw new InvalidOperationException("creatorPayment.contentNotApproved");
+                    }
+                }
+            }
+
+            decimal? approvalThreshold = await DbContext.Set<AgencySettings>()
+                .AsNoTracking()
+                .OrderBy(item => item.Id)
+                .Select(item => item.CreatorPaymentApprovalThreshold)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (approvalThreshold.HasValue && payment.NetAmount > approvalThreshold.Value && !payment.IsApproved)
+            {
+                throw new InvalidOperationException("creatorPayment.approvalRequired");
+            }
         }
 
         // Baixa automatica (conciliacao): ao marcar um CreatorPayment como pago, da baixa nos repasses

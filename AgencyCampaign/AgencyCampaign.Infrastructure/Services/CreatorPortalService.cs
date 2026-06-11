@@ -208,8 +208,17 @@ namespace AgencyCampaign.Infrastructure.Services
             return creator;
         }
 
-        public async Task<CreatorPayment> UploadInvoice(long creatorId, UploadInvoiceRequest request, CancellationToken cancellationToken = default)
+        public async Task<CreatorPayment> UploadInvoice(long creatorId, UploadInvoiceRequest request, bool trustStorageKey = false, CancellationToken cancellationToken = default)
         {
+            // IDOR de midia (A6): vinda do cliente, a InvoiceUrl so pode ser um link externo http(s). Chaves de
+            // armazenamento privado (assinadas na leitura com a chave HMAC) so entram pelo upload multipart, que
+            // gera a chave no servidor (trustStorageKey=true). Sem isso, o creator injetaria a chave de outra
+            // midia/tenant e ela seria assinada e servida pela rota /api/media.
+            if (!trustStorageKey && !IsExternalHttpUrl(request.InvoiceUrl))
+            {
+                throw new InvalidOperationException("creatorPayment.invoiceUrlInvalid");
+            }
+
             CreatorPayment? payment = await dbContext.Set<CreatorPayment>()
                 .AsTracking()
                 .Include(item => item.Events)
@@ -274,6 +283,12 @@ namespace AgencyCampaign.Infrastructure.Services
                 .FirstOrDefaultAsync(item => item.Id == creatorId, cancellationToken);
 
             return creator?.StageName ?? creator?.Name ?? string.Empty;
+        }
+
+        private static bool IsExternalHttpUrl(string? value)
+        {
+            return Uri.TryCreate(value, UriKind.Absolute, out Uri? uri)
+                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
         }
 
         private static ContentReviewModel FilterShared(ContentReviewModel model)

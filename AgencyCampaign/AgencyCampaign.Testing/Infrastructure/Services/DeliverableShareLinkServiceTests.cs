@@ -149,7 +149,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         [TearDown]
         public void TearDown() => db.Dispose();
 
-        private async Task<(CampaignDeliverable deliverable, DeliverableShareLink link)> SeedAsync(DateTimeOffset? expiresAt = null, bool revoke = false)
+        private async Task<(CampaignDeliverable deliverable, DeliverableShareLink link)> SeedAsync(DateTimeOffset? expiresAt = null, bool revoke = false, bool withBrandVersion = true)
         {
             Brand brand = new("Acme");
             db.Add(brand);
@@ -174,6 +174,14 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
                 dueAt: DateTimeOffset.UtcNow, grossAmount: 1000m, creatorAmount: 800m, agencyFeeAmount: 100m);
             db.Add(deliverable);
             await db.SaveChangesAsync();
+
+            if (withBrandVersion)
+            {
+                DeliverableContentVersion version = new(deliverable.Id, 1, ReviewParticipant.Creator, "Foo", null);
+                version.SendToBrand();
+                db.Add(version);
+                await db.SaveChangesAsync();
+            }
 
             DeliverableShareLink link = new(deliverable.Id, "tok", "Brand", expiresAt, null, null);
             if (revoke)
@@ -254,6 +262,17 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             Func<Task> act = () => service.Approve("tok", new PublicDeliverableDecisionRequest { ReviewerName = "Brand" });
             await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task Approve_should_throw_when_no_version_was_sent_to_brand()
+        {
+            await SeedAsync(withBrandVersion: false);
+
+            Func<Task> act = () => service.Approve("tok", new PublicDeliverableDecisionRequest { ReviewerName = "Brand", Comment = "ok" });
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("deliverablePublic.noVersionSentToBrand");
+            (await db.Set<DeliverableApproval>().CountAsync()).Should().Be(0);
         }
     }
 }

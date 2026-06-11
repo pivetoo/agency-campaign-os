@@ -1,5 +1,6 @@
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Infrastructure.Options;
+using Archon.Application.MultiTenancy;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using System.Text;
@@ -7,25 +8,31 @@ using System.Text;
 namespace AgencyCampaign.Infrastructure.Services
 {
     // URL assinada de midia privada: token = base64url(payload).base64url(hmac), onde
-    // payload = "{storageKey}|{expiraEmUnixSeconds}". O HMAC autentica e a expiracao limita a janela.
+    // payload = "{tenant}|{storageKey}|{expiraEmUnixSeconds}". A chave HMAC e derivada POR TENANT
+    // (HMAC(segredoGlobal, tenant)), o tenant viaja no payload (auto-descritivo, sem exigir contexto na
+    // leitura anonima) e a leitura exige que a storageKey esteja no escopo "content/{tenant}/" - fechando
+    // o IDOR entre tenants (uma URL cunhada num tenant nao serve midia de outro).
     public sealed class MediaAccessTokenService : IMediaAccessTokenService
     {
         private readonly MediaStorageOptions options;
+        private readonly ITenantContext tenantContext;
 
-        public MediaAccessTokenService(IOptions<MediaStorageOptions> options)
+        public MediaAccessTokenService(IOptions<MediaStorageOptions> options, ITenantContext tenantContext)
         {
             this.options = options.Value;
+            this.tenantContext = tenantContext;
         }
 
         public string BuildSignedUrl(string storageKey, TimeSpan? lifetime = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);
-            byte[] secret = GetSecretOrThrow();
+            string tenant = ResolveTenantSegment();
+            byte[] secret = GetTenantSecretOrThrow(tenant);
 
             TimeSpan window = lifetime ?? TimeSpan.FromMinutes(options.SignedUrlMinutes > 0 ? options.SignedUrlMinutes : 120);
             long expiresAt = DateTimeOffset.UtcNow.Add(window).ToUnixTimeSeconds();
 
-            string payload = $"{storageKey}|{expiresAt}";
+            string payload = $"{tenant}|{storageKey}|{expiresAt}";
             byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
             byte[] signature = HMACSHA256.HashData(secret, payloadBytes);
 
@@ -84,37 +91,57 @@ namespace AgencyCampaign.Infrastructure.Services
                 return false;
             }
 
-            byte[] expectedSignature = HMACSHA256.HashData(Encoding.UTF8.GetBytes(options.SigningKey), payloadBytes);
+            string payload = Encoding.UTF8.GetString(payloadBytes);
+            int firstSeparator = payload.IndexOf('|');
+            int lastSeparator = payload.LastIndexOf('|');
+            if (firstSeparator <= 0 || lastSeparator <= firstSeparator || lastSeparator == payload.Length - 1)
+            {
+                return false;
+            }
+
+            string tenant = payload[..firstSeparator];
+            string key = payload[(firstSeparator + 1)..lastSeparator];
+
+            // Chave derivada do tenant embutido no proprio payload (que esta autenticado pelo HMAC).
+            byte[] expectedSignature = HMACSHA256.HashData(GetTenantSecretOrThrow(tenant), payloadBytes);
             if (!CryptographicOperations.FixedTimeEquals(providedSignature, expectedSignature))
             {
                 return false;
             }
 
-            string payload = Encoding.UTF8.GetString(payloadBytes);
-            int separator = payload.LastIndexOf('|');
-            if (separator <= 0 || separator == payload.Length - 1)
-            {
-                return false;
-            }
-
-            if (!long.TryParse(payload.AsSpan(separator + 1), out long expiresAt)
+            if (!long.TryParse(payload.AsSpan(lastSeparator + 1), out long expiresAt)
                 || DateTimeOffset.FromUnixTimeSeconds(expiresAt) <= DateTimeOffset.UtcNow)
             {
                 return false;
             }
 
-            storageKey = payload[..separator];
-            return !string.IsNullOrWhiteSpace(storageKey);
+            // Binding de escopo: a chave precisa pertencer ao tenant do token. Bloqueia o uso de um token
+            // valido (assinado no proprio tenant) para alcancar midia de outro tenant.
+            if (string.IsNullOrWhiteSpace(key) || !key.StartsWith($"content/{tenant}/", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            storageKey = key;
+            return true;
         }
 
-        private byte[] GetSecretOrThrow()
+        // Tenant usado no escopo da midia. Espelha o ContentFileStorage: sem tenant resolvido cai em "default".
+        private string ResolveTenantSegment()
+        {
+            return tenantContext.HasTenant && !string.IsNullOrWhiteSpace(tenantContext.TenantId)
+                ? tenantContext.TenantId.Trim()
+                : "default";
+        }
+
+        private byte[] GetTenantSecretOrThrow(string tenant)
         {
             if (string.IsNullOrWhiteSpace(options.SigningKey))
             {
                 throw new InvalidOperationException("mediaStorage.signingKey.missing");
             }
 
-            return Encoding.UTF8.GetBytes(options.SigningKey);
+            return HMACSHA256.HashData(Encoding.UTF8.GetBytes(options.SigningKey), Encoding.UTF8.GetBytes(tenant));
         }
 
         private static string ToBase64Url(byte[] value)

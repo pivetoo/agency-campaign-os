@@ -13,6 +13,7 @@ import type { Campaign, CampaignStatusValue } from '../../../../types/campaign'
 import type { CampaignCreator } from '../../../../types/campaignCreator'
 import type { CampaignDeliverable } from '../../../../types/campaignDeliverable'
 import type { CampaignDocument } from '../../../../types/campaignDocument'
+import { CampaignDocumentStatus } from '../../../../types/campaignDocument'
 import CampaignCreatorFormModal from '../../../../components/modals/CampaignCreatorFormModal'
 import CampaignDeliverableFormModal from '../../../../components/modals/CampaignDeliverableFormModal'
 import CampaignDocumentFormModal from '../../../../components/modals/CampaignDocumentFormModal'
@@ -381,8 +382,14 @@ export default function CampaignDetail() {
     },
   ]
 
+  // So permite marcar como assinado um documento que de fato saiu para assinatura (pronto/enviado/visualizado).
+  // Bloqueia rascunho, ja assinado, recusado e cancelado - evita criar "contrato assinado" que nunca foi enviado.
+  const canMarkSigned = (document: CampaignDocument | null): boolean =>
+    document !== null &&
+    [CampaignDocumentStatus.ReadyToSend, CampaignDocumentStatus.Sent, CampaignDocumentStatus.Viewed].includes(document.status as never)
+
   const handleMarkDocumentAsSigned = async () => {
-    if (!selectedDocument) {
+    if (!canMarkSigned(selectedDocument)) {
       return
     }
 
@@ -548,7 +555,7 @@ export default function CampaignDetail() {
                     <Send size={16} className="mr-2" />
                     {t('campaign.detail.action.sendForSignature')}
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => void handleMarkDocumentAsSigned()} disabled={!selectedDocument || signingDocument}>
+                  <Button size="sm" variant="outline" onClick={() => void handleMarkDocumentAsSigned()} disabled={!canMarkSigned(selectedDocument) || signingDocument}>
                     <Signature size={16} className="mr-2" />
                     {t('campaign.detail.action.markSigned')}
                   </Button>
@@ -712,6 +719,7 @@ export default function CampaignDetail() {
         open={isContentReviewOpen}
         onOpenChange={setIsContentReviewOpen}
         deliverableId={reviewDeliverableId}
+        onChanged={() => void loadDeliverables()}
       />
 
       <DeliverableLicensesSheet

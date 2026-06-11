@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useI18n } from 'archon-ui'
+import { useI18n, useToast } from 'archon-ui'
 import { creatorPortalService } from '../../services/creatorPortalService'
 import type { CampaignDeliverable } from '../../types/campaignDeliverable'
 import { usePortalContext } from './hooks'
@@ -12,6 +12,7 @@ interface InsightForm {
 
 export default function CreatorPortalResults() {
   const { t } = useI18n()
+  const { toast } = useToast()
   const { token } = usePortalContext()
   const [deliverables, setDeliverables] = useState<CampaignDeliverable[]>([])
   const [forms, setForms] = useState<Record<number, InsightForm>>({})
@@ -63,6 +64,9 @@ export default function CreatorPortalResults() {
         setDeliverables((prev) => prev.map((item) => (item.id === id ? updated : item)))
         setSavedId(id)
       }
+    } catch (error) {
+      const message = (error as { message?: string } | null)?.message
+      toast({ title: message && message.trim() ? message : 'Não foi possível salvar. Tente novamente.', variant: 'destructive' })
     } finally {
       setSavingId(null)
     }

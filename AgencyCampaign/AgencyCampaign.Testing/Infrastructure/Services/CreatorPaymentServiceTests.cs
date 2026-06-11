@@ -226,6 +226,59 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task MarkPaid_should_throw_when_content_not_approved_on_gated_campaign()
+        {
+            DomainEntities.CampaignCreator cc = await SeedGatedCampaignCreatorAsync(withDeliverable: true, deliverableApproved: false);
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            Func<Task> act = () => service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("creatorPayment.contentNotApproved");
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().FirstAsync(item => item.Id == payment.Id);
+            refreshed.Status.Should().Be(PaymentStatus.Pending);
+        }
+
+        [Test]
+        public async Task MarkPaid_should_succeed_when_content_approved_on_gated_campaign()
+        {
+            DomainEntities.CampaignCreator cc = await SeedGatedCampaignCreatorAsync(withDeliverable: true, deliverableApproved: true);
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            CreatorPayment result = await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            result.Status.Should().Be(PaymentStatus.Paid);
+        }
+
+        [Test]
+        public async Task MarkPaid_should_throw_when_over_threshold_and_not_approved()
+        {
+            await SeedApprovalThresholdAsync(50m);
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            Func<Task> act = () => service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("creatorPayment.approvalRequired");
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().FirstAsync(item => item.Id == payment.Id);
+            refreshed.Status.Should().Be(PaymentStatus.Pending);
+        }
+
+        [Test]
+        public async Task MarkPaid_should_succeed_over_threshold_once_approved()
+        {
+            await SeedApprovalThresholdAsync(50m);
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            CreatorPaymentService approver = new(db, IntegrationPlatformClientFactory.CreateInert(), null, CurrentUserMock.Create(userId: 2));
+            await approver.ApprovePayment(payment.Id);
+
+            CreatorPayment result = await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            result.Status.Should().Be(PaymentStatus.Paid);
+        }
+
+        [Test]
         public async Task MarkPaid_should_not_oversettle_planned_payouts_beyond_paid_amount()
         {
             DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();

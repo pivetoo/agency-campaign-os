@@ -6,9 +6,9 @@ namespace AgencyCampaign.Testing.TestSupport
 {
     public static class MediaTokenTestFactory
     {
-        public static MediaAccessTokenService Create()
+        public static MediaAccessTokenService Create(string? tenantId = "tenant-1")
         {
-            return new MediaAccessTokenService(Options.Create(new MediaStorageOptions { SigningKey = "content-review-test-signing-secret-0123456789" }));
+            return new MediaAccessTokenService(Options.Create(new MediaStorageOptions { SigningKey = "content-review-test-signing-secret-0123456789" }), TenantContextMock.Create(tenantId));
         }
     }
 }

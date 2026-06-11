@@ -11,6 +11,8 @@ interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   deliverableId: number | null
+  // Disparado apos uma acao que muda o estado da revisao, para o pai recarregar a lista de entregaveis.
+  onChanged?: () => void
 }
 
 function roleLabel(role: 1 | 2 | 3, t: (k: string) => string): string {
@@ -33,7 +35,7 @@ function statusLabel(status: 1 | 2 | 3 | 4, t: (k: string) => string): string {
   return t('contentReview.status.approved')
 }
 
-export default function ContentReviewSheet({ open, onOpenChange, deliverableId }: Props) {
+export default function ContentReviewSheet({ open, onOpenChange, deliverableId, onChanged }: Props) {
   const { t } = useI18n()
   const [review, setReview] = useState<ContentReview | null>(null)
 
@@ -116,6 +118,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
     if (res) {
       setReview(res)
       resetSubmitForm()
+      onChanged?.()
     }
   }
 
@@ -125,6 +128,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
     if (res) {
       setReview(res)
       resetChangesForm()
+      onChanged?.()
     }
   }
 
@@ -133,6 +137,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
     const res = await runSendToBrand(() => contentReviewService.sendToBrand(latestVersion.id))
     if (res) {
       setReview(res)
+      onChanged?.()
     }
   }
 
@@ -141,6 +146,7 @@ export default function ContentReviewSheet({ open, onOpenChange, deliverableId }
     const res = await runAgencyApprove(() => contentReviewService.agencyApprove(latestVersion.id))
     if (res) {
       setReview(res)
+      onChanged?.()
     }
   }
 
