@@ -69,11 +69,52 @@ async function request<T>(method: 'GET' | 'POST', url: string, body?: unknown, c
   return { message: '', data: raw as T }
 }
 
+// Upload multipart com progresso. O fetch nativo nao expõe progresso de upload, entao usamos XHR
+// somente aqui (a leitura/escrita JSON continua no fetch acima). onProgress recebe 0-100.
+function uploadWithProgress<T>(url: string, form: FormData, onProgress?: (percent: number) => void): Promise<PublicResponse<T>> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', `${baseUrl()}${url}`)
+    xhr.setRequestHeader('Accept-Language', getRequestLanguage())
+
+    xhr.upload.onprogress = (event) => {
+      if (onProgress && event.lengthComputable) {
+        onProgress(Math.round((event.loaded / event.total) * 100))
+      }
+    }
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const raw = xhr.responseText ? JSON.parse(xhr.responseText) : { message: '', data: null }
+          resolve(raw && typeof raw === 'object' && 'message' in raw ? raw : { message: '', data: raw })
+        } catch {
+          resolve({ message: '', data: null })
+        }
+        return
+      }
+      let message = ''
+      try {
+        message = JSON.parse(xhr.responseText)?.message || ''
+      } catch {
+        message = ''
+      }
+      reject({ message: message || 'Nao foi possivel completar a solicitacao.', status: xhr.status, isApiError: true } as PublicError)
+    }
+
+    xhr.onerror = () => reject({ message: 'Falha de conexao.', status: 0, isApiError: true } as PublicError)
+    xhr.send(form)
+  })
+}
+
 export const publicClient = {
   get<T = unknown>(url: string, config?: PublicConfig): Promise<PublicResponse<T>> {
     return request<T>('GET', url, undefined, config)
   },
   post<T = unknown>(url: string, data?: unknown, config?: PublicConfig): Promise<PublicResponse<T>> {
     return request<T>('POST', url, data, config)
+  },
+  upload<T = unknown>(url: string, form: FormData, onProgress?: (percent: number) => void): Promise<PublicResponse<T>> {
+    return uploadWithProgress<T>(url, form, onProgress)
   },
 }

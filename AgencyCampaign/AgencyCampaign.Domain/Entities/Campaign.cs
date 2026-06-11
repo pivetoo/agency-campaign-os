@@ -83,6 +83,8 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentOutOfRangeException.ThrowIfNegative(budget);
 
+            EnsureNotResurrectingCancelled(status);
+
             BrandId = brandId;
             Name = name.Trim();
             Description = Normalize(description);
@@ -94,7 +96,9 @@ namespace AgencyCampaign.Domain.Entities
             Status = status;
             InternalOwnerName = Normalize(internalOwnerName);
             Notes = Normalize(notes);
-            IsActive = isActive;
+            // Coerencia status/IsActive: status terminal (Cancelada/Concluida) forca inativo; em status
+            // ativo respeita o flag (permite pausar). Evita a inconsistencia "Cancelada com IsActive=true".
+            IsActive = IsTerminal(status) ? false : isActive;
         }
 
         public void SetResponsibleUserId(long? responsibleUserId)
@@ -114,12 +118,28 @@ namespace AgencyCampaign.Domain.Entities
 
         public void ChangeStatus(CampaignStatus status)
         {
+            EnsureNotResurrectingCancelled(status);
+
             Status = status;
 
-            if (status == CampaignStatus.Cancelled || status == CampaignStatus.Completed)
+            if (IsTerminal(status))
             {
                 IsActive = false;
             }
+        }
+
+        // Cancelada e terminal: nao ressuscita (maquina de estados M1). Demais transicoes seguem livres.
+        private void EnsureNotResurrectingCancelled(CampaignStatus target)
+        {
+            if (Status == CampaignStatus.Cancelled && target != CampaignStatus.Cancelled)
+            {
+                throw new InvalidOperationException("campaign.status.cannotResurrectCancelled");
+            }
+        }
+
+        private static bool IsTerminal(CampaignStatus status)
+        {
+            return status == CampaignStatus.Cancelled || status == CampaignStatus.Completed;
         }
 
         public void AttachOrigin(long opportunityId, long sourceProposalId)

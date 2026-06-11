@@ -106,6 +106,15 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
     setMetrics(emptyMetrics)
   }, [deliverable, campaignId, open])
 
+  // M6: deriva fee da agencia e valor do creator a partir do fee % acordado no CampaignCreator selecionado.
+  // Recalcula quando o operador muda o bruto ou o creator; ainda pode ajustar manualmente depois.
+  const deriveAmounts = (gross: number, campaignCreatorId: number) => {
+    const cc = campaignCreators.find((item) => item.id === campaignCreatorId)
+    const pct = cc?.agencyFeePercent ?? 0
+    const fee = Math.round((gross * pct) / 100 * 100) / 100
+    return { grossAmount: gross, agencyFeeAmount: fee, creatorAmount: Math.max(0, Math.round((gross - fee) * 100) / 100) }
+  }
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
@@ -168,7 +177,7 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
               <label className="text-sm font-medium">{t('modal.deliverable.field.campaignCreator')}</label>
               <SearchableSelect
                 value={formData.campaignCreatorId ? String(formData.campaignCreatorId) : ''}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorId: Number(value) }))}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, campaignCreatorId: Number(value), ...deriveAmounts(prev.grossAmount, Number(value)) }))}
                 options={campaignCreators.map((item) => ({ value: String(item.id), label: item.creator?.stageName || item.creator?.name || `Creator #${item.creatorId}` }))}
                 placeholder={t('common.placeholder.select')}
                 searchPlaceholder={t('common.placeholder.search')}
@@ -245,7 +254,7 @@ export default function CampaignDeliverableFormModal({ open, onOpenChange, campa
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('modal.deliverable.field.grossAmount')}</label>
-              <Input type="number" value={formData.grossAmount} onChange={(e) => setFormData((prev) => ({ ...prev, grossAmount: Number(e.target.value) }))} required />
+              <Input type="number" value={formData.grossAmount} onChange={(e) => setFormData((prev) => ({ ...prev, ...deriveAmounts(Number(e.target.value), prev.campaignCreatorId) }))} required />
             </div>
 
             <div className="space-y-2">

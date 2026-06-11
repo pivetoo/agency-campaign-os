@@ -18,6 +18,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
     {
         private TestDbContext db = null!;
         private Mock<IFinancialAutoGeneration> financial = null!;
+        private Mock<IContentFileStorage> fileStorage = null!;
         private CampaignDeliverableService service = null!;
 
         [SetUp]
@@ -25,7 +26,8 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db = TestDbContext.CreateInMemory();
             financial = new Mock<IFinancialAutoGeneration>();
-            service = new CampaignDeliverableService(db, LocalizerMock.Create<AgencyCampaignResource>(), financial.Object, Mock.Of<Archon.Application.Services.INotificationService>(), NullLogger<CampaignDeliverableService>.Instance);
+            fileStorage = new Mock<IContentFileStorage>();
+            service = new CampaignDeliverableService(db, LocalizerMock.Create<AgencyCampaignResource>(), financial.Object, Mock.Of<Archon.Application.Services.INotificationService>(), NullLogger<CampaignDeliverableService>.Instance, fileStorage.Object);
         }
 
         [TearDown]
@@ -67,6 +69,36 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
 
             Func<Task> act = () => service.CreateDeliverable(request);
             await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task Delete_should_remove_orphaned_content_asset_files()
+        {
+            await SeedReferencesAsync();
+            CampaignDeliverable deliverable = await service.CreateDeliverable(BuildCreateRequest());
+
+            DeliverableContentVersion version = new(deliverable.Id, 1, ReviewParticipant.Creator, "Foo", null);
+            version.AddAsset(ContentAssetType.ImageUpload, "content/tenant-1/50/a.png", "a.png", "image/png", 0);
+            version.AddAsset(ContentAssetType.ExternalUrl, "https://externo/x", null, null, 1);
+            db.Add(version);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            await service.Delete(deliverable.Id);
+
+            // So as chaves de armazenamento privado (content/...) sao removidas; URLs externas sao ignoradas.
+            fileStorage.Verify(item => item.RemoveByVersion(deliverable.Id, It.Is<IEnumerable<string>>(keys => keys.Contains("content/tenant-1/50/a.png") && !keys.Contains("https://externo/x"))), Times.Once);
+        }
+
+        [Test]
+        public async Task CreateDeliverable_should_advance_draft_campaign_to_in_progress()
+        {
+            await SeedReferencesAsync();
+
+            await service.CreateDeliverable(BuildCreateRequest());
+
+            Campaign campaign = await db.Set<Campaign>().AsNoTracking().FirstAsync(item => item.Id == 10);
+            campaign.Status.Should().Be(CampaignStatus.InProgress);
         }
 
         [Test]

@@ -20,14 +20,17 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IFinancialAutoGeneration financialAutoGeneration;
         private readonly INotificationService notificationService;
         private readonly ILogger<CampaignDeliverableService> logger;
+        private readonly IContentFileStorage? fileStorage;
 
-        public CampaignDeliverableService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IFinancialAutoGeneration financialAutoGeneration, INotificationService notificationService, ILogger<CampaignDeliverableService> logger) : base(dbContext)
+        public CampaignDeliverableService(DbContext dbContext, IStringLocalizer<AgencyCampaignResource> localizer, IFinancialAutoGeneration financialAutoGeneration, INotificationService notificationService, ILogger<CampaignDeliverableService> logger, IContentFileStorage? fileStorage = null) : base(dbContext)
         {
             this.localizer = localizer;
             this.financialAutoGeneration = financialAutoGeneration;
             this.notificationService = notificationService;
             this.logger = logger;
+            this.fileStorage = fileStorage;
         }
+
 
         public async Task<PagedResult<CampaignDeliverable>> GetDeliverables(PagedRequest request, CancellationToken cancellationToken = default)
         {
@@ -88,7 +91,23 @@ namespace AgencyCampaign.Infrastructure.Services
                 await TryGenerateCreatorPayout(deliverable, cancellationToken);
             }
 
+            await AdvanceCampaignToInProgressAsync(request.CampaignId, cancellationToken);
+
             return await GetDeliverableById(deliverable.Id, cancellationToken) ?? deliverable;
+        }
+
+        // M1 (status automatico): criar um entregavel inicia a execucao da campanha (Draft/Planejada -> Executando).
+        private async Task AdvanceCampaignToInProgressAsync(long campaignId, CancellationToken cancellationToken)
+        {
+            Campaign? campaign = await DbContext.Set<Campaign>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == campaignId, cancellationToken);
+
+            if (campaign is not null && (campaign.Status == CampaignStatus.Draft || campaign.Status == CampaignStatus.Planned))
+            {
+                campaign.ChangeStatus(CampaignStatus.InProgress);
+                await DbContext.SaveChangesAsync(cancellationToken);
+            }
         }
 
         public async Task<CampaignDeliverable> UpdateDeliverable(long id, UpdateCampaignDeliverableRequest request, CancellationToken cancellationToken = default)
@@ -243,7 +262,24 @@ namespace AgencyCampaign.Infrastructure.Services
                 return null;
             }
 
-            return await Delete([deliverable], cancellationToken) ? deliverable : null;
+            // M2 (GC de midia orfa): coleta as chaves de armazenamento privado antes da exclusao para limpar
+            // os arquivos no disco depois (as linhas de versao/asset somem por cascade, mas os arquivos nao).
+            List<string> assetKeys = (await DbContext.Set<DeliverableContentVersion>()
+                .AsNoTracking()
+                .Where(item => item.CampaignDeliverableId == id)
+                .SelectMany(item => item.Assets.Select(asset => asset.Url))
+                .ToListAsync(cancellationToken))
+                .Where(url => url.StartsWith("content/", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            bool removed = await Delete([deliverable], cancellationToken);
+
+            if (removed && fileStorage is not null && assetKeys.Count > 0)
+            {
+                fileStorage.RemoveByVersion(id, assetKeys);
+            }
+
+            return removed ? deliverable : null;
         }
 
         private async Task EnsureReferencesExist(long campaignId, long campaignCreatorId, long deliverableKindId, long platformId, CancellationToken cancellationToken)

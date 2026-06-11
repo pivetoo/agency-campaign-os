@@ -198,6 +198,7 @@
   <data name="opportunityFollowUp.alreadyCompleted" xml:space="preserve"><value>Esta actividad ya está completada.</value></data>
   <data name="opportunityComment.onlyAuthorCanEdit" xml:space="preserve"><value>Solo el autor del comentario puede editarlo.</value></data>
   <data name="campaignDeliverable.amountsExceedGross" xml:space="preserve"><value>El monto del creator más la comisión de la agencia no puede superar el monto bruto de la entrega.</value></data>
+  <data name="campaign.status.cannotResurrectCancelled" xml:space="preserve"><value>Una campaña cancelada no puede reabrirse.</value></data>
   <data name="creatorPayment.alreadyFinalized" xml:space="preserve"><value>El pago ya fue finalizado y no puede modificarse.</value></data>
   <data name="creatorPayment.cannotCancelPaid" xml:space="preserve"><value>No es posible cancelar un pago ya marcado como Pagado.</value></data>
   <data name="creatorPayment.cannotPayCancelled" xml:space="preserve"><value>No es posible marcar como pagado un pago cancelado.</value></data>
@@ -738,6 +739,7 @@
   <data name="campaign.detail.nextSteps.awaitingApproval" xml:space="preserve"><value>{0} esperando aprobación</value></data>
   <data name="campaign.detail.nextSteps.unsignedDocuments" xml:space="preserve"><value>{0} sin contrato firmado</value></data>
   <data name="campaign.detail.nextSteps.overdue" xml:space="preserve"><value>{0} atrasado(s)</value></data>
+  <data name="campaign.detail.nextSteps.budgetExceeded" xml:space="preserve"><value>Presupuesto excedido en {0}</value></data>
   <data name="campaignDocument.type.creatorAcceptance" xml:space="preserve"><value>Aceptación del influencer</value></data>
   <data name="campaignDocument.type.brandContract" xml:space="preserve"><value>Contrato de marca</value></data>
   <data name="campaignDocument.type.authorizationTerm" xml:space="preserve"><value>Término de autorización</value></data>

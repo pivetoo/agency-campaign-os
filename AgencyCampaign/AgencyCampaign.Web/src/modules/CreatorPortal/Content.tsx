@@ -302,9 +302,25 @@ function SubmitVersionForm({ token, deliverableId, onSubmitted }: SubmitVersionF
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null)
 
   const handleFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null
+    // M3: valida tamanho/tipo no cliente para nao estourar o limite do servidor sem feedback no mobile.
+    if (file) {
+      const maxBytes = 25 * 1024 * 1024
+      const allowed = /^(image\/|video\/(mp4|quicktime|webm))/
+      if (!allowed.test(file.type)) {
+        toast({ title: 'Tipo de arquivo não suportado. Envie imagem ou vídeo (mp4, mov, webm).', variant: 'destructive' })
+        event.target.value = ''
+        return
+      }
+      if (file.size > maxBytes) {
+        toast({ title: `Arquivo muito grande (${(file.size / 1024 / 1024).toFixed(0)} MB). Limite de 25 MB.`, variant: 'destructive' })
+        event.target.value = ''
+        return
+      }
+    }
     setImageFile(file)
     if (file) {
       setImagePreview(URL.createObjectURL(file))
@@ -317,7 +333,8 @@ function SubmitVersionForm({ token, deliverableId, onSubmitted }: SubmitVersionF
     const assets: ContentAssetInput[] = []
 
     if (imageFile) {
-      const uploadResponse = await creatorPortalService.uploadReviewFile(token, deliverableId, imageFile)
+      setUploadProgress(0)
+      const uploadResponse = await creatorPortalService.uploadReviewFile(token, deliverableId, imageFile, setUploadProgress)
       const uploaded = uploadResponse.data
       if (uploaded) {
         assets.push({ type: 1, url: uploaded.storageKey, fileName: uploaded.fileName, contentType: uploaded.contentType })
@@ -352,6 +369,7 @@ function SubmitVersionForm({ token, deliverableId, onSubmitted }: SubmitVersionF
       toast({ title: errorMessage(error), variant: 'destructive' })
     } finally {
       setSubmitting(false)
+      setUploadProgress(null)
     }
   }
 
@@ -399,6 +417,15 @@ function SubmitVersionForm({ token, deliverableId, onSubmitted }: SubmitVersionF
           className="mt-1 w-full resize-none rounded-md border bg-background px-2.5 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
+
+      {submitting && uploadProgress !== null && (
+        <div className="space-y-1">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            <div className="h-full bg-primary transition-all" style={{ width: `${uploadProgress}%` }} />
+          </div>
+          <p className="text-right text-[10px] text-muted-foreground">{uploadProgress}%</p>
+        </div>
+      )}
 
       <div className="flex justify-end">
         <button

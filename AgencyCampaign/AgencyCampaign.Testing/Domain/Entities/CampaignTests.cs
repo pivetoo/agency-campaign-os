@@ -95,5 +95,38 @@ namespace AgencyCampaign.Testing.Domain.Entities
             campaign.Status.Should().Be(CampaignStatus.InProgress);
             campaign.IsActive.Should().BeFalse();
         }
+
+        [Test]
+        public void ChangeStatus_should_reject_resurrecting_a_cancelled_campaign()
+        {
+            Campaign campaign = new(1, "x", 0, DateTimeOffset.Now);
+            campaign.ChangeStatus(CampaignStatus.Cancelled);
+
+            Action act = () => campaign.ChangeStatus(CampaignStatus.InProgress);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("campaign.status.cannotResurrectCancelled");
+        }
+
+        [Test]
+        public void Update_should_reject_resurrecting_a_cancelled_campaign()
+        {
+            Campaign campaign = new(1, "x", 0, DateTimeOffset.Now);
+            campaign.ChangeStatus(CampaignStatus.Cancelled);
+
+            Action act = () => campaign.Update(1, "x", 0m, DateTimeOffset.Now, null, null, null, null, CampaignStatus.InProgress, null, null, true);
+
+            act.Should().Throw<InvalidOperationException>().WithMessage("campaign.status.cannotResurrectCancelled");
+        }
+
+        [Test]
+        public void Update_to_terminal_status_should_force_inactive_even_if_requested_active()
+        {
+            Campaign campaign = new(1, "x", 0, DateTimeOffset.Now);
+
+            campaign.Update(1, "x", 0m, DateTimeOffset.Now, null, null, null, null, CampaignStatus.Cancelled, null, null, true);
+
+            campaign.Status.Should().Be(CampaignStatus.Cancelled);
+            campaign.IsActive.Should().BeFalse();
+        }
     }
 }

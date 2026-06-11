@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n, useToast } from 'archon-ui'
+import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n, useToast, usePermissions } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw, ScrollText, TrendingUp, ClipboardList, CalendarDays, HandCoins } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
@@ -42,6 +42,9 @@ function getContrastColor(hexColor: string): string {
 export default function CampaignDetail() {
   const { t } = useI18n()
   const { toast } = useToast()
+  const { hasPermission } = usePermissions()
+  // M7: valores financeiros (orçamento, acordado, fee) só para quem tem acesso ao financeiro.
+  const canSeeFinancials = hasPermission('financialEntries.get.description')
   const { id } = useParams<{ id: string }>()
   const campaignId = Number(id || 0)
 
@@ -52,6 +55,8 @@ export default function CampaignDetail() {
   const [selectedCampaignCreator, setSelectedCampaignCreator] = useState<CampaignCreator | null>(null)
   const [deliverables, setDeliverables] = useState<CampaignDeliverable[]>([])
   const [selectedDeliverable, setSelectedDeliverable] = useState<CampaignDeliverable | null>(null)
+  // M5: filtro de status nas listas de produção (entregáveis), para escalar com volume.
+  const [deliverableStatusFilter, setDeliverableStatusFilter] = useState<number | 'all'>('all')
   const [documents, setDocuments] = useState<CampaignDocument[]>([])
   const [selectedDocument, setSelectedDocument] = useState<CampaignDocument | null>(null)
   const [isCreatorFormOpen, setIsCreatorFormOpen] = useState(false)
@@ -473,10 +478,12 @@ export default function CampaignDetail() {
               </div>
             </div>
 
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('campaign.field.budget')}</p>
-              <p className="text-sm font-medium mt-1">{formatCurrency(campaign?.budget ?? 0)}</p>
-            </div>
+            {canSeeFinancials && (
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('campaign.field.budget')}</p>
+                <p className="text-sm font-medium mt-1">{formatCurrency(campaign?.budget ?? 0)}</p>
+              </div>
+            )}
 
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('campaign.detail.creatorsTab')}</p>
@@ -504,10 +511,16 @@ export default function CampaignDetail() {
           </CardContent>
         </Card>
 
-        {summary && (summary.overdueDeliverablesCount > 0 || summary.awaitingApprovalCount > 0 || summary.unsignedDocumentsCount > 0) && (
+        {summary && (summary.overdueDeliverablesCount > 0 || summary.awaitingApprovalCount > 0 || summary.unsignedDocumentsCount > 0 || (canSeeFinancials && summary.budget > 0 && summary.remainingBudget < 0)) && (
           <Card className="mt-4">
             <CardContent className="flex flex-wrap items-center gap-2 py-3">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('campaign.detail.nextSteps.title')}</span>
+              {canSeeFinancials && summary.budget > 0 && summary.remainingBudget < 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-3 py-1 text-xs font-medium text-destructive">
+                  <TrendingUp size={13} />
+                  {t('campaign.detail.nextSteps.budgetExceeded').replace('{0}', formatCurrency(Math.abs(summary.remainingBudget)))}
+                </span>
+              )}
               {summary.awaitingApprovalCount > 0 && (
                 <button type="button" onClick={() => setActiveTab('deliverables')} className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-medium text-amber-700 hover:bg-amber-500/25">
                   <ClipboardList size={13} />
@@ -580,7 +593,7 @@ export default function CampaignDetail() {
               </CardHeader>
               <CardContent className="pt-0">
                 <DataTable
-                  columns={campaignCreatorColumns}
+                  columns={canSeeFinancials ? campaignCreatorColumns : campaignCreatorColumns.filter((column) => column.key !== 'agreedAmount' && column.key !== 'agencyFeeAmount')}
                   data={campaignCreators}
                   rowKey="id"
                   selectedRows={selectedCampaignCreator ? [selectedCampaignCreator] : []}
@@ -641,7 +654,17 @@ export default function CampaignDetail() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-3">
                 <CardTitle className="text-base">{t('campaign.detail.deliverablesTab')}</CardTitle>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    className="rounded-md border bg-background px-2 py-1.5 text-sm"
+                    value={String(deliverableStatusFilter)}
+                    onChange={(e) => setDeliverableStatusFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                  >
+                    <option value="all">{t('common.filter.allStatuses')}</option>
+                    {Object.entries(deliverableStatusLabels).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
                   <Button size="sm" variant="outline" onClick={() => void handleSyncMetrics()} disabled={syncingMetrics}>
                     <RefreshCw size={16} className="mr-2" />
                     {t('campaignReport.action.syncMetrics')}
@@ -659,7 +682,7 @@ export default function CampaignDetail() {
               <CardContent className="pt-0">
                 <DataTable
                   columns={deliverableColumns}
-                  data={deliverables}
+                  data={deliverableStatusFilter === 'all' ? deliverables : deliverables.filter((item) => item.status === deliverableStatusFilter)}
                   rowKey="id"
                   selectedRows={selectedDeliverable ? [selectedDeliverable] : []}
                   onSelectionChange={(rows) => setSelectedDeliverable(rows[0] ?? null)}

@@ -113,9 +113,9 @@ export const creatorPortalService = {
   addReviewComment(token: string, deliverableId: number, body: string) {
     return publicClient.post<ContentReview>(`${BASE}/${token}/deliverables/${deliverableId}/comment`, { body })
   },
-  uploadReviewFile(token: string, deliverableId: number, file: File) {
+  uploadReviewFile(token: string, deliverableId: number, file: File, onProgress?: (percent: number) => void) {
     const form = new FormData()
     form.append('file', file)
-    return publicClient.post<{ storageKey: string; previewUrl: string; fileName: string; contentType: string }>(`${BASE}/${token}/deliverables/${deliverableId}/upload`, form)
+    return publicClient.upload<{ storageKey: string; previewUrl: string; fileName: string; contentType: string }>(`${BASE}/${token}/deliverables/${deliverableId}/upload`, form, onProgress)
   },
 }
