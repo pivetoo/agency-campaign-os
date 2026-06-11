@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, CalendarClock, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap, KeyRound } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, CalendarClock, BellRing, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap, KeyRound } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 import { reportCatalog, reportAreaOrder, reportAreaLabels, type ReportArea } from '../modules/Reports/catalog'
 
@@ -111,6 +111,7 @@ export default function AgencyCampaignLayout() {
       { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },
       { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} />, requires: ['opportunityApprovals.get'] },
       { key: 'comercial-metas', label: 'Metas', path: '/comercial/metas', icon: <Target size={20} />, requires: ['commercialGoals.get'] },
+      { key: 'comercial-atencao', label: t('commercialAttention.title'), path: '/comercial/atencao', icon: <BellRing size={20} />, requires: ['opportunities.alerts'] },
     ] },
     { key: 'producao', label: t('nav.group.operations'), icon: <Megaphone size={20} />, items: [
       { key: 'creators', label: t('nav.item.creators'), path: '/creators', icon: <Users size={20} />, requires: ['creators.get'] },

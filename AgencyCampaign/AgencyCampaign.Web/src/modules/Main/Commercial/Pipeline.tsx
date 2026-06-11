@@ -10,7 +10,6 @@ import CommercialViewToggle from '../../../components/buttons/CommercialViewTogg
 import CommercialGoalsWidget from './CommercialGoalsWidget'
 import CommercialForecastWidget from './CommercialForecastWidget'
 import CommercialInsightsLists from './CommercialInsightsLists'
-import CommercialAttentionPanel from './CommercialAttentionPanel'
 import { resolveAssetUrl } from '../../../lib/assetUrl'
 import { formatDate } from '../../../lib/format'
 import { formatCurrency } from '../../../lib/format'
@@ -503,7 +502,6 @@ export default function CommercialPipeline() {
               </p>
             </div>
             <div className="space-y-4">
-              <CommercialAttentionPanel onNavigate={() => setInsightsOpen(false)} />
               <CommercialGoalsWidget scope={canSeeAllBoard ? 'all' : 'mine'} onEmptyManage={() => { setInsightsOpen(false); navigate('/comercial/metas') }} />
               <CommercialForecastWidget scope={canSeeAllBoard ? 'all' : 'mine'} />
               <CommercialInsightsLists scope={canSeeAllBoard ? 'all' : 'mine'} onNavigate={() => setInsightsOpen(false)} />
