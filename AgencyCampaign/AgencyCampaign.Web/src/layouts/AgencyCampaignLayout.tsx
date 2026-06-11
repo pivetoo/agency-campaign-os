@@ -107,9 +107,9 @@ export default function AgencyCampaignLayout() {
     { key: 'comercial', label: t('nav.group.commercial'), icon: <Handshake size={20} />, items: [
       { key: 'marcas', label: t('nav.item.brands'), path: '/marcas', icon: <Building2 size={20} />, requires: ['brands.get'] },
       { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} />, requires: ['opportunities.board', 'opportunities.boardMine', 'opportunities.get', 'opportunities.getMine'] },
-      { key: 'comercial-followups', label: t('followups.title'), path: '/comercial/followups', icon: <CalendarClock size={20} />, requires: ['opportunities.getAllFollowUps'] },
       { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },
       { key: 'comercial-aprovacoes', label: t('nav.item.approvals'), path: '/comercial/aprovacoes', icon: <Globe size={20} />, requires: ['opportunityApprovals.get'] },
+      { key: 'comercial-followups', label: t('followups.title'), path: '/comercial/followups', icon: <CalendarClock size={20} />, requires: ['opportunities.getAllFollowUps'] },
       { key: 'comercial-metas', label: 'Metas', path: '/comercial/metas', icon: <Target size={20} />, requires: ['commercialGoals.get'] },
       { key: 'comercial-atencao', label: t('commercialAttention.title'), path: '/comercial/atencao', icon: <BellRing size={20} />, requires: ['opportunities.alerts'] },
     ] },
