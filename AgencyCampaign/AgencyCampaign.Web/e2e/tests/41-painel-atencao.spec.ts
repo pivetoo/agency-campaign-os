@@ -9,8 +9,8 @@ test.describe('Comercial - painel de Atencao no Funil (A6)', () => {
     await page.goto('/comercial/pipeline')
     await expectPageTitle(page, /Funil/i)
 
-    // abre o sheet lateral (botao Insights)
-    await page.getByRole('button', { name: /Insights|Metas|Atenç/i }).first().click()
+    // abre o sheet lateral (trigger flutuante "Abrir insights do funil")
+    await page.getByRole('button', { name: /insights do funil/i }).first().click()
 
     // a secao de Atencao aparece dentro do sheet
     await expect(page.getByText(/^Atenção$/).first()).toBeVisible({ timeout: 20_000 })
