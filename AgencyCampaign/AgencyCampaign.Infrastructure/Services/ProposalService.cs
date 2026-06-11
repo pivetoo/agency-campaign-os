@@ -283,7 +283,11 @@ namespace AgencyCampaign.Infrastructure.Services
                 .Where(item => item.ProposalId == proposalId)
                 .CountAsync(cancellationToken) + 1;
 
-            string snapshotJson = SerializeSnapshot(proposal);
+            // Media kit: congela no snapshot foto/redes/metricas dos creators dos itens (os dados ao tempo
+            // do envio). Creator nao tem nav de handles, entao carregamos por query com o nome da plataforma.
+            Dictionary<long, List<CreatorSocialSnapshot>> socialsByCreator = await LoadCreatorSocialsAsync(proposal, cancellationToken);
+
+            string snapshotJson = SerializeSnapshot(proposal, socialsByCreator);
 
             ProposalVersion version = new(
                 proposal.Id,
@@ -333,7 +337,42 @@ namespace AgencyCampaign.Infrastructure.Services
             return created;
         }
 
-        private static string SerializeSnapshot(Proposal proposal)
+        private sealed record CreatorSocialSnapshot(string Platform, string Handle, string? ProfileUrl, long? Followers, decimal? EngagementRate, bool IsPrimary);
+
+        private async Task<Dictionary<long, List<CreatorSocialSnapshot>>> LoadCreatorSocialsAsync(Proposal proposal, CancellationToken cancellationToken)
+        {
+            List<long> creatorIds = proposal.Items
+                .Where(item => item.CreatorId.HasValue)
+                .Select(item => item.CreatorId!.Value)
+                .Distinct()
+                .ToList();
+
+            if (creatorIds.Count == 0)
+            {
+                return new Dictionary<long, List<CreatorSocialSnapshot>>();
+            }
+
+            var handles = await DbContext.Set<CreatorSocialHandle>()
+                .AsNoTracking()
+                .Where(handle => handle.IsActive && creatorIds.Contains(handle.CreatorId))
+                .Join(DbContext.Set<Platform>().AsNoTracking(),
+                    handle => handle.PlatformId,
+                    platform => platform.Id,
+                    (handle, platform) => new { handle.CreatorId, Platform = platform.Name, handle.Handle, handle.ProfileUrl, handle.Followers, handle.EngagementRate, handle.IsPrimary })
+                .ToListAsync(cancellationToken);
+
+            return handles
+                .GroupBy(handle => handle.CreatorId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        .OrderByDescending(handle => handle.IsPrimary)
+                        .ThenByDescending(handle => handle.Followers ?? 0)
+                        .Select(handle => new CreatorSocialSnapshot(handle.Platform, handle.Handle, handle.ProfileUrl, handle.Followers, handle.EngagementRate, handle.IsPrimary))
+                        .ToList());
+        }
+
+        private static string SerializeSnapshot(Proposal proposal, Dictionary<long, List<CreatorSocialSnapshot>> socialsByCreator)
         {
             var snapshot = new
             {
@@ -348,6 +387,12 @@ namespace AgencyCampaign.Infrastructure.Services
                     id = item.Id,
                     creatorId = item.CreatorId,
                     creatorName = item.Creator?.Name,
+                    creatorStageName = item.Creator?.StageName,
+                    creatorPhotoUrl = item.Creator?.PhotoUrl,
+                    creatorNiche = item.Creator?.PrimaryNiche,
+                    creatorSocials = (item.CreatorId.HasValue && socialsByCreator.TryGetValue(item.CreatorId.Value, out List<CreatorSocialSnapshot>? socials) ? socials : new List<CreatorSocialSnapshot>())
+                        .Select(social => new { platform = social.Platform, handle = social.Handle, profileUrl = social.ProfileUrl, followers = social.Followers, engagementRate = social.EngagementRate, isPrimary = social.IsPrimary })
+                        .ToArray(),
                     description = item.Description,
                     quantity = item.Quantity,
                     unitPrice = item.UnitPrice,

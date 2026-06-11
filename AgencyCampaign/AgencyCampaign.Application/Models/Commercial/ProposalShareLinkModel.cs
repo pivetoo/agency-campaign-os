@@ -61,6 +61,10 @@ namespace AgencyCampaign.Application.Models.Commercial
 
         public string AgencyName { get; init; } = string.Empty;
 
+        public string? AgencyLogoUrl { get; init; }
+
+        public string? AgencyPrimaryColor { get; init; }
+
         public string BrandName { get; init; } = string.Empty;
 
         public string? BrandLogoUrl { get; init; }

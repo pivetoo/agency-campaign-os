@@ -26,6 +26,7 @@ import CommercialOpportunityDetail from '../modules/Main/Commercial/OpportunityD
 import CommercialProposals from '../modules/Main/Commercial/Proposals'
 import CommercialProposalDetail from '../modules/Main/Commercial/ProposalDetail'
 import CommercialFollowUps from '../modules/Main/Commercial/FollowUps'
+import CommercialAttention from '../modules/Main/Commercial/Attention'
 import CommercialApprovals from '../modules/Main/Commercial/Approvals'
 import CommercialGoals from '../modules/Main/Commercial/Goals'
 import OpportunityOutcomeReasons from '../modules/Configuration/OpportunityOutcomeReasons'
@@ -141,6 +142,7 @@ function AppRoutes() {
           <Route path="comercial/analytics" element={<Navigate to="/relatorios/comercial/funil" replace />} />
           <Route path="comercial/metas" element={<CommercialGoals />} />
           <Route path="comercial/followups" element={<CommercialFollowUps />} />
+          <Route path="comercial/atencao" element={<CommercialAttention />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
           <Route path="financeiro/repasses-creators" element={<CreatorPayments />} />

@@ -500,6 +500,17 @@
   <data name="opportunities.status.won" xml:space="preserve"><value>Ganadas</value></data>
   <data name="opportunities.status.lost" xml:space="preserve"><value>Perdidas</value></data>
   <data name="followups.title" xml:space="preserve"><value>Actividades</value></data>
+  <data name="commercialAttention.title" xml:space="preserve"><value>Atención</value></data>
+  <data name="commercialAttention.subtitle" xml:space="preserve"><value>Lo que necesita tu atención hoy</value></data>
+  <data name="commercialAttention.chip.overdue" xml:space="preserve"><value>Follow-ups atrasados</value></data>
+  <data name="commercialAttention.chip.today" xml:space="preserve"><value>Follow-ups de hoy</value></data>
+  <data name="commercialAttention.chip.pendingApprovals" xml:space="preserve"><value>Aprobaciones pendientes</value></data>
+  <data name="commercialAttention.chip.openOpportunities" xml:space="preserve"><value>Oportunidades abiertas</value></data>
+  <data name="commercialAttention.alerts.title" xml:space="preserve"><value>Alertas</value></data>
+  <data name="commercialAttention.loading" xml:space="preserve"><value>Cargando alertas...</value></data>
+  <data name="commercialAttention.error" xml:space="preserve"><value>No se pudieron cargar las alertas.</value></data>
+  <data name="commercialAttention.empty.title" xml:space="preserve"><value>Todo al día</value></data>
+  <data name="commercialAttention.empty.subtitle" xml:space="preserve"><value>Ningún follow-up vencido, pronóstico pasado o SLA excedido en este momento.</value></data>
   <data name="followups.subtitle" xml:space="preserve"><value>Agenda comercial — atrasadas, de hoy, próximas y completadas</value></data>
   <data name="followups.action.goToPipeline" xml:space="preserve"><value>Ir al pipeline</value></data>
   <data name="followups.action.openOpportunity" xml:space="preserve"><value>Abrir oportunidad</value></data>
@@ -921,6 +932,10 @@
   <data name="public.proposal.loading" xml:space="preserve"><value>Cargando propuesta...</value></data>
   <data name="public.proposal.invalidLink.title" xml:space="preserve"><value>Enlace inválido o expirado</value></data>
   <data name="public.proposal.title" xml:space="preserve"><value>Propuesta comercial</value></data>
+  <data name="public.proposal.forBrand" xml:space="preserve"><value>Para {0}</value></data>
+  <data name="public.proposal.creators.title" xml:space="preserve"><value>Creators de esta propuesta</value></data>
+  <data name="public.proposal.creators.followers" xml:space="preserve"><value>seguidores</value></data>
+  <data name="public.proposal.creators.engagement" xml:space="preserve"><value>engagement</value></data>
   <data name="public.proposal.invalidLink.body" xml:space="preserve"><value>Esta propuesta puede haber sido revocada o el enlace ya expiró. Contactá a la agencia para recibir un nuevo acceso.</value></data>
   <data name="public.proposal.fallbackName" xml:space="preserve"><value>Propuesta</value></data>
   <data name="public.proposal.downloading" xml:space="preserve"><value>Descargando...</value></data>

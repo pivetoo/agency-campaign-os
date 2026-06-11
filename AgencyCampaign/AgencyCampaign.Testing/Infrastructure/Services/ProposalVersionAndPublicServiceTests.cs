@@ -268,6 +268,18 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetByToken_should_fill_agency_identity_from_settings()
+        {
+            db.Add(new AgencySettings("Mainstay Agencia"));
+            Proposal proposal = await SeedSentProposalWithLinkAsync("tok");
+
+            ProposalPublicViewModel? view = await service.GetByToken("tok", null, null);
+
+            view.Should().NotBeNull();
+            view!.AgencyName.Should().Be("Mainstay Agencia");
+        }
+
+        [Test]
         public async Task RegisterClientDecision_accept_should_approve_and_record_evidence()
         {
             Proposal proposal = await SeedSentProposalWithLinkAsync("tok");

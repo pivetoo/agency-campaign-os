@@ -105,13 +105,22 @@ namespace AgencyCampaign.Infrastructure.Services
             decimal discountPercent = version.TotalValue > 0m ? discountValue / version.TotalValue * 100m : 0m;
             decimal netTotalValue = hasFrozenDiscount ? version.NetTotalValue!.Value : version.TotalValue - discountValue;
 
+            // Identidade da agencia resolvida live (mesma fonte do PDF): a marca destinataria precisa
+            // ver de QUEM e a proposta. TradeName tem prioridade sobre AgencyName, igual ao ProposalHtmlBuilder.
+            AgencySettings? agency = await dbContext.Set<AgencySettings>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(cancellationToken);
+            string agencyName = string.IsNullOrWhiteSpace(agency?.TradeName) ? (agency?.AgencyName ?? string.Empty) : agency.TradeName;
+
             return new ProposalPublicViewModel
             {
                 ProposalId = version.ProposalId,
                 VersionNumber = version.VersionNumber,
                 Name = version.Name,
                 Description = version.Description,
-                AgencyName = string.Empty,
+                AgencyName = agencyName,
+                AgencyLogoUrl = agency?.LogoUrl,
+                AgencyPrimaryColor = agency?.PrimaryColor,
                 BrandName = brandName,
                 BrandLogoUrl = proposal?.Opportunity?.Brand?.LogoUrl,
                 TotalValue = version.TotalValue,

@@ -99,6 +99,31 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task MarkAsSent_should_freeze_creator_media_kit_into_snapshot()
+        {
+            Opportunity opportunity = await SeedOpportunityAsync();
+            Creator creator = new("Joana Influencer", stageName: "Jô", primaryNiche: "Moda");
+            creator.SetPhoto("/uploads/creators/jo.png");
+            db.Add(creator);
+            db.Add(new Platform("Instagram"));
+            await db.SaveChangesAsync();
+            db.Add(new CreatorSocialHandle(creator.Id, 1, "@jo", "https://instagram.com/jo", followers: 120000, engagementRate: 4.5m, isPrimary: true));
+            Proposal proposal = await service.CreateProposal(new CreateProposalRequest { OpportunityId = opportunity.Id });
+            db.Add(new ProposalItem(proposal.Id, "Reels", 1, 5000m, creatorId: creator.Id));
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            await service.MarkAsSent(proposal.Id);
+
+            db.ChangeTracker.Clear();
+            ProposalVersion version = await db.Set<ProposalVersion>().AsNoTracking().SingleAsync(item => item.ProposalId == proposal.Id);
+            version.SnapshotJson.Should().Contain("/uploads/creators/jo.png");
+            version.SnapshotJson.Should().Contain("Instagram");
+            version.SnapshotJson.Should().Contain("@jo");
+            version.SnapshotJson.Should().Contain("120000");
+        }
+
+        [Test]
         public async Task UpdateProposal_should_supersede_granted_approval_when_discount_changes()
         {
             Opportunity opportunity = await SeedOpportunityAsync();

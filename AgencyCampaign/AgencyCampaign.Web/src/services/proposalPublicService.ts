@@ -2,10 +2,23 @@ import { publicClient } from '../lib/publicClient'
 
 const BASE_URL = '/proposal-public'
 
+export interface ProposalPublicSocial {
+  platform: string
+  handle: string
+  profileUrl?: string
+  followers?: number
+  engagementRate?: number
+  isPrimary?: boolean
+}
+
 export interface ProposalPublicItem {
   id: number
   creatorId?: number
   creatorName?: string
+  creatorStageName?: string
+  creatorPhotoUrl?: string
+  creatorNiche?: string
+  creatorSocials?: ProposalPublicSocial[]
   description: string
   quantity: number
   unitPrice: number
@@ -38,6 +51,8 @@ export interface ProposalPublicView {
   name: string
   description?: string
   agencyName: string
+  agencyLogoUrl?: string
+  agencyPrimaryColor?: string
   brandName: string
   brandLogoUrl?: string
   totalValue: number

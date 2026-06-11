@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, CalendarClock, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap, KeyRound } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, CalendarClock, BellRing, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap, KeyRound } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 import { reportCatalog, reportAreaOrder, reportAreaLabels, type ReportArea } from '../modules/Reports/catalog'
 
@@ -106,6 +106,7 @@ export default function AgencyCampaignLayout() {
     ] },
     { key: 'comercial', label: t('nav.group.commercial'), icon: <Handshake size={20} />, items: [
       { key: 'marcas', label: t('nav.item.brands'), path: '/marcas', icon: <Building2 size={20} />, requires: ['brands.get'] },
+      { key: 'comercial-atencao', label: t('commercialAttention.title'), path: '/comercial/atencao', icon: <BellRing size={20} />, requires: ['opportunities.alerts'] },
       { key: 'comercial-pipeline', label: t('nav.item.pipeline'), path: '/comercial/pipeline', icon: <Columns3 size={20} />, requires: ['opportunities.board', 'opportunities.boardMine', 'opportunities.get', 'opportunities.getMine'] },
       { key: 'comercial-followups', label: t('followups.title'), path: '/comercial/followups', icon: <CalendarClock size={20} />, requires: ['opportunities.getAllFollowUps'] },
       { key: 'comercial-propostas', label: t('nav.item.proposals'), path: '/comercial/propostas', icon: <Tags size={20} />, requires: ['proposals.get'] },

@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, useI18n } from 'archon-ui'
 import { AlertTriangle, CalendarClock, CheckCircle2, FileDown, FileText, Sparkles } from 'lucide-react'
-import { proposalPublicService, type ProposalPublicSnapshot, type ProposalPublicView } from '../../services/proposalPublicService'
-import { formatDate } from '../../lib/format'
-import { formatCurrency } from '../../lib/format'
+import { proposalPublicService, type ProposalPublicItem, type ProposalPublicSnapshot, type ProposalPublicView } from '../../services/proposalPublicService'
+import { formatDate, formatCurrency, formatNumber, formatPercent } from '../../lib/format'
 import { resolveUploadUrl } from '../../lib/uploadUrl'
 
 export default function PublicProposal() {
@@ -88,6 +87,20 @@ export default function PublicProposal() {
     return new Date(view.validityUntil) < new Date()
   }, [view])
 
+  // Media kit: um card por creator (dedup pelos itens), preferindo a entrada com mais midia
+  const creators = useMemo<ProposalPublicItem[]>(() => {
+    if (!snapshot) return []
+    const richness = (item: ProposalPublicItem) => (item.creatorPhotoUrl ? 1 : 0) + (item.creatorSocials?.length ?? 0)
+    const byKey = new Map<string, ProposalPublicItem>()
+    for (const item of snapshot.items) {
+      if (!item.creatorId && !item.creatorName) continue
+      const key = String(item.creatorId ?? item.creatorName)
+      const existing = byKey.get(key)
+      if (!existing || richness(item) > richness(existing)) byKey.set(key, item)
+    }
+    return Array.from(byKey.values())
+  }, [snapshot])
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-muted/40">
@@ -114,8 +127,8 @@ export default function PublicProposal() {
     <div data-testid="public-proposal-page" className="min-h-screen bg-muted/40 py-12">
       <div className="mx-auto w-full max-w-4xl px-4">
         <div className="mb-6 flex items-center gap-3">
-          {resolveUploadUrl(view.brandLogoUrl) ? (
-            <img src={resolveUploadUrl(view.brandLogoUrl)} alt={view.brandName} className="h-10 w-10 rounded-lg border border-border/60 bg-white object-contain" />
+          {resolveUploadUrl(view.agencyLogoUrl) ? (
+            <img src={resolveUploadUrl(view.agencyLogoUrl)} alt={view.agencyName} className="h-10 w-10 rounded-lg border border-border/60 bg-white object-contain" />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary">
               <Sparkles className="h-5 w-5" />
@@ -123,7 +136,10 @@ export default function PublicProposal() {
           )}
           <div>
             <p className="text-xs uppercase tracking-wide text-muted-foreground">{t('public.proposal.title')}</p>
-            <h1 className="text-xl font-bold text-foreground">{view.brandName || t('public.proposal.fallbackName')}</h1>
+            <h1 className="text-xl font-bold text-foreground">{view.agencyName || t('public.proposal.fallbackName')}</h1>
+            {view.brandName ? (
+              <p className="text-xs text-muted-foreground">{t('public.proposal.forBrand').replace('{0}', view.brandName)}</p>
+            ) : null}
           </div>
           <span className="ml-auto rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
             v{view.versionNumber}
@@ -162,6 +178,54 @@ export default function PublicProposal() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6 p-6">
+            {creators.length > 0 ? (
+              <div>
+                <div className="mb-3 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t('public.proposal.creators.title')}</h2>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {creators.map((item) => {
+                    const photo = resolveUploadUrl(item.creatorPhotoUrl)
+                    const displayName = item.creatorStageName || item.creatorName || '—'
+                    const initial = displayName.charAt(0).toUpperCase()
+                    return (
+                      <div key={item.creatorId ?? item.creatorName} className="flex gap-3 rounded-lg border border-border/70 bg-background p-3">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted/30">
+                          {photo ? (
+                            <img src={photo} alt={displayName} className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-lg font-semibold text-muted-foreground">{initial}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-foreground">{displayName}</p>
+                          {item.creatorNiche ? (
+                            <p className="truncate text-xs text-muted-foreground">{item.creatorNiche}</p>
+                          ) : null}
+                          {item.creatorSocials && item.creatorSocials.length > 0 ? (
+                            <div className="mt-1.5 space-y-1">
+                              {item.creatorSocials.map((social, index) => (
+                                <div key={`${social.platform}-${index}`} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+                                  <span className="font-medium text-foreground">{social.platform}</span>
+                                  <span className="text-muted-foreground">{social.handle}</span>
+                                  {social.followers != null ? (
+                                    <span className="text-muted-foreground">· {formatNumber(social.followers)} {t('public.proposal.creators.followers')}</span>
+                                  ) : null}
+                                  {social.engagementRate != null ? (
+                                    <span className="text-muted-foreground">· {formatPercent(social.engagementRate, '-', 1)} {t('public.proposal.creators.engagement')}</span>
+                                  ) : null}
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ) : null}
             {snapshot && snapshot.items.length > 0 ? (
               <div className="overflow-x-auto rounded-md border border-border/70">
                 <table className="w-full text-sm">
