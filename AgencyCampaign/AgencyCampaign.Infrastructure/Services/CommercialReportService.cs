@@ -90,6 +90,60 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
+        public async Task<CreatorRevenueModel> GetCreatorRevenue(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset normalizedFrom = from.ToUniversalTime();
+            DateTimeOffset normalizedTo = to.ToUniversalTime();
+
+            // Receita vendida por creator: itens das propostas aceitas/convertidas das oportunidades GANHAS
+            // no periodo. Total do item e computado (nao mapeado), entao agregamos em memoria.
+            List<long> wonOpportunityIds = await dbContext.Set<Opportunity>()
+                .AsNoTracking()
+                .Where(item => item.ClosedAt.HasValue
+                    && item.ClosedAt.Value >= normalizedFrom
+                    && item.ClosedAt.Value < normalizedTo
+                    && item.CommercialPipelineStage!.FinalBehavior == CommercialPipelineStageFinalBehavior.Won)
+                .Select(item => item.Id)
+                .ToListAsync(cancellationToken);
+
+            if (wonOpportunityIds.Count == 0)
+            {
+                return new CreatorRevenueModel { GeneratedAt = DateTimeOffset.UtcNow, From = normalizedFrom, To = normalizedTo };
+            }
+
+            List<ProposalItem> items = await dbContext.Set<ProposalItem>()
+                .AsNoTracking()
+                .Include(item => item.Creator)
+                .Include(item => item.Proposal)
+                .Where(item => item.CreatorId != null
+                    && item.Proposal != null
+                    && wonOpportunityIds.Contains(item.Proposal.OpportunityId)
+                    && (item.Proposal.Status == ProposalStatus.Approved || item.Proposal.Status == ProposalStatus.Converted))
+                .ToListAsync(cancellationToken);
+
+            CreatorRevenueLineModel[] lines = items
+                .GroupBy(item => item.CreatorId!.Value)
+                .Select(group => new CreatorRevenueLineModel
+                {
+                    CreatorId = group.Key,
+                    CreatorName = group.First().Creator?.Name ?? string.Empty,
+                    DealCount = group.Select(item => item.Proposal!.OpportunityId).Distinct().Count(),
+                    ItemCount = group.Count(),
+                    TotalValue = Math.Round(group.Sum(item => item.Total), 2)
+                })
+                .OrderByDescending(item => item.TotalValue)
+                .Take(50)
+                .ToArray();
+
+            return new CreatorRevenueModel
+            {
+                GeneratedAt = DateTimeOffset.UtcNow,
+                From = normalizedFrom,
+                To = normalizedTo,
+                Lines = lines
+            };
+        }
+
         public async Task<BrandRankingModel> GetBrandRanking(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
         {
             DateTimeOffset normalizedFrom = from.ToUniversalTime();

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, SearchableSelect, useApi, useI18n } from 'archon-ui'
+import { Plus } from 'lucide-react'
+import BrandFormModal from './BrandFormModal'
 import { brandService } from '../../services/brandService'
 import { commercialResponsibleService } from '../../services/commercialResponsibleService'
 import { opportunitySourceService, opportunityTagService } from '../../services/opportunitySourceService'
@@ -40,6 +42,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
   const [sources, setSources] = useState<OpportunitySource[]>([])
   const [tags, setTags] = useState<OpportunityTag[]>([])
   const [manualProbability, setManualProbability] = useState<number | null>(null)
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false)
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
@@ -107,6 +110,7 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
   }
 
   return (
+    <>
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent size="full" style={{ maxWidth: '960px', width: '95vw' }}>
         <ModalHeader>
@@ -122,17 +126,24 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.brand')}</label>
-              <SearchableSelect
-                value={formData.brandId ? String(formData.brandId) : ''}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, brandId: Number(value) }))}
-                options={brands.map((brand) => ({ value: String(brand.id), label: brand.name }))}
-                placeholder={t('common.placeholder.select')}
-                searchPlaceholder={t('common.placeholder.search')}
-                onSearch={async (term) => {
-                  const r = await brandService.getAll({ search: term, pageSize: 10 })
-                  return (r.data ?? []).map((brand) => ({ value: String(brand.id), label: brand.name }))
-                }}
-              />
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <SearchableSelect
+                    value={formData.brandId ? String(formData.brandId) : ''}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, brandId: Number(value) }))}
+                    options={brands.map((brand) => ({ value: String(brand.id), label: brand.name }))}
+                    placeholder={t('common.placeholder.select')}
+                    searchPlaceholder={t('common.placeholder.search')}
+                    onSearch={async (term) => {
+                      const r = await brandService.getAll({ search: term, pageSize: 10 })
+                      return (r.data ?? []).map((brand) => ({ value: String(brand.id), label: brand.name }))
+                    }}
+                  />
+                </div>
+                <Button type="button" variant="outline" size="icon" title={t('modal.opportunity.newBrand')} onClick={() => setIsBrandModalOpen(true)}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -255,5 +266,21 @@ export default function OpportunityFormModal({ open, onOpenChange, opportunity, 
         </form>
       </ModalContent>
     </Modal>
+
+    <BrandFormModal
+      open={isBrandModalOpen}
+      onOpenChange={setIsBrandModalOpen}
+      brand={null}
+      onSuccess={(saved) => {
+        setIsBrandModalOpen(false)
+        if (saved) {
+          setBrands((prev) => [saved, ...prev.filter((b) => b.id !== saved.id)])
+          setFormData((prev) => ({ ...prev, brandId: saved.id }))
+        } else {
+          void brandService.getAll({ pageSize: 10 }).then((r) => setBrands(r.data ?? []))
+        }
+      }}
+    />
+    </>
   )
 }

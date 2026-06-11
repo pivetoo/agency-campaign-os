@@ -1265,6 +1265,7 @@
   <data name="modal.opportunity.title.edit" xml:space="preserve"><value>Editar oportunidad</value></data>
   <data name="modal.opportunity.title.new" xml:space="preserve"><value>Nueva oportunidad</value></data>
   <data name="modal.opportunity.field.name" xml:space="preserve"><value>Nombre de la oportunidad</value></data>
+  <data name="modal.opportunity.newBrand" xml:space="preserve"><value>Nueva marca</value></data>
   <data name="modal.opportunity.field.estimatedValue" xml:space="preserve"><value>Valor estimado</value></data>
   <data name="modal.opportunity.field.probabilityManual" xml:space="preserve"><value>Definir manualmente</value></data>
   <data name="modal.opportunity.field.probabilityAuto" xml:space="preserve"><value>Automático (promedio del estadio)</value></data>

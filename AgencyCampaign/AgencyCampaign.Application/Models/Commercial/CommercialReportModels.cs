@@ -29,4 +29,21 @@ namespace AgencyCampaign.Application.Models.Commercial
         public DateTimeOffset To { get; init; }
         public IReadOnlyCollection<BrandRankingLineModel> Lines { get; init; } = Array.Empty<BrandRankingLineModel>();
     }
+
+    public sealed class CreatorRevenueLineModel
+    {
+        public long CreatorId { get; init; }
+        public string CreatorName { get; init; } = string.Empty;
+        public int DealCount { get; init; }
+        public int ItemCount { get; init; }
+        public decimal TotalValue { get; init; }
+    }
+
+    public sealed class CreatorRevenueModel
+    {
+        public DateTimeOffset GeneratedAt { get; init; }
+        public DateTimeOffset From { get; init; }
+        public DateTimeOffset To { get; init; }
+        public IReadOnlyCollection<CreatorRevenueLineModel> Lines { get; init; } = Array.Empty<CreatorRevenueLineModel>();
+    }
 }

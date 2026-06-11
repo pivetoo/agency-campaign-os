@@ -240,6 +240,48 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetCreatorRevenue_should_aggregate_sold_value_per_creator_from_won_deals()
+        {
+            DateTimeOffset baseDate = new DateTimeOffset(2026, 5, 1, 0, 0, 0, TimeSpan.Zero);
+            DateTimeOffset from = baseDate;
+            DateTimeOffset to = baseDate.AddMonths(1);
+
+            Brand brand = new("Acme");
+            db.Add(brand);
+            CommercialPipelineStage wonStage = new CommercialPipelineStageBuilder().AsFinal(CommercialPipelineStageFinalBehavior.Won).Build();
+            db.Add(wonStage);
+            Creator jo = new("Jo");
+            Creator ana = new("Ana");
+            db.AddRange(jo, ana);
+            await db.SaveChangesAsync();
+
+            Opportunity opp = new(brand.Id, wonStage.Id, "Deal", 0m);
+            opp.SetClosedValue(8000m);
+            SetClosedAt(opp, baseDate.AddDays(10));
+            db.Add(opp);
+            await db.SaveChangesAsync();
+
+            Proposal proposal = new(opp.Id, "P", 1);
+            proposal.MarkAsSent();
+            proposal.Approve();
+            db.Add(proposal);
+            await db.SaveChangesAsync();
+            db.Add(new ProposalItem(proposal.Id, "Reels", 1, 5000m, creatorId: jo.Id));
+            db.Add(new ProposalItem(proposal.Id, "Story", 2, 1000m, creatorId: jo.Id));
+            db.Add(new ProposalItem(proposal.Id, "Post", 1, 1000m, creatorId: ana.Id));
+            await db.SaveChangesAsync();
+
+            CreatorRevenueModel result = await service.GetCreatorRevenue(from, to);
+
+            result.Lines.Should().HaveCount(2);
+            result.Lines.First().CreatorName.Should().Be("Jo");
+            result.Lines.First().TotalValue.Should().Be(7000m);
+            result.Lines.First().ItemCount.Should().Be(2);
+            result.Lines.First().DealCount.Should().Be(1);
+            result.Lines.Last().CreatorName.Should().Be("Ana");
+        }
+
+        [Test]
         public async Task GetBrandRanking_should_compute_win_rate_correctly()
         {
             DateTimeOffset baseDate = new DateTimeOffset(2026, 5, 1, 0, 0, 0, TimeSpan.Zero);

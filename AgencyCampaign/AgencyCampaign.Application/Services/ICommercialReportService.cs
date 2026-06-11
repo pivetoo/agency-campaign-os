@@ -7,5 +7,7 @@ namespace AgencyCampaign.Application.Services
         Task<ProposalsFunnelModel> GetProposalsFunnel(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
 
         Task<BrandRankingModel> GetBrandRanking(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+
+        Task<CreatorRevenueModel> GetCreatorRevenue(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
     }
 }

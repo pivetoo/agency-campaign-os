@@ -28,6 +28,21 @@ export interface BrandRanking {
   lines: BrandRankingLine[]
 }
 
+export interface CreatorRevenueLine {
+  creatorId: number
+  creatorName: string
+  dealCount: number
+  itemCount: number
+  totalValue: number
+}
+
+export interface CreatorRevenue {
+  generatedAt: string
+  from: string
+  to: string
+  lines: CreatorRevenueLine[]
+}
+
 const BASE_URL = '/CommercialReports'
 
 export const commercialReportService = {
@@ -40,6 +55,12 @@ export const commercialReportService = {
   async getBrandRanking(from: string, to: string): Promise<BrandRanking | null> {
     const params = new URLSearchParams({ from, to })
     const response = await httpClient.get<BrandRanking>(`${BASE_URL}/brand-ranking?${params.toString()}`)
+    return response.data ?? null
+  },
+
+  async getCreatorRevenue(from: string, to: string): Promise<CreatorRevenue | null> {
+    const params = new URLSearchParams({ from, to })
+    const response = await httpClient.get<CreatorRevenue>(`${BASE_URL}/creator-revenue?${params.toString()}`)
     return response.data ?? null
   },
 

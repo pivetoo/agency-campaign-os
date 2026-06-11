@@ -9,7 +9,7 @@ interface BrandFormModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   brand: Brand | null
-  onSuccess: () => void
+  onSuccess: (saved?: Brand) => void
 }
 
 const initialFormData: CreateBrandRequest = {
@@ -96,6 +96,7 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
 
     const cleaned = cleanFormPayload(formData)
 
+    let createdBrand: Brand | undefined
     const result = await execute(async () => {
       const saved = isEditing
         ? await brandService.update(brand.id, {
@@ -109,9 +110,12 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
       if (!savedBrand) {
         return saved
       }
+      createdBrand = savedBrand
 
       if (pendingLogo) {
-        return await brandService.uploadLogo(savedBrand.id, pendingLogo)
+        const withLogo = await brandService.uploadLogo(savedBrand.id, pendingLogo)
+        createdBrand = withLogo.data ?? savedBrand
+        return withLogo
       }
 
       if (shouldRemoveLogo && isEditing) {
@@ -122,7 +126,7 @@ export default function BrandFormModal({ open, onOpenChange, brand, onSuccess }:
     })
 
     if (result !== null) {
-      onSuccess()
+      onSuccess(createdBrand)
     }
   }
 

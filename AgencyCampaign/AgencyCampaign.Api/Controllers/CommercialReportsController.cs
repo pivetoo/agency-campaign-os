@@ -33,6 +33,14 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(result);
         }
 
+        [RequireAccess("commercialReports.getBrandRanking.description")]
+        [GetEndpoint("creator-revenue")]
+        public async Task<IActionResult> GetCreatorRevenue([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)
+        {
+            var result = await service.GetCreatorRevenue(from, to, cancellationToken);
+            return Http200(result);
+        }
+
         [RequireAccess("commercialReports.getProposalsFunnel.description")]
         [GetEndpoint("proposals-funnel/export")]
         public async Task<IActionResult> ExportProposalsFunnel([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken cancellationToken)

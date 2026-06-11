@@ -69,6 +69,7 @@ import ReportForecast from '../modules/Reports/Commercial/Forecast'
 import ReportMetas from '../modules/Reports/Commercial/Metas'
 import ReportPropostas from '../modules/Reports/Commercial/Propostas'
 import ReportRanking from '../modules/Reports/Commercial/Ranking'
+import ReportCreatorRevenue from '../modules/Reports/Commercial/Creators'
 import ReportPerformanceCampanhas from '../modules/Reports/Production/PerformanceCampanhas'
 import ReportDesempenhoCreator from '../modules/Reports/Production/DesempenhoCreator'
 import ReportProducaoPlataforma from '../modules/Reports/Production/ProducaoPlataforma'
@@ -182,6 +183,7 @@ function AppRoutes() {
           <Route path="relatorios/comercial/metas" element={<ReportMetas />} />
           <Route path="relatorios/comercial/propostas" element={<ReportPropostas />} />
           <Route path="relatorios/comercial/ranking" element={<ReportRanking />} />
+          <Route path="relatorios/comercial/receita-creator" element={<ReportCreatorRevenue />} />
           <Route path="relatorios/producao/campanhas" element={<ReportPerformanceCampanhas />} />
           <Route path="relatorios/producao/creators" element={<ReportDesempenhoCreator />} />
           <Route path="relatorios/producao/plataforma" element={<ReportProducaoPlataforma />} />
