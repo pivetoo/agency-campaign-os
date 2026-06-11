@@ -5,6 +5,7 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using CampaignCreatorStatusEntity = AgencyCampaign.Domain.Entities.CampaignCreatorStatus;
 using AgencyCampaign.Infrastructure.Clients;
+using Archon.Application.MultiTenancy;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
 using Archon.Infrastructure.Services;
@@ -26,15 +27,17 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly ISignedDocumentDownloader signedDocumentDownloader;
         private readonly IContentFileStorage fileStorage;
         private readonly IPlanGate planGate;
+        private readonly ITenantContext? tenantContext;
         private readonly ILogger<CampaignDocumentService>? logger;
 
-        public CampaignDocumentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, ISignedDocumentDownloader signedDocumentDownloader, IContentFileStorage fileStorage, IPlanGate planGate, ILogger<CampaignDocumentService>? logger = null) : base(dbContext)
+        public CampaignDocumentService(DbContext dbContext, IntegrationPlatformClient integrationPlatformClient, IIntegrationCapabilityService integrationCapabilityService, ISignedDocumentDownloader signedDocumentDownloader, IContentFileStorage fileStorage, IPlanGate planGate, ITenantContext? tenantContext = null, ILogger<CampaignDocumentService>? logger = null) : base(dbContext)
         {
             this.integrationPlatformClient = integrationPlatformClient;
             this.integrationCapabilityService = integrationCapabilityService;
             this.signedDocumentDownloader = signedDocumentDownloader;
             this.fileStorage = fileStorage;
             this.planGate = planGate;
+            this.tenantContext = tenantContext;
             this.logger = logger;
         }
 
@@ -334,6 +337,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 documentName = $"{document.Title}.pdf",
                 mimeType = "application/pdf",
                 message = document.EmailBody,
+                // Token tenant-scoped para o pipeline ECOAR na URL do callback
+                // (/api/campaigndocuments/provider-callback/{callbackToken}), permitindo a resolucao
+                // de tenant em requisicoes anonimas multi-tenant.
+                callbackToken = PublicLinkToken.Compose(tenantContext?.TenantId, document.Id.ToString(CultureInfo.InvariantCulture)),
                 signers = request.Signers.Select(item => new
                 {
                     role = item.Role.ToString(),
