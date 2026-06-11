@@ -194,6 +194,43 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetSummary_should_count_overdue_awaiting_approval_and_unsigned_documents()
+        {
+            db.Add(new Brand("Acme").WithId(1));
+            db.Add(new Campaign(1, "Camp", 5000m, DateTimeOffset.UtcNow).WithId(10));
+            db.Add(new DomainEntities.CampaignCreator(10, 1, 1, 100m, 10m).WithId(20));
+
+            // Entregavel atrasado: nasce valido e e forcado para o passado (construtor recusa prazo passado).
+            CampaignDeliverable overdue = new(10, 20, "atrasado", 1, 1, DateTimeOffset.UtcNow.AddDays(1), 100m, 80m, 10m);
+            overdue.WithId(60);
+            typeof(CampaignDeliverable).GetProperty(nameof(CampaignDeliverable.DueAt))!.SetValue(overdue, DateTimeOffset.UtcNow.AddDays(-2));
+            db.Add(overdue);
+
+            // Entregavel com rodada de conteudo aguardando decisao da marca.
+            CampaignDeliverable awaiting = new(10, 20, "aguardando", 1, 1, DateTimeOffset.UtcNow.AddDays(5), 100m, 80m, 10m);
+            awaiting.WithId(61);
+            db.Add(awaiting);
+            await db.SaveChangesAsync();
+
+            DeliverableContentVersion version = new(61, 1, ReviewParticipant.Creator, "Foo", null);
+            version.SendToBrand();
+            db.Add(version);
+
+            // Documento enviado mas ainda nao assinado.
+            CampaignDocument doc = new(10, CampaignDocumentType.CreatorAgreement, "Contrato");
+            doc.MarkReadyToSend();
+            db.Add(doc);
+            await db.SaveChangesAsync();
+
+            CampaignSummaryModel? summary = await service.GetSummary(10);
+
+            summary.Should().NotBeNull();
+            summary!.OverdueDeliverablesCount.Should().Be(1);
+            summary.AwaitingApprovalCount.Should().Be(1);
+            summary.UnsignedDocumentsCount.Should().Be(1);
+        }
+
+        [Test]
         public async Task GetCampaigns_should_order_active_first_then_id_desc()
         {
             db.Add(new Brand("Acme").WithId(1));

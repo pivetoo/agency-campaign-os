@@ -28,6 +28,13 @@ namespace AgencyCampaign.Application.Models.Campaigns
 
         public int PendingApprovalsCount { get; init; }
 
+        // Pendencias acionaveis para a visao de "proximo passo" (A2).
+        public int OverdueDeliverablesCount { get; init; }
+
+        public int AwaitingApprovalCount { get; init; }
+
+        public int UnsignedDocumentsCount { get; init; }
+
         public decimal GrossAmountTotal { get; init; }
 
         public decimal CreatorAmountTotal { get; init; }

@@ -49,6 +49,9 @@ export interface CampaignSummary {
   pendingDeliverablesCount: number
   publishedDeliverablesCount: number
   pendingApprovalsCount: number
+  overdueDeliverablesCount: number
+  awaitingApprovalCount: number
+  unsignedDocumentsCount: number
   grossAmountTotal: number
   creatorAmountTotal: number
   agencyFeeAmountTotal: number

@@ -11,6 +11,9 @@ interface Props {
   onOpenChange: (open: boolean) => void
   payment: CreatorPayment | null
   campaignId?: number
+  // Pre-selecao ao abrir a partir do contexto de um creator da campanha (ponte producao -> repasse).
+  presetCampaignCreatorId?: number
+  presetGrossAmount?: number
   onSuccess: () => void
 }
 
@@ -28,7 +31,7 @@ const methodOptions = Object.values(PaymentMethod).map((value) => ({
   label: paymentMethodLabels[value as PaymentMethodValue],
 }))
 
-export default function CreatorPaymentFormModal({ open, onOpenChange, payment, campaignId, onSuccess }: Props) {
+export default function CreatorPaymentFormModal({ open, onOpenChange, payment, campaignId, presetCampaignCreatorId, presetGrossAmount, onSuccess }: Props) {
   const { t } = useI18n()
   const isEditing = !!payment
   const [formData, setFormData] = useState<CreateCreatorPaymentRequest>(initial)
@@ -50,10 +53,10 @@ export default function CreatorPaymentFormModal({ open, onOpenChange, payment, c
         description: payment.description ?? '',
       })
     } else {
-      setFormData({ ...initial })
+      setFormData({ ...initial, campaignCreatorId: presetCampaignCreatorId ?? 0, grossAmount: presetGrossAmount ?? 0 })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, payment?.id])
+  }, [open, payment?.id, presetCampaignCreatorId, presetGrossAmount])
 
   useEffect(() => {
     if (!open || !campaignId) return

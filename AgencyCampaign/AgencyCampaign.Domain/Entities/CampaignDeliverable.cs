@@ -179,6 +179,16 @@ namespace AgencyCampaign.Domain.Entities
             EvidenceUrl = Normalize(evidenceUrl);
         }
 
+        // Promove o entregavel a Aprovado quando seu conteudo e aprovado (interno da agencia ou pela marca).
+        // No-op se ja saiu de um estado ativo (Approved/Published/Cancelled) - nao reverte nem reabre.
+        public void PromoteToApprovedFromContent()
+        {
+            if (Status == DeliverableStatus.Pending || Status == DeliverableStatus.InReview)
+            {
+                Status = DeliverableStatus.Approved;
+            }
+        }
+
         public void ChangeStatus(DeliverableStatus status)
         {
             EnsureTransitionAllowed(status);

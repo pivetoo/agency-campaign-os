@@ -75,6 +75,38 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void PromoteToApprovedFromContent_should_advance_pending_to_approved()
+        {
+            CampaignDeliverable subject = BuildDefault();
+
+            subject.PromoteToApprovedFromContent();
+
+            subject.Status.Should().Be(DeliverableStatus.Approved);
+        }
+
+        [Test]
+        public void PromoteToApprovedFromContent_should_advance_in_review_to_approved()
+        {
+            CampaignDeliverable subject = BuildDefault();
+            subject.ChangeStatus(DeliverableStatus.InReview);
+
+            subject.PromoteToApprovedFromContent();
+
+            subject.Status.Should().Be(DeliverableStatus.Approved);
+        }
+
+        [Test]
+        public void PromoteToApprovedFromContent_should_not_revert_published()
+        {
+            CampaignDeliverable subject = BuildDefault();
+            subject.Publish("https://x", null, DateTimeOffset.UtcNow);
+
+            subject.PromoteToApprovedFromContent();
+
+            subject.Status.Should().Be(DeliverableStatus.Published);
+        }
+
+        [Test]
         public void Publish_should_set_status_and_url()
         {
             CampaignDeliverable subject = BuildDefault();

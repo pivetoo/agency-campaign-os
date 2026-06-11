@@ -2,19 +2,20 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageLayout, Button, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, Badge, Tabs, TabsList, TabsTrigger, TabsContent, useI18n, useToast } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
-import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw, ScrollText, TrendingUp, ClipboardList, CalendarDays } from 'lucide-react'
+import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw, ScrollText, TrendingUp, ClipboardList, CalendarDays, HandCoins } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
 import { campaignCreatorService } from '../../../../services/campaignCreatorService'
 import { campaignDeliverableService } from '../../../../services/campaignDeliverableService'
 import { campaignDocumentService } from '../../../../services/campaignDocumentService'
 import { campaignReportService } from '../../../../services/campaignReportService'
 import { CampaignStatus } from '../../../../types/campaign'
-import type { Campaign, CampaignStatusValue } from '../../../../types/campaign'
+import type { Campaign, CampaignStatusValue, CampaignSummary } from '../../../../types/campaign'
 import type { CampaignCreator } from '../../../../types/campaignCreator'
 import type { CampaignDeliverable } from '../../../../types/campaignDeliverable'
 import type { CampaignDocument } from '../../../../types/campaignDocument'
 import { CampaignDocumentStatus } from '../../../../types/campaignDocument'
 import CampaignCreatorFormModal from '../../../../components/modals/CampaignCreatorFormModal'
+import CreatorPaymentFormModal from '../../../../components/modals/CreatorPaymentFormModal'
 import CampaignDeliverableFormModal from '../../../../components/modals/CampaignDeliverableFormModal'
 import CampaignDocumentFormModal from '../../../../components/modals/CampaignDocumentFormModal'
 import CampaignDocumentSendModal from '../../../../components/modals/CampaignDocumentSendModal'
@@ -45,6 +46,8 @@ export default function CampaignDetail() {
   const campaignId = Number(id || 0)
 
   const [campaign, setCampaign] = useState<Campaign | null>(null)
+  const [summary, setSummary] = useState<CampaignSummary | null>(null)
+  const [activeTab, setActiveTab] = useState('creators')
   const [campaignCreators, setCampaignCreators] = useState<CampaignCreator[]>([])
   const [selectedCampaignCreator, setSelectedCampaignCreator] = useState<CampaignCreator | null>(null)
   const [deliverables, setDeliverables] = useState<CampaignDeliverable[]>([])
@@ -52,6 +55,7 @@ export default function CampaignDetail() {
   const [documents, setDocuments] = useState<CampaignDocument[]>([])
   const [selectedDocument, setSelectedDocument] = useState<CampaignDocument | null>(null)
   const [isCreatorFormOpen, setIsCreatorFormOpen] = useState(false)
+  const [payoutCreator, setPayoutCreator] = useState<CampaignCreator | null>(null)
   const [isDeliverableFormOpen, setIsDeliverableFormOpen] = useState(false)
   const [isDocumentFormOpen, setIsDocumentFormOpen] = useState(false)
   const [isDocumentEmailOpen, setIsDocumentEmailOpen] = useState(false)
@@ -101,6 +105,7 @@ export default function CampaignDetail() {
   }
 
   const { execute: fetchCampaign } = useApi<Campaign | null>({ showErrorMessage: true })
+  const { execute: fetchSummary } = useApi<CampaignSummary | null>({ showErrorMessage: true })
   const { execute: fetchCampaignCreators, loading: creatorsLoading } = useApi<CampaignCreator[]>({ showErrorMessage: true })
   const { execute: fetchDeliverables, loading: deliverablesLoading } = useApi<CampaignDeliverable[]>({ showErrorMessage: true })
   const { execute: fetchDocuments, loading: documentsLoading } = useApi<CampaignDocument[]>({ showErrorMessage: true })
@@ -127,6 +132,14 @@ export default function CampaignDetail() {
     if (result) {
       setDeliverables(result)
     }
+    void loadSummary()
+  }
+
+  const loadSummary = async () => {
+    const result = await fetchSummary(() => campaignService.getSummary(campaignId))
+    if (result) {
+      setSummary(result)
+    }
   }
 
   const loadDocuments = async () => {
@@ -134,6 +147,7 @@ export default function CampaignDetail() {
     if (result) {
       setDocuments(result)
     }
+    void loadSummary()
   }
 
   useEffect(() => {
@@ -145,6 +159,7 @@ export default function CampaignDetail() {
     void loadCampaignCreators()
     void loadDeliverables()
     void loadDocuments()
+    void loadSummary()
   }, [campaignId])
 
   const campaignCreatorColumns: DataTableColumn<CampaignCreator>[] = [
@@ -198,6 +213,13 @@ export default function CampaignDetail() {
             title={t('campaignCreatorSales.open')}
           >
             <TrendingUp size={14} />
+          </button>
+          <button
+            className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            onClick={() => setPayoutCreator(record)}
+            title={t('campaign.detail.action.releasePayout')}
+          >
+            <HandCoins size={14} />
           </button>
           <button
             className="inline-flex items-center justify-center p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
@@ -482,7 +504,33 @@ export default function CampaignDetail() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="creators" className="pt-8">
+        {summary && (summary.overdueDeliverablesCount > 0 || summary.awaitingApprovalCount > 0 || summary.unsignedDocumentsCount > 0) && (
+          <Card className="mt-4">
+            <CardContent className="flex flex-wrap items-center gap-2 py-3">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('campaign.detail.nextSteps.title')}</span>
+              {summary.awaitingApprovalCount > 0 && (
+                <button type="button" onClick={() => setActiveTab('deliverables')} className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-medium text-amber-700 hover:bg-amber-500/25">
+                  <ClipboardList size={13} />
+                  {t('campaign.detail.nextSteps.awaitingApproval').replace('{0}', String(summary.awaitingApprovalCount))}
+                </button>
+              )}
+              {summary.unsignedDocumentsCount > 0 && (
+                <button type="button" onClick={() => setActiveTab('documents')} className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-500/25">
+                  <ScrollText size={13} />
+                  {t('campaign.detail.nextSteps.unsignedDocuments').replace('{0}', String(summary.unsignedDocumentsCount))}
+                </button>
+              )}
+              {summary.overdueDeliverablesCount > 0 && (
+                <button type="button" onClick={() => setActiveTab('deliverables')} className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-3 py-1 text-xs font-medium text-destructive hover:bg-destructive/25">
+                  <CalendarDays size={13} />
+                  {t('campaign.detail.nextSteps.overdue').replace('{0}', String(summary.overdueDeliverablesCount))}
+                </button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="pt-8">
           <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger value="creators" className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
               <Users size={14} />
@@ -720,6 +768,16 @@ export default function CampaignDetail() {
         onOpenChange={setIsContentReviewOpen}
         deliverableId={reviewDeliverableId}
         onChanged={() => void loadDeliverables()}
+      />
+
+      <CreatorPaymentFormModal
+        open={payoutCreator !== null}
+        onOpenChange={(open) => { if (!open) setPayoutCreator(null) }}
+        payment={null}
+        campaignId={campaignId}
+        presetCampaignCreatorId={payoutCreator?.id}
+        presetGrossAmount={payoutCreator?.agreedAmount}
+        onSuccess={() => { setPayoutCreator(null); void loadSummary() }}
       />
 
       <DeliverableLicensesSheet

@@ -89,8 +89,20 @@ namespace AgencyCampaign.Infrastructure.Services
 
             approval.Approve();
 
+            await PromoteDeliverableAsync(version.CampaignDeliverableId, cancellationToken);
+
             await dbContext.SaveChangesAsync(cancellationToken);
             return await BuildModel(version.CampaignDeliverableId, includeInternal: true, cancellationToken);
+        }
+
+        // A4: conteudo aprovado promove o entregavel a Aprovado (sem combobox manual).
+        private async Task PromoteDeliverableAsync(long deliverableId, CancellationToken cancellationToken)
+        {
+            CampaignDeliverable? deliverable = await dbContext.Set<CampaignDeliverable>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == deliverableId, cancellationToken);
+
+            deliverable?.PromoteToApprovedFromContent();
         }
 
         public async Task<ContentReviewModel> AddComment(long deliverableId, ReviewParticipant role, string authorName, AddReviewCommentRequest request, CancellationToken cancellationToken = default)

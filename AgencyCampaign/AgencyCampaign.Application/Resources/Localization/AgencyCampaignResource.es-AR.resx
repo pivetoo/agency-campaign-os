@@ -734,6 +734,10 @@
   <data name="campaign.detail.noCreators" xml:space="preserve"><value>Ningún influencer vinculado a la campaña</value></data>
   <data name="campaign.detail.documentsTab" xml:space="preserve"><value>Documentos</value></data>
   <data name="campaign.detail.deliverablesTab" xml:space="preserve"><value>Entregas</value></data>
+  <data name="campaign.detail.nextSteps.title" xml:space="preserve"><value>Próximos pasos</value></data>
+  <data name="campaign.detail.nextSteps.awaitingApproval" xml:space="preserve"><value>{0} esperando aprobación</value></data>
+  <data name="campaign.detail.nextSteps.unsignedDocuments" xml:space="preserve"><value>{0} sin contrato firmado</value></data>
+  <data name="campaign.detail.nextSteps.overdue" xml:space="preserve"><value>{0} atrasado(s)</value></data>
   <data name="campaignDocument.type.creatorAcceptance" xml:space="preserve"><value>Aceptación del influencer</value></data>
   <data name="campaignDocument.type.brandContract" xml:space="preserve"><value>Contrato de marca</value></data>
   <data name="campaignDocument.type.authorizationTerm" xml:space="preserve"><value>Término de autorización</value></data>
@@ -2396,6 +2400,7 @@
   <data name="campaign.detail.deliverable.dueInDays" xml:space="preserve"><value>En {0}d</value></data>
   <data name="campaign.detail.action.sendForSignature" xml:space="preserve"><value>Enviar para firma</value></data>
   <data name="campaign.detail.action.markSigned" xml:space="preserve"><value>Marcar firmado</value></data>
+  <data name="campaign.detail.action.releasePayout" xml:space="preserve"><value>Liberar pago</value></data>
   <data name="campaign.detail.action.generateFromTemplate" xml:space="preserve"><value>Generar desde plantilla</value></data>
   <data name="campaign.detail.action.newDocument" xml:space="preserve"><value>Nuevo documento</value></data>
   <data name="campaign.detail.action.newDeliverable" xml:space="preserve"><value>Nueva entrega</value></data>

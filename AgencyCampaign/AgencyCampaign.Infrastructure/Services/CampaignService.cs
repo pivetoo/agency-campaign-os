@@ -183,6 +183,26 @@ namespace AgencyCampaign.Infrastructure.Services
             decimal creatorAmountTotal = deliverables.Sum(item => item.CreatorAmount);
             decimal agencyFeeAmountTotal = deliverables.Sum(item => item.AgencyFeeAmount);
 
+            // Pendencias acionaveis (A2): atrasados, rodadas de conteudo aguardando decisao e documentos
+            // enviados mas ainda nao assinados.
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            int overdueDeliverablesCount = deliverables.Count(item => item.DueAt < now && item.Status != DeliverableStatus.Published && item.Status != DeliverableStatus.Cancelled);
+
+            List<long> deliverableIds = deliverables.Select(item => item.Id).ToList();
+            List<DeliverableContentVersion> versions = await DbContext.Set<DeliverableContentVersion>()
+                .AsNoTracking()
+                .Where(item => deliverableIds.Contains(item.CampaignDeliverableId))
+                .ToListAsync(cancellationToken);
+
+            int awaitingApprovalCount = versions
+                .GroupBy(item => item.CampaignDeliverableId)
+                .Select(group => group.OrderByDescending(version => version.RoundNumber).First())
+                .Count(latest => latest.Status == ContentVersionStatus.PendingInternalReview || latest.Status == ContentVersionStatus.PendingBrandReview);
+
+            int unsignedDocumentsCount = await DbContext.Set<CampaignDocument>()
+                .AsNoTracking()
+                .CountAsync(item => item.CampaignId == id && (item.Status == CampaignDocumentStatus.ReadyToSend || item.Status == CampaignDocumentStatus.Sent || item.Status == CampaignDocumentStatus.Viewed), cancellationToken);
+
             return new CampaignSummaryModel
             {
                 CampaignId = campaign.Id,
@@ -197,6 +217,9 @@ namespace AgencyCampaign.Infrastructure.Services
                 PendingDeliverablesCount = deliverables.Count(item => item.Status == DeliverableStatus.Pending || item.Status == DeliverableStatus.InReview),
                 PublishedDeliverablesCount = deliverables.Count(item => item.Status == DeliverableStatus.Published),
                 PendingApprovalsCount = approvals.Count(item => item.Status == DeliverableApprovalStatus.Pending),
+                OverdueDeliverablesCount = overdueDeliverablesCount,
+                AwaitingApprovalCount = awaitingApprovalCount,
+                UnsignedDocumentsCount = unsignedDocumentsCount,
                 GrossAmountTotal = grossAmountTotal,
                 CreatorAmountTotal = creatorAmountTotal,
                 AgencyFeeAmountTotal = agencyFeeAmountTotal,

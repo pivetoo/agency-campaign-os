@@ -232,6 +232,17 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task Approve_should_promote_deliverable_status_to_approved()
+        {
+            (CampaignDeliverable deliverable, _) = await SeedAsync();
+
+            await service.Approve("tok", new PublicDeliverableDecisionRequest { ReviewerName = "Brand", Comment = "ok" });
+
+            CampaignDeliverable refreshed = await db.Set<CampaignDeliverable>().AsNoTracking().FirstAsync(item => item.Id == deliverable.Id);
+            refreshed.Status.Should().Be(DeliverableStatus.Approved);
+        }
+
+        [Test]
         public async Task Approve_should_record_reviewer_from_share_link_not_request_body()
         {
             await SeedAsync();

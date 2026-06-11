@@ -4,6 +4,7 @@ using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace AgencyCampaign.Testing.Infrastructure.Services
@@ -75,6 +76,18 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             ContentReviewModel result = await service.AgencyApprove(versionId, "Maria", CancellationToken.None);
 
             result.Versions[0].Status.Should().Be(ContentVersionStatus.Approved);
+        }
+
+        [Test]
+        public async Task AgencyApprove_should_promote_deliverable_status_to_approved()
+        {
+            long deliverableId = await SeedDeliverableAsync();
+            ContentReviewModel v1 = await service.AddVersion(deliverableId, ReviewParticipant.Agency, "Maria", BuildVersionRequest(), CancellationToken.None);
+
+            await service.AgencyApprove(v1.Versions[0].Id, "Maria", CancellationToken.None);
+
+            CampaignDeliverable deliverable = await db.Set<CampaignDeliverable>().AsNoTracking().FirstAsync(item => item.Id == deliverableId);
+            deliverable.Status.Should().Be(DeliverableStatus.Approved);
         }
 
         [Test]

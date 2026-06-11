@@ -265,6 +265,17 @@ namespace AgencyCampaign.Infrastructure.Services
             if (approved)
             {
                 await contentReview.BrandApprove(shareLink.CampaignDeliverableId, cancellationToken);
+
+                // A4: aprovacao da marca promove o entregavel a Aprovado (sem combobox manual).
+                CampaignDeliverable? approvedDeliverable = await dbContext.Set<CampaignDeliverable>()
+                    .AsTracking()
+                    .FirstOrDefaultAsync(item => item.Id == shareLink.CampaignDeliverableId, cancellationToken);
+
+                if (approvedDeliverable is not null)
+                {
+                    approvedDeliverable.PromoteToApprovedFromContent();
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
             }
 
             CampaignDeliverable? deliverable = await dbContext.Set<CampaignDeliverable>()

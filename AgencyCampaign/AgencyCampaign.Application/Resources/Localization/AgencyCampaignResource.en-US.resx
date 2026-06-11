@@ -729,6 +729,10 @@
   <data name="campaign.detail.noCreators" xml:space="preserve"><value>No creator linked to this campaign</value></data>
   <data name="campaign.detail.documentsTab" xml:space="preserve"><value>Documents</value></data>
   <data name="campaign.detail.deliverablesTab" xml:space="preserve"><value>Deliverables</value></data>
+  <data name="campaign.detail.nextSteps.title" xml:space="preserve"><value>Next steps</value></data>
+  <data name="campaign.detail.nextSteps.awaitingApproval" xml:space="preserve"><value>{0} awaiting approval</value></data>
+  <data name="campaign.detail.nextSteps.unsignedDocuments" xml:space="preserve"><value>{0} without a signed contract</value></data>
+  <data name="campaign.detail.nextSteps.overdue" xml:space="preserve"><value>{0} overdue</value></data>
   <data name="campaignDocument.type.creatorAcceptance" xml:space="preserve"><value>Creator acceptance</value></data>
   <data name="campaignDocument.type.brandContract" xml:space="preserve"><value>Brand contract</value></data>
   <data name="campaignDocument.type.authorizationTerm" xml:space="preserve"><value>Authorization term</value></data>
@@ -2390,6 +2394,7 @@
   <data name="campaign.detail.deliverable.dueInDays" xml:space="preserve"><value>In {0}d</value></data>
   <data name="campaign.detail.action.sendForSignature" xml:space="preserve"><value>Send for signature</value></data>
   <data name="campaign.detail.action.markSigned" xml:space="preserve"><value>Mark as signed</value></data>
+  <data name="campaign.detail.action.releasePayout" xml:space="preserve"><value>Release payout</value></data>
   <data name="campaign.detail.action.generateFromTemplate" xml:space="preserve"><value>Generate from template</value></data>
   <data name="campaign.detail.action.newDocument" xml:space="preserve"><value>New document</value></data>
   <data name="campaign.detail.action.newDeliverable" xml:space="preserve"><value>New deliverable</value></data>
