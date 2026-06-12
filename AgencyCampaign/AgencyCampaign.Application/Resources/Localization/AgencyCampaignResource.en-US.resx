@@ -906,7 +906,7 @@
   <data name="financial.aging.totalReceivable" xml:space="preserve"><value>Total pending receivable</value></data>
   <data name="financial.aging.totalPayable" xml:space="preserve"><value>Total pending payable</value></data>
   <data name="financial.cashFlow.title" xml:space="preserve"><value>Cash flow</value></data>
-  <data name="financial.cashFlow.subtitle" xml:space="preserve"><value>Projected and actual inflows and outflows for the period</value></data>
+  <data name="financial.cashFlow.subtitle" xml:space="preserve"><value>Criterion: cash basis — inflows and outflows by payment date. Does not match Accrual by design.</value></data>
   <data name="financial.cashFlow.field.from" xml:space="preserve"><value>From</value></data>
   <data name="financial.cashFlow.field.granularity" xml:space="preserve"><value>Granularity</value></data>
   <data name="financial.creatorPayments.title" xml:space="preserve"><value>Creator payments</value></data>

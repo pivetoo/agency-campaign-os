@@ -911,7 +911,7 @@
   <data name="financial.aging.totalReceivable" xml:space="preserve"><value>Total pendiente por cobrar</value></data>
   <data name="financial.aging.totalPayable" xml:space="preserve"><value>Total pendiente por pagar</value></data>
   <data name="financial.cashFlow.title" xml:space="preserve"><value>Flujo de caja</value></data>
-  <data name="financial.cashFlow.subtitle" xml:space="preserve"><value>Entradas y salidas proyectadas y realizadas en el período</value></data>
+  <data name="financial.cashFlow.subtitle" xml:space="preserve"><value>Criterio: régimen de caja — entradas y salidas por fecha de pago. No coincide con Devengado por diseño.</value></data>
   <data name="financial.cashFlow.field.from" xml:space="preserve"><value>Desde</value></data>
   <data name="financial.cashFlow.field.granularity" xml:space="preserve"><value>Granularidad</value></data>
   <data name="financial.creatorPayments.title" xml:space="preserve"><value>Pagos a influencers</value></data>

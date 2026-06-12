@@ -911,7 +911,7 @@
   <data name="financial.aging.totalReceivable" xml:space="preserve"><value>Total a receber pendente</value></data>
   <data name="financial.aging.totalPayable" xml:space="preserve"><value>Total a pagar pendente</value></data>
   <data name="financial.cashFlow.title" xml:space="preserve"><value>Fluxo de caixa</value></data>
-  <data name="financial.cashFlow.subtitle" xml:space="preserve"><value>Entradas e saídas projetadas e realizadas no período</value></data>
+  <data name="financial.cashFlow.subtitle" xml:space="preserve"><value>Critério: regime de caixa — entradas e saídas pela data de pagamento. Não bate com a Competência por desenho.</value></data>
   <data name="financial.cashFlow.field.from" xml:space="preserve"><value>De</value></data>
   <data name="financial.cashFlow.field.granularity" xml:space="preserve"><value>Granularidade</value></data>
   <data name="financial.creatorPayments.title" xml:space="preserve"><value>Repasses para influenciadores</value></data>

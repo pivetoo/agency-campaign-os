@@ -30,7 +30,7 @@ export default function AccrualResult() {
   const filters = <ReportPeriodFilter from={range.from} to={range.to} onChange={setRange} />
 
   return (
-    <ReportLayout title="Resultado (Competência)" subtitle="Receita menos despesa no regime de competência" filters={filters} onRefresh={() => void load()} onExportCsv={() => financialReportService.exportAccrualResult(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => financialReportService.exportAccrualResultPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
+    <ReportLayout title="Resultado (Competência)" subtitle="Critério: regime de competência — receita e despesa pela data do fato (independe do pagamento). Não bate com o Fluxo de Caixa por desenho." filters={filters} onRefresh={() => void load()} onExportCsv={() => financialReportService.exportAccrualResult(new Date(range.from).toISOString(), new Date(range.to).toISOString())} onExportPdf={() => financialReportService.exportAccrualResultPdf(new Date(range.from).toISOString(), new Date(range.to).toISOString())}>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <div className="rounded-md border p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Receita</p>
