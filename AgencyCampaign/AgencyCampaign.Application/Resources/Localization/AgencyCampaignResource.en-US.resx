@@ -884,6 +884,10 @@
   <data name="financial.reconciliation.action.unmatch" xml:space="preserve"><value>Unmatch</value></data>
   <data name="financial.reconciliation.action.import" xml:space="preserve"><value>Import statement</value></data>
   <data name="financial.reconciliation.stat.total" xml:space="preserve"><value>Transactions</value></data>
+  <data name="financial.reconciliation.balance.mainstay" xml:space="preserve"><value>Mainstay balance</value></data>
+  <data name="financial.reconciliation.balance.bank" xml:space="preserve"><value>Bank balance</value></data>
+  <data name="financial.reconciliation.balance.difference" xml:space="preserve"><value>Difference</value></data>
+  <data name="financial.reconciliation.balance.notSynced" xml:space="preserve"><value>Bank not synced yet</value></data>
   <data name="financial.reconciliation.stat.matched" xml:space="preserve"><value>Matched</value></data>
   <data name="financial.reconciliation.stat.pending" xml:space="preserve"><value>Pending</value></data>
   <data name="financial.reconciliation.confirm.unmatch" xml:space="preserve"><value>Undo the reconciliation of this transaction? The entry becomes open again.</value></data>

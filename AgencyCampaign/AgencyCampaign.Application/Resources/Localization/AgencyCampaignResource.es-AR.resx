@@ -889,6 +889,10 @@
   <data name="financial.reconciliation.action.unmatch" xml:space="preserve"><value>Deshacer</value></data>
   <data name="financial.reconciliation.action.import" xml:space="preserve"><value>Importar extracto</value></data>
   <data name="financial.reconciliation.stat.total" xml:space="preserve"><value>Transacciones</value></data>
+  <data name="financial.reconciliation.balance.mainstay" xml:space="preserve"><value>Saldo Mainstay</value></data>
+  <data name="financial.reconciliation.balance.bank" xml:space="preserve"><value>Saldo del banco</value></data>
+  <data name="financial.reconciliation.balance.difference" xml:space="preserve"><value>Diferencia</value></data>
+  <data name="financial.reconciliation.balance.notSynced" xml:space="preserve"><value>Banco aún no sincronizado</value></data>
   <data name="financial.reconciliation.stat.matched" xml:space="preserve"><value>Conciliadas</value></data>
   <data name="financial.reconciliation.stat.pending" xml:space="preserve"><value>Pendientes</value></data>
   <data name="financial.reconciliation.confirm.unmatch" xml:space="preserve"><value>¿Deshacer la conciliación de esta transacción? El registro vuelve a quedar abierto.</value></data>

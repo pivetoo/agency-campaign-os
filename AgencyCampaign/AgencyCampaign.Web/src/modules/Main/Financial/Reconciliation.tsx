@@ -64,6 +64,11 @@ export default function Reconciliation() {
     return { total: transactions.length, matched, pending: transactions.length - matched }
   }, [transactions])
 
+  const selectedAccount = useMemo(() => accounts.find((item) => item.id === accountId), [accounts, accountId])
+  const bankBalance = selectedAccount?.lastSyncedBalance ?? null
+  const balanceDiff = selectedAccount && bankBalance != null ? selectedAccount.currentBalance - bankBalance : null
+  const reconciled = balanceDiff != null && Math.abs(balanceDiff) < 0.005
+
   const columns: DataTableColumn<BankTransaction>[] = [
     {
       key: 'occurredAt',
@@ -164,6 +169,24 @@ export default function Reconciliation() {
           </div>
         </div>
 
+        {selectedAccount && (
+          <div className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
+            <Stat label={t('financial.reconciliation.balance.mainstay')} value={formatCurrency(selectedAccount.currentBalance)} />
+            <Stat
+              label={t('financial.reconciliation.balance.bank')}
+              value={bankBalance != null ? formatCurrency(bankBalance) : t('financial.reconciliation.balance.notSynced')}
+              tone={bankBalance == null ? 'muted' : undefined}
+            />
+            {balanceDiff != null && (
+              <Stat
+                label={t('financial.reconciliation.balance.difference')}
+                value={formatCurrency(balanceDiff)}
+                tone={reconciled ? 'ok' : 'warn'}
+              />
+            )}
+          </div>
+        )}
+
         <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
           <Stat label={t('financial.reconciliation.stat.total')} value={String(totals.total)} />
           <Stat label={t('financial.reconciliation.stat.matched')} value={String(totals.matched)} />
@@ -209,11 +232,18 @@ export default function Reconciliation() {
   )
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, tone }: { label: string; value: string; tone?: 'ok' | 'warn' | 'muted' }) {
+  const valueClass = tone === 'warn'
+    ? 'text-amber-600'
+    : tone === 'ok'
+      ? 'text-emerald-600'
+      : tone === 'muted'
+        ? 'text-muted-foreground'
+        : ''
   return (
     <div className="rounded-lg border bg-primary/5 p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-semibold">{value}</p>
+      <p className={`text-sm font-semibold ${valueClass}`}>{value}</p>
     </div>
   )
 }

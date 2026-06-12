@@ -889,6 +889,10 @@
   <data name="financial.reconciliation.action.unmatch" xml:space="preserve"><value>Desfazer</value></data>
   <data name="financial.reconciliation.action.import" xml:space="preserve"><value>Importar extrato</value></data>
   <data name="financial.reconciliation.stat.total" xml:space="preserve"><value>Transações</value></data>
+  <data name="financial.reconciliation.balance.mainstay" xml:space="preserve"><value>Saldo Mainstay</value></data>
+  <data name="financial.reconciliation.balance.bank" xml:space="preserve"><value>Saldo do banco</value></data>
+  <data name="financial.reconciliation.balance.difference" xml:space="preserve"><value>Diferença</value></data>
+  <data name="financial.reconciliation.balance.notSynced" xml:space="preserve"><value>Banco ainda não sincronizado</value></data>
   <data name="financial.reconciliation.stat.matched" xml:space="preserve"><value>Conciliadas</value></data>
   <data name="financial.reconciliation.stat.pending" xml:space="preserve"><value>Pendentes</value></data>
   <data name="financial.reconciliation.confirm.unmatch" xml:space="preserve"><value>Desfazer a conciliação desta transação? O lançamento volta a ficar em aberto.</value></data>
