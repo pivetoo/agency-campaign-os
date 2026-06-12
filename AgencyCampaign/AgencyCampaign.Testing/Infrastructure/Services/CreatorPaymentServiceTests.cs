@@ -991,5 +991,47 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().FirstAsync(item => item.Id == payment.Id);
             refreshed.IdempotencyKey.Should().NotBeNullOrWhiteSpace();
         }
+
+        [Test]
+        public async Task MarkPaid_should_settle_planned_payout_even_when_net_is_below_gross_due_to_withholding()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#fff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            FinancialEntry planned = new(account.Id, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout, "Repasse previsto", 1000m, DateTimeOffset.UtcNow.AddDays(15), DateTimeOffset.UtcNow, paymentMethod: null, referenceCode: null, counterpartyName: "Foo", notes: null, campaignId: cc.CampaignId, campaignDeliverableId: null);
+            planned.LinkToCreator(cc.CreatorId);
+            db.Add(planned);
+            await db.SaveChangesAsync();
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 1000m, TaxWithheld = 150m, Method = PaymentMethod.Pix });
+            await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            FinancialEntry reloaded = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == planned.Id);
+            reloaded.Status.Should().Be(FinancialEntryStatus.Paid);
+        }
+
+        [Test]
+        public async Task MarkPaid_should_record_cash_outflow_when_no_planned_payout_exists()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            FinancialAccount account = new("Conta", FinancialAccountType.Bank, 0m, "#fff");
+            db.Add(account);
+            await db.SaveChangesAsync();
+
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 500m, Method = PaymentMethod.Pix });
+            await service.MarkPaid(payment.Id, new MarkCreatorPaymentPaidRequest { PaidAt = DateTimeOffset.UtcNow });
+
+            FinancialEntry? created = await db.Set<FinancialEntry>().AsNoTracking().FirstOrDefaultAsync(item =>
+                item.CampaignId == cc.CampaignId
+                && item.CreatorId == cc.CreatorId
+                && item.Type == FinancialEntryType.Payable
+                && item.Category == FinancialEntryCategory.CreatorPayout);
+
+            created.Should().NotBeNull();
+            created!.Status.Should().Be(FinancialEntryStatus.Paid);
+            created.Amount.Should().Be(500m);
+        }
     }
 }
