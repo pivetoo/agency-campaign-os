@@ -47,6 +47,7 @@ export interface FinancialEntry {
   campaignId?: number | null
   campaignName?: string | null
   campaignDeliverableId?: number
+  creatorId?: number | null
   type: number
   category: number
   description: string

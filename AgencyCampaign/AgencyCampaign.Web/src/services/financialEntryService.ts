@@ -8,6 +8,7 @@ export interface CreateFinancialEntryRequest {
   accountId: number
   campaignId?: number | null
   campaignDeliverableId?: number
+  creatorId?: number | null
   type: number
   category: number
   description: string

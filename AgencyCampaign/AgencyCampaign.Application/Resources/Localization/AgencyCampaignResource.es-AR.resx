@@ -217,6 +217,7 @@
   <data name="financialEntry.alreadyReversed" xml:space="preserve"><value>Este registro ya fue estornado.</value></data>
   <data name="financialEntry.cannotReverseReversal" xml:space="preserve"><value>No es posible estornar un registro de estorno.</value></data>
   <data name="financialEntry.reversedButCreatorPaymentPaid" xml:space="preserve"><value>Registro estornado. Atención: ya existe un pago al creator vía PIX para este creator/campaña - el estorno contable no deshace el pago real.</value></data>
+  <data name="financialEntry.duplicateCreatorPayout" xml:space="preserve"><value>Ya existe un pago al creator (CreatorPayout) para este creator en esta campaña. Para no duplicar el costo, editá el registro existente en lugar de crear otro.</value></data>
   <data name="financialPeriod.closed" xml:space="preserve"><value>El período financiero está cerrado. Reabrí el mes para registrar o modificar valores en esa fecha.</value></data>
   <data name="financialPeriod.alreadyClosed" xml:space="preserve"><value>Este período ya está cerrado.</value></data>
   <data name="financialPeriod.notClosed" xml:space="preserve"><value>Este período no está cerrado.</value></data>
@@ -1243,6 +1244,7 @@
   <data name="modal.financialEntry.field.counterparty" xml:space="preserve"><value>Contraparte</value></data>
   <data name="modal.financialEntry.field.campaign" xml:space="preserve"><value>Campaña (opcional)</value></data>
   <data name="modal.financialEntry.field.deliverable" xml:space="preserve"><value>Entregable vinculado</value></data>
+  <data name="modal.financialEntry.field.creator" xml:space="preserve"><value>Creator (pago)</value></data>
   <data name="modal.financialEntry.field.occurrence" xml:space="preserve"><value>Ocurrencia</value></data>
   <data name="modal.financialEntry.field.dueDate" xml:space="preserve"><value>Vencimiento</value></data>
   <data name="modal.financialEntry.field.paymentMethod" xml:space="preserve"><value>Forma de pago</value></data>
@@ -1257,6 +1259,7 @@
   <data name="modal.financialEntry.status.paid" xml:space="preserve"><value>Pagado</value></data>
   <data name="modal.financialEntry.status.cancelled" xml:space="preserve"><value>Cancelado</value></data>
   <data name="modal.financialEntry.placeholder.noCampaign" xml:space="preserve"><value>Sin vínculo de campaña</value></data>
+  <data name="modal.financialEntry.placeholder.noCreator" xml:space="preserve"><value>Sin vínculo de creator</value></data>
   <data name="modal.financialEntry.placeholder.noDeliverable" xml:space="preserve"><value>Sin entregable</value></data>
   <data name="modal.financialEntry.placeholder.noSubcategory" xml:space="preserve"><value>Sin subcategoría</value></data>
   <data name="modal.financialEntry.placeholder.paymentMethod" xml:space="preserve"><value>PIX, transferencia, etc.</value></data>

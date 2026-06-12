@@ -420,6 +420,71 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             result.CreatorPaymentAlreadyPaid.Should().BeTrue();
         }
 
+        [Test]
+        public async Task CreateEntry_should_block_duplicate_manual_creator_payout()
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+            Campaign campaign = new(brand.Id, "C", 0m, DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+            FinancialAccount account = await SeedAccountAsync();
+            await SeedPaidEntryAsync(account, FinancialEntryType.Payable, FinancialEntryCategory.CreatorPayout, 100m, campaign.Id, creator.Id);
+
+            CreateFinancialEntryRequest request = new()
+            {
+                AccountId = account.Id,
+                CampaignId = campaign.Id,
+                CreatorId = creator.Id,
+                Type = FinancialEntryType.Payable,
+                Category = FinancialEntryCategory.CreatorPayout,
+                Description = "repasse manual duplicado",
+                Amount = 100m,
+                DueAt = DateTimeOffset.UtcNow,
+                OccurredAt = DateTimeOffset.UtcNow,
+                Status = FinancialEntryStatus.Pending,
+            };
+
+            Func<Task> act = () => service.CreateEntry(request);
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("financialEntry.duplicateCreatorPayout");
+        }
+
+        [Test]
+        public async Task CreateEntry_should_link_creator_and_allow_first_creator_payout()
+        {
+            Brand brand = new("Acme");
+            db.Add(brand);
+            Creator creator = new("Foo");
+            db.Add(creator);
+            await db.SaveChangesAsync();
+            Campaign campaign = new(brand.Id, "C", 0m, DateTimeOffset.UtcNow);
+            db.Add(campaign);
+            await db.SaveChangesAsync();
+            FinancialAccount account = await SeedAccountAsync();
+
+            CreateFinancialEntryRequest request = new()
+            {
+                AccountId = account.Id,
+                CampaignId = campaign.Id,
+                CreatorId = creator.Id,
+                Type = FinancialEntryType.Payable,
+                Category = FinancialEntryCategory.CreatorPayout,
+                Description = "primeiro repasse manual",
+                Amount = 100m,
+                DueAt = DateTimeOffset.UtcNow,
+                OccurredAt = DateTimeOffset.UtcNow,
+                Status = FinancialEntryStatus.Pending,
+            };
+
+            FinancialEntry created = await service.CreateEntry(request);
+
+            created.CreatorId.Should().Be(creator.Id);
+        }
+
         private async Task SeedClosedPeriodAsync(int year, int month)
         {
             FinancialPeriod period = new(year, month);

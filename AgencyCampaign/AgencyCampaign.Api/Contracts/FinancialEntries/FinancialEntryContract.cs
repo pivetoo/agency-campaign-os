@@ -20,6 +20,8 @@ namespace AgencyCampaign.Api.Contracts.FinancialEntries
 
         public long? CampaignDeliverableId { get; init; }
 
+        public long? CreatorId { get; init; }
+
         public FinancialEntryType Type { get; init; }
 
         public FinancialEntryCategory Category { get; init; }
@@ -81,6 +83,7 @@ namespace AgencyCampaign.Api.Contracts.FinancialEntries
             CampaignId = item.CampaignId,
             CampaignName = item.Campaign == null ? null : item.Campaign.Name,
             CampaignDeliverableId = item.CampaignDeliverableId,
+            CreatorId = item.CreatorId,
             Type = item.Type,
             Category = item.Category,
             Description = item.Description,

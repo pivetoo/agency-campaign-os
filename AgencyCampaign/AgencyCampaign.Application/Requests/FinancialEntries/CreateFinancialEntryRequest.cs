@@ -14,6 +14,9 @@ namespace AgencyCampaign.Application.Requests.FinancialEntries
 
         public long? CampaignDeliverableId { get; set; }
 
+        [Range(1, long.MaxValue)]
+        public long? CreatorId { get; set; }
+
         [Required]
         public FinancialEntryType Type { get; set; }
 

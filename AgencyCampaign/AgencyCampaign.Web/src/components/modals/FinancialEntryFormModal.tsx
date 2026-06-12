@@ -5,11 +5,13 @@ import { financialAccountService } from '../../services/financialAccountService'
 import { financialSubcategoryService } from '../../services/financialSubcategoryService'
 import { campaignService } from '../../services/campaignService'
 import { campaignDeliverableService } from '../../services/campaignDeliverableService'
+import { creatorService } from '../../services/creatorService'
 import { financialEntryCategoryLabels, type FinancialEntry } from '../../types/financialEntry'
 import type { FinancialAccount } from '../../types/financialAccount'
 import type { FinancialSubcategory } from '../../types/financialSubcategory'
 import type { Campaign } from '../../types/campaign'
 import type { CampaignDeliverable } from '../../types/campaignDeliverable'
+import type { Creator } from '../../types/creator'
 import { formatCurrency } from '../../lib/format'
 
 interface FinancialEntryFormModalProps {
@@ -25,6 +27,7 @@ const initialFormData: CreateFinancialEntryRequest = {
   accountId: 0,
   campaignId: undefined,
   campaignDeliverableId: undefined,
+  creatorId: undefined,
   type: 1,
   category: 1,
   description: '',
@@ -61,6 +64,7 @@ export default function FinancialEntryFormModal({
   const [subcategories, setSubcategories] = useState<FinancialSubcategory[]>([])
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [deliverables, setDeliverables] = useState<CampaignDeliverable[]>([])
+  const [creators, setCreators] = useState<Creator[]>([])
   const [installmentEnabled, setInstallmentEnabled] = useState(false)
   const [installmentTotal, setInstallmentTotal] = useState<number>(2)
   const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
@@ -70,6 +74,7 @@ export default function FinancialEntryFormModal({
     void financialAccountService.getAll({ pageSize: 200 }).then((r) => setAccounts(r.data ?? []))
     void financialSubcategoryService.getAll({ pageSize: 200 }).then((r) => setSubcategories(r.data ?? []))
     void campaignService.getAll({ pageSize: 10 }).then((r) => setCampaigns(r.data ?? []))
+    void creatorService.getAll({ pageSize: 20 }).then((r) => setCreators(r.data ?? []))
   }, [open])
 
   useEffect(() => {
@@ -79,6 +84,7 @@ export default function FinancialEntryFormModal({
         accountId: entry.accountId,
         campaignId: entry.campaignId ?? undefined,
         campaignDeliverableId: entry.campaignDeliverableId,
+        creatorId: entry.creatorId ?? undefined,
         type: entry.type,
         category: entry.category,
         description: entry.description,
@@ -137,6 +143,7 @@ export default function FinancialEntryFormModal({
       invoiceIssuedAt: formData.invoiceIssuedAt || undefined,
       campaignDeliverableId: formData.campaignDeliverableId || undefined,
       campaignId: formData.campaignId || undefined,
+      creatorId: formData.category === 2 ? formData.creatorId || undefined : undefined,
     }
 
     const result = await execute(() => {
@@ -265,6 +272,26 @@ export default function FinancialEntryFormModal({
                   ]}
                   placeholder="Opcional"
                   searchPlaceholder="Buscar entrega"
+                />
+              </div>
+            )}
+
+            {formData.category === 2 && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t('modal.financialEntry.field.creator')}</label>
+                <SearchableSelect
+                  value={formData.creatorId ? String(formData.creatorId) : ''}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, creatorId: value ? Number(value) : undefined }))}
+                  options={[
+                    { value: '', label: t('modal.financialEntry.placeholder.noCreator') },
+                    ...creators.map((creator) => ({ value: String(creator.id), label: creator.stageName || creator.name })),
+                  ]}
+                  placeholder={t('modal.financialEntry.placeholder.noCreator')}
+                  searchPlaceholder="Buscar creator"
+                  onSearch={async (term) => {
+                    const r = await creatorService.getAll({ search: term, pageSize: 20 })
+                    return (r.data ?? []).map((creator) => ({ value: String(creator.id), label: creator.stageName || creator.name }))
+                  }}
                 />
               </div>
             )}

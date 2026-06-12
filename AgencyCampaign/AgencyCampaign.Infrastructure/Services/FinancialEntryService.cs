@@ -60,6 +60,7 @@ namespace AgencyCampaign.Infrastructure.Services
             await EnsureReferencesExist(request.AccountId, request.CampaignId, request.CampaignDeliverableId, cancellationToken);
             await EnsureSubcategoryExists(request.SubcategoryId, cancellationToken);
             await EnsurePeriodOpenAsync(request.OccurredAt, cancellationToken);
+            await EnsureCreatorPayoutValid(request, cancellationToken);
 
             FinancialEntry entry = BuildEntry(request);
 
@@ -181,6 +182,10 @@ namespace AgencyCampaign.Infrastructure.Services
 
             entry.SetSubcategory(request.SubcategoryId);
             entry.SetInvoice(request.InvoiceNumber, request.InvoiceUrl, request.InvoiceIssuedAt);
+            if (request.CreatorId.HasValue)
+            {
+                entry.LinkToCreator(request.CreatorId.Value);
+            }
             return entry;
         }
 
@@ -460,6 +465,45 @@ namespace AgencyCampaign.Infrastructure.Services
             if (closed)
             {
                 throw new InvalidOperationException("financialPeriod.closed");
+            }
+        }
+
+        private async Task EnsureCreatorPayoutValid(CreateFinancialEntryRequest request, CancellationToken cancellationToken)
+        {
+            if (!request.CreatorId.HasValue)
+            {
+                return;
+            }
+
+            bool creatorExists = await DbContext.Set<Creator>()
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == request.CreatorId.Value, cancellationToken);
+
+            if (!creatorExists)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            // Bloqueia repasse manual duplicado: ja existe um CreatorPayout (auto-gerado ou manual) para a mesma
+            // campanha+creator. Evita dobrar o custo do creator na rentabilidade e no caixa (o indice de
+            // idempotencia do auto-gerado so cobre lancamentos com entregavel vinculado).
+            bool isCreatorPayout = request.Type == FinancialEntryType.Payable
+                && request.Category == FinancialEntryCategory.CreatorPayout;
+
+            if (isCreatorPayout && request.CampaignId.HasValue)
+            {
+                bool exists = await DbContext.Set<FinancialEntry>()
+                    .AsNoTracking()
+                    .AnyAsync(item => item.CampaignId == request.CampaignId
+                        && item.CreatorId == request.CreatorId
+                        && item.Type == FinancialEntryType.Payable
+                        && item.Category == FinancialEntryCategory.CreatorPayout
+                        && item.Status != FinancialEntryStatus.Cancelled, cancellationToken);
+
+                if (exists)
+                {
+                    throw new InvalidOperationException("financialEntry.duplicateCreatorPayout");
+                }
             }
         }
 
