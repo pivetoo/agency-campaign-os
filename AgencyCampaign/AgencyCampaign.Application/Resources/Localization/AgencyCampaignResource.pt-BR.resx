@@ -1415,6 +1415,8 @@
   <data name="configuration.bankAccounts.field.default" xml:space="preserve"><value>Padrão</value></data>
   <data name="configuration.bankAccounts.action.setDefault" xml:space="preserve"><value>Definir como padrão</value></data>
   <data name="configuration.bankAccounts.tooltip.lastSync" xml:space="preserve"><value>Última sincronização: {0}</value></data>
+  <data name="configuration.bankAccounts.action.resync" xml:space="preserve"><value>Re-sincronizar (travou?)</value></data>
+  <data name="configuration.bankAccounts.tooltip.syncPending" xml:space="preserve"><value>Aguardando o retorno da integração. Se demorar, clique em sincronizar para re-tentar.</value></data>
   <data name="configuration.bankAccounts.tooltip.bankBalance" xml:space="preserve"><value>Saldo bancário: {0}</value></data>
   <data name="configuration.financialSubcategories.empty" xml:space="preserve"><value>Nenhuma subcategoria cadastrada</value></data>
   <data name="configuration.financialSubcategories.confirm.delete" xml:space="preserve"><value>Excluir a subcategoria "{0}"?</value></data>

@@ -181,6 +181,9 @@ export default function FinancialAccounts() {
         if (record.lastSyncedBalance != null) {
           tooltipParts.push(t('configuration.bankAccounts.tooltip.bankBalance').replace('{0}', formatCurrency(record.lastSyncedBalance)))
         }
+        if (value === FinancialAccountSyncStatus.Pending) {
+          tooltipParts.push(t('configuration.bankAccounts.tooltip.syncPending'))
+        }
         const tooltip = tooltipParts.join(' • ')
         return <span title={tooltip || undefined}><Badge variant={meta.variant}>{t(meta.labelKey)}</Badge></span>
       },
@@ -224,7 +227,9 @@ export default function FinancialAccounts() {
           },
           {
             key: 'sync',
-            label: t('configuration.bankAccounts.action.sync'),
+            label: selected?.syncStatus === FinancialAccountSyncStatus.Pending
+              ? t('configuration.bankAccounts.action.resync')
+              : t('configuration.bankAccounts.action.sync'),
             testId: 'financial-account-sync-button',
             icon: <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />,
             variant: 'ghost',
