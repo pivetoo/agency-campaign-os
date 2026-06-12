@@ -26,6 +26,7 @@ export interface CampaignCreator {
     id: number
     name: string
     stageName?: string
+    photoUrl?: string | null
     defaultAgencyFeePercent: number
   }
   createdAt: string

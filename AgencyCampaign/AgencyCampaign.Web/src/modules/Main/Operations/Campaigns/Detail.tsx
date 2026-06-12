@@ -5,6 +5,7 @@ import type { DataTableColumn } from 'archon-ui'
 import { ClipboardCheck, Eye, Pencil, Plus, Send, Signature, Sparkles, Users, FileText, Package, BarChart3, RefreshCw, ScrollText, TrendingUp, ClipboardList, CalendarDays, HandCoins } from 'lucide-react'
 import { campaignService } from '../../../../services/campaignService'
 import { campaignCreatorService } from '../../../../services/campaignCreatorService'
+import { resolveCreatorPhotoUrl } from '../../../../services/creatorService'
 import { campaignDeliverableService } from '../../../../services/campaignDeliverableService'
 import { campaignDocumentService } from '../../../../services/campaignDocumentService'
 import { campaignReportService } from '../../../../services/campaignReportService'
@@ -172,7 +173,23 @@ export default function CampaignDetail() {
       key: 'creator',
       title: t('creators.singular'),
       dataIndex: 'creator',
-      render: (value: CampaignCreator['creator']) => value?.stageName || value?.name || '-',
+      render: (value: CampaignCreator['creator']) => {
+        const label = value?.stageName || value?.name || '-'
+        const url = resolveCreatorPhotoUrl(value?.photoUrl)
+        const initial = (value?.stageName?.trim() || value?.name?.trim() || '?').charAt(0).toUpperCase()
+        return (
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted/30">
+              {url ? (
+                <img src={url} alt={label} className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-xs font-semibold text-muted-foreground">{initial}</span>
+              )}
+            </div>
+            <span>{label}</span>
+          </div>
+        )
+      },
     },
     {
       key: 'campaignCreatorStatus',
