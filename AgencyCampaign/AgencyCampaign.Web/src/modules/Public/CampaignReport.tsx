@@ -5,6 +5,7 @@ import { Activity, BarChart3, Eye, ExternalLink, AlertTriangle } from 'lucide-re
 import { campaignReportService } from '../../services/campaignReportService'
 import type { CampaignReport } from '../../types/campaignReport'
 import { formatNumber, formatCurrency, formatDate } from '../../lib/format'
+import { resolveUploadUrl } from '../../lib/uploadUrl'
 
 function Kpi({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
@@ -66,18 +67,28 @@ export default function PublicCampaignReport() {
   const totals = report.totals
   const rate = totals.avgEngagementRate
   const platformData = report.byPlatform.map((item) => ({ name: item.name, value: item.reach }))
+  const agencyLogo = resolveUploadUrl(report.agencyLogoUrl)
+  const brandLogo = resolveUploadUrl(report.brandLogoUrl)
 
   return (
     <div className="min-h-screen bg-muted/30 py-8">
       <div className="mx-auto w-full max-w-5xl space-y-6 px-4">
-        <div className="border-l-4 border-primary pl-5">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">{report.campaignName}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {report.brandName ? `${report.brandName} · ` : ''}
-            {report.startsAt ? formatDate(report.startsAt) : '-'}
-            {` ${t('common.label.to')} `}
-            {report.endsAt ? formatDate(report.endsAt) : '-'}
-          </p>
+        <div className="flex items-center gap-4 border-l-4 border-primary pl-5">
+          {agencyLogo && (
+            <img src={agencyLogo} alt={report.agencyName ?? ''} className="h-14 w-14 shrink-0 rounded-lg border border-border/60 bg-white object-contain p-1" />
+          )}
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">{report.campaignName}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {report.brandName ? `${report.brandName} · ` : ''}
+              {report.startsAt ? formatDate(report.startsAt) : '-'}
+              {` ${t('common.label.to')} `}
+              {report.endsAt ? formatDate(report.endsAt) : '-'}
+            </p>
+          </div>
+          {brandLogo && (
+            <img src={brandLogo} alt={report.brandName ?? ''} className="h-14 w-14 shrink-0 rounded-lg border border-border/60 bg-white object-contain p-1.5" />
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
@@ -141,7 +152,18 @@ export default function PublicCampaignReport() {
                     {report.deliverables.map((item, index) => (
                       <tr key={index} className="border-b border-border/50">
                         <td className="py-2 pr-3 font-medium text-foreground">{item.title}</td>
-                        <td className="py-2 pr-3 text-muted-foreground">{item.creatorName}</td>
+                        <td className="py-2 pr-3 text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted/30">
+                              {resolveUploadUrl(item.creatorPhotoUrl) ? (
+                                <img src={resolveUploadUrl(item.creatorPhotoUrl)} alt={item.creatorName} className="h-full w-full object-cover" />
+                              ) : (
+                                <span className="text-[10px] font-semibold text-muted-foreground">{(item.creatorName?.trim() || '?').charAt(0).toUpperCase()}</span>
+                              )}
+                            </div>
+                            <span>{item.creatorName}</span>
+                          </div>
+                        </td>
                         <td className="py-2 pr-3 text-muted-foreground">{item.platformName}</td>
                         <td className="py-2 pr-3 text-right tabular-nums">{item.reach != null ? formatNumber(item.reach) : '-'}</td>
                         <td className="py-2 pr-3 text-right tabular-nums">{item.engagement != null ? formatNumber(item.engagement) : '-'}</td>

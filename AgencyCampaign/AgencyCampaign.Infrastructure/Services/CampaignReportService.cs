@@ -127,10 +127,11 @@ namespace AgencyCampaign.Infrastructure.Services
             // relatorio publico (a marca ve ROI/EMV/receita, mas nao o custo/margem da agencia).
             decimal investment = campaign.Budget;
 
-            decimal? emvRate = await dbContext.Set<AgencySettings>()
+            var settings = await dbContext.Set<AgencySettings>()
                 .AsNoTracking()
-                .Select(item => item.EmvCpmRate)
+                .Select(item => new { item.EmvCpmRate, item.AgencyName, item.TradeName, item.LogoUrl })
                 .FirstOrDefaultAsync(cancellationToken);
+            decimal? emvRate = settings?.EmvCpmRate;
             long emvBase = totalImpressions > 0 ? totalImpressions : totalReach;
             decimal? emv = emvRate.HasValue && emvRate.Value > 0 && emvBase > 0
                 ? Math.Round(emvBase / 1000m * emvRate.Value, 2)
@@ -180,6 +181,7 @@ namespace AgencyCampaign.Infrastructure.Services
                     Title = item.Title,
                     PlatformName = PlatformName(item),
                     CreatorName = CreatorName(item),
+                    CreatorPhotoUrl = item.CampaignCreator?.Creator?.PhotoUrl,
                     PublishedUrl = item.PublishedUrl,
                     PublishedAt = item.PublishedAt,
                     Reach = item.Reach,
@@ -194,6 +196,9 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 CampaignName = campaign.Name,
                 BrandName = campaign.Brand?.Name,
+                BrandLogoUrl = campaign.Brand?.LogoUrl,
+                AgencyName = settings?.TradeName ?? settings?.AgencyName,
+                AgencyLogoUrl = settings?.LogoUrl,
                 StartsAt = campaign.StartsAt,
                 EndsAt = campaign.EndsAt,
                 Totals = new CampaignReportTotals

@@ -27,6 +27,7 @@ export interface CampaignReportDeliverableItem {
   title: string
   platformName: string
   creatorName: string
+  creatorPhotoUrl?: string
   publishedUrl?: string
   publishedAt?: string
   reach?: number
@@ -39,6 +40,9 @@ export interface CampaignReportDeliverableItem {
 export interface CampaignReport {
   campaignName: string
   brandName?: string
+  brandLogoUrl?: string
+  agencyName?: string
+  agencyLogoUrl?: string
   startsAt?: string
   endsAt?: string
   totals: CampaignReportTotals

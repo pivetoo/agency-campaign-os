@@ -10,6 +10,12 @@ namespace AgencyCampaign.Application.Models.Campaigns
 
         public DateTimeOffset? EndsAt { get; init; }
 
+        public string? BrandLogoUrl { get; init; }
+
+        public string? AgencyName { get; init; }
+
+        public string? AgencyLogoUrl { get; init; }
+
         public CampaignReportTotals Totals { get; init; } = new();
 
         public IReadOnlyCollection<CampaignReportGroupItem> ByPlatform { get; init; } = [];
@@ -70,6 +76,8 @@ namespace AgencyCampaign.Application.Models.Campaigns
         public string PlatformName { get; init; } = string.Empty;
 
         public string CreatorName { get; init; } = string.Empty;
+
+        public string? CreatorPhotoUrl { get; init; }
 
         public string? PublishedUrl { get; init; }
 
