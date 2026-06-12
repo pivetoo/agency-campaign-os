@@ -74,8 +74,8 @@ export default function PublicCampaignReport() {
     <div className="min-h-screen bg-muted/30 py-8">
       <div className="mx-auto w-full max-w-5xl space-y-6 px-4">
         <div className="flex items-center gap-4 border-l-4 border-primary pl-5">
-          {agencyLogo && (
-            <img src={agencyLogo} alt={report.agencyName ?? ''} className="h-14 w-14 shrink-0 rounded-lg border border-border/60 bg-white object-contain p-1" />
+          {brandLogo && (
+            <img src={brandLogo} alt={report.brandName ?? ''} className="h-14 w-14 shrink-0 rounded-lg border border-border/60 bg-white object-contain p-1.5" />
           )}
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">{report.campaignName}</h1>
@@ -86,8 +86,8 @@ export default function PublicCampaignReport() {
               {report.endsAt ? formatDate(report.endsAt) : '-'}
             </p>
           </div>
-          {brandLogo && (
-            <img src={brandLogo} alt={report.brandName ?? ''} className="h-14 w-14 shrink-0 rounded-lg border border-border/60 bg-white object-contain p-1.5" />
+          {agencyLogo && (
+            <img src={agencyLogo} alt={report.agencyName ?? ''} className="h-14 w-14 shrink-0 rounded-lg border border-border/60 bg-white object-contain p-1" />
           )}
         </div>
 
