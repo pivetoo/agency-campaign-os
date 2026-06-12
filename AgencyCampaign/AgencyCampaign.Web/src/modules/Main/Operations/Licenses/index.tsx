@@ -178,7 +178,7 @@ export default function OperationsLicenses() {
           data={licenses}
           rowKey="id"
           loading={loading}
-          onRowDoubleClick={(record) => setEditing({ deliverableId: record.deliverableId, campaignId: record.campaignId })}
+          onRowClick={(record) => setEditing({ deliverableId: record.deliverableId, campaignId: record.campaignId })}
           emptyText={t('contentLicense.empty')}
           pageSize={pageSize}
           pageSizeOptions={[20, 50, 100]}

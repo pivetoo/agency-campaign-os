@@ -121,7 +121,6 @@ export default function AgencyCampaignLayout() {
       { key: 'operacao-licencas', label: t('nav.item.contentLicenses'), path: '/operacao/licencas', icon: <ScrollText size={20} />, requires: ['campaigns.get'] },
     ] },
     { key: 'financas', label: t('nav.group.finance'), icon: <DollarSign size={20} />, items: [
-      { key: 'financeiro-visao-geral', label: t('nav.item.financialOverview'), path: '/financeiro/visao-geral', icon: <FileBarChart2 size={20} />, requires: ['financialEntries.get'] },
       { key: 'financeiro-contas', label: t('nav.item.bankAccounts'), path: '/financeiro/contas', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
       { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} />, requires: ['financialEntries.get'] },
       { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} />, requires: ['financialEntries.get'] },
