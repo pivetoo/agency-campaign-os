@@ -900,6 +900,9 @@
   <data name="financial.reconciliation.import.title" xml:space="preserve"><value>Import statement</value></data>
   <data name="financial.reconciliation.import.hint" xml:space="preserve"><value>Paste one line per transaction in the format: date;description;amount;C or D (C=inflow, D=outflow).</value></data>
   <data name="financial.reconciliation.import.confirm" xml:space="preserve"><value>Import</value></data>
+  <data name="financial.reconciliation.import.result" xml:space="preserve"><value>Import: {0} imported, {1} auto-matched, {2} skipped (duplicates).</value></data>
+  <data name="financial.reconciliation.import.resultInvalid" xml:space="preserve"><value> {0} invalid line(s) dropped.</value></data>
+  <data name="financial.reconciliation.import.noneValid" xml:space="preserve"><value>No valid lines to import.</value></data>
   <data name="financial.aging.totalReceivable" xml:space="preserve"><value>Total pending receivable</value></data>
   <data name="financial.aging.totalPayable" xml:space="preserve"><value>Total pending payable</value></data>
   <data name="financial.cashFlow.title" xml:space="preserve"><value>Cash flow</value></data>

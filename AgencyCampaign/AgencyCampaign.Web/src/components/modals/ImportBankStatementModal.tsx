@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useI18n } from 'archon-ui'
-import { bankTransactionService, type ImportBankTransactionItem } from '../../services/bankTransactionService'
+import { Button, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, useApi, useI18n, useToast } from 'archon-ui'
+import { bankTransactionService, type ImportBankTransactionItem, type ImportBankTransactionsResult } from '../../services/bankTransactionService'
 import { BankTransactionDirection } from '../../types/bankTransaction'
 
 interface Props {
@@ -12,8 +12,9 @@ interface Props {
 
 export default function ImportBankStatementModal({ open, onOpenChange, accountId, onSuccess }: Props) {
   const { t } = useI18n()
+  const { toast } = useToast()
   const [raw, setRaw] = useState('')
-  const { execute, loading } = useApi({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute, loading } = useApi<ImportBankTransactionsResult>({ showErrorMessage: true })
 
   const parse = (): ImportBankTransactionItem[] => {
     return raw
@@ -37,10 +38,23 @@ export default function ImportBankStatementModal({ open, onOpenChange, accountId
   }
 
   const submit = async () => {
+    const totalLines = raw.split('\n').map((line) => line.trim()).filter(Boolean).length
     const transactions = parse()
-    if (transactions.length === 0) return
+    if (transactions.length === 0) {
+      toast({ title: t('financial.reconciliation.import.noneValid'), variant: 'warning' })
+      return
+    }
+    const invalid = totalLines - transactions.length
     const result = await execute(() => bankTransactionService.import({ accountId, transactions }))
     if (result !== null) {
+      let message = t('financial.reconciliation.import.result')
+        .replace('{0}', String(result.imported))
+        .replace('{1}', String(result.autoMatched))
+        .replace('{2}', String(result.skipped))
+      if (invalid > 0) {
+        message += t('financial.reconciliation.import.resultInvalid').replace('{0}', String(invalid))
+      }
+      toast({ title: message, variant: 'success' })
       setRaw('')
       onSuccess()
     }
