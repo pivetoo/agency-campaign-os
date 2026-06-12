@@ -27,9 +27,11 @@ export default function CampaignProfitability() {
     { key: 'marginPercent', title: 'Margem %', dataIndex: 'marginPercent', cardTag: true, render: (value: number) => <Badge variant={value >= 0 ? 'success' : 'destructive'}>{formatPercent(value)}</Badge> },
   ]
 
+  const consolidatedMarginPercent = data && data.totalRevenue > 0 ? (data.totalMargin / data.totalRevenue) * 100 : 0
+
   return (
     <ReportLayout title="Rentabilidade por Campanha" subtitle="Critério: lançamentos financeiros vinculados à campanha (receita da marca menos custos/repasses). Pode incluir valores ainda não pagos." onRefresh={() => void load()} onExportCsv={() => financialReportService.exportCampaignProfitability()} onExportPdf={() => financialReportService.exportCampaignProfitabilityPdf()}>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <div className="rounded-md border p-3">
           <p className="text-xs text-muted-foreground">Receita total</p>
           <p className="text-lg font-semibold text-emerald-600">{formatCurrency(data?.totalRevenue ?? 0)}</p>
@@ -45,6 +47,10 @@ export default function CampaignProfitability() {
         <div className="rounded-md border p-3">
           <p className="text-xs text-muted-foreground">Margem total</p>
           <p className="text-lg font-semibold text-primary">{formatCurrency(data?.totalMargin ?? 0)}</p>
+        </div>
+        <div className="rounded-md border p-3">
+          <p className="text-xs text-muted-foreground">Margem %</p>
+          <p className={`text-lg font-semibold ${consolidatedMarginPercent >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>{formatPercent(consolidatedMarginPercent)}</p>
         </div>
       </div>
       <DataTable columns={columns} data={data?.lines ?? []} rowKey="campaignId" emptyText="Nenhuma campanha com lançamentos." />
