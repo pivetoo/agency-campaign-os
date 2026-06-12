@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, ConfirmModal, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n } from 'archon-ui'
+import { Button, ConfirmModal, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle, SearchableSelect, useApi, useI18n, useToast } from 'archon-ui'
 import { creatorPaymentService } from '../../services/creatorPaymentService'
 import { integrationPlatformService } from '../../services/integrationPlatformService'
 import type { CreatorPayment } from '../../types/creatorPayment'
@@ -17,6 +17,7 @@ const PAYMENT_CATEGORY_IDENTIFIER = IntegrationCategoryIdentifier.Payment
 
 export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, payments, onSuccess }: Props) {
   const { t } = useI18n()
+  const { toast } = useToast()
   const [categories, setCategories] = useState<IntegrationCategory[]>([])
   const [categoryId, setCategoryId] = useState<number | undefined>()
   const [integrations, setIntegrations] = useState<IntegrationPlatformIntegration[]>([])
@@ -32,7 +33,7 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
   const { execute: loadIntegrations, loading: intLoading } = useApi<IntegrationPlatformIntegration[]>({ showErrorMessage: true })
   const { execute: loadConnectors, loading: connLoading } = useApi<Connector[]>({ showErrorMessage: true })
   const { execute: loadPipelines, loading: pipeLoading } = useApi<Pipeline[]>({ showErrorMessage: true })
-  const { execute: send, loading: sending } = useApi({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: send, loading: sending } = useApi<CreatorPayment[]>({ showErrorMessage: true })
 
   useEffect(() => {
     if (!open) return
@@ -111,6 +112,15 @@ export default function CreatorPaymentScheduleBatchModal({ open, onOpenChange, p
       }),
     )
     if (result !== null) {
+      const sent = result.length
+      const skipped = payments.length - sent
+      const sentNet = result.reduce((sum, p) => sum + (p.netAmount || 0), 0)
+      toast({
+        title: skipped > 0
+          ? `${sent} repasse(s) enviado(s) (líquido ${formatCurrency(sentNet)}) · ${skipped} pulado(s) — veja os eventos de cada pagamento para o motivo`
+          : `${sent} repasse(s) enviado(s) (líquido ${formatCurrency(sentNet)})`,
+        variant: skipped > 0 ? 'warning' : 'success',
+      })
       setConfirmOpen(false)
       onSuccess()
     }
