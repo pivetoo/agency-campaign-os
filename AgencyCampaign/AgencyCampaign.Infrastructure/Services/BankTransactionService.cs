@@ -12,6 +12,8 @@ namespace AgencyCampaign.Infrastructure.Services
     public sealed class BankTransactionService : IBankTransactionService
     {
         private static readonly TimeSpan MatchingWindow = TimeSpan.FromDays(2);
+        // Tolerancia de 1 centavo no auto-match: cobre arredondamento sem casar valores realmente diferentes.
+        private const decimal MatchingAmountTolerance = 0.01m;
 
         private readonly DbContext dbContext;
 
@@ -53,7 +55,7 @@ namespace AgencyCampaign.Infrastructure.Services
             List<FinancialEntry> candidateEntries = await dbContext.Set<FinancialEntry>()
                 .AsTracking()
                 .Where(item => item.AccountId == account.Id
-                    && item.Status == FinancialEntryStatus.Pending
+                    && (item.Status == FinancialEntryStatus.Pending || item.Status == FinancialEntryStatus.Overdue)
                     && item.DueAt >= windowStart
                     && item.DueAt <= windowEnd)
                 .ToListAsync(cancellationToken);
@@ -89,7 +91,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 List<FinancialEntry> matches = candidateEntries
                     .Where(entry => !usedEntryIds.Contains(entry.Id)
                         && entry.Type == expectedType
-                        && entry.Amount == item.Amount
+                        && Math.Abs(entry.Amount - item.Amount) <= MatchingAmountTolerance
                         && (entry.DueAt - item.OccurredAt).Duration() <= MatchingWindow)
                     .ToList();
 

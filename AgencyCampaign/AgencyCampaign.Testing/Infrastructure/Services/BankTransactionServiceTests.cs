@@ -403,5 +403,47 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             BankTransaction reloadedTx = await db.Set<BankTransaction>().AsNoTracking().FirstAsync(item => item.Id == tx.Id);
             reloadedTx.FinancialEntryId.Should().Be(entry.Id);
         }
+
+        [Test]
+        public async Task ImportBatch_should_auto_match_overdue_receivable()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry entry = new(account.Id, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, "vencido", 250m, DateTimeOffset.UtcNow.AddDays(-5), DateTimeOffset.UtcNow);
+            entry.RecalculateOverdue(DateTimeOffset.UtcNow);
+            db.Add(entry);
+            await db.SaveChangesAsync();
+
+            ImportBankTransactionsRequest request = new()
+            {
+                AccountId = account.Id,
+                Transactions = new() { MakeItem("ext-late", 250m, BankTransactionDirection.Credit, DateTimeOffset.UtcNow.AddDays(-4)) }
+            };
+
+            ImportBankTransactionsResult result = await service.ImportBatch(request);
+
+            result.AutoMatched.Should().Be(1);
+            FinancialEntry reloaded = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == entry.Id);
+            reloaded.Status.Should().Be(FinancialEntryStatus.Paid);
+        }
+
+        [Test]
+        public async Task ImportBatch_should_auto_match_within_one_cent_tolerance()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            FinancialEntry entry = await SeedEntryAsync(account.Id, 100.01m, now, FinancialEntryType.Receivable);
+
+            ImportBankTransactionsRequest request = new()
+            {
+                AccountId = account.Id,
+                Transactions = new() { MakeItem("ext-cent", 100.00m, BankTransactionDirection.Credit, now) }
+            };
+
+            ImportBankTransactionsResult result = await service.ImportBatch(request);
+
+            result.AutoMatched.Should().Be(1);
+            FinancialEntry reloaded = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == entry.Id);
+            reloaded.Status.Should().Be(FinancialEntryStatus.Paid);
+        }
     }
 }
