@@ -458,7 +458,7 @@ export default function CampaignDetail() {
         copied = false
       }
       toast(copied
-        ? { title: t('campaignReport.linkCopied').replace('{0}', url), variant: 'success' }
+        ? { title: t('campaignReport.linkCopied'), variant: 'success' }
         : { title: `Nao foi possivel copiar. Link: ${url}`, variant: 'warning' })
     }
   }
