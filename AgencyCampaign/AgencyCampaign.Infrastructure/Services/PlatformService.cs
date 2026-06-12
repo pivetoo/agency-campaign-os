@@ -56,7 +56,7 @@ namespace AgencyCampaign.Infrastructure.Services
 
         public async Task<Platform> CreatePlatform(CreatePlatformRequest request, CancellationToken cancellationToken = default)
         {
-            Platform platform = new(request.Name, request.DisplayOrder);
+            Platform platform = new(request.Name, request.DisplayOrder, request.LogoUrl);
             bool success = await Insert(cancellationToken, platform);
             if (!success)
             {
@@ -87,7 +87,7 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("platforms.system.cannotModify");
             }
 
-            platform.Update(request.Name, request.DisplayOrder, request.IsActive);
+            platform.Update(request.Name, request.DisplayOrder, request.IsActive, request.LogoUrl);
 
             Platform? result = await Update(platform, cancellationToken);
             if (result is null)

@@ -11,6 +11,7 @@ namespace AgencyCampaign.Api.Contracts.Platforms
         public bool IsSystem { get; init; }
         public bool IsActive { get; init; }
         public int DisplayOrder { get; init; }
+        public string? LogoUrl { get; init; }
         public DateTimeOffset CreatedAt { get; init; }
         public DateTimeOffset? UpdatedAt { get; init; }
 
@@ -22,6 +23,7 @@ namespace AgencyCampaign.Api.Contracts.Platforms
             IsSystem = item.IsSystem,
             IsActive = item.IsActive,
             DisplayOrder = item.DisplayOrder,
+            LogoUrl = item.LogoUrl,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
         };

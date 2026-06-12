@@ -5,6 +5,7 @@ export interface Platform {
   isSystem: boolean
   isActive: boolean
   displayOrder: number
+  logoUrl?: string
   createdAt: string
   updatedAt?: string
 }

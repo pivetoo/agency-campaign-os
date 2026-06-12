@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalFooter, Button, Input, Checkbox, useApi, useI18n } from 'archon-ui'
-import { platformService, type CreatePlatformRequest, type UpdatePlatformRequest } from '../../services/platformService'
+import { platformService, resolvePlatformLogoUrl, type CreatePlatformRequest, type UpdatePlatformRequest } from '../../services/platformService'
 import type { Platform } from '../../types/platform'
 
 interface PlatformFormModalProps {
@@ -13,6 +13,7 @@ interface PlatformFormModalProps {
 const initialFormData: CreatePlatformRequest = {
   name: '',
   displayOrder: 0,
+  logoUrl: '',
 }
 
 export default function PlatformFormModal({ open, onOpenChange, platform, onSuccess }: PlatformFormModalProps) {
@@ -28,6 +29,7 @@ export default function PlatformFormModal({ open, onOpenChange, platform, onSucc
       setFormData({
         name: platform.name,
         displayOrder: platform.displayOrder,
+        logoUrl: platform.logoUrl ?? '',
       })
       setIsActive(platform.isActive)
       return
@@ -76,6 +78,18 @@ export default function PlatformFormModal({ open, onOpenChange, platform, onSucc
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('common.field.order')}</label>
               <Input type="number" value={formData.displayOrder} onChange={(e) => setFormData((prev) => ({ ...prev, displayOrder: Number(e.target.value) }))} disabled={isSystem} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Logo (URL)</label>
+            <div className="flex items-center gap-3">
+              {formData.logoUrl ? (
+                <img src={resolvePlatformLogoUrl(formData.logoUrl)} alt="" className="h-9 w-9 shrink-0 rounded border bg-muted/30 object-contain p-1" />
+              ) : (
+                <div className="h-9 w-9 shrink-0 rounded border bg-muted/30" />
+              )}
+              <Input value={formData.logoUrl ?? ''} onChange={(e) => setFormData((prev) => ({ ...prev, logoUrl: e.target.value }))} placeholder="https://cdn.simpleicons.org/instagram" disabled={isSystem} className="flex-1" />
             </div>
           </div>
 

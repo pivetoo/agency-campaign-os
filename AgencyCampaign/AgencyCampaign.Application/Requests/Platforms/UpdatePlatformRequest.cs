@@ -14,5 +14,8 @@ namespace AgencyCampaign.Application.Requests.Platforms
         public int DisplayOrder { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        [StringLength(300)]
+        public string? LogoUrl { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, DataTable, Badge, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { platformService } from '../../../services/platformService'
+import { platformService, resolvePlatformLogoUrl } from '../../../services/platformService'
 import type { Platform } from '../../../types/platform'
 import PlatformFormModal from '../../../components/modals/PlatformFormModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
@@ -56,7 +56,22 @@ export default function Platforms() {
     setIncludeInactiveFilter('')
   }
 
+  const renderLogoCell = (_: unknown, record: Platform) => {
+    const url = resolvePlatformLogoUrl(record.logoUrl)
+    const initial = (record.name?.trim() || '?').charAt(0).toUpperCase()
+    return (
+      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded border bg-muted/30">
+        {url ? (
+          <img src={url} alt={record.name} className="h-full w-full object-contain p-1" />
+        ) : (
+          <span className="text-xs font-semibold text-muted-foreground">{initial}</span>
+        )}
+      </div>
+    )
+  }
+
   const columns: DataTableColumn<Platform>[] = [
+    { key: 'logo', title: '', dataIndex: 'logoUrl', width: 64, render: renderLogoCell },
     {
       key: 'name',
       title: t('common.field.platform'),

@@ -1,12 +1,16 @@
 import { httpClient, buildPaginationQuery } from 'archon-ui'
 import type { ApiResponse } from 'archon-ui'
 import type { Platform } from '../types/platform'
+import { resolveUploadUrl } from '../lib/uploadUrl'
 
 const BASE_URL = '/Platforms'
+
+export const resolvePlatformLogoUrl = resolveUploadUrl
 
 export interface CreatePlatformRequest {
   name: string
   displayOrder: number
+  logoUrl?: string
 }
 
 export interface UpdatePlatformRequest extends CreatePlatformRequest {

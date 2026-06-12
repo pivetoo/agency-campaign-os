@@ -9,5 +9,8 @@ namespace AgencyCampaign.Application.Requests.Platforms
         public string Name { get; set; } = string.Empty;
 
         public int DisplayOrder { get; set; }
+
+        [StringLength(300)]
+        public string? LogoUrl { get; set; }
     }
 }
