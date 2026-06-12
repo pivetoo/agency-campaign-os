@@ -22,12 +22,14 @@ export default function ImportBankStatementModal({ open, onOpenChange, accountId
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {
-        const [date, description, amount, dir] = line.split(';').map((part) => (part ?? '').trim())
+        const [date, description, amount, dir, id] = line.split(';').map((part) => (part ?? '').trim())
         const direction = (dir || '').toUpperCase().startsWith('C') ? BankTransactionDirection.Credit : BankTransactionDirection.Debit
         const normalized = (amount || '').includes(',') ? (amount || '').replace(/\./g, '').replace(',', '.') : amount || ''
         const value = Number(normalized)
         return {
-          externalId: `${date}|${value}|${description}`,
+          // Usa o id real do banco (FITID/E2E) como ExternalId quando informado: dois lancamentos identicos no
+          // mesmo dia deixam de ser deduplicados como um so. Sem id, cai no hash data|valor|descricao (legado).
+          externalId: id ? id : `${date}|${value}|${description}`,
           occurredAt: new Date(date).toISOString(),
           amount: Math.abs(value),
           direction,
@@ -70,7 +72,7 @@ export default function ImportBankStatementModal({ open, onOpenChange, accountId
             className="w-full h-40 rounded-md border p-2 text-sm font-mono"
             value={raw}
             onChange={(event) => setRaw(event.target.value)}
-            placeholder={'2026-05-31;Pagamento marca X;1500,00;C\n2026-05-30;Pix creator Y;800,00;D'}
+            placeholder={'2026-05-31;Pagamento marca X;1500,00;C;E2E-12345\n2026-05-30;Pix creator Y;800,00;D'}
           />
         </div>
         <ModalFooter>

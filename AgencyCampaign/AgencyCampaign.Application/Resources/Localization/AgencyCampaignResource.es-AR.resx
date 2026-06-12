@@ -903,7 +903,7 @@
   <data name="financial.reconciliation.match.noEntry" xml:space="preserve"><value>No hay registros abiertos con este importe en esta cuenta.</value></data>
   <data name="financial.reconciliation.match.confirm" xml:space="preserve"><value>Vincular</value></data>
   <data name="financial.reconciliation.import.title" xml:space="preserve"><value>Importar extracto</value></data>
-  <data name="financial.reconciliation.import.hint" xml:space="preserve"><value>Pegá una línea por transacción en el formato: fecha;descripción;importe;C o D (C=entrada, D=salida).</value></data>
+  <data name="financial.reconciliation.import.hint" xml:space="preserve"><value>Pegá una línea por transacción en el formato: fecha;descripción;importe;C o D (C=entrada, D=salida). Opcional: un 5º campo con el id del banco (FITID/E2E) evita duplicar movimientos iguales el mismo día.</value></data>
   <data name="financial.reconciliation.import.confirm" xml:space="preserve"><value>Importar</value></data>
   <data name="financial.reconciliation.import.result" xml:space="preserve"><value>Importación: {0} importadas, {1} auto-conciliadas, {2} ignoradas (duplicadas).</value></data>
   <data name="financial.reconciliation.import.resultInvalid" xml:space="preserve"><value> {0} línea(s) inválida(s) descartada(s).</value></data>

@@ -903,7 +903,7 @@
   <data name="financial.reconciliation.match.noEntry" xml:space="preserve"><value>Nenhum lançamento aberto com este valor nesta conta.</value></data>
   <data name="financial.reconciliation.match.confirm" xml:space="preserve"><value>Casar</value></data>
   <data name="financial.reconciliation.import.title" xml:space="preserve"><value>Importar extrato</value></data>
-  <data name="financial.reconciliation.import.hint" xml:space="preserve"><value>Cole uma linha por transação no formato: data;descrição;valor;C ou D (C=entrada, D=saída).</value></data>
+  <data name="financial.reconciliation.import.hint" xml:space="preserve"><value>Cole uma linha por transação no formato: data;descrição;valor;C ou D (C=entrada, D=saída). Opcional: um 5º campo com o id do banco (FITID/E2E) evita duplicar lançamentos iguais no mesmo dia.</value></data>
   <data name="financial.reconciliation.import.confirm" xml:space="preserve"><value>Importar</value></data>
   <data name="financial.reconciliation.import.result" xml:space="preserve"><value>Importação: {0} importadas, {1} auto-conciliadas, {2} ignoradas (duplicadas).</value></data>
   <data name="financial.reconciliation.import.resultInvalid" xml:space="preserve"><value> {0} linha(s) inválida(s) descartada(s).</value></data>
