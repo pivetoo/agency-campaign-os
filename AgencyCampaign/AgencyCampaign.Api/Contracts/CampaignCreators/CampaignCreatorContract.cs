@@ -69,6 +69,7 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
                 Id = item.Creator.Id,
                 Name = item.Creator.Name,
                 StageName = item.Creator.StageName,
+                PhotoUrl = item.Creator.PhotoUrl,
                 DefaultAgencyFeePercent = item.Creator.DefaultAgencyFeePercent
             },
             CampaignCreatorStatus = item.CampaignCreatorStatus == null ? null : new CampaignCreatorStatusReferenceContract
@@ -96,6 +97,8 @@ namespace AgencyCampaign.Api.Contracts.CampaignCreators
         public string Name { get; init; } = string.Empty;
 
         public string? StageName { get; init; }
+
+        public string? PhotoUrl { get; init; }
 
         public decimal DefaultAgencyFeePercent { get; init; }
     }
