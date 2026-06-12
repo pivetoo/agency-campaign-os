@@ -268,7 +268,9 @@ namespace AgencyCampaign.IntegrationTests.Services
 
                 CampaignDeliverable onTime = new(campaignOne.Id, confirmed.Id, "Deliverable 1", kind.Id, platform.Id, now.AddDays(1), 100m, 80m, 10m);
                 onTime.Publish("https://post.test/1", null, now.AddDays(-1));
-                CampaignDeliverable overdue = new(campaignTwo.Id, open.Id, "Deliverable 2", kind.Id, platform.Id, now.AddDays(-2), 100m, 80m, 10m);
+                // Entregavel ja vencido: o construtor recusa prazo no passado, entao forcamos o DueAt via reflexao.
+                CampaignDeliverable overdue = new(campaignTwo.Id, open.Id, "Deliverable 2", kind.Id, platform.Id, now.AddDays(1), 100m, 80m, 10m);
+                typeof(CampaignDeliverable).GetProperty(nameof(CampaignDeliverable.DueAt))!.SetValue(overdue, now.AddDays(-2));
                 db.Add(onTime);
                 db.Add(overdue);
                 await db.SaveChangesAsync();
