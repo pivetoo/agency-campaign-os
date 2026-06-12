@@ -328,7 +328,7 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         {
             db.Add(new Platform("Active"));
             Platform inactive = new("Inactive");
-            inactive.Update("Inactive", 0, false);
+            inactive.Update("Inactive", 0, false, null);
             db.Add(inactive);
             await db.SaveChangesAsync();
 

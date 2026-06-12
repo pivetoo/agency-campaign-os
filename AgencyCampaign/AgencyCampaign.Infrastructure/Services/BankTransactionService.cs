@@ -166,7 +166,28 @@ namespace AgencyCampaign.Infrastructure.Services
                 throw new InvalidOperationException("bankTransaction.amountMismatch");
             }
 
+            // Re-vincular para a MESMA entry e idempotente: ja esta baixada por esta transacao, nada muda.
+            if (bankTransaction.FinancialEntryId == financialEntryId)
+            {
+                return ToModel(bankTransaction);
+            }
+
+            // Liquida a nova entry primeiro (lanca se ela nao estiver aberta), antes de mexer no vinculo anterior.
             entry.SettleFromReconciliation(bankTransaction.OccurredAt);
+
+            // Se a transacao ja estava conciliada com OUTRA entry, reabre aquela para nao deixar baixa orfa (dupla contagem).
+            if (bankTransaction.FinancialEntryId.HasValue)
+            {
+                FinancialEntry? previous = await dbContext.Set<FinancialEntry>()
+                    .AsTracking()
+                    .FirstOrDefaultAsync(item => item.Id == bankTransaction.FinancialEntryId.Value, cancellationToken);
+
+                if (previous is not null && previous.Status == FinancialEntryStatus.Paid)
+                {
+                    previous.ReopenFromReconciliation();
+                }
+            }
+
             bankTransaction.AttachToEntry(financialEntryId, BankTransactionMatchKind.Manual);
             await dbContext.SaveChangesAsync(cancellationToken);
 

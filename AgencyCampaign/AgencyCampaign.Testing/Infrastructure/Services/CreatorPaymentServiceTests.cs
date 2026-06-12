@@ -958,5 +958,38 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().Include(item => item.Events).FirstAsync(item => item.Id == payment.Id);
             refreshed.Events.Should().Contain(item => item.EventType == CreatorPaymentEventType.InvoiceMissing);
         }
+
+        [Test]
+        public async Task SchedulePaymentBatch_resend_of_failed_payment_should_reuse_idempotency_key()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            CreatorPayment tracked = await db.Set<CreatorPayment>().AsTracking().FirstAsync(item => item.Id == payment.Id);
+            tracked.Schedule(DateTimeOffset.UtcNow);
+            tracked.AssignIdempotencyKey("chave-original-123");
+            tracked.MarkFailed("network timeout");
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+
+            SchedulePaymentBatchRequest request = new() { CreatorPaymentIds = new List<long> { payment.Id }, ConnectorId = 1, PipelineId = 1 };
+            await service.SchedulePaymentBatch(request);
+
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().FirstAsync(item => item.Id == payment.Id);
+            refreshed.IdempotencyKey.Should().Be("chave-original-123");
+        }
+
+        [Test]
+        public async Task SchedulePaymentBatch_first_time_should_assign_idempotency_key()
+        {
+            DomainEntities.CampaignCreator cc = await SeedCampaignCreatorAsync();
+            CreatorPayment payment = await service.CreatePayment(new CreateCreatorPaymentRequest { CampaignCreatorId = cc.Id, GrossAmount = 100m, Method = PaymentMethod.Pix });
+
+            SchedulePaymentBatchRequest request = new() { CreatorPaymentIds = new List<long> { payment.Id }, ConnectorId = 1, PipelineId = 1 };
+            await service.SchedulePaymentBatch(request);
+
+            CreatorPayment refreshed = await db.Set<CreatorPayment>().AsNoTracking().FirstAsync(item => item.Id == payment.Id);
+            refreshed.IdempotencyKey.Should().NotBeNullOrWhiteSpace();
+        }
     }
 }

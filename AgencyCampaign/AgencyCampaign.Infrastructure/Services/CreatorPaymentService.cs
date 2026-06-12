@@ -339,7 +339,13 @@ namespace AgencyCampaign.Infrastructure.Services
                 }
 
                 payment.Schedule(scheduledFor);
-                payment.AssignIdempotencyKey(Guid.NewGuid().ToString("N"));
+                // Reaproveita a idempotencyKey de uma tentativa anterior (ex: reenvio de um repasse Failed). Gerar
+                // chave nova faria o provedor tratar como operacao nova e poderia disparar o Pix em dobro num
+                // Failed por timeout (em que o Pix pode ter sido efetivado). So gera quando ainda nao existe.
+                if (string.IsNullOrWhiteSpace(payment.IdempotencyKey))
+                {
+                    payment.AssignIdempotencyKey(Guid.NewGuid().ToString("N"));
+                }
                 payment.RegisterEvent(CreatorPaymentEventType.Scheduled, $"Agendado para {scheduledFor:yyyy-MM-dd HH:mm}.");
 
                 bool requiresInvoice = payment.Creator?.TaxRegime is TaxRegime regime && regime != TaxRegime.IndividualPF;

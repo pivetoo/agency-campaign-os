@@ -359,5 +359,49 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             FinancialEntry reloaded = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == entry.Id);
             reloaded.Status.Should().Be(FinancialEntryStatus.Paid);
         }
+
+        [Test]
+        public async Task MatchToEntry_rematch_to_different_entry_should_reopen_previous_and_settle_only_new()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            DateTimeOffset txDate = DateTimeOffset.UtcNow.AddDays(-1);
+            BankTransaction tx = new(account.Id, "ext", txDate, 50m, BankTransactionDirection.Credit, "x");
+            db.Add(tx);
+            FinancialEntry entryA = await SeedEntryAsync(account.Id, 50m, DateTimeOffset.UtcNow.AddDays(3));
+            FinancialEntry entryB = await SeedEntryAsync(account.Id, 50m, DateTimeOffset.UtcNow.AddDays(3));
+            await db.SaveChangesAsync();
+
+            await service.MatchToEntry(tx.Id, entryA.Id);
+            await service.MatchToEntry(tx.Id, entryB.Id);
+
+            FinancialEntry reloadedA = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == entryA.Id);
+            FinancialEntry reloadedB = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == entryB.Id);
+            BankTransaction reloadedTx = await db.Set<BankTransaction>().AsNoTracking().FirstAsync(item => item.Id == tx.Id);
+
+            reloadedA.Status.Should().Be(FinancialEntryStatus.Pending);
+            reloadedA.PaidAt.Should().BeNull();
+            reloadedB.Status.Should().Be(FinancialEntryStatus.Paid);
+            reloadedTx.FinancialEntryId.Should().Be(entryB.Id);
+        }
+
+        [Test]
+        public async Task MatchToEntry_to_same_entry_twice_should_be_idempotent()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            BankTransaction tx = new(account.Id, "ext", DateTimeOffset.UtcNow.AddDays(-1), 50m, BankTransactionDirection.Credit, "x");
+            db.Add(tx);
+            FinancialEntry entry = await SeedEntryAsync(account.Id, 50m, DateTimeOffset.UtcNow.AddDays(3));
+            await db.SaveChangesAsync();
+
+            await service.MatchToEntry(tx.Id, entry.Id);
+            Func<Task> secondMatch = () => service.MatchToEntry(tx.Id, entry.Id);
+
+            await secondMatch.Should().NotThrowAsync();
+
+            FinancialEntry reloaded = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == entry.Id);
+            reloaded.Status.Should().Be(FinancialEntryStatus.Paid);
+            BankTransaction reloadedTx = await db.Set<BankTransaction>().AsNoTracking().FirstAsync(item => item.Id == tx.Id);
+            reloadedTx.FinancialEntryId.Should().Be(entry.Id);
+        }
     }
 }
