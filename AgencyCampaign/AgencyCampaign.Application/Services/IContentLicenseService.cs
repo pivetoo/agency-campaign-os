@@ -1,10 +1,12 @@
 using AgencyCampaign.Application.Requests.ContentLicenses;
 using AgencyCampaign.Domain.ValueObjects;
+using Archon.Core.Pagination;
 
 namespace AgencyCampaign.Application.Services
 {
     public interface IContentLicenseService
     {
+        Task<PagedResult<ContentLicenseModel>> GetLicenses(PagedRequest request, ContentLicenseStatus? status, ContentLicenseType? type, long? campaignId, string? search, CancellationToken cancellationToken = default);
         Task<IReadOnlyList<ContentLicenseModel>> GetByDeliverable(long deliverableId, CancellationToken cancellationToken = default);
         Task<ContentLicenseModel> Add(long deliverableId, AddContentLicenseRequest request, CancellationToken cancellationToken = default);
         Task<ContentLicenseModel> Update(long licenseId, UpdateContentLicenseRequest request, CancellationToken cancellationToken = default);
@@ -29,5 +31,7 @@ namespace AgencyCampaign.Application.Services
         public int? DaysUntilExpiry { get; init; }
         public long CampaignId { get; init; }
         public string? DeliverableTitle { get; init; }
+        public string? CampaignName { get; init; }
+        public string? CreatorName { get; init; }
     }
 }

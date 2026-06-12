@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { BarChart, Badge, Card, CardContent, CardHeader, CardTitle, ChartContainer, GlobalLoader, LineChart, PieChart, useAuth, useI18n } from 'archon-ui'
-import { Activity, BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon, Sparkles, Megaphone, Building2, Users, Clock, ScrollText } from 'lucide-react'
+import { BarChart, Card, CardContent, CardHeader, CardTitle, ChartContainer, GlobalLoader, LineChart, PieChart, useAuth, useI18n } from 'archon-ui'
+import { Activity, BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon, Sparkles, Megaphone, Building2, Users, Clock } from 'lucide-react'
 import { dashboardService } from '../../services/dashboardService'
 import type { DashboardOverview } from '../../types/dashboard'
-import { useNavigate } from 'react-router-dom'
-import { contentLicenseService } from '../../services/contentLicenseService'
-import type { ContentLicense } from '../../types/contentLicense'
 // import TourButton from '../../components/tour/TourButton'
 
 const chartColors = ['#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6']
@@ -23,20 +20,11 @@ function buildGreeting(t: (key: string) => string, firstName: string | undefined
   return firstName ? `${base}, ${firstName}!` : `${base}!`
 }
 
-function licenseTypeLabel(type: number, t: (k: string) => string): string {
-  if (type === 1) return t('contentLicense.type.ugcReuse')
-  if (type === 2) return t('contentLicense.type.paidWhitelisting')
-  if (type === 3) return t('contentLicense.type.exclusivity')
-  return t('contentLicense.type.other')
-}
-
 export default function Dashboard() {
   const { t } = useI18n()
   const { user } = useAuth()
   const [overview, setOverview] = useState<DashboardOverview | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const navigate = useNavigate()
-  const [expiringLicenses, setExpiringLicenses] = useState<ContentLicense[]>([])
 
   const firstName = useMemo(() => user?.name?.trim().split(/\s+/)[0], [user?.name])
   const greeting = useMemo(() => buildGreeting(t, firstName), [t, firstName])
@@ -60,10 +48,6 @@ export default function Dashboard() {
     return () => {
       isMounted = false
     }
-  }, [])
-
-  useEffect(() => {
-    contentLicenseService.getExpiring(30).then(setExpiringLicenses).catch(() => setExpiringLicenses([]))
   }, [])
 
   const platformData = useMemo(
@@ -118,40 +102,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
-      {expiringLicenses.length > 0 && (
-        <Card className="border border-border/70 shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <ScrollText className="h-4 w-4 text-amber-600" />
-              {t('contentLicense.dashboard.title')}
-              <Badge variant="warning">{expiringLicenses.length}</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <ul className="divide-y divide-border/60">
-              {expiringLicenses.slice(0, 6).map((license) => (
-                <li key={license.id}>
-                  <button
-                    type="button"
-                    disabled={!license.campaignId}
-                    onClick={() => navigate(`/campanhas/${license.campaignId}`)}
-                    className="-mx-2 flex w-full items-center justify-between gap-2 rounded px-2 py-2 text-left text-xs transition-colors hover:bg-accent/40 disabled:cursor-default disabled:hover:bg-transparent"
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span className="truncate font-medium text-foreground">{license.deliverableTitle ?? `#${license.deliverableId}`}</span>
-                      <span className="text-muted-foreground">{licenseTypeLabel(license.type, t)}</span>
-                    </span>
-                    <Badge variant={license.status === 3 ? 'destructive' : 'warning'}>
-                      {license.status === 3 || license.daysUntilExpiry == null ? t('contentLicense.status.expired') : t('contentLicense.daysLeft').replace('{0}', String(license.daysUntilExpiry))}
-                    </Badge>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
 
       <div className="grid gap-4 xl:grid-cols-[1.4fr_0.9fr]">
         <Card className="overflow-hidden border border-border/70 shadow-sm">

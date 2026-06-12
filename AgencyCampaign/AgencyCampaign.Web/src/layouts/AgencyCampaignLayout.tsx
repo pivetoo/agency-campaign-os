@@ -118,6 +118,7 @@ export default function AgencyCampaignLayout() {
       { key: 'campanhas', label: t('nav.item.campaigns'), path: '/campanhas', icon: <Megaphone size={20} />, requires: ['campaigns.get'] },
       { key: 'operacao-calendario', label: t('campaignCalendar.pageTitle'), path: '/operacao/calendario', icon: <CalendarDays size={20} />, requires: ['campaignDeliverables.get'] },
       { key: 'operacao-aprovacoes', label: t('nav.item.approvals'), path: '/operacao/aprovacoes', icon: <ShieldCheck size={20} />, requires: ['deliverableApprovals.get'] },
+      { key: 'operacao-licencas', label: t('nav.item.contentLicenses'), path: '/operacao/licencas', icon: <ScrollText size={20} />, requires: ['campaigns.get'] },
     ] },
     { key: 'financas', label: t('nav.group.finance'), icon: <DollarSign size={20} />, items: [
       { key: 'financeiro-visao-geral', label: t('nav.item.financialOverview'), path: '/financeiro/visao-geral', icon: <FileBarChart2 size={20} />, requires: ['financialEntries.get'] },

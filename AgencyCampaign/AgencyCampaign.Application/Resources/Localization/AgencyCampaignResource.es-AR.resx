@@ -2499,6 +2499,9 @@
   <data name="contentLicense.confirm.delete" xml:space="preserve"><value>¿Eliminar este derecho de uso?</value></data>
   <data name="contentLicense.confirm.apply" xml:space="preserve"><value>¿Copiar este derecho a todas las entregas de la campaña?</value></data>
   <data name="contentLicense.dashboard.title" xml:space="preserve"><value>Licencias por vencer</value></data>
+  <data name="contentLicense.page.title" xml:space="preserve"><value>Licencias</value></data>
+  <data name="contentLicense.page.subtitle" xml:space="preserve"><value>Derechos de uso del contenido de los creators y sus vencimientos.</value></data>
+  <data name="nav.item.contentLicenses" xml:space="preserve"><value>Licencias</value></data>
   <data name="campaignReport.kpi.emv" xml:space="preserve"><value>EMV</value></data>
   <data name="campaignReport.kpi.emvHint" xml:space="preserve"><value>Valor estimado de medios ganados</value></data>
   <data name="configuration.agency.reportSection" xml:space="preserve"><value>Reporte de campaña</value></data>

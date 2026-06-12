@@ -2,8 +2,11 @@ using AgencyCampaign.Application.Notifications;
 using AgencyCampaign.Application.Requests.ContentLicenses;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
+using AgencyCampaign.Domain.ValueObjects;
 using AgencyCampaign.Infrastructure.Options;
 using Archon.Application.Services;
+using Archon.Core.Pagination;
+using Archon.Infrastructure.Persistence.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -20,6 +23,62 @@ namespace AgencyCampaign.Infrastructure.Services
             this.dbContext = dbContext;
             this.notificationService = notificationService;
             this.options = options.Value;
+        }
+
+        // Listagem paginada de todas as licencas (tela de Producao). Filtros traduziveis em SQL (status por
+        // faixa de data, tipo, campanha, busca) para funcionar tanto no Postgres quanto no EF InMemory dos testes.
+        public async Task<PagedResult<ContentLicenseModel>> GetLicenses(PagedRequest request, ContentLicenseStatus? status, ContentLicenseType? type, long? campaignId, string? search, CancellationToken cancellationToken = default)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset soonLimit = now.AddDays(options.ExpiringSoonDays);
+
+            var query = from license in dbContext.Set<DeliverableContentLicense>().AsNoTracking()
+                        join deliverable in dbContext.Set<CampaignDeliverable>().AsNoTracking() on license.CampaignDeliverableId equals deliverable.Id
+                        join campaign in dbContext.Set<Campaign>().AsNoTracking() on deliverable.CampaignId equals campaign.Id
+                        join campaignCreator in dbContext.Set<CampaignCreator>().AsNoTracking() on deliverable.CampaignCreatorId equals campaignCreator.Id
+                        join creator in dbContext.Set<Creator>().AsNoTracking() on campaignCreator.CreatorId equals creator.Id
+                        select new LicenseRow
+                        {
+                            License = license,
+                            DeliverableTitle = deliverable.Title,
+                            CampaignId = campaign.Id,
+                            CampaignName = campaign.Name,
+                            CreatorName = creator.StageName ?? creator.Name
+                        };
+
+            if (type.HasValue)
+            {
+                query = query.Where(row => row.License.Type == type.Value);
+            }
+
+            if (campaignId.HasValue)
+            {
+                query = query.Where(row => row.CampaignId == campaignId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string term = search.Trim().ToLower();
+                query = query.Where(row =>
+                    row.DeliverableTitle.ToLower().Contains(term) ||
+                    row.CampaignName.ToLower().Contains(term) ||
+                    row.CreatorName.ToLower().Contains(term));
+            }
+
+            query = status switch
+            {
+                ContentLicenseStatus.Active => query.Where(row => row.License.ExpiresAt == null || row.License.ExpiresAt > soonLimit),
+                ContentLicenseStatus.ExpiringSoon => query.Where(row => row.License.ExpiresAt != null && row.License.ExpiresAt > now && row.License.ExpiresAt <= soonLimit),
+                ContentLicenseStatus.Expired => query.Where(row => row.License.ExpiresAt != null && row.License.ExpiresAt <= now),
+                _ => query
+            };
+
+            query = query
+                .OrderBy(row => row.License.ExpiresAt == null)
+                .ThenBy(row => row.License.ExpiresAt)
+                .ThenByDescending(row => row.License.Id);
+
+            return await query.ToPagedResultAsync(request, row => ToModel(row.License, now, row.CampaignId, row.DeliverableTitle, row.CampaignName, row.CreatorName), cancellationToken);
         }
 
         public async Task<IReadOnlyList<ContentLicenseModel>> GetByDeliverable(long deliverableId, CancellationToken cancellationToken = default)
@@ -193,7 +252,7 @@ namespace AgencyCampaign.Infrastructure.Services
             return license;
         }
 
-        private ContentLicenseModel ToModel(DeliverableContentLicense license, DateTimeOffset now, long campaignId = 0, string? deliverableTitle = null)
+        private ContentLicenseModel ToModel(DeliverableContentLicense license, DateTimeOffset now, long campaignId = 0, string? deliverableTitle = null, string? campaignName = null, string? creatorName = null)
         {
             return new ContentLicenseModel
             {
@@ -209,8 +268,19 @@ namespace AgencyCampaign.Infrastructure.Services
                 Status = license.ComputeStatus(now, options.ExpiringSoonDays),
                 DaysUntilExpiry = license.DaysUntilExpiry(now),
                 CampaignId = campaignId,
-                DeliverableTitle = deliverableTitle
+                DeliverableTitle = deliverableTitle,
+                CampaignName = campaignName,
+                CreatorName = creatorName
             };
+        }
+
+        private sealed class LicenseRow
+        {
+            public DeliverableContentLicense License { get; init; } = null!;
+            public string DeliverableTitle { get; init; } = string.Empty;
+            public long CampaignId { get; init; }
+            public string CampaignName { get; init; } = string.Empty;
+            public string CreatorName { get; init; } = string.Empty;
         }
     }
 }

@@ -7,6 +7,7 @@ using AgencyCampaign.Infrastructure.Services;
 using AgencyCampaign.Testing.TestSupport;
 using Archon.Application.Services;
 using Archon.Core.Notifications;
+using Archon.Core.Pagination;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -82,6 +83,30 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             first.Should().Be(1);
             second.Should().Be(0);
             notifications.Verify(item => item.Create(It.IsAny<CreateNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetLicenses_paginates_filters_by_status_type_search_and_includes_names()
+        {
+            (long _, long deliverableA, long _) = await SeedCampaignWithTwoDeliverables();
+            await service.Add(deliverableA, new AddContentLicenseRequest(ContentLicenseType.UgcReuse, "Site", null, DateTimeOffset.UtcNow.AddDays(-2), null, null, null));
+            await service.Add(deliverableA, new AddContentLicenseRequest(ContentLicenseType.PaidWhitelisting, "Ads", null, DateTimeOffset.UtcNow.AddDays(120), null, null, null));
+
+            PagedResult<ContentLicenseModel> all = await service.GetLicenses(new PagedRequest { Page = 1, PageSize = 10 }, null, null, null, null);
+            all.Items.Should().HaveCount(2);
+            all.Items.First().CampaignName.Should().Be("Campanha");
+            all.Items.First().CreatorName.Should().Be("Creator");
+
+            PagedResult<ContentLicenseModel> expired = await service.GetLicenses(new PagedRequest { Page = 1, PageSize = 10 }, ContentLicenseStatus.Expired, null, null, null);
+            expired.Items.Should().ContainSingle();
+            expired.Items.Single().Status.Should().Be(ContentLicenseStatus.Expired);
+
+            PagedResult<ContentLicenseModel> byType = await service.GetLicenses(new PagedRequest { Page = 1, PageSize = 10 }, null, ContentLicenseType.PaidWhitelisting, null, null);
+            byType.Items.Should().ContainSingle();
+            byType.Items.Single().Type.Should().Be(ContentLicenseType.PaidWhitelisting);
+
+            PagedResult<ContentLicenseModel> bySearch = await service.GetLicenses(new PagedRequest { Page = 1, PageSize = 10 }, null, null, null, "campanha");
+            bySearch.Items.Should().HaveCount(2);
         }
 
         private async Task<(long campaignId, long deliverableA, long deliverableB)> SeedCampaignWithTwoDeliverables()

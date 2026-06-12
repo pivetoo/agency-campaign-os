@@ -21,6 +21,7 @@ import CreatorPortalProfile from '../modules/CreatorPortal/Profile'
 import CreatorPortalContent from '../modules/CreatorPortal/Content'
 import OperationsApprovals from '../modules/Main/Operations/Approvals'
 import OperationsCalendar from '../modules/Main/Operations/Calendar'
+import OperationsLicenses from '../modules/Main/Operations/Licenses'
 import CommercialOpportunities from '../modules/Main/Commercial/Opportunities'
 import CommercialOpportunityDetail from '../modules/Main/Commercial/OpportunityDetail'
 import CommercialProposals from '../modules/Main/Commercial/Proposals'
@@ -133,6 +134,7 @@ function AppRoutes() {
           <Route path="campanhas" element={<Campaigns />} />
           <Route path="campanhas/:id" element={<CampaignDetail />} />
           <Route path="operacao/calendario" element={<OperationsCalendar />} />
+          <Route path="operacao/licencas" element={<OperationsLicenses />} />
           <Route path="comercial" element={<Navigate to="/comercial/pipeline" replace />} />
           <Route path="comercial/pipeline" element={<CommercialPipeline />} />
           <Route path="comercial/oportunidades" element={<CommercialOpportunities />} />

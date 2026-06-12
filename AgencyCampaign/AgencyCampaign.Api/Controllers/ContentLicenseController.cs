@@ -1,8 +1,10 @@
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Requests.ContentLicenses;
 using AgencyCampaign.Application.Services;
+using AgencyCampaign.Domain.ValueObjects;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
+using Archon.Core.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -18,6 +20,15 @@ namespace AgencyCampaign.Api.Controllers
         {
             this.service = service;
             Localizer = localizer;
+        }
+
+        [RequireAccess("campaigns.get.description")]
+        [GetEndpoint("list")]
+        public async Task<IActionResult> List([FromQuery] PagedRequest request, [FromQuery] int? status, [FromQuery] int? type, [FromQuery] long? campaignId, [FromQuery] string? search, CancellationToken cancellationToken)
+        {
+            ContentLicenseStatus? typedStatus = status.HasValue ? (ContentLicenseStatus)status.Value : null;
+            ContentLicenseType? typedType = type.HasValue ? (ContentLicenseType)type.Value : null;
+            return Http200(await service.GetLicenses(request, typedStatus, typedType, campaignId, search, cancellationToken));
         }
 
         [RequireAccess("campaigns.getById.description")]

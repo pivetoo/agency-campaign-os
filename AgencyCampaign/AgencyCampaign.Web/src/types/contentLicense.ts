@@ -15,6 +15,8 @@ export interface ContentLicense {
   daysUntilExpiry?: number
   campaignId: number
   deliverableTitle?: string
+  campaignName?: string
+  creatorName?: string
 }
 
 export interface ContentLicenseInput {
