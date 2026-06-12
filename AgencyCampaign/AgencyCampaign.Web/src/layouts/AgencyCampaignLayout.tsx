@@ -12,7 +12,7 @@ function TourMount() {
   const { isOpen, closeTour } = useTour()
   return <ProductTour run={isOpen} onClose={closeTour} />
 }
-import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, CalendarClock, BellRing, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap, KeyRound } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, Users, User, UserCheck, Megaphone, HandCoins, ReceiptText, Globe, Share2, Package, Tags, Columns3, Plug, FileSignature, ScrollText, Tag, ShieldCheck, Wallet, Settings, Paintbrush, Landmark, Compass, Trophy, ThumbsDown, Target, CalendarDays, CalendarClock, BellRing, Handshake, DollarSign, LifeBuoy, HelpCircle, FileBarChart2, GitBranch, Zap, KeyRound, Activity } from 'lucide-react'
 import logoAgencyCampaign from '../assets/logo-empresa.png'
 import { reportCatalog, reportAreaOrder, reportAreaLabels, type ReportArea } from '../modules/Reports/catalog'
 
@@ -121,6 +121,7 @@ export default function AgencyCampaignLayout() {
       { key: 'operacao-licencas', label: t('nav.item.contentLicenses'), path: '/operacao/licencas', icon: <ScrollText size={20} />, requires: ['campaigns.get'] },
     ] },
     { key: 'financas', label: t('nav.group.finance'), icon: <DollarSign size={20} />, items: [
+      { key: 'financeiro-monitor', label: t('nav.item.financialMonitor'), path: '/financeiro/monitor', icon: <Activity size={20} />, requires: ['financialEntries.getSummary'] },
       { key: 'financeiro-contas', label: t('nav.item.bankAccounts'), path: '/financeiro/contas', icon: <Wallet size={20} />, requires: ['financialAccounts.get'] },
       { key: 'financeiro-receber', label: t('nav.item.accountsReceivable'), path: '/financeiro/receber', icon: <HandCoins size={20} />, requires: ['financialEntries.get'] },
       { key: 'financeiro-pagar', label: t('nav.item.accountsPayable'), path: '/financeiro/pagar', icon: <ReceiptText size={20} />, requires: ['financialEntries.get'] },
@@ -221,7 +222,7 @@ export default function AgencyCampaignLayout() {
       '/marcas': t('nav.item.brands'),
       '/creators': t('nav.item.creators'),
       '/campanhas': t('nav.item.campaigns'),
-      '/financeiro/visao-geral': t('nav.item.financialOverview'),
+      '/financeiro/monitor': t('nav.item.financialMonitor'),
       '/financeiro/receber': t('nav.item.accountsReceivable'),
       '/financeiro/pagar': t('nav.item.accountsPayable'),
       '/financeiro/repasses-creators': t('nav.item.creatorPayments'),

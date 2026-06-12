@@ -298,7 +298,7 @@
   <data name="nav.item.aging" xml:space="preserve"><value>Aging</value></data>
   <data name="nav.item.financialPeriods" xml:space="preserve"><value>Períodos</value></data>
   <data name="nav.item.reconciliation" xml:space="preserve"><value>Conciliação</value></data>
-  <data name="nav.item.financialOverview" xml:space="preserve"><value>Visão Geral</value></data>
+  <data name="nav.item.financialMonitor" xml:space="preserve"><value>Monitor</value></data>
   <data name="nav.item.agency" xml:space="preserve"><value>Agência</value></data>
   <data name="nav.item.agencyData" xml:space="preserve"><value>Dados da agência</value></data>
   <data name="nav.item.integrations" xml:space="preserve"><value>Integrações</value></data>
@@ -936,7 +936,6 @@
   <data name="financial.payables.subtitle" xml:space="preserve"><value>Repasses para influenciadores, fornecedores, impostos e despesas operacionais.</value></data>
   <data name="financial.receivables.title" xml:space="preserve"><value>Contas a receber</value></data>
   <data name="financial.receivables.subtitle" xml:space="preserve"><value>Lançamentos de entrada da agência: marca, bônus e ajustes.</value></data>
-  <data name="financial.overview.title" xml:space="preserve"><value>Visão geral financeira</value></data>
   <data name="operations.approvals.title" xml:space="preserve"><value>Aprovações de entregas</value></data>
   <data name="operations.approvals.subtitle" xml:space="preserve"><value>Entregas que aguardam aprovação da marca antes de publicação</value></data>
   <data name="operations.approvals.field.creator" xml:space="preserve"><value>Influenciador</value></data>
@@ -2611,4 +2610,54 @@
   <data name="plan.limit.reached" xml:space="preserve">
     <value>Você atingiu o limite do seu plano ({0}). Faça upgrade para aumentar.</value>
   </data>
+  <data name="financialMonitor.title" xml:space="preserve"><value>Monitor Financeiro</value></data>
+  <data name="financialMonitor.updatedAt" xml:space="preserve"><value>Atualizado às</value></data>
+  <data name="financialMonitor.viewAll" xml:space="preserve"><value>Ver tudo</value></data>
+  <data name="financialMonitor.kpi.realBalance" xml:space="preserve"><value>Saldo Mainstay</value></data>
+  <data name="financialMonitor.kpi.projected" xml:space="preserve"><value>Projetado 30 dias</value></data>
+  <data name="financialMonitor.kpi.negativeOn" xml:space="preserve"><value>Fica negativo em</value></data>
+  <data name="financialMonitor.kpi.receivable" xml:space="preserve"><value>A receber</value></data>
+  <data name="financialMonitor.kpi.payable" xml:space="preserve"><value>A pagar</value></data>
+  <data name="financialMonitor.kpi.overdueSuffix" xml:space="preserve"><value>vencido</value></data>
+  <data name="financialMonitor.kpi.payouts" xml:space="preserve"><value>Repasses na fila</value></data>
+  <data name="financialMonitor.alerts.title" xml:space="preserve"><value>Centro de alertas</value></data>
+  <data name="financialMonitor.alerts.empty" xml:space="preserve"><value>Nenhum alerta. Financeiro em dia.</value></data>
+  <data name="financialMonitor.severity.critical" xml:space="preserve"><value>Crítico</value></data>
+  <data name="financialMonitor.severity.warning" xml:space="preserve"><value>Atenção</value></data>
+  <data name="financialMonitor.severity.info" xml:space="preserve"><value>Info</value></data>
+  <data name="financialMonitor.alert.cashGap" xml:space="preserve"><value>Caixa projetado negativo</value></data>
+  <data name="financialMonitor.alert.overdueReceivable" xml:space="preserve"><value>Vencidos a receber</value></data>
+  <data name="financialMonitor.alert.paymentFailed" xml:space="preserve"><value>Repasses com falha no pagamento</value></data>
+  <data name="financialMonitor.alert.overduePayable" xml:space="preserve"><value>Vencidos a pagar</value></data>
+  <data name="financialMonitor.alert.dueNext48h" xml:space="preserve"><value>Vencimentos nas próximas 48h</value></data>
+  <data name="financialMonitor.alert.approvalStuck" xml:space="preserve"><value>Repasses parados aguardando aprovação</value></data>
+  <data name="financialMonitor.alert.reconciliationBacklog" xml:space="preserve"><value>Transações bancárias sem conciliar</value></data>
+  <data name="financialMonitor.alert.periodOpen" xml:space="preserve"><value>Mês anterior ainda aberto</value></data>
+  <data name="financialMonitor.alert.worstDays" xml:space="preserve"><value>pior</value></data>
+  <data name="financialMonitor.alert.worstAccount" xml:space="preserve"><value>pior conta:</value></data>
+  <data name="financialMonitor.cta.cashGap" xml:space="preserve"><value>Ver projeção</value></data>
+  <data name="financialMonitor.cta.overdueReceivable" xml:space="preserve"><value>Ver a receber</value></data>
+  <data name="financialMonitor.cta.paymentFailed" xml:space="preserve"><value>Ver repasses</value></data>
+  <data name="financialMonitor.cta.overduePayable" xml:space="preserve"><value>Ver a pagar</value></data>
+  <data name="financialMonitor.cta.dueNext48h" xml:space="preserve"><value>Ver lançamentos</value></data>
+  <data name="financialMonitor.cta.approvalStuck" xml:space="preserve"><value>Ver repasses</value></data>
+  <data name="financialMonitor.cta.reconciliationBacklog" xml:space="preserve"><value>Conciliar</value></data>
+  <data name="financialMonitor.cta.periodOpen" xml:space="preserve"><value>Fechar mês</value></data>
+  <data name="financialMonitor.upcoming.title" xml:space="preserve"><value>Vencimentos (7 dias)</value></data>
+  <data name="financialMonitor.upcoming.empty" xml:space="preserve"><value>Nada vence nos próximos 7 dias.</value></data>
+  <data name="financialMonitor.funnel.title" xml:space="preserve"><value>Fila de repasses</value></data>
+  <data name="financialMonitor.funnel.pendingApproval" xml:space="preserve"><value>Aguardando aprovação</value></data>
+  <data name="financialMonitor.funnel.readyToPay" xml:space="preserve"><value>Aprovado para pagar</value></data>
+  <data name="financialMonitor.funnel.scheduled" xml:space="preserve"><value>Agendado</value></data>
+  <data name="financialMonitor.funnel.failed" xml:space="preserve"><value>Falhou</value></data>
+  <data name="financialMonitor.reconciliation.title" xml:space="preserve"><value>Conciliação por conta</value></data>
+  <data name="financialMonitor.reconciliation.empty" xml:space="preserve"><value>Nenhuma transação importada ainda.</value></data>
+  <data name="financialMonitor.reconciliation.pending" xml:space="preserve"><value>pendente(s)</value></data>
+  <data name="financialMonitor.reconciliation.lastImport" xml:space="preserve"><value>última importação</value></data>
+  <data name="financialMonitor.periods.title" xml:space="preserve"><value>Período contábil</value></data>
+  <data name="financialMonitor.periods.current" xml:space="preserve"><value>Mês atual</value></data>
+  <data name="financialMonitor.periods.previous" xml:space="preserve"><value>Mês anterior</value></data>
+  <data name="financialMonitor.periods.open" xml:space="preserve"><value>Aberto</value></data>
+  <data name="financialMonitor.periods.closed" xml:space="preserve"><value>Fechado</value></data>
+  <data name="financialMonitor.periods.manage" xml:space="preserve"><value>Gerir períodos</value></data>
 </root>

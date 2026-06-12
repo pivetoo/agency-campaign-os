@@ -32,6 +32,7 @@ import CommercialApprovals from '../modules/Main/Commercial/Approvals'
 import CommercialGoals from '../modules/Main/Commercial/Goals'
 import OpportunityOutcomeReasons from '../modules/Configuration/OpportunityOutcomeReasons'
 import CommercialPolicyAdmin from '../modules/Configuration/CommercialPolicy'
+import FinancialMonitor from '../modules/Main/Financial/Monitor'
 import FinancialReceivables from '../modules/Main/Financial/Receivables'
 import FinancialPayables from '../modules/Main/Financial/Payables'
 import CreatorPayments from '../modules/Main/Financial/CreatorPayments'
@@ -146,6 +147,8 @@ function AppRoutes() {
           <Route path="comercial/metas" element={<CommercialGoals />} />
           <Route path="comercial/followups" element={<CommercialFollowUps />} />
           <Route path="comercial/atencao" element={<CommercialAttention />} />
+          <Route path="financeiro" element={<Navigate to="/financeiro/monitor" replace />} />
+          <Route path="financeiro/monitor" element={<FinancialMonitor />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
           <Route path="financeiro/repasses-creators" element={<CreatorPayments />} />
