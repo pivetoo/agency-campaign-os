@@ -49,6 +49,10 @@ export const financialAccountService = {
     return httpClient.delete(`${BASE_URL}/Delete/${id}`)
   },
 
+  setDefault(id: number) {
+    return httpClient.put<FinancialAccount>(`${BASE_URL}/set-default/${id}`, {})
+  },
+
   attachConnector(id: number, connectorId: number) {
     return httpClient.put<FinancialAccount>(`${BASE_URL}/attach-connector/${id}`, { connectorId })
   },

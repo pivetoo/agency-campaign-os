@@ -1401,6 +1401,8 @@
   <data name="configuration.bankAccounts.action.detachConnector" xml:space="preserve"><value>Desvincular</value></data>
   <data name="configuration.bankAccounts.action.openConnector" xml:space="preserve"><value>Integração</value></data>
   <data name="configuration.bankAccounts.action.sync" xml:space="preserve"><value>Sincronizar agora</value></data>
+  <data name="configuration.bankAccounts.field.default" xml:space="preserve"><value>Padrão</value></data>
+  <data name="configuration.bankAccounts.action.setDefault" xml:space="preserve"><value>Definir como padrão</value></data>
   <data name="configuration.bankAccounts.tooltip.lastSync" xml:space="preserve"><value>Última sincronização: {0}</value></data>
   <data name="configuration.bankAccounts.tooltip.bankBalance" xml:space="preserve"><value>Saldo bancário: {0}</value></data>
   <data name="configuration.financialSubcategories.empty" xml:space="preserve"><value>Nenhuma subcategoria cadastrada</value></data>

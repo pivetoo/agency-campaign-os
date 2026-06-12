@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, DataTable, Badge, ConfirmModal, FilterPanel, TableToolbar, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { Link as LinkIcon, Power, PowerOff, RefreshCw, Trash2 } from 'lucide-react'
+import { Link as LinkIcon, Power, PowerOff, RefreshCw, Star, Trash2 } from 'lucide-react'
 import { financialAccountService } from '../../../../services/financialAccountService'
 import { resolveBankLogoUrl } from '../../../../services/bankService'
 import { FinancialAccountSyncStatus, financialAccountTypeLabels, type FinancialAccount, type FinancialAccountSyncStatusValue } from '../../../../types/financialAccount'
@@ -36,6 +36,7 @@ export default function FinancialAccounts() {
   const { execute: runDelete, loading: deleting } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: runToggle, loading: toggling } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
   const { execute: runSync, loading: syncing } = useApi<{ executionId: number }>({ showSuccessMessage: true, showErrorMessage: true })
+  const { execute: runSetDefault, loading: settingDefault } = useApi<unknown>({ showSuccessMessage: true, showErrorMessage: true })
 
   const includeInactive = includeInactiveFilter === 'all'
 
@@ -97,6 +98,14 @@ export default function FinancialAccounts() {
     }
   }
 
+  const handleSetDefault = async () => {
+    if (!selected) return
+    const result = await runSetDefault(() => financialAccountService.setDefault(selected.id))
+    if (result !== null) {
+      refreshList()
+    }
+  }
+
   const handleToggleActive = async () => {
     if (!selected) return
     const result = await runToggle(() => financialAccountService.update(selected.id, {
@@ -139,7 +148,12 @@ export default function FinancialAccounts() {
       key: 'name',
       title: t('common.field.account'),
       dataIndex: 'name',
-      render: (value: string) => <span className="font-medium">{value}</span>,
+      render: (value: string, record: FinancialAccount) => (
+        <span className="inline-flex items-center gap-2 font-medium">
+          {value}
+          {record.isDefault && <Badge variant="outline">{t('configuration.bankAccounts.field.default')}</Badge>}
+        </span>
+      ),
     },
     { key: 'type', title: t('common.field.type'), dataIndex: 'type', render: (value: number) => financialAccountTypeLabels[value] || '-' },
     {
@@ -199,6 +213,15 @@ export default function FinancialAccounts() {
         addLabel={t('configuration.bankAccounts.addLabel')}
         selectedRowsCount={selected ? 1 : 0}
         actions={[
+          {
+            key: 'setDefault',
+            label: t('configuration.bankAccounts.action.setDefault'),
+            testId: 'financial-account-set-default-button',
+            icon: <Star className="h-4 w-4" />,
+            variant: 'ghost',
+            disabled: !selected || settingDefault || selected?.isDefault,
+            onClick: () => void handleSetDefault(),
+          },
           {
             key: 'sync',
             label: t('configuration.bankAccounts.action.sync'),
