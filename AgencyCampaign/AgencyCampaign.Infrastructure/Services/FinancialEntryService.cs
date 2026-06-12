@@ -381,7 +381,9 @@ namespace AgencyCampaign.Infrastructure.Services
             {
                 Type = type,
                 TotalPending = open.Where(item => item.DueAt >= now).Sum(item => item.Amount),
-                TotalSettledThisMonth = entries.Where(item => item.Status == FinancialEntryStatus.Paid && item.PaidAt.HasValue && item.PaidAt.Value >= firstDayOfMonth).Sum(item => item.Amount),
+                // Exclui o par estornado (original IsReversed + contrapartida ReversalOfEntryId), igual ao relatorio,
+                // para o KPI "recebido/pago no mes" da tela bater com o relatorio e nao contar estorno em dobro.
+                TotalSettledThisMonth = entries.Where(item => item.Status == FinancialEntryStatus.Paid && item.PaidAt.HasValue && item.PaidAt.Value >= firstDayOfMonth && !item.IsReversed && item.ReversalOfEntryId == null).Sum(item => item.Amount),
                 TotalOverdue = open.Where(item => item.DueAt < now).Sum(item => item.Amount),
                 TotalDueNext7Days = open.Where(item => item.DueAt >= now && item.DueAt <= next7Days).Sum(item => item.Amount),
                 PendingCount = open.Count(item => item.DueAt >= now),

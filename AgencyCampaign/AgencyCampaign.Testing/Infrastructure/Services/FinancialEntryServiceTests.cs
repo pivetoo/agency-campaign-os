@@ -350,6 +350,20 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task GetSummary_should_exclude_reversed_pair_from_settled_total()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry original = await SeedPaidEntryAsync(account, FinancialEntryType.Receivable, FinancialEntryCategory.BrandReceivable, 700m);
+            await service.ReverseEntry(original.Id, new ReverseFinancialEntryRequest { Reason = "estorno" });
+
+            FinancialSummaryModel receivable = await service.GetSummary(FinancialEntryType.Receivable);
+            FinancialSummaryModel payable = await service.GetSummary(FinancialEntryType.Payable);
+
+            receivable.TotalSettledThisMonth.Should().Be(0m);
+            payable.TotalSettledThisMonth.Should().Be(0m);
+        }
+
+        [Test]
         public async Task ReverseEntry_should_create_contra_entry_and_mark_original_reversed()
         {
             FinancialAccount account = await SeedAccountAsync();
