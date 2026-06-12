@@ -449,8 +449,8 @@ export default function CampaignDetail() {
 
   const handleBrandReport = async () => {
     const result = await createReportLink(() => campaignReportService.createOrGetLink(campaignId))
-    if (result?.data) {
-      const url = `${window.location.origin}/r/${result.data.token}`
+    if (result?.token) {
+      const url = `${window.location.origin}/r/${result.token}`
       let copied = true
       try {
         await navigator.clipboard.writeText(url)
@@ -465,9 +465,9 @@ export default function CampaignDetail() {
 
   const handleSyncMetrics = async () => {
     const result = await syncMetrics(() => campaignDeliverableService.syncCampaignMetrics(campaignId))
-    if (result?.data) {
+    if (result) {
       await loadDeliverables()
-      toast({ title: t('campaignReport.metricsSynced').replace('{0}', String(result.data.synced)), variant: 'success' })
+      toast({ title: t('campaignReport.metricsSynced').replace('{0}', String(result.synced)), variant: 'success' })
     }
   }
 
