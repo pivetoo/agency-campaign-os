@@ -3,7 +3,7 @@ import { Badge, Button, ConfirmModal, DataTable, PageLayout, SearchableSelect, u
 import type { DataTableColumn } from 'archon-ui'
 import { Link2, Unlink, Upload } from 'lucide-react'
 import { financialAccountService } from '../../../services/financialAccountService'
-import { bankTransactionService } from '../../../services/bankTransactionService'
+import { bankTransactionService, type ReconciliationSummary } from '../../../services/bankTransactionService'
 import type { FinancialAccount } from '../../../types/financialAccount'
 import { BankTransactionDirection, bankTransactionDirectionLabels, bankTransactionMatchKindLabels, type BankTransaction } from '../../../types/bankTransaction'
 import { formatCurrency } from '../../../lib/format'
@@ -19,9 +19,13 @@ export default function Reconciliation() {
   const [isMatchOpen, setIsMatchOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
   const [isConfirmUnmatchOpen, setIsConfirmUnmatchOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
+  const [summary, setSummary] = useState<ReconciliationSummary | null>(null)
 
   const { execute: fetchAccounts } = useApi<FinancialAccount[]>({ showErrorMessage: true })
-  const { execute: fetchTransactions, loading } = useApi<BankTransaction[]>({ showErrorMessage: true })
+  const { execute: fetchTransactions, loading, pagination } = useApi<BankTransaction[]>({ showErrorMessage: true })
+  const { execute: fetchSummary } = useApi<ReconciliationSummary>({ showErrorMessage: true })
   const { execute: runUnmatch, loading: unmatching } = useApi({ showSuccessMessage: true, showErrorMessage: true })
 
   useEffect(() => {
@@ -37,17 +41,37 @@ export default function Reconciliation() {
 
   const loadTransactions = async () => {
     if (!accountId) return
-    const result = await fetchTransactions(() => bankTransactionService.getByAccount(accountId, 1, 100).then((r) => r.data ?? []))
+    const result = await fetchTransactions(() => bankTransactionService.getByAccount(accountId, page, pageSize))
     if (result) {
       setTransactions(result)
       setSelected(null)
     }
   }
 
+  const loadSummary = async () => {
+    if (!accountId) {
+      setSummary(null)
+      return
+    }
+    const result = await fetchSummary(() => bankTransactionService.getSummary(accountId))
+    setSummary(result)
+  }
+
+  const refresh = () => {
+    void loadTransactions()
+    void loadSummary()
+  }
+
+  useEffect(() => {
+    setPage(1)
+    void loadSummary()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountId])
+
   useEffect(() => {
     void loadTransactions()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId])
+  }, [accountId, page, pageSize])
 
   const handleUnmatch = async () => {
     if (!selected) return
@@ -55,14 +79,9 @@ export default function Reconciliation() {
     if (result !== null) {
       setIsConfirmUnmatchOpen(false)
       setSelected(null)
-      void loadTransactions()
+      refresh()
     }
   }
-
-  const totals = useMemo(() => {
-    const matched = transactions.filter((item) => item.financialEntryId).length
-    return { total: transactions.length, matched, pending: transactions.length - matched }
-  }, [transactions])
 
   const selectedAccount = useMemo(() => accounts.find((item) => item.id === accountId), [accounts, accountId])
   const bankBalance = selectedAccount?.lastSyncedBalance ?? null
@@ -148,7 +167,7 @@ export default function Reconciliation() {
       <PageLayout
         title={t('financial.reconciliation.title')}
         subtitle={t('financial.reconciliation.subtitle')}
-        onRefresh={() => void loadTransactions()}
+        onRefresh={() => refresh()}
         showDefaultActions={false}
       >
         <div className="flex flex-wrap items-end gap-3">
@@ -188,9 +207,9 @@ export default function Reconciliation() {
         )}
 
         <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
-          <Stat label={t('financial.reconciliation.stat.total')} value={String(totals.total)} />
-          <Stat label={t('financial.reconciliation.stat.matched')} value={String(totals.matched)} />
-          <Stat label={t('financial.reconciliation.stat.pending')} value={String(totals.pending)} />
+          <Stat label={t('financial.reconciliation.stat.total')} value={String(summary?.total ?? 0)} />
+          <Stat label={t('financial.reconciliation.stat.matched')} value={String(summary?.matched ?? 0)} />
+          <Stat label={t('financial.reconciliation.stat.pending')} value={String(summary?.pending ?? 0)} />
         </div>
 
         <div className="mt-4">
@@ -200,8 +219,12 @@ export default function Reconciliation() {
             rowKey="id"
             emptyText={loading ? t('common.loading') : t('financial.reconciliation.empty')}
             loading={loading}
-            pageSize={10}
+            pageSize={pageSize}
             pageSizeOptions={[10, 20, 50]}
+            totalCount={pagination?.totalCount}
+            page={page}
+            onPageChange={setPage}
+            onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
           />
         </div>
       </PageLayout>
@@ -210,14 +233,14 @@ export default function Reconciliation() {
         open={isMatchOpen}
         onOpenChange={setIsMatchOpen}
         transaction={selected}
-        onSuccess={() => { setIsMatchOpen(false); setSelected(null); void loadTransactions() }}
+        onSuccess={() => { setIsMatchOpen(false); setSelected(null); refresh() }}
       />
 
       <ImportBankStatementModal
         open={isImportOpen}
         onOpenChange={setIsImportOpen}
         accountId={accountId ?? 0}
-        onSuccess={() => { setIsImportOpen(false); void loadTransactions() }}
+        onSuccess={() => { setIsImportOpen(false); refresh() }}
       />
 
       <ConfirmModal

@@ -10,6 +10,8 @@ namespace AgencyCampaign.Application.Services
 
         Task<PagedResult<BankTransactionModel>> GetByAccount(long accountId, PagedRequest request, CancellationToken cancellationToken = default);
 
+        Task<ReconciliationSummaryModel> GetReconciliationSummary(long accountId, CancellationToken cancellationToken = default);
+
         Task<BankTransactionModel> MatchToEntry(long bankTransactionId, long financialEntryId, CancellationToken cancellationToken = default);
 
         Task<BankTransactionModel> UnmatchFromEntry(long bankTransactionId, CancellationToken cancellationToken = default);

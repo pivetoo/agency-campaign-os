@@ -26,9 +26,19 @@ export interface ImportBankTransactionsResult {
   autoMatched: number
 }
 
+export interface ReconciliationSummary {
+  total: number
+  matched: number
+  pending: number
+}
+
 export const bankTransactionService = {
   getByAccount(accountId: number, page = 1, pageSize = 20): Promise<ApiResponse<BankTransaction[]>> {
     return httpClient.get<BankTransaction[]>(`${BASE_URL}/GetByAccount?accountId=${accountId}&page=${page}&pageSize=${pageSize}`)
+  },
+
+  getSummary(accountId: number): Promise<ApiResponse<ReconciliationSummary>> {
+    return httpClient.get<ReconciliationSummary>(`${BASE_URL}/summary?accountId=${accountId}`)
   },
 
   match(id: number, financialEntryId: number) {

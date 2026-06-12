@@ -71,6 +71,13 @@ namespace AgencyCampaign.Application.Models.Financial
         public int OverdueCount { get; set; }
     }
 
+    public sealed class ReconciliationSummaryModel
+    {
+        public int Total { get; set; }
+        public int Matched { get; set; }
+        public int Pending { get; set; }
+    }
+
     public enum CashFlowGranularity
     {
         Day = 0,

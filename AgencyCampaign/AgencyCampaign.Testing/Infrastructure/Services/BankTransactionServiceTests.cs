@@ -445,5 +445,24 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             FinancialEntry reloaded = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == entry.Id);
             reloaded.Status.Should().Be(FinancialEntryStatus.Paid);
         }
+
+        [Test]
+        public async Task GetReconciliationSummary_should_count_total_matched_pending()
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            BankTransaction matched = new(account.Id, "m", now, 50m, BankTransactionDirection.Credit, "x");
+            matched.AttachToEntry(123, BankTransactionMatchKind.Manual);
+            db.Add(matched);
+            db.Add(new BankTransaction(account.Id, "p1", now, 10m, BankTransactionDirection.Credit, "x"));
+            db.Add(new BankTransaction(account.Id, "p2", now, 20m, BankTransactionDirection.Debit, "x"));
+            await db.SaveChangesAsync();
+
+            ReconciliationSummaryModel summary = await service.GetReconciliationSummary(account.Id);
+
+            summary.Total.Should().Be(3);
+            summary.Matched.Should().Be(1);
+            summary.Pending.Should().Be(2);
+        }
     }
 }

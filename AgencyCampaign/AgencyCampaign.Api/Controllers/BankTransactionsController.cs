@@ -42,6 +42,13 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(await service.GetByAccount(accountId, request, cancellationToken));
         }
 
+        [RequireAccess("bankTransactions.getByAccount.description")]
+        [GetEndpoint("summary")]
+        public async Task<IActionResult> GetSummary([FromQuery] long accountId, CancellationToken cancellationToken)
+        {
+            return Http200(await service.GetReconciliationSummary(accountId, cancellationToken));
+        }
+
         [RequireAccess("bankTransactions.match.description")]
         [PostEndpoint("match/{id:long}")]
         public async Task<IActionResult> Match(long id, [FromBody] MatchBankTransactionRequest request, CancellationToken cancellationToken)

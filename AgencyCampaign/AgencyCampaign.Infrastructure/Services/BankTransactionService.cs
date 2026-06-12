@@ -143,6 +143,24 @@ namespace AgencyCampaign.Infrastructure.Services
             };
         }
 
+        public async Task<ReconciliationSummaryModel> GetReconciliationSummary(long accountId, CancellationToken cancellationToken = default)
+        {
+            int total = await dbContext.Set<BankTransaction>()
+                .AsNoTracking()
+                .CountAsync(item => item.AccountId == accountId, cancellationToken);
+
+            int matched = await dbContext.Set<BankTransaction>()
+                .AsNoTracking()
+                .CountAsync(item => item.AccountId == accountId && item.FinancialEntryId != null, cancellationToken);
+
+            return new ReconciliationSummaryModel
+            {
+                Total = total,
+                Matched = matched,
+                Pending = total - matched,
+            };
+        }
+
         public async Task<BankTransactionModel> MatchToEntry(long bankTransactionId, long financialEntryId, CancellationToken cancellationToken = default)
         {
             BankTransaction? bankTransaction = await dbContext.Set<BankTransaction>()
