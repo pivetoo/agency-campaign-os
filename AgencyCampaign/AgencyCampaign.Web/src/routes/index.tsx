@@ -38,6 +38,7 @@ import FinancialCashFlow from '../modules/Main/Financial/CashFlow'
 import FinancialAging from '../modules/Main/Financial/Aging'
 import FinancialPeriods from '../modules/Main/Financial/FinancialPeriods'
 import Reconciliation from '../modules/Main/Financial/Reconciliation'
+import FinancialOverview from '../modules/Main/Financial'
 import Platforms from '../modules/Configuration/Platforms'
 import CommercialPipelineStages from '../modules/Configuration/CommercialPipelineStages'
 import CampaignCreatorStatuses from '../modules/Configuration/CampaignCreatorStatuses'
@@ -144,6 +145,7 @@ function AppRoutes() {
           <Route path="comercial/metas" element={<CommercialGoals />} />
           <Route path="comercial/followups" element={<CommercialFollowUps />} />
           <Route path="comercial/atencao" element={<CommercialAttention />} />
+          <Route path="financeiro/visao-geral" element={<FinancialOverview />} />
           <Route path="financeiro/receber" element={<FinancialReceivables />} />
           <Route path="financeiro/pagar" element={<FinancialPayables />} />
           <Route path="financeiro/repasses-creators" element={<CreatorPayments />} />

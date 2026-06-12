@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import { PageLayout, Card, CardContent, CardHeader, CardTitle, DataTable, useApi, useI18n } from 'archon-ui'
 import type { DataTableColumn } from 'archon-ui'
 import { financialEntryService } from '../../../services/financialEntryService'
+import { financialAccountService } from '../../../services/financialAccountService'
+import { formatCurrency } from '../../../lib/format'
 import { FinancialEntryStatus, FinancialEntryType } from '../../../types/financialEntry'
 import type { FinancialEntry, FinancialEntryStatusValue, FinancialSummary } from '../../../types/financialEntry'
+import type { FinancialAccountSummary } from '../../../types/financialAccount'
 
 export default function Financial() {
   const { t } = useI18n()
@@ -12,6 +15,7 @@ export default function Financial() {
   const [pageSize, setPageSize] = useState(10)
   const [summaryReceivable, setSummaryReceivable] = useState<FinancialSummary | null>(null)
   const [summaryPayable, setSummaryPayable] = useState<FinancialSummary | null>(null)
+  const [accountSummary, setAccountSummary] = useState<FinancialAccountSummary | null>(null)
   const { execute: fetchEntries, loading, pagination } = useApi<FinancialEntry[]>({ showErrorMessage: true })
 
   const loadEntries = async () => {
@@ -20,12 +24,14 @@ export default function Financial() {
   }
 
   const loadSummaries = async () => {
-    const [r, p] = await Promise.all([
+    const [r, p, accounts] = await Promise.all([
       financialEntryService.getSummary(1),
       financialEntryService.getSummary(2),
+      financialAccountService.getSummary(),
     ])
     setSummaryReceivable(r)
     setSummaryPayable(p)
+    setAccountSummary(accounts.data ?? null)
   }
 
   useEffect(() => {
@@ -42,7 +48,12 @@ export default function Financial() {
   const payable = summaryPayable?.totalPending ?? 0
   const settled = (summaryReceivable?.totalSettledThisMonth ?? 0)
   const overdue = (summaryReceivable?.totalOverdue ?? 0) + (summaryPayable?.totalOverdue ?? 0)
-  const balance = receivable - payable
+  // Saldo projetado = saldo real consolidado + tudo aberto a receber (pendente + vencido) - tudo aberto a pagar.
+  // Antes era so (pendente a receber - pendente a pagar): ignorava vencidos e o saldo real (um vencido "sumia").
+  const realBalance = accountSummary?.totalKanvasBalance ?? 0
+  const openReceivable = (summaryReceivable?.totalPending ?? 0) + (summaryReceivable?.totalOverdue ?? 0)
+  const openPayable = (summaryPayable?.totalPending ?? 0) + (summaryPayable?.totalOverdue ?? 0)
+  const balance = realBalance + openReceivable - openPayable
 
   const statusMap: Record<FinancialEntryStatusValue, string> = {
     [FinancialEntryStatus.Pending]: t('financial.entries.status.pending'),
@@ -55,7 +66,7 @@ export default function Financial() {
     { key: 'type', title: t('common.field.type'), dataIndex: 'type', render: (value: number) => value === FinancialEntryType.Receivable ? t('financial.kpi.receivable') : t('financial.kpi.payable') },
     { key: 'description', title: t('common.field.description'), dataIndex: 'description' },
     { key: 'counterpartyName', title: t('financial.entries.field.counterparty'), dataIndex: 'counterpartyName' },
-    { key: 'amount', title: t('common.field.value'), dataIndex: 'amount', render: (value: number) => `R$ ${value.toFixed(2)}` },
+    { key: 'amount', title: t('common.field.value'), dataIndex: 'amount', render: (value: number) => formatCurrency(value) },
     { key: 'dueAt', title: t('financial.entries.field.dueDate'), dataIndex: 'dueAt', render: (value: string) => new Date(value).toLocaleDateString('pt-BR') },
     { key: 'status', title: t('common.field.status'), dataIndex: 'status', render: (value: FinancialEntryStatusValue) => statusMap[value] || '-' },
   ]
@@ -64,11 +75,11 @@ export default function Financial() {
     <div className="space-y-4">
       <PageLayout title={t('financial.title')} onRefresh={() => { void loadEntries(); void loadSummaries() }}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.receivable')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {receivable.toFixed(2)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.payable')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {payable.toFixed(2)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.settledThisMonth')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {settled.toFixed(2)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.overdue')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {overdue.toFixed(2)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.projectedBalance')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">R$ {balance.toFixed(2)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.receivable')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{formatCurrency(receivable)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.payable')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{formatCurrency(payable)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.settledThisMonth')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{formatCurrency(settled)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.overdue')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{formatCurrency(overdue)}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="text-sm">{t('financial.kpi.projectedBalance')}</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{formatCurrency(balance)}</CardContent></Card>
         </div>
 
         <Card>

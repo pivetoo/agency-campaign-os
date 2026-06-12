@@ -297,6 +297,7 @@
   <data name="nav.item.aging" xml:space="preserve"><value>Aging</value></data>
   <data name="nav.item.financialPeriods" xml:space="preserve"><value>Períodos</value></data>
   <data name="nav.item.reconciliation" xml:space="preserve"><value>Conciliação</value></data>
+  <data name="nav.item.financialOverview" xml:space="preserve"><value>Visão Geral</value></data>
   <data name="nav.item.agency" xml:space="preserve"><value>Agência</value></data>
   <data name="nav.item.agencyData" xml:space="preserve"><value>Dados da agência</value></data>
   <data name="nav.item.integrations" xml:space="preserve"><value>Integrações</value></data>
