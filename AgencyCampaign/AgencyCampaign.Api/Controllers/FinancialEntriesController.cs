@@ -159,17 +159,9 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapEntry(entry), Localizer["record.updated"]);
         }
 
-        // Webhook do provedor de cobranca (single-tenant fallback, sem token de tenant).
-        [AllowAnonymous]
-        [PostEndpoint]
-        public Task<IActionResult> ProviderCallback([FromBody] FinancialEntryChargeCallbackRequest request, CancellationToken cancellationToken)
-        {
-            return HandleChargeCallbackAsync(request, cancellationToken);
-        }
-
-        // Variante multi-tenant: o {callbackToken} carrega o prefixo de tenant (PublicLinkToken), resolvido pelo
-        // PublicTenantResolutionMiddleware ANTES do controller. O pipeline do IntegrationPlatform deve ecoar
-        // nesta URL o callbackToken enviado no payload da emissao. A verificacao de segredo e a mesma.
+        // Webhook do provedor de cobranca. O {callbackToken} carrega o prefixo de tenant (PublicLinkToken),
+        // resolvido pelo PublicTenantResolutionMiddleware ANTES do controller; o pipeline do IntegrationPlatform
+        // deve ecoar nesta URL o callbackToken enviado no payload da emissao. A verificacao de segredo e por header.
         [AllowAnonymous]
         [PostEndpoint("provider-callback/{callbackToken}")]
         public Task<IActionResult> ProviderCallbackForTenant(string callbackToken, [FromBody] FinancialEntryChargeCallbackRequest request, CancellationToken cancellationToken)
