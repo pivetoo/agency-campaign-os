@@ -243,12 +243,18 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
             searchValue={filters.search ?? ''}
             onSearchChange={(value) => setFilters((prev) => ({ ...prev, search: value || undefined }))}
             searchPlaceholder={t('financial.entries.placeholder.search')}
-            rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
+            leftSlot={(
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="w-40">
+                  <Input type="date" value={isoToDateInput(filters.dueFrom)} onChange={(e) => setFilters((prev) => ({ ...prev, dueFrom: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
+                </div>
+                <div className="w-40">
+                  <Input type="date" value={isoToDateInput(filters.dueTo)} onChange={(e) => setFilters((prev) => ({ ...prev, dueTo: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
+                </div>
+                <FilterPanel sections={filterSections} onClearAll={clearFilters} />
+              </div>
+            )}
           />
-          <div className="flex gap-2 md:max-w-md">
-            <Input type="date" value={isoToDateInput(filters.dueFrom)} onChange={(e) => setFilters((prev) => ({ ...prev, dueFrom: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
-            <Input type="date" value={isoToDateInput(filters.dueTo)} onChange={(e) => setFilters((prev) => ({ ...prev, dueTo: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
-          </div>
 
           <DataTable
             columns={columns}
