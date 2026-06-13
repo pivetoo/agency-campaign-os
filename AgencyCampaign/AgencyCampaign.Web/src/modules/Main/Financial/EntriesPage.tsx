@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PageLayout, Card, CardContent, ConfirmModal, DataTable, useApi, Badge, Input, FilterPanel, TableToolbar, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection } from 'archon-ui'
-import { CheckCircle2, Pencil, Undo2, Barcode, ExternalLink } from 'lucide-react'
+import { CheckCircle2, Pencil, Undo2, Barcode } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../../services/financialEntryService'
 import { financialAccountService } from '../../../services/financialAccountService'
 import { FinancialEntryStatus, financialEntryCategoryLabels, financialEntryReceivableStatusLabels, financialEntryStatusLabels, type FinancialEntry, type FinancialSummary } from '../../../types/financialEntry'
 import type { FinancialAccount } from '../../../types/financialAccount'
 import FinancialEntryFormModal from '../../../components/modals/FinancialEntryFormModal'
 import MarkAsPaidModal from '../../../components/modals/MarkAsPaidModal'
+import ChargeDetailsModal from '../../../components/modals/ChargeDetailsModal'
 import AuditUtilityBar from '../../../components/buttons/AuditUtilityBar'
 import { formatCurrency, dateInputToIso, isoToDateInput } from '../../../lib/format'
 
@@ -27,6 +28,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
   const [filters, setFilters] = useState<FinancialEntryFilters>({})
   const [selected, setSelected] = useState<FinancialEntry | null>(null)
+  const [chargeEntry, setChargeEntry] = useState<FinancialEntry | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isMarkPaidOpen, setIsMarkPaidOpen] = useState(false)
   const [isReverseOpen, setIsReverseOpen] = useState(false)
@@ -194,22 +196,15 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
             </button>
           )}
           {isReceivable && (record.status === FinancialEntryStatus.Pending || record.status === FinancialEntryStatus.Overdue) && (
-            record.chargeUrl ? (
-              <a
-                href={record.chargeUrl}
-                target="_blank"
-                rel="noreferrer"
+            (record.chargeStatus ?? 0) >= 1 ? (
+              <button
+                type="button"
                 className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-blue-700 hover:bg-blue-50"
-                onClick={(event) => event.stopPropagation()}
+                onClick={(event) => { event.stopPropagation(); setChargeEntry(record) }}
               >
-                <ExternalLink size={12} />
-                {t('financial.entries.action.charge.open')}
-              </a>
-            ) : record.chargeStatus === 1 ? (
-              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground">
                 <Barcode size={12} />
-                {t('financial.entries.action.charge.issuing')}
-              </span>
+                {t('financial.entries.action.charge.view')}
+              </button>
             ) : (
               <button
                 type="button"
@@ -347,6 +342,12 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
         variant="warning"
         onConfirm={() => void handleReverse()}
         loading={reversing}
+      />
+
+      <ChargeDetailsModal
+        open={chargeEntry !== null}
+        onOpenChange={(open) => { if (!open) setChargeEntry(null) }}
+        entry={chargeEntry}
       />
     </>
   )

@@ -1347,6 +1347,21 @@
   <data name="financial.entries.field.counterparty" xml:space="preserve"><value>Counterparty</value></data>
   <data name="financial.entries.field.dueDate" xml:space="preserve"><value>Due date</value></data>
   <data name="financial.entries.action.reverse" xml:space="preserve"><value>Reverse</value></data>
+  <data name="financial.entries.action.charge.view" xml:space="preserve"><value>View charge</value></data>
+  <data name="financial.charge.title" xml:space="preserve"><value>Charge details</value></data>
+  <data name="financial.charge.digitableLine" xml:space="preserve"><value>Digitable line</value></data>
+  <data name="financial.charge.barCode" xml:space="preserve"><value>Barcode</value></data>
+  <data name="financial.charge.nossoNumero" xml:space="preserve"><value>Bank reference (nosso número)</value></data>
+  <data name="financial.charge.pixCopyPaste" xml:space="preserve"><value>PIX copy-paste</value></data>
+  <data name="financial.charge.txid" xml:space="preserve"><value>Transaction ID (txid)</value></data>
+  <data name="financial.charge.openBoleto" xml:space="preserve"><value>Open boleto</value></data>
+  <data name="financial.charge.copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="financial.charge.empty" xml:space="preserve"><value>Charge has no provider data yet.</value></data>
+  <data name="financial.charge.status.requested" xml:space="preserve"><value>Issuing</value></data>
+  <data name="financial.charge.status.issued" xml:space="preserve"><value>Issued</value></data>
+  <data name="financial.charge.status.paid" xml:space="preserve"><value>Paid</value></data>
+  <data name="financial.charge.status.failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="financial.charge.status.cancelled" xml:space="preserve"><value>Cancelled</value></data>
   <data name="financial.entries.action.charge.issue" xml:space="preserve"><value>Issue charge</value></data>
   <data name="financial.entries.action.charge.open" xml:space="preserve"><value>Open charge</value></data>
   <data name="financial.entries.action.charge.issuing" xml:space="preserve"><value>Issuing…</value></data>

@@ -1352,6 +1352,21 @@
   <data name="financial.entries.field.counterparty" xml:space="preserve"><value>Contraparte</value></data>
   <data name="financial.entries.field.dueDate" xml:space="preserve"><value>Vencimento</value></data>
   <data name="financial.entries.action.reverse" xml:space="preserve"><value>Estornar</value></data>
+  <data name="financial.entries.action.charge.view" xml:space="preserve"><value>Ver cobrança</value></data>
+  <data name="financial.charge.title" xml:space="preserve"><value>Detalhes da cobrança</value></data>
+  <data name="financial.charge.digitableLine" xml:space="preserve"><value>Linha digitável</value></data>
+  <data name="financial.charge.barCode" xml:space="preserve"><value>Código de barras</value></data>
+  <data name="financial.charge.nossoNumero" xml:space="preserve"><value>Nosso número</value></data>
+  <data name="financial.charge.pixCopyPaste" xml:space="preserve"><value>PIX copia e cola</value></data>
+  <data name="financial.charge.txid" xml:space="preserve"><value>ID da transação (txid)</value></data>
+  <data name="financial.charge.openBoleto" xml:space="preserve"><value>Abrir boleto</value></data>
+  <data name="financial.charge.copy" xml:space="preserve"><value>Copiar</value></data>
+  <data name="financial.charge.empty" xml:space="preserve"><value>Cobrança ainda sem dados do provedor.</value></data>
+  <data name="financial.charge.status.requested" xml:space="preserve"><value>Emitindo</value></data>
+  <data name="financial.charge.status.issued" xml:space="preserve"><value>Emitida</value></data>
+  <data name="financial.charge.status.paid" xml:space="preserve"><value>Paga</value></data>
+  <data name="financial.charge.status.failed" xml:space="preserve"><value>Falhou</value></data>
+  <data name="financial.charge.status.cancelled" xml:space="preserve"><value>Cancelada</value></data>
   <data name="financial.entries.action.charge.issue" xml:space="preserve"><value>Emitir cobrança</value></data>
   <data name="financial.entries.action.charge.open" xml:space="preserve"><value>Abrir boleto</value></data>
   <data name="financial.entries.action.charge.issuing" xml:space="preserve"><value>Emitindo…</value></data>
