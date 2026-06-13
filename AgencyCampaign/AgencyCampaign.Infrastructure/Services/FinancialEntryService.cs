@@ -362,6 +362,10 @@ namespace AgencyCampaign.Infrastructure.Services
                 payerName = request.PayerName ?? entry.CounterpartyName,
                 payerDocument = request.PayerDocument,
                 method = request.Method,
+                fineValue = request.FineValue,
+                interestMonthlyPercent = request.InterestMonthlyPercent,
+                discountValue = request.DiscountValue,
+                discountUntil = request.DiscountUntil,
                 // Token tenant-scoped para o pipeline ECOAR na URL do callback
                 // (/api/financialentries/provider-callback/{callbackToken}), resolvendo o tenant no multi-tenant.
                 callbackToken = PublicLinkToken.Compose(tenantContext?.TenantId, entry.Id.ToString(CultureInfo.InvariantCulture)),
@@ -412,6 +416,13 @@ namespace AgencyCampaign.Infrastructure.Services
             if (string.IsNullOrWhiteSpace(entry.ChargeId))
             {
                 entry.AttachChargeProvider(request.Provider, request.ChargeId);
+            }
+
+            // Artefatos bancarios podem vir em qualquer callback (tipicamente no created/issued); grava os presentes.
+            ChargeArtifacts artifacts = new(request.DigitableLine, request.BarCode, request.NossoNumero, request.PixCopyPaste, request.PixQrCodeUrl, request.TxId, request.BankSlipUrl);
+            if (artifacts.HasAny)
+            {
+                entry.RegisterChargeArtifacts(artifacts);
             }
 
             DateTimeOffset occurredAt = request.OccurredAt ?? DateTimeOffset.UtcNow;

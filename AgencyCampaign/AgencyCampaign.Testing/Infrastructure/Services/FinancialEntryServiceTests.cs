@@ -123,6 +123,36 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
         }
 
         [Test]
+        public async Task HandleChargeCallback_should_store_banking_artifacts()
+        {
+            FinancialEntry receivable = await SeedReceivableAsync();
+
+            await service.HandleChargeCallback(new FinancialEntryChargeCallbackRequest
+            {
+                Provider = "asaas",
+                ChargeId = "chg_art",
+                EventType = "issued",
+                FinancialEntryId = receivable.Id,
+                DigitableLine = "34191.79001 01043.510047 91020.150008 8 99999999999999",
+                BarCode = "34198999900000000000000000000000000000000000",
+                NossoNumero = "000123456-7",
+                PixCopyPaste = "00020126580014br.gov.bcb.pix...",
+                PixQrCodeUrl = "https://prov/qr/chg_art.png",
+                TxId = "tx-art-001",
+                BankSlipUrl = "https://prov/boleto/chg_art.pdf"
+            });
+
+            FinancialEntry refreshed = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == receivable.Id);
+            refreshed.ChargeDigitableLine.Should().StartWith("34191.79001");
+            refreshed.ChargeBarCode.Should().HaveLength(44);
+            refreshed.ChargeNossoNumero.Should().Be("000123456-7");
+            refreshed.ChargePixCopyPaste.Should().StartWith("00020126");
+            refreshed.ChargePixQrCodeUrl.Should().Be("https://prov/qr/chg_art.png");
+            refreshed.ChargeTxId.Should().Be("tx-art-001");
+            refreshed.ChargeBankSlipUrl.Should().Be("https://prov/boleto/chg_art.pdf");
+        }
+
+        [Test]
         public async Task HandleChargeCallback_paid_should_settle_and_be_idempotent()
         {
             FinancialEntry receivable = await SeedReceivableAsync();

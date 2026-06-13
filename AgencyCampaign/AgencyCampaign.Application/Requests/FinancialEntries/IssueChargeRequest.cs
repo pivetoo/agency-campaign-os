@@ -15,5 +15,18 @@ namespace AgencyCampaign.Application.Requests.FinancialEntries
         // boleto | pix | boleto_pix — interpretado pelo conector do IntegrationPlatform.
         [StringLength(20)]
         public string? Method { get; set; }
+
+        // Multa/juros/desconto repassados ao conector (boleto). Multa em valor fixo; juros ao mes em %;
+        // desconto em valor ate a data limite. Opcionais.
+        [Range(0, double.MaxValue)]
+        public decimal? FineValue { get; set; }
+
+        [Range(0, double.MaxValue)]
+        public decimal? InterestMonthlyPercent { get; set; }
+
+        [Range(0, double.MaxValue)]
+        public decimal? DiscountValue { get; set; }
+
+        public DateTimeOffset? DiscountUntil { get; set; }
     }
 }

@@ -93,6 +93,22 @@ namespace AgencyCampaign.Domain.Entities
 
         public DateTimeOffset? ChargeIssuedAt { get; private set; }
 
+        // Artefatos bancarios reais devolvidos pelo provedor (preenchidos pelo conector no callback de emissao):
+        // boleto (linha digitavel, codigo de barras, nosso numero, PDF) e PIX (copia-e-cola/EMV, QR, txid).
+        public string? ChargeDigitableLine { get; private set; }
+
+        public string? ChargeBarCode { get; private set; }
+
+        public string? ChargeNossoNumero { get; private set; }
+
+        public string? ChargePixCopyPaste { get; private set; }
+
+        public string? ChargePixQrCodeUrl { get; private set; }
+
+        public string? ChargeTxId { get; private set; }
+
+        public string? ChargeBankSlipUrl { get; private set; }
+
         private FinancialEntry()
         {
         }
@@ -301,6 +317,25 @@ namespace AgencyCampaign.Domain.Entities
             ArgumentException.ThrowIfNullOrWhiteSpace(chargeId);
             ChargeProvider = provider.Trim();
             ChargeId = chargeId.Trim();
+        }
+
+        // Grava os artefatos bancarios devolvidos pelo provedor. So sobrescreve os campos informados
+        // (preserva os ja gravados num callback anterior). Idempotente.
+        public void RegisterChargeArtifacts(ChargeArtifacts artifacts)
+        {
+            ArgumentNullException.ThrowIfNull(artifacts);
+            ChargeDigitableLine = Coalesce(artifacts.DigitableLine, ChargeDigitableLine);
+            ChargeBarCode = Coalesce(artifacts.BarCode, ChargeBarCode);
+            ChargeNossoNumero = Coalesce(artifacts.NossoNumero, ChargeNossoNumero);
+            ChargePixCopyPaste = Coalesce(artifacts.PixCopyPaste, ChargePixCopyPaste);
+            ChargePixQrCodeUrl = Coalesce(artifacts.PixQrCodeUrl, ChargePixQrCodeUrl);
+            ChargeTxId = Coalesce(artifacts.TxId, ChargeTxId);
+            ChargeBankSlipUrl = Coalesce(artifacts.BankSlipUrl, ChargeBankSlipUrl);
+        }
+
+        private static string? Coalesce(string? incoming, string? current)
+        {
+            return string.IsNullOrWhiteSpace(incoming) ? current : incoming.Trim();
         }
 
         // Provedor confirmou a emissao e devolveu o link (boleto/PIX QR). Nao rebaixa um Paid.

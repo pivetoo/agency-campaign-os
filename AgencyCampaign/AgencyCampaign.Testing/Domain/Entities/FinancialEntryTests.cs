@@ -52,6 +52,25 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void RegisterChargeArtifacts_should_store_and_only_overwrite_provided_fields()
+        {
+            FinancialEntry subject = BuildDefault();
+            subject.RegisterChargeArtifacts(new ChargeArtifacts("00190.5...", "00191234...", "12345-6", "00020126...", "https://q/qr.png", "tx-abc", "https://b/slip.pdf"));
+
+            subject.ChargeDigitableLine.Should().Be("00190.5...");
+            subject.ChargeBarCode.Should().Be("00191234...");
+            subject.ChargeNossoNumero.Should().Be("12345-6");
+            subject.ChargePixCopyPaste.Should().Be("00020126...");
+            subject.ChargeTxId.Should().Be("tx-abc");
+            subject.ChargeBankSlipUrl.Should().Be("https://b/slip.pdf");
+
+            // Segundo callback so com PIX: preserva os campos de boleto ja gravados.
+            subject.RegisterChargeArtifacts(new ChargeArtifacts(null, null, null, "00020199...", null, null, null));
+            subject.ChargePixCopyPaste.Should().Be("00020199...");
+            subject.ChargeNossoNumero.Should().Be("12345-6");
+        }
+
+        [Test]
         public void MarkChargeIssued_should_store_link_and_status()
         {
             FinancialEntry subject = BuildDefault();

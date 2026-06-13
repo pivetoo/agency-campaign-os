@@ -31,6 +31,28 @@ namespace AgencyCampaign.Application.Requests.FinancialEntries
         [StringLength(140)]
         public string? EndToEndId { get; set; }
 
+        // Artefatos bancarios (preenchidos pelo conector, tipicamente no evento created/issued).
+        [StringLength(60)]
+        public string? DigitableLine { get; set; }
+
+        [StringLength(48)]
+        public string? BarCode { get; set; }
+
+        [StringLength(40)]
+        public string? NossoNumero { get; set; }
+
+        [StringLength(1024)]
+        public string? PixCopyPaste { get; set; }
+
+        [StringLength(1000)]
+        public string? PixQrCodeUrl { get; set; }
+
+        [StringLength(40)]
+        public string? TxId { get; set; }
+
+        [StringLength(1000)]
+        public string? BankSlipUrl { get; set; }
+
         public string? Metadata { get; set; }
     }
 }

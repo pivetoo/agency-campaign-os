@@ -76,6 +76,20 @@ namespace AgencyCampaign.Api.Contracts.FinancialEntries
 
         public DateTimeOffset? ChargeIssuedAt { get; init; }
 
+        public string? ChargeDigitableLine { get; init; }
+
+        public string? ChargeBarCode { get; init; }
+
+        public string? ChargeNossoNumero { get; init; }
+
+        public string? ChargePixCopyPaste { get; init; }
+
+        public string? ChargePixQrCodeUrl { get; init; }
+
+        public string? ChargeTxId { get; init; }
+
+        public string? ChargeBankSlipUrl { get; init; }
+
         public DateTimeOffset CreatedAt { get; init; }
 
         public DateTimeOffset? UpdatedAt { get; init; }
@@ -117,6 +131,13 @@ namespace AgencyCampaign.Api.Contracts.FinancialEntries
             ChargeStatus = item.ChargeStatus,
             ChargeUrl = item.ChargeUrl,
             ChargeIssuedAt = item.ChargeIssuedAt,
+            ChargeDigitableLine = item.ChargeDigitableLine,
+            ChargeBarCode = item.ChargeBarCode,
+            ChargeNossoNumero = item.ChargeNossoNumero,
+            ChargePixCopyPaste = item.ChargePixCopyPaste,
+            ChargePixQrCodeUrl = item.ChargePixQrCodeUrl,
+            ChargeTxId = item.ChargeTxId,
+            ChargeBankSlipUrl = item.ChargeBankSlipUrl,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
         };

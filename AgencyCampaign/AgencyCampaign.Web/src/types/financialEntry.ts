@@ -75,6 +75,13 @@ export interface FinancialEntry {
   chargeStatus?: number
   chargeUrl?: string | null
   chargeIssuedAt?: string | null
+  chargeDigitableLine?: string | null
+  chargeBarCode?: string | null
+  chargeNossoNumero?: string | null
+  chargePixCopyPaste?: string | null
+  chargePixQrCodeUrl?: string | null
+  chargeTxId?: string | null
+  chargeBankSlipUrl?: string | null
   createdAt: string
   updatedAt?: string
 }
