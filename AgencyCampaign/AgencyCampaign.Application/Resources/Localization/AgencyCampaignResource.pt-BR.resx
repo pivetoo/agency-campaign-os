@@ -1380,6 +1380,8 @@
   <data name="financial.entries.kpi.dueSoonReceivable" xml:space="preserve"><value>A receber em 7d</value></data>
   <data name="financial.entries.kpi.dueSoonPayable" xml:space="preserve"><value>A pagar em 7d</value></data>
   <data name="financial.entries.kpi.count" xml:space="preserve"><value>lançamento(s)</value></data>
+  <data name="financial.entries.summary.title" xml:space="preserve"><value>Resumo financeiro</value></data>
+  <data name="financial.entries.summary.openAria" xml:space="preserve"><value>Abrir resumo financeiro</value></data>
   <data name="financial.entries.filter.allAccounts" xml:space="preserve"><value>Todas as contas</value></data>
   <data name="financial.entries.status.pending" xml:space="preserve"><value>Pendente</value></data>
   <data name="financial.entries.status.paid" xml:space="preserve"><value>Pago</value></data>

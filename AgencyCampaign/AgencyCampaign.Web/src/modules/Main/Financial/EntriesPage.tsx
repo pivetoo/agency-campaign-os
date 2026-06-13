@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, Card, CardContent, ConfirmModal, DataTable, useApi, Badge, Input, FilterPanel, TableToolbar, useI18n } from 'archon-ui'
+import { PageLayout, Card, CardContent, ConfirmModal, DataTable, useApi, Badge, Input, FilterPanel, TableToolbar, Sheet, SheetContent, SheetTrigger, useI18n } from 'archon-ui'
 import type { DataTableColumn, FilterSection, PageAction } from 'archon-ui'
-import { CheckCircle2, Undo2, Barcode } from 'lucide-react'
+import { CheckCircle2, Undo2, Barcode, BarChart3 } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../../services/financialEntryService'
 import { financialAccountService } from '../../../services/financialAccountService'
 import { FinancialEntryStatus, financialEntryCategoryLabels, financialEntryReceivableStatusLabels, financialEntryStatusLabels, type FinancialEntry, type FinancialSummary } from '../../../types/financialEntry'
@@ -29,6 +29,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   const [filters, setFilters] = useState<FinancialEntryFilters>({})
   const [selected, setSelected] = useState<FinancialEntry | null>(null)
   const [chargeEntry, setChargeEntry] = useState<FinancialEntry | null>(null)
+  const [summaryOpen, setSummaryOpen] = useState<boolean>(() => localStorage.getItem('financial.entries.summaryOpen') === 'true')
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isMarkPaidOpen, setIsMarkPaidOpen] = useState(false)
   const [isReverseOpen, setIsReverseOpen] = useState(false)
@@ -245,34 +246,61 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
         selectedRowsCount={selected ? 1 : 0}
         actions={headerActions}
       >
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 mb-4" data-tour="financial-entries-kpis">
-          <Card>
-            <CardContent className="pt-5 pb-5">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">{isReceivable ? t('financial.kpi.receivable') : t('financial.kpi.payable')}</p>
-              <p className="text-2xl font-semibold mt-1">{formatCurrency(summary?.totalPending ?? 0)}</p>
-              <p className="text-[10px] text-muted-foreground">{summary?.pendingCount ?? 0} {t('financial.entries.kpi.count')}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-5 pb-5">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">{settledLabel}</p>
-              <p className="text-2xl font-semibold mt-1 text-emerald-600">{formatCurrency(summary?.totalSettledThisMonth ?? 0)}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-5 pb-5">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('financial.entries.badge.overdue')}</p>
-              <p className="text-2xl font-semibold mt-1 text-destructive">{formatCurrency(summary?.totalOverdue ?? 0)}</p>
-              <p className="text-[10px] text-muted-foreground">{summary?.overdueCount ?? 0} {t('financial.entries.kpi.count')}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-5 pb-5">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">{dueSoonLabel}</p>
-              <p className="text-2xl font-semibold mt-1 text-amber-600">{formatCurrency(summary?.totalDueNext7Days ?? 0)}</p>
-            </CardContent>
-          </Card>
-        </div>
+        <Sheet open={summaryOpen} onOpenChange={(open) => { setSummaryOpen(open); localStorage.setItem('financial.entries.summaryOpen', String(open)) }}>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              data-tour="financial-entries-kpis"
+              aria-label={t('financial.entries.summary.openAria')}
+              title={t('financial.entries.summary.title')}
+              className="group fixed right-0 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-l-lg border border-r-0 border-border bg-card text-primary shadow-md transition-all hover:bg-muted hover:text-primary"
+            >
+              <BarChart3 className="h-5 w-5" />
+              {(summary?.overdueCount ?? 0) > 0 && (
+                <span className="absolute -top-1.5 -left-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
+                  {summary?.overdueCount}
+                </span>
+              )}
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:w-[min(420px,95vw)] sm:max-w-none">
+            <div className="mb-4">
+              <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
+                <BarChart3 className="h-4 w-4 text-primary" />
+                {t('financial.entries.summary.title')}
+              </h2>
+              <p className="mt-0.5 text-xs text-muted-foreground">{title}</p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Card>
+                <CardContent className="pt-5 pb-5">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{isReceivable ? t('financial.kpi.receivable') : t('financial.kpi.payable')}</p>
+                  <p className="text-2xl font-semibold mt-1">{formatCurrency(summary?.totalPending ?? 0)}</p>
+                  <p className="text-[10px] text-muted-foreground">{summary?.pendingCount ?? 0} {t('financial.entries.kpi.count')}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-5 pb-5">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{settledLabel}</p>
+                  <p className="text-2xl font-semibold mt-1 text-emerald-600">{formatCurrency(summary?.totalSettledThisMonth ?? 0)}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-5 pb-5">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('financial.entries.badge.overdue')}</p>
+                  <p className="text-2xl font-semibold mt-1 text-destructive">{formatCurrency(summary?.totalOverdue ?? 0)}</p>
+                  <p className="text-[10px] text-muted-foreground">{summary?.overdueCount ?? 0} {t('financial.entries.kpi.count')}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-5 pb-5">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{dueSoonLabel}</p>
+                  <p className="text-2xl font-semibold mt-1 text-amber-600">{formatCurrency(summary?.totalDueNext7Days ?? 0)}</p>
+                </CardContent>
+              </Card>
+            </div>
+          </SheetContent>
+        </Sheet>
 
         <Card>
           <CardContent className="pt-4 space-y-3">
