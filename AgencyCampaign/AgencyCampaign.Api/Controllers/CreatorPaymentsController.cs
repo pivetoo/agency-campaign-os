@@ -159,17 +159,9 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(payments.Select(MapPayment).ToList(), Localizer["record.updated"]);
         }
 
-        [AllowAnonymous]
-        [PostEndpoint]
-        public Task<IActionResult> ProviderCallback([FromBody] CreatorPaymentProviderCallbackRequest request, CancellationToken cancellationToken)
-        {
-            return HandleProviderCallbackAsync(request, cancellationToken);
-        }
-
-        // Variante multi-tenant: o {callbackToken} na URL carrega o prefixo de tenant (PublicLinkToken) e e
-        // resolvido pelo PublicTenantResolutionMiddleware ANTES do controller. O pipeline do IntegrationPlatform
-        // deve ecoar nesta URL o callbackToken enviado no payload do agendamento. A verificacao de segredo e a
-        // mesma. Enquanto o pipeline nao ecoa, o callback antigo (sem token) segue funcionando como fallback.
+        // Webhook do provedor de pagamento. O {callbackToken} na URL carrega o prefixo de tenant (PublicLinkToken)
+        // e e resolvido pelo PublicTenantResolutionMiddleware ANTES do controller; o pipeline do IntegrationPlatform
+        // ecoa nesta URL o callbackToken enviado no payload do agendamento. A verificacao de segredo e por header.
         [AllowAnonymous]
         [PostEndpoint("provider-callback/{callbackToken}")]
         public Task<IActionResult> ProviderCallbackForTenant(string callbackToken, [FromBody] CreatorPaymentProviderCallbackRequest request, CancellationToken cancellationToken)

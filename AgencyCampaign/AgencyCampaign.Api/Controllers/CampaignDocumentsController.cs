@@ -167,17 +167,9 @@ namespace AgencyCampaign.Api.Controllers
             return Http200(MapDocument(document), Localizer["record.updated"]);
         }
 
-        [AllowAnonymous]
-        [PostEndpoint]
-        public Task<IActionResult> ProviderCallback([FromBody] CampaignDocumentProviderCallbackRequest request, CancellationToken cancellationToken)
-        {
-            return HandleProviderCallbackAsync(request, cancellationToken);
-        }
-
-        // Variante multi-tenant: o {callbackToken} na URL carrega o prefixo de tenant (PublicLinkToken) e e
-        // resolvido pelo PublicTenantResolutionMiddleware ANTES do controller. O pipeline de assinatura do
-        // IntegrationPlatform deve ecoar nesta URL o callbackToken enviado no payload do envio para assinatura.
-        // Enquanto o pipeline nao ecoa, o callback antigo (sem token) segue funcionando como fallback single-tenant.
+        // Webhook do provedor de assinatura. O {callbackToken} na URL carrega o prefixo de tenant (PublicLinkToken)
+        // e e resolvido pelo PublicTenantResolutionMiddleware ANTES do controller; o pipeline de assinatura do
+        // IntegrationPlatform ecoa nesta URL o callbackToken enviado no payload do envio. Segredo verificado por header.
         [AllowAnonymous]
         [PostEndpoint("provider-callback/{callbackToken}")]
         public Task<IActionResult> ProviderCallbackForTenant(string callbackToken, [FromBody] CampaignDocumentProviderCallbackRequest request, CancellationToken cancellationToken)
