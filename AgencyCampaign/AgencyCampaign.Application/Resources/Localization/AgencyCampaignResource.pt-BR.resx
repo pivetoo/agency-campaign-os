@@ -212,6 +212,8 @@
   <data name="deliverablePublic.noVersionSentToBrand" xml:space="preserve"><value>Nenhuma versão de conteúdo foi enviada para a marca; não é possível registrar a decisão.</value></data>
   <data name="campaignDeliverable.dueAtInPast" xml:space="preserve"><value>A data de entrega não pode estar no passado.</value></data>
   <data name="financialEntry.alreadyPaid" xml:space="preserve"><value>O lançamento já foi pago e não pode ser alterado.</value></data>
+  <data name="financialEntry.charge.onlyReceivable" xml:space="preserve"><value>Só um recebível pode emitir cobrança.</value></data>
+  <data name="financialEntry.charge.notOpen" xml:space="preserve"><value>Só é possível emitir cobrança de um recebível em aberto (pendente ou vencido).</value></data>
   <data name="financialEntry.notOpenForReconciliation" xml:space="preserve"><value>Só lançamentos pendentes ou vencidos podem ser conciliados.</value></data>
   <data name="financialEntry.onlyPaidCanBeReversed" xml:space="preserve"><value>Só lançamentos pagos podem ser estornados.</value></data>
   <data name="financialEntry.alreadyReversed" xml:space="preserve"><value>Este lançamento já foi estornado.</value></data>
@@ -1350,6 +1352,9 @@
   <data name="financial.entries.field.counterparty" xml:space="preserve"><value>Contraparte</value></data>
   <data name="financial.entries.field.dueDate" xml:space="preserve"><value>Vencimento</value></data>
   <data name="financial.entries.action.reverse" xml:space="preserve"><value>Estornar</value></data>
+  <data name="financial.entries.action.charge.issue" xml:space="preserve"><value>Emitir cobrança</value></data>
+  <data name="financial.entries.action.charge.open" xml:space="preserve"><value>Abrir boleto</value></data>
+  <data name="financial.entries.action.charge.issuing" xml:space="preserve"><value>Emitindo…</value></data>
   <data name="financial.entries.confirm.reverse" xml:space="preserve"><value>Estornar este lançamento pago? Será criada uma contrapartida vinculada; o lançamento original não é editado nem excluído.</value></data>
   <data name="financial.entries.badge.reversed" xml:space="preserve"><value>Estornado</value></data>
   <data name="financial.entries.badge.auto" xml:space="preserve"><value>Auto</value></data>
@@ -1641,6 +1646,7 @@
   <data name="financialEntries.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um lançamento financeiro.</value></data>
   <data name="financialEntries.getSummary.description" xml:space="preserve"><value>Permite consultar o resumo financeiro por tipo (a receber/a pagar).</value></data>
   <data name="financialEntries.markAsPaid.description" xml:space="preserve"><value>Permite marcar um lançamento financeiro como pago/recebido.</value></data>
+  <data name="financialEntries.issueCharge.description" xml:space="preserve"><value>Permite emitir cobrança (boleto/PIX) de um recebível.</value></data>
   <data name="financialEntries.reverse.description" xml:space="preserve"><value>Permite estornar um lançamento financeiro pago (contrapartida).</value></data>
   <data name="financialEntries.update.description" xml:space="preserve"><value>Permite atualizar um lançamento financeiro.</value></data>
   <data name="financialReports.area" xml:space="preserve"><value>Financial reports</value></data>

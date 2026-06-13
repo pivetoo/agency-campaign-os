@@ -19,7 +19,9 @@ namespace AgencyCampaign.Api.MultiTenancy
             // de tenant). O pipeline do IntegrationPlatform deve ecoar esse token na URL do callback.
             "/api/creatorpayments/provider-callback/",
             // Callback de assinatura de documento multi-tenant (mesmo padrao do pagamento).
-            "/api/campaigndocuments/provider-callback/"
+            "/api/campaigndocuments/provider-callback/",
+            // Callback de cobranca de recebivel multi-tenant (mesmo padrao do pagamento).
+            "/api/financialentries/provider-callback/"
         };
 
         private readonly RequestDelegate next;

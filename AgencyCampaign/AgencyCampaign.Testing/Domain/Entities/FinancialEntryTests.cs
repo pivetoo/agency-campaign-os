@@ -26,6 +26,55 @@ namespace AgencyCampaign.Testing.Domain.Entities
         }
 
         [Test]
+        public void RequestCharge_should_reject_a_payable()
+        {
+            FinancialEntry payable = new(1, FinancialEntryType.Payable, FinancialEntryCategory.OperationalCost, "Custo", 100m, DateTimeOffset.UtcNow.AddDays(5), DateTimeOffset.UtcNow);
+            Action act = () => payable.RequestCharge("IntegrationPlatform");
+            act.Should().Throw<InvalidOperationException>().WithMessage("financialEntry.charge.onlyReceivable");
+        }
+
+        [Test]
+        public void RequestCharge_should_reject_a_paid_receivable()
+        {
+            FinancialEntry paid = BuildDefault();
+            paid.ChangeStatus(FinancialEntryStatus.Paid, DateTimeOffset.UtcNow);
+            Action act = () => paid.RequestCharge("IntegrationPlatform");
+            act.Should().Throw<InvalidOperationException>().WithMessage("financialEntry.charge.notOpen");
+        }
+
+        [Test]
+        public void RequestCharge_should_mark_requested_on_open_receivable()
+        {
+            FinancialEntry subject = BuildDefault();
+            subject.RequestCharge("IntegrationPlatform");
+            subject.ChargeStatus.Should().Be(ChargeStatus.Requested);
+            subject.ChargeProvider.Should().Be("IntegrationPlatform");
+        }
+
+        [Test]
+        public void MarkChargeIssued_should_store_link_and_status()
+        {
+            FinancialEntry subject = BuildDefault();
+            subject.MarkChargeIssued("https://prov/boleto/1", DateTimeOffset.UtcNow);
+            subject.ChargeUrl.Should().Be("https://prov/boleto/1");
+            subject.ChargeStatus.Should().Be(ChargeStatus.Issued);
+        }
+
+        [Test]
+        public void SettleFromCharge_should_pay_then_be_idempotent()
+        {
+            FinancialEntry subject = BuildDefault();
+            bool first = subject.SettleFromCharge(DateTimeOffset.UtcNow, "E2E-1");
+            bool second = subject.SettleFromCharge(DateTimeOffset.UtcNow, "E2E-1");
+
+            first.Should().BeTrue();
+            second.Should().BeFalse();
+            subject.Status.Should().Be(FinancialEntryStatus.Paid);
+            subject.ChargeStatus.Should().Be(ChargeStatus.Paid);
+            subject.ReferenceCode.Should().Be("E2E-1");
+        }
+
+        [Test]
         public void Constructor_should_trim_description_and_default_status_to_pending()
         {
             FinancialEntry subject = BuildDefault();

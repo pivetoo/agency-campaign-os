@@ -81,6 +81,18 @@ namespace AgencyCampaign.Domain.Entities
 
         public DateTimeOffset? ReversedAt { get; private set; }
 
+        // Cobranca (contas a receber): emissao de boleto/PIX via IntegrationPlatform e baixa por webhook.
+        // ChargeId e a chave de correlacao do provedor; ChargeUrl e o link entregue ao pagador.
+        public string? ChargeProvider { get; private set; }
+
+        public string? ChargeId { get; private set; }
+
+        public string? ChargeUrl { get; private set; }
+
+        public ChargeStatus ChargeStatus { get; private set; } = ChargeStatus.None;
+
+        public DateTimeOffset? ChargeIssuedAt { get; private set; }
+
         private FinancialEntry()
         {
         }
@@ -261,6 +273,80 @@ namespace AgencyCampaign.Domain.Entities
             InvoiceNumber = Normalize(invoiceNumber);
             InvoiceUrl = Normalize(invoiceUrl);
             InvoiceIssuedAt = issuedAt?.ToUniversalTime();
+        }
+
+        // Emissao de cobranca (operador): so um recebivel ABERTO (Pendente/Vencido) pode emitir cobranca.
+        // Marca como Requested ate o provedor confirmar a emissao no primeiro callback.
+        public void RequestCharge(string provider)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(provider);
+            if (Type != FinancialEntryType.Receivable)
+            {
+                throw new InvalidOperationException("financialEntry.charge.onlyReceivable");
+            }
+
+            if (Status != FinancialEntryStatus.Pending && Status != FinancialEntryStatus.Overdue)
+            {
+                throw new InvalidOperationException("financialEntry.charge.notOpen");
+            }
+
+            ChargeProvider = provider.Trim();
+            ChargeStatus = ChargeStatus.Requested;
+        }
+
+        // Correlacao no callback: vincula o lancamento ao id da cobranca no provedor (primeiro callback).
+        public void AttachChargeProvider(string provider, string chargeId)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(provider);
+            ArgumentException.ThrowIfNullOrWhiteSpace(chargeId);
+            ChargeProvider = provider.Trim();
+            ChargeId = chargeId.Trim();
+        }
+
+        // Provedor confirmou a emissao e devolveu o link (boleto/PIX QR). Nao rebaixa um Paid.
+        public void MarkChargeIssued(string? chargeUrl, DateTimeOffset issuedAt)
+        {
+            ChargeUrl = Normalize(chargeUrl);
+            ChargeIssuedAt = issuedAt.ToUniversalTime();
+            if (ChargeStatus != ChargeStatus.Paid)
+            {
+                ChargeStatus = ChargeStatus.Issued;
+            }
+        }
+
+        // Webhook de pagamento: da baixa no recebivel. Idempotente (retorna false se ja estava pago).
+        public bool SettleFromCharge(DateTimeOffset paidAt, string? endToEndId)
+        {
+            if (Status == FinancialEntryStatus.Paid)
+            {
+                ChargeStatus = ChargeStatus.Paid;
+                return false;
+            }
+
+            if (Status != FinancialEntryStatus.Pending && Status != FinancialEntryStatus.Overdue)
+            {
+                throw new InvalidOperationException("financialEntry.notOpenForReconciliation");
+            }
+
+            Status = FinancialEntryStatus.Paid;
+            PaidAt = paidAt.ToUniversalTime();
+            ChargeStatus = ChargeStatus.Paid;
+            if (!string.IsNullOrWhiteSpace(endToEndId))
+            {
+                ReferenceCode = endToEndId.Trim();
+            }
+
+            return true;
+        }
+
+        // Cobranca expirada/recusada/cancelada pelo provedor: o recebivel segue aberto para reemissao.
+        public void MarkChargeUnpaid(ChargeStatus status, string? reason)
+        {
+            ChargeStatus = status;
+            if (!string.IsNullOrWhiteSpace(reason))
+            {
+                AppendNote(reason.Trim());
+            }
         }
 
         public void RecalculateOverdue(DateTimeOffset now)

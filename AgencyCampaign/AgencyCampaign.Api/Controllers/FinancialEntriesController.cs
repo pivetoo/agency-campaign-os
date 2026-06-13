@@ -4,11 +4,14 @@ using AgencyCampaign.Application.Requests.FinancialEntries;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using AgencyCampaign.Infrastructure.Options;
 using Archon.Api.Attributes;
 using Archon.Api.Controllers;
 using Archon.Core.Pagination;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 
 namespace AgencyCampaign.Api.Controllers
 {
@@ -16,12 +19,14 @@ namespace AgencyCampaign.Api.Controllers
     public sealed class FinancialEntriesController : ApiControllerBase
     {
         private readonly IFinancialEntryService financialEntryService;
+        private readonly WebhookOptions webhookOptions;
         private new readonly IStringLocalizer<AgencyCampaignResource> Localizer;
         private static readonly Func<FinancialEntry, FinancialEntryContract> MapEntry = FinancialEntryContract.Projection.Compile();
 
-        public FinancialEntriesController(IFinancialEntryService financialEntryService, IStringLocalizer<AgencyCampaignResource> localizer)
+        public FinancialEntriesController(IFinancialEntryService financialEntryService, IOptions<WebhookOptions> webhookOptions, IStringLocalizer<AgencyCampaignResource> localizer)
         {
             this.financialEntryService = financialEntryService;
+            this.webhookOptions = webhookOptions.Value;
             Localizer = localizer;
         }
 
@@ -137,6 +142,63 @@ namespace AgencyCampaign.Api.Controllers
 
             var entries = await financialEntryService.CreateInstallmentSeries(request, cancellationToken);
             return Http201(entries.Select(MapEntry).ToArray(), Localizer["record.created"]);
+        }
+
+        // Emite a cobranca (boleto/PIX) do recebivel via IntegrationPlatform.
+        [RequireAccess("financialEntries.issueCharge.description")]
+        [PostEndpoint("issue-charge/{id:long}")]
+        public async Task<IActionResult> IssueCharge(long id, [FromBody] IssueChargeRequest request, CancellationToken cancellationToken)
+        {
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            FinancialEntry entry = await financialEntryService.IssueCharge(id, request, cancellationToken);
+            return Http200(MapEntry(entry), Localizer["record.updated"]);
+        }
+
+        // Webhook do provedor de cobranca (single-tenant fallback, sem token de tenant).
+        [AllowAnonymous]
+        [PostEndpoint]
+        public Task<IActionResult> ProviderCallback([FromBody] FinancialEntryChargeCallbackRequest request, CancellationToken cancellationToken)
+        {
+            return HandleChargeCallbackAsync(request, cancellationToken);
+        }
+
+        // Variante multi-tenant: o {callbackToken} carrega o prefixo de tenant (PublicLinkToken), resolvido pelo
+        // PublicTenantResolutionMiddleware ANTES do controller. O pipeline do IntegrationPlatform deve ecoar
+        // nesta URL o callbackToken enviado no payload da emissao. A verificacao de segredo e a mesma.
+        [AllowAnonymous]
+        [PostEndpoint("provider-callback/{callbackToken}")]
+        public Task<IActionResult> ProviderCallbackForTenant(string callbackToken, [FromBody] FinancialEntryChargeCallbackRequest request, CancellationToken cancellationToken)
+        {
+            _ = callbackToken;
+            return HandleChargeCallbackAsync(request, cancellationToken);
+        }
+
+        private async Task<IActionResult> HandleChargeCallbackAsync(FinancialEntryChargeCallbackRequest request, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(webhookOptions.ProviderCallbackSecret))
+            {
+                return Http403(Localizer["webhook.secret.notConfigured"]);
+            }
+
+            string? incomingSecret = Request.Headers["x-webhook-secret"].FirstOrDefault();
+            if (!string.Equals(incomingSecret, webhookOptions.ProviderCallbackSecret, StringComparison.Ordinal))
+            {
+                return Http403(Localizer["webhook.secret.invalid"]);
+            }
+
+            IActionResult? validationResult = ValidateBody(request);
+            if (validationResult is not null)
+            {
+                return validationResult;
+            }
+
+            FinancialEntry entry = await financialEntryService.HandleChargeCallback(request, cancellationToken);
+            return Http200(MapEntry(entry), Localizer["record.updated"]);
         }
     }
 }

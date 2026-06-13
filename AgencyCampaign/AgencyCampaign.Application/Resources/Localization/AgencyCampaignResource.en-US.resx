@@ -212,6 +212,8 @@
   <data name="deliverablePublic.noVersionSentToBrand" xml:space="preserve"><value>No content version was sent to the brand; the decision cannot be recorded.</value></data>
   <data name="campaignDeliverable.dueAtInPast" xml:space="preserve"><value>The due date cannot be in the past.</value></data>
   <data name="financialEntry.alreadyPaid" xml:space="preserve"><value>The financial entry has already been paid and cannot be changed.</value></data>
+  <data name="financialEntry.charge.onlyReceivable" xml:space="preserve"><value>Only a receivable can issue a charge.</value></data>
+  <data name="financialEntry.charge.notOpen" xml:space="preserve"><value>A charge can only be issued for an open receivable (pending or overdue).</value></data>
   <data name="financialEntry.notOpenForReconciliation" xml:space="preserve"><value>Only pending or overdue financial entries can be reconciled.</value></data>
   <data name="financialEntry.onlyPaidCanBeReversed" xml:space="preserve"><value>Only paid financial entries can be reversed.</value></data>
   <data name="financialEntry.alreadyReversed" xml:space="preserve"><value>This entry has already been reversed.</value></data>
@@ -1345,6 +1347,9 @@
   <data name="financial.entries.field.counterparty" xml:space="preserve"><value>Counterparty</value></data>
   <data name="financial.entries.field.dueDate" xml:space="preserve"><value>Due date</value></data>
   <data name="financial.entries.action.reverse" xml:space="preserve"><value>Reverse</value></data>
+  <data name="financial.entries.action.charge.issue" xml:space="preserve"><value>Issue charge</value></data>
+  <data name="financial.entries.action.charge.open" xml:space="preserve"><value>Open charge</value></data>
+  <data name="financial.entries.action.charge.issuing" xml:space="preserve"><value>Issuing…</value></data>
   <data name="financial.entries.confirm.reverse" xml:space="preserve"><value>Reverse this paid entry? A linked contra entry will be created; the original entry is neither edited nor deleted.</value></data>
   <data name="financial.entries.badge.reversed" xml:space="preserve"><value>Reversed</value></data>
   <data name="financial.entries.badge.auto" xml:space="preserve"><value>Auto</value></data>
@@ -1636,6 +1641,7 @@
   <data name="financialEntries.getById.description" xml:space="preserve"><value>Permite consultar os detalhes de um lançamento financeiro.</value></data>
   <data name="financialEntries.getSummary.description" xml:space="preserve"><value>Permite consultar o resumo financeiro por tipo (a receber/a pagar).</value></data>
   <data name="financialEntries.markAsPaid.description" xml:space="preserve"><value>Permite marcar um lançamento financeiro como pago/recebido.</value></data>
+  <data name="financialEntries.issueCharge.description" xml:space="preserve"><value>Allows issuing a charge (boleto/PIX) for a receivable.</value></data>
   <data name="financialEntries.reverse.description" xml:space="preserve"><value>Permite estornar um lançamento financeiro pago (contrapartida).</value></data>
   <data name="financialEntries.update.description" xml:space="preserve"><value>Permite atualizar um lançamento financeiro.</value></data>
   <data name="financialReports.area" xml:space="preserve"><value>Financial reports</value></data>

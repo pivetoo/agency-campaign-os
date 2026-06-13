@@ -94,4 +94,8 @@ export const financialEntryService = {
   createInstallments(data: CreateInstallmentSeriesRequest) {
     return httpClient.post<FinancialEntry[]>(`${BASE_URL}/CreateInstallments`, data)
   },
+
+  issueCharge(id: number, data: { payerName?: string; payerDocument?: string; method?: string } = {}) {
+    return httpClient.post<FinancialEntry>(`${BASE_URL}/issue-charge/${id}`, data)
+  },
 }

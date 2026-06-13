@@ -1,3 +1,4 @@
+using AgencyCampaign.Application.Catalogs;
 using AgencyCampaign.Application.Localization;
 using AgencyCampaign.Application.Models.Financial;
 using AgencyCampaign.Application.Notifications;
@@ -6,6 +7,8 @@ using AgencyCampaign.Application.Requests.FinancialEntries;
 using AgencyCampaign.Application.Services;
 using AgencyCampaign.Domain.Entities;
 using AgencyCampaign.Domain.ValueObjects;
+using AgencyCampaign.Infrastructure.Clients;
+using Archon.Application.MultiTenancy;
 using Archon.Application.Services;
 using Archon.Core.Pagination;
 using Archon.Infrastructure.Persistence.EF;
@@ -13,6 +16,8 @@ using Archon.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using System.Text.Json;
 
 namespace AgencyCampaign.Infrastructure.Services
 {
@@ -21,12 +26,18 @@ namespace AgencyCampaign.Infrastructure.Services
         private readonly IAutomationDispatcher automationDispatcher;
         private readonly INotificationService notificationService;
         private readonly ILogger<FinancialEntryService> logger;
+        private readonly IntegrationPlatformClient? integrationPlatformClient;
+        private readonly IIntegrationCapabilityService? integrationCapabilityService;
+        private readonly ITenantContext? tenantContext;
 
-        public FinancialEntryService(DbContext dbContext, IAutomationDispatcher automationDispatcher, INotificationService notificationService, ILogger<FinancialEntryService> logger) : base(dbContext)
+        public FinancialEntryService(DbContext dbContext, IAutomationDispatcher automationDispatcher, INotificationService notificationService, ILogger<FinancialEntryService> logger, IntegrationPlatformClient? integrationPlatformClient = null, IIntegrationCapabilityService? integrationCapabilityService = null, ITenantContext? tenantContext = null) : base(dbContext)
         {
             this.automationDispatcher = automationDispatcher;
             this.notificationService = notificationService;
             this.logger = logger;
+            this.integrationPlatformClient = integrationPlatformClient;
+            this.integrationCapabilityService = integrationCapabilityService;
+            this.tenantContext = tenantContext;
         }
 
         public async Task<PagedResult<FinancialEntry>> GetEntries(PagedRequest request, FinancialEntryFilters filters, CancellationToken cancellationToken = default)
@@ -314,6 +325,150 @@ namespace AgencyCampaign.Infrastructure.Services
             catch (Exception exception)
             {
                 logger.LogError(exception, "Failed to create notification for settled financial entry {Id}.", entry.Id);
+            }
+
+            return await GetEntryById(result.Id, cancellationToken) ?? result;
+        }
+
+        // Cobranca (contas a receber): emite boleto/PIX para um recebivel via IntegrationPlatform. Resolve o
+        // conector da categoria "contas-a-receber", enfileira com um callbackToken (prefixo de tenant) e marca
+        // a cobranca como Requested. O provedor confirma a emissao e o pagamento por webhook (HandleChargeCallback).
+        public async Task<FinancialEntry> IssueCharge(long id, IssueChargeRequest request, CancellationToken cancellationToken = default)
+        {
+            if (integrationPlatformClient is null || integrationCapabilityService is null)
+            {
+                throw new InvalidOperationException("integrationPlatform.notConfigured");
+            }
+
+            FinancialEntry? entry = await DbContext.Set<FinancialEntry>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+            if (entry is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            entry.RequestCharge("IntegrationPlatform");
+
+            ResolvedCapability capability = await integrationCapabilityService.ResolveForExecution(IntegrationIntents.ReceivableIssueInvoice, cancellationToken);
+
+            string payload = JsonSerializer.Serialize(new
+            {
+                financialEntryId = entry.Id,
+                amount = entry.Amount,
+                dueAt = entry.DueAt,
+                description = entry.Description,
+                payerName = request.PayerName ?? entry.CounterpartyName,
+                payerDocument = request.PayerDocument,
+                method = request.Method,
+                // Token tenant-scoped para o pipeline ECOAR na URL do callback
+                // (/api/financialentries/provider-callback/{callbackToken}), resolvendo o tenant no multi-tenant.
+                callbackToken = PublicLinkToken.Compose(tenantContext?.TenantId, entry.Id.ToString(CultureInfo.InvariantCulture)),
+            });
+
+            try
+            {
+                await integrationPlatformClient.EnqueueServiceAsync(capability.ServiceContractIdentifier, capability.ConnectorId, payload, priority: 1, ct: cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                entry.MarkChargeUnpaid(ChargeStatus.Failed, $"Falha ao emitir cobranca: {ex.Message}");
+                await Update(entry, cancellationToken);
+                throw;
+            }
+
+            entry.AppendNote($"Cobranca enfileirada via conector {capability.ConnectorId}.");
+
+            FinancialEntry? result = await Update(entry, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            return await GetEntryById(result.Id, cancellationToken) ?? result;
+        }
+
+        // Webhook do provedor de cobranca (anonimo, validado por segredo no controller). Correlaciona por
+        // provider+chargeId ou pelo financialEntryId ecoado; idempotente; da baixa no recebivel quando "paid".
+        public async Task<FinancialEntry> HandleChargeCallback(FinancialEntryChargeCallbackRequest request, CancellationToken cancellationToken = default)
+        {
+            FinancialEntry? entry = await DbContext.Set<FinancialEntry>()
+                .AsTracking()
+                .FirstOrDefaultAsync(item => item.ChargeProvider == request.Provider && item.ChargeId == request.ChargeId, cancellationToken);
+
+            if (entry is null && request.FinancialEntryId.HasValue)
+            {
+                entry = await DbContext.Set<FinancialEntry>()
+                    .AsTracking()
+                    .FirstOrDefaultAsync(item => item.Id == request.FinancialEntryId.Value, cancellationToken);
+            }
+
+            if (entry is null)
+            {
+                throw new InvalidOperationException("record.notFound");
+            }
+
+            if (string.IsNullOrWhiteSpace(entry.ChargeId))
+            {
+                entry.AttachChargeProvider(request.Provider, request.ChargeId);
+            }
+
+            DateTimeOffset occurredAt = request.OccurredAt ?? DateTimeOffset.UtcNow;
+            string normalizedEvent = request.EventType.Trim().ToLowerInvariant();
+
+            bool settled = false;
+            switch (normalizedEvent)
+            {
+                case "created":
+                case "issued":
+                case "charge.created":
+                    entry.MarkChargeIssued(request.ChargeUrl, occurredAt);
+                    break;
+
+                case "paid":
+                case "settled":
+                case "charge.paid":
+                    settled = entry.SettleFromCharge(request.PaidAt ?? occurredAt, request.EndToEndId);
+                    break;
+
+                case "expired":
+                case "charge.expired":
+                    entry.MarkChargeUnpaid(ChargeStatus.Cancelled, "Cobranca expirada.");
+                    break;
+
+                case "cancelled":
+                case "charge.cancelled":
+                    entry.MarkChargeUnpaid(ChargeStatus.Cancelled, "Cobranca cancelada.");
+                    break;
+
+                case "failed":
+                case "charge.failed":
+                    entry.MarkChargeUnpaid(ChargeStatus.Failed, request.Metadata ?? "Cobranca recusada.");
+                    break;
+
+                default:
+                    entry.AppendNote($"Evento de cobranca desconhecido: {request.EventType}");
+                    break;
+            }
+
+            FinancialEntry? result = await Update(entry, cancellationToken);
+            if (result is null)
+            {
+                throw new InvalidOperationException(GetErrorMessages());
+            }
+
+            if (settled)
+            {
+                await DispatchAutomationAsync(entry, AutomationTriggers.FinancialReceivableSettled, cancellationToken);
+                try
+                {
+                    await notificationService.Create(KanvasNotifications.FinancialEntrySettled(entry), cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    logger.LogError(exception, "Failed to create notification for charge-settled financial entry {Id}.", entry.Id);
+                }
             }
 
             return await GetEntryById(result.Id, cancellationToken) ?? result;

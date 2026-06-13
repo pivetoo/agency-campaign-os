@@ -39,5 +39,10 @@ namespace AgencyCampaign.Application.Services
         Task<FinancialSummaryModel> GetSummary(FinancialEntryType type, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<FinancialEntry>> CreateInstallmentSeries(CreateInstallmentSeriesRequest request, CancellationToken cancellationToken = default);
+
+        // Cobranca (boleto/PIX) de recebivel via IntegrationPlatform.
+        Task<FinancialEntry> IssueCharge(long id, IssueChargeRequest request, CancellationToken cancellationToken = default);
+
+        Task<FinancialEntry> HandleChargeCallback(FinancialEntryChargeCallbackRequest request, CancellationToken cancellationToken = default);
     }
 }

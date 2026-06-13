@@ -57,6 +57,93 @@ namespace AgencyCampaign.Testing.Infrastructure.Services
             };
         }
 
+        private FinancialEntryService BuildServiceWithIntegration(out Mock<IIntegrationCapabilityService> capability)
+        {
+            capability = new Mock<IIntegrationCapabilityService>();
+            capability
+                .Setup(item => item.ResolveForExecution(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ResolvedCapability("receivable.issue-invoice", "payment.charge.create", 5));
+            return new FinancialEntryService(db, automation.Object, notifications.Object, NullLogger<FinancialEntryService>.Instance,
+                IntegrationPlatformClientFactory.CreateInert(), capability.Object, TenantContextMock.Create());
+        }
+
+        private async Task<FinancialEntry> SeedReceivableAsync(FinancialEntryType type = FinancialEntryType.Receivable)
+        {
+            FinancialAccount account = await SeedAccountAsync();
+            FinancialEntry entry = new(account.Id, type, type == FinancialEntryType.Receivable ? FinancialEntryCategory.BrandReceivable : FinancialEntryCategory.OperationalCost, "Recebível", 500m, DateTimeOffset.UtcNow.AddDays(10), DateTimeOffset.UtcNow);
+            db.Add(entry);
+            await db.SaveChangesAsync();
+            db.ChangeTracker.Clear();
+            return entry;
+        }
+
+        [Test]
+        public async Task IssueCharge_should_throw_for_a_payable()
+        {
+            FinancialEntry payable = await SeedReceivableAsync(FinancialEntryType.Payable);
+            FinancialEntryService service = BuildServiceWithIntegration(out _);
+
+            Func<Task> act = () => service.IssueCharge(payable.Id, new IssueChargeRequest());
+
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("financialEntry.charge.onlyReceivable");
+        }
+
+        [Test]
+        public async Task IssueCharge_should_mark_charge_failed_when_enqueue_fails()
+        {
+            FinancialEntry receivable = await SeedReceivableAsync();
+            FinancialEntryService service = BuildServiceWithIntegration(out _);
+
+            Func<Task> act = () => service.IssueCharge(receivable.Id, new IssueChargeRequest());
+            await act.Should().ThrowAsync<Exception>();
+
+            FinancialEntry refreshed = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == receivable.Id);
+            refreshed.ChargeStatus.Should().Be(ChargeStatus.Failed);
+        }
+
+        [Test]
+        public async Task HandleChargeCallback_created_should_store_charge_and_mark_issued()
+        {
+            FinancialEntry receivable = await SeedReceivableAsync();
+
+            await service.HandleChargeCallback(new FinancialEntryChargeCallbackRequest
+            {
+                Provider = "asaas",
+                ChargeId = "chg_1",
+                EventType = "created",
+                FinancialEntryId = receivable.Id,
+                ChargeUrl = "https://asaas/boleto/1"
+            });
+
+            FinancialEntry refreshed = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == receivable.Id);
+            refreshed.ChargeId.Should().Be("chg_1");
+            refreshed.ChargeUrl.Should().Be("https://asaas/boleto/1");
+            refreshed.ChargeStatus.Should().Be(ChargeStatus.Issued);
+            refreshed.Status.Should().Be(FinancialEntryStatus.Pending);
+        }
+
+        [Test]
+        public async Task HandleChargeCallback_paid_should_settle_and_be_idempotent()
+        {
+            FinancialEntry receivable = await SeedReceivableAsync();
+
+            await service.HandleChargeCallback(new FinancialEntryChargeCallbackRequest { Provider = "asaas", ChargeId = "chg_2", EventType = "created", FinancialEntryId = receivable.Id });
+            await service.HandleChargeCallback(new FinancialEntryChargeCallbackRequest { Provider = "asaas", ChargeId = "chg_2", EventType = "paid", PaidAt = DateTimeOffset.UtcNow, EndToEndId = "E2E-9" });
+            await service.HandleChargeCallback(new FinancialEntryChargeCallbackRequest { Provider = "asaas", ChargeId = "chg_2", EventType = "paid", PaidAt = DateTimeOffset.UtcNow, EndToEndId = "E2E-9" });
+
+            FinancialEntry refreshed = await db.Set<FinancialEntry>().AsNoTracking().FirstAsync(item => item.Id == receivable.Id);
+            refreshed.Status.Should().Be(FinancialEntryStatus.Paid);
+            refreshed.ChargeStatus.Should().Be(ChargeStatus.Paid);
+            refreshed.ReferenceCode.Should().Be("E2E-9");
+        }
+
+        [Test]
+        public async Task HandleChargeCallback_should_throw_when_entry_not_found()
+        {
+            Func<Task> act = () => service.HandleChargeCallback(new FinancialEntryChargeCallbackRequest { Provider = "x", ChargeId = "y", EventType = "paid", FinancialEntryId = 999 });
+            await act.Should().ThrowAsync<InvalidOperationException>();
+        }
+
         [Test]
         public async Task CreateEntry_should_throw_when_account_not_found()
         {
