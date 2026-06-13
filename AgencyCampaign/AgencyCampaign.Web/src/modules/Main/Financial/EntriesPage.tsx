@@ -206,7 +206,7 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   if (canConfirm) {
     headerActions.push({
       key: 'confirm',
-      label: isReceivable ? t('financial.entries.action.confirmReceipt') : t('financial.entries.action.confirmPayment'),
+      label: isReceivable ? t('modal.markAsPaid.title.receive') : t('modal.markAsPaid.title.pay'),
       icon: <CheckCircle2 className="h-4 w-4" />,
       variant: 'outline-success',
       primary: true,
