@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageLayout, Card, CardContent, ConfirmModal, DataTable, useApi, Badge, Input, FilterPanel, TableToolbar, Sheet, SheetContent, SheetTrigger, useI18n } from 'archon-ui'
-import type { DataTableColumn, FilterSection, PageAction } from 'archon-ui'
-import { CheckCircle2, Undo2, Barcode, BarChart3 } from 'lucide-react'
+import { PageLayout, ConfirmModal, DataTable, useApi, Badge, Button, Input, FilterPanel, TableToolbar, useI18n } from 'archon-ui'
+import type { DataTableColumn, FilterSection } from 'archon-ui'
+import { CheckCircle2, Undo2, Barcode, Pencil, Plus } from 'lucide-react'
 import { financialEntryService, type FinancialEntryFilters } from '../../../services/financialEntryService'
 import { financialAccountService } from '../../../services/financialAccountService'
 import { FinancialEntryStatus, financialEntryCategoryLabels, financialEntryReceivableStatusLabels, financialEntryStatusLabels, type FinancialEntry, type FinancialSummary } from '../../../types/financialEntry'
@@ -29,7 +29,6 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   const [filters, setFilters] = useState<FinancialEntryFilters>({})
   const [selected, setSelected] = useState<FinancialEntry | null>(null)
   const [chargeEntry, setChargeEntry] = useState<FinancialEntry | null>(null)
-  const [summaryOpen, setSummaryOpen] = useState<boolean>(() => localStorage.getItem('financial.entries.summaryOpen') === 'true')
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isMarkPaidOpen, setIsMarkPaidOpen] = useState(false)
   const [isReverseOpen, setIsReverseOpen] = useState(false)
@@ -203,135 +202,70 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
   const chargeIssued = (selected?.chargeStatus ?? 0) >= 1
   const canReverse = !!selected && selected.status === FinancialEntryStatus.Paid && !selected.isReversed && !selected.reversalOfEntryId
 
-  const headerActions: PageAction[] = []
-  if (canConfirm) {
-    headerActions.push({
-      key: 'confirm',
-      label: isReceivable ? t('modal.markAsPaid.title.receive') : t('modal.markAsPaid.title.pay'),
-      icon: <CheckCircle2 className="h-4 w-4" />,
-      variant: 'outline-success',
-      primary: true,
-      onClick: () => setIsMarkPaidOpen(true),
-    })
-  }
-  if (canCharge) {
-    headerActions.push({
-      key: 'charge',
-      label: chargeIssued ? t('financial.entries.action.charge.view') : t('financial.entries.action.charge.issue'),
-      icon: <Barcode className="h-4 w-4" />,
-      variant: 'outline-primary',
-      onClick: () => { if (!selected) { return } if (chargeIssued) { setChargeEntry(selected) } else { void handleIssueCharge(selected) } },
-    })
-  }
-  if (canReverse) {
-    headerActions.push({
-      key: 'reverse',
-      label: t('financial.entries.action.reverse'),
-      icon: <Undo2 className="h-4 w-4" />,
-      variant: 'outline-warning',
-      onClick: () => setIsReverseOpen(true),
-    })
-  }
-
   return (
     <>
       <PageLayout
         title={title}
         subtitle={subtitle}
+        showDefaultActions={false}
         actionsSlot={<AuditUtilityBar entityName="FinancialEntry" entityLabel="Lançamento" entityId={selected?.id ?? null} />}
-        onAdd={() => { setSelected(null); setIsFormOpen(true) }}
-        onEdit={() => { if (selected) { setIsFormOpen(true) } }}
         onRefresh={() => { void loadEntries(); void loadSummary() }}
-        addLabel={t('financial.entries.action.new')}
-        selectedRowsCount={selected ? 1 : 0}
-        actions={headerActions}
       >
-        <Sheet open={summaryOpen} onOpenChange={(open) => { setSummaryOpen(open); localStorage.setItem('financial.entries.summaryOpen', String(open)) }}>
-          <SheetTrigger asChild>
-            <button
-              type="button"
-              data-tour="financial-entries-kpis"
-              aria-label={t('financial.entries.summary.openAria')}
-              title={t('financial.entries.summary.title')}
-              className="group fixed right-0 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-l-lg border border-r-0 border-border bg-card text-primary shadow-md transition-all hover:bg-muted hover:text-primary"
-            >
-              <BarChart3 className="h-5 w-5" />
-              {(summary?.overdueCount ?? 0) > 0 && (
-                <span className="absolute -top-1.5 -left-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
-                  {summary?.overdueCount}
-                </span>
-              )}
-            </button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:w-[min(420px,95vw)] sm:max-w-none">
-            <div className="mb-4">
-              <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
-                <BarChart3 className="h-4 w-4 text-primary" />
-                {t('financial.entries.summary.title')}
-              </h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">{title}</p>
-            </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Card>
-                <CardContent className="pt-5 pb-5">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{isReceivable ? t('financial.kpi.receivable') : t('financial.kpi.payable')}</p>
-                  <p className="text-2xl font-semibold mt-1">{formatCurrency(summary?.totalPending ?? 0)}</p>
-                  <p className="text-[10px] text-muted-foreground">{summary?.pendingCount ?? 0} {t('financial.entries.kpi.count')}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-5 pb-5">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{settledLabel}</p>
-                  <p className="text-2xl font-semibold mt-1 text-emerald-600">{formatCurrency(summary?.totalSettledThisMonth ?? 0)}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-5 pb-5">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('financial.entries.badge.overdue')}</p>
-                  <p className="text-2xl font-semibold mt-1 text-destructive">{formatCurrency(summary?.totalOverdue ?? 0)}</p>
-                  <p className="text-[10px] text-muted-foreground">{summary?.overdueCount ?? 0} {t('financial.entries.kpi.count')}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-5 pb-5">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{dueSoonLabel}</p>
-                  <p className="text-2xl font-semibold mt-1 text-amber-600">{formatCurrency(summary?.totalDueNext7Days ?? 0)}</p>
-                </CardContent>
-              </Card>
-            </div>
-          </SheetContent>
-        </Sheet>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Button size="sm" variant="outline" disabled={!selected} onClick={() => { if (selected) { setIsFormOpen(true) } }}>
+            <Pencil size={14} className="mr-1" /> {t('common.action.edit')}
+          </Button>
+          <Button size="sm" variant="outline" disabled={!canConfirm} onClick={() => setIsMarkPaidOpen(true)}>
+            <CheckCircle2 size={14} className="mr-1" /> {isReceivable ? t('modal.markAsPaid.title.receive') : t('modal.markAsPaid.title.pay')}
+          </Button>
+          {isReceivable && (
+            <Button size="sm" variant="outline" disabled={!chargeIssued && !canCharge} onClick={() => { if (!selected) { return } if (chargeIssued) { setChargeEntry(selected) } else { void handleIssueCharge(selected) } }}>
+              <Barcode size={14} className="mr-1" /> {chargeIssued ? t('financial.entries.action.charge.view') : t('financial.entries.action.charge.issue')}
+            </Button>
+          )}
+          <Button size="sm" variant="outline" disabled={!canReverse} onClick={() => setIsReverseOpen(true)}>
+            <Undo2 size={14} className="mr-1" /> {t('financial.entries.action.reverse')}
+          </Button>
+          <Button size="sm" onClick={() => { setSelected(null); setIsFormOpen(true) }}>
+            <Plus size={14} className="mr-1" /> {t('financial.entries.action.new')}
+          </Button>
+        </div>
 
-        <Card>
-          <CardContent className="pt-4 space-y-3">
-            <TableToolbar
-              searchValue={filters.search ?? ''}
-              onSearchChange={(value) => setFilters((prev) => ({ ...prev, search: value || undefined }))}
-              searchPlaceholder={t('financial.entries.placeholder.search')}
-              rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
-            />
-            <div className="flex gap-2 md:max-w-md">
-              <Input type="date" value={isoToDateInput(filters.dueFrom)} onChange={(e) => setFilters((prev) => ({ ...prev, dueFrom: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
-              <Input type="date" value={isoToDateInput(filters.dueTo)} onChange={(e) => setFilters((prev) => ({ ...prev, dueTo: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
-            </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4" data-tour="financial-entries-kpis">
+          <Stat label={isReceivable ? t('financial.kpi.receivable') : t('financial.kpi.payable')} value={formatCurrency(summary?.totalPending ?? 0)} />
+          <Stat label={settledLabel} value={formatCurrency(summary?.totalSettledThisMonth ?? 0)} valueClassName="text-emerald-600" />
+          <Stat label={t('financial.entries.badge.overdue')} value={formatCurrency(summary?.totalOverdue ?? 0)} valueClassName="text-destructive" />
+          <Stat label={dueSoonLabel} value={formatCurrency(summary?.totalDueNext7Days ?? 0)} valueClassName="text-amber-600" />
+        </div>
 
-            <DataTable
-              columns={columns}
-              data={entries}
-              rowKey="id"
-              selectedRows={selected ? [selected] : []}
-              onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
-              emptyText={isReceivable ? t('financial.entries.emptyReceivable') : t('financial.entries.emptyPayable')}
-              loading={loading}
-              pageSize={pageSize}
-              pageSizeOptions={[10, 20, 50]}
-              totalCount={pagination?.totalCount}
-              page={page}
-              onPageChange={setPage}
-              onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
-            />
-          </CardContent>
-        </Card>
+        <div className="mt-4 space-y-3">
+          <TableToolbar
+            searchValue={filters.search ?? ''}
+            onSearchChange={(value) => setFilters((prev) => ({ ...prev, search: value || undefined }))}
+            searchPlaceholder={t('financial.entries.placeholder.search')}
+            rightSlot={<FilterPanel sections={filterSections} onClearAll={clearFilters} />}
+          />
+          <div className="flex gap-2 md:max-w-md">
+            <Input type="date" value={isoToDateInput(filters.dueFrom)} onChange={(e) => setFilters((prev) => ({ ...prev, dueFrom: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
+            <Input type="date" value={isoToDateInput(filters.dueTo)} onChange={(e) => setFilters((prev) => ({ ...prev, dueTo: e.target.value ? dateInputToIso(e.target.value) : undefined }))} />
+          </div>
+
+          <DataTable
+            columns={columns}
+            data={entries}
+            rowKey="id"
+            selectedRows={selected ? [selected] : []}
+            onSelectionChange={(rows) => setSelected(rows[0] ?? null)}
+            emptyText={isReceivable ? t('financial.entries.emptyReceivable') : t('financial.entries.emptyPayable')}
+            loading={loading}
+            pageSize={pageSize}
+            pageSizeOptions={[10, 20, 50]}
+            totalCount={pagination?.totalCount}
+            page={page}
+            onPageChange={setPage}
+            onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
+          />
+        </div>
       </PageLayout>
 
       <FinancialEntryFormModal
@@ -374,5 +308,14 @@ export default function FinancialEntriesPage({ type, title, subtitle }: Financia
         entry={chargeEntry}
       />
     </>
+  )
+}
+
+function Stat({ label, value, valueClassName }: { label: string; value: string; valueClassName?: string }) {
+  return (
+    <div className="rounded-lg border bg-primary/5 p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`text-sm font-semibold${valueClassName ? ` ${valueClassName}` : ''}`}>{value}</p>
+    </div>
   )
 }
