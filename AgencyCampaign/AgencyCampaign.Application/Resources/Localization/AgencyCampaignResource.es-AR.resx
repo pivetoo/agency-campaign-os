@@ -1379,7 +1379,8 @@
   <data name="financial.entries.kpi.settledPayable" xml:space="preserve"><value>Pagado en el mes</value></data>
   <data name="financial.entries.kpi.dueSoonReceivable" xml:space="preserve"><value>Por cobrar en 7d</value></data>
   <data name="financial.entries.kpi.dueSoonPayable" xml:space="preserve"><value>Por pagar en 7d</value></data>
-  <data name="financial.entries.kpi.count" xml:space="preserve"><value>movimiento(s)</value></data>  <data name="financial.entries.filter.allAccounts" xml:space="preserve"><value>Todas las cuentas</value></data>
+  <data name="financial.entries.kpi.count" xml:space="preserve"><value>movimiento(s)</value></data>
+  <data name="financial.entries.filter.allAccounts" xml:space="preserve"><value>Todas las cuentas</value></data>
   <data name="financial.entries.status.pending" xml:space="preserve"><value>Pendiente</value></data>
   <data name="financial.entries.status.paid" xml:space="preserve"><value>Pagado</value></data>
   <data name="financial.entries.status.overdue" xml:space="preserve"><value>Vencido</value></data>
